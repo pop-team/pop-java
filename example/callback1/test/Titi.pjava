@@ -1,0 +1,24 @@
+package test;
+public parclass Titi {
+	private int identity;
+   private Toto toto;
+	public Titi(){
+		identity = -1;
+	}
+	
+	public sync seq void setIdent(int i){
+		identity = i;
+	}
+
+	public sync seq void setToto(Toto t){
+      try{
+         toto = t;   
+      } catch(POPException e){
+               
+      }
+   }
+	public sync seq void computeIdent(){
+		toto.setIdent(identity);
+	}
+}
+

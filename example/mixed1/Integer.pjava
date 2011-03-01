@@ -1,0 +1,19 @@
+public parclass Integer {
+	protected int value;
+	
+	public Integer(){
+	}
+	
+	public sync conc int get(){
+		return this.value;
+	}
+	
+	public sync mutex void add(Integer i) {
+		 value += i.get();
+	}
+	
+	public sync seq void set(int val){
+		this.value=val;
+	}
+}
+
