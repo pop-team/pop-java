@@ -1,0 +1,21 @@
+package test;
+public parclass Toto {
+	private int identity;
+
+	public Toto() {
+
+	}
+	
+	public sync seq void setIdent(int i){
+		identity = i;
+	}
+	
+	public sync seq int getIdent() throws POPException {
+		Titi t = new Titi();
+		setIdent(222);
+      t.setToto(this);
+		t.computeIdent();
+		return identity;
+	}
+}
+
