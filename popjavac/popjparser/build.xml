@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+
+<project name="POP-Java 1.0 parser" default="jar" basedir=".">
+  <property name="version"
+            value="1.0">
+  </property>
+  <property name="javacc.root"
+            value="/usr">
+  </property>
+
+ 
+
+  <target name="compile" depends="generated-files">
+    <javac srcdir="."
+           destdir="." >
+    </javac>
+  </target>
+
+	<target name="jar" depends="compile">
+    <jar destfile="popjparser.jar"
+         basedir="."
+         includes="**/*.class"
+         />
+  </target>
+
+  <target name="clean">
+    <delete>
+      <fileset dir=".">
+         <include name="POPJParser.java"/>
+         <include name="POPJParserTokenManager.java"/>
+         <include name="POPJParserConstants.java"/>
+         <include name="*CharStream*.java"/>
+         <include name="TokenMgrError.java"/>
+         <include name="ParseException.java"/>
+         <include name="*.class"/>
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="parser-files-init">
+        <uptodate property="parser.gen"
+                  targetfile="popjc.jj">
+            <srcfiles dir="." includes="POPJParser.java"/>
+        </uptodate>
+  </target>
+
+  <target name="generated-files" depends="parser-files-init" if="parser.gen">
+     <exec executable="${javacc.root}/bin/javacc" >
+           <arg value="popjc.jj"/>
+     </exec>
+  </target>
+</project>
