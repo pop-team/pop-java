@@ -52,6 +52,7 @@ Usage: popjrun <options> <objectmap> <mainclass>
 OPTIONS:
    -h, --help                Show this message
    -v, --verbose             Verbose mode
+   -k, --killall             Kill all parallel object (zombie)
    -c, --classpath <files>   Include JAR or compiled Java class needed to run the application. Files must be separated by a semicolon ":"
 
 OPTIONS FOR OBJECT MAP GENERATION:
@@ -68,7 +69,7 @@ for i in $*
 do
 	if [[ $i == --* ]] 
 	then
-		if [ "$i" != "--help" ] && [ "$i" != "--classpath" ] && [ "$i" != "--listlong" ]
+		if [ "$i" != "--help" ] && [ "$i" != "--classpath" ] && [ "$i" != "--listlong" ] && [ "$i" != "--killall" ]
 		then
 			echo "$i is not a valid option. Program aborted"
 			usage
@@ -85,11 +86,24 @@ then
    exit 1
 fi
 
-
+killpo(){
+   echo "Kill all POP-Java parallel object ..."
+   PO_PID=1
+   while [ "$PO_PID" != "" ]
+   do
+      PO_PID=$(ps aux | grep "popjava.broker.Broker" | grep -v grep | head -n 1 | awk -F" " '{print $2}')
+      if [ "$PO_PID" != "" ]
+      then
+         kill $PO_PID
+      else
+         PO_PID=""
+      fi
+   done
+}
 #####################################################
 # Handle the options with getopts
 #####################################################
-while getopts “hvc:l:a:” OPTION $OPTIONSLINE
+while getopts “hvkc:l:a:” OPTION $OPTIONSLINE
 do
 	case $OPTION in
       h)
@@ -106,6 +120,10 @@ do
  		v)
 			VERBOSE=1
 			;;
+      k)
+			killpo
+         exit
+			;;
  		a)
 			APPEND="-append="
 			FILE=$OPTARG
@@ -118,6 +136,7 @@ do
 done
 
 shift $(($OPTIND - 1))
+
 
 
 
