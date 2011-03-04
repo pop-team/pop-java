@@ -1,0 +1,129 @@
+#!/bin/bash
+###############################################################################
+# POP-Java test suite script
+# Date : 06/23/2010
+# Author : Clement Valentin
+# Updates (please write any modifications to this file in the following lines)
+# Date		Author		Description
+#
+###############################################################################
+
+#POP-Java test suite launch script
+echo "########################################"
+echo "#   POP-Java 1.0 Test Suite started    #"
+echo "########################################"
+
+#check if POP-C++ installed
+if [ -a $POPC_LOCATION/sbin/SXXpopc ]
+then
+	echo "POP-C++ detected under $POPC_LOCATION"
+else 
+	if [ -a /usr/local/popc/sbin/SXXpopc ]
+	then
+		echo "POP-C++ detected under /user/local/popc"
+	else
+		echo "POP-C++ not detected. Test aborted !"
+		exit
+	fi
+fi
+
+
+#check if POP-C++ runtime is running
+JOBMGR_COUNT=$(ps -ef | grep -v grep | grep -cw JobMgr)
+if [ $JOBMGR_COUNT -eq 0 ]
+then
+	echo "POP-C++ was not running. Starting POP-C++ runtime global services ..."
+	SXXpopc start
+	JOBMGR_STARTED=1
+	echo "POP-C++ started"
+fi
+
+
+DEFAULT_LOCATION=/usr/local/popj
+CP=""
+if [ $POPJAVA_LOCATION ]
+then
+	CP=$POPJAVA_LOCATION
+else 
+	if [ -d $DEFAULT_LOCATION ]
+	then
+		CP=$DEFAULT_LOCATION
+	else
+		echo "POP-Java installation directory was not found. Test aborted !"
+		exit
+	fi
+fi
+
+N_TEST=6
+
+echo "##############################"
+echo "#   POP-Java standard test   #"
+echo "##############################"
+
+echo "Starting POP-Java test suite"
+echo "Launching passing arguments test (test 1/$N_TEST)... "
+java -cp $CP testsuite.arg.MainArgTest
+echo "Passing arguments test is finished ... "
+
+echo "Launching multi parallel object test (test 2/$N_TEST)... "
+java -cp $CP testsuite.multiobj.Mutliobj
+echo "Multi parallel object test is finished... "
+
+echo "Launching callback test (test 3/$N_TEST)... "
+java -cp $CP testsuite.callback.CallBackMain
+echo "Callback test is finished... "
+
+echo "Launching barrier test (test 4/$N_TEST)... "
+java -cp $CP testsuite.barrier.MainBarrier
+echo "Barrier test is finished... "
+
+echo "Launching integer test (test 5/$N_TEST)... "
+java -cp $CP testsuite.integer.TestInteger
+echo "Integer test is finished... "
+
+echo "Launching Demo POP-Java test (test 6/$N_TEST)... "
+java -cp $CP testsuite.demo.DemoMain 4 127.0.0.1
+echo "Demo POP-Java test is finished... "
+echo ""
+
+N_TEST=2
+echo "####################################"
+echo "#   POP-C++ interoperability test  #"
+echo "####################################"
+
+if [ -a $CP/testsuite/popc-obj/integer/integer.obj ]
+then
+	:
+else
+	cd $POPJAVA_LOCATION/testsuite/popc-obj/integer
+	make
+	cd $OLDPWD
+fi
+echo "Launching POP-C++ integer with POP-Java application test (test 1/$N_TEST)"
+echo "java -cp $CP testsuite.popc_integer.TestPopcInteger"
+java -cp $CP testsuite.popc_integer.TestPopcInteger
+echo "POP-C++ integer with POP-Java application test is finishied ..."
+
+if [ -a $CP/testsuite/popc-obj/jinteger/integer.obj ]
+then
+	:
+else
+	cd $POPJAVA_LOCATION/testsuite/popc-obj/jinteger
+	make
+	cd $OLDPWD
+fi
+echo "Launching Integer mix (POP-C++ and POP-Java) with POP-Java application test(test 2/$N_TEST)"
+java -cp $CP testsuite.jinteger.TestRef
+echo "Integer mix (POP-C++ and POP-Java) with POP-Java application test is finishied ..."
+
+echo "########################################"
+echo "#   POP-Java 1.0 Test Suite finished   #"
+echo "########################################"
+
+if [ $JOBMGR_STARTED ]
+then
+	SXXpopc stop
+fi
+
+
+
