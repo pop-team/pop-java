@@ -125,5 +125,5 @@ then
 	SXXpopc stop
 fi
 
-
+$POPJAVA_LOCATION/bin/popjrun -k
 
