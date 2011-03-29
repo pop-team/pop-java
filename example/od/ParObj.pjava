@@ -1,0 +1,10 @@
+public parclass ParObj {
+  
+   public ParObj() @{ od.url("localhost"); }{
+
+   }
+
+   public ParObj(String host) @{ od.url(host); }{
+
+   }
+}
