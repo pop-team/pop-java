@@ -353,6 +353,7 @@ if [ $JAR ]
 then
 	[ $VERBOSE ] && echo "Creating JAR archive (file name : $JAR)"
 	jar cf $JAR $CLASS_FILES_OUT
+   rm -rf $CLASS_FILES_OUT
 fi
 
 #if [ $? -ne 0 ]
