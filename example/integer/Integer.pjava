@@ -5,14 +5,17 @@ public parclass Integer {
    }
 
    public sync conc int get(){
+      System.out.println("Get value on Integer ("+getPOPCReference()+"): "+value);	
       return value;
    }
 
    public sync mutex void add(Integer i){
+      System.out.println("Add integer ("+i.getPOPCReference()+") to the Integer ("+getPOPCReference()+")");	
       value += i.get();
    }
 
    public async seq void set(int val){
+      System.out.println("Set value on Integer ("+getPOPCReference()+"): "+val);	
       value = val;
    }
 }
