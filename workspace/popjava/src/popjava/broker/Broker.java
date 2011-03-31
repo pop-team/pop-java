@@ -419,8 +419,6 @@ public class Broker {
 			break;
 		case MessageHeader.AddRefCall: {
 			// AddRef call...
-			LogWriter.writeLogInfo("AddRef" + popObject.toString(),
-					"/tmp/mylog");
 			if (popInfo == null) {
 				return false;
 			}
@@ -435,8 +433,6 @@ public class Broker {
 		}
 			break;
 		case MessageHeader.DecRefCall: {
-			LogWriter.writeLogInfo("DecRef" + popObject.toString(),
-					"/tmp/mylog");
 			// DecRef call....
 			if (popInfo == null) {
 				return false;
