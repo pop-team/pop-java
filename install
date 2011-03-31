@@ -255,6 +255,16 @@ then
 	echo "<CodeFile Type='popjava'>$LOCATION/JarFile/testsuite.jar</CodeFile>" >> $OBJECT_MAP
 	echo "<PlatForm>*-*</PlatForm>" >> $OBJECT_MAP
 	echo "</CodeInfo>" >> $OBJECT_MAP
+	echo "<CodeInfo>" >> $OBJECT_MAP
+	echo "<ObjectName>testsuite.method.MethodObj</ObjectName>" >> $OBJECT_MAP
+	echo "<CodeFile Type='popjava'>$LOCATION/JarFile/testsuite.jar</CodeFile>" >> $OBJECT_MAP
+	echo "<PlatForm>*-*</PlatForm>" >> $OBJECT_MAP
+	echo "</CodeInfo>" >> $OBJECT_MAP
+   echo "<CodeInfo>" >> $OBJECT_MAP
+	echo "<ObjectName>testsuite.od.ParObj</ObjectName>" >> $OBJECT_MAP
+	echo "<CodeFile Type='popjava'>$LOCATION/JarFile/testsuite.jar</CodeFile>" >> $OBJECT_MAP
+	echo "<PlatForm>*-*</PlatForm>" >> $OBJECT_MAP
+	echo "</CodeInfo>" >> $OBJECT_MAP
 	echo "</CodeInfoList>" >> $OBJECT_MAP
 
 
