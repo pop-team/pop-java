@@ -20,7 +20,7 @@ public class POPRemoteLog extends POPServiceBase {
 		defineConstructor(c,10);		
 		defineConstructor(c,11,String.class);
 		defineMethod(c, "log", 13,Semantic.Sequence | Semantic.Asynchronous,String.class);
-		defineMethod(c, "logPJ", 14, Semantic.Sequence | Semantic.Asynchronous,String.class);
+		defineMethod(c, "logPJ", 14, Semantic.Sequence | Semantic.Asynchronous,String.class, String.class);
 	}
 	
 	/**
@@ -39,7 +39,7 @@ public class POPRemoteLog extends POPServiceBase {
 
 	}
 	
-	public void logPJ(String info){
+	public void logPJ(String appID, String info){
 		
 	}
 

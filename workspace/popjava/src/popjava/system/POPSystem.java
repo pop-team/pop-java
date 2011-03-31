@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import popjava.PopJava;
 import popjava.base.*;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
@@ -33,7 +34,7 @@ import popjava.util.Util;
  * This class is responsible for the initialization of a POP-Java application. It has also the responsibility to retrieve the configuration parameters.
  */
 public class POPSystem {
-
+	private static POPRemoteLogThread prlt;
 	private static String Platform = "linux";
 	
 	/**
@@ -71,6 +72,16 @@ public class POPSystem {
 	 * POP-Java application scope core service 
 	 */
 	public static POPAppService CoreServiceManager = null;
+	
+	public static void writeLog(String log){
+		POPAppService app;
+		try {
+			app = (POPAppService)PopJava.newActive(POPAppService.class, POPSystem.AppService);
+			app.logPJ(app.getPOPCAppID(), log);
+		} catch (POPException e) {
+			e.printStackTrace();
+		}
+	}
 
 	static {
 		// Trick :(( I don't know why the system i386 doesn't work
@@ -295,6 +306,9 @@ public class POPSystem {
 					.getPopLocation(), POPSystem.getSeparatorString(),
 					POPSystem.getSeparatorString());
 		}
+		POPAppService app = (POPAppService)PopJava.newActive(POPAppService.class, AppService);
+		prlt = new POPRemoteLogThread(app.getPOPCAppID());
+		prlt.start();
 		return initCodeService(codeconf, CoreServiceManager);
 
 	}
@@ -453,4 +467,14 @@ public class POPSystem {
 			return null;
 		}
 	}
+	
+	public static void end(){
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		prlt.setRunning(false);
+	}
+	
 }
