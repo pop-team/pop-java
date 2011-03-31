@@ -153,6 +153,8 @@ public class POPJParser implements POPJParserConstants {
                 } else {
                         println("import popjava.base.POPObject;",0);
                         println("import popjava.base.Semantic;",0);
+         println("import popjava.serviceadapter.POPAppService;",0);
+         println("import popjava.system.POPSystem;",0);
                 }
                 println("",0);
         }
@@ -404,93 +406,106 @@ public class POPJParser implements POPJParserConstants {
 
                         //If the token is an identifier, check if it's an instantiation
                         else if(tok.kind == IDENTIFIER){
-                                boolean printThis= true;
-            if(Holder._hm_parclasses.containsKey(tok.toString()) && tok.next.kind == ASSIGN){
-               if(tok.next.next.kind == NEW){
-                  String _parCl = Holder._hm_parclasses.get(tok.toString());
-                  print(tok.toString()+" = ("+_parCl+")PopJava.newActive("+_parCl+".class,", 0);
-                  while(tok.kind != LPAREN)
-                     tok = tok.next;
-                  tok=tok.next;
+            if(tok.toString().equals("System") && !Holder.isMain){
+               if(tok.next.next.toString().equals("out") && tok.next.next.next.next.toString().equals("println")){
+                  print("POPSystem.writeLog", 0);
+                  tok = tok.next.next.next.next.next;
                   while(tok.kind != SEMICOLON){
                      print(tok.toString(), 0);
-                     tok=tok.next;
-                  }
-                  println(";", 0);
-                  print("", indent);
-               } else {
-                  String _parCl = Holder._hm_parclasses.get(tok.toString());
-                  print(tok.toString()+" = ("+_parCl+")PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint())", 0);
-                  println(";", 0);
-                  print("", indent);
-                  while(tok.kind != SEMICOLON){
                      tok = tok.next;
                   }
-                  printThis = false;
+                  println(";", 0);
+                  print("", indent);
                }
-            }
-                                //If it was the new keyword before, modify the instantiation
-                                else if(parclassInstance && lastKind == NEW){
-               String _parID = tok.toString();
-               tok = tok.next;
-               if(tok.kind == DOT){
-                  while(tok.kind == DOT){
-                     _parID+="."+tok.next.toString();
-                     tok = tok.next.next;
-                  }
-               }
-                                        if(tok.next.kind == RPAREN){
-                                                inParen=false;
-                                                print("("+_parID+")PopJava.newActive("+_parID+".class", 0);
-                                                canPrintCatch=true;
-                                        }
-                                        else {
-                                                inParen=false;
-                                                print("("+_parID+")PopJava.newActive("+_parID+".class,", 0);
-                                                canPrintCatch=true;
-                                        }
-                                        parclassInstance = false;
-                                } else {
-                                        String id = tok.toString();
-
-               if((id.equals(Holder.thisClassName) || parclasses.contains(id)) && tok.next.next.kind == SEMICOLON){
-                  Holder._hm_parclasses.put(tok.next.toString(), id);
-                  parclassInstance = true;
-               }
-                                        //Check if its the beginning of a constructor
-                                        else if(id.equals(Holder.thisClassName) && (tok.next.next.next.next.next.kind != NEW) && (tok.next.next.next.kind != NEW) && (lastKind != NEW) && !inParen)
-                                                constructor = true;
-                                        //Parclass instantiation
-                                        else if((id.equals(Holder.thisClassName) || parclasses.contains(id)) && ((tok.next.next.next.kind == NEW) || (tok.next.next.next.next.next.kind == NEW)) && !inParen) {
-                                                //Handle parclass array instantiation
-                                                if(tok.next.kind == LBRACKET){
-                                                        parclassArray = true;
-                                                        parclassIdentifier = id;
-                                                        arrayIdentifier = tok.next.next.next.toString();
-                     do{
-                        print(tok.toString()+" ", 0);
+            } else {
+                   boolean printThis= true;
+               if(Holder._hm_parclasses.containsKey(tok.toString()) && tok.next.kind == ASSIGN){
+                  if(tok.next.next.kind == NEW){
+                     String _parCl = Holder._hm_parclasses.get(tok.toString());
+                     print(tok.toString()+" = ("+_parCl+")PopJava.newActive("+_parCl+".class,", 0);
+                     while(tok.kind != LPAREN)
                         tok = tok.next;
-                     } while(tok.kind != SEMICOLON);
-                     println(tok.toString(), 0);
-                     tok = tok.next;
+                     tok=tok.next;
+                     while(tok.kind != SEMICOLON){
+                        print(tok.toString(), 0);
+                        tok=tok.next;
+                     }
+                     println(";", 0);
                      print("", indent);
-                                                } else {
-                                                        //Normal parclass instantiation
-                                                        parclassInstance = true;
-                                                }
-                                                //Print the beginning of Try-Catch statement if the next is a parclass instantiation
-                                                /*if(!Holder.isMain && !parclassArray){
-							printThis = false;
-							println(tok.toString()+" "+tok.next.toString()+"=null;", 0);
-							println("try{",indent);
+                  } else {
+                     String _parCl = Holder._hm_parclasses.get(tok.toString());
+                     print(tok.toString()+" = ("+_parCl+")PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint())", 0);
+                     println(";", 0);
+                     print("", indent);
+                     while(tok.kind != SEMICOLON){
+                        tok = tok.next;
+                     }
+                     printThis = false;
+                  }
+               }
+                                   //If it was the new keyword before, modify the instantiation
+                                   else if(parclassInstance && lastKind == NEW){
+                  String _parID = tok.toString();
+                  tok = tok.next;
+                  if(tok.kind == DOT){
+                     while(tok.kind == DOT){
+                        _parID+="."+tok.next.toString();
+                        tok = tok.next.next;
+                     }
+                  }
+                                           if(tok.next.kind == RPAREN){
+                                                   inParen=false;
+                                                   print("("+_parID+")PopJava.newActive("+_parID+".class", 0);
+                                                   canPrintCatch=true;
+                                           }
+                                           else {
+                                                   inParen=false;
+                                                   print("("+_parID+")PopJava.newActive("+_parID+".class,", 0);
+                                                   canPrintCatch=true;
+                                           }
+                                           parclassInstance = false;
+                                   } else {
+                                           String id = tok.toString();
+
+                  if((id.equals(Holder.thisClassName) || parclasses.contains(id)) && tok.next.next.kind == SEMICOLON){
+                     Holder._hm_parclasses.put(tok.next.toString(), id);
+                     parclassInstance = true;
+                  }
+                                           //Check if its the beginning of a constructor
+                                           else if(id.equals(Holder.thisClassName) && (tok.next.next.next.next.next.kind != NEW) && (tok.next.next.next.kind != NEW) && (lastKind != NEW) && !inParen)
+                                                   constructor = true;
+                                           //Parclass instantiation
+                                           else if((id.equals(Holder.thisClassName) || parclasses.contains(id)) && ((tok.next.next.next.kind == NEW) || (tok.next.next.next.next.next.kind == NEW)) && !inParen) {
+                                                   //Handle parclass array instantiation
+                                                   if(tok.next.kind == LBRACKET){
+                                                           parclassArray = true;
+                                                           parclassIdentifier = id;
+                                                           arrayIdentifier = tok.next.next.next.toString();
+                        do{
+                           print(tok.toString()+" ", 0);
+                           tok = tok.next;
+                        } while(tok.kind != SEMICOLON);
+                        println(tok.toString(), 0);
+                        tok = tok.next;
+                        print("", indent);
+                                                   } else {
+                                                           //Normal parclass instantiation
+                                                           parclassInstance = true;
+                                                   }
+                                                   //Print the beginning of Try-Catch statement if the next is a parclass instantiation
+                                                   /*if(!Holder.isMain && !parclassArray){
+							   printThis = false;
+							   println(tok.toString()+" "+tok.next.toString()+"=null;", 0);
+							   println("try{",indent);
 							
-							indent++;
-							print("",indent);
-						}*/
-                                        }
-                                        if(printThis) //Print if not printed yet
-                                                print(tok.toString(), 0);
-                                }
+							   indent++;
+							   print("",indent);
+						   }*/
+                                           }
+                                           if(printThis) //Print if not printed yet
+                                                   print(tok.toString(), 0);
+                                   }
+            }
                         }
                         //Check the main method of the main class	
                         else if (Holder.isMain && tok.kind == PUBLIC && tok.next.kind == STATIC && tok.next.next.kind == VOID &&
@@ -601,8 +616,10 @@ public class POPJParser implements POPJParserConstants {
                                 //If it's the main class and the depth is 0, we can print the end of the try catch statement
                                 if(Holder.inMain){
                                         if(Holder.depthMain==0){
+                  println("POPSystem.end();", indent);
                                                 indent--;
                                                 println("} catch(POPException e) {", indent++);
+                  println("POPSystem.end();", indent);
                                                 println("System.err.println(\u005c"POP-Java exception catched :\u005c"+e.errorMessage);",indent--);
                                                 println("}", indent--);
                                                 print("",indent);
@@ -4260,57 +4277,6 @@ public class POPJParser implements POPJParserConstants {
     catch(LookaheadSuccess ls) { return true; }
   }
 
-  private boolean jj_3R_96() {
-    if (jj_3R_125()) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_11()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_95() {
-    if (jj_3R_76()) return true;
-    Token xsp;
-    if (jj_3_10()) return true;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3_10()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_69() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_95()) {
-    jj_scanpos = xsp;
-    if (jj_3R_96()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_87() {
-    if (jj_3R_76()) return true;
-    return false;
-  }
-
-  private boolean jj_3_9() {
-    if (jj_3R_69()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_62() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_9()) {
-    jj_scanpos = xsp;
-    if (jj_3R_87()) return true;
-    }
-    return false;
-  }
-
   private boolean jj_3_8() {
     if (jj_scan_token(THIS)) return true;
     if (jj_3R_68()) return true;
@@ -6998,6 +6964,57 @@ public class POPJParser implements POPJParserConstants {
     while (true) {
       xsp = jj_scanpos;
       if (jj_3_13()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_96() {
+    if (jj_3R_125()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_11()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_95() {
+    if (jj_3R_76()) return true;
+    Token xsp;
+    if (jj_3_10()) return true;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3_10()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_69() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_95()) {
+    jj_scanpos = xsp;
+    if (jj_3R_96()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_87() {
+    if (jj_3R_76()) return true;
+    return false;
+  }
+
+  private boolean jj_3_9() {
+    if (jj_3R_69()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_62() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_9()) {
+    jj_scanpos = xsp;
+    if (jj_3R_87()) return true;
     }
     return false;
   }
