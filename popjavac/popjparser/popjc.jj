@@ -541,7 +541,15 @@ public class POPJParser
 				indent++;
 				println("try{", indent++);
 				println("POPSystem.initialize(args);", indent);
-				print("",indent);
+
+            println("if(args.length > 0 && args[0].startsWith(\"-codeconf=\")){", indent++);
+			   println("String[] tmpArg = new String[args.length-1];", indent);
+			   println("for (int i = 0; i < tmpArg.length; i++) {", indent++);
+            println("tmpArg[i] = args[i+1];", indent);
+            println("}", --indent);
+			   println("args = tmpArg;", indent);
+            println("}", --indent);
+            print("",indent);
 				//Go to the next useful token
 				while(tok.kind != LBRACE)
 					tok = tok.next;
