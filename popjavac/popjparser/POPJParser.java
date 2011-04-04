@@ -517,7 +517,15 @@ public class POPJParser implements POPJParserConstants {
                                 indent++;
                                 println("try{", indent++);
                                 println("POPSystem.initialize(args);", indent);
-                                print("",indent);
+
+            println("if(args.length > 0 && args[0].startsWith(\u005c"-codeconf=\u005c")){", indent++);
+                           println("String[] tmpArg = new String[args.length-1];", indent);
+                           println("for (int i = 0; i < tmpArg.length; i++) {", indent++);
+            println("tmpArg[i] = args[i+1];", indent);
+            println("}", --indent);
+                           println("args = tmpArg;", indent);
+            println("}", --indent);
+            print("",indent);
                                 //Go to the next useful token
                                 while(tok.kind != LBRACE)
                                         tok = tok.next;
@@ -4277,21 +4285,6 @@ public class POPJParser implements POPJParserConstants {
     catch(LookaheadSuccess ls) { return true; }
   }
 
-  private boolean jj_3_8() {
-    if (jj_scan_token(THIS)) return true;
-    if (jj_3R_68()) return true;
-    if (jj_scan_token(SEMICOLON)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_64() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(58)) jj_scanpos = xsp;
-    if (jj_3R_88()) return true;
-    return false;
-  }
-
   private boolean jj_3_7() {
     if (jj_3R_67()) return true;
     if (jj_scan_token(DOT)) return true;
@@ -7016,6 +7009,21 @@ public class POPJParser implements POPJParserConstants {
     jj_scanpos = xsp;
     if (jj_3R_87()) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3_8() {
+    if (jj_scan_token(THIS)) return true;
+    if (jj_3R_68()) return true;
+    if (jj_scan_token(SEMICOLON)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_64() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(58)) jj_scanpos = xsp;
+    if (jj_3R_88()) return true;
     return false;
   }
 
