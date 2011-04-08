@@ -1,5 +1,0 @@
-<ComboxFactoryList>
-	<Package JarFile="popjava.combox.jar">
-		<ComboxFactory>popjava.combox.ComboxSocketFactory</ComboxFactory>
-	</Package>
-</ComboxFactoryList>
