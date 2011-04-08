@@ -1,6 +1,6 @@
 public parclass Integer {
    private int value;
-   public Integer() @{od.power(80,60); od.memory(10,20); od.bandwidth(50,78); od.search(10,10,0); }{
+   public Integer() @{od.power(80,60);od.bandwidth(50,78); od.search(10,10,0); }{
       value = 0;
    }
 

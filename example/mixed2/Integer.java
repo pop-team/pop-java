@@ -3,6 +3,8 @@ import popjava.PopJava;
 import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
+import popjava.serviceadapter.POPAppService;
+import popjava.system.POPSystem;
 
 public class Integer extends POPObject  {
 	private int value;
