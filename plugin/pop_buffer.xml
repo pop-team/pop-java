@@ -1,7 +1,0 @@
-<!-- POP-Java buffer plugin map file. This file can be modified with precaution -->
-<BufferFactoryList>
-	<Package JarFile="popjava.buffer.jar">
-		<BufferFactory>popjava.buffer.BufferRawFactory</BufferFactory>
-		<BufferFactory>popjava.buffer.BufferXDRFactory</BufferFactory>
-	</Package>
-</BufferFactoryList>

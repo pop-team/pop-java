@@ -1,9 +1,0 @@
-public parclass PARObject {
-	
-	public PARObject(){
-	}
-	
-	public sync seq void sendChar(int length, char[] tab){
-	}
-}
-
