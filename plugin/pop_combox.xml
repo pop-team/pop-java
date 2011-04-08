@@ -1,0 +1,6 @@
+<!-- POP-Java combox plugin map file. This file can be modified with precaution -->
+<ComboxFactoryList>
+	<Package JarFile="popjava.combox.jar">
+		<ComboxFactory>popjava.combox.ComboxSocketFactory</ComboxFactory>
+	</Package>
+</ComboxFactoryList>

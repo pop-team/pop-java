@@ -1,0 +1,16 @@
+package test;
+public parclass Titi {
+	private int identity;
+	public Titi(){
+		identity = -1;
+	}
+	
+	public sync seq void setIdent(int i){
+		identity = i;
+	}
+
+	public sync seq void computeIdent(Toto toto){
+		toto.setIdent(identity);
+	}
+}
+

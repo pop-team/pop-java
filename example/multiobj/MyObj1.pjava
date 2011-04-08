@@ -1,0 +1,21 @@
+public parclass MyObj1 {
+	protected int data;
+	
+	public MyObj1(){
+	}
+	
+	public sync seq int get(){
+		return data + 4;
+	}
+	
+	public sync conc void set(int value) throws POPException {
+   
+		   MyObj2 o2 = new MyObj2();
+	      o2.set(value);
+		   data=o2.get();	
+
+	
+	}
+	
+}
+
