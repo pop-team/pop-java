@@ -57,7 +57,8 @@ mkdir $RELDIR
 
 for FILE in $FILES
 do
-
+   if [[ $FILE != ./workspace* ]] 
+   then
       NEWPATH=$(echo ${FILE:1})
 
       if [ -d $FILE ]
@@ -67,9 +68,12 @@ do
             mkdir $RELDIR$NEWPATH
          fi
       else
+         if [ "$FILE" != "./create_release" ]
+         then
             cp $FILE $RELDIR$NEWPATH
+         fi
       fi
-
+   fi
    
 done
 
