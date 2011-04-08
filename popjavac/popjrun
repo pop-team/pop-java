@@ -1,0 +1,184 @@
+#!/bin/bash
+
+#############################################################################################
+# POP-Java Application Runner v1.0
+# Author : Clement Valentin (clementval)
+# Creation date : 07/19/2010
+# Description : This script help the devlopper to launch a POP-Java application and to
+# generate the object map
+# -------------------------------------------------------------------------------------------
+# IMPORTANT : Please, keep this log up to date 
+#
+# Update log
+# Date         Author      Description
+# 07/19/2010	clementval	First version of this script
+# 07/27/2010	clementval	Add object map generation support
+# 11/01/2011   clementval  Add JVM option support
+#############################################################################################
+
+
+
+################################################################
+# Define variables and location
+################################################################
+ADD_CLASSPATH=
+GENERATEMAP=
+
+JAR_OBJMAPGEN=/JarFile/popjobjectmapgen.jar
+JAR_POPJAVA=/JarFile/popjava.jar
+CLASS_OBJMAPGEN=POPJObjectMap
+
+if [ -z $POPJAVA_LOCATION ]
+then
+	POPJAVA_LOCATION=/usr/local/popj
+fi
+
+POPJAVA_JAR=$POPJAVA_LOCATION/JarFile/popjava.jar:$POPJAVA_LOCATION/JarFile/javassit.jar
+
+
+################################################################
+# Define the function to print the program usage
+################################################################
+usage()
+{
+cat << EOF
+
+POP-Java Application Runner v1.0
+
+This program is used to run a POP-Java application or to generate object map
+
+Usage: popjrun <options> <objectmap> <mainclass>
+
+OPTIONS:
+   -h, --help                Show this message
+   -v, --verbose             Verbose mode
+   -k, --killall             Kill all parallel object (zombie)
+   -c, --classpath <files>   Include JAR or compiled Java class needed to run the application. Files must be separated by a semicolon ":"
+
+OPTIONS FOR OBJECT MAP GENERATION:
+   -l, --listlong <parclass> Generate the object map for the given parclasses. Parclasses can be a .class, .jar, .obj or .module file. Parclasses must be separated by : 
+EOF
+}
+
+
+#####################################################
+# Handle long options (--option)
+#####################################################
+OPTIONSLINE=
+for i in $*
+do
+	if [[ $i == --* ]] 
+	then
+		if [ "$i" != "--help" ] && [ "$i" != "--classpath" ] && [ "$i" != "--listlong" ] && [ "$i" != "--killall" ]
+		then
+			echo "$i is not a valid option. Program aborted"
+			usage
+			exit
+		fi
+		i=$(echo "$i" | cut -c 2-3)
+	fi
+	OPTIONSLINE=$OPTIONSLINE" "$i
+done
+
+if [ "$OPTIONSLINE" == "" ]
+then
+   usage
+   exit 1
+fi
+
+killpo(){
+   echo "Kill all POP-Java parallel object ..."
+   PO_PID=1
+   while [ "$PO_PID" != "" ]
+   do
+      PO_PID=$(ps aux | grep "popjava.broker.Broker" | grep -v grep | head -n 1 | awk -F" " '{print $2}')
+      if [ "$PO_PID" != "" ]
+      then
+         kill $PO_PID
+      else
+         PO_PID=""
+      fi
+   done
+}
+#####################################################
+# Handle the options with getopts
+#####################################################
+while getopts “hvkc:l:a:” OPTION $OPTIONSLINE
+do
+	case $OPTION in
+      h)
+			usage
+			exit 0
+			;;
+ 		c)
+    	   ADD_CLASSPATH=$OPTARG":"
+			;;
+ 		l)
+			GENERATEMAP=1
+			FILES=$OPTARG
+			;;
+ 		v)
+			VERBOSE=1
+			;;
+      k)
+			killpo
+         exit
+			;;
+ 		a)
+			APPEND="-append="
+			FILE=$OPTARG
+			;;
+      ?)
+    	   usage
+       	exit 1
+       	;;
+   esac
+done
+
+shift $(($OPTIND - 1))
+
+
+
+
+#####################################################
+# Object map generation
+#####################################################
+if [ $GENERATEMAP ]
+then
+	[ $VERBOSE ] && echo "java -cp $POPJAVA_LOCATION$JAR_OBJMAPGEN:$POPJAVA_LOCATION$JAR_POPJAVA $CLASS_OBJMAPGEN -cwd=$PWD $APPEND$FILE -file=$FILES"
+	java -cp $POPJAVA_LOCATION$JAR_OBJMAPGEN:$POPJAVA_LOCATION$JAR_POPJAVA $CLASS_OBJMAPGEN -cwd=$PWD $APPEND$FILE -file=$FILES
+	exit 0
+fi
+
+
+#####################################################
+# Run the POP-Java application
+#####################################################
+OBJECTMAP=$1
+shift
+MAIN=$1
+shift
+
+OTHER=$@
+
+if [ ${OBJECTMAP##*.} == "xml" ] 
+then
+	ARGUMENT=$OTHER
+else
+	ARGUMENT=$MAIN" "$OTHER
+	MAIN=$OBJECTMAP
+	OBJECTMAP=
+fi
+
+
+
+
+if [ "$OBJECTMAP" == "" ] 
+then
+	[ $VERBOSE ] && echo "java -cp .:$ADD_CLASSPATH$POPJAVA_JAR $MAIN $ARGUMENT"
+	java -cp ".:$ADD_CLASSPATH$POPJAVA_JAR" $MAIN $ARGUMENT
+else
+	[ $VERBOSE ] && echo "java -cp .:$ADD_CLASSPATH$POPJAVA_JAR $MAIN -codefile=$OBJECTMAP $ARGUMENT"
+	java -cp ".:$ADD_CLASSPATH$POPJAVA_JAR" $MAIN -codeconf=$OBJECTMAP $ARGUMENT
+
+fi

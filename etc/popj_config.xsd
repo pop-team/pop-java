@@ -1,0 +1,18 @@
+<?xml version="1.0"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<!-- POP-Java configuration file XML Schema. This file must not be modified. -->
+<xs:element name="POPJConfig">
+  <xs:complexType>
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="item">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+</xs:schema>
