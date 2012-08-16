@@ -103,6 +103,8 @@ fi
 ####################################################
 # STEP 5 : Copying files 
 ####################################################
+
+rm -rf $LOCATION
 mkdir -p $LOCATION
 
 if [ -w $LOCATION ]
@@ -110,41 +112,11 @@ then
 	
 	#copying files
 	echo "$PREFIX Copying files ..."
-	mkdir $LOCATION/bin
-	cp -r doc $LOCATION
-	cp -r etc $LOCATION
-	cp -r JarFile $LOCATION
-	cp popjavac/popjparser/popjparser.jar $LOCATION/JarFile
-	cp popjavac/popjobjectmapgen.jar $LOCATION/JarFile
-	cp popjavac/popjc $LOCATION/bin
-	cp popjavac/popjrun $LOCATION/bin
-	cp popjavac/xml/additional-parser-infos.xsd $LOCATION/etc
-	cp -r javassist $LOCATION
-	mkdir $LOCATION/logFolder
-	cp -r plugin $LOCATION
-	cp -r popjava $LOCATION
-	cp -r testsuite $LOCATION
-	cp launch_testsuite $LOCATION
-
+	cp -r --preserve release/* $LOCATION
+	chown -R root:root $LOCATION
 
 ####################################################
-# STEP 6 : Change rights on specific files
-####################################################
-
-	chmod -R 775 $LOCATION/etc
-	chmod -R 775 $LOCATION/plugin
-	chmod 777 $LOCATION/logFolder
-	chmod -R 777 $LOCATION/JarFile
-	chmod 755 $LOCATION/popjava/*
-	chmod 755 $LOCATION/javassist
-	chmod 755 $LOCATION/javassist/*
-	chmod 755 $LOCATION/javassist/util
-	chmod 755 $LOCATION/javassist/util/*
-	chmod -R 777 $LOCATION/testsuite
-	chmod 755 $LOCATION/launch_testsuite
-
-####################################################
-# STEP 7 : Generating XML files
+# STEP 6 : Generating XML files
 ####################################################
 	
 	echo "$PREFIX Generating configuration files ..."

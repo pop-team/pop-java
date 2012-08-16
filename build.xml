@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<project name="GeneViewer" default="build-main" basedir=".">
+
+        <property name="build.dir" value ="build"/>
+        <property name="temp.dir" value ="temp"/>
+        <property name="classes.dir" value="${build.dir}/classes"/>
+        <property name="jar.dir"     value="${build.dir}/jar"/>      
+        
+        <property name="release.dir" value ="release"/>
+        
+        <property name="javassist.jar" value="dependencies/javassist.jar"/>
+        <property name="popjava.jar" value="popjava.jar"/>
+        <property name="testsuite.jar" value="testsuite.jar"/>   
+        
+        
+        <property name="popjava.src" value ="workspace/popjava/src/popjava"/>
+        <property name="testsuite.src" value ="workspace/popjava/src/testsuite"/>
+        
+        <property name="popjavac.dir" value ="popjavac"/>
+        <property name="javadoc.dir" value ="doc"/>
+        <property name="etc.dir" value ="etc"/>
+        <property name="plugins.dir" value ="plugin"/>
+        
+<target name="clean" description="clean build directory">
+    <delete dir="${build.dir}"/>
+    <delete dir="${release.dir}"/>
+</target>
+
+<target name="make-popjava" description="build the popjava library">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${popjava.src}"
+                destdir="${classes.dir}"
+                classpath="${javassist.jar}"
+                debug="true" debuglevel="lines,vars,source"
+                target="6"
+                source="6"
+        >
+          <compilerarg value="-Xlint:deprecation,unchecked"/>
+        </javac>
+</target>
+
+<target name="make-testsuite" depends="make-popjava" description="build the the popjava testsuite">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${testsuite.src}"
+                destdir="${classes.dir}"
+                debug="true" debuglevel="lines,vars,source"
+                target="6"
+                source="6"
+        >
+          <compilerarg value="-Xlint:deprecation,unchecked"/>
+        </javac>
+        
+        <exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
+        <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
+</target>
+
+<target name="jar-popjava" depends="make-popjava" description="create jar for popjava">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${popjava.jar}" basedir="${classes.dir}" 
+                excludes="**/testsuite/**">
+        </jar>
+</target>
+
+<target name="jar-testsuite" depends="make-testsuite" description="create jar for the popjava testsuite">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
+                excludes="**/popjava/**">
+        </jar>
+</target>
+
+<target name="make" depends="clean, jar-popjava, jar-testsuite" description="Builds the whole sourcecode">
+</target>
+
+<target name="make-release-folder" depends="make" description="Creates the directory that will be installed">
+  <delete dir="${temp.dir}"/>
+  
+  <!-- Create folders -->
+  <mkdir dir="${release.dir}"/>
+  <mkdir dir="${release.dir}/bin"/>
+  <mkdir dir="${release.dir}/etc"/>
+  <mkdir dir="${release.dir}/doc"/>
+  <mkdir dir="${release.dir}/JarFile"/>
+  <mkdir dir="${release.dir}/logFolder"/>
+  
+  <!-- Copy executables -->
+  <copy file="${popjavac.dir}/popjc" todir="${release.dir}/bin"/>
+  <copy file="${popjavac.dir}/popjrun" todir="${release.dir}/bin"/>
+  <copy file="launch_testsuite" todir="${release.dir}"/>
+  
+  <!-- Copy jars -->
+  <copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
+  <copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
+  <copy file="${javassist.jar}" todir="${release.dir}/JarFile"/>
+  <copy file="${popjavac.dir}/popjobjectmapgen.jar" todir="${release.dir}/JarFile"/>
+  <copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
+  
+  
+  <!-- Copy rest -->
+  <copy todir="${release.dir}/doc">
+    <fileset dir="${javadoc.dir}"/>
+  </copy>
+  
+  <copy todir="${release.dir}/etc">
+    <fileset dir="${etc.dir}"/>
+  </copy>
+  
+  <copy file="${popjavac.dir}/xml/additional-parser-infos.xsd" todir="${release.dir}/etc"/>
+  
+  
+  <copy todir="${release.dir}/plugin">
+    <fileset dir="${plugins.dir}"/>
+  </copy>
+  
+  <!-- Extract javassist -->
+  <unzip src="${javassist.jar}" dest="${release.dir}">
+  </unzip>
+  
+  <delete dir="${release.dir}/META-INF"/>
+  
+  <copy todir="${release.dir}/testsuite/popc-obj">
+    <fileset dir="${testsuite.src}/popc-obj"/>
+  </copy>
+  
+  <copy todir="${release.dir}">
+    <fileset dir="${classes.dir}"/>
+  </copy>
+  
+  
+  <!-- Set filepremisions-->
+  <chmod dir="${release.dir}" perm="774" 
+       includes="**/*" type="file"/>
+       
+  <chmod dir="${release.dir}" perm="775" 
+  includes="**/*" type="dir"/>
+
+  <chmod dir="${release.dir}/bin" perm="775" 
+       includes="**/*"/>
+       
+  <chmod file="${release.dir}/launch_testsuite" perm="775"/>
+       
+  <chmod file="${release.dir}/logFolder" perm="777" type="both"/>
+  <chmod file="${release.dir}/testsuite" perm="777" type="both"/>
+         
+  
+  
+</target>
+
+</project>

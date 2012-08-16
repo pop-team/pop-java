@@ -40,19 +40,21 @@ fi
 
 
 DEFAULT_LOCATION=/usr/local/popj
-CP=""
+LOCATION=""
 if [ $POPJAVA_LOCATION ]
 then
-	CP=$POPJAVA_LOCATION
+	LOCATION=$POPJAVA_LOCATION
 else 
 	if [ -d $DEFAULT_LOCATION ]
 	then
-		CP=$DEFAULT_LOCATION
+		LOCATION=$DEFAULT_LOCATION
 	else
 		echo "POP-Java installation directory was not found. Test aborted !"
 		exit
 	fi
 fi
+
+CP=$LOCATION
 
 N_TEST=6
 
@@ -62,6 +64,7 @@ echo "##############################"
 
 echo "Starting POP-Java test suite"
 echo "Launching passing arguments test (test 1/$N_TEST)... "
+echo "java -cp $CP testsuite.arg.MainArgTest"
 java -cp $CP testsuite.arg.MainArgTest
 echo "Passing arguments test is finished ... "
 
