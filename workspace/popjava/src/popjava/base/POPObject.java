@@ -7,6 +7,7 @@ import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import java.lang.reflect.Modifier;
 /**
@@ -21,9 +22,9 @@ public class POPObject implements IPOPBase {
 	protected ObjectDescription od = new ObjectDescription();
 	private String className = "";
 	private final int startMethodIndex = 10;
-	private java.util.concurrent.ConcurrentHashMap<MethodInfo, Integer> semantics = new java.util.concurrent.ConcurrentHashMap<MethodInfo, Integer>();
-	private java.util.concurrent.ConcurrentHashMap<MethodInfo, Method> methodInfos = new java.util.concurrent.ConcurrentHashMap<MethodInfo, Method>();
-	private java.util.concurrent.ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new java.util.concurrent.ConcurrentHashMap<MethodInfo, Constructor<?>>();
+	private ConcurrentHashMap<MethodInfo, Integer> semantics = new ConcurrentHashMap<MethodInfo, Integer>();
+	private ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<MethodInfo, Method>();
+	private ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<MethodInfo, Constructor<?>>();
 
 	/**
 	 * Creates a new instance of POPObject
@@ -38,8 +39,10 @@ public class POPObject implements IPOPBase {
 	 * @param c	the class to initialize
 	 */
 	protected final void initializePOPObject(Class<?> c) {
-		if (this.generateClassId)
+		if (this.generateClassId){
 			classId++;
+		}
+		
 		if (!c.equals(POPObject.class)) {
 			int startIndex = initializeConstructorInfo(c, startMethodIndex);
 			if (hasDestructor) {
@@ -48,6 +51,7 @@ public class POPObject implements IPOPBase {
 			initializeMethodInfo(c, startIndex);
 		}
 	}
+	
 	/**
 	 * Specify if the parallel object is running like a deamon
 	 * @return true if it's a deamon
