@@ -69,7 +69,7 @@ public class LogWriter {
 		}
 	}
 	
-	public static void writeExceptionLog(Throwable e){
+	public static synchronized void writeExceptionLog(Throwable e){
 		writeDebugInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
         for(int i = 0; i < e.getStackTrace().length; i++){
         	writeDebugInfo(e.getStackTrace()[i].getClassName()+" "+e.getStackTrace()[i].getLineNumber());
