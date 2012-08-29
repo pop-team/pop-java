@@ -61,12 +61,19 @@ public class LogWriter {
 	 */
 	public static void writeDebugInfo(String info) {
 		if (Configuration.Debug) {
-			info = PID + "-" + (new Date()).toString() + "-" + info;
+			info = PID + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
 			info += "\r\n";
 			String path = String.format("%s%s%s%s.txt", LogFolder, POPSystem
 					.getSeparatorString(), Prefix, PID);
 			writeLogfile(info, path);
 		}
+	}
+	
+	public static void writeExceptionLog(Throwable e){
+		writeDebugInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
+        for(int i = 0; i < e.getStackTrace().length; i++){
+        	writeDebugInfo(e.getStackTrace()[i].getClassName()+" "+e.getStackTrace()[i].getLineNumber());
+        }
 	}
 
 	/**
