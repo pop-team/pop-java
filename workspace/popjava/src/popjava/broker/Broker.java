@@ -25,6 +25,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
+import javax.management.remote.TargetedNotification;
+
 /**
  * This class is the base class of all broker-side parallel object. The broker
  * is responsible to receive the requests from the interface-side and to execute
@@ -265,8 +267,13 @@ public class Broker {
 				} else {
 					method.invoke(popObject, parameters);
 				}
-			} catch (Exception e) {
+			}catch(InvocationTargetException e){
+				LogWriter.writeDebugInfo("Cannot execute. Cause "+e.getCause().getMessage());
+				exception = POPException.createReflectException(
+						method.getName(), e.getCause().getMessage());
+			}catch (Exception e) {
 				// Cannot execute, send error
+				LogWriter.writeExceptionLog(e);
 				LogWriter.writeDebugInfo("Cannot execute");
 				exception = POPException.createReflectException(
 						method.getName(), e.getMessage());
