@@ -469,13 +469,13 @@ public class POPSystem {
 	}
 	
 	public static void end(){
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
 		if(prlt != null){ //If initialize failed, prlt will be null
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
 			prlt.setRunning(false);
 		}
 	}
