@@ -474,7 +474,10 @@ public class POPSystem {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		prlt.setRunning(false);
+		
+		if(prlt != null){ //If initialize failed, prlt will be null
+			prlt.setRunning(false);
+		}
 	}
 	
 }
