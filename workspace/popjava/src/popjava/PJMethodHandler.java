@@ -60,7 +60,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		parameterTypes = constructor.getParameterTypes();
 		// Repair the parameter type, for example MyConstructor(int value,
 		// String ... data)
-		this.allocate(popObjectInfo.getClassName());
+		allocate(popObjectInfo.getClassName());
 
 		MethodInfo methodInfo = popObjectInfo.getMethodInfo(constructor);
 		MessageHeader messageHeader = new MessageHeader(
