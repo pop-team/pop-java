@@ -240,9 +240,11 @@ public class Interface {
 			}
 
 			for (int i = 0; i < allocatedAccessPoint.length; i++) {
-				if(allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") || 
-						allocatedAccessPoint[0].get(0).getHost().equals("127.0.1.1"))
+				if(allocatedAccessPoint[0].size() >= 1 && (
+						allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") || 
+						allocatedAccessPoint[0].get(0).getHost().equals("127.0.1.1"))){
 					allocatedAccessPoint[0].get(0).setHost(remotejobscontact[0].get(0).getHost());
+				}
 			}
 			popAccessPoint.setAccessString(allocatedAccessPoint[0].toString());
 

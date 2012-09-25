@@ -64,9 +64,9 @@ public class PJProxyFactory extends ProxyFactory {
 			((ProxyObject) result).setHandler(methodHandler);
 			return result;
 		} catch (java.lang.InstantiationException e) {
-			return null;
+			e.printStackTrace();
 		} catch (java.lang.IllegalAccessException e) {
-			return null;
+			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {
