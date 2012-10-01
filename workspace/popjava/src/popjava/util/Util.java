@@ -1,6 +1,7 @@
 package popjava.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -131,17 +132,7 @@ public class Util {
 	 * @return	The split command as an array list
 	 */
 	public static ArrayList<String> splitTheCommand(String command) {
-		command = command.trim() + " ";
-		ArrayList<String> stringList = new ArrayList<String>();
-		String regex = "\".+\"|[\\t\\n\\r ]+\\w+[^\\t\\n\\r ]+|[^\\t\\n\\r ]+\\w+[\\t\\n\\r ]+";
-		Pattern p = Pattern.compile(regex);
-		Matcher m = p.matcher(command); // get a matcher object
-		while (m.find()) {
-			String data = command.substring(m.start(), m.end()).trim();
-			data = data.replaceAll("\"", "");
-			stringList.add(data);
-		}
-		return stringList;
+		return new ArrayList<String>(Arrays.asList(command.trim().split(" ")));
 	}
 
 	/**

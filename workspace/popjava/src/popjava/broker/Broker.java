@@ -25,8 +25,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
-import javax.management.remote.TargetedNotification;
-
 /**
  * This class is the base class of all broker-side parallel object. The broker
  * is responsible to receive the requests from the interface-side and to execute
@@ -62,7 +60,6 @@ public class Broker {
 	 * @param objectName
 	 *            Name of the object to create
 	 */
-	@SuppressWarnings("deprecation")
 	public Broker(String codelocation, String objectName) {
 		URLClassLoader urlClassLoader = null;
 		if (codelocation != null && codelocation.length() > 0) {
@@ -71,7 +68,7 @@ public class Broker {
 				File codeFile = new File(codelocation);
 				try {
 					LogWriter.writeDebugInfo("url file" + codelocation);
-					urls[0] = codeFile.toURL();
+					urls[0] = codeFile.toURI().toURL();
 				} catch (MalformedURLException e) {
 					LogWriter.writeDebugInfo(this.getClass().getName()
 							+ ".MalformedURLException: " + e.getMessage());
@@ -268,6 +265,7 @@ public class Broker {
 					method.invoke(popObject, parameters);
 				}
 			}catch(InvocationTargetException e){
+				LogWriter.writeExceptionLog(e);
 				LogWriter.writeDebugInfo("Cannot execute. Cause "+e.getCause().getMessage());
 				exception = POPException.createReflectException(
 						method.getName(), e.getCause().getMessage());
@@ -517,7 +515,7 @@ public class Broker {
 	 * start the thread of this broker
 	 * @throws InterruptedException 
 	 */
-	public void run() throws InterruptedException {
+	public void run() throws InterruptedException { 
 		this.setState(Broker.Running);
 		while (this.getState() == Broker.Running) {
 			Request request = comboxServer.getRequestQueue().peek(TimeOut,
@@ -636,7 +634,6 @@ public class Broker {
 			URLClassLoader urlClassLoader) throws ClassNotFoundException {
 
 		if (urlClassLoader != null) {
-
 			Class<?> c = Class.forName(className, true, urlClassLoader);
 			return c;
 		} else {
@@ -645,7 +642,8 @@ public class Broker {
 	}
 
 	/**
-	 * Main point of the broker-side
+	 * Entry point for the Broker. This method is called when a
+	 * new Broker is setup in a JVM.
 	 * 
 	 * @param argvs
 	 *            arguments of the program
@@ -653,11 +651,13 @@ public class Broker {
 	 */
 	public static void main(String[] argvs) throws InterruptedException {
 		ArrayList<String> argvList = new ArrayList<String>();
-
+		LogWriter.writeDebugInfo("Broker parameters");
 		for (String str : argvs) {
 			argvList.add(str);
+			LogWriter.writeDebugInfo(str);
 		}
-
+		LogWriter.writeDebugInfo("Broker parameters end");
+		
 		String appservice = Util.removeStringFromArrayList(argvList,
 				AppServicePrefix);
 		String codelocation = Util.removeStringFromArrayList(argvList,
@@ -672,7 +672,7 @@ public class Broker {
 		String callbackString = Util.removeStringFromArrayList(argvList,
 				CallBackPrefix);
 		if (appservice != null && appservice.length() > 0) {
-			POPSystem.AppService.setAccessString(appservice);
+			POPSystem.AppServiceAccessPoint.setAccessString(appservice);
 		}
 		ComboxSocket callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
@@ -710,7 +710,7 @@ public class Broker {
 		}
 
 		if (status == 0)
-			broker.run();
+			broker.run(); //TODO: Check if there shouldn't be a thread running here
 		System.exit(0);
 	}
 

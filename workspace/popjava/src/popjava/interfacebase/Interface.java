@@ -6,6 +6,8 @@
 package popjava.interfacebase;
 
 import popjava.PopJava;
+import popjava.codemanager.AppService;
+import popjava.codemanager.PopJavaAppService;
 import popjava.combox.*;
 import popjava.dataswaper.ObjectDescriptionInput;
 import popjava.dataswaper.POPString;
@@ -26,6 +28,9 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.*;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
 
@@ -189,13 +194,12 @@ public class Interface {
 		canExecLocal = tryLocal(objectName, popAccessPoint);
 		if (!canExecLocal) {
 			// ask the job manager to allocate the broker
-
 			String platforms = od.getPlatform();
 
 			if (platforms.length() <= 0) {
-				POPAppService appCoreService = null;
-				appCoreService = (POPAppService) popjava.PopJava.newActive(
-						POPAppService.class, POPSystem.AppService);
+				AppService appCoreService = null;
+				appCoreService = (AppService) popjava.PopJava.newActive(
+						POPAppService.class, POPSystem.AppServiceAccessPoint);
 				POPString popStringPlatorm = new POPString();
 				appCoreService.getPlatform(objectName, popStringPlatorm);
 				platforms = popStringPlatorm.getValue();
@@ -221,10 +225,11 @@ public class Interface {
 						.getHost(), POPJobManager.DEFAULT_PORT));
 			}
 
-			POPJobService jobManager = (POPJobService) popjava.PopJava
+			POPJobService jobManager = (POPJobService) PopJava
 					.newActive(POPJobService.class, jobContact);
+			
 			ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
-			int createdCode = jobManager.createObject(POPSystem.AppService, objectName, constOd, allocatedAccessPoint.length, 
+			int createdCode = jobManager.createObject(POPSystem.AppServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
 					allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
 			jobManager.exit();
 			if (createdCode != 0) {
@@ -465,17 +470,11 @@ public class Interface {
 			return false;
 
 		codeFile = od.getCodeFile();
+		
 		// Host name existed
 		if (codeFile == null || codeFile.length() == 0) {
-			// Lookup local code manager for the binary source....
-			POPAppService appCoreService = null;
-			appCoreService = (POPAppService) PopJava.newActive(
-					POPAppService.class, POPSystem.AppService);
-			POPString popStringCodeFile = new POPString();
-			appCoreService.queryCode(objectName, POPSystem.getPlatform(),
-					popStringCodeFile);
-			codeFile = popStringCodeFile.getValue();
-			appCoreService.exit();
+			codeFile = getRemoteCodeFile(objectName);
+			
 			if (codeFile.length() == 0)
 				return false;
 
@@ -489,11 +488,70 @@ public class Interface {
 		}
 
 		int status = localExec(joburl, codeFile, objectName, rport,
-				POPSystem.JobService, POPSystem.AppService, accesspoint);
+				POPSystem.JobService, POPSystem.AppServiceAccessPoint, accesspoint);
 		if (status != 0) {
 			// Throw exception
 		}
 		return (status == 0);
+	}
+	
+	/**
+	 * Lookup local code manager for the binary source....
+	 * @param objectName
+	 * @return
+	 */
+	private static String getRemoteCodeFile(String objectName){
+		AppService appCoreService = null;
+		try{
+			appCoreService = (AppService) PopJava.newActive(
+					POPAppService.class, POPSystem.AppServiceAccessPoint);
+			appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
+		}catch(Exception e){
+			try{
+				appCoreService = (AppService) PopJava.newActive(
+						PopJavaAppService.class, POPSystem.AppServiceAccessPoint);
+			}catch(POPException e2){
+				e2.printStackTrace();
+			}
+		}
+		if(appCoreService != null){
+			String codeFile = getCodeFile(appCoreService, objectName);
+			appCoreService.exit();
+			return codeFile;
+		}
+		
+		return getPOPCodeFile();
+	}
+	
+	private static String getPOPCodeFile(){
+		String popJar = "";
+		for(URL url: ((URLClassLoader)PopJavaAppService.class.getClassLoader()).getURLs()){
+            boolean exists = false;
+            try{ //WIndows hack
+                exists = new File(url.toURI()).exists();
+            }catch(Exception e){
+                exists = new File(url.getPath()).exists();
+            }
+            if(exists && url.getFile().endsWith("popjava.jar")){
+            	popJar = url.getPath();
+            }
+        }
+		
+		try {
+			ConfigurationWorker cw = new ConfigurationWorker();
+			return String.format(
+					cw.getValue(ConfigurationWorker.POPJ_BROKER_COMMAND_ITEM),
+					popJar)+popJar;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private static String getCodeFile(AppService manager, String objectName){
+		POPString popStringCodeFile = new POPString();
+		manager.queryCode(objectName, POPSystem.getPlatform(), popStringCodeFile);
+		return popStringCodeFile.getValue();
 	}
 
 	/**
@@ -510,7 +568,8 @@ public class Interface {
 	private static int localExec(String hostname, String codeFile,
 			String classname, String rport, POPAccessPoint jobserv,
 			POPAccessPoint appserv, POPAccessPoint objaccess) {
-		boolean isLocal = popjava.util.Util.isLocal(hostname);
+		
+		boolean isLocal = Util.isLocal(hostname);
 		/*if (!isLocal) {
 			return -1;
 		}*/

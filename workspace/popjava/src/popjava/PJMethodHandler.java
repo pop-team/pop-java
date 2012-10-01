@@ -130,33 +130,36 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		for (int index = 0; index < argvs.length; index++) {
 			popBuffer.putValue(argvs[index], parameterTypes[index]);
 		}
-		this.popDispatch(popBuffer);		
-			if ((methodSemantics & Semantic.Synchronous) != 0) {
-				Buffer responseBuffer = combox.getBufferFactory()
-						.createBuffer();
-				this.popResponse(responseBuffer);
-				for (int index = 0; index < parameterTypes.length; index++) {
-					responseBuffer.deserializeReferenceObject(
-							parameterTypes[index], argvs[index]);
-				}
-				if (returnType != Void.class && returnType != void.class)
-					result = responseBuffer.getValue(returnType);
-			} else {
-				if (returnType != Void.class && returnType != void.class) {
-					try {
-						if (returnType.isPrimitive()) {
-							result = ClassUtil
-									.getDefaultPrimitiveValue(returnType);
-						} else {
-							result = null;
-						}
-					} catch (Exception e) {
+		this.popDispatch(popBuffer);
+		
+		if ((methodSemantics & Semantic.Synchronous) != 0) {
+			Buffer responseBuffer = combox.getBufferFactory()
+					.createBuffer();
+			popResponse(responseBuffer);
+			for (int index = 0; index < parameterTypes.length; index++) {
+				responseBuffer.deserializeReferenceObject(
+						parameterTypes[index], argvs[index]);
+			}
+			if (returnType != Void.class && returnType != void.class){
+				result = responseBuffer.getValue(returnType);
+			}
+			
+		} else {
+			if (returnType != Void.class && returnType != void.class) {
+				try {
+					if (returnType.isPrimitive()) {
+						result = ClassUtil
+								.getDefaultPrimitiveValue(returnType);
+					} else {
 						result = null;
 					}
-
+				} catch (Exception e) {
+					result = null;
 				}
 
 			}
+
+		}
 		return result;
 
 	}

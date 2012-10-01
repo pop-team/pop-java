@@ -382,7 +382,7 @@ public abstract class Buffer extends Object {
 	 */
 	public void putValue(Object o,Class<?>c) throws POPException {
 		if (o == null&&!c.isArray()) {			
-			throw POPException.createNullObjectNotAllowException();			
+			POPException.throwNullObjectNotAllowException();
 		}		
 		if (c.equals(byte.class) || c.equals(Byte.class))
 			this.put((Byte) o);
