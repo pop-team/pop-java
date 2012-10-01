@@ -3,6 +3,7 @@ package popjava.base;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.Buffer;
 import popjava.dataswaper.IPOPBase;
+import popjava.util.LogWriter;
 /**
  * This class is the base implementation for all POP exception
  */
@@ -87,7 +88,7 @@ public class POPException extends Exception implements IPOPBase {
 	public static POPException createReflectException(String methodName,
 			String errorMessage) {
 		String message = String.format(
-				"Exception when invoke method %s. More Information:%s",
+				"Exception while invoking method %s. More Information:%s",
 				methodName, errorMessage);
 		return new POPException(POPErrorCode.REFLECT_INVOKE_EXCEPTION, message);
 	}
@@ -101,7 +102,7 @@ public class POPException extends Exception implements IPOPBase {
 
 		String message = String
 				.format(
-						"Exception when invoke method serialize(buffer) of class %s. More Information:%s",
+						"Exception while invoking method serialize(buffer) of class %s. More Information:%s",
 						className, errorMessage);
 		throw new POPException(POPErrorCode.REFLECT_SERIALIZE_EXCEPTION,
 				message);
@@ -123,22 +124,13 @@ public class POPException extends Exception implements IPOPBase {
 	 * @return	the exception
 	 */
 	public static POPException createReflectMethodNotFoundException(
-			String className, int methodId, String errorMessage) {
+		String className, int methodId, String errorMessage) {
 		String message = String
 				.format(
-						"Cannot found the method id %d in class %s. More Information:%s",
+						"Cannot find the method id %d in class %s. More Information:%s",
 						methodId, className, errorMessage);
 		return new POPException(
 				POPErrorCode.REFLECT_METHOD_NOT_FOUND_EXCEPTION, message);
-	}
-
-	/**
-	 * Create an exception when the buffer is not available
-	 * @return	the exception
-	 */
-	public static POPException createBufferNotAvailableException() {
-		return new POPException(POPErrorCode.POP_BUFFER_NOT_AVAILABLE,
-				"The buffer hasn't been initialized");
 	}
 
 	/**
@@ -148,18 +140,9 @@ public class POPException extends Exception implements IPOPBase {
 	 */
 	public static POPException throwBufferNotAvailableException()
 			throws POPException {
-		throw createBufferNotAvailableException();
+		throw new POPException(POPErrorCode.POP_BUFFER_NOT_AVAILABLE,
+				"The buffer hasn't been initialized");
 	}
-
-	/**
-	 * Crate an exception when the combox is not available
-	 * @return	the exception
-	 */
-	public static POPException createComboxNotAvailableException() {
-		return new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE,
-				"The combox hasn't been initialized");
-	}
-	
 
 	/**
 	 * Throw an exception when the combox is not available
@@ -168,18 +151,10 @@ public class POPException extends Exception implements IPOPBase {
 	 */
 	public static POPException throwComboxNotAvailableException()
 			throws POPException {
-		throw createComboxNotAvailableException();
+		throw new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE,
+				"The combox hasn't been initialized");
 	}
-
-	/**
-	 * Throw an exception when the creation of access point is not a success
-	 * @return	the exception
-	 */
-	public static POPException createAccessPointNotAvailableException() {
-		return new POPException(POPErrorCode.POP_ACCESSPOINT_NOT_AVAILABLE,
-				"The accesspoint hasn't been initialized");
-	}
-
+	
 	/**
 	 * Throw an exception when the access point of an object is not available
 	 * @return	the exception
@@ -187,17 +162,8 @@ public class POPException extends Exception implements IPOPBase {
 	 */
 	public static POPException throwAccessPointNotAvailableException()
 			throws POPException {
-		throw createAccessPointNotAvailableException();
-	}
-
-	/**
-	 * Throw an exception when trying to create a null object
-	 * @return	the exception
-	 */
-	public static POPException createNullObjectNotAllowException()
-	{
-		return new POPException(POPErrorCode.NOT_ALLOW_PUT_NULL_OBJECT_TP_BUFFER,
-		"Not allow to put null object to buffer except a null array");
+		throw new POPException(POPErrorCode.POP_ACCESSPOINT_NOT_AVAILABLE,
+				"The accesspoint hasn't been initialized");
 	}
 	
 	/**
@@ -205,9 +171,9 @@ public class POPException extends Exception implements IPOPBase {
 	 * @return	the exception
 	 * @throws POPException exception thrown by this method
 	 */
-	public static POPException throwNullObjectNotAllowException()
-	throws POPException {
-			throw createNullObjectNotAllowException();
+	public static POPException throwNullObjectNotAllowException() throws POPException {
+			throw new POPException(POPErrorCode.NOT_ALLOW_PUT_NULL_OBJECT_TP_BUFFER,
+					"Not allow to put null object to buffer except a null array");
 	}
 	
 	/**

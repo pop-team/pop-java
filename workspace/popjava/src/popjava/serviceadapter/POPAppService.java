@@ -2,13 +2,14 @@ package popjava.serviceadapter;
 
 import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
+import popjava.codemanager.AppService;
 
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the AppService parallel
  * object of POP-C++
  */
-public class POPAppService extends POPObjectMonitor {
+public class POPAppService extends POPObjectMonitor implements AppService{
 	/**
 	 * Default constructor of POPAppService. Create a POP-C++ object
 	 * AppCoreService

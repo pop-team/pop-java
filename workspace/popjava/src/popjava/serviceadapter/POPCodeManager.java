@@ -5,7 +5,7 @@ import popjava.dataswaper.POPString;
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the CodeMgr parallel object of POP-C++
  */
-public class POPCodeManager extends POPRemoteLog {
+public class POPCodeManager extends POPRemoteLog{
 	
 	/**
 	 * Default constructor of POPCodeManager.

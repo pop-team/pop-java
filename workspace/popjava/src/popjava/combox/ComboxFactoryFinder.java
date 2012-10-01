@@ -63,7 +63,6 @@ public class ComboxFactoryFinder {
 	 * Load all the combox in the pop_combox.xml file
 	 * @param pluginLocation	Location of the plugin file
 	 */
-	@SuppressWarnings("deprecation")
 	public void loadComboxMap(String pluginLocation) {
 		DocumentBuilder builder;
 		String comboxMapLocation = pluginLocation
@@ -98,7 +97,7 @@ public class ComboxFactoryFinder {
 					File jarFile = new File(jarFileLocation);
 					try {
 						URL[] urls = new URL[1];
-						urls[0] = jarFile.toURL();
+						urls[0] = jarFile.toURI().toURL();
 						urlClassLoader = new URLClassLoader(urls);
 					} catch (MalformedURLException ex) {
 						continue;

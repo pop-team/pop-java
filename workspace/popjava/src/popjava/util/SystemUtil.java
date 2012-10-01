@@ -23,6 +23,7 @@ public class SystemUtil {
 	 * @return 0 if the command launch is a success
 	 */
 	public static int runCmd(ArrayList<String> argvs) {
+		
 		ProcessBuilder pb = new ProcessBuilder(argvs);
 		if (pb != null) {
 			try {

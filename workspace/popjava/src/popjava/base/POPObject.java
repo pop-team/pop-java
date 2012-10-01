@@ -212,6 +212,7 @@ public class POPObject implements IPOPBase {
 	 * @return	The method found
 	 */
 	public MethodInfo getMethodInfo(Method method) {
+		//TODO: potentially slow
 		MethodInfo methodInfo = new MethodInfo(0, 0);
 		String findingSign = ClassUtil.getMethodSign(method);
 		Class<?> findingClass = method.getDeclaringClass();
