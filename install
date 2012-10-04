@@ -112,7 +112,7 @@ then
 	
 	#copying files
 	echo "$PREFIX Copying files ..."
-	cp -r --preserve release/* $LOCATION
+	cp -r -p release/* $LOCATION
 	chown -R root:root $LOCATION
 
 ####################################################
