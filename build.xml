@@ -58,7 +58,10 @@
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${popjava.jar}" basedir="${classes.dir}" 
                 excludes="**/testsuite/**">
+                <zipgroupfileset dir="." includes="${javassist.jar}"/>
         </jar>
+        
+        
 </target>
 
 <target name="jar-testsuite" depends="make-testsuite" description="create jar for the popjava testsuite">
@@ -90,7 +93,7 @@
   <!-- Copy jars -->
   <copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
   <copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
-  <copy file="${javassist.jar}" todir="${release.dir}/JarFile"/>
+  <!-- <copy file="${javassist.jar}" todir="${release.dir}/JarFile"/> -->
   <copy file="${popjavac.dir}/popjobjectmapgen.jar" todir="${release.dir}/JarFile"/>
   <copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
   
@@ -112,8 +115,8 @@
   </copy>
   
   <!-- Extract javassist -->
-  <unzip src="${javassist.jar}" dest="${release.dir}">
-  </unzip>
+  <!-- <unzip src="${javassist.jar}" dest="${release.dir}">
+  </unzip> -->
   
   <delete dir="${release.dir}/META-INF"/>
   
@@ -121,9 +124,10 @@
     <fileset dir="${testsuite.src}/popc-obj"/>
   </copy>
   
-  <copy todir="${release.dir}">
+  <!-- Copy class files -->
+  <!--<copy todir="${release.dir}">
     <fileset dir="${classes.dir}"/>
-  </copy>
+  </copy>-->
   
   
   <!-- Set filepremisions-->

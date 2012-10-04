@@ -12,8 +12,11 @@ import popjava.system.POPSystem;
  * This class is responsible to send an receive message on the server combox socket
  */
 public class ComboxAllocateSocket {
+	
+	private static final int SOCKET_TIMEOUT_MS = 10000;
+	
 	protected ServerSocket serverSocket = null;	
-	private ComboxSocket combox=null;
+	private ComboxSocket combox = null;
 	
 	/**
 	 * Create a new instance of the ComboxAllocateSocket
@@ -23,6 +26,7 @@ public class ComboxAllocateSocket {
 			SocketAddress sockAddr = new InetSocketAddress(POPSystem.getHost(), 0);
 			serverSocket = new ServerSocket();
 			serverSocket.bind(sockAddr);
+			serverSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
 		} catch (IOException e) {}
 	}
 
@@ -32,7 +36,7 @@ public class ComboxAllocateSocket {
 	public void startToAcceptOneConnection() {
 		try {			
 			Socket peerConnection = serverSocket.accept();
-			combox=new ComboxSocket(peerConnection);
+			combox = new ComboxSocket(peerConnection);
 		} catch (IOException e) {
 		}
 	}
@@ -51,8 +55,9 @@ public class ComboxAllocateSocket {
 	 */
 	public void close() {
 		try {
-			if(combox!=null)
-			combox.close();
+			if(combox != null){
+				combox.close();
+			}
 			if (serverSocket != null && !serverSocket.isClosed()) {
 				serverSocket.close();
 			}
@@ -77,6 +82,10 @@ public class ComboxAllocateSocket {
 	 */
 	public int receive(Buffer buffer) {
 		return combox.receive(buffer);
+	}
+	
+	public boolean isComboxConnected(){
+		return combox != null;
 	}
 
 }

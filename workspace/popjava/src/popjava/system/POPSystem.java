@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Random;
 
+import javassist.util.proxy.ProxyFactory;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,7 +27,7 @@ import popjava.base.*;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
-import popjava.codemanager.PopJavaAppService;
+import popjava.codemanager.POPJavaAppService;
 import popjava.combox.ComboxSocketFactory;
 
 import popjava.serviceadapter.POPAppService;
@@ -62,12 +64,16 @@ public class POPSystem {
 	public static POPAccessPoint AppServiceAccessPoint = new POPAccessPoint();
 	
 	public static void writeLog(String log){
-		POPAppService app;
 		try {
-			app = (POPAppService)PopJava.newActive(POPAppService.class, POPSystem.AppServiceAccessPoint);
+			POPAppService app = (POPAppService)PopJava.newActive(POPAppService.class, POPSystem.AppServiceAccessPoint);
 			app.logPJ(app.getPOPCAppID(), log);
 		} catch (POPException e) {
-			e.printStackTrace();
+			try{
+				POPAppService app = (POPAppService)PopJava.newActive(POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
+				app.logPJ(app.getPOPCAppID(), log);
+			} catch (POPException e2) {
+				e2.printStackTrace();
+			}
 		}
 	}
 
@@ -212,14 +218,6 @@ public class POPSystem {
 	}
 
 	/**
-	 * Get the separator character for string
-	 * @return	The separator character
-	 */
-	public static String getSeparatorString() {
-		return Character.toString(java.io.File.separatorChar);
-	}
-
-	/**
 	 * Entry point for the application scope initialization
 	 * @param argvs	Any arguments to pass to the initialization
 	 * @return	true if the initialization is succeed
@@ -231,6 +229,20 @@ public class POPSystem {
 			argvList.add(str);
 		return initialize(argvList);
 	}
+	
+	private static String getNeededClasspath(){
+		
+		try{
+			if(ProxyFactory.class.
+					getProtectionDomain().getCodeSource().getLocation().
+					getPath().equals(POPJavaConfiguration.getPopJavaJar())){
+				return POPJavaConfiguration.getPopJavaJar();
+			}
+		}catch(Exception e){
+		}
+		
+		return POPJavaConfiguration.getPOPJavaCodePath();
+	}
 
 	/**
 	 * Initialize the application scope services 
@@ -239,18 +251,11 @@ public class POPSystem {
 	 * @throws POPException	thrown is any problems occurred during the initialization
 	 */
 	public static boolean initialize(ArrayList<String> argvList)
-			throws POPException {
-		
-		ConfigurationWorker cw = null;
-		try {
-			cw = new ConfigurationWorker();
-		} catch (Exception e) {
-			throw new POPException();
-		}
+			throws POPException {		
 		String POPJavaObjectExecuteCommand = String.format(
-				cw.getValue(ConfigurationWorker.POPJ_BROKER_COMMAND_ITEM),
-				getPopLocation());
-				
+				POPJavaConfiguration.getBrokerCommand(),
+				getNeededClasspath());
+		
 		String jobservice = Util.removeStringFromArrayList(argvList,
 				"-jobservice=");
 		if (jobservice == null || jobservice.length() == 0) {
@@ -261,8 +266,8 @@ public class POPSystem {
 		String appservicecode = Util.removeStringFromArrayList(argvList,
 				"-appservicecode=");
 		if (appservicecode == null || appservicecode.length() == 0) {
-			appservicecode = getPopAppCoreService();
-
+			appservicecode = POPJavaConfiguration.getPopAppCoreService();
+	
 		}
 		String proxy = Util.removeStringFromArrayList(argvList, "-proxy=");
 		String appservicecontact = Util.removeStringFromArrayList(argvList,
@@ -273,7 +278,7 @@ public class POPSystem {
 		}
 		
 		AppService coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
-		
+		System.out.println("Core service created");
 		if(coreServiceManager != null){
 			AppServiceAccessPoint = coreServiceManager.getAccessPoint();
 			prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
@@ -284,9 +289,10 @@ public class POPSystem {
 				.removeStringFromArrayList(argvList, "-codeconf=");
 		
 		if (codeconf == null || codeconf.length() == 0) {
-			codeconf = String.format("%s%setc%sdefaultobjectmap.xml", POPSystem
-					.getPopLocation(), POPSystem.getSeparatorString(),
-					POPSystem.getSeparatorString());
+			codeconf = String.format("%s%setc%sdefaultobjectmap.xml",
+					POPJavaConfiguration.getPopJavaLocation(),
+					File.separator,
+					File.separator);
 		}
 		
 		return initCodeService(codeconf, POPJavaObjectExecuteCommand, coreServiceManager);
@@ -323,7 +329,7 @@ public class POPSystem {
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
 			System.out.println("Create native popjava service");
-			return (AppService) PopJava.newActive(PopJavaAppService.class);
+			return (AppService) PopJava.newActive(POPJavaAppService.class);
 		}catch(POPException e){
 			e.printStackTrace();
 		}
@@ -343,9 +349,15 @@ public class POPSystem {
 		fileconf = fileconf.trim();
 		XMLWorker xw = new XMLWorker();
 		
-		if(!xw.isValid(fileconf, getPopLocation()+"/etc/objectmap.xsd")){
+		if(!new File(POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd").exists()){
+			System.out.println("Could not open objectmap.xsd");
+			return false;
+		}
+		
+		if(!xw.isValid(fileconf, POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd")){
 			throw new POPException(0, "Object map not valid");
 		}
+		
 		if (appCoreService == null || fileconf == null || fileconf.length() == 0){
 			return false;
 		}
@@ -383,8 +395,7 @@ public class POPSystem {
 								if (codeFileType != null
 										&& codeFileType
 												.equalsIgnoreCase("popjava")) {
-									codefile = POPJavaObjectExecuteCommand
-											+ codefile;
+									codefile = POPJavaObjectExecuteCommand  + codefile;
 								}
 							} else if (childNode.getNodeName().equals(
 									"PlatForm")) {
@@ -395,7 +406,6 @@ public class POPSystem {
 					}
 					appCoreService.registerCode(objectname, platform, codefile);
 				}
-
 			}
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
@@ -415,7 +425,6 @@ public class POPSystem {
 	 */
 	public static AppService createAppCoreService(String codelocation)
 			throws POPException {
-		System.out.println("Create appcoreservice "+codelocation);
 		Random random = new Random((new Date()).getTime());
 		int maxUsignedByte = 255;
 		byte[] bytes = new byte[255];
@@ -431,56 +440,6 @@ public class POPSystem {
 		objectDescription.setCodeFile(codelocation);
 		return (POPAppService) PopJava.newActive(POPAppService.class,
 				objectDescription, randString, false, codelocation);
-	}
-
-	/**
-	 * Retrieve the POP-Java installation location
-	 * @return	string value of the POP-java location
-	 */
-	public static String getPopLocation() {
-		try{
-			ConfigurationWorker cw = new ConfigurationWorker();
-			return cw.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
-		} catch (Exception e){
-			return null;
-		}		
-	}
-
-	/**
-	 * Retrieve the POP-Java plugin location
-	 * @return string value of the POP-Java plugin location
-	 */
-	public static String getPopPluginLocation() {
-//		String pluginLocation = POPSystem
-//				.getEnviroment(POPSystem.PopPluginLocationEnviromentName);
-//		if (pluginLocation.length() <= 0) {
-//			return DefaultPopPluginLocation;
-//		}
-//		return pluginLocation;
-		try{
-			ConfigurationWorker cw = new ConfigurationWorker();
-			return cw.getValue(ConfigurationWorker.POPJ_PLUGIN_ITEM);
-		} catch (Exception e){
-			return null;
-		}
-	}
-
-	/**
-	 * Retrieve the POP-C++ AppCoreService executable location
-	 * @return string value of the POP-C++ AppCoreService executable location
-	 */
-	public static String getPopAppCoreService() {
-//		String service = POPSystem
-//				.getEnviroment(POPSystem.PopAppCoreServiceEnviromentName);
-//		if (service.length() <= 0)
-//			return DefaultPopAppCoreService;
-//		return service;
-		try{
-			ConfigurationWorker cw = new ConfigurationWorker();
-			return cw.getValue(ConfigurationWorker.POPC_APPCORESERVICE_ITEM);
-		} catch (Exception e){
-			return null;
-		}
 	}
 	
 	public static void end(){

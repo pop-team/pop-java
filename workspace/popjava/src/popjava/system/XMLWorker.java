@@ -50,7 +50,7 @@ public class XMLWorker {
 			e1.printStackTrace();
 			return false;
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			//e1.printStackTrace();
 			return false;
 		}
 

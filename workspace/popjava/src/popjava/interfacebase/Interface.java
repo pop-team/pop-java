@@ -7,7 +7,7 @@ package popjava.interfacebase;
 
 import popjava.PopJava;
 import popjava.codemanager.AppService;
-import popjava.codemanager.PopJavaAppService;
+import popjava.codemanager.POPJavaAppService;
 import popjava.combox.*;
 import popjava.dataswaper.ObjectDescriptionInput;
 import popjava.dataswaper.POPString;
@@ -192,6 +192,7 @@ public class Interface {
 		
 		boolean canExecLocal = false;
 		canExecLocal = tryLocal(objectName, popAccessPoint);
+		
 		if (!canExecLocal) {
 			// ask the job manager to allocate the broker
 			String platforms = od.getPlatform();
@@ -225,8 +226,7 @@ public class Interface {
 						.getHost(), POPJobManager.DEFAULT_PORT));
 			}
 
-			POPJobService jobManager = (POPJobService) PopJava
-					.newActive(POPJobService.class, jobContact);
+			POPJobService jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
 			
 			ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
 			int createdCode = jobManager.createObject(POPSystem.AppServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
@@ -473,11 +473,11 @@ public class Interface {
 		
 		// Host name existed
 		if (codeFile == null || codeFile.length() == 0) {
-			codeFile = getRemoteCodeFile(objectName);
 			
-			if (codeFile.length() == 0)
+			codeFile = getRemoteCodeFile(objectName);
+			if (codeFile.length() == 0){
 				return false;
-
+			}
 		}
 
 		String rport = "";
@@ -489,6 +489,7 @@ public class Interface {
 
 		int status = localExec(joburl, codeFile, objectName, rport,
 				POPSystem.JobService, POPSystem.AppServiceAccessPoint, accesspoint);
+		
 		if (status != 0) {
 			// Throw exception
 		}
@@ -509,11 +510,12 @@ public class Interface {
 		}catch(Exception e){
 			try{
 				appCoreService = (AppService) PopJava.newActive(
-						PopJavaAppService.class, POPSystem.AppServiceAccessPoint);
+						POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
 			}catch(POPException e2){
 				e2.printStackTrace();
 			}
 		}
+		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
 			appCoreService.exit();
@@ -524,34 +526,25 @@ public class Interface {
 	}
 	
 	private static String getPOPCodeFile(){
-		String popJar = "";
-		for(URL url: ((URLClassLoader)PopJavaAppService.class.getClassLoader()).getURLs()){
-            boolean exists = false;
-            try{ //WIndows hack
-                exists = new File(url.toURI()).exists();
-            }catch(Exception e){
-                exists = new File(url.getPath()).exists();
-            }
-            if(exists && url.getFile().endsWith("popjava.jar")){
-            	popJar = url.getPath();
-            }
-        }
+		String popPath = POPJavaConfiguration.getPOPJavaCodePath();
+		String popJar = POPJavaConfiguration.getPopJavaJar();
 		
-		try {
-			ConfigurationWorker cw = new ConfigurationWorker();
-			return String.format(
-					cw.getValue(ConfigurationWorker.POPJ_BROKER_COMMAND_ITEM),
-					popJar)+popJar;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+		return String.format(
+				POPJavaConfiguration.getBrokerCommand(),
+				popPath)+popJar;
 	}
 	
 	private static String getCodeFile(AppService manager, String objectName){
 		POPString popStringCodeFile = new POPString();
+		
 		manager.queryCode(objectName, POPSystem.getPlatform(), popStringCodeFile);
-		return popStringCodeFile.getValue();
+		String codeFile = popStringCodeFile.getValue();
+		if(codeFile == null || codeFile.isEmpty()){
+			POPJavaAppService appService = new POPJavaAppService();
+			codeFile = appService.getLocalJavaFileLocation(objectName);
+		}
+		
+		return codeFile;
 	}
 
 	/**
@@ -626,18 +619,25 @@ public class Interface {
 		if (ret == -1) {
 			return ret;
 		}
+		
 		allocateCombox.startToAcceptOneConnection();
 		BufferXDR buffer = new BufferXDR();
 		int result = 0;
+		
+		if(!allocateCombox.isComboxConnected()){
+			System.out.println("Could not connect broker");
+			return -1;
+		}
+		
 		if (allocateCombox.receive(buffer) > 0) {
 			int status = buffer.getInt();
 			String str = buffer.getString();
-
-			if (status == 0)
+			
+			if (status == 0){
 				objaccess.setAccessString(str);
-			else
+			}else{
 				result = status;
-
+			}
 		} else {
 			result = -1;
 		}

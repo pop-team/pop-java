@@ -6,13 +6,14 @@ import java.util.Map;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
 import popjava.dataswaper.POPString;
+import popjava.system.POPJavaConfiguration;
 import popjava.util.LogWriter;
 
-public class PopJavaAppService extends POPObject implements AppService{
+public class POPJavaAppService extends POPObject implements AppService{
 	
 	private static final String ALL_PLATFORMS = "*-*";
 	
-	public PopJavaAppService() {
+	public POPJavaAppService() {
 		this.setClassId(99923);
 		this.hasDestructor(false);
 		od.setHostname("localhost");
@@ -53,15 +54,24 @@ public class PopJavaAppService extends POPObject implements AppService{
 	 * @return	0 if the code file is not available
 	 */
 	public int queryCode(String objname, String platform, POPString codefile) {
+		LogWriter.writeDebugInfo("Search code "+objname);
 		Map<String, String> platf = registeredCode.get(platform);
+		String storeCodeFile = null;
+		
 		if(platf == null){
 			if(!platform.equals(ALL_PLATFORMS)){
 				return queryCode(objname, ALL_PLATFORMS, codefile);
 			}
-			System.out.println("Platform not found");
-			return 0;
+			LogWriter.writeDebugInfo("Platform not found");
+		}else{
+			storeCodeFile = platf.get(objname);
+			
 		}
-		String storeCodeFile = platf.get(objname);
+		
+		if(storeCodeFile == null){
+			storeCodeFile = getLocalJavaFileLocation(objname);
+		}
+		
 		if(storeCodeFile == null){
 			return 0;
 		}
@@ -70,6 +80,23 @@ public class PopJavaAppService extends POPObject implements AppService{
 		codefile.setValue(storeCodeFile);
 		
 		return 1;
+	}
+	
+	public String getLocalJavaFileLocation(String objname){
+		String codePath = null;
+		try{
+			ClassLoader classloader = this.getClass().getClassLoader();
+			Class<?> javaClass = classloader.loadClass(objname);
+			
+			codePath = String.format(
+					POPJavaConfiguration.getBrokerCommand(),
+					POPJavaConfiguration.getPOPJavaCodePath()) + 
+					javaClass.getProtectionDomain().getCodeSource().getLocation().getPath();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return codePath;
 	}
 
 	/**

@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.system.XMLWorker;
 
@@ -67,7 +68,7 @@ public class BufferFactoryFinder {
 		// It will read the file at POP_PLUGIN_LOCATION
 		// Each line in this file follows the format:
 		// jarFile|BufferFactory0|BufferFactory1|...
-		String pluginLocation = POPSystem.getPopPluginLocation();
+		String pluginLocation = POPJavaConfiguration.getPopPluginLocation();
 		if (pluginLocation.length() > 0) {
 			loadBufferMap(pluginLocation);
 		}
@@ -93,9 +94,9 @@ public class BufferFactoryFinder {
 	public void loadBufferMap(String pluginLocation) {
 		DocumentBuilder builder;
 		String bufferMapLocation =  pluginLocation
-				+ POPSystem.getSeparatorString() + "pop_buffer.xml";
+				+ File.separator + "pop_buffer.xml";
 		String schemaLocation =  pluginLocation
-		+ POPSystem.getSeparatorString() + "pop_buffer.xsd";
+		+ File.separator + "pop_buffer.xsd";
 		
 		XMLWorker xw = new XMLWorker();
 		if(!xw.isValid(bufferMapLocation, schemaLocation)){
@@ -121,7 +122,7 @@ public class BufferFactoryFinder {
 					String jarFileName = packageElement
 							.getAttribute(JarAttributeName);
 					String jarFileLocation = pluginLocation
-							+ POPSystem.getSeparatorString() + jarFileName;
+							+ File.separator + jarFileName;
 					File jarFile = new File(jarFileLocation);
 					try {
 						URL[] urls = new URL[1];
