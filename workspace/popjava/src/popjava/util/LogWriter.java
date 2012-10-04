@@ -1,15 +1,20 @@
 package popjava.util;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Date;
 
-import popjava.system.POPSystem;
+import popjava.system.POPJavaConfiguration;
 
 /**
  * This class is used to write log file
  */
 public class LogWriter {
+	
+	private static final String LOG_FOLDER_NAME = "logFolder";
 
 	/**
 	 * Process identifier
@@ -19,8 +24,7 @@ public class LogWriter {
 	/**
 	 * Log folder where the log files will be written
 	 */
-	public static String LogFolder = String.format("%s%slogFolder", POPSystem
-			.getPopLocation(), POPSystem.getSeparatorString());
+	public static String LogFolder;
 	
 	/**
 	 * Prefix of the log file
@@ -28,19 +32,22 @@ public class LogWriter {
 	public static String Prefix = "";
 
 	static {
-		String pid = java.lang.management.ManagementFactory.getRuntimeMXBean()
+		String pid = ManagementFactory.getRuntimeMXBean()
 				.getName();
 		for (int index = 0; index < pid.length(); index++) {
-			if (Character.isLetterOrDigit(pid.charAt(index)))
-				PID += Character.toString(pid.charAt(index));
+			if (Character.isLetterOrDigit(pid.charAt(index))){
+				PID += pid.charAt(index);
+			}
 		}
-	}
-
-	/**
-	 * Default constructor
-	 */
-	private LogWriter() {
-
+		
+		String popLocation = POPJavaConfiguration.getPopJavaLocation();
+		if(!popLocation.isEmpty()){
+			LogFolder = String.format("%s%s%s", popLocation, File.separator, LOG_FOLDER_NAME);
+		}else{
+			LogFolder = new File(LOG_FOLDER_NAME).getAbsolutePath();
+		}
+		
+		new File(LogFolder).mkdirs(); //Create log folder if it does not exist yet
 	}
 
 	/**
@@ -60,15 +67,20 @@ public class LogWriter {
 	 * @param info	Information to write
 	 */
 	public static void writeDebugInfo(String info) {
+		System.out.println(info);
 		if (Configuration.Debug) {
-			info = PID + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
+			info = PID + "-" + (new Date()).toString() + "-" + info;
 			info += "\r\n";
-			String path = String.format("%s%s%s%s.txt", LogFolder, POPSystem
-					.getSeparatorString(), Prefix, PID);
+			String path = String.format("%s%s%s%s.txt", LogFolder, File.separator, Prefix, PID);
 			writeLogfile(info, path);
 		}
 	}
 	
+	/**
+	 * Writes an exception to the same log as writeDebugInfo. The complete
+	 * backtrace is logged.
+	 * @param e The exception to be logged
+	 */
 	public static synchronized void writeExceptionLog(Throwable e){
 		writeDebugInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
         for(int i = 0; i < e.getStackTrace().length; i++){
@@ -85,8 +97,8 @@ public class LogWriter {
 		path = path.replace(".txt", PID + ".txt");
 		java.io.FileWriter fstream;
 		try {
-			fstream = new java.io.FileWriter(path, true);
-			java.io.BufferedWriter out = new java.io.BufferedWriter(fstream);
+			fstream = new FileWriter(path, true);
+			java.io.BufferedWriter out = new BufferedWriter(fstream);
 			out.write(info);
 
 			// Close the output stream

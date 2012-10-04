@@ -266,6 +266,7 @@ public class Broker {
 				}
 			}catch(InvocationTargetException e){
 				LogWriter.writeExceptionLog(e);
+				LogWriter.writeExceptionLog(e.getCause());
 				LogWriter.writeDebugInfo("Cannot execute. Cause "+e.getCause().getMessage());
 				exception = POPException.createReflectException(
 						method.getName(), e.getCause().getMessage());
@@ -650,6 +651,15 @@ public class Broker {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] argvs) throws InterruptedException {
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+            	LogWriter.writeDebugInfo("POP Uncatched exception");
+            	LogWriter.writeExceptionLog(e);
+            }
+        });
+		
 		ArrayList<String> argvList = new ArrayList<String>();
 		LogWriter.writeDebugInfo("Broker parameters");
 		for (String str : argvs) {
@@ -699,7 +709,6 @@ public class Broker {
 		if (!broker.initialize(argvList)) {
 			status = 1;
 		}
-
 		if (callback != null) {
 			MessageHeader messageHeader = new MessageHeader();
 			Buffer buffer = new BufferXDR();
@@ -709,8 +718,9 @@ public class Broker {
 			callback.send(buffer);
 		}
 
-		if (status == 0)
+		if (status == 0){
 			broker.run(); //TODO: Check if there shouldn't be a thread running here
+		}
 		System.exit(0);
 	}
 

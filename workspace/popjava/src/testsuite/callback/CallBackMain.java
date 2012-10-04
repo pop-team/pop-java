@@ -25,6 +25,7 @@ public class CallBackMain {
 		} catch (POPException e){
 			POPSystem.end();
 			System.out.println("Callback test failed : " + e.errorMessage);
+			e.printStackTrace();
 		}
 		
 	}

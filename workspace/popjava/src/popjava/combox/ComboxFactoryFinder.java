@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.system.XMLWorker;
 
@@ -43,7 +44,7 @@ public class ComboxFactoryFinder {
 		ComboxSocketFactory comboxSocketFactory = new ComboxSocketFactory();
 		comboxFactoryList.put(comboxSocketFactory.getComboxName(),
 				comboxSocketFactory);
-		String pluginLocation = POPSystem.getPopPluginLocation();
+		String pluginLocation = POPJavaConfiguration.getPopPluginLocation();
 		if (pluginLocation.length() > 0) {
 			loadComboxMap(pluginLocation);
 		}
@@ -66,9 +67,9 @@ public class ComboxFactoryFinder {
 	public void loadComboxMap(String pluginLocation) {
 		DocumentBuilder builder;
 		String comboxMapLocation = pluginLocation
-				+ POPSystem.getSeparatorString() + "pop_combox.xml";
+				+ File.separator + "pop_combox.xml";
 		String schemaLocation = pluginLocation
-		+ POPSystem.getSeparatorString() + "pop_combox.xsd";
+		+ File.separator + "pop_combox.xsd";
 		
 		XMLWorker xw = new XMLWorker();
 		if(!xw.isValid(comboxMapLocation, schemaLocation)){
@@ -93,7 +94,7 @@ public class ComboxFactoryFinder {
 					String jarFileName = packageElement
 							.getAttribute(JarAttributeName);
 					String jarFileLocation = pluginLocation
-							+ POPSystem.getSeparatorString() + jarFileName;
+							+ File.separator + jarFileName;
 					File jarFile = new File(jarFileLocation);
 					try {
 						URL[] urls = new URL[1];

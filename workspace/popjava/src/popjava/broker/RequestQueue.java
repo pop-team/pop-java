@@ -1,5 +1,6 @@
 package popjava.broker;
 
+import java.io.File;
 import java.util.concurrent.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
@@ -103,7 +104,7 @@ public class RequestQueue {
 			String info = String.format("Request.MethodId=%d.Semantics=%s",
 					temp.getMethodId(), temp.getSenmatics());
 			LogWriter.writeLogfile(info, LogWriter.LogFolder
-					+ POPSystem.getSeparatorString() + "bug.txt");
+					+ File.separator + "bug.txt");
 		}
 		return request;
 	}
@@ -116,8 +117,9 @@ public class RequestQueue {
 		Request request = null;
 		lock.lock();
 		try {
-			while (availableRequest == null)
+			while (availableRequest == null){
 				canPeek.await();
+			}
 			request = availableRequest;
 			request.setStatus(Request.Serving);
 			availableRequest = null;

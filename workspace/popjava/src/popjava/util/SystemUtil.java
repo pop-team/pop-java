@@ -11,26 +11,21 @@ import java.util.ArrayList;
 public class SystemUtil {
 
 	/**
-	 * Default empty constructor
-	 */
-	private SystemUtil() {
-
-	}
-
-	/**
 	 * Run a new command
 	 * @param argvs arguments to pass to the new process
 	 * @return 0 if the command launch is a success
 	 */
 	public static int runCmd(ArrayList<String> argvs) {
-		
+		/*for(String arg: argvs){
+			System.out.println(arg);
+		}*/
 		ProcessBuilder pb = new ProcessBuilder(argvs);
 		if (pb != null) {
 			try {
 				String directory = System.getProperty("java.io.tmpdir");
 				File currentDirectory = new File(directory);
 				if (currentDirectory != null) {
-					pb.directory(currentDirectory);
+					//pb.directory(currentDirectory);
 					pb.start();
 					return 0;
 
