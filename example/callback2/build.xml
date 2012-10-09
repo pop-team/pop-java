@@ -1,0 +1,39 @@
+<project name="Callback2" default="all" basedir=".">
+    <description>
+        Callback2 example
+    </description>
+    
+    <property name="application.jar" value="callback.jar"/>
+    <property name="objectmap" value="objmap.xml"/>
+    <property name="source.folder" value="test"/>
+    
+    <target name="clean" 
+        description="clean the build folder" >
+        
+        <delete file= "${application.jar}"/>
+        <delete file= "${objectmap}"/>
+        <delete>
+            <fileset dir="${source.folder}" includes="*.class"/>
+        </delete>
+    </target>
+    
+    <target name="all"
+        description="compile the source " >
+        <exec executable="popjc">
+            <arg line="-j ${application.jar} ${source.folder}/Toto.pjava ${source.folder}/Titi.pjava ${source.folder}/CallBackMain.pjava"/>
+        </exec>
+        <exec executable="popjrun" output = "${objectmap}">
+            <arg line="--listlong ${application.jar}"/>
+        </exec>
+    </target>
+    
+    <target name="run" depends="all"
+        description="Run the application" >
+        <exec executable="popjrun">
+            <arg line="-c ${application.jar} ${objectmap} test.CallBackMain"/>
+        </exec>
+    </target>
+    
+    
+</project>
+ 

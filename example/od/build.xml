@@ -1,0 +1,34 @@
+<project name="Od" default="all" basedir=".">
+    <description>
+        Od usage example
+    </description>
+    
+    <property name="application.jar" value="od.jar"/>
+    <property name="objectmap" value="objectmap.xml"/>
+    
+    <target name="clean" 
+        description="clean the build folder" >
+        
+        <delete file= "${application.jar}"/>
+        <delete file= "${objectmap}"/>
+    </target>
+    
+    <target name="all"
+        description="compile the source " >
+        <exec executable="popjc">
+            <arg line="-j ${application.jar} *.pjava"/>
+        </exec>
+        <exec executable="popjrun" output = "${objectmap}">
+            <arg line="--listlong ${application.jar}"/>
+        </exec>
+    </target>
+    
+    <target name="run" depends="all"
+        description="Run the application" >
+        <exec executable="popjrun">
+            <arg line="-c ${application.jar} ${objectmap} MainClass"/>
+        </exec>
+    </target>
+    
+    
+</project>
