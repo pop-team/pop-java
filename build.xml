@@ -66,15 +66,22 @@
                 excludes="**/testsuite/**">
                 <zipgroupfileset dir="." includes="${javassist.jar}"/>
         </jar>
-        
-        
 </target>
 
-<target name="jar-testsuite" depends="make-testsuite-popc" description="create jar for the popjava testsuite">
+<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
                 excludes="**/popjava/**">
         </jar>
+</target>
+	
+<target name="run-testsuite" depends="jar-testsuite, jar-popjava" description="Run the testsuite">
+	<java classname="testsuite.Testsuite" fork="true">
+		<classpath>
+			<pathelement location="${jar.dir}/${popjava.jar}"/>
+			<pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+	</java>
 </target>
 
 <target name="make" depends="clean, jar-popjava, jar-testsuite" description="Builds the whole sourcecode">
@@ -99,7 +106,6 @@
   <!-- Copy jars -->
   <copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
   <copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
-  <!-- <copy file="${javassist.jar}" todir="${release.dir}/JarFile"/> -->
   <copy file="${popjavac.dir}/popjobjectmapgen.jar" todir="${release.dir}/JarFile"/>
   <copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
   
@@ -120,20 +126,11 @@
     <fileset dir="${plugins.dir}"/>
   </copy>
   
-  <!-- Extract javassist -->
-  <!-- <unzip src="${javassist.jar}" dest="${release.dir}">
-  </unzip> -->
-  
   <delete dir="${release.dir}/META-INF"/>
   
   <copy todir="${release.dir}/testsuite/popc-obj">
     <fileset dir="${testsuite.src}/popc-obj"/>
   </copy>
-  
-  <!-- Copy class files -->
-  <!--<copy todir="${release.dir}">
-    <fileset dir="${classes.dir}"/>
-  </copy>-->
   
   
   <!-- Set filepremisions-->

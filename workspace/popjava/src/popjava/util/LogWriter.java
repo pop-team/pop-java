@@ -47,6 +47,8 @@ public class LogWriter {
 			LogFolder = new File(LOG_FOLDER_NAME).getAbsolutePath();
 		}
 		
+		System.out.println("Using logfolder "+LogFolder);
+		
 		new File(LogFolder).mkdirs(); //Create log folder if it does not exist yet
 	}
 
@@ -72,6 +74,7 @@ public class LogWriter {
 			info = PID + "-" + (new Date()).toString() + "-" + info;
 			info += "\r\n";
 			String path = String.format("%s%s%s%s.txt", LogFolder, File.separator, Prefix, PID);
+			System.out.println(path);
 			writeLogfile(info, path);
 		}
 	}
