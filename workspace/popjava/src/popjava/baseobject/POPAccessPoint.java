@@ -47,7 +47,6 @@ public class POPAccessPoint implements IPOPBase {
 						ComboxSocketFactory.Protocol, localAddress);
 				this.setAccessString(accessString);
 		/*	} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				this.setAccessString(String.format("%s://127.0.0.1:0",
 						ComboxSocketFactory.Protocol));

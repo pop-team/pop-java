@@ -329,7 +329,6 @@ public abstract class Buffer extends Object {
 	 */
 	public Object getValue(Class<?> c) throws POPException {
 		LogWriter.Prefix="Broker";
-		LogWriter.writeDebugInfo("getValue : "+c.getName());
 		if (c.equals(byte.class) || c.equals(Byte.class))
 			return new Byte(this.get());
 		else if (c.equals(int.class) || c.equals(Integer.class))
@@ -355,14 +354,12 @@ public abstract class Buffer extends Object {
 			return PopJava.newActiveFromBuffer(c, this);
 		} else if (IPOPBase.class.isAssignableFrom(c)
 				|| IPOPBaseInput.class.isAssignableFrom(c)) {
-			try {				
-					LogWriter.writeDebugInfo("Try to deserialize");
+			try {
 					Object popBase = c.getConstructor()
 							.newInstance();
 					Method m = c.getMethod("deserialize", Buffer.class);
 					m.setAccessible(true);
 					m.invoke(popBase, this);
-					LogWriter.writeDebugInfo("End of deserialize "+popBase.toString());
 					return popBase;				
 			} catch (Exception e) {
 					LogWriter.writeDebugInfo("Catch error");

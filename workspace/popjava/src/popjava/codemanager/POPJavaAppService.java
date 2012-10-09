@@ -42,7 +42,6 @@ public class POPJavaAppService extends POPObject implements AppService{
 			platf = new HashMap<String, String>();
 			registeredCode.put(platform, platf);
 		}
-		LogWriter.writeDebugInfo("Register "+objname+" "+platform+" "+codefile);
 		platf.put(objname, codefile);
 	}
 
@@ -54,7 +53,6 @@ public class POPJavaAppService extends POPObject implements AppService{
 	 * @return	0 if the code file is not available
 	 */
 	public int queryCode(String objname, String platform, POPString codefile) {
-		LogWriter.writeDebugInfo("Search code "+objname);
 		Map<String, String> platf = registeredCode.get(platform);
 		String storeCodeFile = null;
 		
@@ -76,7 +74,6 @@ public class POPJavaAppService extends POPObject implements AppService{
 			return 0;
 		}
 		
-		LogWriter.writeDebugInfo("Found code "+objname+" "+platform+" "+storeCodeFile);
 		codefile.setValue(storeCodeFile);
 		
 		return 1;

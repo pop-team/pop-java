@@ -41,7 +41,6 @@ public class POPThread extends Thread {
 		try {
 			request.getBroker().invoke(request);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
