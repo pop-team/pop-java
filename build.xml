@@ -20,7 +20,11 @@
         <property name="javadoc.dir" value ="doc"/>
         <property name="etc.dir" value ="etc"/>
         <property name="plugins.dir" value ="plugin"/>
-        
+	
+	<condition property="isWindows">
+        <os family="windows" />
+	 </condition>
+		
 <target name="clean" description="clean build directory">
     <delete dir="${build.dir}"/>
     <delete dir="${release.dir}"/>
@@ -39,7 +43,7 @@
         </javac>
 </target>
 
-<target name="make-testsuite" depends="make-popjava" description="build the the popjava testsuite">
+<target name="make-testsuite-java" depends="make-popjava" description="build the the popjava testsuite">
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${testsuite.src}"
                 destdir="${classes.dir}"
@@ -49,9 +53,11 @@
         >
           <compilerarg value="-Xlint:deprecation,unchecked"/>
         </javac>
-        
-        <exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
-        <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
+</target>
+	
+<target name="make-testsuite-popc" depends="make-popjava" unless="isWindows" description="build the the popjava testsuite">
+	<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
+    <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
 </target>
 
 <target name="jar-popjava" depends="make-popjava" description="create jar for popjava">
@@ -64,7 +70,7 @@
         
 </target>
 
-<target name="jar-testsuite" depends="make-testsuite" description="create jar for the popjava testsuite">
+<target name="jar-testsuite" depends="make-testsuite-popc" description="create jar for the popjava testsuite">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
                 excludes="**/popjava/**">
