@@ -87,8 +87,9 @@ public class POPJavaConfiguration {
 		for(int i = 0; i < urls.length; i++){
 			URL url = urls[i];
             popJar += url.getPath();
+            System.out.println(url.getPath());
             if(i != urls.length - 1){
-            	popJar += ":";
+            	popJar += File.pathSeparatorChar;
             }
         }
 		
