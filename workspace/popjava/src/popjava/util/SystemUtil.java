@@ -16,9 +16,9 @@ public class SystemUtil {
 	 * @return 0 if the command launch is a success
 	 */
 	public static int runCmd(ArrayList<String> argvs) {
-		/*for(String arg: argvs){
+		for(String arg: argvs){
 			System.out.println(arg);
-		}*/
+		}
 		ProcessBuilder pb = new ProcessBuilder(argvs);
 		if (pb != null) {
 			try {
@@ -26,10 +26,10 @@ public class SystemUtil {
 				File currentDirectory = new File(directory);
 				if (currentDirectory != null) {
 					//pb.directory(currentDirectory);
-					pb.start();
-					return 0;
-
 				}
+				
+				pb.start();
+				return 0;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
