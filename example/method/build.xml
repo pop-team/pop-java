@@ -1,0 +1,37 @@
+<project name="Method" default="all" basedir=".">
+    <description>
+        Method example
+    </description>
+    
+    <property name="objectmap" value="objectmap.xml"/>
+    <property name="source.folder" value=""/>
+    
+    <target name="clean" 
+        description="clean the build folder" >
+        
+        <delete file= "${objectmap}"/>
+        <delete>
+            <fileset dir="${source.folder}" includes="*.class"/>
+        </delete>
+    </target>
+    
+    <target name="all"
+        description="compile the source " >
+        <exec executable="popjc">
+            <arg line="MethodObj.pjava MainClass.pjava"/>
+        </exec>
+        <exec executable="popjrun" output = "${objectmap}">
+            <arg line="--listlong MethodObj.class"/>
+        </exec>
+    </target>
+    
+    <target name="run" depends="all"
+        description="Run the application" >
+        <exec executable="popjrun">
+            <arg line="${objectmap} MainClass"/>
+        </exec>
+    </target>
+    
+    
+</project>
+ 
