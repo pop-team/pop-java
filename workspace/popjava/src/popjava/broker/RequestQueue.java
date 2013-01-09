@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.concurrent.locks.*;
 
 import popjava.base.Semantic;
-import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 /**
  * This class represents the request queue used in the broker-side
@@ -59,8 +58,9 @@ public class RequestQueue {
 	public boolean add(Request request) {		
 		lock.lock();
 		try {
-			while (maxQueue <= requests.size())
+			while (maxQueue <= requests.size()){
 				canInsert.await();
+			}
 			requests.add(request);
 			canPeek();
 		} catch (InterruptedException e) {
@@ -83,10 +83,12 @@ public class RequestQueue {
 		lock.lock();
 
 		try {			
-			if (availableRequest == null)
+			if (availableRequest == null){
 				waitSuccess = canPeek.await(time, timeUnit);
-			else
+			} else {
 				waitSuccess = true;
+			}
+			
 			if (waitSuccess) {
 				request = availableRequest;
 				request.setStatus(Request.Serving);
@@ -94,12 +96,11 @@ public class RequestQueue {
 				canPeek();
 			}
 		} catch (InterruptedException exception) {
-
 		} finally {
 			lock.unlock();
 		}
-		if (requests.size() > 0 && !waitSuccess
-				&& requests.get(0).getStatus() == Request.Pending) {
+		
+		if (requests.size() > 0 && !waitSuccess && requests.get(0).getStatus() == Request.Pending) {
 			Request temp = requests.get(0);
 			String info = String.format("Request.MethodId=%d.Semantics=%s",
 					temp.getMethodId(), temp.getSenmatics());
@@ -170,13 +171,15 @@ public class RequestQueue {
 			canPeek.signal();
 			return true;
 		}
+		
 		int requestCount = requests.size();
 		if (requestCount > 0) {
 			for (int i = 0; i < requestCount; i++) {
 				Request currentRequest = requests.get(i);
 				if (canPeek(currentRequest)) {
-					if (availableRequest == null)
+					if (availableRequest == null) {
 						availableRequest = currentRequest;
+					}
 					canPeek.signal();
 					return true;
 				}
@@ -196,14 +199,14 @@ public class RequestQueue {
 			return false;
 		int requestCount = requests.size();
 		if (requestCount > 0) {
-			if ((request.getSenmatics() & Semantic.Mutex) != 0) {
+			if (request.isMutex()) {
 				for (int i = 0; i < requestCount; i++) {
 					Request currentRequest = requests.get(i);
 					if (currentRequest.getStatus() == Request.Serving)
 						return false;
 				}
 			}
-			if ((request.getSenmatics() & Semantic.Concurrent) != 0) {
+			if (request.isConcurrent()) {
 				for (int i = 0; i < requestCount; i++) {
 					Request currentRequest = requests.get(i);
 					if (currentRequest.getStatus() == Request.Serving
@@ -211,12 +214,11 @@ public class RequestQueue {
 						return false;
 				}
 			}
-			if ((request.getSenmatics() & Semantic.Sequence) != 0) {
+			if (request.isSequential()) {
 				for (int i = 0; i < requestCount; i++) {
 					Request currentRequest = requests.get(i);
 					if (currentRequest.getStatus() == Request.Serving
-							&& (currentRequest.getSenmatics() & Semantic.Mutex) != 0
-							&& (currentRequest.getSenmatics() & Semantic.Sequence) != 0)
+							&& (currentRequest.isMutex() || currentRequest.isSequential()))
 						return false;
 				}
 			}

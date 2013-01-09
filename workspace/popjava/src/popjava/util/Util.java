@@ -28,15 +28,18 @@ public class Util {
 	 * @return	true if the contact strings are the same
 	 */
 	public static boolean sameContact(String source, String dest) {
-		if (source.compareTo(dest) == 0)
+		if (source.compareTo(dest) == 0){
 			return true;
+		}
 		if (source == null || source.length() == 0 || dest == null
-				|| dest.length() == 0)
+				|| dest.length() == 0){
 			return false;
+		}
 		String[] allDestHost = dest.split("[ \t\r\n]");
 		for (String str : allDestHost) {
-			if (source.indexOf(str) >= 0)
+			if (source.indexOf(str) >= 0){
 				return true;
+			}
 		}
 		return false;
 

@@ -3,7 +3,7 @@ package popjava.base;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.Buffer;
 import popjava.dataswaper.IPOPBase;
-import popjava.util.LogWriter;
+
 /**
  * This class is the base implementation for all POP exception
  */

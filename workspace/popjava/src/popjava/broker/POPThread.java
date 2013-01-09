@@ -4,7 +4,7 @@ package popjava.broker;
  * Base class of POPThread. Used to handle broker-side semantics
  *
  */
-public class POPThread extends Thread {
+public class POPThread implements Runnable {
 
 	/**
 	 * Request to be served in the thread

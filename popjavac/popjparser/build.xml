@@ -5,7 +5,7 @@
             value="1.0">
   </property>
   <property name="javacc.root"
-            value="/usr">
+            value="/home/asraniel/Downloads/javacc-5.0">
   </property>
 
  

@@ -34,7 +34,7 @@ public class Broker {
 	static public final int Running = 0;
 	static public final int Exit = 1;
 	static public final int Abort = 2;
-	static public final int TimeOut = 1000;
+	static public final int REQUEST_QUEUE_TIMEOUT_MS = 1000;
 	static public final int BasicCallMaxRange = 10;
 	static public final int ConstructorSemanticId = 21;
 	static public final String CallBackPrefix = "-callback=";
@@ -51,6 +51,9 @@ public class Broker {
 	protected POPObject popInfo = null;
 	protected int connectionCount = 0;
 	protected Semaphore semSeq = new Semaphore(1, true);
+	
+	private ExecutorService threadPool = Executors.newCachedThreadPool();
+	//Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 	/**
 	 * Creates a new instance of POPBroker
@@ -208,8 +211,9 @@ public class Broker {
 	 * @throws InterruptedException 
 	 */
 	private boolean invokeMethod(Request request) throws InterruptedException {
-		if(request.getSenmatics() == Semantic.Sequence)
+		if(request.isSequential()){
 			semSeq.acquire();
+		}
 		Object result = new Object();
 		Buffer requestBuffer = request.getBuffer();
 		POPException exception = null;
@@ -239,8 +243,6 @@ public class Broker {
 				try {
 					parameters[index] = requestBuffer
 							.getValue(parameterTypes[index]);
-					LogWriter.writeDebugInfo(parameterTypes[index].getName()
-							+ " " + parameters[index].toString());
 				} catch (POPException e) {
 					exception = new POPException(e.errorCode, e.errorMessage);
 					break;
@@ -259,8 +261,6 @@ public class Broker {
 				method.setAccessible(true);
 				if (returnType != Void.class && returnType != void.class) {
 					result = method.invoke(popObject, parameters);
-					LogWriter
-							.writeDebugInfo("Result is : " + result.toString());
 				} else {
 					method.invoke(popObject, parameters);
 				}
@@ -282,7 +282,7 @@ public class Broker {
 		// Prepare the response buffer if success to invoke method
 		if (exception == null) {
 			// Send response
-			if ((request.getSenmatics() & Semantic.Synchronous) != 0) {
+			if (request.isSynchronous()) {
 
 				MessageHeader messageHeader = new MessageHeader();
 				Buffer responseBuffer = request.getCombox().getBufferFactory()
@@ -305,8 +305,6 @@ public class Broker {
 					if (returnType != Void.class && returnType != void.class
 							&& returnType != Void.TYPE)
 						try {
-							LogWriter.writeDebugInfo("fill buffer"
-									+ result.toString());
 							responseBuffer.putValue(result, returnType);
 						} catch (POPException e) {
 							exception = new POPException(e.errorCode,
@@ -331,13 +329,15 @@ public class Broker {
 		// or cannot put the output parameter,
 		// send it to the interface
 		if (exception != null) {
-			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException:"
+			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException : "
 					+ exception.getMessage());
-			if ((request.getSenmatics() & Semantic.Synchronous) != 0)
+			if (request.isSynchronous()){
 				sendException(request.getCombox(), exception);
+			}
 		}
-		if(request.getSenmatics() == Semantic.Sequence)
+		if(request.isSequential()){
 			semSeq.release();
+		}
 		return true;
 	}
 
@@ -383,16 +383,11 @@ public class Broker {
 	public void serveRequest(Request request) throws InterruptedException {
 		request.setBroker(this);
 		request.setStatus(Request.Serving);
-		// If concurrent or sequence method, create new thread
+		// Do not create new thread if method is mutex
 		if (request.getSenmatics() == Semantic.Mutex) {
 			invoke(request);
-		} else
-			/*if (request.getSenmatics() == Semantic.Sequence) {
-			POPThread thread = new POPThread(request, semSeq);
-			thread.start();
-		} else */{
-			POPThread thread = new POPThread(request);
-			thread.start();
+		} else {
+			threadPool.execute(new POPThread(request));
 		}
 	}
 
@@ -404,8 +399,9 @@ public class Broker {
 	 * @return true if the request has been treated correctly
 	 */
 	public boolean popCall(Request request) {
-		if (request.getMethodId() >= BasicCallMaxRange)
+		if (request.getMethodId() >= BasicCallMaxRange){
 			return false;
+		}
 		Buffer buffer = request.getBuffer();
 		Buffer responseBuffer = request.getCombox().getBufferFactory()
 				.createBuffer();
@@ -519,10 +515,11 @@ public class Broker {
 	public void run() throws InterruptedException { 
 		this.setState(Broker.Running);
 		while (this.getState() == Broker.Running) {
-			Request request = comboxServer.getRequestQueue().peek(TimeOut,
+			Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
 					TimeUnit.MILLISECONDS);
-			if (request != null)
+			if (request != null) {
 				serveRequest(request);
+			}
 		}
 	}
 
@@ -761,10 +758,11 @@ public class Broker {
 	 * @return log prefix
 	 */
 	public String getLogPrefix() {
-		if (popInfo == null)
+		if (popInfo == null){
 			return this.getClass().getName() + ".Intilizing:";
-		else
+		} else {
 			return this.getClass().getName() + "."
 					+ popInfo.getClass().getName() + ":";
+		}
 	}
 }

@@ -54,7 +54,7 @@ else
 	fi
 fi
 
-CP=$LOCATION
+CP=$LOCATION/JarFile/popjava.jar:$LOCATION/JarFile/testsuite.jar
 
 N_TEST=6
 

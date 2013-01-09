@@ -32,7 +32,6 @@ import popjava.combox.ComboxSocketFactory;
 
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
-import popjava.util.LogWriter;
 import popjava.util.Util;
 
 /**
@@ -445,7 +444,7 @@ public class POPSystem {
 	public static void end(){
 		if(prlt != null){ //If initialize failed, prlt will be null
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(1000); //TODO: this looks like a huge HACK
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

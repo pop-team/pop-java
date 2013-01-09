@@ -1,6 +1,8 @@
 package popjava.buffer;
 
 import popjava.base.*;
+import popjava.util.LogWriter;
+
 import java.nio.*;
 
 /**
@@ -46,7 +48,7 @@ public class BufferRaw extends Buffer {
 
 	@Override
 	public MessageHeader extractHeader() {
-		messageHeader = new MessageHeader();		
+		messageHeader = new MessageHeader();
 		if (buffer.limit() >= MessageHeader.HeaderLength) {
 			int requestType = this.getInt(4);
 			messageHeader.setRequestType(requestType);
@@ -65,7 +67,7 @@ public class BufferRaw extends Buffer {
 			default:
 				break;
 			}
-			this.position(MessageHeader.HeaderLength);
+			position(MessageHeader.HeaderLength);
 		}
 		return this.messageHeader;
 	}
@@ -122,8 +124,9 @@ public class BufferRaw extends Buffer {
 		try {
 			byte[] data = new byte[stringLength];
 			buffer.get(data, 0, stringLength);
-			if ((stringLength % 4) != 0)				
+			if ((stringLength % 4) != 0){
 				this.position(this.position() + 4 - (stringLength % 4));
+			}
 			return (new String(data)).trim();
 		} catch (Exception e) {			
 			return "";
@@ -152,12 +155,14 @@ public class BufferRaw extends Buffer {
 	@Override
 	public void put(byte[] data) {
 		int len=data.length;
-		if((len%4)!=0)
-				len=len+4-len%4;
+		if((len%4) != 0){
+				len= len + 4 - len % 4;
+		}
 		resize(len);
 		buffer.put(data);
-		if((data.length%4)!=0)
-		this.position(this.position()+4-data.length%4);
+		if((data.length%4) != 0){
+			position(position() + 4 - data.length % 4);
+		}
 	}
 
 	@Override
@@ -219,21 +224,40 @@ public class BufferRaw extends Buffer {
 		resize(Long.SIZE / Byte.SIZE);
 		buffer.putLong(value);
 	}
+	
+	/**
+     * http://www.javacodegeeks.com/2010/11/java-best-practices-char-to-byte-and.html
+     * Around 30% faster than String.getBytes()
+     * @param str
+     * @return
+     */
+    private static byte[] stringToBytesASCII(String str) {
+    	byte[] b = new byte[str.length()];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = (byte) str.charAt(i);
+        }
+        return b;
+    }
 
 	@Override
 	public void putString(String data) {
+		
 		if (data != null && data.length() > 0) {
-			int stringLength = data.length() + 1;
-			byte[] datas = data.getBytes();
-			this.putInt(stringLength);
-			resize(stringLength);
+			int stringLength = data.length() + 1; //0 terminated
+			byte[] datas = stringToBytesASCII(data);
+			
+			//Integrate putInt code so that resize is called only once
+			resize(stringLength +(Integer.SIZE / Byte.SIZE));
+			buffer.putInt(stringLength);
+			
 			buffer.put(datas);
-			buffer.put((byte) 0);
-			if ((stringLength % 4) != 0)
-				this.position(this.position() + 4 - (stringLength % 4));
-
-		} else
-			this.putInt(0);
+			buffer.put((byte) 0);//0 terminated
+			if ((stringLength % 4) != 0){
+				position(position() + 4 - (stringLength % 4));
+			}
+		} else {
+			putInt(0);
+		}
 	}
 
 	@Override
@@ -262,7 +286,7 @@ public class BufferRaw extends Buffer {
 		int position = this.position();
 		this.position(0);
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < this.size() / 4; i++) {
+		for (int i = 0; i < size() / 4; i++) {
 			sb.append(this.getInt());
 			sb.append('_');
 		}
@@ -278,7 +302,7 @@ public class BufferRaw extends Buffer {
 		this.position(0);
 		StringBuilder sb = new StringBuilder();
 		sb.append("Data in bytes:");
-		for (int i = 0; i < this.size(); i++) {
+		for (int i = 0; i < size(); i++) {
 			byte data = buffer.get();
 			int byteValue = new Integer(data).intValue();
 			if (byteValue < 0) {
@@ -305,8 +329,9 @@ public class BufferRaw extends Buffer {
 	 * @param index	index to set the pointer
 	 */
 	public void position(int index) {
-		if (index > size)
+		if (index > size){
 			size = index;
+		}
 		buffer.position(index);
 	}
 
@@ -326,8 +351,8 @@ public class BufferRaw extends Buffer {
 		size += moreCapacity;
 		int position = this.position() + moreCapacity;
 		int capacity = buffer.capacity();
-		if (position > capacity *4/ 5) {
-			int newCapacity = position * 5/4;
+		if (position > capacity * 4. / 5) {
+			int newCapacity = (int)(position * 5./4);
 			ByteBuffer tempBuffer = ByteBuffer.allocate(newCapacity);
 			tempBuffer.order(buffer.order());
 			tempBuffer.put(buffer.array(),0,buffer.position());
@@ -337,8 +362,9 @@ public class BufferRaw extends Buffer {
 
 	public void resize(int position, int moreCapacity) {
 		position = position + moreCapacity;
-		if (position > size)
+		if (position > size){
 			size = position;
+		}
 		int capacity = buffer.capacity();
 		if (position > capacity / 2) {
 			int newCapacity = position * 2;
@@ -495,26 +521,28 @@ public class BufferRaw extends Buffer {
 	}
 	@Override
 	public int packMessageHeader() {
-		int index = 0;				
+		int index = 0;
 		for (index = 0; index < 5; index++) {
-			this.putInt(index * 4, 0);
+			putInt(index * 4, 0); //0, 4, 8, 12
 		}
 		int type = messageHeader.getRequestType();
-		this.putInt(0, this.size());
-		this.putInt(4, type);
+		//LogWriter.writeDebugInfo("Pack header "+size() +" "+position());
+		putInt(0, size());
+		
+		putInt(4, type);
 		switch (type) {
-		case MessageHeader.Request:
-			this.putInt(8, messageHeader.getClassId());
-			this.putInt(12, messageHeader.getMethodId());
-			this.putInt(16, messageHeader.getSenmatics());
-			break;
-		case MessageHeader.Exception:
-			this.putInt(8, messageHeader.getExceptionCode());
-			break;
-		case MessageHeader.Response:
-			break;
-		default:
-			break;
+			case MessageHeader.Request:
+				putInt(8, messageHeader.getClassId());
+				putInt(12, messageHeader.getMethodId());
+				putInt(16, messageHeader.getSenmatics());
+				break;
+			case MessageHeader.Exception:
+				putInt(8, messageHeader.getExceptionCode());
+				break;
+			case MessageHeader.Response:
+				break;
+			default:
+				break;
 		}
 		return 0;
 	}
