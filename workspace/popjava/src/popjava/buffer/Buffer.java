@@ -378,9 +378,10 @@ public abstract class Buffer extends Object {
 	 * @throws POPException	thrown if the serialization process is not going well
 	 */
 	public void putValue(Object o,Class<?>c) throws POPException {
-		if (o == null&&!c.isArray()) {			
+		if (o == null && !c.isArray()) {			
 			POPException.throwNullObjectNotAllowException();
 		}		
+		
 		if (c.equals(byte.class) || c.equals(Byte.class))
 			this.put((Byte) o);
 		else if (c.equals(int.class) || c.equals(Integer.class))
@@ -401,15 +402,14 @@ public abstract class Buffer extends Object {
 			this.putShort((Short)o);
 		else if (c.isArray()) {
 			this.putArray(o);
-		} else if (IPOPBaseInput.class.isAssignableFrom(c)
-				||IPOPBase.class.isAssignableFrom(c)) {
+		} else if (IPOPBaseInput.class.isAssignableFrom(c) || IPOPBase.class.isAssignableFrom(c)) {
 			try {
 				Method m = c.getMethod("serialize", Buffer.class);
 				m.setAccessible(true);
 				m.invoke(o, this);
 			} catch (Exception e) {
-				POPException.throwReflectSerializeException(c.getName(), e
-						.getMessage());
+				LogWriter.writeExceptionLog(e);
+				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
 			}
 		} 
 	}

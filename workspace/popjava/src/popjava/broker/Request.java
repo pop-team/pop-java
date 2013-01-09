@@ -1,5 +1,6 @@
 package popjava.broker;
 
+import popjava.base.Semantic;
 import popjava.buffer.*;
 import popjava.combox.*;
 /**
@@ -197,5 +198,37 @@ public class Request {
 	 */
 	public void setBuffer(String bufferType) {
 		receivedCombox.setBuffer(bufferType);
+	}
+	
+	/**
+	 * Returns true if this request is a synchronous request, false if asynchronous
+	 * @return
+	 */
+	public boolean isSynchronous(){
+		return (getSenmatics() & Semantic.Synchronous) != 0;
+	}
+	
+	/**
+	 * Returns true if this request is a concurrent request, false otherwise
+	 * @return
+	 */
+	public boolean isConcurrent(){
+		return (getSenmatics() & Semantic.Concurrent) != 0;
+	}
+	
+	/**
+	 * Returns true if this request is a mutex request, false otherwise
+	 * @return
+	 */
+	public boolean isMutex(){
+		return (getSenmatics() & Semantic.Mutex) != 0;
+	}
+	
+	/**
+	 * Returns true if this request is a sequential request, false otherwise
+	 * @return
+	 */
+	public boolean isSequential(){
+		return !isConcurrent() && !isMutex();
 	}
 }

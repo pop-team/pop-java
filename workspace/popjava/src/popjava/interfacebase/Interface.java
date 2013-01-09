@@ -28,9 +28,6 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.*;
 
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 
 
@@ -41,7 +38,7 @@ import java.util.*;
 public class Interface {
 
 	protected Combox combox;
-	protected Buffer popBuffer;
+	//protected Buffer popBuffer;
 	protected POPAccessPoint popAccessPoint = new POPAccessPoint();
 	protected ObjectDescription od = new ObjectDescription();
 
@@ -69,18 +66,9 @@ public class Interface {
 	 */
 	public boolean serialize(Buffer buffer) {
 		od.serialize(buffer);
-		popAccessPoint.serialize(buffer);
-		Buffer oldBuffer = null;
-
-		if (buffer == popBuffer) {
-			oldBuffer = popBuffer;
-			popBuffer = combox.getBufferFactory().createBuffer();
-		}
+		popAccessPoint.serialize(buffer);		
 		int ref = addRef();
 		buffer.putInt(ref);
-		if (popBuffer != null) {
-			popBuffer = oldBuffer;
-		}
 		return true;
 	}
 
@@ -93,12 +81,6 @@ public class Interface {
 		boolean result = true;
 		od.deserialize(buffer);
 		popAccessPoint.deserialize(buffer);
-		Buffer oldBuffer = null;
-
-		if (buffer == popBuffer) {
-			oldBuffer = popBuffer;
-			popBuffer = combox.getBufferFactory().createBuffer();
-		}
 		int ref = buffer.getInt();
 		if (ref > 0) {
 			try {
@@ -113,26 +95,7 @@ public class Interface {
 				this.decRef();
 			}
 		}
-		if (popBuffer != null) {
-			popBuffer = oldBuffer;
-		}
 		return result;
-	}
-
-	/**
-	 * Get the buffer of the interface
-	 * @return the buffer associated with this interface
-	 */
-	public Buffer getBuffer() {
-		return popBuffer;
-	}
-
-	/**
-	 * Associate a buffer with this interface
-	 * @param buffer Buffer to be associated with
-	 */
-	public void setBuffer(Buffer buffer) {
-		this.popBuffer = buffer;
 	}
 
 	/**
@@ -238,7 +201,7 @@ public class Interface {
 						throw new POPException(createdCode,
 							"OBJECT_EXECUTABLE_NOTFOUND");
 					case POPErrorCode.POP_JOBSERVICE_FAIL:
-						throw new POPException(createdCode, "NO_RESOURCE_MATCH");
+						throw new POPException(createdCode, "NO_RESOURCE_MATCH "+objectName);
 					default:
 						throw new POPException(createdCode, "UNABLE_TO_CREATED_THE_PARALLEL_OBJECT");
 				}
@@ -269,11 +232,12 @@ public class Interface {
 			POPException.throwAccessPointNotAvailableException();
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 
-		if (combox != null)
+		if (combox != null){
 			combox.close();
+		}
 		combox = finder.findFactory(Configuration.DefaultProtocol)
 				.createClientCombox(accesspoint);
-		popBuffer = combox.getBufferFactory().createBuffer();
+		
 		if (combox.connect(accesspoint, Configuration.CONNECTION_TIMEOUT)) {
 
 			BindStatus bindStatus = new BindStatus();
@@ -303,12 +267,11 @@ public class Interface {
 	 * @throws POPException
 	 */
 	private void bindStatus(BindStatus bindStatus) throws POPException {
-		if (combox == null)
+		if (combox == null){
 			POPException.throwComboxNotAvailableException();
-		if (popBuffer == null)
-			POPException.throwBufferNotAvailableException();
+		}
 
-		popBuffer = combox.getBufferFactory().createBuffer();
+		Buffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.BindStatusCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
@@ -334,43 +297,45 @@ public class Interface {
 	 */
 	private void negotiateEncoding(String info, String platform)
 			throws POPException {
-		if (combox == null)
+		if (combox == null){
 			POPException.throwComboxNotAvailableException();
-		if (popBuffer == null)
-			POPException.throwBufferNotAvailableException();
-		popBuffer = combox.getBufferFactory().createBuffer();
+		}
+		Buffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.GetEncodingCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 		popBuffer.putString(Configuration.SelectedEncoding);
 
-		this.popDispatch(popBuffer);
+		popDispatch(popBuffer);
 
 		boolean result = false;
 		Buffer responseBuffer = combox.getBufferFactory().createBuffer();
-		this.popResponse(responseBuffer);
+		popResponse(responseBuffer);
 		result = responseBuffer.getBoolean();
 		if (result) {
 			BufferFactory bufferFactory = BufferFactoryFinder.getInstance()
 					.findFactory(Configuration.SelectedEncoding);
 			combox.setBufferFactory(bufferFactory);
-			popBuffer = bufferFactory.createBuffer();
+			
+			//TODO: Check out why this was done
+			//popBuffer = bufferFactory.createBuffer();
 		}
 	}
 
 	public int addRef() {
-		if (combox == null)
+		if (combox == null){
 			return -1;
-		popBuffer = combox.getBufferFactory().createBuffer();
+		}
+		Buffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.AddRefCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
-		this.popDispatch(popBuffer);
+		popDispatch(popBuffer);
 		int result = 0;
 		try {
 			Buffer responseBuffer = combox.getBufferFactory().createBuffer();
-			this.popResponse(responseBuffer);
+			popResponse(responseBuffer);
 			result = responseBuffer.getInt();
 		} catch (POPException e) {
 			return -1;
@@ -379,18 +344,19 @@ public class Interface {
 	}
 
 	public int decRef() {
-		if (combox == null)
+		if (combox == null){
 			return -1;
-		popBuffer = combox.getBufferFactory().createBuffer();
+		}
+		Buffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.DecRefCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
-		this.popDispatch(popBuffer);
+		popDispatch(popBuffer);
 		int result = 0;
 		try {
 			Buffer responseBuffer = combox.getBufferFactory().createBuffer();
-			this.popResponse(responseBuffer);
+			popResponse(responseBuffer);
 			result = responseBuffer.getInt();
 		} catch (POPException e) {
 			return -1;
@@ -403,18 +369,19 @@ public class Interface {
 	 * @return	true if the parallel object is alive
 	 */
 	public boolean isAlive() {
-		if (combox == null)
+		if (combox == null){
 			return false;
-		popBuffer = combox.getBufferFactory().createBuffer();
+		}
+		Buffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.ObjectAliveCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
-		this.popDispatch(popBuffer);
+		popDispatch(popBuffer);
 		boolean result = false;
 		try {
 			Buffer responseBuffer = combox.getBufferFactory().createBuffer();
-			this.popResponse(responseBuffer);
+			popResponse(responseBuffer);
 			result = responseBuffer.getBoolean();
 		} catch (POPException e) {
 			return false;
@@ -426,9 +393,10 @@ public class Interface {
 	 * Kill the associated parallel object
 	 */
 	public void kill() {
-		if (combox == null)
+		if (combox == null){
 			return;
-		popBuffer = combox.getBufferFactory().createBuffer();
+		}
+		Buffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.KillCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
@@ -436,7 +404,7 @@ public class Interface {
 		this.popDispatch(popBuffer);
 		try {
 			Buffer responseBuffer = combox.getBufferFactory().createBuffer();
-			this.popResponse(responseBuffer);
+			popResponse(responseBuffer);
 		} catch (POPException e) {
 			return;
 		}
@@ -458,16 +426,19 @@ public class Interface {
 
 		// Check if Od is empty
 		boolean odEmpty = od.isEmpty();
-		if (odEmpty)
+		if (odEmpty){
 			return false;
+		}
 
 		joburl = od.getHostName();
-		
-		//if (joburl == null || joburl.length() == 0 || !Util.sameContact(joburl, POPSystem.getHost()))
-		//	return false;
-		
-		if(joburl == null || joburl.length() == 0)
+		LogWriter.writeDebugInfo("Joburl "+joburl+" "+objectName);
+		/*if (joburl == null || joburl.length() == 0 || !Util.sameContact(joburl, POPSystem.getHost())){
 			return false;
+		}*/
+		
+		if(joburl == null || joburl.length() == 0){
+			return false;
+		}
 
 		codeFile = od.getCodeFile();
 		
@@ -566,8 +537,9 @@ public class Interface {
 		/*if (!isLocal) {
 			return -1;
 		}*/
-		if (codeFile == null || codeFile.length() == 0)
+		if (codeFile == null || codeFile.length() == 0){
 			return -1;
+		}
 		codeFile = codeFile.trim();
 
 		ArrayList<String> argvList = new ArrayList<String>();
@@ -599,8 +571,12 @@ public class Interface {
 			argvList.add(portString);
 		}
 		
-		if(!isLocal){
+		int ret = -1;
+		if(isLocal){
+			ret = SystemUtil.runCmd(argvList);
+		}else{
 			ArrayList<String> tmp = new ArrayList<String>();
+			//TODO: insert at list start instead of recreating one
 			tmp.add("ssh");
 			tmp.add(hostname);
 			for (int i = 0; i < argvList.size(); i++) {
@@ -611,10 +587,10 @@ public class Interface {
 			for (int i = 0; i < tmp.size(); i++) {
 				argvList.add(tmp.get(i));
 			}
+			ret = SystemUtil.runCmd(argvList);
 			
+			//ret = SystemUtil.runRemoteCmd(hostname, argvList);
 		}
-		
-		int ret = SystemUtil.runCmd(argvList);
 
 		if (ret == -1) {
 			return ret;

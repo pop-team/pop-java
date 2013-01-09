@@ -66,13 +66,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		MessageHeader messageHeader = new MessageHeader(
 				methodInfo.getClassId(), methodInfo.getMethodId(),
 				constructorSemanticId);
-		popBuffer = combox.getBufferFactory().createBuffer();
+		Buffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
 		for (int index = 0; index < argvs.length; index++) {
 			popBuffer.putValue(argvs[index], parameterTypes[index]);
 		}
 
-		this.popDispatch(popBuffer);
+		popDispatch(popBuffer);
 		Buffer responseBuffer = combox.getBufferFactory().createBuffer();
 		this.popResponse(responseBuffer);
 		for (int index = 0; index < parameterTypes.length; index++) {
@@ -109,8 +109,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		// If serialize or de-serialize
 		boolean[] canExecute = new boolean[1];
 		result = invokeCustomMethod(self, m, proceed, canExecute, argvs);
-		if (canExecute[0])
+		if (canExecute[0]){
 			return result;
+		}
 
 		Class<?> proceedClass = m.getDeclaringClass();
 		if (!POPObject.class.isAssignableFrom(proceedClass))
@@ -124,13 +125,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		int methodSemantics = (Integer) popObjectInfo.getSemantic(info);
 		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info
 				.getMethodId(), methodSemantics);
-		popBuffer = combox.getBufferFactory().createBuffer();
+		Buffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
 		Class<?>[] parameterTypes = m.getParameterTypes();
 		for (int index = 0; index < argvs.length; index++) {
 			popBuffer.putValue(argvs[index], parameterTypes[index]);
 		}
-		this.popDispatch(popBuffer);
+		popDispatch(popBuffer);
 		
 		if ((methodSemantics & Semantic.Synchronous) != 0) {
 			Buffer responseBuffer = combox.getBufferFactory()

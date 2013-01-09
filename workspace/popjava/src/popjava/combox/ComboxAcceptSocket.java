@@ -2,7 +2,10 @@ package popjava.combox;
 
 import popjava.broker.Broker;
 import popjava.broker.RequestQueue;
+import popjava.util.LogWriter;
+
 import java.net.*;
+import java.util.LinkedList;
 import java.io.*;
 
 /**
@@ -18,7 +21,7 @@ public class ComboxAcceptSocket implements Runnable {
 	protected RequestQueue requestQueue;
 	protected ServerSocket serverSocket;
 	protected int status = Exit;
-	protected java.util.LinkedList<Socket> concurentConnections = new java.util.LinkedList<Socket>();
+	protected LinkedList<Socket> concurentConnections = new LinkedList<Socket>();
 
 	/**
 	 * Create a new instance of the ComboxAccept socket
@@ -41,20 +44,23 @@ public class ComboxAcceptSocket implements Runnable {
 			Socket connection = null;
 			try {
 				connection = serverSocket.accept();
-				if(broker!=null)
-				broker.onNewConnection();
+				if(broker != null){
+					broker.onNewConnection();
+				}
 				synchronized (concurentConnections) {
 					concurentConnections.add(connection);
 				}
 
 				Runnable runnable = new ComboxReceiveRequestSocket(broker,
 						requestQueue, connection);
-				Thread thread = new Thread(runnable);
+				Thread thread = new Thread(runnable, "Combox request acceptance");
 				thread.start();
 			} catch (IOException e) {				
 				break;
-			}	
+			}
 		}
+		
+		LogWriter.writeDebugInfo("Combox Server finished");
 		this.close();
 	}
 
@@ -70,8 +76,9 @@ public class ComboxAcceptSocket implements Runnable {
 			}
 		}
 		try {
-			if (!serverSocket.isClosed())
+			if (!serverSocket.isClosed()){
 				serverSocket.close();
+			}
 		} catch (IOException e) {			
 		}
 	}

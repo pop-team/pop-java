@@ -1,30 +1,30 @@
 /*
- * POP-Java grammar 1.0 (extends Java language specification 3rd edition : https://javacc.dev.java.net/servlets/ProjectDocumentList?folderID=110) 
- *
- * POP-Java Parser and Code generator
- * This file is the grammar file for the POP-Java language. It's used with JavaCC and produce the POP-Java Parser and Code Generator
- * The Java grammar used in this file is the 1.5. As Java language definition didn't change between Java 1.5 and 1.6, the grammar is 
- * fully functional with all Java 1.6 code.
- *
- * All the code added to the standard Java1.6 grammar is commented with POP-Java at the beginning of the comment
- *
- * Modifications:
- * Author      Date        Description
- * clementval  2011/01/18  
- */
+* POP-Java grammar 1.0 (extends Java language specification 3rd edition : https://javacc.dev.java.net/servlets/ProjectDocumentList?folderID=110) 
+*
+* POP-Java Parser and Code generator
+* This file is the grammar file for the POP-Java language. It's used with JavaCC and produce the POP-Java Parser and Code Generator
+* The Java grammar used in this file is the 1.5. As Java language definition didn't change between Java 1.5 and 1.6, the grammar is 
+* fully functional with all Java 1.6 code.
+*
+* All the code added to the standard Java1.6 grammar is commented with POP-Java at the beginning of the comment
+*
+* Modifications:
+* Author      Date        Description
+* clementval  2011/01/18  
+*/
 
 
 options {
-  JAVA_UNICODE_ESCAPE = true;
-  ERROR_REPORTING = false;
-  STATIC = false;
+JAVA_UNICODE_ESCAPE = true;
+ERROR_REPORTING = false;
+STATIC = false;
 }
 
 PARSER_BEGIN(POPJParser)
 
 /**
- * Import all the needed librairie here
- */
+* Import all the needed librairie here
+*/
 import java.io.*;
 import java.util.ArrayList;	//POP-Java import added
 import java.util.HashMap;     //POP-Java impert added
@@ -32,12 +32,12 @@ import java.util.HashMap;     //POP-Java impert added
 
 public class POPJParser
 {
-	/**
-	* Class to hold modifiers.
-	*/
-	static public final class ModifierSet
-  {
-		/* Definitions of the bits in the modifiers field.  */
+        /**
+        * Class to hold modifiers.
+        */
+        static public final class ModifierSet
+{
+                /* Definitions of the bits in the modifiers field.  */
     public static final int PUBLIC = 0x0001;
     public static final int PROTECTED = 0x0002;
     public static final int PRIVATE = 0x0004;
@@ -55,666 +55,686 @@ public class POPJParser
 
     public boolean isPublic(int modifiers)
     {
-      return (modifiers & PUBLIC) != 0;
+    return (modifiers & PUBLIC) != 0;
     }
 
     public boolean isProtected(int modifiers)
     {
-      return (modifiers & PROTECTED) != 0;
+    return (modifiers & PROTECTED) != 0;
     }
 
     public boolean isPrivate(int modifiers)
     {
-      return (modifiers & PRIVATE) != 0;
+    return (modifiers & PRIVATE) != 0;
     }
 
     public boolean isStatic(int modifiers)
     {
-      return (modifiers & STATIC) != 0;
+    return (modifiers & STATIC) != 0;
     }
 
     public boolean isAbstract(int modifiers)
     {
-      return (modifiers & ABSTRACT) != 0;
+    return (modifiers & ABSTRACT) != 0;
     }
 
     public boolean isFinal(int modifiers)
     {
-      return (modifiers & FINAL) != 0;
+    return (modifiers & FINAL) != 0;
     }
 
     public boolean isNative(int modifiers)
     {
-      return (modifiers & NATIVE) != 0;
+    return (modifiers & NATIVE) != 0;
     }
 
     public boolean isStrictfp(int modifiers)
     {
-      return (modifiers & STRICTFP) != 0;
+    return (modifiers & STRICTFP) != 0;
     }
 
     public boolean isSynchronized(int modifiers)
     {
-      return (modifiers & SYNCHRONIZED) != 0;
+    return (modifiers & SYNCHRONIZED) != 0;
     }
 
     public boolean isTransient(int modifiers)
     {
-      return (modifiers & TRANSIENT) != 0;
+    return (modifiers & TRANSIENT) != 0;
     }
 
     public boolean isVolatile(int modifiers)
     {
-      return (modifiers & VOLATILE) != 0;
+    return (modifiers & VOLATILE) != 0;
     }
 
     /**
-     * Removes the given modifier.
-     */
+    * Removes the given modifier.
+    */
     static int removeModifier(int modifiers, int mod)
     {
-       return modifiers & ~mod;
+    return modifiers & ~mod;
     }
-  }
+}
 
-	/*
-   * POP-Java parser Holder. This static class is used to hold all the needed
-   * informations for the code generation during the parsing.
-	 */
-	public static class Holder {
-		public static boolean isMain=false;	//Say if the current class is the class with the main method
-		public static boolean inMain=false;	//Say if the current token is in the main method
-		public static int depthMain=0;			//Depth inside the main (number of opened braces)
-		public static boolean isParclass=false;	//Say that the current class is a parallel class
-		public static boolean hasDefaultConstructor=false;	//Say if the class has a default constrcutor
-		public static String thisClassName="";	//Name of the parallel class
-		public static boolean canPrintImport = true;	//Say if the import can be added
-		public static boolean hasPackage=false;	//Say if the class has a package declaration
-		public static Parclass parclass;				//Variable used to hold every extracted informations (semantics, object description)
-		public static int constructorId = 0;		//Variable used to give an id to each constrcutor
-		public static Token first=null;					//First token of the file
-		public static ArrayList<String> parclasses = new ArrayList<String>();	//List of the parclasses of the application
-      public static HashMap<String, String> _hm_parclasses = new HashMap<String, String>();
-	}
+        /*
+* POP-Java parser Holder. This static class is used to hold all the needed
+* informations for the code generation during the parsing.
+        */
+        public static class Holder {
+                public static boolean isMain=false;	//Say if the current class is the class with the main method
+                public static boolean inMain=false;	//Say if the current token is in the main method
+                public static int depthMain=0;			//Depth inside the main (number of opened braces)
+                public static boolean isParclass=false;	//Say that the current class is a parallel class
+                public static boolean hasDefaultConstructor=false;	//Say if the class has a default constrcutor
+                public static String thisClassName="";	//Name of the parallel class
+                public static boolean canPrintImport = true;	//Say if the import can be added
+                public static boolean hasPackage=false;	//Say if the class has a package declaration
+                public static Parclass parclass;				//Variable used to hold every extracted informations (semantics, object description)
+                public static int constructorId = 0;		//Variable used to give an id to each constrcutor
+                public static Token first=null;					//First token of the file
+                public static ArrayList<String> parclasses = new ArrayList<String>();	//List of the parclasses of the application
+    public static HashMap<String, String> _hm_parclasses = new HashMap<String, String>();
+        }
 
-	//Constructor of the parser with the given file name as argument
-	public POPJParser(String fileName)
-  {
-		this(System.in);
+        //Constructor of the parser with the given file name as argument
+        public POPJParser(String fileName)
+{
+                this(System.in);
     try { 
-			ReInit(new FileInputStream(new File(fileName))); 
-		} catch(Exception e) { 
-			e.printStackTrace(); 
-		}
-	}
+                        ReInit(new FileInputStream(new File(fileName))); 
+                } catch(Exception e) { 
+                        e.printStackTrace(); 
+                }
+        }
 
-	//POP-Java added method : This method is used to print the indentation of the code
-	public static void printIndent(int indent){
-		for(int i=0; i < indent; i++)
-			System.out.print("\t");
-	}
+        //POP-Java added method : This method is used to print the indentation of the code
+        public static void printIndent(int indent){
+                for(int i=0; i < indent; i++)
+                        System.out.print("\t");
+        }
 
-	//POP-Java added method : This method is used to print a String and a carriage return with the given indentation
-	public static void println(String s, int indent){
-		printIndent(indent);
-		System.out.println(s);
-	}
+        //POP-Java added method : This method is used to print a String and a carriage return with the given indentation
+        public static void println(String s, int indent){
+                printIndent(indent);
+                System.out.println(s);
+        }
 
-	//POP-Java added method : This method is used to print a String with the given indentation
-	public static void print(String s, int indent){
-		printIndent(indent);
-		System.out.print(s);
-	}
+        //POP-Java added method : This method is used to print a String with the given indentation
+        public static void print(String s, int indent){
+                printIndent(indent);
+                System.out.print(s);
+        }
 
-	//POP-Java added method : This method is used to print the needed parclass or main class import
-	public static void printImport(boolean isMain){
-		println("//Import added by the POP-Java compiler",0);
-		println("import popjava.PopJava;",0);
-		println("import popjava.base.POPException;",0);
-		if(isMain){
-			println("import popjava.baseobject.ObjectDescription;",0);
-			println("import popjava.system.POPSystem;",0);
-		} else {
-			println("import popjava.base.POPObject;",0);
-			println("import popjava.base.Semantic;",0);
-         println("import popjava.serviceadapter.POPAppService;",0);
-         println("import popjava.system.POPSystem;",0);
-		}
-		println("",0);
-	}
+        //POP-Java added method : This method is used to print the needed parclass or main class import
+        public static void printImport(boolean isMain){
+                println("//Import added by the POP-Java compiler",0);
+                println("import popjava.PopJava;",0);
+                println("import popjava.base.POPException;",0);
+                if(isMain){
+                        println("import popjava.baseobject.ObjectDescription;",0);
+                        println("import popjava.system.POPSystem;",0);
+                } else {
+                        println("import popjava.base.POPObject;",0);
+                        println("import popjava.base.Semantic;",0);
+        println("import popjava.serviceadapter.POPAppService;",0);
+        println("import popjava.system.POPSystem;",0);
+                }
+                println("",0);
+        }
 
-	//POP-Java added method : This method is used to print the special token (comment)
-	public static void printSpecialToken(Token special, int indent){
-		while(special!=null){
-			print(special.toString(), 0);
-			special = special.specialToken;
-		}
-		print("", indent);
-	}
+        //POP-Java added method : This method is used to print the special token (comment)
+        public static void printSpecialToken(Token special, int indent){
+                while(special!=null){
+                        print(special.toString(), 0);
+                        special = special.specialToken;
+                }
+                print("", indent);
+        }
 
-	/* 
-	 * POP-Java parser main. The parser can take several arguments. All the main has been rewritten from the standard Java1.6 grammar file
-   * -file=FILENAME								The file to be parsed
-   * -parclasses=PAR1:PAR2:PARN		The parclasses of the applications. Mandatory to change the instantiation process of the Parallel classes
-	 * -popcinfos=filename.xml			XML File that contains the additional informations for the POP-C++ compilation
-   * -parse-only									Parse the given file but don't generate code
-	 */
-  public static void main(String args[]) {
+        /* 
+        * POP-Java parser main. The parser can take several arguments. All the main has been rewritten from the standard Java1.6 grammar file
+* -file=FILENAME								The file to be parsed
+* -parclasses=PAR1:PAR2:PARN		The parclasses of the applications. Mandatory to change the instantiation process of the Parallel classes
+        * -popcinfos=filename.xml			XML File that contains the additional informations for the POP-C++ compilation
+* -parse-only									Parse the given file but don't generate code
+        */
+public static void main(String args[]) {
     POPJParser parser=null;				//Instance of the parser
-		boolean printPOPCInfo=false;	//Tell if the code generator can print the POP-C++ special informations
-		boolean parseOnly = false;		//This option is used to parse only the code and not generate the Java code
-		boolean popc=false;						//Tell if it is a special compilation with POP-C++ special informations
-		String filename = "";					//Name of the file to parse
-		String popcinfosFile = "";		//Path of the file with popc informations
-		ArrayList<String> parclasses = new ArrayList<String>();	//Array containing the Name of application parclasses
+                boolean printPOPCInfo=false;	//Tell if the code generator can print the POP-C++ special informations
+                boolean parseOnly = false;		//This option is used to parse only the code and not generate the Java code
+                boolean popc=false;						//Tell if it is a special compilation with POP-C++ special informations
+                String filename = "";					//Name of the file to parse
+                String popcinfosFile = "";		//Path of the file with popc informations
+                ArrayList<String> parclasses = new ArrayList<String>();	//Array containing the Name of application parclasses
 
-		//Retriev arguments
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].startsWith("-file=")) {
-				filename = args[i].substring(args[i].indexOf("=")+1);
-			} else if (args[i].startsWith("-m")) {
-				Holder.isMain = true;
-			} else if (args[i].startsWith("-parclasses=")) {
-				String parstr = args[i].substring(args[i].indexOf("=")+1);
-				String parclass = "";
-				for (int j = 0; j <= parstr.length(); j++) {
-					if (j==parstr.length() || parstr.charAt(j) == ':'){
-						if(!parclass.endsWith(".pjava")){
-							System.err.println("Parclass must be POP-Java file (.pjava)");
-							System.exit(1);
-						}
-                  int slash = parclass.lastIndexOf("/");
-                  if(slash!=0) slash++;
-						parclasses.add(parclass.substring(slash, parclass.indexOf(".")));
-						parclass = "";
-					}
-					else {
-						parclass += parstr.charAt(j);
-					}
-				}
+                //Retriev arguments
+                for (int i = 0; i < args.length; i++) {
+                        if (args[i].startsWith("-file=")) {
+                                filename = args[i].substring(args[i].indexOf("=")+1);
+                        } else if (args[i].startsWith("-m")) {
+                                Holder.isMain = true;
+                        } else if (args[i].startsWith("-parclasses=")) {
+                                String parstr = args[i].substring(args[i].indexOf("=")+1);
+                                String parclass = "";
+                                for (int j = 0; j <= parstr.length(); j++) {
+                                        if (j==parstr.length() || parstr.charAt(j) == ':'){
+                                                if(!parclass.endsWith(".pjava")){
+                                                        System.err.println("Parclass must be POP-Java file (.pjava)");
+                                                        System.exit(1);
+                                                }
+                int slash = parclass.lastIndexOf("/");
+                if(slash!=0) slash++;
+                                                parclasses.add(parclass.substring(slash, parclass.indexOf(".")));
+                                                parclass = "";
+                                        }
+                                        else {
+                                                parclass += parstr.charAt(j);
+                                        }
+                                }
             int slash = filename.lastIndexOf("/");
             if(slash!=0) slash++;
             parclasses.add(filename.substring(slash, filename.indexOf(".")));
-			} else if (args[i].startsWith("-popcinfos=")) {
-				popc=true;
-				popcinfosFile = args[i].substring(args[i].indexOf("=")+1);
-			} else if (args[i].startsWith("-parse-only")) {
-				parseOnly=true;
-			} else {
-				System.err.println("Bad arguments");
-				System.exit(1);
-			}
-		}
-		
-		//Check if a file has been given
-		if(filename.equals("")){
-			System.err.println("No file to parse");
-			System.exit(1);
-		}
-  	
-		//Create the parser
-   	try {
-      parser = new POPJParser(new java.io.FileInputStream(filename));
+                        } else if (args[i].startsWith("-popcinfos=")) {
+                                popc=true;
+                                popcinfosFile = args[i].substring(args[i].indexOf("=")+1);
+                        } else if (args[i].startsWith("-parse-only")) {
+                                parseOnly=true;
+                        } else {
+                                System.err.println("Bad arguments");
+                                System.exit(1);
+                        }
+                }
+                
+                //Check if a file has been given
+                if(filename.equals("")){
+                        System.err.println("No file to parse");
+                        System.exit(1);
+                }
+        
+                //Create the parser
+        try {
+    parser = new POPJParser(new java.io.FileInputStream(filename));
     } catch (java.io.FileNotFoundException e) {
-      System.err.println("POP-Java Parser Version 1.0:  File " + filename + " not found.");
-			System.exit(1);
+    System.err.println("POP-Java Parser Version 1.0:  File " + filename + " not found.");
+                        System.exit(1);
     }
- 
-		//Call the parser to parse the file
-  	try {
-    	parser.CompilationUnit();
-  	} catch (ParseException e) {
-   		System.err.println("POP-Java Parsing error [lXX]: "+e.getMessage());
-			System.exit(1);
-  	}
-		
-		//If the option parse only is given, the program is exited here
-		if(parseOnly)
-			System.exit(0);
+
+                //Call the parser to parse the file
+        try {
+        parser.CompilationUnit();
+        } catch (ParseException e) {
+                System.err.println("POP-Java Parsing error [lXX]: "+e.getMessage());
+                        System.exit(1);
+        }
+                
+                //If the option parse only is given, the program is exited here
+                if(parseOnly)
+                        System.exit(0);
 
 
-		/*
-		 * Once the parsing is done, the code generation can be set
-		 * All the following code is used to analyze the token and produce Java code from POP-Java
- 		 */
+                /*
+                * Once the parsing is done, the code generation can be set
+                * All the following code is used to analyze the token and produce Java code from POP-Java
+                */
 
-		boolean wasReturn = false;							//Used to indent the code
-		boolean printDefaultConstructor=false;	//Use to print the default constructor if this one is not defined
-		boolean forward = true;									//If true, foward to next token
-		boolean space = true;										//If true print a space
-		boolean constructor=false;							//Used to know if the current token is in a constructor
-		boolean parclassInstance = false;				//Used to know if an identifier with the class name has been found
-		boolean inParen = false;								//Used to know if the current token is in a parenthesis
-		boolean canPrintCatch=false;						//Used to know when to print the end of the catch statement
-		boolean wasPackage=false;								//Used to know when the package declaration is passed
-		boolean parclassArray=false;						//Used to know when an array of parclass is declared
-		String  parclassIdentifier="";					//Used to hold the name of the parclass for the array
-		String	arrayIdentifier="";							//Used to hold the identifier of the parclass array
+                boolean wasReturn = false;							//Used to indent the code
+                boolean printDefaultConstructor=false;	//Use to print the default constructor if this one is not defined
+                boolean forward = true;									//If true, foward to next token
+                boolean space = true;										//If true print a space
+                boolean constructor=false;							//Used to know if the current token is in a constructor
+                boolean parclassInstance = false;				//Used to know if an identifier with the class name has been found
+                boolean inParen = false;								//Used to know if the current token is in a parenthesis
+                boolean canPrintCatch=false;						//Used to know when to print the end of the catch statement
+                boolean wasPackage=false;								//Used to know when the package declaration is passed
+                boolean parclassArray=false;						//Used to know when an array of parclass is declared
+                String  parclassIdentifier="";					//Used to hold the name of the parclass for the array
+                String	arrayIdentifier="";							//Used to hold the identifier of the parclass array
 
-		int constructorId=0;										//Constructor id to retrieve information extracted from the POP-Java code
-		int indent = 0;													//Variable used to indent the code
-		int lastKind = 0;												//Keep the kind of the last token
-	
+                int constructorId=0;										//Constructor id to retrieve information extracted from the POP-Java code
+                int indent = 0;													//Variable used to indent the code
+                int lastKind = 0;												//Keep the kind of the last token
+        
 
-		//Retrieve additional informations for the code generation if the Parclass must be generated to work with POP-C++
-		ClassInformation ci = null;
-		if(popc){
-			XMLWorker xmlWorker = new XMLWorker();
-			ConfigurationWorker cw=null;
-			try {
-				cw = new ConfigurationWorker();
-			} catch (Exception e){
-				System.err.println("Error loading the configuration file");
-				System.exit(1);
-			}
-			String popjava_location = cw.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
-			//Validate the additional information file
-			if(!xmlWorker.isValid(popcinfosFile, popjava_location+"/etc/additional-parser-infos.xsd")){
-				System.err.println("The additional information file is not valid.");
-				System.exit(1);
-			}
-			//Load the informations from the POP-C++ additional informations file
-			ClassInformationExtracter cix = new ClassInformationExtracter(popcinfosFile);
-			cix.loadFile();
-			ci = cix.getInfo(filename);
-			if (ci!=null){
-				printPOPCInfo=true;
-			}
-		}
-
-
-
-
-		/* ############################
-		 *  CODE GENERATOR STARTS HERE
-		 * ############################*/
-
-
-		//Keep the current token
-		Token tok = Holder.first;
-
-		//Read trough all token until the last one
-		while (tok != null){
-			
-			//Check if it's the last token
-			if(tok.next == null){
-					print(tok.toString(),0);	
-					break;
-			}
-
-			//Set the forward boolean to true
-			forward = true;
-
-			//Print out special token
-			if(tok.specialToken != null){
-				Token s = tok.specialToken;
-				printSpecialToken(s, indent);
-			}
-
-			//Insert import for main class or for parclass at the right place
-			if(Holder.canPrintImport){
-				printImport(Holder.isMain);
-				Holder.canPrintImport = false;
-			}
+                //Retrieve additional informations for the code generation if the Parclass must be generated to work with POP-C++
+                ClassInformation ci = null;
+                if(popc){
+                        XMLWorker xmlWorker = new XMLWorker();
+                        ConfigurationWorker cw=null;
+                        try {
+                                cw = new ConfigurationWorker();
+                        } catch (Exception e){
+                                System.err.println("Error loading the configuration file");
+                                System.exit(1);
+                        }
+                        String popjava_location = cw.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
+                        //Validate the additional information file
+                        if(!xmlWorker.isValid(popcinfosFile, popjava_location+"/etc/additional-parser-infos.xsd")){
+                                System.err.println("The additional information file is not valid.");
+                                System.exit(1);
+                        }
+                        //Load the informations from the POP-C++ additional informations file
+                        ClassInformationExtracter cix = new ClassInformationExtracter(popcinfosFile);
+                        cix.loadFile();
+                        ci = cix.getInfo(filename);
+                        if (ci!=null){
+                                printPOPCInfo=true;
+                        }
+                }
 
 
 
-			//Apply rules to some special token
 
-			//Replace keyword parclass by class and add needed extends
-			if(tok.kind == PARCLASS){
-				print("class ",0);
-				tok = tok.next;
-				print(tok.toString(),0);
-				tok = tok.next;
-				//If the parclass does not inherit from a super class then add the extends statement 
-				if(tok.kind != EXTENDS){
-					print(" extends POPObject ",0);
-					forward = false;
-				} 
-				//Else just let the current extends statement
-				else {
-					print(" "+tok.toString(),0);				
-				}
-				printDefaultConstructor=true;
-			} 
-			//If the current token is package, save this point to know that we can print the import after
-			else if (tok.kind == PACKAGE){
-				print(tok.toString(), 0);
-				wasPackage = true;
-			} 
-			//Print the token new only if the object instantiated is not a parclass
-			else if(tok.kind == NEW){
-            String id = tok.next.toString();
-				if(!parclassInstance && !parclasses.contains(id))
-					print(tok.toString(),0);
-            else {
-               print("("+id+")PopJava.newActive("+id+".class", 0);
-               tok = tok.next.next; //Go to first parameter
-               if(tok.next.kind != RPAREN) print(",", 0);
-               parclassInstance = false;
-            }
-			}
-         //handle POP-Java method
-         else if(tok.kind == PUBLIC && tok.next.next.next.next.next.kind == LPAREN){
+                /* ############################
+                *  CODE GENERATOR STARTS HERE
+                * ############################*/
+
+
+                //Keep the current token
+                Token tok = Holder.first;
+
+                //Read trough all token until the last one
+                while (tok != null){
+                        
+                        //Check if it's the last token
+                        if(tok.next == null){
+                                        print(tok.toString(),0);	
+                                        break;
+                        }
+
+                        //Set the forward boolean to true
+                        forward = true;
+
+                        //Print out special token
+                        if(tok.specialToken != null){
+                                Token s = tok.specialToken;
+                                printSpecialToken(s, indent);
+                        }
+
+                        //Insert import for main class or for parclass at the right place
+                        if(Holder.canPrintImport){
+                                printImport(Holder.isMain);
+                                Holder.canPrintImport = false;
+                        }
+
+
+
+                        //Apply rules to some special token
+
+                        //Replace keyword parclass by class and add needed extends
+                        if(tok.kind == PARCLASS){
+                                print("class ",0);
+                                tok = tok.next;
+                                print(tok.toString(),0);
+                                tok = tok.next;
+                                //If the parclass does not inherit from a super class then add the extends statement 
+                                if(tok.kind != EXTENDS){
+                                        print(" extends POPObject ",0);
+                                        forward = false;
+                                } 
+                                //Else just let the current extends statement
+                                else {
+                                        print(" "+tok.toString(),0);				
+                                }
+                                printDefaultConstructor=true;
+                        } 
+                        //If the current token is package, save this point to know that we can print the import after
+                        else if (tok.kind == PACKAGE){
+                                print(tok.toString(), 0);
+                                wasPackage = true;
+                        } 
+                        //Print the token new only if the object instantiated is not a parclass
+                        else if(tok.kind == NEW){
+                            String id = tok.next.toString();
+                            if(!parclasses.contains(id)){
+                                print(tok.toString(),0);
+                            }else {
+                                print("("+id+")PopJava.newActive("+id+".class", 0);
+                                tok = tok.next.next; //Go to first parameter
+                                if(tok.next.kind != RPAREN){
+                                    print(",", 0);
+                                }
+                                parclassInstance = false;
+                            }
+                        }
+        //handle POP-Java method
+        else if(tok.kind == PUBLIC && tok.next.next.next.next.next.kind == LPAREN){
             while(tok.kind != LPAREN){
-               if(tok.kind != SYNC && tok.kind != ASYNC && tok.kind != SEQ && tok.kind != CONC && tok.kind != MUTEX){
-                  print(tok.toString()+" ",0);
-               }
-               tok = tok.next;
+            if(tok.kind != SYNC && tok.kind != ASYNC && tok.kind != SEQ && tok.kind != CONC && tok.kind != MUTEX){
+                print(tok.toString()+" ",0);
+            }
+            tok = tok.next;
             }
             print(tok.toString()+" ",0);
             tok = tok.next;
             String toBePrinted="";
             do{
-               String id = tok.toString();
-               if(id.equals(Holder.thisClassName) || parclasses.contains(id)){
-                  toBePrinted += tok.next.toString()+"=("+id+")PopJava.newActive("+id+".class, "+tok.next.toString()+".getAccessPoint());\n";
-                  print(id+" "+tok.next.toString(),0);
-                  tok = tok.next.next;
-               } else {
-                  print(tok.toString()+" ", 0);            
-                  tok = tok.next;
-               }
+            String id = tok.toString();
+            if(id.equals(Holder.thisClassName) || parclasses.contains(id)){
+                toBePrinted += tok.next.toString()+"=("+id+")PopJava.newActive("+id+".class, "+tok.next.toString()+".getAccessPoint());\n";
+                print(id+" "+tok.next.toString(),0);
+                tok = tok.next.next;
+            } else {
+                print(tok.toString()+" ", 0);            
+                tok = tok.next;
+            }
             } while(tok.kind != LBRACE);
             
             if(!toBePrinted.equals("")){
-               println("throws POPException {", indent++);
-               print(toBePrinted, indent);
-               printIndent(indent);
+            println("throws POPException {", indent++);
+            print(toBePrinted, indent);
+            printIndent(indent);
             } else {
-               println("{", indent++);
-               printIndent(indent);
+            println("{", indent++);
+            printIndent(indent);
             }
-         }
+        }
 
-			//If the token is an identifier, check if it's an instantiation
-			else if(tok.kind == IDENTIFIER){
-            if(tok.toString().equals("System") && !Holder.isMain){
-               if(tok.next.next.toString().equals("out") && tok.next.next.next.next.toString().equals("println")){
-                  print("POPSystem.writeLog", 0);
-                  tok = tok.next.next.next.next.next;
-                  while(tok.kind != SEMICOLON){
-                     print(tok.toString(), 0);
-                     tok = tok.next;
-                  }
-                  println(";", 0);
-                  print("", indent);
-               }       
-            } else {
-         	   boolean printThis= true;
-               if(Holder._hm_parclasses.containsKey(tok.toString()) && tok.next.kind == ASSIGN){
-                  if(tok.next.next.kind == NEW){
-                     String _parCl = Holder._hm_parclasses.get(tok.toString());
-                     print(tok.toString()+" = ("+_parCl+")PopJava.newActive("+_parCl+".class,", 0);
-                     while(tok.kind != LPAREN)
-                        tok = tok.next;
-                     tok=tok.next;
-                     while(tok.kind != SEMICOLON){
+        //If the token is an identifier, check if it's an instantiation
+        else if(tok.kind == IDENTIFIER){
+            if(tok.toString().equals("System") && !Holder.isMain){ //Check for System.out.pritnln call and rewrite it
+                if(tok.next.next.toString().equals("out") && tok.next.next.next.next.toString().equals("println")){
+                    print("POPSystem.writeLog", 0);
+                    tok = tok.next.next.next.next.next;
+                    while(tok.kind != SEMICOLON){
                         print(tok.toString(), 0);
-                        tok=tok.next;
-                     }
-                     println(";", 0);
-                     print("", indent);
-                  } else {
-                     String _parCl = Holder._hm_parclasses.get(tok.toString());
-                     print(tok.toString()+" = ("+_parCl+")PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint())", 0);
-                     println(";", 0);
-                     print("", indent);
-                     while(tok.kind != SEMICOLON){
                         tok = tok.next;
-                     }
-                     printThis = false;
-                  }
-               }
-				   //If it was the new keyword before, modify the instantiation
-				   else if(parclassInstance && lastKind == NEW){
-                  String _parID = tok.toString();
-                  tok = tok.next;
-                  if(tok.kind == DOT){
-                     while(tok.kind == DOT){
-                        _parID+="."+tok.next.toString();
-                        tok = tok.next.next;
-                     }                  
-                  }
-					   if(tok.next.kind == RPAREN){
-						   inParen=false;
-						   print("("+_parID+")PopJava.newActive("+_parID+".class", 0);
-						   canPrintCatch=true;
-					   }
-					   else {
-						   inParen=false;
-						   print("("+_parID+")PopJava.newActive("+_parID+".class,", 0);
-						   canPrintCatch=true;
-					   }					
-					   parclassInstance = false;
-				   } else {
-					   String id = tok.toString();
-
-                  if((id.equals(Holder.thisClassName) || parclasses.contains(id)) && tok.next.next.kind == SEMICOLON){
-                     Holder._hm_parclasses.put(tok.next.toString(), id);
-                     parclassInstance = true;
-                  }
-					   //Check if its the beginning of a constructor
-					   else if(id.equals(Holder.thisClassName) && (tok.next.next.next.next.next.kind != NEW) && (tok.next.next.next.kind != NEW) && (lastKind != NEW) && !inParen) 
-						   constructor = true;
-					   //Parclass instantiation
-					   else if((id.equals(Holder.thisClassName) || parclasses.contains(id)) && ((tok.next.next.next.kind == NEW) || (tok.next.next.next.next.next.kind == NEW)) && !inParen) {
-						   //Handle parclass array instantiation
-						   if(tok.next.kind == LBRACKET){
-							   parclassArray = true;
-							   parclassIdentifier = id;
-							   arrayIdentifier = tok.next.next.next.toString();
-                        do{
-                           print(tok.toString()+" ", 0);
-                           tok = tok.next;
-                        } while(tok.kind != SEMICOLON);
-                        println(tok.toString(), 0);
+                    }
+                    println(";", 0);
+                    print("", indent);
+                }
+            } else {
+                boolean printThis= true;
+                if(Holder._hm_parclasses.containsKey(tok.toString()) && tok.next.kind == ASSIGN){
+                    if(tok.next.next.kind == NEW){
+                        String _parCl = Holder._hm_parclasses.get(tok.toString());
+                        
+                        String varName = tok.toString();
+                        
+                        while(tok.kind != LPAREN){//Move up to constructor parameters
+                            tok = tok.next;
+                        }
                         tok = tok.next;
+                        
+                        print(varName+" = ("+_parCl+")PopJava.newActive("+_parCl+".class", 0);
+                        
+                        if(tok.kind != RPAREN){
+                            print(",", 0);
+                        }
+                        
+                        while(tok.kind != SEMICOLON){
+                            print(tok.toString(), 0);
+                            tok = tok.next;
+                        }
+                        println(";", 0);
                         print("", indent);
-						   } else {
-							   //Normal parclass instantiation
-							   parclassInstance = true;
-						   }
-						   //Print the beginning of Try-Catch statement if the next is a parclass instantiation
-						   /*if(!Holder.isMain && !parclassArray){
-							   printThis = false;
-							   println(tok.toString()+" "+tok.next.toString()+"=null;", 0);
-							   println("try{",indent);
-							
-							   indent++;
-							   print("",indent);
-						   }*/
-					   }
-					   if(printThis) //Print if not printed yet
-						   print(tok.toString(), 0);
-				   }		
+                    } else {
+                        String _parCl = Holder._hm_parclasses.get(tok.toString());
+                        print(tok.toString()+" = ("+_parCl+")PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint())", 0);
+                        println(";", 0);
+                        print("", indent);
+                        while(tok.kind != SEMICOLON){
+                            tok = tok.next;
+                        }
+                        printThis = false;
+                    }
+                }
+                //If it was the new keyword before, modify the instantiation
+                else if(parclassInstance && lastKind == NEW){
+                    String _parID = tok.toString();
+                    tok = tok.next;
+                    if(tok.kind == DOT){
+                        while(tok.kind == DOT){
+                            _parID+="."+tok.next.toString();
+                            tok = tok.next.next;
+                        }                  
+                    }
+                    
+                    if(parclasses.contains(_parID)){
+                        if(tok.next.kind == RPAREN){
+                                inParen = false;
+                                print("("+_parID+")PopJava.newActive("+_parID+".class", 0);
+                                canPrintCatch = true;
+                        }
+                        else {
+                                inParen=false;
+                                print("("+_parID+")PopJava.newActive("+_parID+".class,", 0);
+                                canPrintCatch = true;
+                        }
+                    }else{
+                        print(_parID+tok.toString() ,0);
+                    }
+                    parclassInstance = false;
+                } else {
+                    String id = tok.toString();
+
+                    if((id.equals(Holder.thisClassName) || parclasses.contains(id)) && tok.next.next.kind == SEMICOLON){
+                        Holder._hm_parclasses.put(tok.next.toString(), id);
+                        parclassInstance = true;
+                    }
+                    //Check if its the beginning of a constructor
+                    else if(id.equals(Holder.thisClassName) && (tok.next.next.next.next.next.kind != NEW) && (tok.next.next.next.kind != NEW) && (lastKind != NEW) && !inParen){
+                            constructor = true;
+                    }
+                    //Parclass instantiation
+                    else if((id.equals(Holder.thisClassName) || parclasses.contains(id)) && ((tok.next.next.next.kind == NEW) || (tok.next.next.next.next.next.kind == NEW)) && !inParen) {
+                        //Handle parclass array instantiation
+                        if(tok.next.kind == LBRACKET){
+                            parclassArray = true;
+                            parclassIdentifier = id;
+                            arrayIdentifier = tok.next.next.next.toString();
+                            do{
+                                print(tok.toString()+" ", 0);
+                                tok = tok.next;
+                            } while(tok.kind != SEMICOLON);
+                                println(tok.toString(), 0);
+                                tok = tok.next;
+                                print("", indent);
+                        } else {
+                                //Normal parclass instantiation
+                                parclassInstance = true;
+                        }
+                        //Print the beginning of Try-Catch statement if the next is a parclass instantiation
+                        /*if(!Holder.isMain && !parclassArray){
+                                printThis = false;
+                                println(tok.toString()+" "+tok.next.toString()+"=null;", 0);
+                                println("try{",indent);
+                                
+                                indent++;
+                                print("",indent);
+                        }*/
+                    }
+                    if(printThis){ //Print if not printed yet
+                            print(tok.toString(), 0);
+                    }
+                }		
             }			
-			} 
-			//Check the main method of the main class	
-			else if (Holder.isMain && tok.kind == PUBLIC && tok.next.kind == STATIC && tok.next.next.kind == VOID && 
-									tok.next.next.next.image.equals("main")){
-				//Set to true when inside the main method
-				Holder.inMain=true;
-				//Print the needed code lines at the beginning of the main
-				println("public static void main(String... args){", 0);
-				indent++;
-				println("try{", indent++);
-				println("POPSystem.initialize(args);", indent);
+        } 
+        //Check the main method of the main class	
+        else if (Holder.isMain && tok.kind == PUBLIC && tok.next.kind == STATIC && tok.next.next.kind == VOID && 
+                                                        tok.next.next.next.image.equals("main")){
+            //Set to true when inside the main method
+            Holder.inMain=true;
+            //Print the needed code lines at the beginning of the main
+            println("public static void main(String... args){", 0);
+            indent++;
+            println("try{", indent++);
+            println("POPSystem.initialize(args);", indent);
 
             println("if(args.length > 0 && args[0].startsWith(\"-codeconf=\")){", indent++);
-			   println("String[] tmpArg = new String[args.length-1];", indent);
-			   println("for (int i = 0; i < tmpArg.length; i++) {", indent++);
+                        println("String[] tmpArg = new String[args.length-1];", indent);
+                        println("for (int i = 0; i < tmpArg.length; i++) {", indent++);
             println("tmpArg[i] = args[i+1];", indent);
             println("}", --indent);
-			   println("args = tmpArg;", indent);
+                        println("args = tmpArg;", indent);
             println("}", --indent);
             print("",indent);
-				//Go to the next useful token
-				while(tok.kind != LBRACE)
-					tok = tok.next;
-			}			
-			//Check the end of a line or a statement by checking ; or }
-			else if(tok.kind == SEMICOLON || tok.kind == LBRACE){				
-				//Print the token at the end of the line
-				println(tok.toString(), 0);
-				//Handling the parclass array instantiation
-				if(parclassArray){
-					/*println("for(int parCnt=0; parCnt < "+arrayIdentifier+".length; parCnt++){", indent++);
-               println("try{", indent++);
-					println(arrayIdentifier+"[parCnt] = ("+parclassIdentifier+")PopJava.newActive("+parclassIdentifier+".class);", indent--);
-               println("} catch(POPException e) {", indent++);
-					println("e.printStackTrace();", indent--);
-					println("}", indent--);
-					println("}", indent);
-					parclassArray=false;*/
-				}
-				//If the main is currently parsed, increment the depth in code
-				if(tok.kind == LBRACE && Holder.inMain ) 
-					Holder.depthMain++;
-				//If the package was before, the import can be printed now
-				if(wasPackage){ 
-					Holder.canPrintImport = true; 
-					wasPackage=false; 
-				}
-				//Print the end of the try-catch statement
-				if(canPrintCatch){
-					if(!Holder.isMain){
-						indent--;
-						println("} catch(POPException e) {", indent++);
-						println("e.printStackTrace();", indent--);
-						println("}", indent);
-					}
-					canPrintCatch=false;
-				}
-				
-				wasReturn=true;
-				//Handling the left brace
-				if(tok.kind == LBRACE) {
-					//Increment the indentation
-					indent++;
+                                //Go to the next useful token
+                                while(tok.kind != LBRACE)
+                                        tok = tok.next;
+                        }			
+                        //Check the end of a line or a statement by checking ; or }
+                        else if(tok.kind == SEMICOLON || tok.kind == LBRACE){				
+                                //Print the token at the end of the line
+                                println(tok.toString(), 0);
+                                //Handling the parclass array instantiation
+                                if(parclassArray){
+                                        /*println("for(int parCnt=0; parCnt < "+arrayIdentifier+".length; parCnt++){", indent++);
+            println("try{", indent++);
+                                        println(arrayIdentifier+"[parCnt] = ("+parclassIdentifier+")PopJava.newActive("+parclassIdentifier+".class);", indent--);
+            println("} catch(POPException e) {", indent++);
+                                        println("e.printStackTrace();", indent--);
+                                        println("}", indent--);
+                                        println("}", indent);
+                                        parclassArray=false;*/
+                                }
+                                //If the main is currently parsed, increment the depth in code
+                                if(tok.kind == LBRACE && Holder.inMain ) 
+                                        Holder.depthMain++;
+                                //If the package was before, the import can be printed now
+                                if(wasPackage){ 
+                                        Holder.canPrintImport = true; 
+                                        wasPackage=false; 
+                                }
+                                //Print the end of the try-catch statement
+                                if(canPrintCatch){
+                                        if(!Holder.isMain){
+                                                indent--;
+                                                System.err.println("Catch A");
+                                                println("} catch(POPException e) {", indent++);
+                                                println("e.printStackTrace();", indent--);
+                                                println("}", indent);
+                                        }
+                                        canPrintCatch=false;
+                                }
+                                
+                                wasReturn=true;
+                                //Handling the left brace
+                                if(tok.kind == LBRACE) {
+                                        //Increment the indentation
+                                        indent++;
 
-				  //Printing the default constructor
-					if(printDefaultConstructor && !Holder.parclass.hasDefaultConstructor() && !Holder.isMain){
-						println("public "+Holder.thisClassName+"(){", indent++);
-						println("Class<?> c = "+Holder.thisClassName+".class;", indent);
-						//Print special informations for POP-C++ usage
-						if(printPOPCInfo){
-							println("setClassId("+ci.getClassUID()+");", indent);
-							if(!ci.getClassName().equals("") || ci.getClassName()!=null)
-								println("setClassName(\""+ci.getClassName()+"\");", indent);
-							println("hasDestructor("+ci.hasDestructor()+");", indent);
-						}
+                                //Printing the default constructor
+                                        if(printDefaultConstructor && !Holder.parclass.hasDefaultConstructor() && !Holder.isMain){
+                                                println("public "+Holder.thisClassName+"(){", indent++);
+                                                println("Class<?> c = "+Holder.thisClassName+".class;", indent);
+                                                //Print special informations for POP-C++ usage
+                                                if(printPOPCInfo){
+                                                        println("setClassId("+ci.getClassUID()+");", indent);
+                                                        if(!ci.getClassName().equals("") || ci.getClassName()!=null)
+                                                                println("setClassName(\""+ci.getClassName()+"\");", indent);
+                                                        println("hasDestructor("+ci.hasDestructor()+");", indent);
+                                                }
 
-						println("initializePOPObject(c);", indent);
-						ArrayList<Semantic> sem = Holder.parclass.getSemantics();
-						for (int i = 0; i < sem.size(); i++){
-							println(sem.get(i).toString(), indent);						
-						}
-						println("}",--indent);
-						printDefaultConstructor=false;
-					}
-		
-					//If we are in the constructor print the information
-					if(constructor){
-						println("Class<?> c = "+Holder.thisClassName+".class;", indent);
-						if(printPOPCInfo){
-							println("setClassId("+ci.getClassUID()+");", indent);
-							if(ci.getClassName().length() != 0)
-								println("setClassName(\""+ci.getClassName()+"\");", indent);
-							println("hasDestructor("+ci.hasDestructor()+");", indent);
-						}
-						println("initializePOPObject(c);", indent);
-						//Print the objects description
-						Constructor con = Holder.parclass.getConstructor(constructorId++);
-						ArrayList<ObjectDescription> ods = con.getOD();
-						for (int i = 0; i < ods.size(); i++){
-							println(ods.get(i).toString(), indent);
-						}
-						//Print the semantics extracted before
-						ArrayList<Semantic> sem = Holder.parclass.getSemantics();
-						for (int i = 0; i < sem.size(); i++){
-								println(sem.get(i).toString(), indent);						
-						}
-						constructor = false;
-					}
-				}
-				if(tok.next.kind != RBRACE){
-						print("", indent);
-				} 
-			} 
-			//Handle right brace
-			else if(tok.kind == RBRACE){
-				//If it's the main class and the depth is 0, we can print the end of the try catch statement
-				if(Holder.inMain){
-					if(Holder.depthMain==0){
-                  println("POPSystem.end();", indent);
-						indent--;
-						println("} catch(POPException e) {", indent++);
-                  println("POPSystem.end();", indent);
-						println("System.err.println(\"POP-Java exception catched :\"+e.errorMessage);",indent--);
-						println("}", indent--);
-						print("",indent);
-						Holder.inMain=false;
-					} else {
-						Holder.depthMain--;
-					}
-				}
-				//Decrement indentation
-				indent--;
-				//Print the brace and the indentation for the next line
-				wasReturn =true;
-				println(tok.toString(), indent);
-				if(tok.next.next != null)
-					print("", indent);
-			}	
-			//Skip Object description (Not printed like this in the final Java code)
-			else if (tok.kind == AT && tok.next.kind == LBRACE){
-				while (tok.kind != RBRACE)
-					tok = tok.next;
-			}	
-			//SKIP POP-Java semantics keywords
-			else if (tok.kind == SYNC || tok.kind == ASYNC || tok.kind == SEQ || tok.kind == CONC || tok.kind == MUTEX){
-				space = false;
-			}
-			//Check if it's in the parenthesis
-			else if (tok.kind == LPAREN){
-				print(tok.toString(),0);
-				inParen = true;
-			} 
-			//Check if it's the end of the parenthesis
-			else if (tok.kind == RPAREN){
-				print(tok.toString(),0);
-				inParen = false;
-			} 
-			//if the token is this			
-			else if (tok.kind == THIS && Holder.isParclass && tok.next.kind != DOT){
-				print("("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint())",0);
-			}
-			//If no rules apply just print the token
-			else {
-				print(tok.toString(), 0);
-			}
-			//Place space between token
-			if(tok.kind != DOT && tok.next.kind != DOT && tok.next.kind != 
-					LPAREN && tok.kind != LPAREN && tok.next.kind != SEMICOLON &&	tok.next.kind != 
-					RPAREN && tok.kind != ASYNC && tok.kind != SYNC && tok.kind != SEQ && 
-					tok.kind != CONC && tok.kind != MUTEX){
-				if(!wasReturn){
-					print(" ", 0);
-				} else {
-					wasReturn = false;				
-				}
-				space = true;
-			} 
-			//Go to the next token
-			if(forward){
-				lastKind = tok.kind;
-				tok = tok.next;
-			}
+                                                println("initializePOPObject(c);", indent);
+                                                ArrayList<Semantic> sem = Holder.parclass.getSemantics();
+                                                for (int i = 0; i < sem.size(); i++){
+                                                        println(sem.get(i).toString(), indent);						
+                                                }
+                                                println("}",--indent);
+                                                printDefaultConstructor=false;
+                                        }
+                
+                                        //If we are in the constructor print the information
+                                        if(constructor){
+                                                println("Class<?> c = "+Holder.thisClassName+".class;", indent);
+                                                if(printPOPCInfo){
+                                                        println("setClassId("+ci.getClassUID()+");", indent);
+                                                        if(ci.getClassName().length() != 0)
+                                                                println("setClassName(\""+ci.getClassName()+"\");", indent);
+                                                        println("hasDestructor("+ci.hasDestructor()+");", indent);
+                                                }
+                                                println("initializePOPObject(c);", indent);
+                                                //Print the objects description
+                                                Constructor con = Holder.parclass.getConstructor(constructorId++);
+                                                ArrayList<ObjectDescription> ods = con.getOD();
+                                                for (int i = 0; i < ods.size(); i++){
+                                                        println(ods.get(i).toString(), indent);
+                                                }
+                                                //Print the semantics extracted before
+                                                ArrayList<Semantic> sem = Holder.parclass.getSemantics();
+                                                for (int i = 0; i < sem.size(); i++){
+                                                                println(sem.get(i).toString(), indent);						
+                                                }
+                                                constructor = false;
+                                        }
+                                }
+                                if(tok.next.kind != RBRACE){
+                                                print("", indent);
+                                } 
+                        } 
+                        //Handle right brace
+                        else if(tok.kind == RBRACE){
+                                //If it's the main class and the depth is 0, we can print the end of the try catch statement
+                                if(Holder.inMain){
+                                        if(Holder.depthMain==0){
+                println("POPSystem.end();", indent);
+                                                indent--;
+                                                println("} catch(POPException e) {", indent++);
+                println("POPSystem.end();", indent);
+                                                println("System.err.println(\"POP-Java exception catched :\"+e.errorMessage);",indent--);
+                                                println("}", indent--);
+                                                print("",indent);
+                                                Holder.inMain=false;
+                                        } else {
+                                                Holder.depthMain--;
+                                        }
+                                }
+                                //Decrement indentation
+                                indent--;
+                                //Print the brace and the indentation for the next line
+                                wasReturn =true;
+                                println(tok.toString(), indent);
+                                if(tok.next.next != null)
+                                        print("", indent);
+                        }	
+                        //Skip Object description (Not printed like this in the final Java code)
+                        else if (tok.kind == AT && tok.next.kind == LBRACE){
+                                while (tok.kind != RBRACE)
+                                        tok = tok.next;
+                        }	
+                        //SKIP POP-Java semantics keywords
+                        else if (tok.kind == SYNC || tok.kind == ASYNC || tok.kind == SEQ || tok.kind == CONC || tok.kind == MUTEX){
+                                space = false;
+                        }
+                        //Check if it's in the parenthesis
+                        else if (tok.kind == LPAREN){
+                                print(tok.toString(),0);
+                                inParen = true;
+                        } 
+                        //Check if it's the end of the parenthesis
+                        else if (tok.kind == RPAREN){
+                                print(tok.toString(),0);
+                                inParen = false;
+                        } 
+                        //if the token is this			
+                        else if (tok.kind == THIS && Holder.isParclass && tok.next.kind != DOT){
+                                print("("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint())",0);
+                        }
+                        //If no rules apply just print the token
+                        else {
+                                print(tok.toString(), 0);
+                        }
+                        //Place space between token
+                        if(tok.kind != DOT && tok.next.kind != DOT && tok.next.kind != 
+                                        LPAREN && tok.kind != LPAREN && tok.next.kind != SEMICOLON &&	tok.next.kind != 
+                                        RPAREN && tok.kind != ASYNC && tok.kind != SYNC && tok.kind != SEQ && 
+                                        tok.kind != CONC && tok.kind != MUTEX){
+                                if(!wasReturn){
+                                        print(" ", 0);
+                                } else {
+                                        wasReturn = false;				
+                                }
+                                space = true;
+                        } 
+                        //Go to the next token
+                        if(forward){
+                                lastKind = tok.kind;
+                                tok = tok.next;
+                        }
 
-		}
-  }
+                }
+}
 
 }
 
@@ -723,8 +743,8 @@ PARSER_END(POPJParser)
 
 
 /*
- *	GRAMMAR DECLARATION
- */
+*	GRAMMAR DECLARATION
+*/
 
 
 
@@ -738,7 +758,7 @@ PARSER_END(POPJParser)
 
 SPECIAL_TOKEN :
 {
-  <LINE_ENDERS: ("\n"|"\r"|"\r\n")>
+<LINE_ENDERS: ("\n"|"\r"|"\r\n")>
 | <SPACES: ([" "])+ >
 | <TABS: (["\t"])+ >
 }*/
@@ -746,7 +766,7 @@ SPECIAL_TOKEN :
 
 SKIP :
 {
-  " "
+" "
 | "\t"
 | "\n"
 | "\r"
@@ -755,7 +775,7 @@ SKIP :
 /*
 SPECIAL_TOKEN :
 {
-  <LINE_ENDERS: ("\n"|"\r"|"\r\n")+ > 
+<LINE_ENDERS: ("\n"|"\r"|"\r\n")+ > 
 | <SPACES: ([" "])+ >
 | <TABS: (["\t"])+ >
 }*/
@@ -767,35 +787,35 @@ SPECIAL_TOKEN :
 
 MORE :
 {
-  "//" : IN_SINGLE_LINE_COMMENT
+"//" : IN_SINGLE_LINE_COMMENT
 |
-  <"/**" ~["/"]> { input_stream.backup(1); } : IN_FORMAL_COMMENT
+<"/**" ~["/"]> { input_stream.backup(1); } : IN_FORMAL_COMMENT
 |
-  "/*" : IN_MULTI_LINE_COMMENT
+"/*" : IN_MULTI_LINE_COMMENT
 }
 
 <IN_SINGLE_LINE_COMMENT>
 SPECIAL_TOKEN :
 {
-  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
+<SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
 }
 
 <IN_FORMAL_COMMENT>
 SPECIAL_TOKEN :
 {
-  <FORMAL_COMMENT: "*/" > : DEFAULT
+<FORMAL_COMMENT: "*/" > : DEFAULT
 }
 
 <IN_MULTI_LINE_COMMENT>
 SPECIAL_TOKEN :
 {
-  <MULTI_LINE_COMMENT: "*/" > : DEFAULT
+<MULTI_LINE_COMMENT: "*/" > : DEFAULT
 }
 
 <IN_SINGLE_LINE_COMMENT,IN_FORMAL_COMMENT,IN_MULTI_LINE_COMMENT>
 MORE :
 {
-  < ~[] >
+< ~[] >
 }
 
 
@@ -804,7 +824,7 @@ MORE :
 /*
 TOKEN : 
 {
-	< TAB: "\n " >
+        < TAB: "\n " >
 }*/
 
 /* RESERVED WORDS AND LITERALS */
@@ -812,7 +832,7 @@ TOKEN :
 //POP-Java new tokens added here
 TOKEN :
 {
-  < ABSTRACT: "abstract" >
+< ABSTRACT: "abstract" >
 | < ASSERT: "assert" >
 | < ASYNC: "async" >							//POP-Java reserved word
 | < BOOLEAN: "boolean" >
@@ -891,104 +911,104 @@ TOKEN :
 
 TOKEN :
 {
-  < INTEGER_LITERAL:
+< INTEGER_LITERAL:
         <DECIMAL_LITERAL> (["l","L"])?
-      | <HEX_LITERAL> (["l","L"])?
-      | <OCTAL_LITERAL> (["l","L"])?
-  >
+    | <HEX_LITERAL> (["l","L"])?
+    | <OCTAL_LITERAL> (["l","L"])?
+>
 |
-  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+< #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
 |
-  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+< #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
 |
-  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+< #OCTAL_LITERAL: "0" (["0"-"7"])* >
 |
-  < FLOATING_POINT_LITERAL:
+< FLOATING_POINT_LITERAL:
         (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
-      | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
-      | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
-      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
-  >
+    | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+    | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+    | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+>
 |
-  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+< #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
 |
-  < CHARACTER_LITERAL:
-      "'"
-      (   (~["'","\\","\n","\r"])
+< CHARACTER_LITERAL:
+    "'"
+    (   (~["'","\\","\n","\r"])
         | ("\\"
             ( ["n","t","b","r","f","\\","'","\""]
             | ["0"-"7"] ( ["0"-"7"] )?
             | ["0"-"3"] ["0"-"7"] ["0"-"7"]
             )
-          )
-      )
-      "'"
-  >
+        )
+    )
+    "'"
+>
 |
-  < STRING_LITERAL:
-      "\""
-      (   (~["\"","\\","\n","\r"])
+< STRING_LITERAL:
+    "\""
+    (   (~["\"","\\","\n","\r"])
         | ("\\"
             ( ["n","t","b","r","f","\\","'","\""]
             | ["0"-"7"] ( ["0"-"7"] )?
             | ["0"-"3"] ["0"-"7"] ["0"-"7"]
             )
-          )
-      )*
-      "\""
-  >
+        )
+    )*
+    "\""
+>
 }
 
 /* IDENTIFIERS */
 
 TOKEN :
 {
-  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+< IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
 |
-  < #LETTER:
-      [
-       "\u0024",
-       "\u0041"-"\u005a",
-       "\u005f",
-       "\u0061"-"\u007a",
-       "\u00c0"-"\u00d6",
-       "\u00d8"-"\u00f6",
-       "\u00f8"-"\u00ff",
-       "\u0100"-"\u1fff",
-       "\u3040"-"\u318f",
-       "\u3300"-"\u337f",
-       "\u3400"-"\u3d2d",
-       "\u4e00"-"\u9fff",
-       "\uf900"-"\ufaff"
-      ]
-  >
+< #LETTER:
+    [
+    "\u0024",
+    "\u0041"-"\u005a",
+    "\u005f",
+    "\u0061"-"\u007a",
+    "\u00c0"-"\u00d6",
+    "\u00d8"-"\u00f6",
+    "\u00f8"-"\u00ff",
+    "\u0100"-"\u1fff",
+    "\u3040"-"\u318f",
+    "\u3300"-"\u337f",
+    "\u3400"-"\u3d2d",
+    "\u4e00"-"\u9fff",
+    "\uf900"-"\ufaff"
+    ]
+>
 |
-  < #DIGIT:
-      [
-       "\u0030"-"\u0039",
-       "\u0660"-"\u0669",
-       "\u06f0"-"\u06f9",
-       "\u0966"-"\u096f",
-       "\u09e6"-"\u09ef",
-       "\u0a66"-"\u0a6f",
-       "\u0ae6"-"\u0aef",
-       "\u0b66"-"\u0b6f",
-       "\u0be7"-"\u0bef",
-       "\u0c66"-"\u0c6f",
-       "\u0ce6"-"\u0cef",
-       "\u0d66"-"\u0d6f",
-       "\u0e50"-"\u0e59",
-       "\u0ed0"-"\u0ed9",
-       "\u1040"-"\u1049"
-      ]
-  >
+< #DIGIT:
+    [
+    "\u0030"-"\u0039",
+    "\u0660"-"\u0669",
+    "\u06f0"-"\u06f9",
+    "\u0966"-"\u096f",
+    "\u09e6"-"\u09ef",
+    "\u0a66"-"\u0a6f",
+    "\u0ae6"-"\u0aef",
+    "\u0b66"-"\u0b6f",
+    "\u0be7"-"\u0bef",
+    "\u0c66"-"\u0c6f",
+    "\u0ce6"-"\u0cef",
+    "\u0d66"-"\u0d6f",
+    "\u0e50"-"\u0e59",
+    "\u0ed0"-"\u0ed9",
+    "\u1040"-"\u1049"
+    ]
+>
 }
 
 /* SEPARATORS */
 
 TOKEN :
 {
-  < LPAREN: "(" >
+< LPAREN: "(" >
 | < RPAREN: ")" >
 | < LBRACE: "{" >
 | < RBRACE: "}" >
@@ -1004,7 +1024,7 @@ TOKEN :
 
 TOKEN :
 {
-  < ASSIGN: "=" >
+< ASSIGN: "=" >
 | < LT: "<" >
 | < BANG: "!" >
 | < TILDE: "~" >
@@ -1044,726 +1064,726 @@ TOKEN :
 /* >'s need special attention due to generics syntax. */
 TOKEN :
 {
-  < RUNSIGNEDSHIFT: ">>>" >
-  {
-     matchedToken.kind = GT;
-     ((Token.GTToken)matchedToken).realKind = RUNSIGNEDSHIFT;
-     input_stream.backup(2);
-  }
+< RUNSIGNEDSHIFT: ">>>" >
+{
+    matchedToken.kind = GT;
+    ((Token.GTToken)matchedToken).realKind = RUNSIGNEDSHIFT;
+    input_stream.backup(2);
+}
 | < RSIGNEDSHIFT: ">>" >
-  {
-     matchedToken.kind = GT;
-     ((Token.GTToken)matchedToken).realKind = RSIGNEDSHIFT;
-     input_stream.backup(1);
-  }
+{
+    matchedToken.kind = GT;
+    ((Token.GTToken)matchedToken).realKind = RSIGNEDSHIFT;
+    input_stream.backup(1);
+}
 | < GT: ">" >
 }
 
 
 /*****************************************
- * THE JAVA LANGUAGE GRAMMAR STARTS HERE *
- *****************************************/
+* THE JAVA LANGUAGE GRAMMAR STARTS HERE *
+*****************************************/
 
 /*
- * Program structuring syntax follows.
- */
+* Program structuring syntax follows.
+*/
 
 void CompilationUnit():
 {}
 {
-  [ PackageDeclaration() ]
-  ( ImportDeclaration() )*
-  ( TypeDeclaration() )*
-  <EOF>
+[ PackageDeclaration() ]
+( ImportDeclaration() )*
+( TypeDeclaration() )*
+<EOF>
 }
 
 
 /* POP-Java modification. Add information into the Holder
- * Hold the first token for the code generation and hold 
- * some informations about the package.
- */
+* Hold the first token for the code generation and hold 
+* some informations about the package.
+*/
 void PackageDeclaration():
 {}
 {
-  "package" { Holder.first=token; Holder.hasPackage=true; Holder.canPrintImport=false; } Name() ";"
+"package" { Holder.first=token; Holder.hasPackage=true; Holder.canPrintImport=false; } Name() ";"
 }
 
 /* POP-Java modification. Add information into the Holder.
- * Hold the first token if not hold by the package declaration.
- */
+* Hold the first token if not hold by the package declaration.
+*/
 void ImportDeclaration():
 {}
 {
-  "import" { if(Holder.first==null) Holder.first=token; } [ "static" ] Name() [ "." "*" ] ";"
+"import" { if(Holder.first==null) Holder.first=token; } [ "static" ] Name() [ "." "*" ] ";"
 }
 
 /*
- * Modifiers. We match all modifiers in a single rule to reduce the chances of
- * syntax errors for simple modifier mistakes. It will also enable us to give
- * better error messages.
- */
+* Modifiers. We match all modifiers in a single rule to reduce the chances of
+* syntax errors for simple modifier mistakes. It will also enable us to give
+* better error messages.
+*/
 
 int Modifiers():
 {
-   int modifiers = 0;
+int modifiers = 0;
 }
 {
- (
-  LOOKAHEAD(2)
-  (
-   "public" { modifiers |= ModifierSet.PUBLIC; }
-  |
-   "static" { modifiers |= ModifierSet.STATIC; }
-  |
-   "protected" { modifiers |= ModifierSet.PROTECTED; }
-  |
-   "private" { modifiers |= ModifierSet.PRIVATE; }
-  |
-   "final" { modifiers |= ModifierSet.FINAL; }
-  |
-   "abstract" { modifiers |= ModifierSet.ABSTRACT; }
-  |
-   "synchronized" { modifiers |= ModifierSet.SYNCHRONIZED; }
-  |
-   "native" { modifiers |= ModifierSet.NATIVE; }
-  |
-   "transient" { modifiers |= ModifierSet.TRANSIENT; }
-  |
-   "volatile" { modifiers |= ModifierSet.VOLATILE; }
-  |
-   "strictfp" { modifiers |= ModifierSet.STRICTFP; }
-  |
-   Annotation()
-  )
- )*
+(
+LOOKAHEAD(2)
+(
+"public" { modifiers |= ModifierSet.PUBLIC; }
+|
+"static" { modifiers |= ModifierSet.STATIC; }
+|
+"protected" { modifiers |= ModifierSet.PROTECTED; }
+|
+"private" { modifiers |= ModifierSet.PRIVATE; }
+|
+"final" { modifiers |= ModifierSet.FINAL; }
+|
+"abstract" { modifiers |= ModifierSet.ABSTRACT; }
+|
+"synchronized" { modifiers |= ModifierSet.SYNCHRONIZED; }
+|
+"native" { modifiers |= ModifierSet.NATIVE; }
+|
+"transient" { modifiers |= ModifierSet.TRANSIENT; }
+|
+"volatile" { modifiers |= ModifierSet.VOLATILE; }
+|
+"strictfp" { modifiers |= ModifierSet.STRICTFP; }
+|
+Annotation()
+)
+)*
 
- {
+{
     return modifiers;
- }
+}
 }
 
 /*
- * Declaration syntax follows.
- */
+* Declaration syntax follows.
+*/
 void TypeDeclaration():
 {
-   int modifiers;
+int modifiers;
 }
 {
-  ";"
+";"
 |
-  modifiers = Modifiers() { if(Holder.first==null) Holder.first=token; }
-  (
-     ClassOrInterfaceDeclaration(modifiers)
-   |
-     EnumDeclaration(modifiers)
-   |
-     AnnotationTypeDeclaration(modifiers)
-  )
+modifiers = Modifiers() { if(Holder.first==null) Holder.first=token; }
+(
+    ClassOrInterfaceDeclaration(modifiers)
+|
+    EnumDeclaration(modifiers)
+|
+    AnnotationTypeDeclaration(modifiers)
+)
 }
 
 /* POP-Java modification. The class declaration can now have the modifier parclass.
- * If the modifier is parclass, add information into the Holder
- * Add parclass keyword accepted ad a class declaration.
- * Hold some informations and create the Parclass object to hold
- * informations about the parclass.
- */
+* If the modifier is parclass, add information into the Holder
+* Add parclass keyword accepted ad a class declaration.
+* Hold some informations and create the Parclass object to hold
+* informations about the parclass.
+*/
 void ClassOrInterfaceDeclaration(int modifiers):
 {
-   boolean isInterface = false;
-	 boolean isParclass = false;
-	 Token t=null;
+boolean isInterface = false;
+        boolean isParclass = false;
+        Token t=null;
 }
 {
-  ( "class" | "interface" { isInterface = true; } | "parclass" { Holder.isParclass = true;  })
-  t=<IDENTIFIER> { 
-		if(Holder.isParclass){ 
-			Holder.parclass = new Parclass(t.toString()); 
-			Holder.thisClassName=t.toString(); 
-			t=null; 
-		} else if(!Holder.isMain){
-			throw new ParseException("This class is not a parclass. parclass keyword missing.");
-		}  
-	}
-  [ TypeParameters() ]
-  [ ExtendsList(isInterface) ]
-  [ ImplementsList(isInterface) ]
-  ClassOrInterfaceBody(isInterface)
+( "class" | "interface" { isInterface = true; } | "parclass" { Holder.isParclass = true;  })
+t=<IDENTIFIER> { 
+                if(Holder.isParclass){ 
+                        Holder.parclass = new Parclass(t.toString()); 
+                        Holder.thisClassName=t.toString(); 
+                        t=null; 
+                } else if(!Holder.isMain){
+                        throw new ParseException("This class is not a parclass. parclass keyword missing.");
+                }  
+        }
+[ TypeParameters() ]
+[ ExtendsList(isInterface) ]
+[ ImplementsList(isInterface) ]
+ClassOrInterfaceBody(isInterface)
 }
 
 void ExtendsList(boolean isInterface):
 {
-   boolean extendsMoreThanOne = false;
+boolean extendsMoreThanOne = false;
 }
 {
-   "extends" ClassOrInterfaceType()
-   ( "," ClassOrInterfaceType() { extendsMoreThanOne = true; } )*
-   {
-      if (extendsMoreThanOne && !isInterface)
-         throw new ParseException("A class cannot extend more than one other class");
-   }
+"extends" ClassOrInterfaceType()
+( "," ClassOrInterfaceType() { extendsMoreThanOne = true; } )*
+{
+    if (extendsMoreThanOne && !isInterface)
+        throw new ParseException("A class cannot extend more than one other class");
+}
 }
 
 void ImplementsList(boolean isInterface):
 {}
 {
-   "implements" ClassOrInterfaceType()
-   ( "," ClassOrInterfaceType() )*
-   {
-      if (isInterface)
-         throw new ParseException("An interface cannot implement other interfaces");
-   }
+"implements" ClassOrInterfaceType()
+( "," ClassOrInterfaceType() )*
+{
+    if (isInterface)
+        throw new ParseException("An interface cannot implement other interfaces");
+}
 }
 
 void EnumDeclaration(int modifiers):
 {}
 {
-  "enum" <IDENTIFIER>
-  [ ImplementsList(false) ]
-  EnumBody()
+"enum" <IDENTIFIER>
+[ ImplementsList(false) ]
+EnumBody()
 }
 
 void EnumBody():
 {}
 {
-   "{"
-   EnumConstant() ( "," EnumConstant() )*
-   [ ";" ( ClassOrInterfaceBodyDeclaration(false) )* ]
-   "}"
+"{"
+EnumConstant() ( "," EnumConstant() )*
+[ ";" ( ClassOrInterfaceBodyDeclaration(false) )* ]
+"}"
 }
 
 void EnumConstant():
 {}
 {
-  <IDENTIFIER> [ Arguments() ] [ ClassOrInterfaceBody(false) ]
+<IDENTIFIER> [ Arguments() ] [ ClassOrInterfaceBody(false) ]
 }
 
 void TypeParameters():
 {}
 {
-   "<" TypeParameter() ( "," TypeParameter() )* ">"
+"<" TypeParameter() ( "," TypeParameter() )* ">"
 }
 
 void TypeParameter():
 {}
 {
-   <IDENTIFIER> [ TypeBound() ]
+<IDENTIFIER> [ TypeBound() ]
 }
 
 void TypeBound():
 {}
 {
-   "extends" ClassOrInterfaceType() ( "&" ClassOrInterfaceType() )*
+"extends" ClassOrInterfaceType() ( "&" ClassOrInterfaceType() )*
 }
 
 void ClassOrInterfaceBody(boolean isInterface):
 {}
 {
-  "{" ( ClassOrInterfaceBodyDeclaration(isInterface) )* "}"
+"{" ( ClassOrInterfaceBodyDeclaration(isInterface) )* "}"
 }
 
 void ClassOrInterfaceBodyDeclaration(boolean isInterface):
 {
-   boolean isNestedInterface = false;
-   int modifiers;
+boolean isNestedInterface = false;
+int modifiers;
 }
 {
-  LOOKAHEAD(2)
-  Initializer()
-  {
-     if (isInterface)
+LOOKAHEAD(2)
+Initializer()
+{
+    if (isInterface)
         throw new ParseException("An interface cannot have initializers");
-  }
+}
 |
-  modifiers = Modifiers() // Just get all the modifiers out of the way. If you want to do
-              // more checks, pass the modifiers down to the member
-  (
-      ClassOrInterfaceDeclaration(modifiers)
+modifiers = Modifiers() // Just get all the modifiers out of the way. If you want to do
+            // more checks, pass the modifiers down to the member
+(
+    ClassOrInterfaceDeclaration(modifiers)
     |
-      EnumDeclaration(modifiers)
+    EnumDeclaration(modifiers)
     |
-      LOOKAHEAD( [ TypeParameters() ] <IDENTIFIER> "(" )
-      ConstructorDeclaration()
+    LOOKAHEAD( [ TypeParameters() ] <IDENTIFIER> "(" )
+    ConstructorDeclaration()
     |
-      LOOKAHEAD( Type() <IDENTIFIER> ( "[" "]" )* ( "," | "=" | ";" ) )
-      FieldDeclaration(modifiers)
+    LOOKAHEAD( Type() <IDENTIFIER> ( "[" "]" )* ( "," | "=" | ";" ) )
+    FieldDeclaration(modifiers)
     |
-      MethodDeclaration(modifiers)
-  )
+    MethodDeclaration(modifiers)
+)
 |
-  ";"
+";"
 }
 
 void FieldDeclaration(int modifiers):
 {}
 {
-  // Modifiers are already matched in the caller
-  Type() { 
-		if(Holder.isParclass && modifiers == ModifierSet.PUBLIC) 
-			throw new ParseException("A parclass cannot have public attribute."); 
-	} 
-	VariableDeclarator() ( "," VariableDeclarator() )* ";"
+// Modifiers are already matched in the caller
+Type() { 
+                if(Holder.isParclass && modifiers == ModifierSet.PUBLIC) 
+                        throw new ParseException("A parclass cannot have public attribute."); 
+        } 
+        VariableDeclarator() ( "," VariableDeclarator() )* ";"
 }
 
 void VariableDeclarator():
 {}
 {
-  VariableDeclaratorId() [ "=" VariableInitializer() ]
+VariableDeclaratorId() [ "=" VariableInitializer() ]
 }
 
 void VariableDeclaratorId():
 {}
 {
-  <IDENTIFIER> ( "[" "]" )*
+<IDENTIFIER> ( "[" "]" )*
 }
 
 void VariableInitializer():
 {}
 {
-  ArrayInitializer()
+ArrayInitializer()
 |
-  Expression()
+Expression()
 }
 
 void ArrayInitializer():
 {}
 {
-  "{" [ VariableInitializer() ( LOOKAHEAD(2) "," VariableInitializer() )* ] [ "," ] "}"
+"{" [ VariableInitializer() ( LOOKAHEAD(2) "," VariableInitializer() )* ] [ "," ] "}"
 }
 
 /* POP-Java modification. POP-Java semantics included in the method declaration and hanlding error
- * Asynchronous method must have return value to void. Parallel method must have modifier to public.
- * Interface-side and broker-side semantic are mandatory.
- *
- * Production rule modified for POP-Java. Accept key word sync, async and conc, seq, mutex.
- * A interface-side semantic and a broker-side semantic are required for every public method.
- * Semantics are stored in the Parclass object. 
- * An asynchronous method must have void as the return type otherwise an exception is thrown.
- */
+* Asynchronous method must have return value to void. Parallel method must have modifier to public.
+* Interface-side and broker-side semantic are mandatory.
+*
+* Production rule modified for POP-Java. Accept key word sync, async and conc, seq, mutex.
+* A interface-side semantic and a broker-side semantic are required for every public method.
+* Semantics are stored in the Parclass object. 
+* An asynchronous method must have void as the return type otherwise an exception is thrown.
+*/
 void MethodDeclaration(int modifiers):
 {
-	boolean isParallelMethod=false;
-	Token is=null, bs=null, id=null;
+        boolean isParallelMethod=false;
+        Token is=null, bs=null, id=null;
 }
 {
-  // Modifiers already matched in the caller!
-	[ ( is=<SYNC> | is=<ASYNC>) ( bs=<SEQ> | bs=<CONC> | bs=<MUTEX> ) { isParallelMethod=true; } ]
-	//Catch if there is no interface-side semantic
-	[ (<SEQ> | <CONC> | <MUTEX>) { throw new ParseException("sync or async must be specified"); } ]
-  [ TypeParameters() ]
-  ResultType()
-	{ 
-		//Check if the method interface-side semantic is asynchrnous, the return type must be void.
-		if(is != null && is.kind == ASYNC && token.kind != VOID)
-			throw new ParseException("An asynchronous method cannot return a value.");
-	}
-  id=MethodDeclarator() [ "throws" NameList() ]
-  ( Block() | ";" )
-	{ 
-		//Check if the method modifier is public
-		if(isParallelMethod){
-			if((modifiers & ModifierSet.PUBLIC) == 0)
-				 throw new ParseException("A parallel method must be public");
-			//Store the semantics for code generation
-			Holder.parclass.addSemantic(id.toString(), is.toString(), bs.toString());
-			//Realease the token to be garbage collected
-			is=null; bs=null; id=null; 
-		}
-	}
+// Modifiers already matched in the caller!
+        [ ( is=<SYNC> | is=<ASYNC>) ( bs=<SEQ> | bs=<CONC> | bs=<MUTEX> ) { isParallelMethod=true; } ]
+        //Catch if there is no interface-side semantic
+        [ (<SEQ> | <CONC> | <MUTEX>) { throw new ParseException("sync or async must be specified"); } ]
+[ TypeParameters() ]
+ResultType()
+        { 
+                //Check if the method interface-side semantic is asynchrnous, the return type must be void.
+                if(is != null && is.kind == ASYNC && token.kind != VOID)
+                        throw new ParseException("An asynchronous method cannot return a value.");
+        }
+id=MethodDeclarator() [ "throws" NameList() ]
+( Block() | ";" )
+        { 
+                //Check if the method modifier is public
+                if(isParallelMethod){
+                        if((modifiers & ModifierSet.PUBLIC) == 0)
+                                throw new ParseException("A parallel method must be public");
+                        //Store the semantics for code generation
+                        Holder.parclass.addSemantic(id.toString(), is.toString(), bs.toString());
+                        //Realease the token to be garbage collected
+                        is=null; bs=null; id=null; 
+                }
+        }
 }
 
 Token MethodDeclarator():
 {Token id=null;}
 {
-  id=<IDENTIFIER> FormalParameters() ( "[" "]" )*
-	{return id;}
+id=<IDENTIFIER> FormalParameters() ( "[" "]" )*
+        {return id;}
 }
 
 int FormalParameters():
 { int nbParameter=0; }
 {
-  "(" [ FormalParameter() {nbParameter++;} ( "," FormalParameter() {nbParameter++;} )* ] ")"
-	{ return nbParameter; }
+"(" [ FormalParameter() {nbParameter++;} ( "," FormalParameter() {nbParameter++;} )* ] ")"
+        { return nbParameter; }
 }	
 
 void FormalParameter():
 { }
 {
-  [ "final" ] Type() [ "..." ] VariableDeclaratorId()
+[ "final" ] Type() [ "..." ] VariableDeclaratorId()
 }
 
 /* POP-Java new production rule.
- * Productin rule added for POP-Java.
- * Specify the object descritption declaration @{ }
- * An object description declaration must contains one or more 
- * object description blocks.
- */
+* Productin rule added for POP-Java.
+* Specify the object descritption declaration @{ }
+* An object description declaration must contains one or more 
+* object description blocks.
+*/
 void ObjectDescriptionDeclaration():
 {}
 {
-	<AT><LBRACE> ( ObjectDescritptionBlock() )+ <RBRACE>
+        <AT><LBRACE> ( ObjectDescritptionBlock() )+ <RBRACE>
 
 }
 
 /* POP-Java new production rule.
- * Production rule added for POP-Java
- * Define an object description block od.NAME(param1, param2, ... , paramN);
- * The object description block are stored for the code generation
- */
+* Production rule added for POP-Java
+* Define an object description block od.NAME(param1, param2, ... , paramN);
+* The object description block are stored for the code generation
+*/
 void ObjectDescritptionBlock():
 { 
-	int tokenId;
-	String params=""; 
+        int tokenId;
+        String params=""; 
 }
 {
-	<OD> <DOT> tokenId=OD() <LPAREN>params=ObjectDescriptionParameters()<RPAREN><SEMICOLON>
-	{
-		//Save the object description to generate the code
-		Holder.parclass.addOD(Holder.constructorId, tokenId, params);
-	}
+        <OD> <DOT> tokenId=OD() <LPAREN>params=ObjectDescriptionParameters()<RPAREN><SEMICOLON>
+        {
+                //Save the object description to generate the code
+                Holder.parclass.addOD(Holder.constructorId, tokenId, params);
+        }
 }
 
 /* POP-Java new production rule.
- * Production rule added for POP-Java
- * All parameters of an object description
- */
+* Production rule added for POP-Java
+* All parameters of an object description
+*/
 String ObjectDescriptionParameters():
 {
-	String params="";
-	String p;
+        String params="";
+        String p;
 }
 {
-	p=ObjectDescriptionParameter() { params+=p;} ("," p=ObjectDescriptionParameter() {params+=","+p;})*
-	{
-		return params;
-	}
+        p=ObjectDescriptionParameter() { params+=p;} ("," p=ObjectDescriptionParameter() {params+=","+p;})*
+        {
+                return params;
+        }
 }
 
 /* POP-Java new production rule.
- * Production rule added for POP-Java
- * Single parameter of an object description
- */
+* Production rule added for POP-Java
+* Single parameter of an object description
+*/
 String ObjectDescriptionParameter():
 {
-	Token p=null;
-	String param;
+        Token p=null;
+        String param;
 }
 {
-	p=<IDENTIFIER > 
-	{
-		param = p.image; p=null;
-		return param;
-	}
-	| p=< INTEGER_LITERAL > 
-	{
-		param = p.image; p=null;
-		return param;
-	}
-	| p=< FLOATING_POINT_LITERAL > 
-	{
-		param = p.image; p=null;
-		return param;
-	}
-	| p=< CHARACTER_LITERAL > 
-	{
-		param = p.image; p=null;
-		return param;
-	}
-	| p=< STRING_LITERAL > 
-	{
-		param = p.image; p=null;
-		return param;
-	}
-	
+        p=<IDENTIFIER > 
+        {
+                param = p.image; p=null;
+                return param;
+        }
+        | p=< INTEGER_LITERAL > 
+        {
+                param = p.image; p=null;
+                return param;
+        }
+        | p=< FLOATING_POINT_LITERAL > 
+        {
+                param = p.image; p=null;
+                return param;
+        }
+        | p=< CHARACTER_LITERAL > 
+        {
+                param = p.image; p=null;
+                return param;
+        }
+        | p=< STRING_LITERAL > 
+        {
+                param = p.image; p=null;
+                return param;
+        }
+        
 }
 
 /* POP-Java new production rule.
- * Production rule added for POP-Java
- * Define all od token that can be parsed in an object description block
- */
+* Production rule added for POP-Java
+* Define all od token that can be parsed in an object description block
+*/
 int OD():
 {}
 {
-	<ODURL> { return token.kind; }
-	| <ODSEARCH> { return token.kind; }
-	| <ODMANUAL> { return token.kind; }
-	| <ODWALLTIME> { return token.kind; }
-	| <ODPOWER> { return token.kind; }
-	| <ODMEMORY> { return token.kind; }
-	| <ODBANDWIDTH> { return token.kind; }
-	| <ODDIRECTORY> { return token.kind; }
-	| <ODJOBURL> { return token.kind; }
-	| <ODEXECUTABLE> { return token.kind; }
-	| <ODPROTOCOL> { return token.kind; }
-	| <ODENCODING> { return token.kind; }
-	| <ODRUNLOCAL> { return token.kind; }
+        <ODURL> { return token.kind; }
+        | <ODSEARCH> { return token.kind; }
+        | <ODMANUAL> { return token.kind; }
+        | <ODWALLTIME> { return token.kind; }
+        | <ODPOWER> { return token.kind; }
+        | <ODMEMORY> { return token.kind; }
+        | <ODBANDWIDTH> { return token.kind; }
+        | <ODDIRECTORY> { return token.kind; }
+        | <ODJOBURL> { return token.kind; }
+        | <ODEXECUTABLE> { return token.kind; }
+        | <ODPROTOCOL> { return token.kind; }
+        | <ODENCODING> { return token.kind; }
+        | <ODRUNLOCAL> { return token.kind; }
 }
 
 /* POP-Java modification.
- * Modified for POP-Java language specification
- * Add the possibility to add object description.
- * OD are stored for each constrcutor for the code generation
- */
+* Modified for POP-Java language specification
+* Add the possibility to add object description.
+* OD are stored for each constrcutor for the code generation
+*/
 void ConstructorDeclaration():
 { int nbParam=0;}
 {
-  [ TypeParameters() ]
-  // Modifiers matched in the caller
-  <IDENTIFIER> nbParam=FormalParameters() { Holder.parclass.addConstructor(Holder.constructorId, nbParam); } [ObjectDescriptionDeclaration()] [ "throws" NameList() ]
-  "{"
+[ TypeParameters() ]
+// Modifiers matched in the caller
+<IDENTIFIER> nbParam=FormalParameters() { Holder.parclass.addConstructor(Holder.constructorId, nbParam); } [ObjectDescriptionDeclaration()] [ "throws" NameList() ]
+"{"
     [ LOOKAHEAD(ExplicitConstructorInvocation()) ExplicitConstructorInvocation() ]
     ( BlockStatement() )*
-  "}"
-	{Holder.constructorId++;}
+"}"
+        {Holder.constructorId++;}
 }
 
 void ExplicitConstructorInvocation():
 {}
 {
-  LOOKAHEAD("this" Arguments() ";")
-  "this" Arguments() ";"
+LOOKAHEAD("this" Arguments() ";")
+"this" Arguments() ";"
 |
-  [ LOOKAHEAD(2) PrimaryExpression() "." ] "super" Arguments() ";"
+[ LOOKAHEAD(2) PrimaryExpression() "." ] "super" Arguments() ";"
 }
 
 void Initializer():
 {}
 {
-  [ "static" ] Block()
+[ "static" ] Block()
 }
 
 
 /*
- * Type, name and expression syntax follows.
- */
+* Type, name and expression syntax follows.
+*/
 
 void Type():
 {}
 {
-   LOOKAHEAD(2) ReferenceType()
- |
-   PrimitiveType()
+LOOKAHEAD(2) ReferenceType()
+|
+PrimitiveType()
 }
 
 void ReferenceType():
 {}
 {
-   PrimitiveType() ( LOOKAHEAD(2) "[" "]" )+
-  |
-   ( ClassOrInterfaceType() ) ( LOOKAHEAD(2) "[" "]" )*
+PrimitiveType() ( LOOKAHEAD(2) "[" "]" )+
+|
+( ClassOrInterfaceType() ) ( LOOKAHEAD(2) "[" "]" )*
 }
 
 void ClassOrInterfaceType():
 {}
 {
-  <IDENTIFIER> [ LOOKAHEAD(2) TypeArguments() ]
-  ( LOOKAHEAD(2) "." <IDENTIFIER> [ LOOKAHEAD(2) TypeArguments() ] )*
+<IDENTIFIER> [ LOOKAHEAD(2) TypeArguments() ]
+( LOOKAHEAD(2) "." <IDENTIFIER> [ LOOKAHEAD(2) TypeArguments() ] )*
 }
 
 void TypeArguments():
 {}
 {
-   "<" TypeArgument() ( "," TypeArgument() )* ">"
+"<" TypeArgument() ( "," TypeArgument() )* ">"
 }
 
 void TypeArgument():
 {}
 {
-   ReferenceType()
- |
-   "?" [ WildcardBounds() ]
+ReferenceType()
+|
+"?" [ WildcardBounds() ]
 }
 
 void WildcardBounds():
 {}
 {
-   "extends" ReferenceType()
- |
-   "super" ReferenceType()
+"extends" ReferenceType()
+|
+"super" ReferenceType()
 }
 
 
 void PrimitiveType():
 {}
 {
-  "boolean"
+"boolean"
 |
-  "char"
+"char"
 |
-  "byte"
+"byte"
 |
-  "short"
+"short"
 |
-  "int"
+"int"
 |
-  "long"
+"long"
 |
-  "float"
+"float"
 |
-  "double"
+"double"
 }
 
 void ResultType():
 {}
 {
-  "void"
+"void"
 |
-  Type()
+Type()
 }
 
 void Name():
 /*
- * A lookahead of 2 is required below since "Name" can be followed
- * by a ".*" when used in the context of an "ImportDeclaration".
- */
+* A lookahead of 2 is required below since "Name" can be followed
+* by a ".*" when used in the context of an "ImportDeclaration".
+*/
 {}
 {
-  <IDENTIFIER>
-  ( LOOKAHEAD(2) "." <IDENTIFIER>
-  )*
+<IDENTIFIER>
+( LOOKAHEAD(2) "." <IDENTIFIER>
+)*
 }
 
 void NameList():
 {}
 {
-  Name() ( "," Name() )*
+Name() ( "," Name() )*
 }
 
 
 /*
- * Expression syntax follows.
- */
+* Expression syntax follows.
+*/
 
 void Expression():
 /*
- * This expansion has been written this way instead of:
- *   Assignment() | ConditionalExpression()
- * for performance reasons.
- * However, it is a weakening of the grammar for it allows the LHS of
- * assignments to be any conditional expression whereas it can only be
- * a primary expression.  Consider adding a semantic predicate to work
- * around this.
- */
+* This expansion has been written this way instead of:
+*   Assignment() | ConditionalExpression()
+* for performance reasons.
+* However, it is a weakening of the grammar for it allows the LHS of
+* assignments to be any conditional expression whereas it can only be
+* a primary expression.  Consider adding a semantic predicate to work
+* around this.
+*/
 {}
 {
-  ConditionalExpression()
-  [
+ConditionalExpression()
+[
     LOOKAHEAD(2)
     AssignmentOperator() Expression()
-  ]
+]
 }
 
 void AssignmentOperator():
 {}
 {
-  "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
+"=" | "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|="
 }
 
 void ConditionalExpression():
 {}
 {
-  ConditionalOrExpression() [ "?" Expression() ":" Expression() ]
+ConditionalOrExpression() [ "?" Expression() ":" Expression() ]
 }
 
 void ConditionalOrExpression():
 {}
 {
-  ConditionalAndExpression() ( "||" ConditionalAndExpression() )*
+ConditionalAndExpression() ( "||" ConditionalAndExpression() )*
 }
 
 void ConditionalAndExpression():
 {}
 {
-  InclusiveOrExpression() ( "&&" InclusiveOrExpression() )*
+InclusiveOrExpression() ( "&&" InclusiveOrExpression() )*
 }
 
 void InclusiveOrExpression():
 {}
 {
-  ExclusiveOrExpression() ( "|" ExclusiveOrExpression() )*
+ExclusiveOrExpression() ( "|" ExclusiveOrExpression() )*
 }
 
 void ExclusiveOrExpression():
 {}
 {
-  AndExpression() ( "^" AndExpression() )*
+AndExpression() ( "^" AndExpression() )*
 }
 
 void AndExpression():
 {}
 {
-  EqualityExpression() ( "&" EqualityExpression() )*
+EqualityExpression() ( "&" EqualityExpression() )*
 }
 
 void EqualityExpression():
 {}
 {
-  InstanceOfExpression() ( ( "==" | "!=" ) InstanceOfExpression() )*
+InstanceOfExpression() ( ( "==" | "!=" ) InstanceOfExpression() )*
 }
 
 void InstanceOfExpression():
 {}
 {
-  RelationalExpression() [ "instanceof" Type() ]
+RelationalExpression() [ "instanceof" Type() ]
 }
 
 void RelationalExpression():
 {}
 {
-  ShiftExpression() ( ( "<" | ">" | "<=" | ">=" ) ShiftExpression() )*
+ShiftExpression() ( ( "<" | ">" | "<=" | ">=" ) ShiftExpression() )*
 }
 
 void ShiftExpression():
 {}
 {
-  AdditiveExpression() ( ( "<<" | RSIGNEDSHIFT() | RUNSIGNEDSHIFT() ) AdditiveExpression() )*
+AdditiveExpression() ( ( "<<" | RSIGNEDSHIFT() | RUNSIGNEDSHIFT() ) AdditiveExpression() )*
 }
 
 void AdditiveExpression():
 {}
 {
-  MultiplicativeExpression() ( ( "+" | "-" ) MultiplicativeExpression() )*
+MultiplicativeExpression() ( ( "+" | "-" ) MultiplicativeExpression() )*
 }
 
 void MultiplicativeExpression():
 {}
 {
-  UnaryExpression() ( ( "*" | "/" | "%" ) UnaryExpression() )*
+UnaryExpression() ( ( "*" | "/" | "%" ) UnaryExpression() )*
 }
 
 void UnaryExpression():
 {}
 {
-  ( "+" | "-" ) UnaryExpression()
+( "+" | "-" ) UnaryExpression()
 |
-  PreIncrementExpression()
+PreIncrementExpression()
 |
-  PreDecrementExpression()
+PreDecrementExpression()
 |
-  UnaryExpressionNotPlusMinus()
+UnaryExpressionNotPlusMinus()
 }
 
 void PreIncrementExpression():
 {}
 {
-  "++" PrimaryExpression()
+"++" PrimaryExpression()
 }
 
 void PreDecrementExpression():
 {}
 {
-  "--" PrimaryExpression()
+"--" PrimaryExpression()
 }
 
 void UnaryExpressionNotPlusMinus():
 {}
 {
-  ( "~" | "!" ) UnaryExpression()
+( "~" | "!" ) UnaryExpression()
 |
-  LOOKAHEAD( CastLookahead() )
-  CastExpression()
+LOOKAHEAD( CastLookahead() )
+CastExpression()
 |
-  PostfixExpression()
+PostfixExpression()
 }
 
 // This production is to determine lookahead only.  The LOOKAHEAD specifications
@@ -1772,391 +1792,391 @@ void UnaryExpressionNotPlusMinus():
 void CastLookahead():
 {}
 {
-  LOOKAHEAD(2)
-  "(" PrimitiveType()
+LOOKAHEAD(2)
+"(" PrimitiveType()
 |
-  LOOKAHEAD("(" Type() "[")
-  "(" Type() "[" "]"
+LOOKAHEAD("(" Type() "[")
+"(" Type() "[" "]"
 |
-  "(" Type() ")" ( "~" | "!" | "(" | <IDENTIFIER> | "this" | "super" | "new" | Literal() )
+"(" Type() ")" ( "~" | "!" | "(" | <IDENTIFIER> | "this" | "super" | "new" | Literal() )
 }
 
 void PostfixExpression():
 {}
 {
-  PrimaryExpression() [ "++" | "--" ]
+PrimaryExpression() [ "++" | "--" ]
 }
 
 void CastExpression():
 {}
 {
-  LOOKAHEAD("(" PrimitiveType())
-  "(" Type() ")" UnaryExpression()
+LOOKAHEAD("(" PrimitiveType())
+"(" Type() ")" UnaryExpression()
 |
-  "(" Type() ")" UnaryExpressionNotPlusMinus()
+"(" Type() ")" UnaryExpressionNotPlusMinus()
 }
 
 void PrimaryExpression():
 {}
 {
-  PrimaryPrefix() ( LOOKAHEAD(2) PrimarySuffix() )*
+PrimaryPrefix() ( LOOKAHEAD(2) PrimarySuffix() )*
 }
 
 void MemberSelector():
 {}
 {
-  "." TypeArguments() <IDENTIFIER>
+"." TypeArguments() <IDENTIFIER>
 }
 
 void PrimaryPrefix():
 {}
 {
-  Literal()
+Literal()
 |
-  "this"
+"this"
 |
-  "super" "." <IDENTIFIER>
+"super" "." <IDENTIFIER>
 |
-  "(" Expression() ")"
+"(" Expression() ")"
 |
-  AllocationExpression()
+AllocationExpression()
 |
-  LOOKAHEAD( ResultType() "." "class" )
-  ResultType() "." "class"
+LOOKAHEAD( ResultType() "." "class" )
+ResultType() "." "class"
 |
-  Name()
+Name()
 }
 
 void PrimarySuffix():
 {}
 {
-  LOOKAHEAD(2)
-  "." "this"
+LOOKAHEAD(2)
+"." "this"
 |
-  LOOKAHEAD(2)
-  "." AllocationExpression()
+LOOKAHEAD(2)
+"." AllocationExpression()
 |
-  LOOKAHEAD(3)
-  MemberSelector()
+LOOKAHEAD(3)
+MemberSelector()
 |
-  "[" Expression() "]"
+"[" Expression() "]"
 |
-  "." <IDENTIFIER>
+"." <IDENTIFIER>
 |
-  Arguments()
+Arguments()
 }
 
 void Literal():
 {}
 {
-  <INTEGER_LITERAL>
+<INTEGER_LITERAL>
 |
-  <FLOATING_POINT_LITERAL>
+<FLOATING_POINT_LITERAL>
 |
-  <CHARACTER_LITERAL>
+<CHARACTER_LITERAL>
 |
-  <STRING_LITERAL>
+<STRING_LITERAL>
 |
-  BooleanLiteral()
+BooleanLiteral()
 |
-  NullLiteral()
+NullLiteral()
 }
 
 void BooleanLiteral():
 {}
 {
-  "true"
+"true"
 |
-  "false"
+"false"
 }
 
 void NullLiteral():
 {}
 {
-  "null"
+"null"
 }
 
 void Arguments():
 {}
 {
-  "(" [ ArgumentList() ] ")"
+"(" [ ArgumentList() ] ")"
 }
 
 void ArgumentList():
 {}
 {
-  Expression() ( "," Expression() )*
+Expression() ( "," Expression() )*
 }
 
 void AllocationExpression():
 {}
 {
-  LOOKAHEAD(2)
-  "new" PrimitiveType() ArrayDimsAndInits()
+LOOKAHEAD(2)
+"new" PrimitiveType() ArrayDimsAndInits()
 |
-  "new" ClassOrInterfaceType() [ TypeArguments() ]
+"new" ClassOrInterfaceType() [ TypeArguments() ]
     (
-      ArrayDimsAndInits()
+    ArrayDimsAndInits()
     |
-      Arguments() [ ClassOrInterfaceBody(false) ]
+    Arguments() [ ClassOrInterfaceBody(false) ]
     )
 }
 
 /*
- * The third LOOKAHEAD specification below is to parse to PrimarySuffix
- * if there is an expression between the "[...]".
- */
+* The third LOOKAHEAD specification below is to parse to PrimarySuffix
+* if there is an expression between the "[...]".
+*/
 void ArrayDimsAndInits():
 {}
 {
-  LOOKAHEAD(2)
-  ( LOOKAHEAD(2) "[" Expression() "]" )+ ( LOOKAHEAD(2) "[" "]" )*
+LOOKAHEAD(2)
+( LOOKAHEAD(2) "[" Expression() "]" )+ ( LOOKAHEAD(2) "[" "]" )*
 |
-  ( "[" "]" )+ ArrayInitializer()
+( "[" "]" )+ ArrayInitializer()
 }
 
 
 /*
- * Statement syntax follows.
- */
+* Statement syntax follows.
+*/
 
 void Statement():
 {}
 {
-  LOOKAHEAD(2)
-  LabeledStatement()
+LOOKAHEAD(2)
+LabeledStatement()
 |
-  AssertStatement()
+AssertStatement()
 |
-  Block()
+Block()
 |
-  EmptyStatement()
+EmptyStatement()
 |
-  StatementExpression() ";"
+StatementExpression() ";"
 |
-  SwitchStatement()
+SwitchStatement()
 |
-  IfStatement()
+IfStatement()
 |
-  WhileStatement()
+WhileStatement()
 |
-  DoStatement()
+DoStatement()
 |
-  ForStatement()
+ForStatement()
 |
-  BreakStatement()
+BreakStatement()
 |
-  ContinueStatement()
+ContinueStatement()
 |
-  ReturnStatement()
+ReturnStatement()
 |
-  ThrowStatement()
+ThrowStatement()
 |
-  SynchronizedStatement()
+SynchronizedStatement()
 |
-  TryStatement()
+TryStatement()
 }
 
 void AssertStatement():
 {}
 {
-  "assert" Expression() [ ":" Expression() ] ";"
+"assert" Expression() [ ":" Expression() ] ";"
 }
 
 void LabeledStatement():
 {}
 {
-  <IDENTIFIER> ":" Statement()
+<IDENTIFIER> ":" Statement()
 }
 
 void Block():
 {}
 {
-  "{" ( BlockStatement() )* "}"
+"{" ( BlockStatement() )* "}"
 }
 
 void BlockStatement():
 {}
 {
-  LOOKAHEAD([ "final" ] Type() <IDENTIFIER>)
-  LocalVariableDeclaration() ";"
+LOOKAHEAD([ "final" ] Type() <IDENTIFIER>)
+LocalVariableDeclaration() ";"
 |
-  Statement()
+Statement()
 |
-  ClassOrInterfaceDeclaration(0)
+ClassOrInterfaceDeclaration(0)
 }
 
 void LocalVariableDeclaration():
 {}
 {
-  [ "final" ] Type() VariableDeclarator() ( "," VariableDeclarator() )*
+[ "final" ] Type() VariableDeclarator() ( "," VariableDeclarator() )*
 }
 
 void EmptyStatement():
 {}
 {
-  ";"
+";"
 }
 
 void StatementExpression():
 /*
- * The last expansion of this production accepts more than the legal
- * Java expansions for StatementExpression.  This expansion does not
- * use PostfixExpression for performance reasons.
- */
+* The last expansion of this production accepts more than the legal
+* Java expansions for StatementExpression.  This expansion does not
+* use PostfixExpression for performance reasons.
+*/
 {}
 {
-  PreIncrementExpression()
+PreIncrementExpression()
 |
-  PreDecrementExpression()
+PreDecrementExpression()
 |
-  PrimaryExpression()
-  [
+PrimaryExpression()
+[
     "++"
-  |
+|
     "--"
-  |
+|
     AssignmentOperator() Expression()
-  ]
+]
 }
 
 void SwitchStatement():
 {}
 {
-  "switch" "(" Expression() ")" "{"
+"switch" "(" Expression() ")" "{"
     ( SwitchLabel() ( BlockStatement() )* )*
-  "}"
+"}"
 }
 
 void SwitchLabel():
 {}
 {
-  "case" Expression() ":"
+"case" Expression() ":"
 |
-  "default" ":"
+"default" ":"
 }
 
 void IfStatement():
 /*
- * The disambiguating algorithm of JavaCC automatically binds dangling
- * else's to the innermost if statement.  The LOOKAHEAD specification
- * is to tell JavaCC that we know what we are doing.
- */
+* The disambiguating algorithm of JavaCC automatically binds dangling
+* else's to the innermost if statement.  The LOOKAHEAD specification
+* is to tell JavaCC that we know what we are doing.
+*/
 {}
 {
-  "if" "(" Expression() ")" Statement() [ LOOKAHEAD(1) "else" Statement() ]
+"if" "(" Expression() ")" Statement() [ LOOKAHEAD(1) "else" Statement() ]
 }
 
 void WhileStatement():
 {}
 {
-  "while" "(" Expression() ")" Statement()
+"while" "(" Expression() ")" Statement()
 }
 
 void DoStatement():
 {}
 {
-  "do" Statement() "while" "(" Expression() ")" ";"
+"do" Statement() "while" "(" Expression() ")" ";"
 }
 
 void ForStatement():
 {}
 {
-  "for" "("
+"for" "("
 
-  (
-      LOOKAHEAD(Type() <IDENTIFIER> ":")
-      Type() <IDENTIFIER> ":" Expression() 
+(
+    LOOKAHEAD(Type() <IDENTIFIER> ":")
+    Type() <IDENTIFIER> ":" Expression() 
     |
-     [ ForInit() ] ";" [ Expression() ] ";" [ ForUpdate() ]
-  )
+    [ ForInit() ] ";" [ Expression() ] ";" [ ForUpdate() ]
+)
 
-  ")" Statement()
+")" Statement()
 }
 
 void ForInit():
 {}
 {
-  LOOKAHEAD( [ "final" ] Type() <IDENTIFIER> )
-  LocalVariableDeclaration()
+LOOKAHEAD( [ "final" ] Type() <IDENTIFIER> )
+LocalVariableDeclaration()
 |
-  StatementExpressionList()
+StatementExpressionList()
 }
 
 void StatementExpressionList():
 {}
 {
-  StatementExpression() ( "," StatementExpression() )*
+StatementExpression() ( "," StatementExpression() )*
 }
 
 void ForUpdate():
 {}
 {
-  StatementExpressionList()
+StatementExpressionList()
 }
 
 void BreakStatement():
 {}
 {
-  "break" [ <IDENTIFIER> ] ";"
+"break" [ <IDENTIFIER> ] ";"
 }
 
 void ContinueStatement():
 {}
 {
-  "continue" [ <IDENTIFIER> ] ";"
+"continue" [ <IDENTIFIER> ] ";"
 }
 
 void ReturnStatement():
 {}
 {
-  "return" [ Expression() ] ";"
+"return" [ Expression() ] ";"
 }
 
 void ThrowStatement():
 {}
 {
-  "throw" Expression() ";"
+"throw" Expression() ";"
 }
 
 void SynchronizedStatement():
 {}
 {
-  "synchronized" "(" Expression() ")" Block()
+"synchronized" "(" Expression() ")" Block()
 }
 
 void TryStatement():
 /*
- * Semantic check required here to make sure that at least one
- * finally/catch is present.
- */
+* Semantic check required here to make sure that at least one
+* finally/catch is present.
+*/
 {}
 {
-  "try" Block()
-  ( "catch" "(" FormalParameter() ")" Block() )*
-  [ "finally" Block() ]
+"try" Block()
+( "catch" "(" FormalParameter() ")" Block() )*
+[ "finally" Block() ]
 }
 
 /* We use productions to match >>>, >> and > so that we can keep the
- * type declaration syntax with generics clean
- */
+* type declaration syntax with generics clean
+*/
 
 void RUNSIGNEDSHIFT():
 {}
 {
-  ( LOOKAHEAD({ getToken(1).kind == GT &&
+( LOOKAHEAD({ getToken(1).kind == GT &&
                 ((Token.GTToken)getToken(1)).realKind == RUNSIGNEDSHIFT} )
-   ">" ">" ">"
-  )
+">" ">" ">"
+)
 }
 
 void RSIGNEDSHIFT():
 {}
 {
-  ( LOOKAHEAD({ getToken(1).kind == GT &&
+( LOOKAHEAD({ getToken(1).kind == GT &&
                 ((Token.GTToken)getToken(1)).realKind == RSIGNEDSHIFT} )
-  ">" ">"
-  )
+">" ">"
+)
 }
 
 /* Annotation syntax follows. */
@@ -2164,37 +2184,37 @@ void RSIGNEDSHIFT():
 void Annotation():
 {}
 {
-   LOOKAHEAD( "@" Name() "(" ( <IDENTIFIER> "=" | ")" ))
-   NormalAnnotation()
- |
-   LOOKAHEAD( "@" Name() "(" )
-   SingleMemberAnnotation()
- |
-   MarkerAnnotation()
+LOOKAHEAD( "@" Name() "(" ( <IDENTIFIER> "=" | ")" ))
+NormalAnnotation()
+|
+LOOKAHEAD( "@" Name() "(" )
+SingleMemberAnnotation()
+|
+MarkerAnnotation()
 }
 
 void NormalAnnotation():
 {}
 {
-   "@" Name() "(" [ MemberValuePairs() ] ")"
+"@" Name() "(" [ MemberValuePairs() ] ")"
 }
 
 void MarkerAnnotation():
 {}
 {
-  "@" Name()
+"@" Name()
 }
 
 void SingleMemberAnnotation():
 {}
 {
-  "@" Name() "(" MemberValue() ")"
+"@" Name() "(" MemberValue() ")"
 }
 
 void MemberValuePairs():
 {}
 {
-   MemberValuePair() ( "," MemberValuePair() )*
+MemberValuePair() ( "," MemberValuePair() )*
 }
 
 void MemberValuePair():
@@ -2206,17 +2226,17 @@ void MemberValuePair():
 void MemberValue():
 {}
 {
-   Annotation()
- |
-   MemberValueArrayInitializer()
- |
-   ConditionalExpression()
+Annotation()
+|
+MemberValueArrayInitializer()
+|
+ConditionalExpression()
 }
 
 void  MemberValueArrayInitializer():
 {}
 {
-  "{" MemberValue() ( LOOKAHEAD(2) "," MemberValue() )* [ "," ] "}"
+"{" MemberValue() ( LOOKAHEAD(2) "," MemberValue() )* [ "," ] "}"
 }
 
 
@@ -2225,39 +2245,39 @@ void  MemberValueArrayInitializer():
 void AnnotationTypeDeclaration(int modifiers):
 {}
 {
-  "@" "interface" <IDENTIFIER> AnnotationTypeBody()
+"@" "interface" <IDENTIFIER> AnnotationTypeBody()
 }
 
 void AnnotationTypeBody():
 {}
 {
-  "{" ( AnnotationTypeMemberDeclaration() )* "}"
+"{" ( AnnotationTypeMemberDeclaration() )* "}"
 }
 
 void AnnotationTypeMemberDeclaration():
 {
-   int modifiers;
+int modifiers;
 }
 {
- modifiers = Modifiers()
- (
-   LOOKAHEAD(Type() <IDENTIFIER> "(")
-   Type() <IDENTIFIER> "(" ")" [ DefaultValue() ] ";"
-  |
-   ClassOrInterfaceDeclaration(modifiers)
-  |
-   EnumDeclaration(modifiers)
-  |
-   AnnotationTypeDeclaration(modifiers)
-  |
-   FieldDeclaration(modifiers)
- )
- |
-   ( ";" )
+modifiers = Modifiers()
+(
+LOOKAHEAD(Type() <IDENTIFIER> "(")
+Type() <IDENTIFIER> "(" ")" [ DefaultValue() ] ";"
+|
+ClassOrInterfaceDeclaration(modifiers)
+|
+EnumDeclaration(modifiers)
+|
+AnnotationTypeDeclaration(modifiers)
+|
+FieldDeclaration(modifiers)
+)
+|
+( ";" )
 }
 
 void DefaultValue():
 {}
 {
-  "default" MemberValue()
+"default" MemberValue()
 }

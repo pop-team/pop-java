@@ -47,7 +47,7 @@ public class ComboxServerSocket extends ComboxServer {
 			serverCombox = new ComboxAcceptSocket(broker, requestQueue,
 					serverSocket);
 			serverCombox.setStatus(Running);
-			Thread thread = new Thread(serverCombox);
+			Thread thread = new Thread(serverCombox, "Server combox acception thread");
 			thread.start();
 			accessPoint.setProtocol(ComboxSocketFactory.Protocol);
 			accessPoint.setHost(POPSystem.getHost());

@@ -5,6 +5,7 @@ import popjava.broker.Broker;
 import popjava.broker.Request;
 import popjava.broker.RequestQueue;
 import popjava.buffer.*;
+import popjava.util.LogWriter;
 
 import java.net.*;
 import java.io.*;
@@ -45,17 +46,17 @@ public class ComboxReceiveRequestSocket implements Runnable {
 		while (this.getStatus() == Running) {
 			Request popRequest = new Request();
 			try {
-
 				if (!receiveRequest(popRequest)) {
-					this.setStatus(Exit);
+					setStatus(Exit);
 					break;
 				}
 				// add request to fifo list
 				if (broker!=null&&!broker.popCall(popRequest)) {
 					requestQueue.add(popRequest);					
 				}
-			} catch (Exception exception) {				
-				this.setStatus(Exit);
+			} catch (Exception e) {
+				LogWriter.writeExceptionLog(e);
+				setStatus(Exit);
 			}
 		}
 		this.close();
@@ -80,6 +81,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 			request.setCombox(combox);
 			return true;
 		}
+		
 		return false;
 	}
 

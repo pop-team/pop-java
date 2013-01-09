@@ -15,6 +15,7 @@ import popjava.system.POPJavaConfiguration;
 public class LogWriter {
 	
 	private static final String LOG_FOLDER_NAME = "logFolder";
+	private static final String DEFAULT_LOCATION = "/usr/local/popj/"+LOG_FOLDER_NAME;
 
 	/**
 	 * Process identifier
@@ -41,10 +42,11 @@ public class LogWriter {
 		}
 		
 		String popLocation = POPJavaConfiguration.getPopJavaLocation();
+		
 		if(!popLocation.isEmpty()){
 			LogFolder = String.format("%s%s%s", popLocation, File.separator, LOG_FOLDER_NAME);
 		}else{
-			LogFolder = new File(LOG_FOLDER_NAME).getAbsolutePath();
+			LogFolder = DEFAULT_LOCATION;
 		}
 		
 		System.out.println("Using logfolder "+LogFolder);
@@ -58,7 +60,7 @@ public class LogWriter {
 	 * @param filePath	Path of the log file
 	 */
 	public static void writeLogInfo(String info, String filePath) {
-		info = PID + "-" + (new Date()).toString() + "-" + info;
+		info = PID + "-" + (new Date()).toString() +":"+System.currentTimeMillis() + "-" + info;
 		info += "\r\n";
 		writeLogfile(info, filePath);
 
@@ -70,10 +72,11 @@ public class LogWriter {
 	 */
 	public static void writeDebugInfo(String info) {
 		System.out.println(info);
+		
 		if (Configuration.Debug) {
-			info = PID + "-" + (new Date()).toString() + "-" + info;
+			info = PID + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
 			info += "\r\n";
-			String path = String.format("%s%s%s%s.txt", LogFolder, File.separator, Prefix, PID);
+			String path = String.format("%s%s%s.txt", LogFolder, File.separator, Prefix);
 			System.out.println(path);
 			writeLogfile(info, path);
 		}
@@ -84,7 +87,7 @@ public class LogWriter {
 	 * backtrace is logged.
 	 * @param e The exception to be logged
 	 */
-	public static synchronized void writeExceptionLog(Throwable e){
+	public static void writeExceptionLog(Throwable e){
 		writeDebugInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
         for(int i = 0; i < e.getStackTrace().length; i++){
         	writeDebugInfo(e.getStackTrace()[i].getClassName()+" "+e.getStackTrace()[i].getLineNumber());
@@ -96,7 +99,7 @@ public class LogWriter {
 	 * @param info	Information to write
 	 * @param path	Path of the file
 	 */
-	public static void writeLogfile(String info, String path) {
+	public synchronized static void writeLogfile(String info, String path) {
 		path = path.replace(".txt", PID + ".txt");
 		java.io.FileWriter fstream;
 		try {
