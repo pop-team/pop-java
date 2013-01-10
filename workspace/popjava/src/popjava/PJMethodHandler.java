@@ -9,6 +9,8 @@ import javassist.util.proxy.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is responsible to invoke methods on the parallel object
@@ -165,16 +167,33 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 
 	}
 
+	private int hashMethod(Method m){
+		String hash = m.getName();
+		for(Class<?> type: m.getParameterTypes()){
+			hash += type.getName();
+		}
+		
+		return hash.hashCode();
+	}
+	
+	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<Integer, Method>();
+	
 	/**
 	 * Return a copy of the given method
 	 * @param method	Method to be copied	
 	 * @return	Method copy
 	 */
 	private Method getSameInterfaceMethod(Method method) {
+		int methodHash = hashMethod(method);
+		
+		Method m = methodCache.get(methodHash);
+		if(m != null){
+			return m;
+		}
+		
 		try {
-
-			Method m = this.getClass().getMethod(method.getName(),
-					method.getParameterTypes());
+			m = getClass().getMethod(method.getName(), method.getParameterTypes());
+			methodCache.put(methodHash, m);
 			return m;
 		} catch (Exception e){
 		}
@@ -194,22 +213,22 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			boolean[] canExcute, Object[] argvs) {
 		canExcute[0] = false;
 		String methodName = m.getName();
-		if (argvs.length == 1 && (methodName.equals("serialize"))
-				|| (methodName.equals("deserialize"))) {
+		if (argvs.length == 1 && (methodName.equals("serialize")) || (methodName.equals("deserialize"))) {
 			boolean result = false;
 			Buffer buffer = (Buffer) argvs[0];
 			if (methodName.equals("serialize")) {
 				canExcute[0] = true;
-				result = this.serialize(buffer);
+				result = serialize(buffer);
 			} else if (methodName.equals("deserialize")) {
 				canExcute[0] = true;
-				result = this.deserialize(buffer);
+				result = deserialize(buffer);
 			}
 			return result;
 		} else if (methodName.equals("exit") && argvs.length == 0) {
 			canExcute[0] = true;
 			invokeExit();
 		} else {
+			
 			Method interfaceMethod = getSameInterfaceMethod(m);
 			if (interfaceMethod != null) {
 				try {
@@ -218,7 +237,6 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					return result;
 				} catch (Exception exception) {
 				}
-
 			}
 		}
 
@@ -229,13 +247,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * Close all files
 	 */
 	private void invokeExit() {
-		this.close();
+		close();
 	}
 
 	/**
 	 * Format a string of this object
 	 */
 	public String toString() {
-		return this.getClass().getName() + ":" + popAccessPoint.toString();
+		return getClass().getName() + ":" + popAccessPoint.toString();
 	}
 }

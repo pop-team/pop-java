@@ -120,12 +120,12 @@ public class BufferRaw extends Buffer {
 
 	@Override
 	public String getString() {
-		int stringLength = this.getInt();
+		int stringLength = getInt();
 		try {
 			byte[] data = new byte[stringLength];
 			buffer.get(data, 0, stringLength);
 			if ((stringLength % 4) != 0){
-				this.position(this.position() + 4 - (stringLength % 4));
+				position(position() + 4 - (stringLength % 4));
 			}
 			return (new String(data)).trim();
 		} catch (Exception e) {			

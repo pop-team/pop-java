@@ -11,11 +11,14 @@ import popjava.util.LogWriter;
  * This class represents the request queue used in the broker-side
  * Every requests are put into this request queue and are served in FIFO order
  */
+
+//TODO: This class is horribly unoptimized and works at O(n2)
 public class RequestQueue {
 	protected final Lock lock = new ReentrantLock();
 	protected final Condition canPeek = lock.newCondition();
 	protected final Condition canInsert = lock.newCondition();
 	protected ArrayList<Request> requests = new ArrayList<Request>();
+	protected ArrayList<Request> servingRequests = new ArrayList<Request>();
 	protected Request availableRequest = null;
 	protected int maxQueue = 200;
 
@@ -31,7 +34,7 @@ public class RequestQueue {
 	 * @return number of requests
 	 */
 	public synchronized int size() {
-		return requests.size();
+		return requests.size() + servingRequests.size();
 	}
 
 	/**
@@ -58,7 +61,7 @@ public class RequestQueue {
 	public boolean add(Request request) {		
 		lock.lock();
 		try {
-			while (maxQueue <= requests.size()){
+			while (maxQueue <= requests.size() + servingRequests.size()){
 				canInsert.await();
 			}
 			requests.add(request);
@@ -92,6 +95,11 @@ public class RequestQueue {
 			if (waitSuccess) {
 				request = availableRequest;
 				request.setStatus(Request.Serving);
+				
+				//Migrate request to serving queue
+				requests.remove(request);
+				servingRequests.add(request);
+				
 				availableRequest = null;
 				canPeek();
 			}
@@ -102,8 +110,8 @@ public class RequestQueue {
 		
 		if (requests.size() > 0 && !waitSuccess && requests.get(0).getStatus() == Request.Pending) {
 			Request temp = requests.get(0);
-			String info = String.format("Request.MethodId=%d.Semantics=%s",
-					temp.getMethodId(), temp.getSenmatics());
+			String info = String.format("Request.MethodId=%d.Semantics=%sQueue=%sServing=%s\n",
+					temp.getMethodId(), temp.getSenmatics(), requests.size(), servingRequests.size());
 			LogWriter.writeLogfile(info, LogWriter.LogFolder
 					+ File.separator + "bug.txt");
 		}
@@ -123,6 +131,11 @@ public class RequestQueue {
 			}
 			request = availableRequest;
 			request.setStatus(Request.Serving);
+			
+			//Migrate request to serving queue
+			requests.remove(request);
+			servingRequests.add(request);
+			
 			availableRequest = null;
 			canPeek();
 		} catch (InterruptedException exception) {
@@ -141,6 +154,7 @@ public class RequestQueue {
 	public boolean remove(Request request) {
 		lock.lock();
 		try {
+			servingRequests.remove(request);
 			requests.remove(request);
 			canPeek();
 			canInsert.signal();
@@ -159,6 +173,7 @@ public class RequestQueue {
 	public synchronized boolean clear() {
 		availableRequest = null;
 		requests.clear();
+		servingRequests.clear();
 		return true;
 	}
 
@@ -173,16 +188,14 @@ public class RequestQueue {
 		}
 		
 		int requestCount = requests.size();
-		if (requestCount > 0) {
-			for (int i = 0; i < requestCount; i++) {
-				Request currentRequest = requests.get(i);
-				if (canPeek(currentRequest)) {
-					if (availableRequest == null) {
-						availableRequest = currentRequest;
-					}
-					canPeek.signal();
-					return true;
+		for (int i = 0; i < requestCount; i++) {
+			Request currentRequest = requests.get(i);
+			if (canPeek(currentRequest)) {
+				if (availableRequest == null) {
+					availableRequest = currentRequest;
 				}
+				canPeek.signal();
+				return true;
 			}
 		}
 
@@ -195,35 +208,36 @@ public class RequestQueue {
 	 * @return true if the request can be peeked
 	 */
 	public synchronized boolean canPeek(Request request) {
-		if (request.getStatus() != Request.Pending)
+		if (request.getStatus() != Request.Pending){
 			return false;
-		int requestCount = requests.size();
-		if (requestCount > 0) {
-			if (request.isMutex()) {
-				for (int i = 0; i < requestCount; i++) {
-					Request currentRequest = requests.get(i);
-					if (currentRequest.getStatus() == Request.Serving)
-						return false;
-				}
-			}
-			if (request.isConcurrent()) {
-				for (int i = 0; i < requestCount; i++) {
-					Request currentRequest = requests.get(i);
-					if (currentRequest.getStatus() == Request.Serving
-							&& (currentRequest.getSenmatics() & Semantic.Mutex) != 0)
-						return false;
-				}
-			}
-			if (request.isSequential()) {
-				for (int i = 0; i < requestCount; i++) {
-					Request currentRequest = requests.get(i);
-					if (currentRequest.getStatus() == Request.Serving
-							&& (currentRequest.isMutex() || currentRequest.isSequential()))
-						return false;
-				}
-			}
-			return true;
 		}
-		return false;
+		
+		int requestCount = servingRequests.size();
+		if (request.isMutex()) {
+			for (int i = 0; i < requestCount; i++) {
+				Request currentRequest = servingRequests.get(i);
+				if (currentRequest.getStatus() == Request.Serving){
+					return false;
+				}
+			}
+		}
+		if (request.isConcurrent()) {
+			for (int i = 0; i < requestCount; i++) {
+				Request currentRequest = servingRequests.get(i);
+				if (currentRequest.getStatus() == Request.Serving && currentRequest.isMutex()){
+					return false;
+				}
+			}
+		}
+		if (request.isSequential()) {
+			for (int i = 0; i < requestCount; i++) {
+				Request currentRequest = servingRequests.get(i);
+				if (currentRequest.getStatus() == Request.Serving
+						&& (currentRequest.isMutex() || currentRequest.isSequential())){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }
