@@ -25,9 +25,9 @@ public class PJProxyFactory extends ProxyFactory {
 	 */
 	public PJProxyFactory(Class<?> targetClass) {
 		this.targetClass = targetClass;
-		this.setSuperclass(targetClass);
+		setSuperclass(targetClass);
 		MethodFilter methodFilter = new PJMethodFilter();
-		this.setFilter(methodFilter);
+		setFilter(methodFilter);
 	}
 
 	/**

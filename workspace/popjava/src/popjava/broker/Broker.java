@@ -50,10 +50,11 @@ public class Broker {
 	protected POPObject popObject = null;
 	protected POPObject popInfo = null;
 	protected int connectionCount = 0;
-	protected Semaphore semSeq = new Semaphore(1, true);
+	protected Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
-	private ExecutorService threadPool = Executors.newCachedThreadPool();
-	//Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	private ExecutorService threadPoolSequential = Executors.newFixedThreadPool(1);
+	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+			//Executors.newCachedThreadPool();
 
 	/**
 	 * Creates a new instance of POPBroker
@@ -212,7 +213,7 @@ public class Broker {
 	 */
 	private boolean invokeMethod(Request request) throws InterruptedException {
 		if(request.isSequential()){
-			semSeq.acquire();
+			sequentialSemaphore.acquire();
 		}
 		Object result = new Object();
 		Buffer requestBuffer = request.getBuffer();
@@ -336,7 +337,7 @@ public class Broker {
 			}
 		}
 		if(request.isSequential()){
-			semSeq.release();
+			sequentialSemaphore.release();
 		}
 		return true;
 	}
@@ -384,10 +385,15 @@ public class Broker {
 		request.setBroker(this);
 		request.setStatus(Request.Serving);
 		// Do not create new thread if method is mutex
-		if (request.getSenmatics() == Semantic.Mutex) {
+		if (request.isMutex()) {
 			invoke(request);
 		} else {
-			threadPool.execute(new POPThread(request));
+			Runnable popRequest = new POPThread(request);
+			if(request.isConcurrent()){
+				threadPoolConcurrent.execute(popRequest);
+			}else{
+				threadPoolSequential.execute(popRequest);
+			}
 		}
 	}
 

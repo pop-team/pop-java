@@ -328,45 +328,52 @@ public abstract class Buffer extends Object {
 	 * @throws POPException	thrown if the deserialization process is not going well
 	 */
 	public Object getValue(Class<?> c) throws POPException {
-		LogWriter.Prefix="Broker";
-		if (c.equals(byte.class) || c.equals(Byte.class))
-			return new Byte(this.get());
-		else if (c.equals(int.class) || c.equals(Integer.class))
-			return new Integer(this.getInt());
-		else if (c.equals(float.class) || c.equals(Float.class))
-			return new Float(this.getFloat());
-		else if (c.equals(boolean.class) || c.equals(Boolean.class))
-			return new Boolean(this.getBoolean());
-		else if (c.equals(String.class))
+		//LogWriter.Prefix="Broker";
+		
+		if (c.equals(byte.class) || c.equals(Byte.class)){
+			return new Byte(get());
+		}else if (c.equals(int.class) || c.equals(Integer.class)){
+			return new Integer(getInt());
+		}else if (c.equals(float.class) || c.equals(Float.class)){
+			return new Float(getFloat());
+		}else if (c.equals(boolean.class) || c.equals(Boolean.class)){
+			return new Boolean(getBoolean());
+		}else if (c.equals(String.class)){
 			return this.getString();
-		else if (c.equals(char.class) || c.equals(Character.class))
+		}else if (c.equals(char.class) || c.equals(Character.class)){
 			return this.getChar();
-		else if (c.equals(long.class) || c.equals(Long.class))
+		}else if (c.equals(long.class) || c.equals(Long.class)){
 			return this.getLong();
-		else if (c.equals(double.class) || c.equals(Double.class))
+		}else if (c.equals(double.class) || c.equals(Double.class)){
 			return this.getDouble();
-		else if (c.equals(short.class) || c.equals(Short.class))
+		}else if (c.equals(short.class) || c.equals(Short.class)){
 			return this.getShort();
-		else if (c.isArray()) {
+		}else if (c.isArray()) {
 			return this.getArray(c);
 		} else if (POPObject.class.isAssignableFrom(c)) {
-			LogWriter.writeDebugInfo("New active from buffer");
 			return PopJava.newActiveFromBuffer(c, this);
-		} else if (IPOPBase.class.isAssignableFrom(c)
-				|| IPOPBaseInput.class.isAssignableFrom(c)) {
+		} else if (IPOPBase.class.isAssignableFrom(c)){
 			try {
-					Object popBase = c.getConstructor()
-							.newInstance();
-					Method m = c.getMethod("deserialize", Buffer.class);
-					m.setAccessible(true);
-					m.invoke(popBase, this);
-					return popBase;				
+				IPOPBase popBase = (IPOPBase)c.getConstructor().newInstance();
+				popBase.deserialize(this);
+				return popBase;				
+			} catch (Exception e) {
+					LogWriter.writeDebugInfo("Catch error");
+				POPException.throwReflectSerializeException(c.getName(), e
+						.getMessage());
+			}
+		}else if(IPOPBaseInput.class.isAssignableFrom(c)) {
+			try {
+				IPOPBaseInput popBase = (IPOPBaseInput)c.getConstructor().newInstance();
+				popBase.deserialize(this);
+				return popBase;				
 			} catch (Exception e) {
 					LogWriter.writeDebugInfo("Catch error");
 				POPException.throwReflectSerializeException(c.getName(), e
 						.getMessage());
 			}
 		}
+		
 		LogWriter.writeDebugInfo("Return null ");
 		return null;
 	}
