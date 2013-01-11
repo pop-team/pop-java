@@ -242,8 +242,7 @@ public class Broker {
 			for (index = 0; index < parameterTypes.length; index++) {
 
 				try {
-					parameters[index] = requestBuffer
-							.getValue(parameterTypes[index]);
+					parameters[index] = requestBuffer.getValue(parameterTypes[index]);
 				} catch (POPException e) {
 					exception = new POPException(e.errorCode, e.errorMessage);
 					break;

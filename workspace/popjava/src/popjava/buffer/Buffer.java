@@ -353,12 +353,16 @@ public abstract class Buffer extends Object {
 		} else if (POPObject.class.isAssignableFrom(c)) {
 			return PopJava.newActiveFromBuffer(c, this);
 		} else if (IPOPBase.class.isAssignableFrom(c)){
+			
 			try {
 				IPOPBase popBase = (IPOPBase)c.getConstructor().newInstance();
 				popBase.deserialize(this);
 				return popBase;				
+			} catch(NoSuchMethodException e){
+				POPException.throwReflectSerializeException(c.getName(), "Default constructor is missing");
 			} catch (Exception e) {
 					LogWriter.writeDebugInfo("Catch error");
+					LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e
 						.getMessage());
 			}
@@ -367,8 +371,11 @@ public abstract class Buffer extends Object {
 				IPOPBaseInput popBase = (IPOPBaseInput)c.getConstructor().newInstance();
 				popBase.deserialize(this);
 				return popBase;				
+			} catch(NoSuchMethodException e){
+				POPException.throwReflectSerializeException(c.getName(), "Default constructor is missing");
 			} catch (Exception e) {
 					LogWriter.writeDebugInfo("Catch error");
+					LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e
 						.getMessage());
 			}
