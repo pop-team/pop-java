@@ -6,8 +6,11 @@ import popjava.dataswaper.IPOPBase;
 import popjava.dataswaper.IPOPBaseInput;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import popjava.util.LogWriter;
 /**
@@ -321,6 +324,21 @@ public abstract class Buffer extends Object {
 		return size;
 	}
 
+	private static Map<Integer, Constructor<?>> constructorsCache = new ConcurrentHashMap<Integer, Constructor<?>>();
+	
+	private Constructor<?> getConstructorForClass(Class<?> c) throws SecurityException, NoSuchMethodException{
+		int hash = c.getName().hashCode();
+		
+		if(constructorsCache.containsKey(hash)){
+			return constructorsCache.get(hash);
+		}
+		
+		Constructor<?> constructor = c.getConstructor();
+		constructorsCache.put(hash, constructor);
+		
+		return constructor;
+	}
+	
 	/**
 	 * Retrieve an object from the buffer
 	 * @param c	Class of the object to retrieve
@@ -355,9 +373,9 @@ public abstract class Buffer extends Object {
 		} else if (IPOPBase.class.isAssignableFrom(c)){
 			
 			try {
-				IPOPBase popBase = (IPOPBase)c.getConstructor().newInstance();
+				IPOPBase popBase = (IPOPBase)getConstructorForClass(c).newInstance();
 				popBase.deserialize(this);
-				return popBase;				
+				return popBase;
 			} catch(NoSuchMethodException e){
 				POPException.throwReflectSerializeException(c.getName(), "Default constructor is missing");
 			} catch (Exception e) {
@@ -368,7 +386,7 @@ public abstract class Buffer extends Object {
 			}
 		}else if(IPOPBaseInput.class.isAssignableFrom(c)) {
 			try {
-				IPOPBaseInput popBase = (IPOPBaseInput)c.getConstructor().newInstance();
+				IPOPBaseInput popBase = (IPOPBaseInput)getConstructorForClass(c).newInstance();
 				popBase.deserialize(this);
 				return popBase;				
 			} catch(NoSuchMethodException e){
@@ -391,7 +409,7 @@ public abstract class Buffer extends Object {
 	 * @param c	Class of the object to be inserted
 	 * @throws POPException	thrown if the serialization process is not going well
 	 */
-	public void putValue(Object o,Class<?>c) throws POPException {
+	public void putValue(Object o, Class<?>c) throws POPException {
 		if (o == null && !c.isArray()) {			
 			POPException.throwNullObjectNotAllowException();
 		}		
@@ -416,11 +434,18 @@ public abstract class Buffer extends Object {
 			this.putShort((Short)o);
 		else if (c.isArray()) {
 			this.putArray(o);
-		} else if (IPOPBaseInput.class.isAssignableFrom(c) || IPOPBase.class.isAssignableFrom(c)) {
+		} else if (IPOPBaseInput.class.isAssignableFrom(c)) {
 			try {
-				Method m = c.getMethod("serialize", Buffer.class);
-				m.setAccessible(true);
-				m.invoke(o, this);
+				IPOPBaseInput temp = (IPOPBaseInput) o;
+				temp.serialize(this);
+			} catch (Exception e) {
+				LogWriter.writeExceptionLog(e);
+				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
+			}
+		} else if (IPOPBase.class.isAssignableFrom(c)) {
+			try {
+				IPOPBase temp = (IPOPBase) o;
+				temp.serialize(this);
 			} catch (Exception e) {
 				LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e.getMessage());

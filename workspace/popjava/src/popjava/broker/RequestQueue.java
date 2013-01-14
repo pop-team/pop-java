@@ -18,7 +18,9 @@ public class RequestQueue {
 	protected final Condition canPeek = lock.newCondition();
 	protected final Condition canInsert = lock.newCondition();
 	protected ArrayList<Request> requests = new ArrayList<Request>();
-	protected ArrayList<Request> servingRequests = new ArrayList<Request>();
+	protected ArrayList<Request> servingMutex = new ArrayList<Request>(); //TODO: does not need to be a list
+	protected ArrayList<Request> servingConcurrent = new ArrayList<Request>();
+	protected ArrayList<Request> servingSequential = new ArrayList<Request>();
 	protected Request availableRequest = null;
 	protected int maxQueue = 200;
 
@@ -34,7 +36,7 @@ public class RequestQueue {
 	 * @return number of requests
 	 */
 	public synchronized int size() {
-		return requests.size() + servingRequests.size();
+		return requests.size() + servingMutex.size() + servingConcurrent.size() + servingSequential.size();
 	}
 
 	/**
@@ -61,7 +63,7 @@ public class RequestQueue {
 	public boolean add(Request request) {		
 		lock.lock();
 		try {
-			while (maxQueue <= requests.size() + servingRequests.size()){
+			while (maxQueue <= size()){
 				canInsert.await();
 			}
 			requests.add(request);
@@ -96,9 +98,7 @@ public class RequestQueue {
 				request = availableRequest;
 				request.setStatus(Request.Serving);
 				
-				//Migrate request to serving queue
-				requests.remove(request);
-				servingRequests.add(request);
+				serveRequest(request);
 				
 				availableRequest = null;
 				canPeek();
@@ -110,14 +110,26 @@ public class RequestQueue {
 		
 		if (requests.size() > 0 && !waitSuccess && requests.get(0).getStatus() == Request.Pending) {
 			Request temp = requests.get(0);
-			String info = String.format("Request.MethodId=%d.Semantics=%sQueue=%sServing=%s\n",
-					temp.getMethodId(), temp.getSenmatics(), requests.size(), servingRequests.size());
+			String info = String.format("Request.MethodId=%d.Semantics=%s\n",
+					temp.getMethodId(), temp.getSenmatics());
 			LogWriter.writeLogfile(info, LogWriter.LogFolder
 					+ File.separator + "bug.txt");
 		}
 		return request;
 	}
 
+	private void serveRequest(Request request){
+		//Migrate request to serving queue
+		requests.remove(request);
+		if(request.isMutex()){
+			servingMutex.add(request);
+		}else if(request.isSequential()){
+			servingSequential.add(request);
+		}else{
+			servingConcurrent.add(request);
+		}
+	}
+	
 	/**
 	 * Peek a request into the queue
 	 * @return The request peeked
@@ -132,9 +144,7 @@ public class RequestQueue {
 			request = availableRequest;
 			request.setStatus(Request.Serving);
 			
-			//Migrate request to serving queue
-			requests.remove(request);
-			servingRequests.add(request);
+			serveRequest(request);
 			
 			availableRequest = null;
 			canPeek();
@@ -154,7 +164,14 @@ public class RequestQueue {
 	public boolean remove(Request request) {
 		lock.lock();
 		try {
-			servingRequests.remove(request);
+			if(request.isMutex()){
+				servingMutex.remove(request);
+			}else if(request.isSequential()){
+				servingSequential.remove(request);
+			}else{
+				servingConcurrent.remove(request);
+			}
+			
 			requests.remove(request);
 			canPeek();
 			canInsert.signal();
@@ -173,7 +190,10 @@ public class RequestQueue {
 	public synchronized boolean clear() {
 		availableRequest = null;
 		requests.clear();
-		servingRequests.clear();
+		servingMutex.clear();
+		servingSequential.clear();
+		servingConcurrent.clear();
+		
 		return true;
 	}
 
@@ -212,26 +232,25 @@ public class RequestQueue {
 			return false;
 		}
 		
-		int requestCount = servingRequests.size();
 		if (request.isMutex()) {
-			for (int i = 0; i < requestCount; i++) {
-				Request currentRequest = servingRequests.get(i);
+			for (int i = 0; i < servingMutex.size(); i++) {
+				Request currentRequest = servingMutex.get(i);
 				if (currentRequest.getStatus() == Request.Serving){
 					return false;
 				}
 			}
 		}
 		if (request.isConcurrent()) {
-			for (int i = 0; i < requestCount; i++) {
-				Request currentRequest = servingRequests.get(i);
+			for (int i = 0; i < servingConcurrent.size(); i++) {
+				Request currentRequest = servingConcurrent.get(i);
 				if (currentRequest.getStatus() == Request.Serving && currentRequest.isMutex()){
 					return false;
 				}
 			}
 		}
 		if (request.isSequential()) {
-			for (int i = 0; i < requestCount; i++) {
-				Request currentRequest = servingRequests.get(i);
+			for (int i = 0; i < servingSequential.size(); i++) {
+				Request currentRequest = servingSequential.get(i);
 				if (currentRequest.getStatus() == Request.Serving
 						&& (currentRequest.isMutex() || currentRequest.isSequential())){
 					return false;

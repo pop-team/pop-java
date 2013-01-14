@@ -5,11 +5,14 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.Buffer;
 import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
+import popjava.util.LogWriter;
 import javassist.util.proxy.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -177,6 +180,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	}
 	
 	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<Integer, Method>();
+	private Set<Integer> methodMisses = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
 	
 	/**
 	 * Return a copy of the given method
@@ -186,7 +190,12 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	private Method getSameInterfaceMethod(Method method) {
 		int methodHash = hashMethod(method);
 		
+		if(methodMisses.contains(methodHash)){
+			return null;
+		}
+		
 		Method m = methodCache.get(methodHash);
+		
 		if(m != null){
 			return m;
 		}
@@ -196,7 +205,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			methodCache.put(methodHash, m);
 			return m;
 		} catch (Exception e){
+			methodMisses.add(methodHash);
 		}
+		
 		return null;
 	}
 
@@ -228,7 +239,6 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			canExcute[0] = true;
 			invokeExit();
 		} else {
-			
 			Method interfaceMethod = getSameInterfaceMethod(m);
 			if (interfaceMethod != null) {
 				try {
