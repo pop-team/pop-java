@@ -58,7 +58,6 @@ public class Util {
 				|| hostname.compareTo("localhost") == 0 || hostname
 				.compareTo("127.0.0.1") == 0);
 		
-		LogWriter.writeDebugInfo("Check if "+hostname+" is local: "+isLocal);
 		return isLocal;
 	}
 
@@ -105,11 +104,11 @@ public class Util {
 	 * @return	true if the strings are equal
 	 */
 	public static boolean isNoCaseStringEqual(String s1, String s2) {
-		if (s1 == null || s2 == null)
+		if (s1 == null || s2 == null){
 			return false;
-		if (s1.compareToIgnoreCase(s2) == 0)
-			return true;
-		return false;
+		}
+		
+		return s1.equalsIgnoreCase(s2);
 
 	}
 
@@ -123,8 +122,9 @@ public class Util {
 		Random random = new Random((new Date()).getTime());
 		for (int i = 0; i < length; i++) {
 			int randomInt = random.nextInt();
-			if (randomInt < 0)
+			if (randomInt < 0){
 				randomInt = -randomInt;
+			}
 			randomInt = (int) (((float) randomInt / Integer.MAX_VALUE) * 24 + (int) 'A');
 			result += Character.toString((char) randomInt);
 		}

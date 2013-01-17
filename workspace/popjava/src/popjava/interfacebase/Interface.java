@@ -601,7 +601,7 @@ public class Interface {
 		int result = 0;
 		
 		if(!allocateCombox.isComboxConnected()){
-			System.out.println("Could not connect broker");
+			LogWriter.writeDebugInfo("Could not connect broker");
 			return -1;
 		}
 		

@@ -49,7 +49,6 @@ public class LogWriter {
 			LogFolder = DEFAULT_LOCATION;
 		}
 		
-		System.out.println("Using logfolder "+LogFolder);
 		
 		new File(LogFolder).mkdirs(); //Create log folder if it does not exist yet
 	}
@@ -77,7 +76,6 @@ public class LogWriter {
 			info = PID + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
 			info += "\r\n";
 			String path = String.format("%s%s%s.txt", LogFolder, File.separator, Prefix);
-			System.out.println(path);
 			writeLogfile(info, path);
 		}
 	}
@@ -101,10 +99,10 @@ public class LogWriter {
 	 */
 	public synchronized static void writeLogfile(String info, String path) {
 		path = path.replace(".txt", PID + ".txt");
-		java.io.FileWriter fstream;
+		FileWriter fstream;
 		try {
 			fstream = new FileWriter(path, true);
-			java.io.BufferedWriter out = new BufferedWriter(fstream);
+			BufferedWriter out = new BufferedWriter(fstream);
 			out.write(info);
 
 			// Close the output stream

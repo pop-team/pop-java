@@ -706,11 +706,20 @@ public class Broker {
 			LogWriter.writeDebugInfo("-Error: callback is null");
 			System.exit(1);
 		}
-		Broker broker = new Broker(codelocation, objectName);
+		
+		Broker broker = null;
+		
+		try{
+			broker = new Broker(codelocation, objectName);
+		}catch(Exception e){
+			LogWriter.writeExceptionLog(e);
+		}
 		int status = 0;
-		if (!broker.initialize(argvList)) {
+		if (broker == null || !broker.initialize(argvList)) {
 			status = 1;
 		}
+		
+		//Send info back to callback
 		if (callback != null) {
 			MessageHeader messageHeader = new MessageHeader();
 			Buffer buffer = new BufferXDR();
