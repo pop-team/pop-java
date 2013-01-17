@@ -5,6 +5,7 @@ import popjava.baseobject.*;
 import popjava.buffer.*;
 import popjava.system.*;
 import popjava.util.*;
+
 import java.lang.reflect.*;
 import javassist.util.proxy.*;
 
@@ -51,8 +52,16 @@ public class PJProxyFactory extends ProxyFactory {
 	public Object newPOPObject(ObjectDescription od, Object... argvs)
 			throws POPException {
 		try {
-			Constructor<?> constructor = targetClass.getConstructor();
-			POPObject popObject = (POPObject) constructor.newInstance();
+			POPObject popObject = null;
+			try{
+				Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
+				Constructor<?> constructor = targetClass.getConstructor(parameterTypes);
+				popObject = (POPObject) constructor.newInstance(argvs);
+			}catch(Exception e){
+				Constructor<?> constructor = targetClass.getConstructor();
+				popObject = (POPObject) constructor.newInstance();
+			}			
+			
 			ObjectDescription originalOd = popObject.getOd();
 			originalOd.merge(od);
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);

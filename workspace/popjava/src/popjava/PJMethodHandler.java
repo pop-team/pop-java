@@ -54,14 +54,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			throws POPException, NoSuchMethodException {
 
 		Constructor<?> constructor = null;
-		Class<?>[] parameterTypes = new Class<?>[argvs.length];
-		for (int index = 0; index < argvs.length; index++) {
-			if (argvs[index] == null)
-				parameterTypes[index] = Object.class;
-			parameterTypes[index] = argvs[index].getClass();
-		}
-
+		Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
 		constructor = ClassUtil.getConstructor(targetClass, parameterTypes);
+		
 		parameterTypes = constructor.getParameterTypes();
 		// Repair the parameter type, for example MyConstructor(int value,
 		// String ... data)
