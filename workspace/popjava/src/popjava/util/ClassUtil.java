@@ -7,6 +7,18 @@ import java.lang.reflect.Method;
  */
 public class ClassUtil {
 	
+	public static Class<?>[] getObjectTypes(Object ... objects){
+		Class<?>[] parameterTypes = new Class<?>[objects.length];
+		for (int index = 0; index < objects.length; index++) {
+			if (objects[index] == null){
+				parameterTypes[index] = Object.class;
+			}
+			parameterTypes[index] = objects[index].getClass();
+		}
+		
+		return parameterTypes;
+	}
+	
 	/**
 	 * Retrieve a specific constructor in the given class
 	 * @param c					The class to look in
