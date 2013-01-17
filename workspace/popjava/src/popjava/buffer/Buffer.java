@@ -415,24 +415,24 @@ public abstract class Buffer extends Object {
 		}		
 		
 		if (c.equals(byte.class) || c.equals(Byte.class)){
-			this.putShort((Short)o);
+			this.put((Byte) o);
 		}else if (c.equals(int.class) || c.equals(Integer.class)){
-			this.putShort((Short)o);
+			this.putInt((Integer) o);
 		}else if (c.equals(float.class) || c.equals(Float.class)){
-			this.putShort((Short)o);
+			this.putFloat((Float) o);
 		}else if (c.equals(boolean.class) || c.equals(Boolean.class)){
-			this.putShort((Short)o);
+			this.putBoolean((Boolean) o);
 		}else if (c.equals(String.class)){
-			this.putShort((Short)o);
+			this.putString((String) o);
 		}else if (c.equals(char.class) || c.equals(Character.class)){
-			this.putShort((Short)o);
+			this.putChar((Character) o);
 		}else if (c.equals(long.class) || c.equals(Long.class)){
-			this.putShort((Short)o);
+			this.putLong((Long) o);
 		}else if (c.equals(double.class) || c.equals(Double.class)){
-			this.putShort((Short)o);
+			this.putDouble((Double) o);
 		}else if (c.equals(short.class) || c.equals(Short.class)){
 			this.putShort((Short)o);
-		} else if (c.isArray()) {
+		}else if (c.isArray()) {
 			this.putArray(o);
 		} else if (IPOPBaseInput.class.isAssignableFrom(c)) {
 			try {

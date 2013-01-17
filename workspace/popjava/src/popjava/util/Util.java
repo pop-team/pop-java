@@ -52,10 +52,13 @@ public class Util {
 	 */
 	public static boolean isLocal(String hostname) {
 		String myhost = POPSystem.getHost();
+		
 		boolean isLocal = (hostname == null || hostname.length() == 0
 				|| popjava.util.Util.sameContact(myhost, hostname)
 				|| hostname.compareTo("localhost") == 0 || hostname
 				.compareTo("127.0.0.1") == 0);
+		
+		LogWriter.writeDebugInfo("Check if "+hostname+" is local: "+isLocal);
 		return isLocal;
 	}
 

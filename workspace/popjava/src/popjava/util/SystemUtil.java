@@ -21,6 +21,7 @@ public class SystemUtil {
 	 * @return 0 if the command launch is a success
 	 */
 	public static int runCmd(ArrayList<String> argvs) {
+		LogWriter.writeDebugInfo("Run command");
 		for(String arg: argvs){
 			LogWriter.writeDebugInfo(arg);
 		}
