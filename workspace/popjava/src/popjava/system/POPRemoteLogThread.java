@@ -82,7 +82,6 @@ public class POPRemoteLogThread extends Thread {
 			logFile.delete();
 		} catch (Exception e) {
 			e.printStackTrace();
-
 		}
 
 	}
