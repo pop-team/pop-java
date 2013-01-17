@@ -3747,6 +3747,7 @@
                         <item> conc </item>
                         <item> mutex </item>
                         <item> seq </item>
+                        <item> od </item>
                 </list>
                 <list name="types">
                         <item> boolean </item>
