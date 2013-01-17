@@ -4,6 +4,16 @@
 <!-- to install, simply copy to ~/.kde/share/apps/katepart/syntax/ -->
 <language name="POPJava" version="1" kateversion="2.4" section="Sources" extensions="*.pjava" priority="1" license="LGPL" author="Beat Wolf (beat.wolf@hefr.ch)">
         <highlighting>
+                <list name="pjava">
+                        <item> parclass </item>
+                        <item> sync </item>
+                        <item> async </item>
+                        <item> conc </item>
+                        <item> mutex </item>
+                        <item> seq </item>
+                        <item> od </item>
+                </list>
+            
                 <list name="java15">
                         <item> ACTIVE </item>
                         <item> ACTIVITY_COMPLETED </item>
@@ -3741,13 +3751,6 @@
                         <item> try </item>
                         <item> volatile </item>
                         <item> while </item>
-                        <item> parclass </item>
-                        <item> sync </item>
-                        <item> async </item>
-                        <item> conc </item>
-                        <item> mutex </item>
-                        <item> seq </item>
-                        <item> od </item>
                 </list>
                 <list name="types">
                         <item> boolean </item>
@@ -3770,6 +3773,7 @@
                                 <keyword attribute="Keyword" context="#stay" String="keywords"/>
                                 <keyword attribute="Data Type" context="#stay" String="types"/>
                                 <keyword attribute="Java15" context="#stay" String="java15"/>
+                                <keyword attribute="POPJava" context="#stay" String="pjava"/>
                                 <Float attribute="Float" context="#stay">
                                         <AnyChar String="fF" attribute="Float" context="#stay"/>
                                 </Float>
@@ -3854,6 +3858,8 @@
                         <itemData name="Comment"      defStyleNum="dsComment"/>
                         <itemData name="Symbol"       defStyleNum="dsNormal"/>
                         <itemData name="Java15"       defStyleNum="dsNormal" color="#0095FF" selColor="#FFFFFF" bold="1" italic="0"/>
+                        <itemData name="POPJava"       defStyleNum="dsNormal" color="#088A08" selColor="#FFFFFF" bold="1" italic="0"/>
+                        
                 </itemDatas>
         </highlighting>
         <general>
