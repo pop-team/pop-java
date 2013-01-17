@@ -3,6 +3,7 @@ package popjava.baseobject;
 import java.util.Enumeration;
 import popjava.buffer.*;
 import popjava.dataswaper.IPOPBase;
+import popjava.dataswaper.POPString;
 
 /**
  * This class represents the object description for a parallel object. The object description is the resource requirements for a specific parallel object.

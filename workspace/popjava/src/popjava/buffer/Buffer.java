@@ -414,25 +414,25 @@ public abstract class Buffer extends Object {
 			POPException.throwNullObjectNotAllowException();
 		}		
 		
-		if (c.equals(byte.class) || c.equals(Byte.class))
-			this.put((Byte) o);
-		else if (c.equals(int.class) || c.equals(Integer.class))
-			this.putInt((Integer) o);
-		else if (c.equals(float.class) || c.equals(Float.class))
-			this.putFloat((Float) o);
-		else if (c.equals(boolean.class) || c.equals(Boolean.class))
-			this.putBoolean((Boolean) o);
-		else if (c.equals(String.class))
-			this.putString((String) o);
-		else if (c.equals(char.class) || c.equals(Character.class))
-			this.putChar((Character) o);
-		else if (c.equals(long.class) || c.equals(Long.class))
-			this.putLong((Long) o);
-		else if (c.equals(double.class) || c.equals(Double.class))
-			this.putDouble((Double) o);
-		else if (c.equals(short.class) || c.equals(Short.class))
+		if (c.equals(byte.class) || c.equals(Byte.class)){
 			this.putShort((Short)o);
-		else if (c.isArray()) {
+		}else if (c.equals(int.class) || c.equals(Integer.class)){
+			this.putShort((Short)o);
+		}else if (c.equals(float.class) || c.equals(Float.class)){
+			this.putShort((Short)o);
+		}else if (c.equals(boolean.class) || c.equals(Boolean.class)){
+			this.putShort((Short)o);
+		}else if (c.equals(String.class)){
+			this.putShort((Short)o);
+		}else if (c.equals(char.class) || c.equals(Character.class)){
+			this.putShort((Short)o);
+		}else if (c.equals(long.class) || c.equals(Long.class)){
+			this.putShort((Short)o);
+		}else if (c.equals(double.class) || c.equals(Double.class)){
+			this.putShort((Short)o);
+		}else if (c.equals(short.class) || c.equals(Short.class)){
+			this.putShort((Short)o);
+		} else if (c.isArray()) {
 			this.putArray(o);
 		} else if (IPOPBaseInput.class.isAssignableFrom(c)) {
 			try {
