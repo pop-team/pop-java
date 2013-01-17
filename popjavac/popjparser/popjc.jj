@@ -201,202 +201,206 @@ public class POPJParser
         */
 public static void main(String args[]) {
     POPJParser parser=null;				//Instance of the parser
-                boolean printPOPCInfo=false;	//Tell if the code generator can print the POP-C++ special informations
-                boolean parseOnly = false;		//This option is used to parse only the code and not generate the Java code
-                boolean popc=false;						//Tell if it is a special compilation with POP-C++ special informations
-                String filename = "";					//Name of the file to parse
-                String popcinfosFile = "";		//Path of the file with popc informations
-                ArrayList<String> parclasses = new ArrayList<String>();	//Array containing the Name of application parclasses
+    boolean printPOPCInfo=false;	//Tell if the code generator can print the POP-C++ special informations
+    boolean parseOnly = false;		//This option is used to parse only the code and not generate the Java code
+    boolean popc=false;						//Tell if it is a special compilation with POP-C++ special informations
+    String filename = "";					//Name of the file to parse
+    String popcinfosFile = "";		//Path of the file with popc informations
+    ArrayList<String> parclasses = new ArrayList<String>();	//Array containing the Name of application parclasses
 
-                //Retriev arguments
-                for (int i = 0; i < args.length; i++) {
-                        if (args[i].startsWith("-file=")) {
-                                filename = args[i].substring(args[i].indexOf("=")+1);
-                        } else if (args[i].startsWith("-m")) {
-                                Holder.isMain = true;
-                        } else if (args[i].startsWith("-parclasses=")) {
-                                String parstr = args[i].substring(args[i].indexOf("=")+1);
-                                String parclass = "";
-                                for (int j = 0; j <= parstr.length(); j++) {
-                                        if (j==parstr.length() || parstr.charAt(j) == ':'){
-                                                if(!parclass.endsWith(".pjava")){
-                                                        System.err.println("Parclass must be POP-Java file (.pjava)");
-                                                        System.exit(1);
-                                                }
-                int slash = parclass.lastIndexOf("/");
-                if(slash!=0) slash++;
-                                                parclasses.add(parclass.substring(slash, parclass.indexOf(".")));
-                                                parclass = "";
-                                        }
-                                        else {
-                                                parclass += parstr.charAt(j);
-                                        }
-                                }
+    //Retriev arguments
+    for (int i = 0; i < args.length; i++) {
+        if (args[i].startsWith("-file=")) {
+            filename = args[i].substring(args[i].indexOf("=")+1);
+        } else if (args[i].startsWith("-m")) {
+            Holder.isMain = true;
+        } else if (args[i].startsWith("-parclasses=")) {
+            String parstr = args[i].substring(args[i].indexOf("=")+1);
+            String parclass = "";
+            for (int j = 0; j <= parstr.length(); j++) {
+                if (j==parstr.length() || parstr.charAt(j) == ':'){
+                    if(!parclass.endsWith(".pjava")){
+                        System.err.println("Parclass must be POP-Java file (.pjava)");
+                        System.exit(1);
+                    }
+                    int slash = parclass.lastIndexOf("/");
+                    if(slash!=0){
+                        slash++;
+                    }
+                    parclasses.add(parclass.substring(slash, parclass.indexOf(".")));
+                    parclass = "";
+                } else {
+                    parclass += parstr.charAt(j);
+                }
+            }
             int slash = filename.lastIndexOf("/");
-            if(slash!=0) slash++;
+            if(slash!=0){
+                slash++;
+            }
             parclasses.add(filename.substring(slash, filename.indexOf(".")));
-                        } else if (args[i].startsWith("-popcinfos=")) {
-                                popc=true;
-                                popcinfosFile = args[i].substring(args[i].indexOf("=")+1);
-                        } else if (args[i].startsWith("-parse-only")) {
-                                parseOnly=true;
-                        } else {
-                                System.err.println("Bad arguments");
-                                System.exit(1);
-                        }
-                }
-                
-                //Check if a file has been given
-                if(filename.equals("")){
-                        System.err.println("No file to parse");
-                        System.exit(1);
-                }
+        } else if (args[i].startsWith("-popcinfos=")) {
+            popc=true;
+            popcinfosFile = args[i].substring(args[i].indexOf("=")+1);
+        } else if (args[i].startsWith("-parse-only")) {
+            parseOnly=true;
+        } else {
+            System.err.println("Bad arguments");
+            System.exit(1);
+        }
+    }
+    
+    //Check if a file has been given
+    if(filename.equals("")){
+            System.err.println("No file to parse");
+            System.exit(1);
+    }
         
-                //Create the parser
-        try {
-    parser = new POPJParser(new java.io.FileInputStream(filename));
+    //Create the parser
+    try {
+        parser = new POPJParser(new java.io.FileInputStream(filename));
     } catch (java.io.FileNotFoundException e) {
-    System.err.println("POP-Java Parser Version 1.0:  File " + filename + " not found.");
-                        System.exit(1);
+        System.err.println("POP-Java Parser Version 1.0:  File " + filename + " not found.");
+        System.exit(1);
     }
 
-                //Call the parser to parse the file
-        try {
+    //Call the parser to parse the file
+    try {
         parser.CompilationUnit();
-        } catch (ParseException e) {
-                System.err.println("POP-Java Parsing error [lXX]: "+e.getMessage());
-                        System.exit(1);
-        }
+    } catch (ParseException e) {
+        System.err.println("POP-Java Parsing error [lXX]: "+e.getMessage());
+        System.exit(1);
+    }
                 
-                //If the option parse only is given, the program is exited here
-                if(parseOnly)
-                        System.exit(0);
+    //If the option parse only is given, the program is exited here
+    if(parseOnly){
+        System.exit(0);
+    }
 
 
-                /*
-                * Once the parsing is done, the code generation can be set
-                * All the following code is used to analyze the token and produce Java code from POP-Java
-                */
+    /*
+    * Once the parsing is done, the code generation can be set
+    * All the following code is used to analyze the token and produce Java code from POP-Java
+    */
 
-                boolean wasReturn = false;							//Used to indent the code
-                boolean printDefaultConstructor=false;	//Use to print the default constructor if this one is not defined
-                boolean forward = true;									//If true, foward to next token
-                boolean space = true;										//If true print a space
-                boolean constructor=false;							//Used to know if the current token is in a constructor
-                boolean parclassInstance = false;				//Used to know if an identifier with the class name has been found
-                boolean inParen = false;								//Used to know if the current token is in a parenthesis
-                boolean canPrintCatch=false;						//Used to know when to print the end of the catch statement
-                boolean wasPackage=false;								//Used to know when the package declaration is passed
-                boolean parclassArray=false;						//Used to know when an array of parclass is declared
-                String  parclassIdentifier="";					//Used to hold the name of the parclass for the array
-                String	arrayIdentifier="";							//Used to hold the identifier of the parclass array
+    boolean wasReturn = false;							//Used to indent the code
+    boolean printDefaultConstructor=false;	//Use to print the default constructor if this one is not defined
+    boolean forward = true;									//If true, foward to next token
+    boolean space = true;										//If true print a space
+    boolean constructor=false;							//Used to know if the current token is in a constructor
+    boolean parclassInstance = false;				//Used to know if an identifier with the class name has been found
+    boolean inParen = false;								//Used to know if the current token is in a parenthesis
+    boolean canPrintCatch=false;						//Used to know when to print the end of the catch statement
+    boolean wasPackage=false;								//Used to know when the package declaration is passed
+    boolean parclassArray=false;						//Used to know when an array of parclass is declared
+    String  parclassIdentifier="";					//Used to hold the name of the parclass for the array
+    String	arrayIdentifier="";							//Used to hold the identifier of the parclass array
 
-                int constructorId=0;										//Constructor id to retrieve information extracted from the POP-Java code
-                int indent = 0;													//Variable used to indent the code
-                int lastKind = 0;												//Keep the kind of the last token
+    int constructorId=0;										//Constructor id to retrieve information extracted from the POP-Java code
+    int indent = 0;													//Variable used to indent the code
+    int lastKind = 0;												//Keep the kind of the last token
         
 
-                //Retrieve additional informations for the code generation if the Parclass must be generated to work with POP-C++
-                ClassInformation ci = null;
-                if(popc){
-                        XMLWorker xmlWorker = new XMLWorker();
-                        ConfigurationWorker cw=null;
-                        try {
-                                cw = new ConfigurationWorker();
-                        } catch (Exception e){
-                                System.err.println("Error loading the configuration file");
-                                System.exit(1);
-                        }
-                        String popjava_location = cw.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
-                        //Validate the additional information file
-                        if(!xmlWorker.isValid(popcinfosFile, popjava_location+"/etc/additional-parser-infos.xsd")){
-                                System.err.println("The additional information file is not valid.");
-                                System.exit(1);
-                        }
-                        //Load the informations from the POP-C++ additional informations file
-                        ClassInformationExtracter cix = new ClassInformationExtracter(popcinfosFile);
-                        cix.loadFile();
-                        ci = cix.getInfo(filename);
-                        if (ci!=null){
-                                printPOPCInfo=true;
-                        }
+    //Retrieve additional informations for the code generation if the Parclass must be generated to work with POP-C++
+    ClassInformation ci = null;
+    if(popc){
+        XMLWorker xmlWorker = new XMLWorker();
+        ConfigurationWorker cw=null;
+        try {
+            cw = new ConfigurationWorker();
+        } catch (Exception e){
+            System.err.println("Error loading the configuration file");
+            System.exit(1);
+        }
+        String popjava_location = cw.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
+        //Validate the additional information file
+        if(!xmlWorker.isValid(popcinfosFile, popjava_location+"/etc/additional-parser-infos.xsd")){
+            System.err.println("The additional information file is not valid.");
+            System.exit(1);
+        }
+        //Load the informations from the POP-C++ additional informations file
+        ClassInformationExtracter cix = new ClassInformationExtracter(popcinfosFile);
+        cix.loadFile();
+        ci = cix.getInfo(filename);
+        if (ci!=null){
+                printPOPCInfo=true;
+        }
+    }
+
+
+
+
+    /* ############################
+    *  CODE GENERATOR STARTS HERE
+    * ############################*/
+
+
+    //Keep the current token
+    Token tok = Holder.first;
+
+    //Read trough all token until the last one
+    while (tok != null){
+            
+        //Check if it's the last token
+        if(tok.next == null){
+            print(tok.toString(),0);	
+            break;
+        }
+
+        //Set the forward boolean to true
+        forward = true;
+
+        //Print out special token
+        if(tok.specialToken != null){
+            Token s = tok.specialToken;
+            printSpecialToken(s, indent);
+        }
+
+        //Insert import for main class or for parclass at the right place
+        if(Holder.canPrintImport){
+            printImport(Holder.isMain);
+            Holder.canPrintImport = false;
+        }
+
+
+
+        //Apply rules to some special token
+
+        //Replace keyword parclass by class and add needed extends
+        if(tok.kind == PARCLASS){
+            print("class ",0);
+            tok = tok.next;
+            print(tok.toString(),0);
+            tok = tok.next;
+            //If the parclass does not inherit from a super class then add the extends statement 
+            if(tok.kind != EXTENDS){
+                print(" extends POPObject ",0);
+                forward = false;
+            } 
+            //Else just let the current extends statement
+            else {
+                print(" "+tok.toString(),0);				
+            }
+            printDefaultConstructor=true;
+        } 
+        //If the current token is package, save this point to know that we can print the import after
+        else if (tok.kind == PACKAGE){
+            print(tok.toString(), 0);
+            wasPackage = true;
+        } 
+            //Print the token new only if the object instantiated is not a parclass
+        else if(tok.kind == NEW){
+            String id = tok.next.toString();
+            if(!parclasses.contains(id)){
+                print(tok.toString(),0);
+            }else {
+                print("("+id+")PopJava.newActive("+id+".class", 0);
+                tok = tok.next.next; //Go to first parameter
+                if(tok.next.kind != RPAREN){
+                    print(",", 0);
                 }
-
-
-
-
-                /* ############################
-                *  CODE GENERATOR STARTS HERE
-                * ############################*/
-
-
-                //Keep the current token
-                Token tok = Holder.first;
-
-                //Read trough all token until the last one
-                while (tok != null){
-                        
-                        //Check if it's the last token
-                        if(tok.next == null){
-                                        print(tok.toString(),0);	
-                                        break;
-                        }
-
-                        //Set the forward boolean to true
-                        forward = true;
-
-                        //Print out special token
-                        if(tok.specialToken != null){
-                                Token s = tok.specialToken;
-                                printSpecialToken(s, indent);
-                        }
-
-                        //Insert import for main class or for parclass at the right place
-                        if(Holder.canPrintImport){
-                                printImport(Holder.isMain);
-                                Holder.canPrintImport = false;
-                        }
-
-
-
-                        //Apply rules to some special token
-
-                        //Replace keyword parclass by class and add needed extends
-                        if(tok.kind == PARCLASS){
-                                print("class ",0);
-                                tok = tok.next;
-                                print(tok.toString(),0);
-                                tok = tok.next;
-                                //If the parclass does not inherit from a super class then add the extends statement 
-                                if(tok.kind != EXTENDS){
-                                        print(" extends POPObject ",0);
-                                        forward = false;
-                                } 
-                                //Else just let the current extends statement
-                                else {
-                                        print(" "+tok.toString(),0);				
-                                }
-                                printDefaultConstructor=true;
-                        } 
-                        //If the current token is package, save this point to know that we can print the import after
-                        else if (tok.kind == PACKAGE){
-                                print(tok.toString(), 0);
-                                wasPackage = true;
-                        } 
-                        //Print the token new only if the object instantiated is not a parclass
-                        else if(tok.kind == NEW){
-                            String id = tok.next.toString();
-                            if(!parclasses.contains(id)){
-                                print(tok.toString(),0);
-                            }else {
-                                print("("+id+")PopJava.newActive("+id+".class", 0);
-                                tok = tok.next.next; //Go to first parameter
-                                if(tok.next.kind != RPAREN){
-                                    print(",", 0);
-                                }
-                                parclassInstance = false;
-                            }
-                        }
+                parclassInstance = false;
+            }
+        }
         //handle POP-Java method
         else if(tok.kind == PUBLIC && tok.next.next.next.next.next.kind == LPAREN){
             while(tok.kind != LPAREN){
@@ -1191,20 +1195,20 @@ modifiers = Modifiers() { if(Holder.first==null) Holder.first=token; }
 void ClassOrInterfaceDeclaration(int modifiers):
 {
 boolean isInterface = false;
-        boolean isParclass = false;
-        Token t=null;
+boolean isParclass = false;
+Token t = null;
 }
 {
 ( "class" | "interface" { isInterface = true; } | "parclass" { Holder.isParclass = true;  })
-t=<IDENTIFIER> { 
-                if(Holder.isParclass){ 
-                        Holder.parclass = new Parclass(t.toString()); 
-                        Holder.thisClassName=t.toString(); 
-                        t=null; 
-                } else if(!Holder.isMain){
-                        throw new ParseException("This class is not a parclass. parclass keyword missing.");
-                }  
-        }
+    t=<IDENTIFIER> { 
+        if(Holder.isParclass){ 
+            Holder.parclass = new Parclass(t.toString()); 
+            Holder.thisClassName=t.toString(); 
+            t=null; 
+        } else if(!Holder.isMain){
+            throw new ParseException("This class is not a parclass. parclass keyword missing.");
+        }  
+    }
 [ TypeParameters() ]
 [ ExtendsList(isInterface) ]
 [ ImplementsList(isInterface) ]
@@ -1219,8 +1223,9 @@ boolean extendsMoreThanOne = false;
 "extends" ClassOrInterfaceType()
 ( "," ClassOrInterfaceType() { extendsMoreThanOne = true; } )*
 {
-    if (extendsMoreThanOne && !isInterface)
+    if (extendsMoreThanOne && !isInterface){
         throw new ParseException("A class cannot extend more than one other class");
+    }
 }
 }
 
@@ -1449,14 +1454,14 @@ void ObjectDescritptionBlock():
 */
 String ObjectDescriptionParameters():
 {
-        String params="";
-        String p;
+    String params="";
+    String p;
 }
 {
-        p=ObjectDescriptionParameter() { params+=p;} ("," p=ObjectDescriptionParameter() {params+=","+p;})*
-        {
-                return params;
-        }
+    p = ObjectDescriptionParameter() { params += p;} ("," p = ObjectDescriptionParameter() {params+=","+p;})*
+    {
+        return params;
+    }
 }
 
 /* POP-Java new production rule.
@@ -1471,28 +1476,28 @@ String ObjectDescriptionParameter():
 {
         p=<IDENTIFIER > 
         {
-                param = p.image; p=null;
-                return param;
+            param = p.image; p=null;
+            return param;
         }
         | p=< INTEGER_LITERAL > 
         {
-                param = p.image; p=null;
-                return param;
+            param = p.image; p=null;
+            return param;
         }
         | p=< FLOATING_POINT_LITERAL > 
         {
-                param = p.image; p=null;
-                return param;
+            param = p.image; p=null;
+            return param;
         }
         | p=< CHARACTER_LITERAL > 
         {
-                param = p.image; p=null;
-                return param;
+            param = p.image; p=null;
+            return param;
         }
         | p=< STRING_LITERAL > 
         {
-                param = p.image; p=null;
-                return param;
+            param = p.image; p=null;
+            return param;
         }
         
 }
@@ -1527,14 +1532,14 @@ int OD():
 void ConstructorDeclaration():
 { int nbParam=0;}
 {
-[ TypeParameters() ]
-// Modifiers matched in the caller
-<IDENTIFIER> nbParam=FormalParameters() { Holder.parclass.addConstructor(Holder.constructorId, nbParam); } [ObjectDescriptionDeclaration()] [ "throws" NameList() ]
-"{"
-    [ LOOKAHEAD(ExplicitConstructorInvocation()) ExplicitConstructorInvocation() ]
-    ( BlockStatement() )*
-"}"
-        {Holder.constructorId++;}
+    [ TypeParameters() ]
+    // Modifiers matched in the caller
+    <IDENTIFIER> nbParam=FormalParameters() { Holder.parclass.addConstructor(Holder.constructorId, nbParam); } [ObjectDescriptionDeclaration()] [ "throws" NameList() ]
+    "{"
+        [ LOOKAHEAD(ExplicitConstructorInvocation()) ExplicitConstructorInvocation() ]
+        ( BlockStatement() )*
+    "}"
+    {Holder.constructorId++;}
 }
 
 void ExplicitConstructorInvocation():
