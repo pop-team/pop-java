@@ -29,6 +29,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.*;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 
 /**
@@ -157,6 +158,10 @@ public class Interface {
 		canExecLocal = tryLocal(objectName, popAccessPoint);
 		
 		if (!canExecLocal) {
+			if(!od.getHostName().isEmpty()){
+				throw new POPException(-1, "Could not create "+objectName+" on "+od.getHostName());
+			}
+			
 			// ask the job manager to allocate the broker
 			String platforms = od.getPlatform();
 
@@ -217,6 +222,7 @@ public class Interface {
 			popAccessPoint.setAccessString(allocatedAccessPoint[0].toString());
 
 		}
+		
 		return bind(popAccessPoint);
 	}
 
@@ -463,6 +469,7 @@ public class Interface {
 		
 		if (status != 0) {
 			// Throw exception
+			LogWriter.writeDebugInfo("Could not create "+objectName+" on "+joburl);
 		}
 		return (status == 0);
 	}
