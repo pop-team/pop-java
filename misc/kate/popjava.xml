@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 <!-- Modifed version of java highlighting from here https://github.com/jgm/highlighting-kate/blob/master/xml/java.xml -->
+<!-- to install, simply copy to ~/.kde/share/apps/katepart/syntax/ -->
 <language name="POPJava" version="1" kateversion="2.4" section="Sources" extensions="*.pjava" priority="1" license="LGPL" author="Beat Wolf (beat.wolf@hefr.ch)">
         <highlighting>
                 <list name="java15">
