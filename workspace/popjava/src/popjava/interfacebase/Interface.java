@@ -65,7 +65,7 @@ public class Interface {
 	 * @param buffer	Buffer to serialize in
 	 * @return	true if the serialization is finished without any problems
 	 */
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		od.serialize(buffer);
 		popAccessPoint.serialize(buffer);		
 		int ref = addRef();
@@ -78,7 +78,7 @@ public class Interface {
 	 * @param buffer	Buffer to deserialize from
 	 * @return	True if the deserialization has finished without any problems
 	 */
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		boolean result = true;
 		od.deserialize(buffer);
 		popAccessPoint.deserialize(buffer);
@@ -277,13 +277,13 @@ public class Interface {
 			POPException.throwComboxNotAvailableException();
 		}
 
-		Buffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.BindStatusCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 		this.popDispatch(popBuffer);
 		int errorcode = 0;
-		Buffer responseBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 		this.popResponse(responseBuffer);
 		errorcode = responseBuffer.getInt();
 
@@ -306,7 +306,7 @@ public class Interface {
 		if (combox == null){
 			POPException.throwComboxNotAvailableException();
 		}
-		Buffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.GetEncodingCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
@@ -315,7 +315,7 @@ public class Interface {
 		popDispatch(popBuffer);
 
 		boolean result = false;
-		Buffer responseBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 		popResponse(responseBuffer);
 		result = responseBuffer.getBoolean();
 		if (result) {
@@ -332,7 +332,7 @@ public class Interface {
 		if (combox == null){
 			return -1;
 		}
-		Buffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.AddRefCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
@@ -340,7 +340,7 @@ public class Interface {
 		popDispatch(popBuffer);
 		int result = 0;
 		try {
-			Buffer responseBuffer = combox.getBufferFactory().createBuffer();
+			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer);
 			result = responseBuffer.getInt();
 		} catch (POPException e) {
@@ -353,7 +353,7 @@ public class Interface {
 		if (combox == null){
 			return -1;
 		}
-		Buffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.DecRefCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
@@ -361,7 +361,7 @@ public class Interface {
 		popDispatch(popBuffer);
 		int result = 0;
 		try {
-			Buffer responseBuffer = combox.getBufferFactory().createBuffer();
+			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer);
 			result = responseBuffer.getInt();
 		} catch (POPException e) {
@@ -378,7 +378,7 @@ public class Interface {
 		if (combox == null){
 			return false;
 		}
-		Buffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.ObjectAliveCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
@@ -386,7 +386,7 @@ public class Interface {
 		popDispatch(popBuffer);
 		boolean result = false;
 		try {
-			Buffer responseBuffer = combox.getBufferFactory().createBuffer();
+			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer);
 			result = responseBuffer.getBoolean();
 		} catch (POPException e) {
@@ -402,14 +402,14 @@ public class Interface {
 		if (combox == null){
 			return;
 		}
-		Buffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.KillCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
 		this.popDispatch(popBuffer);
 		try {
-			Buffer responseBuffer = combox.getBufferFactory().createBuffer();
+			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer);
 		} catch (POPException e) {
 			return;
@@ -582,7 +582,7 @@ public class Interface {
 		if(isLocal){
 			ret = SystemUtil.runCmd(argvList);
 		}else{
-			ArrayList<String> tmp = new ArrayList<String>();
+			/*ArrayList<String> tmp = new ArrayList<String>();
 			//TODO: insert at list start instead of recreating one
 			tmp.add("ssh");
 			tmp.add(hostname);
@@ -593,10 +593,10 @@ public class Interface {
 			argvList.clear();
 			for (int i = 0; i < tmp.size(); i++) {
 				argvList.add(tmp.get(i));
-			}
-			ret = SystemUtil.runCmd(argvList);
+			}*/
+			//ret = SystemUtil.runCmd(argvList);
 			
-			//ret = SystemUtil.runRemoteCmd(hostname, argvList);
+			ret = SystemUtil.runRemoteCmd(hostname, argvList);
 		}
 
 		if (ret == -1) {
@@ -632,7 +632,7 @@ public class Interface {
 	 * Send the buffer content to the broker-side
 	 * @param buffer	Buffer to send
 	 */
-	protected void popDispatch(Buffer buffer) {
+	protected void popDispatch(POPBuffer buffer) {
 		combox.send(buffer);
 	}
 
@@ -642,12 +642,12 @@ public class Interface {
 	 * @return
 	 * @throws POPException
 	 */
-	protected int popResponse(Buffer buffer) throws POPException {
+	protected int popResponse(POPBuffer buffer) throws POPException {
 		if (combox.receive(buffer) > 0) {
 			MessageHeader messageHeader = buffer.getHeader();
 			if (messageHeader.getRequestType() == MessageHeader.Exception) {
 				int errorCode = messageHeader.getExceptionCode();
-				Buffer.checkAndThrow(errorCode, buffer);
+				POPBuffer.checkAndThrow(errorCode, buffer);
 			}
 		}
 		return 0;

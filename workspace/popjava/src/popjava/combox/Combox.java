@@ -51,14 +51,14 @@ public abstract class Combox {
 	 * @param buffer	The buffer to send
 	 * @return	Number of byte sent
 	 */
-	public abstract int send(Buffer buffer);
+	public abstract int send(POPBuffer buffer);
 
 	/**
 	 * Receive buffer from the other side
 	 * @param buffer	Buffer to receive
 	 * @return	Number of byte received
 	 */
-	public abstract int receive(Buffer buffer);
+	public abstract int receive(POPBuffer buffer);
 
 	/**
 	 * Close the connection

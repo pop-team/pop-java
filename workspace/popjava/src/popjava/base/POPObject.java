@@ -2,7 +2,7 @@ package popjava.base;
 
 import popjava.baseobject.*;
 import popjava.broker.Broker;
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
 import java.lang.reflect.*;
@@ -442,7 +442,7 @@ public class POPObject implements IPOPBase {
 	 * Deserialize the object from the buffer
 	 * @param buffer	The buffer to deserialize from
 	 */
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		return true;
 	}
 
@@ -450,7 +450,7 @@ public class POPObject implements IPOPBase {
 	 * Serialize the object into the buffer
 	 * @param buffer	The buffer to serialize in
 	 */
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		return true;
 	}
 

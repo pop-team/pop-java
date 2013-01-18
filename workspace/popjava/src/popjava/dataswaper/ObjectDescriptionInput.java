@@ -370,7 +370,7 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 	 * Serialize the object description into the buffer
 	 */
 	@Override
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 //		power.serialize(buffer);
 //		memory.serialize(buffer);
 //		bandwidth.serialize(buffer);
@@ -450,7 +450,7 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 	 * Deserialize the object description from the buffer
 	 */
 	@Override
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 //		ODElement power = ODElement.deserialize(buffer);
 //		ODElement memory = ODElement.deserialize(buffer);
 //		ODElement bandwidth = ODElement.deserialize(buffer);

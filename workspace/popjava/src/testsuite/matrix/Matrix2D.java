@@ -2,7 +2,7 @@ package testsuite.matrix;
 
 import java.util.Random;
 
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
 public class Matrix2D implements IPOPBase {
@@ -66,7 +66,7 @@ public class Matrix2D implements IPOPBase {
 	
 	
 	@Override
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		nbCol = buffer.getInt();
 		nbLine = buffer.getInt();
 		dataSize = buffer.getInt();
@@ -76,7 +76,7 @@ public class Matrix2D implements IPOPBase {
 	}
 
 	@Override
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		buffer.putInt(nbCol);
 		buffer.putInt(nbLine);
 		buffer.putInt(dataSize);

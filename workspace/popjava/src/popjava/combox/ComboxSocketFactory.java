@@ -3,7 +3,7 @@ package popjava.combox;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 
 /**
  * This class is the factory for all combox socket
@@ -31,13 +31,13 @@ public class ComboxSocketFactory extends ComboxFactory {
 
 	@Override
 	public ComboxServer createServerCombox(AccessPoint accessPoint,
-			Buffer buffer, Broker broker) {
+			POPBuffer buffer, Broker broker) {
 		return new ComboxServerSocket(accessPoint, 0, buffer, broker);
 	}
 
 	@Override
 	public ComboxServer createServerCombox(AccessPoint accessPoint,
-			int timeout, Buffer buffer, Broker broker) {
+			int timeout, POPBuffer buffer, Broker broker) {
 		return new ComboxServerSocket(accessPoint, timeout, buffer, broker);
 	}
 

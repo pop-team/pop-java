@@ -1,7 +1,7 @@
 package popjava.combox;
 
 import popjava.broker.Broker;
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 
@@ -34,7 +34,7 @@ public abstract class ComboxFactory {
 	 * @return	The combox server created	
 	 */
 	public abstract ComboxServer createServerCombox(AccessPoint accessPoint,
-			Buffer buffer, Broker broker);
+			POPBuffer buffer, Broker broker);
 
 	/**
 	 * Create a new server combox with the given access point, buffer and broker and a connection timeout
@@ -45,7 +45,7 @@ public abstract class ComboxFactory {
 	 * @return	The combox server created	
 	 */
 	public abstract ComboxServer createServerCombox(AccessPoint accessPoint,
-			int timeout, Buffer buffer, Broker broker);
+			int timeout, POPBuffer buffer, Broker broker);
 
 	/**
 	 * Get the combox name

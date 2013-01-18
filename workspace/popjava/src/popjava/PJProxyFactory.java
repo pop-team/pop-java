@@ -127,7 +127,7 @@ public class PJProxyFactory extends ProxyFactory {
 	 * @return the object recovered
 	 * @throws POPException
 	 */
-	public Object newActiveFromBuffer(Buffer buffer) throws POPException {
+	public Object newActiveFromBuffer(POPBuffer buffer) throws POPException {
 		POPObject result = null;
 		try {
 			POPObject popObject = (POPObject) targetClass.getConstructor()

@@ -2,7 +2,7 @@ package popjava;
 
 import popjava.base.*;
 import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
@@ -66,14 +66,14 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		MessageHeader messageHeader = new MessageHeader(
 				methodInfo.getClassId(), methodInfo.getMethodId(),
 				constructorSemanticId);
-		Buffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
 		for (int index = 0; index < argvs.length; index++) {
 			popBuffer.putValue(argvs[index], parameterTypes[index]);
 		}
 
 		popDispatch(popBuffer);
-		Buffer responseBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 		this.popResponse(responseBuffer);
 		for (int index = 0; index < parameterTypes.length; index++) {
 			responseBuffer.deserializeReferenceObject(parameterTypes[index],
@@ -125,7 +125,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		int methodSemantics = (Integer) popObjectInfo.getSemantic(info);
 		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info
 				.getMethodId(), methodSemantics);
-		Buffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
 		Class<?>[] parameterTypes = m.getParameterTypes();
 		for (int index = 0; index < argvs.length; index++) {
@@ -134,7 +134,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		popDispatch(popBuffer);
 		
 		if ((methodSemantics & Semantic.Synchronous) != 0) {
-			Buffer responseBuffer = combox.getBufferFactory()
+			POPBuffer responseBuffer = combox.getBufferFactory()
 					.createBuffer();
 			popResponse(responseBuffer);
 			for (int index = 0; index < parameterTypes.length; index++) {
@@ -221,7 +221,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		String methodName = m.getName();
 		if (argvs.length == 1 && (methodName.equals("serialize")) || (methodName.equals("deserialize"))) {
 			boolean result = false;
-			Buffer buffer = (Buffer) argvs[0];
+			POPBuffer buffer = (POPBuffer) argvs[0];
 			if (methodName.equals("serialize")) {
 				canExcute[0] = true;
 				result = serialize(buffer);

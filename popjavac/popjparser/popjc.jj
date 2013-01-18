@@ -896,7 +896,7 @@ TOKEN :
 | < VOID: "void" >
 | < VOLATILE: "volatile" >
 | < WHILE: "while" >
-|	< ODURL: "url" >								//POP-Java reserved word
+| < ODURL: "url" >								//POP-Java reserved word
 | < ODSEARCH: "search" >					//POP-Java reserved word
 | < ODMANUAL: "manual" >					//POP-Java reserved word
 | < ODWALLTIME: "walltime" >			//POP-Java reserved word

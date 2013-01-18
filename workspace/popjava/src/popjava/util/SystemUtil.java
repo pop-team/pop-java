@@ -46,11 +46,12 @@ public class SystemUtil {
 	public static int runRemoteCmd(String url, List<String> command){
 		int returnValue = -1;
 		final SSHClient client = new SSHClient();
+		LogWriter.writeDebugInfo("Connect to "+url+" using sshj");
 		try {
-			//client.loadKnownHosts();
 			client.addHostKeyVerifier(new PromiscuousVerifier());
 			client.connect(url);
 			
+			LogWriter.writeDebugInfo("Use user "+System.getProperty("user.name")+"for connection");
 			client.authPublickey(System.getProperty("user.name"));
 
             final Session session = client.startSession();
@@ -62,7 +63,7 @@ public class SystemUtil {
                 		commandAsString += " ";
                 	}
                 }
-                
+                LogWriter.writeDebugInfo("Run remote command");
                 session.exec(commandAsString);
                 returnValue = 0;
             }finally{

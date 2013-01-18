@@ -1,6 +1,6 @@
 package testsuite.arg;
 
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
 public class MyComplexType implements IPOPBase {
@@ -17,7 +17,7 @@ public class MyComplexType implements IPOPBase {
 	}
 	
 	@Override
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		theInt = buffer.getInt();
 		theDouble = buffer.getDouble();
 		int size = buffer.getInt();
@@ -26,7 +26,7 @@ public class MyComplexType implements IPOPBase {
 	}
 
 	@Override
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		int is = theInt;
 		buffer.putInt(is);
 		double ds = theDouble;

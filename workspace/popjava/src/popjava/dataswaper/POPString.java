@@ -1,6 +1,6 @@
 package popjava.dataswaper;
 
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 /**
  * Compatible with the POP-C++ paroc_string implementation
  */
@@ -46,7 +46,7 @@ public class POPString implements IPOPBase {
 	 * Serialize the POPString into the buffer
 	 */
 	@Override
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		buffer.putString(value);
 		return false;
 	}
@@ -55,7 +55,7 @@ public class POPString implements IPOPBase {
 	 * Deserilize the POPString from the buffer
 	 */
 	@Override
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		value = buffer.getString();
 		return false;
 	}

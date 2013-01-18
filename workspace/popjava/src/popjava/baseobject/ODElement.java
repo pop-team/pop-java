@@ -31,7 +31,7 @@ public class ODElement {
 	 * Serialize the ODElement into the buffer
 	 * @param buffer	The buffer to serialize in
 	 */
-	public void serialize(Buffer buffer) {
+	public void serialize(POPBuffer buffer) {
 		buffer.putFloat(requiredValue);
 		buffer.putFloat(minValue);
 	}
@@ -41,7 +41,7 @@ public class ODElement {
 	 * @param buffer	Buffer to deserialize from
 	 * @return the ODElement deserilized
 	 */
-	public static ODElement deserialize(Buffer buffer) {
+	public static ODElement deserialize(POPBuffer buffer) {
 		return new ODElement(buffer.getFloat(), buffer.getFloat());
 	}
 

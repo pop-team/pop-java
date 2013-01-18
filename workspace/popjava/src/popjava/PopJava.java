@@ -3,7 +3,7 @@ package popjava;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 
 /**
  * 
@@ -64,7 +64,7 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
-	public static Object newActiveFromBuffer(Class<?> targetClass, Buffer buffer)
+	public static Object newActiveFromBuffer(Class<?> targetClass, POPBuffer buffer)
 			throws POPException {
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return factoryProxy.newActiveFromBuffer(buffer);

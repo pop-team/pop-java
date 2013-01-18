@@ -14,7 +14,7 @@ public class BufferXDRFactory extends BufferFactory {
 	 * Create a new XDR Buffer
 	 */
 	@Override
-	public Buffer createBuffer() {
+	public POPBuffer createBuffer() {
 		return new BufferXDR();
 	}
 

@@ -6,7 +6,7 @@ package popjava.buffer;
 public class BufferFactoryPlugin extends BufferFactory {
 
 	@Override
-	public Buffer createBuffer() {
+	public POPBuffer createBuffer() {
 		return null;
 	}
 

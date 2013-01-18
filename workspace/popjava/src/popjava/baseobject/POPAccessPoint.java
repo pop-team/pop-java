@@ -66,7 +66,7 @@ public class POPAccessPoint implements IPOPBase {
 	/**
 	 * Serialize the object into the buffer to be sent over the network
 	 */
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		buffer.putString(toString());
 		buffer.putInt(_security);
 		buffer.putBoolean(_isService);
@@ -76,7 +76,7 @@ public class POPAccessPoint implements IPOPBase {
 	/**
 	 * Deserialize the object from the buffer received from the network
 	 */
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		String accessPoint = buffer.getString();
 		this.setAccessString(accessPoint);
 		int security = buffer.getInt();

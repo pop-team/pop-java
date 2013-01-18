@@ -13,7 +13,7 @@ import popjava.base.POPSystemErrorCode;
 import popjava.base.Semantic;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
 
@@ -45,7 +45,7 @@ public class Broker {
 
 	protected int state;
 	protected ComboxServer comboxServer;
-	protected Buffer buffer;
+	protected POPBuffer buffer;
 	protected static POPAccessPoint accessPoint = new POPAccessPoint();
 	protected POPObject popObject = null;
 	protected POPObject popInfo = null;
@@ -116,7 +116,7 @@ public class Broker {
 	 * @return true id the constructor has been called correctly
 	 */
 	private boolean invokeConstructor(Request request) {
-		Buffer requestBuffer = request.getBuffer();
+		POPBuffer requestBuffer = request.getBuffer();
 		Class<?>[] parameterTypes = null;
 		Object[] parameters = null;
 		Constructor<?> constructor = null;
@@ -166,7 +166,7 @@ public class Broker {
 			if ((request.getSenmatics() & Semantic.Synchronous) != 0) {
 				// Return the value to caller
 				MessageHeader messageHeader = new MessageHeader();
-				Buffer responseBuffer = request.getCombox().getBufferFactory()
+				POPBuffer responseBuffer = request.getCombox().getBufferFactory()
 						.createBuffer();
 				responseBuffer.setHeader(messageHeader);
 
@@ -216,7 +216,7 @@ public class Broker {
 			sequentialSemaphore.acquire();
 		}
 		Object result = new Object();
-		Buffer requestBuffer = request.getBuffer();
+		POPBuffer requestBuffer = request.getBuffer();
 		POPException exception = null;
 		Method method = null;
 		Class<?> returnType = null;
@@ -285,7 +285,7 @@ public class Broker {
 			if (request.isSynchronous()) {
 
 				MessageHeader messageHeader = new MessageHeader();
-				Buffer responseBuffer = request.getCombox().getBufferFactory()
+				POPBuffer responseBuffer = request.getCombox().getBufferFactory()
 						.createBuffer();
 				responseBuffer.setHeader(messageHeader);
 
@@ -407,8 +407,8 @@ public class Broker {
 		if (request.getMethodId() >= BasicCallMaxRange){
 			return false;
 		}
-		Buffer buffer = request.getBuffer();
-		Buffer responseBuffer = request.getCombox().getBufferFactory()
+		POPBuffer buffer = request.getBuffer();
+		POPBuffer responseBuffer = request.getCombox().getBufferFactory()
 				.createBuffer();
 		switch (request.getMethodId()) {
 		case MessageHeader.BindStatusCall:
@@ -722,7 +722,7 @@ public class Broker {
 		//Send info back to callback
 		if (callback != null) {
 			MessageHeader messageHeader = new MessageHeader();
-			Buffer buffer = new BufferXDR();
+			POPBuffer buffer = new BufferXDR();
 			buffer.setHeader(messageHeader);
 			buffer.putInt(status);
 			Broker.getAccessPoint().serialize(buffer);
@@ -745,7 +745,7 @@ public class Broker {
 	 * @return true if the exception has been sent
 	 */
 	public boolean sendException(Combox combox, POPException exception) {
-		Buffer buffer = combox.getBufferFactory().createBuffer();
+		POPBuffer buffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(
 				POPSystemErrorCode.EXCEPTION_PAROC_STD);
 		buffer.setHeader(messageHeader);
@@ -762,7 +762,7 @@ public class Broker {
 	 * @param buffer
 	 *            Buffer to send trough the combox
 	 */
-	public void sendResponse(Combox combox, Buffer buffer) {
+	public void sendResponse(Combox combox, POPBuffer buffer) {
 		combox.send(buffer);
 	}
 
