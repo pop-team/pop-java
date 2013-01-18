@@ -71,7 +71,7 @@ public class ComboxAllocateSocket {
 	 * @param buffer	Buffer to be send
 	 * @return	Number of byte sent
 	 */
-	public int send(Buffer buffer) {
+	public int send(POPBuffer buffer) {
 		return combox.send(buffer);
 	}
 
@@ -80,7 +80,7 @@ public class ComboxAllocateSocket {
 	 * @param buffer	Buffer to receive the message
 	 * @return	Number of byte read
 	 */
-	public int receive(Buffer buffer) {
+	public int receive(POPBuffer buffer) {
 		return combox.receive(buffer);
 	}
 	

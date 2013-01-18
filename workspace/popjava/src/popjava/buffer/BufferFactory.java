@@ -8,7 +8,7 @@ public abstract class BufferFactory {
 	/**
 	 * Creates a new instance of BufferFactory
 	 */
-	public abstract Buffer createBuffer();
+	public abstract POPBuffer createBuffer();
 
 	/**
 	 * Return buffer's names

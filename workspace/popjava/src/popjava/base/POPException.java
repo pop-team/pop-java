@@ -1,7 +1,7 @@
 package popjava.base;
 
 import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
 /**
@@ -182,7 +182,7 @@ public class POPException extends Exception implements IPOPBase {
 	 * @param buffer	The buffer to deserialize from
 	 */
 	@Override
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		this.errorCode = buffer.getInt();
 		errorMessage = buffer.getString();
 		return true;
@@ -193,7 +193,7 @@ public class POPException extends Exception implements IPOPBase {
 	 * @param buffer	The buffer to serialize in
 	 */
 	@Override
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		buffer.putInt(errorCode);
 		buffer.putString(errorMessage);
 		return true;

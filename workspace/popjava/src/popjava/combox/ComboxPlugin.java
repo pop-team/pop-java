@@ -1,6 +1,6 @@
 package popjava.combox;
 
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 
 /**
  * This class defined the interface for each new combox plug-in
@@ -18,12 +18,12 @@ public class ComboxPlugin extends Combox {
 	}
 
 	@Override
-	public int receive(Buffer buffer) {
+	public int receive(POPBuffer buffer) {
 		return 0;
 	}
 
 	@Override
-	public int send(Buffer buffer) {
+	public int send(POPBuffer buffer) {
 		return 0;
 	}
 

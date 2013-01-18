@@ -68,7 +68,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	 * @return	true if the new request if complete or false if it's incomplete
 	 */
 	public boolean receiveRequest(Request request) {		
-		Buffer buffer = combox.getBufferFactory().createBuffer();
+		POPBuffer buffer = combox.getBufferFactory().createBuffer();
 		int receivedLength = combox.receive(buffer);
 		if (receivedLength > 0) {
 			request.setBroker(broker);

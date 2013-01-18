@@ -489,7 +489,7 @@ public class ObjectDescription implements IPOPBase {
 	 * Deserialize the object description from the buffer
 	 */
 	@Override
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		float tmp_power_min = buffer.getFloat();
 		float tmp_power_req = buffer.getFloat();
 		float tmp_memory_min = buffer.getFloat();
@@ -548,7 +548,7 @@ public class ObjectDescription implements IPOPBase {
 	 * Serialize the object description into the buffer
 	 */
 	@Override
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		buffer.putFloat(power_req);
 		buffer.putFloat(power_min);
 		buffer.putFloat(memory_req);

@@ -1,6 +1,6 @@
 package testsuite.popc;
 
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
 public class SerialObject implements IPOPBase {
@@ -13,14 +13,14 @@ public class SerialObject implements IPOPBase {
 	}
 	
 	@Override
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		i = buffer.getInt();
 		d = buffer.getDouble();
 		return true;
 	}
 
 	@Override
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		int value = i;
 		buffer.putInt(value);
 		double dValue = d;

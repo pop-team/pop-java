@@ -2,7 +2,7 @@ package testsuite.arg;
 
 import java.util.Vector;
 
-import popjava.buffer.Buffer;
+import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
 public class ComplexType3 implements IPOPBase {
@@ -18,7 +18,7 @@ public class ComplexType3 implements IPOPBase {
 	}
 		
 	@Override
-	public boolean deserialize(Buffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		value = buffer.getInt();
 		int size = buffer.getInt();
 		int[] array = buffer.getIntArray(size);
@@ -30,7 +30,7 @@ public class ComplexType3 implements IPOPBase {
 	}
 	
 	@Override
-	public boolean serialize(Buffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		int size = value;
 		buffer.putInt(size);
 		int[] array = new int[vector.size()];

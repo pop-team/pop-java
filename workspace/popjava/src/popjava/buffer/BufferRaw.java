@@ -8,7 +8,7 @@ import java.nio.*;
 /**
  * This class is a RAW implementation of the buffer abstract class
  */
-public class BufferRaw extends Buffer {
+public class BufferRaw extends POPBuffer {
 	/**
 	 * Size of the buffer
 	 */

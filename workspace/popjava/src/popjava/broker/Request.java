@@ -16,7 +16,7 @@ public class Request {
 	protected int methodId;
 	protected int semantics;
 	protected Broker broker;
-	protected Buffer buffer;
+	protected POPBuffer buffer;
 	protected ComboxReceiveRequestSocket receivedCombox;
 	protected Combox combox;	
 	protected int status;
@@ -132,7 +132,7 @@ public class Request {
 	 * Get the associated buffer
 	 * @return reference to the associated buffer
 	 */
-	public Buffer getBuffer() {
+	public POPBuffer getBuffer() {
 		return buffer;
 	}
 
@@ -140,7 +140,7 @@ public class Request {
 	 * Set an associated buffer
 	 * @param buffer Reference to the associated buffer
 	 */
-	public void setBuffer(Buffer buffer) {
+	public void setBuffer(POPBuffer buffer) {
 		this.buffer = buffer;
 	}
 

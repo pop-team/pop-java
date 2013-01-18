@@ -14,7 +14,7 @@ public class BufferRawFactory extends BufferFactory {
 	 * Create a new RAW factory
 	 */
 	@Override
-	public Buffer createBuffer() {
+	public POPBuffer createBuffer() {
 		return new BufferRaw();
 	}
 

@@ -24,7 +24,7 @@ public class ComboxServerSocket extends ComboxServer {
 	 * @param broker		Broker associated with this combox
 	 */
 	public ComboxServerSocket(AccessPoint accessPoint, int timeout,
-			Buffer buffer, Broker broker) {
+			POPBuffer buffer, Broker broker) {
 		super(accessPoint, timeout, broker);
 		createServer();
 	}

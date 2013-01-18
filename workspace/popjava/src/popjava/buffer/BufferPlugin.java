@@ -5,7 +5,7 @@ import popjava.base.MessageHeader;
 /**
  * This class defined the interface for each new buffer plug-in
  */
-public class BufferPlugin extends Buffer {
+public class BufferPlugin extends POPBuffer {
 
 	@Override
 	public byte[] array() {

@@ -101,7 +101,7 @@ public class ComboxSocket extends Combox {
 	}
 	
 	@Override
-	public int receive(Buffer buffer) {
+	public int receive(POPBuffer buffer) {
 		synchronized (inputStream) {
 			int result = 0;
 			try {
@@ -159,7 +159,7 @@ public class ComboxSocket extends Combox {
 	}
 
 	@Override
-	public  int send(Buffer buffer) {
+	public  int send(POPBuffer buffer) {
 		synchronized (outputStream) {
 			try {
 				buffer.packMessageHeader();
