@@ -218,7 +218,7 @@ public static void main(String args[]) {
             String parstr = args[i].substring(args[i].indexOf("=")+1);
             String parclass = "";
             for (int j = 0; j <= parstr.length(); j++) {
-                if (j==parstr.length() || parstr.charAt(j) == ':'){
+                if (j==parstr.length() || parstr.charAt(j) == File.pathSeparatorChar){
                     if(!parclass.endsWith(".pjava")){
                         System.err.println("Parclass must be POP-Java file (.pjava)");
                         System.exit(1);
