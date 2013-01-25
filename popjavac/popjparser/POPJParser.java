@@ -177,202 +177,206 @@ public class POPJParser implements POPJParserConstants {
         */
 public static void main(String args[]) {
     POPJParser parser=null;                             //Instance of the parser
-                boolean printPOPCInfo=false;    //Tell if the code generator can print the POP-C++ special informations
-                boolean parseOnly = false;              //This option is used to parse only the code and not generate the Java code
-                boolean popc=false;                                             //Tell if it is a special compilation with POP-C++ special informations
-                String filename = "";                                   //Name of the file to parse
-                String popcinfosFile = "";              //Path of the file with popc informations
-                ArrayList<String> parclasses = new ArrayList<String>(); //Array containing the Name of application parclasses
+    boolean printPOPCInfo=false;        //Tell if the code generator can print the POP-C++ special informations
+    boolean parseOnly = false;          //This option is used to parse only the code and not generate the Java code
+    boolean popc=false;                                         //Tell if it is a special compilation with POP-C++ special informations
+    String filename = "";                                       //Name of the file to parse
+    String popcinfosFile = "";          //Path of the file with popc informations
+    ArrayList<String> parclasses = new ArrayList<String>();     //Array containing the Name of application parclasses
 
-                //Retriev arguments
-                for (int i = 0; i < args.length; i++) {
-                        if (args[i].startsWith("-file=")) {
-                                filename = args[i].substring(args[i].indexOf("=")+1);
-                        } else if (args[i].startsWith("-m")) {
-                                Holder.isMain = true;
-                        } else if (args[i].startsWith("-parclasses=")) {
-                                String parstr = args[i].substring(args[i].indexOf("=")+1);
-                                String parclass = "";
-                                for (int j = 0; j <= parstr.length(); j++) {
-                                        if (j==parstr.length() || parstr.charAt(j) == ':'){
-                                                if(!parclass.endsWith(".pjava")){
-                                                        System.err.println("Parclass must be POP-Java file (.pjava)");
-                                                        System.exit(1);
-                                                }
-                int slash = parclass.lastIndexOf("/");
-                if(slash!=0) slash++;
-                                                parclasses.add(parclass.substring(slash, parclass.indexOf(".")));
-                                                parclass = "";
-                                        }
-                                        else {
-                                                parclass += parstr.charAt(j);
-                                        }
-                                }
+    //Retriev arguments
+    for (int i = 0; i < args.length; i++) {
+        if (args[i].startsWith("-file=")) {
+            filename = args[i].substring(args[i].indexOf("=")+1);
+        } else if (args[i].startsWith("-m")) {
+            Holder.isMain = true;
+        } else if (args[i].startsWith("-parclasses=")) {
+            String parstr = args[i].substring(args[i].indexOf("=")+1);
+            String parclass = "";
+            for (int j = 0; j <= parstr.length(); j++) {
+                if (j==parstr.length() || parstr.charAt(j) == File.pathSeparatorChar){
+                    if(!parclass.endsWith(".pjava")){
+                        System.err.println("Parclass must be POP-Java file (.pjava)");
+                        System.exit(1);
+                    }
+                    int slash = parclass.lastIndexOf("/");
+                    if(slash!=0){
+                        slash++;
+                    }
+                    parclasses.add(parclass.substring(slash, parclass.indexOf(".")));
+                    parclass = "";
+                } else {
+                    parclass += parstr.charAt(j);
+                }
+            }
             int slash = filename.lastIndexOf("/");
-            if(slash!=0) slash++;
+            if(slash!=0){
+                slash++;
+            }
             parclasses.add(filename.substring(slash, filename.indexOf(".")));
-                        } else if (args[i].startsWith("-popcinfos=")) {
-                                popc=true;
-                                popcinfosFile = args[i].substring(args[i].indexOf("=")+1);
-                        } else if (args[i].startsWith("-parse-only")) {
-                                parseOnly=true;
-                        } else {
-                                System.err.println("Bad arguments");
-                                System.exit(1);
-                        }
-                }
-
-                //Check if a file has been given
-                if(filename.equals("")){
-                        System.err.println("No file to parse");
-                        System.exit(1);
-                }
-
-                //Create the parser
-        try {
-    parser = new POPJParser(new java.io.FileInputStream(filename));
-    } catch (java.io.FileNotFoundException e) {
-    System.err.println("POP-Java Parser Version 1.0:  File " + filename + " not found.");
-                        System.exit(1);
+        } else if (args[i].startsWith("-popcinfos=")) {
+            popc=true;
+            popcinfosFile = args[i].substring(args[i].indexOf("=")+1);
+        } else if (args[i].startsWith("-parse-only")) {
+            parseOnly=true;
+        } else {
+            System.err.println("Bad arguments");
+            System.exit(1);
+        }
     }
 
-                //Call the parser to parse the file
-        try {
+    //Check if a file has been given
+    if(filename.equals("")){
+            System.err.println("No file to parse");
+            System.exit(1);
+    }
+
+    //Create the parser
+    try {
+        parser = new POPJParser(new java.io.FileInputStream(filename));
+    } catch (java.io.FileNotFoundException e) {
+        System.err.println("POP-Java Parser Version 1.0:  File " + filename + " not found.");
+        System.exit(1);
+    }
+
+    //Call the parser to parse the file
+    try {
         parser.CompilationUnit();
-        } catch (ParseException e) {
-                System.err.println("POP-Java Parsing error [lXX]: "+e.getMessage());
-                        System.exit(1);
+    } catch (ParseException e) {
+        System.err.println("POP-Java Parsing error [lXX]: "+e.getMessage());
+        System.exit(1);
+    }
+
+    //If the option parse only is given, the program is exited here
+    if(parseOnly){
+        System.exit(0);
+    }
+
+
+    /*
+    * Once the parsing is done, the code generation can be set
+    * All the following code is used to analyze the token and produce Java code from POP-Java
+    */
+
+    boolean wasReturn = false;                                                  //Used to indent the code
+    boolean printDefaultConstructor=false;      //Use to print the default constructor if this one is not defined
+    boolean forward = true;                                                                     //If true, foward to next token
+    boolean space = true;                                                                               //If true print a space
+    boolean constructor=false;                                                  //Used to know if the current token is in a constructor
+    boolean parclassInstance = false;                           //Used to know if an identifier with the class name has been found
+    boolean inParen = false;                                                            //Used to know if the current token is in a parenthesis
+    boolean canPrintCatch=false;                                                //Used to know when to print the end of the catch statement
+    boolean wasPackage=false;                                                           //Used to know when the package declaration is passed
+    boolean parclassArray=false;                                                //Used to know when an array of parclass is declared
+    String  parclassIdentifier="";                                      //Used to hold the name of the parclass for the array
+    String      arrayIdentifier="";                                                     //Used to hold the identifier of the parclass array
+
+    int constructorId=0;                                                                                //Constructor id to retrieve information extracted from the POP-Java code
+    int indent = 0;                                                                                                     //Variable used to indent the code
+    int lastKind = 0;                                                                                           //Keep the kind of the last token
+
+
+    //Retrieve additional informations for the code generation if the Parclass must be generated to work with POP-C++
+    ClassInformation ci = null;
+    if(popc){
+        XMLWorker xmlWorker = new XMLWorker();
+        ConfigurationWorker cw=null;
+        try {
+            cw = new ConfigurationWorker();
+        } catch (Exception e){
+            System.err.println("Error loading the configuration file");
+            System.exit(1);
+        }
+        String popjava_location = cw.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
+        //Validate the additional information file
+        if(!xmlWorker.isValid(popcinfosFile, popjava_location+"/etc/additional-parser-infos.xsd")){
+            System.err.println("The additional information file is not valid.");
+            System.exit(1);
+        }
+        //Load the informations from the POP-C++ additional informations file
+        ClassInformationExtracter cix = new ClassInformationExtracter(popcinfosFile);
+        cix.loadFile();
+        ci = cix.getInfo(filename);
+        if (ci!=null){
+                printPOPCInfo=true;
+        }
+    }
+
+
+
+
+    /* ############################
+    *  CODE GENERATOR STARTS HERE
+    * ############################*/
+
+
+    //Keep the current token
+    Token tok = Holder.first;
+
+    //Read trough all token until the last one
+    while (tok != null){
+
+        //Check if it's the last token
+        if(tok.next == null){
+            print(tok.toString(),0);
+            break;
         }
 
-                //If the option parse only is given, the program is exited here
-                if(parseOnly)
-                        System.exit(0);
+        //Set the forward boolean to true
+        forward = true;
+
+        //Print out special token
+        if(tok.specialToken != null){
+            Token s = tok.specialToken;
+            printSpecialToken(s, indent);
+        }
+
+        //Insert import for main class or for parclass at the right place
+        if(Holder.canPrintImport){
+            printImport(Holder.isMain);
+            Holder.canPrintImport = false;
+        }
 
 
-                /*
-                * Once the parsing is done, the code generation can be set
-                * All the following code is used to analyze the token and produce Java code from POP-Java
-                */
 
-                boolean wasReturn = false;                                                      //Used to indent the code
-                boolean printDefaultConstructor=false;  //Use to print the default constructor if this one is not defined
-                boolean forward = true;                                                                 //If true, foward to next token
-                boolean space = true;                                                                           //If true print a space
-                boolean constructor=false;                                                      //Used to know if the current token is in a constructor
-                boolean parclassInstance = false;                               //Used to know if an identifier with the class name has been found
-                boolean inParen = false;                                                                //Used to know if the current token is in a parenthesis
-                boolean canPrintCatch=false;                                            //Used to know when to print the end of the catch statement
-                boolean wasPackage=false;                                                               //Used to know when the package declaration is passed
-                boolean parclassArray=false;                                            //Used to know when an array of parclass is declared
-                String  parclassIdentifier="";                                  //Used to hold the name of the parclass for the array
-                String  arrayIdentifier="";                                                     //Used to hold the identifier of the parclass array
+        //Apply rules to some special token
 
-                int constructorId=0;                                                                            //Constructor id to retrieve information extracted from the POP-Java code
-                int indent = 0;                                                                                                 //Variable used to indent the code
-                int lastKind = 0;                                                                                               //Keep the kind of the last token
-
-
-                //Retrieve additional informations for the code generation if the Parclass must be generated to work with POP-C++
-                ClassInformation ci = null;
-                if(popc){
-                        XMLWorker xmlWorker = new XMLWorker();
-                        ConfigurationWorker cw=null;
-                        try {
-                                cw = new ConfigurationWorker();
-                        } catch (Exception e){
-                                System.err.println("Error loading the configuration file");
-                                System.exit(1);
-                        }
-                        String popjava_location = cw.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
-                        //Validate the additional information file
-                        if(!xmlWorker.isValid(popcinfosFile, popjava_location+"/etc/additional-parser-infos.xsd")){
-                                System.err.println("The additional information file is not valid.");
-                                System.exit(1);
-                        }
-                        //Load the informations from the POP-C++ additional informations file
-                        ClassInformationExtracter cix = new ClassInformationExtracter(popcinfosFile);
-                        cix.loadFile();
-                        ci = cix.getInfo(filename);
-                        if (ci!=null){
-                                printPOPCInfo=true;
-                        }
+        //Replace keyword parclass by class and add needed extends
+        if(tok.kind == PARCLASS){
+            print("class ",0);
+            tok = tok.next;
+            print(tok.toString(),0);
+            tok = tok.next;
+            //If the parclass does not inherit from a super class then add the extends statement 
+            if(tok.kind != EXTENDS){
+                print(" extends POPObject ",0);
+                forward = false;
+            }
+            //Else just let the current extends statement
+            else {
+                print(" "+tok.toString(),0);
+            }
+            printDefaultConstructor=true;
+        }
+        //If the current token is package, save this point to know that we can print the import after
+        else if (tok.kind == PACKAGE){
+            print(tok.toString(), 0);
+            wasPackage = true;
+        }
+            //Print the token new only if the object instantiated is not a parclass
+        else if(tok.kind == NEW){
+            String id = tok.next.toString();
+            if(!parclasses.contains(id)){
+                print(tok.toString(),0);
+            }else {
+                print("("+id+")PopJava.newActive("+id+".class", 0);
+                tok = tok.next.next; //Go to first parameter
+                if(tok.next.kind != RPAREN){
+                    print(",", 0);
                 }
-
-
-
-
-                /* ############################
-                *  CODE GENERATOR STARTS HERE
-                * ############################*/
-
-
-                //Keep the current token
-                Token tok = Holder.first;
-
-                //Read trough all token until the last one
-                while (tok != null){
-
-                        //Check if it's the last token
-                        if(tok.next == null){
-                                        print(tok.toString(),0);
-                                        break;
-                        }
-
-                        //Set the forward boolean to true
-                        forward = true;
-
-                        //Print out special token
-                        if(tok.specialToken != null){
-                                Token s = tok.specialToken;
-                                printSpecialToken(s, indent);
-                        }
-
-                        //Insert import for main class or for parclass at the right place
-                        if(Holder.canPrintImport){
-                                printImport(Holder.isMain);
-                                Holder.canPrintImport = false;
-                        }
-
-
-
-                        //Apply rules to some special token
-
-                        //Replace keyword parclass by class and add needed extends
-                        if(tok.kind == PARCLASS){
-                                print("class ",0);
-                                tok = tok.next;
-                                print(tok.toString(),0);
-                                tok = tok.next;
-                                //If the parclass does not inherit from a super class then add the extends statement 
-                                if(tok.kind != EXTENDS){
-                                        print(" extends POPObject ",0);
-                                        forward = false;
-                                }
-                                //Else just let the current extends statement
-                                else {
-                                        print(" "+tok.toString(),0);
-                                }
-                                printDefaultConstructor=true;
-                        }
-                        //If the current token is package, save this point to know that we can print the import after
-                        else if (tok.kind == PACKAGE){
-                                print(tok.toString(), 0);
-                                wasPackage = true;
-                        }
-                        //Print the token new only if the object instantiated is not a parclass
-                        else if(tok.kind == NEW){
-                            String id = tok.next.toString();
-                            if(!parclasses.contains(id)){
-                                print(tok.toString(),0);
-                            }else {
-                                print("("+id+")PopJava.newActive("+id+".class", 0);
-                                tok = tok.next.next; //Go to first parameter
-                                if(tok.next.kind != RPAREN){
-                                    print(",", 0);
-                                }
-                                parclassInstance = false;
-                            }
-                        }
+                parclassInstance = false;
+            }
+        }
         //handle POP-Java method
         else if(tok.kind == PUBLIC && tok.next.next.next.next.next.kind == LPAREN){
             while(tok.kind != LPAREN){
@@ -933,8 +937,8 @@ int modifiers;
 */
   final public void ClassOrInterfaceDeclaration(int modifiers) throws ParseException {
 boolean isInterface = false;
-        boolean isParclass = false;
-        Token t=null;
+boolean isParclass = false;
+Token t = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case CLASS:
       jj_consume_token(CLASS);
@@ -952,13 +956,13 @@ boolean isInterface = false;
       throw new ParseException();
     }
     t = jj_consume_token(IDENTIFIER);
-                if(Holder.isParclass){
-                        Holder.parclass = new Parclass(t.toString());
-                        Holder.thisClassName=t.toString();
-                        t=null;
-                } else if(!Holder.isMain){
-                        {if (true) throw new ParseException("This class is not a parclass. parclass keyword missing.");}
-                }
+        if(Holder.isParclass){
+            Holder.parclass = new Parclass(t.toString());
+            Holder.thisClassName=t.toString();
+            t=null;
+        } else if(!Holder.isMain){
+            {if (true) throw new ParseException("This class is not a parclass. parclass keyword missing.");}
+        }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LT:
       TypeParameters();
@@ -1000,8 +1004,9 @@ boolean extendsMoreThanOne = false;
       ClassOrInterfaceType();
                                extendsMoreThanOne = true;
     }
-    if (extendsMoreThanOne && !isInterface)
+    if (extendsMoreThanOne && !isInterface){
         {if (true) throw new ParseException("A class cannot extend more than one other class");}
+    }
   }
 
   final public void ImplementsList(boolean isInterface) throws ParseException {
@@ -1689,10 +1694,10 @@ int modifiers;
 * All parameters of an object description
 */
   final public String ObjectDescriptionParameters() throws ParseException {
-        String params="";
-        String p;
+    String params="";
+    String p;
     p = ObjectDescriptionParameter();
-                                         params+=p;
+                                       params += p;
     label_17:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1704,9 +1709,9 @@ int modifiers;
       }
       jj_consume_token(COMMA);
       p = ObjectDescriptionParameter();
-                                                                                          params+=","+p;
+                                                                                            params+=","+p;
     }
-                {if (true) return params;}
+        {if (true) return params;}
     throw new Error("Missing return statement in function");
   }
 
@@ -1720,28 +1725,28 @@ int modifiers;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IDENTIFIER:
       p = jj_consume_token(IDENTIFIER);
-                param = p.image; p=null;
-                {if (true) return param;}
+            param = p.image; p=null;
+            {if (true) return param;}
       break;
     case INTEGER_LITERAL:
       p = jj_consume_token(INTEGER_LITERAL);
-                param = p.image; p=null;
-                {if (true) return param;}
+            param = p.image; p=null;
+            {if (true) return param;}
       break;
     case FLOATING_POINT_LITERAL:
       p = jj_consume_token(FLOATING_POINT_LITERAL);
-                param = p.image; p=null;
-                {if (true) return param;}
+            param = p.image; p=null;
+            {if (true) return param;}
       break;
     case CHARACTER_LITERAL:
       p = jj_consume_token(CHARACTER_LITERAL);
-                param = p.image; p=null;
-                {if (true) return param;}
+            param = p.image; p=null;
+            {if (true) return param;}
       break;
     case STRING_LITERAL:
       p = jj_consume_token(STRING_LITERAL);
-                param = p.image; p=null;
-                {if (true) return param;}
+            param = p.image; p=null;
+            {if (true) return param;}
       break;
     default:
       jj_consume_token(-1);
@@ -1831,7 +1836,7 @@ int modifiers;
     }
     jj_consume_token(IDENTIFIER);
     nbParam = FormalParameters();
-                                          Holder.parclass.addConstructor(Holder.constructorId, nbParam);
+                                              Holder.parclass.addConstructor(Holder.constructorId, nbParam);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case AT:
       ObjectDescriptionDeclaration();
@@ -1905,7 +1910,7 @@ int modifiers;
       BlockStatement();
     }
     jj_consume_token(RBRACE);
-         Holder.constructorId++;
+     Holder.constructorId++;
   }
 
   final public void ExplicitConstructorInvocation() throws ParseException {
@@ -4305,42 +4310,6 @@ int modifiers;
     catch(LookaheadSuccess ls) { return true; }
   }
 
-  private boolean jj_3R_240() {
-    if (jj_3R_86()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_230() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_240()) jj_scanpos = xsp;
-    if (jj_scan_token(IDENTIFIER)) return true;
-    if (jj_3R_241()) return true;
-    xsp = jj_scanpos;
-    if (jj_3R_242()) jj_scanpos = xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_243()) jj_scanpos = xsp;
-    if (jj_scan_token(LBRACE)) return true;
-    xsp = jj_scanpos;
-    if (jj_3R_244()) jj_scanpos = xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_245()) { jj_scanpos = xsp; break; }
-    }
-    if (jj_scan_token(RBRACE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_301() {
-    if (jj_scan_token(ODRUNLOCAL)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_300() {
-    if (jj_scan_token(ODENCODING)) return true;
-    return false;
-  }
-
   private boolean jj_3R_299() {
     if (jj_scan_token(ODPROTOCOL)) return true;
     return false;
@@ -4527,16 +4496,6 @@ int modifiers;
     return false;
   }
 
-  private boolean jj_3R_287() {
-    if (jj_3R_302()) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_303()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
   private boolean jj_3R_109() {
     if (jj_3R_130()) return true;
     return false;
@@ -4564,6 +4523,16 @@ int modifiers;
     if (jj_scan_token(IDENTIFIER)) return true;
     if (jj_scan_token(ASSIGN)) return true;
     if (jj_3R_84()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_287() {
+    if (jj_3R_302()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_303()) { jj_scanpos = xsp; break; }
+    }
     return false;
   }
 
@@ -5598,16 +5567,16 @@ int modifiers;
     return false;
   }
 
-  private boolean jj_3R_271() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_125()) return true;
-    return false;
-  }
-
   private boolean jj_3R_81() {
     if (jj_scan_token(IDENTIFIER)) return true;
     if (jj_scan_token(COLON)) return true;
     if (jj_3R_147()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_271() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_125()) return true;
     return false;
   }
 
@@ -5642,6 +5611,11 @@ int modifiers;
     return false;
   }
 
+  private boolean jj_3R_165() {
+    if (jj_3R_183()) return true;
+    return false;
+  }
+
   private boolean jj_3R_166() {
     if (jj_scan_token(INTERFACE)) return true;
     return false;
@@ -5649,11 +5623,6 @@ int modifiers;
 
   private boolean jj_3R_235() {
     if (jj_3R_86()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_165() {
-    if (jj_3R_183()) return true;
     return false;
   }
 
@@ -5688,6 +5657,11 @@ int modifiers;
     return false;
   }
 
+  private boolean jj_3R_159() {
+    if (jj_3R_177()) return true;
+    return false;
+  }
+
   private boolean jj_3R_148() {
     Token xsp;
     xsp = jj_scanpos;
@@ -5706,11 +5680,6 @@ int modifiers;
     xsp = jj_scanpos;
     if (jj_3R_237()) jj_scanpos = xsp;
     if (jj_3R_204()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_159() {
-    if (jj_3R_177()) return true;
     return false;
   }
 
@@ -5873,11 +5842,6 @@ int modifiers;
     return false;
   }
 
-  private boolean jj_3R_60() {
-    if (jj_3R_85()) return true;
-    return false;
-  }
-
   private boolean jj_3R_137() {
     if (jj_scan_token(COMMA)) return true;
     if (jj_3R_72()) return true;
@@ -5889,6 +5853,11 @@ int modifiers;
     return false;
   }
 
+  private boolean jj_3R_60() {
+    if (jj_3R_85()) return true;
+    return false;
+  }
+
   private boolean jj_3R_59() {
     if (jj_scan_token(STRICTFP)) return true;
     return false;
@@ -5896,11 +5865,6 @@ int modifiers;
 
   private boolean jj_3R_58() {
     if (jj_scan_token(VOLATILE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_57() {
-    if (jj_scan_token(TRANSIENT)) return true;
     return false;
   }
 
@@ -5915,6 +5879,11 @@ int modifiers;
     jj_scanpos = xsp;
     if (jj_3R_192()) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3R_57() {
+    if (jj_scan_token(TRANSIENT)) return true;
     return false;
   }
 
@@ -6722,15 +6691,15 @@ int modifiers;
     return false;
   }
 
-  private boolean jj_3_16() {
-    if (jj_3R_71()) return true;
-    if (jj_3R_72()) return true;
-    return false;
-  }
-
   private boolean jj_3R_243() {
     if (jj_scan_token(THROWS)) return true;
     if (jj_3R_265()) return true;
+    return false;
+  }
+
+  private boolean jj_3_16() {
+    if (jj_3R_71()) return true;
+    if (jj_3R_72()) return true;
     return false;
   }
 
@@ -6764,6 +6733,11 @@ int modifiers;
     return false;
   }
 
+  private boolean jj_3R_242() {
+    if (jj_3R_264()) return true;
+    return false;
+  }
+
   private boolean jj_3R_82() {
     if (jj_scan_token(IDENTIFIER)) return true;
     Token xsp;
@@ -6771,11 +6745,6 @@ int modifiers;
       xsp = jj_scanpos;
       if (jj_3_15()) { jj_scanpos = xsp; break; }
     }
-    return false;
-  }
-
-  private boolean jj_3R_242() {
-    if (jj_3R_264()) return true;
     return false;
   }
 
@@ -6984,6 +6953,11 @@ int modifiers;
     return false;
   }
 
+  private boolean jj_3_6() {
+    if (jj_3R_66()) return true;
+    return false;
+  }
+
   private boolean jj_3_8() {
     if (jj_scan_token(THIS)) return true;
     if (jj_3R_68()) return true;
@@ -6996,11 +6970,6 @@ int modifiers;
     xsp = jj_scanpos;
     if (jj_scan_token(58)) jj_scanpos = xsp;
     if (jj_3R_88()) return true;
-    return false;
-  }
-
-  private boolean jj_3_6() {
-    if (jj_3R_66()) return true;
     return false;
   }
 
@@ -7017,6 +6986,16 @@ int modifiers;
     if (jj_scan_token(SUPER)) return true;
     if (jj_3R_68()) return true;
     if (jj_scan_token(SEMICOLON)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_245() {
+    if (jj_3R_135()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_244() {
+    if (jj_3R_66()) return true;
     return false;
   }
 
@@ -7037,13 +7016,39 @@ int modifiers;
     return false;
   }
 
-  private boolean jj_3R_245() {
-    if (jj_3R_135()) return true;
+  private boolean jj_3R_240() {
+    if (jj_3R_86()) return true;
     return false;
   }
 
-  private boolean jj_3R_244() {
-    if (jj_3R_66()) return true;
+  private boolean jj_3R_230() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_240()) jj_scanpos = xsp;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    if (jj_3R_241()) return true;
+    xsp = jj_scanpos;
+    if (jj_3R_242()) jj_scanpos = xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_243()) jj_scanpos = xsp;
+    if (jj_scan_token(LBRACE)) return true;
+    xsp = jj_scanpos;
+    if (jj_3R_244()) jj_scanpos = xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_245()) { jj_scanpos = xsp; break; }
+    }
+    if (jj_scan_token(RBRACE)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_301() {
+    if (jj_scan_token(ODRUNLOCAL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_300() {
+    if (jj_scan_token(ODENCODING)) return true;
     return false;
   }
 
