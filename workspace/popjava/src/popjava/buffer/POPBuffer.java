@@ -17,7 +17,7 @@ import popjava.util.LogWriter;
  * This abstract class defined all the required methods to implement a buffer. 
  * The buffer is responsible to encode and decode the data before sending them or receiving them over the network.
  */
-public abstract class Buffer extends Object {
+public abstract class POPBuffer extends Object {
 	/**
 	 * Each buffer send must contains a message header
 	 */
@@ -30,7 +30,7 @@ public abstract class Buffer extends Object {
 	/**
 	 * Default constructor
 	 */
-	public Buffer() {
+	public POPBuffer() {
 		messageHeader=new MessageHeader();
 	}
 
@@ -295,7 +295,7 @@ public abstract class Buffer extends Object {
 	 * Constructor with given values
 	 * @param messageHeader	Message header to be associated with this buffer
 	 */
-	public Buffer(MessageHeader messageHeader) {
+	public POPBuffer(MessageHeader messageHeader) {
 		this.messageHeader = messageHeader;
 	}
 
@@ -570,7 +570,7 @@ public abstract class Buffer extends Object {
 		try {
 
 			if (IPOPBase.class.isAssignableFrom(type)){				
-					m = type.getMethod("deserialize", Buffer.class);
+					m = type.getMethod("deserialize", POPBuffer.class);
 					m.setAccessible(true);
 					m.invoke(obj, this);				
 			} else if (type.isArray()) {
@@ -598,7 +598,7 @@ public abstract class Buffer extends Object {
 	 * @param buffer			Buffer from which retrieve the additional informations
 	 * @throws POPException		thrown if any problem occurred
 	 */
-	public static void checkAndThrow(int systemErrorCode, Buffer buffer)
+	public static void checkAndThrow(int systemErrorCode, POPBuffer buffer)
 			throws POPException {
 		switch (systemErrorCode) {
 		case POPSystemErrorCode.EXCEPTION_INT:
