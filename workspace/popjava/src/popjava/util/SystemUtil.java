@@ -2,7 +2,6 @@ package popjava.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.schmizz.sshj.SSHClient;
@@ -20,7 +19,7 @@ public class SystemUtil {
 	 * @param argvs arguments to pass to the new process
 	 * @return 0 if the command launch is a success
 	 */
-	public static int runCmd(ArrayList<String> argvs) {
+	public static int runCmd(List<String> argvs) {
 		LogWriter.writeDebugInfo("Run command");
 		for(String arg: argvs){
 			LogWriter.writeDebugInfo(arg);
@@ -43,7 +42,17 @@ public class SystemUtil {
 		return -1;
 	}
 	
-	public static int runRemoteCmd(String url, List<String> command){
+	public static boolean commandExists(String command){
+		try {
+			Runtime.getRuntime().exec("ssh");
+			return true;
+		} catch (Exception e) {
+		}
+		
+		return false;
+	}
+	
+	public static int runRemoteCmdSSHJ(String url, List<String> command){
 		int returnValue = -1;
 		final SSHClient client = new SSHClient();
 		LogWriter.writeDebugInfo("Connect to "+url+" using sshj");
@@ -74,11 +83,23 @@ public class SystemUtil {
 		}finally{
 			try {
 				client.disconnect();
+				client.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		
 		return returnValue;
+	}
+	
+	public static int runRemoteCmd(String url, List<String> command){
+		if(commandExists("ssh")){
+			command.add(0, url);
+			command.add(0, "ssh");
+			
+			return runCmd(command);
+		}
+		
+		return runRemoteCmdSSHJ(url, command);
 	}
 }

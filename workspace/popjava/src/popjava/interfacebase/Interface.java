@@ -582,20 +582,6 @@ public class Interface {
 		if(isLocal){
 			ret = SystemUtil.runCmd(argvList);
 		}else{
-			/*ArrayList<String> tmp = new ArrayList<String>();
-			//TODO: insert at list start instead of recreating one
-			tmp.add("ssh");
-			tmp.add(hostname);
-			for (int i = 0; i < argvList.size(); i++) {
-				tmp.add(argvList.get(i));
-			}
-			
-			argvList.clear();
-			for (int i = 0; i < tmp.size(); i++) {
-				argvList.add(tmp.get(i));
-			}*/
-			//ret = SystemUtil.runCmd(argvList);
-			
 			ret = SystemUtil.runRemoteCmd(hostname, argvList);
 		}
 
