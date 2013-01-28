@@ -196,7 +196,7 @@ public static void main(String args[]) {
             for (int j = 0; j <= parstr.length(); j++) {
                 if (j==parstr.length() || parstr.charAt(j) == File.pathSeparatorChar){
                     if(!parclass.endsWith(".pjava")){
-                        System.err.println("Parclass must be POP-Java file (.pjava) "+parclass);
+                        System.err.println("Parclass must be POP-Java file (.pjava) "+parclass+" "+parstr+" "+j+" "+parstr.length());
                         System.exit(1);
                     }
                     int slash = parclass.lastIndexOf("/");
