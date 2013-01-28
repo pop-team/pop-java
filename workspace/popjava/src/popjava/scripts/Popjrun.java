@@ -3,6 +3,7 @@ package popjava.scripts;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Popjrun {
 
@@ -43,36 +44,8 @@ public class Popjrun {
 		}
 	}
 	
-	private static String getOption(ArrayList<String> parameters, String option, String defaultValue){
-        for(int i = 0; i < parameters.size(); i++){
-            if(parameters.get(i).equals(option)){
-                if(parameters.size() > i + 1){
-                	String value = parameters.get(i+1);
-                	parameters.remove(i);
-                	parameters.remove(i);
-                    return value;
-                }
-            }
-        }
-        
-        return defaultValue;
-    }
-	
-	private static boolean containsOption(String [] args, String option){
-		for(String argument: args){
-			if(argument.equals(option)){
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	private static String getClassPath(ArrayList<String> arguments){
-		String classPath = getOption(arguments, "-c", "");
-		if(classPath.isEmpty()){
-			classPath = getOption(arguments, "--classpath", "");
-		}
+	private static String getClassPath(List<String> arguments){
+		String classPath = ScriptUtils.getOption(arguments, "", "-c", "--classpath");
 		
 		String popJavaLocation = System.getenv("POPJAVA_LOCATION");
 		
@@ -95,25 +68,21 @@ public class Popjrun {
 	public static void main(String[] args) {
 		
 		if(args.length == 0 ||
-				containsOption(args, "-h") ||
-				containsOption(args, "--help")){
+				ScriptUtils.containsOption(args, "-h") ||
+				ScriptUtils.containsOption(args, "--help")){
 			printHelp();
 			return;
 		}
 		
-		verbose = containsOption(args, "-v") || containsOption(args, "--verbose");
+		verbose = ScriptUtils.containsOption(args, "-v") || ScriptUtils.containsOption(args, "--verbose");
 		
-		if(containsOption(args, "-k") ||
-				containsOption(args, "--killall")){
+		if(ScriptUtils.containsOption(args, "-k") ||
+				ScriptUtils.containsOption(args, "--killall")){
 			killAll();
 			return;
 		}
 		
-		ArrayList<String> arguments = new ArrayList<String>();
-		
-		for(String arg: args){
-			arguments.add(arg);
-		}
+		List<String> arguments = ScriptUtils.arrayToList(args);
 		
 		String classPath = getClassPath(arguments);
 		
@@ -138,7 +107,7 @@ public class Popjrun {
 		runPopApplication(arguments);
 	}
 	
-	private static int runPopApplication(ArrayList<String> arguments){
+	private static int runPopApplication(List<String> arguments){
 		String argArray[] = new String[arguments.size()];
 		arguments.toArray(argArray);
 		
