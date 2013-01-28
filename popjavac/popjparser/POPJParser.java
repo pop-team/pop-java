@@ -196,10 +196,14 @@ public static void main(String args[]) {
             for (int j = 0; j <= parstr.length(); j++) {
                 if (j==parstr.length() || parstr.charAt(j) == File.pathSeparatorChar){
                     if(!parclass.endsWith(".pjava")){
-                        System.err.println("Parclass must be POP-Java file (.pjava) "+parclass+" "+parstr+" "+j+" "+parstr.length());
+                        if(parclass.isEmpty()){
+                            System.err.println("parclasses parameter was malformed, trying to recover");
+                            break;
+                        }
+                        System.err.println("Parclass must be POP-Java file (.pjava)");
                         System.exit(1);
                     }
-                    int slash = parclass.lastIndexOf("/");
+                    int slash = parclass.lastIndexOf(File.separatorChar);
                     if(slash!=0){
                         slash++;
                     }
@@ -209,7 +213,7 @@ public static void main(String args[]) {
                     parclass += parstr.charAt(j);
                 }
             }
-            int slash = filename.lastIndexOf("/");
+            int slash = filename.lastIndexOf(File.separatorChar);
             if(slash!=0){
                 slash++;
             }
@@ -4310,26 +4314,6 @@ int modifiers;
     catch(LookaheadSuccess ls) { return true; }
   }
 
-  private boolean jj_3R_299() {
-    if (jj_scan_token(ODPROTOCOL)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_298() {
-    if (jj_scan_token(ODEXECUTABLE)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_297() {
-    if (jj_scan_token(ODJOBURL)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_296() {
-    if (jj_scan_token(ODDIRECTORY)) return true;
-    return false;
-  }
-
   private boolean jj_3R_295() {
     if (jj_scan_token(ODBANDWIDTH)) return true;
     return false;
@@ -7049,6 +7033,26 @@ int modifiers;
 
   private boolean jj_3R_300() {
     if (jj_scan_token(ODENCODING)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_299() {
+    if (jj_scan_token(ODPROTOCOL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_298() {
+    if (jj_scan_token(ODEXECUTABLE)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_297() {
+    if (jj_scan_token(ODJOBURL)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_296() {
+    if (jj_scan_token(ODDIRECTORY)) return true;
     return false;
   }
 
