@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -z $POPJAVA_LOCATION ]
+then
+    POPJAVA_LOCATION=/usr/local/popj
+fi
+
+POPJAVA_JAR=$POPJAVA_LOCATION/JarFile/popjava.jar
+POPJAVA_COMPILER=popjava.scripts.Popjavac
+
+java -cp $POPJAVA_JAR $POPJAVA_COMPILER "$@"
