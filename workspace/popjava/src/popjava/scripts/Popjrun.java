@@ -1,6 +1,9 @@
 package popjava.scripts;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +25,10 @@ public class Popjrun {
 			"OPTIONS FOR OBJECT MAP GENERATION:\n"
 			+ "   -l, --listlong <parclass> Generate the object map for the given parclasses. Parclasses can be a .class, .jar, .obj or .module file. Parclasses must be separated by : ";
 
-	private static final String JAR_FOLDER = "/JarFile/";
-	private static final String JAR_OBJMAPGEN = JAR_FOLDER+"popjobjectmapgen.jar";
-	private static final String JAR_POPJAVA = JAR_FOLDER+"popjava.jar";
-	private static final String JAR_JAVASSIST = JAR_FOLDER+"javassist.jar";
-	private static final String DEFAULT_POP_JAVA_LOCATION = "/usr/local/popj";
+	private static final String JAR_FOLDER = "JarFile";
+	private static final String JAR_OBJMAPGEN = JAR_FOLDER+File.separatorChar+"popjobjectmapgen.jar";
+	private static final String JAR_POPJAVA = JAR_FOLDER+File.separatorChar+"popjava.jar";
+	private static final String DEFAULT_POP_JAVA_LOCATION = "C:\\Users\\asraniel\\workspace\\PopJava\\release\\";
 	
 	private static boolean verbose = false;
 	
@@ -53,13 +55,12 @@ public class Popjrun {
 			popJavaLocation = DEFAULT_POP_JAVA_LOCATION;
 		}
 		
-		String popJavaClassPath = DEFAULT_POP_JAVA_LOCATION+JAR_POPJAVA+":"+
-				DEFAULT_POP_JAVA_LOCATION+JAR_JAVASSIST;
+		String popJavaClassPath = DEFAULT_POP_JAVA_LOCATION+JAR_POPJAVA;
 		
 		if(classPath.isEmpty()){
 			classPath = popJavaClassPath;
 		}else{
-			classPath += ":"+popJavaClassPath;
+			classPath += File.pathSeparatorChar+popJavaClassPath;
 		}
 		
 		return classPath;
@@ -74,8 +75,6 @@ public class Popjrun {
 			return;
 		}
 		
-		verbose = ScriptUtils.containsOption(args, "-v") || ScriptUtils.containsOption(args, "--verbose");
-		
 		if(ScriptUtils.containsOption(args, "-k") ||
 				ScriptUtils.containsOption(args, "--killall")){
 			killAll();
@@ -83,6 +82,8 @@ public class Popjrun {
 		}
 		
 		List<String> arguments = ScriptUtils.arrayToList(args);
+		
+		verbose = ScriptUtils.removeOption(arguments, "-v", "--verbose");
 		
 		String classPath = getClassPath(arguments);
 		
@@ -96,7 +97,8 @@ public class Popjrun {
 		String main = arguments.get(0);
 		arguments.remove(0);
 		
-		String java = System.getProperty("java.home") + "/bin/java";
+		//String java = System.getProperty("java.home") + "/bin/java";
+		String java = "java";
 		
 		arguments.add(0, "-codeconf="+objectMap);
 		arguments.add(0, main);
@@ -105,6 +107,31 @@ public class Popjrun {
 		arguments.add(0, java);
 		
 		runPopApplication(arguments);
+	}
+	
+	private static class StreamReader implements Runnable{
+		
+		private InputStream in;
+		
+		public StreamReader(InputStream in){
+			this.in = in;
+		}
+
+		@Override
+		public void run() {
+			BufferedReader out = new BufferedReader(new InputStreamReader(in));
+			String line;
+			try {
+				while(!Thread.currentThread().isInterrupted() && (line = out.readLine()) != null){
+					System.out.println(line);
+				}
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 	}
 	
 	private static int runPopApplication(List<String> arguments){
@@ -119,23 +146,16 @@ public class Popjrun {
 		}
 		
 		ProcessBuilder builder = new ProcessBuilder(arguments);
-
+		builder.redirectErrorStream(true);
 		try{
 			Process process = builder.start();
 			
-			BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			String line;
+			InputStream in = process.getInputStream();
+			Thread reader =  new Thread(new StreamReader(in));
+			reader.start();
 			
-			BufferedReader out = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			while((line = out.readLine()) != null){
-				System.out.println(line);
-			}
+			process.waitFor();
 			
-			while((line = error.readLine()) != null){
-				System.out.println(line);
-			}
-			
-	        process.waitFor();
 	        return process.exitValue();
 		}catch(Exception e){
 			e.printStackTrace();
