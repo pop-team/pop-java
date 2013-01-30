@@ -12,12 +12,31 @@ import java.util.List;
 
 public class Popjavac {
 	
-	private static final String COMPILER_JAR = "C:\\Users\\asraniel\\workspace\\PopJava\\popjavac\\popjparser\\popjparser.jar";
+	private static final String POPJAVA_FOLDER;
+	
+	static {
+		String popJavaLocation = System.getenv("POPJAVA_LOCATION");
+		
+		if(popJavaLocation == null || popJavaLocation.isEmpty()){
+			if(ScriptUtils.isWindows()){
+				POPJAVA_FOLDER = "C:\\Users\\asraniel\\workspace\\PopJava\\release\\";
+			}else{
+				POPJAVA_FOLDER = "/usr/local/popj/";
+			}
+		}else{
+			POPJAVA_FOLDER = popJavaLocation;
+		}
+	}
+	
+	private static final String JAR_FOLDER = "JarFile";
+	
+	private static final String COMPILER_JAR = POPJAVA_FOLDER+JAR_FOLDER+File.separatorChar+"popjparser.jar";
+	private static final String POPJAVA_JAR = POPJAVA_FOLDER+JAR_FOLDER+File.separatorChar+"popjava.jar";
 	private static final String COMPILER_MAIN = "POPJParser";
-	private static final String POPJAVA_JAR = "C:\\Users\\asraniel\\workspace\\PopJava\\release\\JarFile\\popjava.jar";
 	private static final String JAVAC = "C:\\Program Files\\Java\\jdk1.7.0_11\\bin\\javac";
 	
 	private static boolean VERBOSE = true;
+	
 	
 	private static final String HELP_MESSAGE = "POP-Java Compiler v1.0\n\n"+
 

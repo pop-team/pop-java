@@ -39,7 +39,7 @@ public class Popjrun {
 	//http://stackoverflow.com/questions/6356340/killing-a-process-using-java
 	//http://stackoverflow.com/questions/81902/how-to-find-and-kill-running-win-processes-from-within-java
 	private static void killAll(){
-		if(System.getProperty("os.name").toLowerCase().indexOf("windows") > -1){
+		if(ScriptUtils.isWindows()){
 			
 		}else{
 			
