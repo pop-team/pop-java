@@ -100,13 +100,24 @@ public class Popjavac {
 		
 		String classPath = ScriptUtils.getOption(arguments, "", "-c", "--classpath");
 		
+		String generate = ScriptUtils.getOption(arguments, "", "-x", "--xmlpopcpp");
+		
 		VERBOSE = ScriptUtils.removeOption(arguments, "-v", "--verbose");
 		NOCLEAN = ScriptUtils.removeOption(arguments, "-n", "--noclean");
 		
-		System.out.println("Write to jar "+jar);
 		System.out.println("Files to compile:");
 		for(String file: arguments){
 			System.out.println(file);
+		}
+		
+		if(!generate.isEmpty()){
+			try{
+				generateXML(generate, arguments);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			
+			return;
 		}
 		
 		List<String> binaries = extractBinaries(arguments);
@@ -123,6 +134,20 @@ public class Popjavac {
 		if(!jar.isEmpty()){
 			jarFiles(jar, classFiles);
 		}
+	}
+	
+	private static void generateXML(String xml, List<String> files) throws IOException{
+		BufferedWriter writer = new BufferedWriter(new FileWriter(xml));
+		
+		writer.write("<popjparser-infos>"+ScriptUtils.getNewline());
+		
+		for(String file: files){
+			writer.write("\t<popc-parclass file=\""+file+"\" name=\"\" classuid=\"\" hasDestructor=\"true\"/>"+ScriptUtils.getNewline());
+		}
+		
+		writer.write("</popjparser-infos>");
+		
+		writer.close();
 	}
 	
 	private static List<String> extractBinaries(List<String> files){
