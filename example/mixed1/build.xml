@@ -18,11 +18,11 @@
     
     <target name="all"
         description="compile the source " >
-        <exec executable="popjc">
+        <exec executable="popcc">
             <arg line="-object -o integer.obj integer.ph integer.cc"/>
         </exec>
         
-        <exec executable="popcc">
+        <exec executable="popjc">
             <arg line="-p additional-infos.xml TestInteger.pjava Integer.pjava"/>
         </exec>
         

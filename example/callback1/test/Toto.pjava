@@ -6,7 +6,7 @@ public parclass Toto {
 
 	}
 	
-	public sync seq void setIdent(int i){
+	public sync conc void setIdent(int i){
 		identity = i;
 	}
 	

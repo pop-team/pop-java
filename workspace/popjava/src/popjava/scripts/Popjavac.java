@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class Popjavac {
 				POPJAVA_FOLDER = "/usr/local/popj/";
 			}
 		}else{
-			POPJAVA_FOLDER = popJavaLocation;
+			POPJAVA_FOLDER = popJavaLocation+File.separatorChar;
 		}
 	}
 	
@@ -97,6 +96,9 @@ public class Popjavac {
 		List<String> arguments = ScriptUtils.arrayToList(args);
 	
 		final String jar = ScriptUtils.getOption(arguments, "", "-j", "--jar");
+		final String popcInfo = ScriptUtils.getOption(arguments, "", "-p", "--popcpp");
+		
+		String classPath = ScriptUtils.getOption(arguments, "", "-c", "--classpath");
 		
 		VERBOSE = ScriptUtils.removeOption(arguments, "-v", "--verbose");
 		NOCLEAN = ScriptUtils.removeOption(arguments, "-n", "--noclean");
@@ -109,7 +111,14 @@ public class Popjavac {
 		
 		List<String> binaries = extractBinaries(arguments);
 		
-		List<String> classFiles = compileFiles(arguments);
+		for(String file: binaries){
+			if(classPath.isEmpty()){
+				classPath += File.pathSeparatorChar;
+			}
+			classPath += file;
+		}
+		
+		List<String> classFiles = processFiles(arguments, classPath, popcInfo);
 		
 		if(!jar.isEmpty()){
 			jarFiles(jar, classFiles);
@@ -131,7 +140,7 @@ public class Popjavac {
 		return binaries;
 	}
 	
-	private static List<String> compileFiles(List<String> sourceFiles){
+	private static List<String> processFiles(List<String> sourceFiles, String classPath, String popcInfo){
 		String sources = "";
 		for(int i = 0; i < sourceFiles.size(); i++){
 			if(!isMain(sourceFiles.get(i))){
@@ -157,15 +166,22 @@ public class Popjavac {
 				String javaFile = file.replace(".pjava", ".java");
 				convertedFiles.add(javaFile);
 				
-				convertFile(file, javaFile, sources);
+				convertFile(file, javaFile, sources, popcInfo);
 			}
 		}
 		
 		List<String> allFiles = new ArrayList<String>(javaFiles);
 		allFiles.addAll(convertedFiles);
 		
+		List<String> classFiles = compileFiles(allFiles, classPath);
+		
+		if(!NOCLEAN){
+			for(String file: convertedFiles){
+				new File(file).delete();
+			}
+		}
 		//Compile them
-		return compileFiles(allFiles, null);
+		return classFiles;
 	}
 	
 	
@@ -195,7 +211,7 @@ public class Popjavac {
 		return false;
 	}
 	
-	private static void convertFile(final String input, final String output, final String sources){
+	private static void convertFile(final String input, final String output, final String sources, final String popcInfos){
 		ArrayList<String> parameters = new ArrayList<String>();
 		
 		parameters.add("java");
@@ -208,6 +224,9 @@ public class Popjavac {
 		}
 		
 		parameters.add("-file="+input);
+		if(popcInfos != null && !popcInfos.isEmpty()){
+			parameters.add("-popcinfos="+popcInfos);
+		}
 		parameters.add("-parclasses="+sources);
 		BufferedWriter writer;
 		try {
@@ -220,15 +239,14 @@ public class Popjavac {
 		
 	}
 	
-	private static List<String> compileFiles(List<String> javaFiles, List<String> classPathElements){
+	private static List<String> compileFiles(List<String> javaFiles, String classPathElements){
 		ArrayList<String> outputFiles = new ArrayList<String>();
 		//javac -cp ".:$ADD_CLASSPATH:$POPJAVA_JAR$CLASSPATHADD" $COMPILE_FILES $STDFILES
 
-		
 		String [] command = new String[3+javaFiles.size()];
 		command[0] = JAVAC;
 		command[1] = "-cp";
-		command[2] = POPJAVA_JAR;
+		command[2] = POPJAVA_JAR+File.pathSeparatorChar+classPathElements;
 		
 		int index = 3;
 		

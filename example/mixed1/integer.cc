@@ -3,26 +3,27 @@
 # include <unistd.h>
 
 Integer::Integer(){
-	printf (" Create remote object Integer on %s\n",
-	( const char *) POPSystem :: GetHost ());
+    printf (" Create remote object Integer on %s\n",
+    ( const char *) POPSystem :: GetHost ());
 }
 
 Integer::~Integer(){
-	printf("Destroying Integer object ...\n");
+    printf("Destroying Integer object ...\n");
 }
 
 void Integer::Add(Integer &other) {
-	data += other.Get();
+    data += other.Get();
 }
 
 int Integer::Get(){
-	return data;
+    return data;
 }
 
 void Integer::Set(int val) {
-	data = val;
+    data = val;
 }
 
 
 @pack ( Integer );
+
 

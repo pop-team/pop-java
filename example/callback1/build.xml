@@ -20,7 +20,7 @@
     <target name="all"
         description="compile the source " >
         <exec executable="popjc">
-            <arg line="-j ${application.jar} ${source.folder}/Toto.pjava ${source.folder}/Titi.pjava ${source.folder}/CallBackMain.pjava"/>
+            <arg line="-v -n -j ${application.jar} ${source.folder}/Toto.pjava ${source.folder}/Titi.pjava ${source.folder}/CallBackMain.pjava"/>
         </exec>
         <exec executable="popjrun" output = "${objectmap}">
             <arg line="--listlong ${application.jar}"/>
