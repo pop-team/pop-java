@@ -28,15 +28,41 @@ public class Popjavac {
 		}
 	}
 	
+	private static final String JAVAC;
+	
+	static{
+		String executable = "javac";
+		try {
+			Process p = Runtime.getRuntime().exec(executable);
+			
+			if(p.waitFor() != 0){
+				executable = null;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		if(executable == null){
+			if(ScriptUtils.isWindows()){
+				executable = "C:\\Program Files\\Java\\jdk1.7.0_11\\bin\\javac";
+			}else{
+				executable = "javac";
+			}
+		}
+		JAVAC = executable;
+	}
+	
 	private static final String JAR_FOLDER = "JarFile";
 	
 	private static final String COMPILER_JAR = POPJAVA_FOLDER+JAR_FOLDER+File.separatorChar+"popjparser.jar";
 	private static final String POPJAVA_JAR = POPJAVA_FOLDER+JAR_FOLDER+File.separatorChar+"popjava.jar";
 	private static final String COMPILER_MAIN = "POPJParser";
-	private static final String JAVAC = "C:\\Program Files\\Java\\jdk1.7.0_11\\bin\\javac";
 	
-	private static boolean VERBOSE = true;
 	
+	private static boolean VERBOSE = false;
+	private static boolean NOCLEAN = false;
 	
 	private static final String HELP_MESSAGE = "POP-Java Compiler v1.0\n\n"+
 
@@ -71,6 +97,9 @@ public class Popjavac {
 		List<String> arguments = ScriptUtils.arrayToList(args);
 	
 		final String jar = ScriptUtils.getOption(arguments, "", "-j", "--jar");
+		
+		VERBOSE = ScriptUtils.removeOption(arguments, "-v", "--verbose");
+		NOCLEAN = ScriptUtils.removeOption(arguments, "-n", "--noclean");
 		
 		System.out.println("Write to jar "+jar);
 		System.out.println("Files to compile:");
