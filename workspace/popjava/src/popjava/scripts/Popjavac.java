@@ -60,8 +60,8 @@ public class Popjavac {
 	private static final String COMPILER_MAIN = "POPJParser";
 	
 	
-	private static boolean VERBOSE = false;
-	private static boolean NOCLEAN = false;
+	private static boolean verbose = false;
+	private static boolean noclean = false;
 	
 	private static final String HELP_MESSAGE = "POP-Java Compiler v1.0\n\n"+
 
@@ -102,8 +102,8 @@ public class Popjavac {
 		
 		String generate = ScriptUtils.getOption(arguments, "", "-x", "--xmlpopcpp");
 		
-		VERBOSE = ScriptUtils.removeOption(arguments, "-v", "--verbose");
-		NOCLEAN = ScriptUtils.removeOption(arguments, "-n", "--noclean");
+		verbose = ScriptUtils.removeOption(arguments, "-v", "--verbose");
+		noclean = ScriptUtils.removeOption(arguments, "-n", "--noclean");
 		
 		System.out.println("Files to compile:");
 		for(String file: arguments){
@@ -200,7 +200,7 @@ public class Popjavac {
 		
 		List<String> classFiles = compileFiles(allFiles, classPath);
 		
-		if(!NOCLEAN){
+		if(!noclean){
 			for(String file: convertedFiles){
 				new File(file).delete();
 			}
@@ -256,7 +256,7 @@ public class Popjavac {
 		BufferedWriter writer;
 		try {
 			writer = new BufferedWriter(new FileWriter(new File(output)));
-			ScriptUtils.runNativeApplication(ScriptUtils.listToArray(parameters), "Could not find java executable in path", writer, VERBOSE);
+			ScriptUtils.runNativeApplication(ScriptUtils.listToArray(parameters), "Could not find java executable in path", writer, verbose);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -281,7 +281,7 @@ public class Popjavac {
 			outputFiles.add(file.replace(".java", ".class"));
 		}
 		
-		ScriptUtils.runNativeApplication(command, "javac is not installed, please install the java jdk (not jre) or add it to the PATH", null, VERBOSE);
+		ScriptUtils.runNativeApplication(command, "javac is not installed, please install the java jdk (not jre) or add it to the PATH", null, verbose);
 		
 		return outputFiles;
 	}
@@ -297,7 +297,7 @@ public class Popjavac {
 			command[index++] = file;
 		}
 		
-		ScriptUtils.runNativeApplication(command, "The jar command could not be found", null, VERBOSE);
+		ScriptUtils.runNativeApplication(command, "The jar command could not be found", null, verbose);
 		
 		for(String file: classFiles){
 			new File(file).delete();

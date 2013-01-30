@@ -2,6 +2,7 @@ package popjava.scripts;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -88,7 +89,11 @@ public class ScriptUtils {
 		
 		
 		try {
-			Process p = Runtime.getRuntime().exec(arguments);
+			ProcessBuilder builder = new ProcessBuilder(arguments);
+			
+			builder.directory(new File(System.getProperty("user.dir")));
+			
+			Process p = builder.start();
 			if(p.waitFor() == 2){
 				System.err.println(notFoundError);
 			}
@@ -98,7 +103,7 @@ public class ScriptUtils {
 			while((line = ok.readLine()) != null){
 				if(out != null){
 					out.write(line + NEWLINE);
-				}else if(verbose){
+				} else {
 					System.out.println(line);
 				}
 			}
