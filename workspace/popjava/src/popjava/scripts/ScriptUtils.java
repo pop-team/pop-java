@@ -9,10 +9,15 @@ import java.util.List;
 
 public class ScriptUtils {
 	
+	private static final String NEWLINE = System.getProperty("line.separator");
+	
+	public static String getNewline(){
+		return NEWLINE;
+	}
+	
 	public static boolean isWindows(){
 		return System.getProperty("os.name").toLowerCase().indexOf("windows") > -1;
 	}
-	private static final String NEWLINE = System.getProperty("line.separator");
 	
 	public static boolean containsOption(String [] args, String option){
 		for(String argument: args){
