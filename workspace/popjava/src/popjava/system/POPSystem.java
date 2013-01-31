@@ -327,7 +327,7 @@ public class POPSystem {
 		
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
-			System.out.println("Create native popjava service");
+			System.out.println("Create native popjava service "+appservicecontact);
 			return (AppService) PopJava.newActive(POPJavaAppService.class);
 		}catch(POPException e){
 			e.printStackTrace();
@@ -349,7 +349,7 @@ public class POPSystem {
 		XMLWorker xw = new XMLWorker();
 		
 		if(!new File(POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd").exists()){
-			System.out.println("Could not open objectmap.xsd");
+			System.out.println("Could not open objectmap.xsd at "+POPJavaConfiguration.getPopJavaLocation());
 			return false;
 		}
 		

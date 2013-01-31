@@ -526,6 +526,7 @@ public class Broker {
 				serveRequest(request);
 			}
 		}
+		LogWriter.writeDebugInfo("Close broker");
 	}
 
 	/**
