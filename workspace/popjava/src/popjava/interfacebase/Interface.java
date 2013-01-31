@@ -194,8 +194,13 @@ public class Interface {
 						.getHost(), POPJobManager.DEFAULT_PORT));
 			}
 
-			POPJobService jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
-			
+			POPJobService jobManager = null;
+			try{
+				jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
+				return false;
+			}catch(Exception e){
+				LogWriter.writeDebugInfo("Could not contact jobmanager, running objects without od.url is not supported");
+			}
 			ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
 			int createdCode = jobManager.createObject(POPSystem.AppServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
 					allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
@@ -261,8 +266,9 @@ public class Interface {
 				break;
 			}
 
-		} else
+		} else {
 			POPException.throwObjectBindException(accesspoint);
+		}
 
 		return true;
 	}
@@ -486,7 +492,7 @@ public class Interface {
 					POPAppService.class, POPSystem.AppServiceAccessPoint);
 			appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
 		}catch(Exception e){
-			try{
+			try{				
 				appCoreService = (AppService) PopJava.newActive(
 						POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
 			}catch(POPException e2){
@@ -496,7 +502,7 @@ public class Interface {
 		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
-			appCoreService.exit();
+			//appCoreService.exit();
 			return codeFile;
 		}
 		

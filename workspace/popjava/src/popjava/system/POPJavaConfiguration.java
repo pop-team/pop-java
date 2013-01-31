@@ -47,6 +47,8 @@ public class POPJavaConfiguration {
 		return appCoreService;
 	}
 	
+	
+	private static final String DEFAULT_POPJ_LOCATION = "/usr/local/popj";
 	/**
 	 * Retrieve the POP-Java installation location
 	 * @return	string value of the POP-java location
@@ -55,7 +57,11 @@ public class POPJavaConfiguration {
 		String popJavaLocation = getConfigurationValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
 
 		if(popJavaLocation == null){ //Popjava was not actually installed
-			popJavaLocation = "";
+			if(new File(DEFAULT_POPJ_LOCATION).exists()){
+				return DEFAULT_POPJ_LOCATION;
+			}
+			
+			return "";
 		}
 		
 		return popJavaLocation;

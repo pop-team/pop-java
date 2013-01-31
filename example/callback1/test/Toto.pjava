@@ -2,7 +2,7 @@ package test;
 public parclass Toto {
 	private int identity;
 
-	public Toto() {
+	public Toto()@{ od.url("localhost"); }{
 
 	}
 	

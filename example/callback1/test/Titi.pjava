@@ -2,7 +2,7 @@ package test;
 public parclass Titi {
 	private int identity;
    private Toto toto;
-	public Titi(){
+	public Titi()@{ od.url("localhost"); }{
 		identity = -1;
 	}
 	
