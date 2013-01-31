@@ -30,7 +30,7 @@
     <target name="run" depends="all"
         description="Run the application" >
         <exec executable="popjrun">
-            <arg line="-c ${application.jar} ${objectmap} test.CallBackMain"/>
+            <arg line="-v -c ${application.jar} ${objectmap} test.CallBackMain"/>
         </exec>
     </target>
     
