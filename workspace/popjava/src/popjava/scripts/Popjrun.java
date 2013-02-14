@@ -20,7 +20,7 @@ public class Popjrun {
                         "OPTIONS:\n"
                         + "   -h, --help                Show this message\n"
                         + "   -v, --verbose             Verbose mode\n"
-                        + "   -k, --killall             Kill all parallel object (zombie)\n"
+                        + "   -k, --killall             Kill all parallel object (zombie) (not implemented)\n"
                         + "   -c, --classpath <files>   Include JAR or compiled Java class needed to run the application. Files must be separated by a "+File.pathSeparatorChar+"\n\n"
                         +
                         "OPTIONS FOR OBJECT MAP GENERATION:\n"

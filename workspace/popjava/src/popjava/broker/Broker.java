@@ -514,12 +514,12 @@ public class Broker {
 	}
 
 	/**
-	 * start the thread of this broker
+	 * Main loop of this broker
 	 * @throws InterruptedException 
 	 */
-	public void run() throws InterruptedException { 
-		this.setState(Broker.Running);
-		while (this.getState() == Broker.Running) {
+	public void treatRequests() throws InterruptedException { 
+		setState(Broker.Running);
+		while (getState() == Broker.Running) {
 			Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
 					TimeUnit.MILLISECONDS);
 			if (request != null) {
@@ -542,8 +542,10 @@ public class Broker {
 	 */
 	public void onCloseConnection() {
 		connectionCount--;
-		if (connectionCount <= 0)
-			state = Broker.Exit;
+		LogWriter.writeDebugInfo("Close connection, left "+connectionCount);
+		if (connectionCount <= 0){
+			setState(Broker.Exit);
+		}
 	}
 
 	/**
@@ -554,8 +556,9 @@ public class Broker {
 	public boolean isDaemon() {
 		if (popInfo != null) {
 			return popInfo.isDaemon();
-		} else
-			return true;
+		}
+			
+		return true;
 	}
 
 	/**
@@ -564,8 +567,9 @@ public class Broker {
 	 * @return current state
 	 */
 	public synchronized int getState() {
-		if (isDaemon())
+		if (isDaemon()){
 			return Broker.Running;
+		}
 		return state;
 	}
 
@@ -731,7 +735,7 @@ public class Broker {
 		}
 
 		if (status == 0){
-			broker.run(); //TODO: Check if there shouldn't be a thread running here
+			broker.treatRequests();
 		}
 		System.exit(0);
 	}

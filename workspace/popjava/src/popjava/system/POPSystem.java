@@ -67,12 +67,12 @@ public class POPSystem {
 			POPAppService app = (POPAppService)PopJava.newActive(POPAppService.class, POPSystem.AppServiceAccessPoint);
 			app.logPJ(app.getPOPCAppID(), log);
 		} catch (POPException e) {
-			try{
+			/*try{
 				POPAppService app = (POPAppService)PopJava.newActive(POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
 				app.logPJ(app.getPOPCAppID(), log);
 			} catch (POPException e2) {
 				e2.printStackTrace();
-			}
+			}*/
 		}
 	}
 
@@ -328,11 +328,12 @@ public class POPSystem {
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
 			System.out.println("Create native popjava service "+appservicecontact);
-			return (AppService) PopJava.newActive(POPJavaAppService.class);
+			return (AppService) PopJava.newActive(POPJavaAppService.class);			
 		}catch(POPException e){
 			e.printStackTrace();
 		}
 		return null;
+		
 	}
 	
 	/**

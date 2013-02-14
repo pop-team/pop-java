@@ -44,6 +44,7 @@ public class ComboxAcceptSocket implements Runnable {
 			Socket connection = null;
 			try {
 				connection = serverSocket.accept();
+				LogWriter.writeDebugInfo("Open connection");
 				if(broker != null){
 					broker.onNewConnection();
 				}
@@ -51,8 +52,7 @@ public class ComboxAcceptSocket implements Runnable {
 					concurentConnections.add(connection);
 				}
 
-				Runnable runnable = new ComboxReceiveRequestSocket(broker,
-						requestQueue, connection);
+				Runnable runnable = new ComboxReceiveRequestSocket(broker, requestQueue, connection);
 				Thread thread = new Thread(runnable, "Combox request acceptance");
 				thread.start();
 			} catch (IOException e) {				
