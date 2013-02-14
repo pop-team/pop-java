@@ -22,7 +22,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	protected ComboxSocket combox;
 	protected RequestQueue requestQueue;
 	protected Broker broker;
-	protected int status = Exit;	
+	protected int status = Exit;
 	
 	/**
 	 * Crate a new instance of ComboxReceiveRequestSocket
@@ -34,8 +34,8 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	public ComboxReceiveRequestSocket(Broker broker,
 			RequestQueue requestQueue, Socket socket) throws IOException {
 		this.broker = broker;
-		combox = new ComboxSocket(socket);		
 		this.requestQueue = requestQueue;
+		combox = new ComboxSocket(socket);		
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 					break;
 				}
 				// add request to fifo list
-				if (broker!=null&&!broker.popCall(popRequest)) {
+				if (broker != null && !broker.popCall(popRequest)) {
 					requestQueue.add(popRequest);					
 				}
 			} catch (Exception e) {

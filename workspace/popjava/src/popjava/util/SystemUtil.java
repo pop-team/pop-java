@@ -24,6 +24,7 @@ public class SystemUtil {
 		for(String arg: argvs){
 			LogWriter.writeDebugInfo(arg);
 		}
+		
 		ProcessBuilder pb = new ProcessBuilder(argvs);
 		if (pb != null) {
 			try {

@@ -502,7 +502,7 @@ public class Interface {
 		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
-			//appCoreService.exit();
+			appCoreService.exit();
 			return codeFile;
 		}
 		
