@@ -200,7 +200,7 @@ public static void main(String args[]) {
                             System.err.println("parclasses parameter was malformed, trying to recover");
                             break;
                         }
-                        System.err.println("Parclass must be POP-Java file (.pjava)");
+                        System.err.println("Parclass must be POP-Java file (.pjava) "+parclass);
                         System.exit(1);
                     }
                     int slash = parclass.lastIndexOf(File.separatorChar);

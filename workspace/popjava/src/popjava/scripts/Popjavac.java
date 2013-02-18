@@ -6,8 +6,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class Popjavac {
 	
@@ -86,6 +91,11 @@ public class Popjavac {
 	}
 	
 	public static void main(String [] args){
+		
+		for(String arg: args){
+			System.out.println(arg);
+		}
+		
 		if(args.length == 0 ||
 				ScriptUtils.containsOption(args, "-h") ||
 				ScriptUtils.containsOption(args, "--help")){
@@ -165,11 +175,43 @@ public class Popjavac {
 		return binaries;
 	}
 	
-	private static List<String> processFiles(List<String> sourceFiles, String classPath, String popcInfo){
+	private static List<String> expandSources(List<String> sourceFiles){
+		List<String> sources = new ArrayList<String>();
+		try {
+			
+			for(String path: sourceFiles){
+				File temp = new File(path);
+				
+				String name = temp.getName();
+				Path parent = temp.getParentFile().toPath();
+				
+				DirectoryStream<Path> stream = Files.newDirectoryStream(parent, name);
+				for(Path source: stream){
+					String file = source.toFile().getAbsolutePath();
+					
+					if(!new File(file).exists()){
+						System.err.println("File "+file+" does not exist, aborting compilation");
+					}
+					
+					sources.add(file);
+				}
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return sources;
+	}
+	
+	private static List<String> processFiles(List<String> sourceParameter, String classPath, String popcInfo){
+		
+		List<String> sourceFiles = expandSources(sourceParameter);
+		
 		String sources = "";
 		for(int i = 0; i < sourceFiles.size(); i++){
-			if(!isMain(sourceFiles.get(i))){
-				sources += sourceFiles.get(i);
+			String file = sourceFiles.get(i);
+			if(!isMain(file) && file.endsWith(".pjava")){
+				sources += file;
 				if(i != sourceFiles.size() - 1){
 					sources += File.pathSeparatorChar;
 				}
