@@ -39,8 +39,8 @@
                 destdir="${classes.dir}"
                 classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}"
                 debug="true" debuglevel="lines,vars,source"
-                target="6"
-                source="6"
+                target="7"
+                source="7"
         >
           <compilerarg value="-Xlint:deprecation,unchecked"/>
         </javac>
@@ -51,8 +51,8 @@
         <javac srcdir="${testsuite.src}"
                 destdir="${classes.dir}"
                 debug="true" debuglevel="lines,vars,source"
-                target="6"
-                source="6"
+                target="7"
+                source="7"
         >
           <compilerarg value="-Xlint:deprecation,unchecked"/>
         </javac>
