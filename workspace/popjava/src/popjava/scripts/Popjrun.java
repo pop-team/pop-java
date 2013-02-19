@@ -54,8 +54,7 @@ public class Popjrun {
                 }
         }
         
-        private static String getClassPath(List<String> arguments){
-                String classPath = ScriptUtils.getOption(arguments, "", "-c", "--classpath");
+        private static String createClassPath(String classPath){
                 
                 String popJavaLocation = System.getenv("POPJAVA_LOCATION");
                 
@@ -74,55 +73,89 @@ public class Popjrun {
                 return classPath;
         }
         
+        private static boolean help = false;
+        private static boolean killAll = false;
+        private static String listLong = "";
+        private static String classPath = "";
+        
+        private static List<String> parseArguments(String[] args){
+        	List<String> arguments = new ArrayList<>();
+        	int i = 0;
+        	for(;i < args.length; i++){
+        		if(args[i].equals("-h") || args[i].equals("--help")){
+        			help = true;
+        		}else if(args[i].equals("-k") || args[i].equals("--killall")){
+        			killAll = true;
+        		}else if(args[i].equals("-v") || args[i].equals("--verbose")){
+        			verbose = true;
+        		}else if(args[i].equals("-l") || args[i].equals("--listlong")){
+        			if(args.length > i + 1){
+        				listLong = args[i+1];
+        				i++;
+        			}else{
+        				System.err.println("Listlong command needs a parameter following it");
+        				System.exit(0);
+        			}
+        		}else if(args[i].equals("-c") || args[i].equals("--classpath")){
+        			if(args.length > i + 1){
+        				classPath = createClassPath(args[i+1]);
+        				i++;
+        			}else{
+        				System.err.println("Classpath parameter needs a parameter following it");
+        				System.exit(0);
+        			}
+        		}else{
+        			break;
+        		}
+        	}
+        	
+        	for(;i < args.length; i++){
+        		arguments.add(args[i]);
+        	}
+        	
+        	return arguments;
+        }
+        
         public static void main(String[] args) {
                 
-                if(args.length == 0 ||
-                                ScriptUtils.containsOption(args, "-h") ||
-                                ScriptUtils.containsOption(args, "--help")){
-                        printHelp();
-                        return;
-                }
+        	List<String> arguments = parseArguments(args);
+        	
+        	if(args.length == 0 || help){
+        		printHelp();
+                return;
+        	}
+        	
+        	if(killAll){
+        		killAll();
+                return;
+        	}
                 
-                if(ScriptUtils.containsOption(args, "-k") ||
-                                ScriptUtils.containsOption(args, "--killall")){
-                        killAll();
-                        return;
-                }
-                
-                List<String> arguments = ScriptUtils.arrayToList(args);
-                
-                String listLong = ScriptUtils.getOption(arguments, "", "-l","--listlong");
-                
-                if(!listLong.isEmpty()){
-                        listLong(listLong);
-                        return;
-                }
-                
-                verbose = ScriptUtils.removeOption(arguments, "-v", "--verbose");
-                
-                String classPath = getClassPath(arguments);
-                
-                String objectMap = "";
-                
-                if(arguments.size() >= 2){
-                        objectMap = arguments.get(0);
-                        arguments.remove(0);
-                }
-                
-                String main = arguments.get(0);
-                arguments.remove(0);
-                
-                //String java = System.getProperty("java.home") + "/bin/java";
-                String java = "java";
-                
-                arguments.add(0, "-codeconf="+objectMap);
-                arguments.add(0, main);
-                arguments.add(0, classPath);
-                arguments.add(0, "-cp");
-                arguments.add(0, java);
-                
-                runPopApplication(arguments);
-        }
+        	if(!listLong.isEmpty()){
+                listLong(listLong);
+                return;
+        	}
+            
+            String objectMap = "";
+            
+            if(arguments.size() >= 2){
+                    objectMap = arguments.get(0);
+                    arguments.remove(0);
+            }
+            
+            String main = arguments.get(0);
+            arguments.remove(0);
+            
+            //String java = System.getProperty("java.home") + "/bin/java";
+            String java = "java";
+            
+            arguments.add(0, "-codeconf="+objectMap);
+            arguments.add(0, main);
+            arguments.add(0, classPath);
+            arguments.add(0, "-cp");
+            arguments.add(0, java);
+            
+            runPopApplication(arguments);
+    }
         
         private static void listLong(String files){
                 //java -cp $POPJAVA_LOCATION$JAR_OBJMAPGEN:$POPJAVA_LOCATION$JAR_POPJAVA:$POPJAVA_LOCATION$JAR_JAVASSIST $CLASS_OBJMAPGEN -cwd=$PWD $APPEND$FILE -file=$FILES
