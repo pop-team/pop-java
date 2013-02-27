@@ -12,7 +12,7 @@ public class BufferRaw extends POPBuffer {
 	/**
 	 * Size of the buffer
 	 */
-	public static final int BufferLength = 1024;
+	public static final int BufferLength = 20000;
 	
 	/**
 	 * Byte buffer to store data
@@ -154,13 +154,13 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public void put(byte[] data) {
-		int len=data.length;
+		int len = data.length;
 		if((len%4) != 0){
-				len= len + 4 - len % 4;
+				len = len + 4 - len % 4;
 		}
 		resize(len);
 		buffer.put(data);
-		if((data.length%4) != 0){
+		if((data.length % 4) != 0){
 			position(position() + 4 - data.length % 4);
 		}
 	}
@@ -168,8 +168,9 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public void put(byte[] data, int offset, int length) {
 		int len=length;
-		if((len%4)!=0)
+		if((len%4)!=0){
 				len=len+4-len%4;
+		}
 		resize(length);		
 		buffer.put(data, offset, length);
 		if((length%4)!=0)
@@ -343,20 +344,24 @@ public class BufferRaw extends POPBuffer {
 		return buffer.limit();
 	}
 
+	private void resizeBuffer(int newCapacity){
+		ByteBuffer tempBuffer = ByteBuffer.allocate(newCapacity);
+		tempBuffer.order(buffer.order());
+		tempBuffer.put(buffer.array(),0,buffer.position());
+		buffer = tempBuffer;
+	}
+	
 	/**
 	 * Resize the current buffer to store more data
 	 * @param moreCapacity	The additional capacity to add on the current buffer
 	 */
 	public void resize(int moreCapacity) {
 		size += moreCapacity;
-		int position = this.position() + moreCapacity;
+		int position = position() + moreCapacity;
 		int capacity = buffer.capacity();
 		if (position > capacity * 4. / 5) {
-			int newCapacity = (int)(position * 5./4);
-			ByteBuffer tempBuffer = ByteBuffer.allocate(newCapacity);
-			tempBuffer.order(buffer.order());
-			tempBuffer.put(buffer.array(),0,buffer.position());
-			buffer = tempBuffer;
+			int newCapacity = (int)(position * 2);
+			resizeBuffer(newCapacity);
 		}
 	}
 

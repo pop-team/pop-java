@@ -3,14 +3,11 @@ package popjava.combox;
 import popjava.base.*;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
-import popjava.broker.Request;
 import popjava.buffer.*;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 import java.net.*;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.io.*;
 /**
  * This combox implement the protocol Socket
@@ -30,8 +27,8 @@ public class ComboxSocket extends Combox {
 	public ComboxSocket(Socket socket) throws IOException {
 		peerConnection = socket;
 		receivedBuffer = new byte[BufferLength];
-		inputStream = peerConnection.getInputStream();
-		outputStream = peerConnection.getOutputStream();
+		inputStream = new BufferedInputStream(peerConnection.getInputStream());
+		outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 	}
 
 	
