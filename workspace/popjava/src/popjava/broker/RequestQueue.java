@@ -18,11 +18,11 @@ public class RequestQueue {
 	protected final Condition canPeek = lock.newCondition();
 	protected final Condition canInsert = lock.newCondition();
 	protected ArrayList<Request> requests = new ArrayList<Request>();
-	protected ArrayList<Request> servingMutex = new ArrayList<Request>(); //TODO: does not need to be a list
+	protected Request servingMutex = null;
 	protected ArrayList<Request> servingConcurrent = new ArrayList<Request>();
 	protected ArrayList<Request> servingSequential = new ArrayList<Request>();
 	protected Request availableRequest = null;
-	protected int maxQueue = 200;
+	protected int maxQueue = 300;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
@@ -36,7 +36,7 @@ public class RequestQueue {
 	 * @return number of requests
 	 */
 	public synchronized int size() {
-		return requests.size() + servingMutex.size() + servingConcurrent.size() + servingSequential.size();
+		return requests.size() + (servingMutex == null ? 0 : 1) + servingConcurrent.size() + servingSequential.size();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class RequestQueue {
 	public boolean add(Request request) {		
 		lock.lock();
 		try {
-			while (maxQueue <= size()){
+			while (size() >= maxQueue){
 				canInsert.await();
 			}
 			requests.add(request);
@@ -122,7 +122,7 @@ public class RequestQueue {
 		//Migrate request to serving queue
 		requests.remove(request);
 		if(request.isMutex()){
-			servingMutex.add(request);
+			servingMutex = request;
 		}else if(request.isSequential()){
 			servingSequential.add(request);
 		}else{
@@ -165,7 +165,7 @@ public class RequestQueue {
 		lock.lock();
 		try {
 			if(request.isMutex()){
-				servingMutex.remove(request);
+				servingMutex = null;
 			}else if(request.isSequential()){
 				servingSequential.remove(request);
 			}else{
@@ -190,7 +190,7 @@ public class RequestQueue {
 	public synchronized boolean clear() {
 		availableRequest = null;
 		requests.clear();
-		servingMutex.clear();
+		servingMutex = null;
 		servingSequential.clear();
 		servingConcurrent.clear();
 		
@@ -233,11 +233,8 @@ public class RequestQueue {
 		}
 		
 		if (request.isMutex()) {
-			for (int i = 0; i < servingMutex.size(); i++) {
-				Request currentRequest = servingMutex.get(i);
-				if (currentRequest.getStatus() == Request.Serving){
-					return false;
-				}
+			if (servingMutex != null && servingMutex.getStatus() == Request.Serving){
+				return false;
 			}
 		}
 		if (request.isConcurrent()) {
