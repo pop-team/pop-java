@@ -53,8 +53,8 @@ public class Broker {
 	protected Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
 	private ExecutorService threadPoolSequential = Executors.newFixedThreadPool(1);
-	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-			//Executors.newCachedThreadPool();
+	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*3);
+			//Executors.newCachedThreadPool());//
 
 	/**
 	 * Creates a new instance of POPBroker
