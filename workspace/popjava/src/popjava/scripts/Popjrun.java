@@ -30,6 +30,7 @@ public class Popjrun {
         private static final String JAR_OBJMAPGEN = JAR_FOLDER+File.separatorChar+"popjobjectmapgen.jar";
         private static final String JAR_POPJAVA = JAR_FOLDER+File.separatorChar+"popjava.jar";
         private static final String DEFAULT_POP_JAVA_LOCATION;
+        
         static{
                 if(ScriptUtils.isWindows()){
                         DEFAULT_POP_JAVA_LOCATION = "C:\\Users\\asraniel\\workspace\\PopJava\\release\\";
@@ -54,15 +55,23 @@ public class Popjrun {
                 }
         }
         
-        private static String createClassPath(String classPath){
-                
-            String popJavaLocation = System.getenv("POPJAVA_LOCATION");
+        private static String getPopJavaLocation(){
+        	String popJavaLocation = System.getenv("POPJAVA_LOCATION");
             
             if(popJavaLocation == null || popJavaLocation.isEmpty()){
                 popJavaLocation = DEFAULT_POP_JAVA_LOCATION;
+            }else{
+            	popJavaLocation += File.separatorChar;
             }
             
-            String popJavaClassPath = DEFAULT_POP_JAVA_LOCATION+JAR_POPJAVA;
+            return popJavaLocation;
+        }
+        
+        private static String createClassPath(String classPath){
+                
+            String popJavaLocation = getPopJavaLocation();
+            
+            String popJavaClassPath = popJavaLocation+JAR_POPJAVA;
             
             if(classPath.isEmpty()){
                 classPath = popJavaClassPath+File.pathSeparatorChar+".";
@@ -166,8 +175,8 @@ public class Popjrun {
                 String [] command = new String[6];
                 command[0] = "java";
                 command[1] = "-cp";
-                command[2] = DEFAULT_POP_JAVA_LOCATION+JAR_OBJMAPGEN+
-                		File.pathSeparatorChar+DEFAULT_POP_JAVA_LOCATION+JAR_POPJAVA;
+                command[2] = getPopJavaLocation()+JAR_OBJMAPGEN+
+                		File.pathSeparatorChar+getPopJavaLocation()+JAR_POPJAVA;
                 command[3] = "POPJObjectMap";
                 command[4] = "-cwd="+System.getProperty("user.dir");
                 command[5] = "-file="+files;
