@@ -12,7 +12,8 @@
 
   <target name="compile" depends="generated-files">
     <javac srcdir="."
-           destdir="." >
+           destdir="."
+           debug="true" debuglevel="lines,vars,source">
     </javac>
   </target>
 
@@ -37,7 +38,7 @@
     </delete>
   </target>
 
-  <target name="parser-files-init">
+  <target name="parser-files-init" depends="clean">
         <uptodate property="parser.gen"
                   targetfile="popjc.jj">
             <srcfiles dir="." includes="POPJParser.java"/>
