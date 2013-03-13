@@ -56,21 +56,21 @@ public class Popjrun {
         
         private static String createClassPath(String classPath){
                 
-                String popJavaLocation = System.getenv("POPJAVA_LOCATION");
-                
-                if(popJavaLocation == null || popJavaLocation.isEmpty()){
-                        popJavaLocation = DEFAULT_POP_JAVA_LOCATION;
-                }
-                
-                String popJavaClassPath = DEFAULT_POP_JAVA_LOCATION+JAR_POPJAVA;
-                
-                if(classPath.isEmpty()){
-                        classPath = popJavaClassPath;
-                }else{
-                        classPath += File.pathSeparatorChar+popJavaClassPath;
-                }
-                
-                return classPath;
+            String popJavaLocation = System.getenv("POPJAVA_LOCATION");
+            
+            if(popJavaLocation == null || popJavaLocation.isEmpty()){
+                popJavaLocation = DEFAULT_POP_JAVA_LOCATION;
+            }
+            
+            String popJavaClassPath = DEFAULT_POP_JAVA_LOCATION+JAR_POPJAVA;
+            
+            if(classPath.isEmpty()){
+                classPath = popJavaClassPath+File.pathSeparatorChar+".";
+            }else{
+                classPath += File.pathSeparatorChar+popJavaClassPath;
+            }
+            
+            return classPath;
         }
         
         private static boolean help = false;
@@ -147,6 +147,10 @@ public class Popjrun {
             
             //String java = System.getProperty("java.home") + "/bin/java";
             String java = "java";
+            
+            if(classPath.isEmpty()){
+            	classPath = createClassPath("");
+            }
             
             arguments.add(0, "-codeconf="+objectMap);
             arguments.add(0, main);

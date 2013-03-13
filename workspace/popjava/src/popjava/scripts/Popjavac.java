@@ -183,11 +183,14 @@ public class Popjavac {
 				File temp = new File(path);
 				
 				String name = temp.getName();
-				Path parent = temp.getParentFile().toPath();
+				Path parent = new File("").toPath();
+				if(temp.getParentFile() != null){
+					parent = temp.getParentFile().toPath();
+				}
 				
 				DirectoryStream<Path> stream = Files.newDirectoryStream(parent, name);
 				for(Path source: stream){
-					String file = source.toFile().getAbsolutePath();
+					String file = source.toFile().getPath();
 					
 					if(!new File(file).exists()){
 						System.err.println("File "+file+" does not exist, aborting compilation");
