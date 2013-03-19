@@ -167,8 +167,8 @@ public class Popjrun {
             arguments.add(0, main);
             arguments.add(0, classPath);
             arguments.add(0, "-cp");
-            if(ACTIVATE_JMX){
-            	arguments.add(0, "-Dcom.sun.management.jmxremote.port=3333");
+            if(ACTIVATE_JMX){ //-Dcom.sun.management.jmxremote.port=3333
+            	arguments.add(0, "-Dcom.sun.management.jmxremote");
                 arguments.add(0, "-Dcom.sun.management.jmxremote.ssl=false");
                 arguments.add(0, "-Dcom.sun.management.jmxremote.authenticate=false");
             }
