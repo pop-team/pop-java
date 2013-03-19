@@ -31,6 +31,8 @@ public class Popjrun {
         private static final String JAR_POPJAVA = JAR_FOLDER+File.separatorChar+"popjava.jar";
         private static final String DEFAULT_POP_JAVA_LOCATION;
         
+        private static final boolean ACTIVATE_JMX = true;
+        
         static{
                 if(ScriptUtils.isWindows()){
                         DEFAULT_POP_JAVA_LOCATION = "C:\\Users\\asraniel\\workspace\\PopJava\\release\\";
@@ -165,6 +167,12 @@ public class Popjrun {
             arguments.add(0, main);
             arguments.add(0, classPath);
             arguments.add(0, "-cp");
+            if(ACTIVATE_JMX){
+            	arguments.add(0, "-Dcom.sun.management.jmxremote.port=3333");
+                arguments.add(0, "-Dcom.sun.management.jmxremote.ssl=false");
+                arguments.add(0, "-Dcom.sun.management.jmxremote.authenticate=false");
+            }
+            
             arguments.add(0, java);
             
             runPopApplication(arguments);
