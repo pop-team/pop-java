@@ -11,6 +11,7 @@ import popjava.codemanager.POPJavaAppService;
 import popjava.combox.*;
 import popjava.dataswaper.ObjectDescriptionInput;
 import popjava.dataswaper.POPString;
+import popjava.scripts.Popjrun;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
@@ -560,6 +561,13 @@ public class Interface {
 		ArrayList<String> codeList = Util.splitTheCommand(codeFile);
 		argvList.addAll(codeList);
 
+		if(Popjrun.ACTIVATE_JMX){
+			argvList.add("-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000)+3000);
+			argvList.add("-Dcom.sun.management.jmxremote.ssl=false");
+			argvList.add("-Dcom.sun.management.jmxremote.authenticate=false");
+		}
+		
+		
 		ComboxAllocateSocket allocateCombox = new ComboxAllocateSocket();
 		String callbackString = String.format("-callback=%s", allocateCombox
 				.getUrl());
