@@ -560,13 +560,12 @@ public class Interface {
 
 		ArrayList<String> codeList = Util.splitTheCommand(codeFile);
 		argvList.addAll(codeList);
-
-		if(Popjrun.ACTIVATE_JMX){
-			argvList.add("-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
-			argvList.add("-Dcom.sun.management.jmxremote.ssl=false");
-			argvList.add("-Dcom.sun.management.jmxremote.authenticate=false");
-		}
 		
+		if(Popjrun.ACTIVATE_JMX){
+			argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
+			argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
+			argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");
+		}
 		
 		ComboxAllocateSocket allocateCombox = new ComboxAllocateSocket();
 		String callbackString = String.format("-callback=%s", allocateCombox
