@@ -37,7 +37,7 @@ public class ObjectDescription {
    * @return a formatted string for this object description
    */
 	public String toString(){
-		String ret="od.";
+		/*String ret="od.";
 		if(odId == POPJParserConstants.ODURL)
 			ret+="setHostname(";
 		else if(odId == POPJParserConstants.ODSEARCH)
@@ -63,11 +63,13 @@ public class ObjectDescription {
 		else if(odId == POPJParserConstants.ODENCODING)
 			ret+="setEncoding(";
 
-      if(odId == POPJParserConstants.ODPOWER || odId == POPJParserConstants.ODMEMORY || odId == POPJParserConstants.ODBANDWIDTH)
-         ret+=handleFloatParam()+");";
-      else 
-   		ret+=params+");";
-		return ret;
+                if(odId == POPJParserConstants.ODPOWER || odId == POPJParserConstants.ODMEMORY || odId == POPJParserConstants.ODBANDWIDTH){
+                    ret+=handleFloatParam()+");";
+                }else{
+                    ret+=params+");";
+                }
+                return ret;*/
+        return "";
 	}
 
    private String handleFloatParam(){

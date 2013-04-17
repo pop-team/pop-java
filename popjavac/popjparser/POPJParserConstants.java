@@ -19,265 +19,229 @@ public interface POPJParserConstants {
   /** RegularExpression Id. */
   int ASSERT = 14;
   /** RegularExpression Id. */
-  int ASYNC = 15;
+  int BOOLEAN = 15;
   /** RegularExpression Id. */
-  int BOOLEAN = 16;
+  int BREAK = 16;
   /** RegularExpression Id. */
-  int BREAK = 17;
+  int BYTE = 17;
   /** RegularExpression Id. */
-  int BYTE = 18;
+  int CASE = 18;
   /** RegularExpression Id. */
-  int CASE = 19;
+  int CATCH = 19;
   /** RegularExpression Id. */
-  int CATCH = 20;
+  int CHAR = 20;
   /** RegularExpression Id. */
-  int CHAR = 21;
+  int CLASS = 21;
   /** RegularExpression Id. */
-  int CLASS = 22;
+  int CONST = 22;
   /** RegularExpression Id. */
-  int CONC = 23;
+  int CONTINUE = 23;
   /** RegularExpression Id. */
-  int CONST = 24;
+  int _DEFAULT = 24;
   /** RegularExpression Id. */
-  int CONTINUE = 25;
+  int DO = 25;
   /** RegularExpression Id. */
-  int _DEFAULT = 26;
+  int DOUBLE = 26;
   /** RegularExpression Id. */
-  int DO = 27;
+  int ELSE = 27;
   /** RegularExpression Id. */
-  int DOUBLE = 28;
+  int ENUM = 28;
   /** RegularExpression Id. */
-  int ELSE = 29;
+  int EXTENDS = 29;
   /** RegularExpression Id. */
-  int ENUM = 30;
+  int FALSE = 30;
   /** RegularExpression Id. */
-  int EXTENDS = 31;
+  int FINAL = 31;
   /** RegularExpression Id. */
-  int FALSE = 32;
+  int FINALLY = 32;
   /** RegularExpression Id. */
-  int FINAL = 33;
+  int FLOAT = 33;
   /** RegularExpression Id. */
-  int FINALLY = 34;
+  int FOR = 34;
   /** RegularExpression Id. */
-  int FLOAT = 35;
+  int GOTO = 35;
   /** RegularExpression Id. */
-  int FOR = 36;
+  int IF = 36;
   /** RegularExpression Id. */
-  int GOTO = 37;
+  int IMPLEMENTS = 37;
   /** RegularExpression Id. */
-  int IF = 38;
+  int IMPORT = 38;
   /** RegularExpression Id. */
-  int IMPLEMENTS = 39;
+  int INSTANCEOF = 39;
   /** RegularExpression Id. */
-  int IMPORT = 40;
+  int INT = 40;
   /** RegularExpression Id. */
-  int INSTANCEOF = 41;
+  int INTERFACE = 41;
   /** RegularExpression Id. */
-  int INT = 42;
+  int LONG = 42;
   /** RegularExpression Id. */
-  int INTERFACE = 43;
+  int NATIVE = 43;
   /** RegularExpression Id. */
-  int LONG = 44;
+  int NEW = 44;
   /** RegularExpression Id. */
-  int MUTEX = 45;
+  int NULL = 45;
   /** RegularExpression Id. */
-  int NATIVE = 46;
+  int OD = 46;
   /** RegularExpression Id. */
-  int NEW = 47;
+  int PACKAGE = 47;
   /** RegularExpression Id. */
-  int NULL = 48;
+  int PRIVATE = 48;
   /** RegularExpression Id. */
-  int OD = 49;
+  int ANNOTPARCLASS = 49;
   /** RegularExpression Id. */
-  int PACKAGE = 50;
+  int PROTECTED = 50;
   /** RegularExpression Id. */
-  int PRIVATE = 51;
+  int PUBLIC = 51;
   /** RegularExpression Id. */
-  int PARCLASS = 52;
+  int RETURN = 52;
   /** RegularExpression Id. */
-  int PROTECTED = 53;
+  int SHORT = 53;
   /** RegularExpression Id. */
-  int PUBLIC = 54;
+  int STATIC = 54;
   /** RegularExpression Id. */
-  int RETURN = 55;
+  int STRICTFP = 55;
   /** RegularExpression Id. */
-  int SEQ = 56;
+  int SUPER = 56;
   /** RegularExpression Id. */
-  int SHORT = 57;
+  int SWITCH = 57;
   /** RegularExpression Id. */
-  int STATIC = 58;
+  int SYNCHRONIZED = 58;
   /** RegularExpression Id. */
-  int STRICTFP = 59;
+  int THIS = 59;
   /** RegularExpression Id. */
-  int SUPER = 60;
+  int THROW = 60;
   /** RegularExpression Id. */
-  int SWITCH = 61;
+  int THROWS = 61;
   /** RegularExpression Id. */
-  int SYNC = 62;
+  int TRANSIENT = 62;
   /** RegularExpression Id. */
-  int SYNCHRONIZED = 63;
+  int TRUE = 63;
   /** RegularExpression Id. */
-  int THIS = 64;
+  int TRY = 64;
   /** RegularExpression Id. */
-  int THROW = 65;
+  int VOID = 65;
   /** RegularExpression Id. */
-  int THROWS = 66;
+  int VOLATILE = 66;
   /** RegularExpression Id. */
-  int TRANSIENT = 67;
+  int WHILE = 67;
   /** RegularExpression Id. */
-  int TRUE = 68;
+  int INTEGER_LITERAL = 68;
   /** RegularExpression Id. */
-  int TRY = 69;
+  int DECIMAL_LITERAL = 69;
   /** RegularExpression Id. */
-  int VOID = 70;
+  int HEX_LITERAL = 70;
   /** RegularExpression Id. */
-  int VOLATILE = 71;
+  int OCTAL_LITERAL = 71;
   /** RegularExpression Id. */
-  int WHILE = 72;
+  int FLOATING_POINT_LITERAL = 72;
   /** RegularExpression Id. */
-  int ODURL = 73;
+  int EXPONENT = 73;
   /** RegularExpression Id. */
-  int ODSEARCH = 74;
+  int CHARACTER_LITERAL = 74;
   /** RegularExpression Id. */
-  int ODMANUAL = 75;
+  int STRING_LITERAL = 75;
   /** RegularExpression Id. */
-  int ODWALLTIME = 76;
+  int IDENTIFIER = 76;
   /** RegularExpression Id. */
-  int ODPOWER = 77;
+  int LETTER = 77;
   /** RegularExpression Id. */
-  int ODMEMORY = 78;
+  int DIGIT = 78;
   /** RegularExpression Id. */
-  int ODBANDWIDTH = 79;
+  int LPAREN = 79;
   /** RegularExpression Id. */
-  int ODDIRECTORY = 80;
+  int RPAREN = 80;
   /** RegularExpression Id. */
-  int ODJOBURL = 81;
+  int LBRACE = 81;
   /** RegularExpression Id. */
-  int ODEXECUTABLE = 82;
+  int RBRACE = 82;
   /** RegularExpression Id. */
-  int ODPROTOCOL = 83;
+  int LBRACKET = 83;
   /** RegularExpression Id. */
-  int ODENCODING = 84;
+  int RBRACKET = 84;
   /** RegularExpression Id. */
-  int ODRUNLOCAL = 85;
+  int SEMICOLON = 85;
   /** RegularExpression Id. */
-  int INTEGER_LITERAL = 86;
+  int COMMA = 86;
   /** RegularExpression Id. */
-  int DECIMAL_LITERAL = 87;
+  int DOT = 87;
   /** RegularExpression Id. */
-  int HEX_LITERAL = 88;
+  int AT = 88;
   /** RegularExpression Id. */
-  int OCTAL_LITERAL = 89;
+  int ASSIGN = 89;
   /** RegularExpression Id. */
-  int FLOATING_POINT_LITERAL = 90;
+  int LT = 90;
   /** RegularExpression Id. */
-  int EXPONENT = 91;
+  int BANG = 91;
   /** RegularExpression Id. */
-  int CHARACTER_LITERAL = 92;
+  int TILDE = 92;
   /** RegularExpression Id. */
-  int STRING_LITERAL = 93;
+  int HOOK = 93;
   /** RegularExpression Id. */
-  int IDENTIFIER = 94;
+  int COLON = 94;
   /** RegularExpression Id. */
-  int LETTER = 95;
+  int EQ = 95;
   /** RegularExpression Id. */
-  int DIGIT = 96;
+  int LE = 96;
   /** RegularExpression Id. */
-  int LPAREN = 97;
+  int GE = 97;
   /** RegularExpression Id. */
-  int RPAREN = 98;
+  int NE = 98;
   /** RegularExpression Id. */
-  int LBRACE = 99;
+  int SC_OR = 99;
   /** RegularExpression Id. */
-  int RBRACE = 100;
+  int SC_AND = 100;
   /** RegularExpression Id. */
-  int LBRACKET = 101;
+  int INCR = 101;
   /** RegularExpression Id. */
-  int RBRACKET = 102;
+  int DECR = 102;
   /** RegularExpression Id. */
-  int SEMICOLON = 103;
+  int PLUS = 103;
   /** RegularExpression Id. */
-  int COMMA = 104;
+  int MINUS = 104;
   /** RegularExpression Id. */
-  int DOT = 105;
+  int STAR = 105;
   /** RegularExpression Id. */
-  int AT = 106;
+  int SLASH = 106;
   /** RegularExpression Id. */
-  int ASSIGN = 107;
+  int BIT_AND = 107;
   /** RegularExpression Id. */
-  int LT = 108;
+  int BIT_OR = 108;
   /** RegularExpression Id. */
-  int BANG = 109;
+  int XOR = 109;
   /** RegularExpression Id. */
-  int TILDE = 110;
+  int REM = 110;
   /** RegularExpression Id. */
-  int HOOK = 111;
+  int LSHIFT = 111;
   /** RegularExpression Id. */
-  int COLON = 112;
+  int PLUSASSIGN = 112;
   /** RegularExpression Id. */
-  int EQ = 113;
+  int MINUSASSIGN = 113;
   /** RegularExpression Id. */
-  int LE = 114;
+  int STARASSIGN = 114;
   /** RegularExpression Id. */
-  int GE = 115;
+  int SLASHASSIGN = 115;
   /** RegularExpression Id. */
-  int NE = 116;
+  int ANDASSIGN = 116;
   /** RegularExpression Id. */
-  int SC_OR = 117;
+  int ORASSIGN = 117;
   /** RegularExpression Id. */
-  int SC_AND = 118;
+  int XORASSIGN = 118;
   /** RegularExpression Id. */
-  int INCR = 119;
+  int REMASSIGN = 119;
   /** RegularExpression Id. */
-  int DECR = 120;
+  int LSHIFTASSIGN = 120;
   /** RegularExpression Id. */
-  int PLUS = 121;
+  int RSIGNEDSHIFTASSIGN = 121;
   /** RegularExpression Id. */
-  int MINUS = 122;
+  int RUNSIGNEDSHIFTASSIGN = 122;
   /** RegularExpression Id. */
-  int STAR = 123;
+  int ELLIPSIS = 123;
   /** RegularExpression Id. */
-  int SLASH = 124;
+  int RUNSIGNEDSHIFT = 124;
   /** RegularExpression Id. */
-  int BIT_AND = 125;
+  int RSIGNEDSHIFT = 125;
   /** RegularExpression Id. */
-  int BIT_OR = 126;
-  /** RegularExpression Id. */
-  int XOR = 127;
-  /** RegularExpression Id. */
-  int REM = 128;
-  /** RegularExpression Id. */
-  int LSHIFT = 129;
-  /** RegularExpression Id. */
-  int PLUSASSIGN = 130;
-  /** RegularExpression Id. */
-  int MINUSASSIGN = 131;
-  /** RegularExpression Id. */
-  int STARASSIGN = 132;
-  /** RegularExpression Id. */
-  int SLASHASSIGN = 133;
-  /** RegularExpression Id. */
-  int ANDASSIGN = 134;
-  /** RegularExpression Id. */
-  int ORASSIGN = 135;
-  /** RegularExpression Id. */
-  int XORASSIGN = 136;
-  /** RegularExpression Id. */
-  int REMASSIGN = 137;
-  /** RegularExpression Id. */
-  int LSHIFTASSIGN = 138;
-  /** RegularExpression Id. */
-  int RSIGNEDSHIFTASSIGN = 139;
-  /** RegularExpression Id. */
-  int RUNSIGNEDSHIFTASSIGN = 140;
-  /** RegularExpression Id. */
-  int ELLIPSIS = 141;
-  /** RegularExpression Id. */
-  int RUNSIGNEDSHIFT = 142;
-  /** RegularExpression Id. */
-  int RSIGNEDSHIFT = 143;
-  /** RegularExpression Id. */
-  int GT = 144;
+  int GT = 126;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -305,7 +269,6 @@ public interface POPJParserConstants {
     "<token of kind 12>",
     "\"abstract\"",
     "\"assert\"",
-    "\"async\"",
     "\"boolean\"",
     "\"break\"",
     "\"byte\"",
@@ -313,7 +276,6 @@ public interface POPJParserConstants {
     "\"catch\"",
     "\"char\"",
     "\"class\"",
-    "\"conc\"",
     "\"const\"",
     "\"continue\"",
     "\"default\"",
@@ -335,24 +297,21 @@ public interface POPJParserConstants {
     "\"int\"",
     "\"interface\"",
     "\"long\"",
-    "\"mutex\"",
     "\"native\"",
     "\"new\"",
     "\"null\"",
     "\"od\"",
     "\"package\"",
     "\"private\"",
-    "\"parclass\"",
+    "\"@POPClass\"",
     "\"protected\"",
     "\"public\"",
     "\"return\"",
-    "\"seq\"",
     "\"short\"",
     "\"static\"",
     "\"strictfp\"",
     "\"super\"",
     "\"switch\"",
-    "\"sync\"",
     "\"synchronized\"",
     "\"this\"",
     "\"throw\"",
@@ -363,19 +322,6 @@ public interface POPJParserConstants {
     "\"void\"",
     "\"volatile\"",
     "\"while\"",
-    "\"url\"",
-    "\"search\"",
-    "\"manual\"",
-    "\"walltime\"",
-    "\"power\"",
-    "\"memory\"",
-    "\"bandwidth\"",
-    "\"directory\"",
-    "\"joburl\"",
-    "\"executable\"",
-    "\"protocol\"",
-    "\"encoding\"",
-    "\"runLocal\"",
     "<INTEGER_LITERAL>",
     "<DECIMAL_LITERAL>",
     "<HEX_LITERAL>",
