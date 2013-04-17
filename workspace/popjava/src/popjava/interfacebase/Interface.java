@@ -198,10 +198,11 @@ public class Interface {
 			POPJobService jobManager = null;
 			try{
 				jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
-				return false;
 			}catch(Exception e){
 				LogWriter.writeDebugInfo("Could not contact jobmanager, running objects without od.url is not supported");
+				return false;
 			}
+			
 			ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
 			int createdCode = jobManager.createObject(POPSystem.AppServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
 					allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
@@ -240,8 +241,9 @@ public class Interface {
 	 */
 	protected boolean bind(POPAccessPoint accesspoint) throws POPException {
 
-		if (accesspoint == null || accesspoint.isEmpty())
+		if (accesspoint == null || accesspoint.isEmpty()){
 			POPException.throwAccessPointNotAvailableException();
+		}
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 
 		if (combox != null){

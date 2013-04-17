@@ -2,6 +2,7 @@ package popjava;
 
 import popjava.base.*;
 import popjava.baseobject.POPAccessPoint;
+import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
@@ -66,7 +67,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		MessageHeader messageHeader = new MessageHeader(
 				methodInfo.getClassId(), methodInfo.getMethodId(),
 				constructorSemanticId);
-		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
+		BufferFactory factory = combox.getBufferFactory();
+		POPBuffer popBuffer = factory.createBuffer();
 		popBuffer.setHeader(messageHeader);
 		for (int index = 0; index < argvs.length; index++) {
 			popBuffer.putValue(argvs[index], parameterTypes[index]);

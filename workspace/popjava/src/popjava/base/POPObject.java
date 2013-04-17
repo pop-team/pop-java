@@ -1,10 +1,21 @@
 package popjava.base;
 
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncMutex;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPConfig;
+import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncMutex;
+import popjava.annotation.POPSyncSeq;
 import popjava.baseobject.*;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
+import popjava.util.LogWriter;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,18 +42,154 @@ public class POPObject implements IPOPBase {
 	 */
 	public POPObject() {
 		refCount = 0;
-		className = this.getClass().getName();
+		Class<?> c = getClass();
+		className = c.getName();
+		loadMethodSemantics(c);
+	}
+	
+	/**
+	 * Loads the OD from the specified constructor
+	 * @param constructor
+	 */
+	private void loadODAnnotations(Constructor<?> constructor){
+		POPObjectDescription objectDescription = constructor.getAnnotation(POPObjectDescription.class);
+		if(objectDescription != null){
+			od.setHostname(objectDescription.url());
+		}
+	}
+	
+	private void loadParameterAnnotations(Constructor<?> constructor, Object ... argvs){
+		Annotation [][] annotations = constructor.getParameterAnnotations();
+		for(int i = 0; i < annotations.length; i++){
+			for(int loop = 0; loop < annotations[i].length; loop++){
+				if(annotations[i][loop].annotationType().equals(POPConfig.class)){
+					POPConfig config = (POPConfig)annotations[i][loop];
+					 
+					if(argvs[i] == null){
+						throw new RuntimeException("Annotated paramater "+i+" for "+this.getClassName()+" was is null");
+					}
+					
+					switch(config.value()){
+					case URL:
+						if(argvs[i] instanceof String){
+							od.setHostname((String)argvs[i]);
+						}else{
+							throw new RuntimeException("Annotated paramater "+i+" in "+this.getClassName()+
+									" was not of type String for Annotation URL");
+						}
+						
+						break;
+					}
+					
+				}
+			}
+		}
+	}
+	
+	//No longer user, but can be useful in the future
+	private void loadFieldAnnotations(){
+		for(Field f: this.getClass().getDeclaredFields()){
+			f.setAccessible(true);
+			
+			POPConfig config = f.getAnnotation(POPConfig.class);
+			if(config != null){
+				Object value = null;
+				try{
+					value = f.get(this);
+				}catch(IllegalAccessException e){
+					LogWriter.writeExceptionLog(e);
+				}
+				
+				if(value == null){
+					throw new RuntimeException("Field "+f.getName()+" in "+this.getClassName()+" was is null");
+				}
+				
+				switch(config.value()){
+				case URL:
+					if(value instanceof String){
+						od.setHostname((String)value);
+					}else{
+						throw new RuntimeException("Field "+f.getName()+" in "+this.getClassName()+" was not of type String");
+					}
+					
+					break;
+				}
+				
+				
+			}
+		}
+	}
+	
+	/**
+	 * Loads the OD from the annotated attributes
+	 */
+	public void loadDynamicOD(Constructor<?> constructor, Object ... argvs){
+		loadODAnnotations(constructor);
+		loadParameterAnnotations(constructor, argvs);
+	}
+	
+	private void throwMultipleAnnotationsError(Class<?> c, Method method){
+		throw new RuntimeException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
+	}
+	
+	private void loadMethodSemantics(Class<?> c){
+		for(Method method: c.getClass().getMethods()){
+			int semantic = -1;
+			//Sync
+			if(method.isAnnotationPresent(POPSyncConc.class)){
+				if(semantic != -1){
+					throwMultipleAnnotationsError(c, method);
+				}
+				semantic = Semantic.Synchronous | Semantic.Concurrent;
+			}
+			if(method.isAnnotationPresent(POPSyncSeq.class)){
+				if(semantic != -1){
+					throwMultipleAnnotationsError(c, method);
+				}
+				semantic = Semantic.Synchronous | Semantic.Sequence;
+			}
+			if(method.isAnnotationPresent(POPSyncMutex.class)){
+				if(semantic != -1){
+					throwMultipleAnnotationsError(c, method);
+				}
+				semantic = Semantic.Synchronous | Semantic.Mutex;
+			}
+			//Async
+			if(method.isAnnotationPresent(POPAsyncConc.class)){
+				if(semantic != -1){
+					throwMultipleAnnotationsError(c, method);
+				}
+				semantic = Semantic.Asynchronous | Semantic.Concurrent;
+			}
+			if(method.isAnnotationPresent(POPAsyncSeq.class)){
+				if(semantic != -1){
+					throwMultipleAnnotationsError(c, method);
+				}
+				semantic = Semantic.Asynchronous | Semantic.Sequence;
+			}
+			if(method.isAnnotationPresent(POPAsyncMutex.class)){
+				if(semantic != -1){
+					throwMultipleAnnotationsError(c, method);
+				}
+				semantic = Semantic.Asynchronous | Semantic.Mutex;
+			}
+			
+			if(semantic != -1){
+				addSemantic(c, method.getName() , semantic);
+			}
+        }
 	}
 
 	/**
 	 * Initialize the method identifiers of a POPObject
 	 * @param c	the class to initialize
 	 */
-	protected final void initializePOPObject(Class<?> c) {
+	protected final void initializePOPObject() {
 		if (this.generateClassId){
 			classId++;
 		}
 		
+		Class<?> c = getClass();
 		if (!c.equals(POPObject.class)) {
 			int startIndex = initializeConstructorInfo(c, startMethodIndex);
 			if (hasDestructor) {
