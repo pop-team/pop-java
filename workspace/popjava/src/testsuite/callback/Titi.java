@@ -10,11 +10,10 @@ public class Titi extends POPObject {
 		setClassId(1034);
 		od.setHostname("localhost");
 		Class<?> c = Titi.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		identity = -1;
 		addSemantic(c, "setIdent", Semantic.Synchronous | Semantic.Sequence);
 		addSemantic(c, "computeIdent", Semantic.Synchronous | Semantic.Sequence);
-		
 	}
 	
 	public void setIdent(int i){

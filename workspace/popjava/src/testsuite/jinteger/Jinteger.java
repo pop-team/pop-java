@@ -10,7 +10,7 @@ public class Jinteger extends POPObject {
 		//setClassName("Jinteger");
 		setClassId(1001);
 		hasDestructor(true);
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "set", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "get", Semantic.Synchronous | Semantic.Concurrent);
 	}

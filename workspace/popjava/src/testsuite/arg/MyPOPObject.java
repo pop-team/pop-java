@@ -29,7 +29,7 @@ public class MyPOPObject extends POPObject {
 	
 	public MyPOPObject(){
 		Class<?> c = MyPOPObject.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		od.setPower(100, 80);
 		addSemantic(c, "setInt", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "changeInt", Semantic.Asynchronous | Semantic.Sequence);

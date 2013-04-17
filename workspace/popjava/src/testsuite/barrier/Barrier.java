@@ -19,7 +19,7 @@ public class Barrier extends POPObject {
 	
 	public Barrier(){
 		Class<?> c = Barrier.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "activate", Semantic.Synchronous | Semantic.Concurrent);
 		counter = 15;
 	}
@@ -27,7 +27,7 @@ public class Barrier extends POPObject {
 	public Barrier(Integer n) throws IOException{
 		BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/barrier", true));
 		Class<?> c = Barrier.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "activate", Semantic.Synchronous | Semantic.Concurrent);
 		counter = n.intValue();
 		out.write("Barrier closed for "+counter+"\n");

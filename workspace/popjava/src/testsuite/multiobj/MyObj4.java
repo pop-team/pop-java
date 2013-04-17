@@ -11,7 +11,7 @@ public class MyObj4 extends POPObject{
 		setClassId(1211);
 		Class<?> c = MyObj4.class;
 		od.setHostname("localhost");
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "set",	Semantic.Sequence | Semantic.Synchronous);
 		addSemantic(c, "get",	Semantic.Concurrent | Semantic.Synchronous);
 		

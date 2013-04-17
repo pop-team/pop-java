@@ -8,7 +8,7 @@ public class POPJParclass extends POPObject {
 	
 	public POPJParclass(){
 		Class<?> c = POPJParclass.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "change", Semantic.Synchronous | Semantic.Sequence);		
 		addSemantic(c, "changeInt", Semantic.Synchronous | Semantic.Sequence);		
 		
