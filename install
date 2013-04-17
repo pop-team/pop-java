@@ -39,6 +39,10 @@ fi
 # STEP 2 : Get POP-Java installation directory
 ####################################################
 
+if [ -z "$POPJAVA_LOCATION" ]; then
+    POPJAVA_LOCATION=/usr/local/popj
+fi  
+
 #Installation directory
 echo "$PREFIX Please enter the location of your desired POP-Java installation (default: $POPJAVA_LOCATION ) : "
 read LOCATION
