@@ -17,9 +17,9 @@ public class POPJavaAppService extends POPObject implements AppService{
 		this.setClassId(99923);
 		this.hasDestructor(false);
 		od.setHostname("localhost");
-		Class<?> c = this.getClass();
-		initializePOPObject(c);
+		initializePOPObject();
 		this.definedMethodId = true;
+		Class<?> c = this.getClass();
 		addSemantic(c, "registerCode", Semantic.Sequence | Semantic.Synchronous);
 		addSemantic(c,"queryCode", Semantic.Sequence | Semantic.Synchronous);
 		addSemantic(c,"getPlatform", Semantic.Sequence | Semantic.Synchronous);
