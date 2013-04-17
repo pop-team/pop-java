@@ -11,7 +11,7 @@ public class Parameters  extends POPObject {
 		setClassName("Parameters");
 		hasDestructor(true);
 		od.setEncoding("xdr");
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "changeBool", Semantic.Synchronous | Semantic.Sequence);
 		addSemantic(c, "changeBoolArray", Semantic.Synchronous | Semantic.Sequence);
 		addSemantic(c, "changeChar", Semantic.Synchronous | Semantic.Sequence);

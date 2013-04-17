@@ -8,7 +8,7 @@ public class Integer extends POPObject{
 	public Integer(){
 		Class<?> c = Integer.class;
 		od.setHostname("localhost");
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "get", Semantic.Synchronous | Semantic.Mutex);
 		addSemantic(c, "add", Semantic.Synchronous | Semantic.Mutex);
 		addSemantic(c, "set", Semantic.Asynchronous | Semantic.Sequence);

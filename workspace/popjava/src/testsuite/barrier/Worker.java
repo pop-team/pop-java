@@ -10,7 +10,7 @@ public class Worker extends POPObject {
 
 	public Worker(){
 		Class<?> c = Worker.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "work", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "setNo", Semantic.Synchronous | Semantic.Sequence);
 		addSemantic(c, "getNo", Semantic.Synchronous | Semantic.Sequence);
@@ -19,7 +19,7 @@ public class Worker extends POPObject {
 	
 	public Worker(int no){
 		Class<?> c = Worker.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "work", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "setNo", Semantic.Synchronous | Semantic.Sequence);
 		addSemantic(c, "getNo", Semantic.Synchronous | Semantic.Sequence);

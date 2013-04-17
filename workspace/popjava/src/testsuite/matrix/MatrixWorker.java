@@ -16,7 +16,7 @@ public class MatrixWorker extends POPObject {
 	
 	public MatrixWorker(){		
 		Class<?> c = MatrixWorker.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "setId", Semantic.Asynchronous | Semantic.Sequence);
 	}
 	
@@ -31,7 +31,7 @@ public class MatrixWorker extends POPObject {
 		nextBbloc = false;
 		Class<?> c = MatrixWorker.class;
 		od.setHostname(machine);
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "solve", Semantic.Asynchronous | Semantic.Concurrent);
 		addSemantic(c, "putB", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "getResult", Semantic.Synchronous | Semantic.Mutex);

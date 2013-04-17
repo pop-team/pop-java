@@ -11,7 +11,7 @@ public class Integer2 extends POPObject {
 		setClassName("Integer2");
 		setClassId(1000);
 		hasDestructor(true);
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "set", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "get", Semantic.Synchronous | Semantic.Concurrent);
 		addSemantic(c, "add", Semantic.Synchronous | Semantic.Mutex);

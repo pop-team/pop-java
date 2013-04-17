@@ -9,7 +9,7 @@ public class Demopop extends POPObject {
 	
 	public Demopop(){
 		Class<?> c = Demopop.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "sendIDto", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "getID", Semantic.Synchronous | Semantic.Concurrent);
 		addSemantic(c, "recAnId", Semantic.Asynchronous | Semantic.Concurrent);
@@ -19,7 +19,7 @@ public class Demopop extends POPObject {
 	public Demopop(int newID, int wanted, int minp){
 		Class<?> c = Demopop.class;
 		od.setPower(wanted, minp);
-		initializePOPObject(c);
+		initializePOPObject();
 //		printf("POPCobject with ID=%d created (by JobMgr) on machine:%s\n", newID, (const char*)POPSystem::GetHost());
 		addSemantic(c, "sendIDto", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "getID", Semantic.Synchronous | Semantic.Concurrent);
@@ -32,7 +32,7 @@ public class Demopop extends POPObject {
 	public Demopop(int newID, String machine){
 		Class<?> c = Demopop.class;
 		od.setHostname(machine);
-		initializePOPObject(c);
+		initializePOPObject();
 //		printf("POPCobject with ID=%d created on machine:%s\n", newID, (const char*)POPSystem::GetHost());
 		addSemantic(c, "sendIDto", Semantic.Asynchronous | Semantic.Sequence);
 		addSemantic(c, "getID", Semantic.Synchronous | Semantic.Concurrent);

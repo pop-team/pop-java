@@ -13,7 +13,7 @@ public class Integer extends POPObject {
 		setClassName("Integer");
 		Class<?> c = Integer.class;
 		hasDestructor(true);
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "get", Semantic.Concurrent | Semantic.Synchronous);
 		addSemantic(c, "set", Semantic.Sequence | Semantic.Asynchronous);
 		addSemantic(c, "add", Semantic.Mutex | Semantic.Synchronous);

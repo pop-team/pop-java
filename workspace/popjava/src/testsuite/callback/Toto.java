@@ -10,7 +10,7 @@ public class Toto extends POPObject {
 		setClassId(1035);
 		od.setHostname("localhost");
 		Class<?> c = Toto.class;
-		initializePOPObject(c);
+		initializePOPObject();
 		addSemantic(c, "setIdent", Semantic.Synchronous | Semantic.Sequence);
 		addSemantic(c, "getIdent", Semantic.Synchronous | Semantic.Concurrent);
 		thisObject = this;
