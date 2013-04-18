@@ -57,11 +57,11 @@ public class PJProxyFactory extends ProxyFactory {
 				Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
 				Constructor<?> constructor = targetClass.getConstructor(parameterTypes);
 				popObject = (POPObject) constructor.newInstance(argvs);
-				popObject.loadDynamicOD(constructor, argvs);
+				popObject.loadPOPAnnotations(constructor, argvs);
 			}catch(Exception e){
 				Constructor<?> constructor = targetClass.getConstructor();
 				popObject = (POPObject) constructor.newInstance();
-				popObject.loadDynamicOD(constructor);
+				popObject.loadPOPAnnotations(constructor);
 			}
 			
 			ObjectDescription originalOd = popObject.getOd();
@@ -100,7 +100,7 @@ public class PJProxyFactory extends ProxyFactory {
 		try {
 			Constructor<?> constructor = targetClass.getConstructor();
 			POPObject popObject = (POPObject) constructor.newInstance();
-			popObject.loadDynamicOD(constructor);
+			popObject.loadPOPAnnotations(constructor);
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.bindObject(accessPoint);
 			this.setHandler(methodHandler);
@@ -135,7 +135,7 @@ public class PJProxyFactory extends ProxyFactory {
 		try {
 			Constructor<?> constructor = targetClass.getConstructor();
 			POPObject popObject = (POPObject) constructor.newInstance();
-			popObject.loadDynamicOD(constructor);
+			popObject.loadPOPAnnotations(constructor);
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			this.setHandler(methodHandler);
 			Class<?> c = this.createClass();

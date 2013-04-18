@@ -1,4 +1,4 @@
-package junit.annotations;
+package junit.annotations.od;
 
 public class MyAnnotatedPOPObjectChild extends MyAnnotatedPopObject{
 

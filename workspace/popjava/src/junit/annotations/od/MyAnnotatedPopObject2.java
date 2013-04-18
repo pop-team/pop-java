@@ -1,4 +1,4 @@
-package junit.annotations;
+package junit.annotations.od;
 
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
