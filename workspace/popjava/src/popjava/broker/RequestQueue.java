@@ -28,7 +28,6 @@ public class RequestQueue {
 	 * Creates a new instance of POPRequestQueue
 	 */
 	public RequestQueue() {
-
 	}
 
 	/**

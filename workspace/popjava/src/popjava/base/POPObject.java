@@ -44,7 +44,6 @@ public class POPObject implements IPOPBase {
 		refCount = 0;
 		Class<?> c = getClass();
 		className = c.getName();
-		loadMethodSemantics(c);
 	}
 	
 	/**
@@ -86,55 +85,29 @@ public class POPObject implements IPOPBase {
 		}
 	}
 	
-	//No longer user, but can be useful in the future
-	private void loadFieldAnnotations(){
-		for(Field f: this.getClass().getDeclaredFields()){
-			f.setAccessible(true);
-			
-			POPConfig config = f.getAnnotation(POPConfig.class);
-			if(config != null){
-				Object value = null;
-				try{
-					value = f.get(this);
-				}catch(IllegalAccessException e){
-					LogWriter.writeExceptionLog(e);
-				}
-				
-				if(value == null){
-					throw new RuntimeException("Field "+f.getName()+" in "+this.getClassName()+" was is null");
-				}
-				
-				switch(config.value()){
-				case URL:
-					if(value instanceof String){
-						od.setHostname((String)value);
-					}else{
-						throw new RuntimeException("Field "+f.getName()+" in "+this.getClassName()+" was not of type String");
-					}
-					
-					break;
-				}
-				
-				
-			}
-		}
-	}
-	
 	/**
 	 * Loads the OD from the annotated attributes
 	 */
-	public void loadDynamicOD(Constructor<?> constructor, Object ... argvs){
+	private void loadDynamicOD(Constructor<?> constructor, Object ... argvs){
 		loadODAnnotations(constructor);
 		loadParameterAnnotations(constructor, argvs);
+	}
+	
+	public void loadPOPAnnotations(Constructor<?> constructor, Object ... argvs){
+		loadDynamicOD(constructor, argvs);
+		loadMethodSemantics();
 	}
 	
 	private void throwMultipleAnnotationsError(Class<?> c, Method method){
 		throw new RuntimeException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
 	}
 	
-	private void loadMethodSemantics(Class<?> c){
-		for(Method method: c.getClass().getMethods()){
+	private void loadMethodSemantics(){
+		Class<?> c = getClass();
+		
+		for(Method method: c.getDeclaredMethods()){
 			int semantic = -1;
+			System.out.println(c.getName()+" "+method.getName());
 			//Sync
 			if(method.isAnnotationPresent(POPSyncConc.class)){
 				if(semantic != -1){

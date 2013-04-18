@@ -1,4 +1,4 @@
-package junit.annotations;
+package junit.annotations.od;
 
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPConfig.Type;
