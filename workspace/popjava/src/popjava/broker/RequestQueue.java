@@ -12,7 +12,6 @@ import popjava.util.LogWriter;
  * Every requests are put into this request queue and are served in FIFO order
  */
 
-//TODO: This class is horribly unoptimized and works at O(n2)
 public class RequestQueue {
 	protected final Lock lock = new ReentrantLock();
 	protected final Condition canPeek = lock.newCondition();

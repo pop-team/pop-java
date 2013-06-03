@@ -107,7 +107,7 @@ public class POPObject implements IPOPBase {
 		
 		for(Method method: c.getDeclaredMethods()){
 			int semantic = -1;
-			System.out.println(c.getName()+" "+method.getName());
+			
 			//Sync
 			if(method.isAnnotationPresent(POPSyncConc.class)){
 				if(semantic != -1){
