@@ -156,19 +156,15 @@ public class ComboxSocket extends Combox {
 	}
 
 	@Override
-	public  int send(POPBuffer buffer) {
+	public int send(POPBuffer buffer) {
 		synchronized (outputStream) {
 			try {
 				buffer.packMessageHeader();
-				int length = buffer.size();
-				byte[] dataSend = buffer.array();
-				
-				if(buffer instanceof BufferRaw && length != ((BufferRaw)buffer).getTranslatedInteger(dataSend)){
-					LogWriter.writeDebugInfo("Terrible sending problem "+length +" "+ ((BufferRaw)buffer).getTranslatedInteger(dataSend));
-				}
+				final int length = buffer.size();
+				final byte[] dataSend = buffer.array();
 				
 				outputStream.write(dataSend, 0, length);
-				outputStream.flush();
+				//outputStream.flush();
 				
 				return length;
 			} catch (IOException e) {
