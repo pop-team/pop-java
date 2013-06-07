@@ -19,7 +19,7 @@ public class RequestQueue {
 	protected ArrayList<Request> requests = new ArrayList<Request>();
 	protected Request servingMutex = null;
 	protected ArrayList<Request> servingConcurrent = new ArrayList<Request>();
-	protected ArrayList<Request> servingSequential = new ArrayList<Request>();
+	protected Request servingSequential = null;
 	protected Request availableRequest = null;
 	protected int maxQueue = 300;
 
@@ -34,7 +34,10 @@ public class RequestQueue {
 	 * @return number of requests
 	 */
 	public synchronized int size() {
-		return requests.size() + (servingMutex == null ? 0 : 1) + servingConcurrent.size() + servingSequential.size();
+		return requests.size() + 
+				(servingMutex == null ? 0 : 1) + 
+				servingConcurrent.size() +
+				(servingSequential == null ? 0 : 1);
 	}
 
 	/**
@@ -122,7 +125,7 @@ public class RequestQueue {
 		if(request.isMutex()){
 			servingMutex = request;
 		}else if(request.isSequential()){
-			servingSequential.add(request);
+			servingSequential = request;
 		}else{
 			servingConcurrent.add(request);
 		}
@@ -162,10 +165,10 @@ public class RequestQueue {
 	public boolean remove(Request request) {
 		lock.lock();
 		try {
-			if(request.isMutex()){
+			if(request.isMutex() && servingMutex == request){
 				servingMutex = null;
-			}else if(request.isSequential()){
-				servingSequential.remove(request);
+			}else if(request.isSequential() && servingSequential == request){
+				servingSequential = null;
 			}else{
 				servingConcurrent.remove(request);
 			}
@@ -189,7 +192,7 @@ public class RequestQueue {
 		availableRequest = null;
 		requests.clear();
 		servingMutex = null;
-		servingSequential.clear();
+		servingSequential = null;
 		servingConcurrent.clear();
 		
 		return true;
@@ -244,12 +247,8 @@ public class RequestQueue {
 			}
 		}
 		if (request.isSequential()) {
-			for (int i = 0; i < servingSequential.size(); i++) {
-				Request currentRequest = servingSequential.get(i);
-				if (currentRequest.getStatus() == Request.Serving
-						&& (currentRequest.isMutex() || currentRequest.isSequential())){
-					return false;
-				}
+			if (servingSequential != null && servingSequential.getStatus() == Request.Serving){
+				return false;
 			}
 		}
 		return true;
