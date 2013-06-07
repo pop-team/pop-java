@@ -164,7 +164,7 @@ public class ComboxSocket extends Combox {
 				final byte[] dataSend = buffer.array();
 				
 				outputStream.write(dataSend, 0, length);
-				//outputStream.flush();
+				outputStream.flush();
 				
 				return length;
 			} catch (IOException e) {
