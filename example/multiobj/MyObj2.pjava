@@ -1,17 +1,25 @@
-public parclass MyObj2 {
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncSeq;
+
+
+@POPClass
+public class MyObj2 {
 	protected int data;
 	
 	public MyObj2(){
 	}
 	
-	public sync seq void set(int value) throws POPException {
+	@POPSyncSeq
+	public void set(int value) throws POPException {
        
    		MyObj3 o3 = new MyObj3();
 		o3.set(value);
 		data=o3.get();
 	}
 	
-	public sync conc int get(){
+	@POPSyncConc
+	public int get(){
 		return data + 30;
 	}
 	

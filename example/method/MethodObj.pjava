@@ -1,16 +1,25 @@
 import java.lang.*;
 
-public parclass MethodObj {
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncMutex;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
+
+@POPClass
+public class MethodObj {
    private int value;
-   public MethodObj() @{ od.search(10,10,0); }{
+   public MethodObj(){
       value = 0;
    }
 
-   public sync conc int get(){
+   @POPSyncConc
+   public int get(){
       return value;
    }
 
-   public async seq void setSeq(int val){
+   @POPAsyncSeq
+   public void setSeq(int val){
       try{
          Thread.sleep(1000);
          value = val;
@@ -19,8 +28,9 @@ public parclass MethodObj {
       }
    }
 
-   public async conc void setConc(int val){
-      System.out.println("Test");
+   @POPAsyncConc
+   public void setConc(int val){
+      System.out.println("Test "+val);
       try{
          Thread.sleep(1000);
          value = val;
@@ -29,7 +39,8 @@ public parclass MethodObj {
       }
    }
 
-   public async mutex void setMutex(int val){
+   @POPAsyncMutex
+   public void setMutex(int val){
       try{
          value = val;
          Thread.sleep(3000);

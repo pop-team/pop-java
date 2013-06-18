@@ -1,4 +1,4 @@
-<project name="Method" default="all" basedir=".">
+<project name="Method" default="build" basedir=".">
     <description>
         Method example
     </description>
@@ -15,7 +15,7 @@
         </delete>
     </target>
     
-    <target name="all"
+    <target name="build"
         description="compile the source " >
         <exec executable="popjc">
             <arg line="MethodObj.pjava MainClass.pjava"/>
@@ -25,7 +25,7 @@
         </exec>
     </target>
     
-    <target name="run" depends="all"
+    <target name="run" depends="build"
         description="Run the application" >
         <exec executable="popjrun">
             <arg line="${objectmap} MainClass"/>

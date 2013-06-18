@@ -1,4 +1,4 @@
-<project name="Od" default="all" basedir=".">
+<project name="Od" default="build" basedir=".">
     <description>
         Od usage example
     </description>
@@ -13,7 +13,7 @@
         <delete file= "${objectmap}"/>
     </target>
     
-    <target name="all"
+    <target name="build"
         description="compile the source " >
         <exec executable="popjc">
             <arg line="-j ${application.jar} *.pjava"/>
@@ -23,7 +23,7 @@
         </exec>
     </target>
     
-    <target name="run" depends="all"
+    <target name="run" depends="build"
         description="Run the application" >
         <exec executable="popjrun">
             <arg line="-c ${application.jar} ${objectmap} MainClass"/>

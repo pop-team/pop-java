@@ -1,18 +1,28 @@
-public parclass Integer {
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncMutex;
+
+@POPClass
+public class Integer {
 	private int value;
 	public Integer(){
 		value = 0;
 	}
 
-	public sync conc int get(){
+	@POPSyncConc
+	public int get(){
 		return value;
 	}
 
-	public sync mutex void add(Integer i){
+	@POPSyncMutex
+	public void add(Integer i){
 		value += i.get();
 	}
 
-	public async seq void set(int val){
+	@POPAsyncSeq
+	public void set(int val){
 		value = val;
 	}
 }

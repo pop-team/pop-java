@@ -1,4 +1,4 @@
-<project name="Callback2" default="all" basedir=".">
+<project name="Callback2" default="build" basedir=".">
     <description>
         Callback2 example
     </description>
@@ -17,7 +17,7 @@
         </delete>
     </target>
     
-    <target name="all"
+    <target name="build"
         description="compile the source " >
         <exec executable="popjc">
             <arg line="-j ${application.jar} ${source.folder}/Toto.pjava ${source.folder}/Titi.pjava ${source.folder}/CallBackMain.pjava"/>
@@ -27,7 +27,7 @@
         </exec>
     </target>
     
-    <target name="run" depends="all"
+    <target name="run" depends="build"
         description="Run the application" >
         <exec executable="popjrun">
             <arg line="-c ${application.jar} ${objectmap} test.CallBackMain"/>

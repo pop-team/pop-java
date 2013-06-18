@@ -1,10 +1,16 @@
-public parclass ParObj {
-  
-   public ParObj() @{ od.url("localhost"); }{
+import popjava.annotation.POPClass;
+import popjava.annotation.POPConfig;
+import popjava.annotation.POPConfig.Type;
+import popjava.annotation.POPObjectDescription;
 
-   }
+@POPClass
+public class ParObj {
 
-   public ParObj(String host) @{ od.url(host); }{
+	@POPObjectDescription(url = "localhost")
+	public ParObj() {
 
-   }
+	}
+
+	public ParObj(@POPConfig(value = Type.URL) String host) {
+	}
 }

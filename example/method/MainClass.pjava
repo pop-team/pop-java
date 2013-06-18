@@ -40,10 +40,11 @@ public class MainClass{
       }
 
       int crt2 = mo.get();
-      if(crt2 != 8)
+      if(crt2 != 8){
          System.out.println("Concurrent call failed"+crt2);
-      else
+      }else{
          System.out.println("Value should be " + 8 +" // Value is " + crt2);
+      }
       
 
       System.out.println("-- Mutex call --");
