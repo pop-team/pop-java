@@ -1,25 +1,35 @@
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncMutex;
 
-public parclass DemoPOP {
+@POPClass
+public class DemoPOP {
    private int id;
    public DemoPOP(int newID){
       id = newID;
    }
 
-   public async seq void sendIdTo(DemoPOP dp){
+   @POPAsyncSeq
+   public void sendIdTo(DemoPOP dp){
       System.out.println("POPCobject:" + id + " on machine:"+ getPOPCReference() + " is sending his iD to object:" +dp.getPOPCReference());
 	   dp.recAnID(id);
 
    }
 
-   public sync conc int getID(){
+   @POPSyncConc
+   public int getID(){
       return id;
    }
 
-   public async conc void recAnID(int i){
+   @POPAsyncConc
+   public void recAnID(int i){
       System.out.println("POPobject:"+id+" on machine:"+getPOPCReference()+" is receiving id="+i);
    }
 
-   public sync mutex void wait(int sec){
+   @POPSyncMutex
+   public void wait(int sec){
       try{
          Thread.sleep(sec*1000);
       } catch(Exception e){

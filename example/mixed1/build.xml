@@ -1,4 +1,4 @@
-<project name="mixed1" default="all" basedir=".">
+<project name="mixed1" default="build" basedir=".">
     <description>
         Mixed 1 popjava/popc++ example
     </description>
@@ -16,7 +16,7 @@
         </delete>
     </target>
     
-    <target name="all"
+    <target name="build"
         description="compile the source " >
         <exec executable="popcc">
             <arg line="-object -o integer.obj integer.ph integer.cc"/>
@@ -31,7 +31,7 @@
         </exec>
     </target>
     
-    <target name="run" depends="all"
+    <target name="run" depends="build"
         description="Run the application" >
         <exec executable="popjrun">
             <arg line="${objectmap} TestInteger"/>

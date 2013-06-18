@@ -8,9 +8,10 @@ public class CallBackMain {
 		int value = t.getIdent();
 		System.out.println("Identity callback is "+ value);
 	
-		if(value==-1)
+		if(value == -1){
 			System.out.println("Callback test successful");
-		else
+		}else{
 			System.out.println("Callback test failed");
+		}
 	}
 }

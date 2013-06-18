@@ -1,9 +1,14 @@
-public parclass PARObject {
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncSeq;
+
+@POPClass
+public class PARObject {
 	
 	public PARObject(){
 	}
 	
-	public sync seq void sendChar(int length, char[] tab){
+	@POPSyncSeq
+	public void sendChar(int length, char[] tab){
 	}
 }
 

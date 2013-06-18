@@ -1,16 +1,23 @@
 package test;
-public parclass Toto {
+
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncSeq;
+
+@POPClass
+public class Toto {
 	private int identity;
 
 	public Toto() {
-
 	}
 	
-	public sync conc void setIdent(int i){
+	@POPSyncConc
+	public void setIdent(int i){
 		identity = i;
 	}
 	
-	public sync seq int getIdent() throws POPException {
+	@POPSyncSeq
+	public int getIdent() throws POPException {
 		Titi t = new Titi();
 		setIdent(222);
 		t.computeIdent(this);

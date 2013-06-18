@@ -1,15 +1,22 @@
 package test;
-public parclass Titi {
+
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncSeq;
+
+@POPClass
+public class Titi {
 	private int identity;
 	public Titi(){
 		identity = -1;
 	}
 	
-	public sync seq void setIdent(int i){
+	@POPSyncSeq
+	public void setIdent(int i){
 		identity = i;
 	}
 
-	public sync seq void computeIdent(Toto toto){
+	@POPSyncSeq
+	public void computeIdent(Toto toto){
 		toto.setIdent(identity);
 	}
 }
