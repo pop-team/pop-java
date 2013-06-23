@@ -407,7 +407,7 @@ public static void main(String args[]) {
             String toBePrinted="";
             do{
                 String id = tok.toString();
-                if(id.equals(Holder.thisClassName) || parclasses.contains(id)){
+                if((id.equals(Holder.thisClassName) || parclasses.contains(id))){
                     toBePrinted += tok.next.toString()+"=("+id+")PopJava.newActive("+id+".class, "+tok.next.toString()+".getAccessPoint());\n";
                     print(id+" "+tok.next.toString(),0);
                     tok = tok.next.next;
@@ -467,7 +467,7 @@ public static void main(String args[]) {
                         print("", indent);
                     } else {
                         String _parCl = Holder._hm_parclasses.get(tok.toString());
-                        print(tok.toString()+" = ("+_parCl+")PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint())", 0);
+                        print(tok.toString()+" = ("+_parCl+")  PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint())", 0);
                         println(";", 0);
                         print("", indent);
                         while(tok.kind != SEMICOLON){
@@ -493,7 +493,7 @@ public static void main(String args[]) {
                             print("("+_parID+")PopJava.newActive("+_parID+".class", 0);
                             canPrintCatch = true;
                         } else {
-                            inParen=false;
+                            inParen = false;
                             print("("+_parID+")PopJava.newActive("+_parID+".class,", 0);
                             canPrintCatch = true;
                         }
@@ -1304,12 +1304,12 @@ void FieldDeclaration(int modifiers):
 {}
 {
 // Modifiers are already matched in the caller
-Type() { 
-            if(Holder.isParclass && modifiers == ModifierSet.PUBLIC){
-                throw new ParseException("A parclass cannot have public attribute."); 
-            }
-        } 
-        VariableDeclarator() ( "," VariableDeclarator() )* ";"
+	Type() { 
+		if(Holder.isParclass && modifiers == ModifierSet.PUBLIC){
+			throw new ParseException("A parclass cannot have public attribute."); 
+		}
+	} 
+	VariableDeclarator() ( "," VariableDeclarator() )* ";"
 }
 
 void VariableDeclarator():
@@ -1337,16 +1337,6 @@ void ArrayInitializer():
 {
 "{" [ VariableInitializer() ( LOOKAHEAD(2) "," VariableInitializer() )* ] [ "," ] "}"
 }
-
-/* POP-Java modification. POP-Java semantics included in the method declaration and hanlding error
-* Asynchronous method must have return value to void. Parallel method must have modifier to public.
-* Interface-side and broker-side semantic are mandatory.
-*
-* Production rule modified for POP-Java. Accept key word sync, async and conc, seq, mutex.
-* A interface-side semantic and a broker-side semantic are required for every public method.
-* Semantics are stored in the Parclass object. 
-* An asynchronous method must have void as the return type otherwise an exception is thrown.
-*/
 void MethodDeclaration(int modifiers):
 {
     Token id=null;
@@ -1361,7 +1351,7 @@ id=MethodDeclarator() [ "throws" NameList() ]
 Token MethodDeclarator():
 {Token id=null;}
 {
-id=<IDENTIFIER> FormalParameters() ( "[" "]" )*
+id= <IDENTIFIER> FormalParameters() ( "[" "]" )*
         {return id;}
 }
 
@@ -1375,7 +1365,7 @@ int FormalParameters():
 void FormalParameter():
 { }
 {
-[ Annotation() ] [ "final" ] Type() [ "..." ] VariableDeclaratorId()
+(Annotation())* [ "final" ] Type() [ "..." ] VariableDeclaratorId()
 }
 
 /* POP-Java new production rule.
@@ -1442,7 +1432,7 @@ void ConstructorDeclaration():
 {
     [ TypeParameters() ]
     // Modifiers matched in the caller
-    <IDENTIFIER> nbParam=FormalParameters() { Holder.parclass.addConstructor(Holder.constructorId, nbParam); } [ "throws" NameList() ]
+    <IDENTIFIER> nbParam= FormalParameters() { Holder.parclass.addConstructor(Holder.constructorId, nbParam); } [ "throws" NameList() ]
     "{"
         [ LOOKAHEAD(ExplicitConstructorInvocation()) ExplicitConstructorInvocation() ]
         ( BlockStatement() )*

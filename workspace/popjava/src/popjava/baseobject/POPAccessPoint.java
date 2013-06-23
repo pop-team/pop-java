@@ -15,6 +15,7 @@ import java.util.*;
 public class POPAccessPoint implements IPOPBase {
 	
 	private boolean _isService;
+	private boolean _noaddref = false;
 	private int _security;	
 
 	/**
@@ -70,6 +71,7 @@ public class POPAccessPoint implements IPOPBase {
 		buffer.putString(toString());
 		buffer.putInt(_security);
 		buffer.putBoolean(_isService);
+		buffer.putBoolean(_noaddref);
 		return true;
 	}
 
@@ -79,10 +81,9 @@ public class POPAccessPoint implements IPOPBase {
 	public boolean deserialize(POPBuffer buffer) {
 		String accessPoint = buffer.getString();
 		this.setAccessString(accessPoint);
-		int security = buffer.getInt();
-		_security = security;
-		boolean service = buffer.getBoolean();
-		_isService = service;
+		_security = buffer.getInt();
+		_isService = buffer.getBoolean();
+		_noaddref = buffer.getBoolean();
 		return true;
 	}
 

@@ -1,5 +1,6 @@
 import popjava.annotation.*;
 import popjava.annotation.POPConfig.Type;
+import popjava.annotation.POPParameter.Direction;
 
 @POPClass
 public class Integer {
@@ -9,10 +10,6 @@ public class Integer {
    public Integer(@POPConfig(Type.URL) String url){
     value = 0;
    }
-   
-   /*public Integer(){
-      value = 0;
-   }*/
 
    @POPSyncConc
    public int get(){
@@ -30,5 +27,23 @@ public class Integer {
    public void set(int val){
       System.out.println("Set value on Integer ("+getPOPCReference()+"): "+val);	
       value = val;
+   }
+   
+   @POPSyncConc
+   public int arrayChanger(int [] array){
+		for(int i = 0; i < array.length; i++){
+			array[i] *= 2;
+		}
+		
+		return 19;
+   }
+   
+   @POPSyncConc
+   public int arrayChanger2(@POPParameter(Direction.IN) int [] array){
+		for(int i = 0; i < array.length; i++){
+			array[i] *= 2;
+		}
+		
+		return 19;
    }
 }

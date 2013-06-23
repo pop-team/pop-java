@@ -59,4 +59,9 @@ public class POPString implements IPOPBase {
 		value = buffer.getString();
 		return false;
 	}
+	
+	@Override
+	public String toString(){
+		return value;
+	}
 }

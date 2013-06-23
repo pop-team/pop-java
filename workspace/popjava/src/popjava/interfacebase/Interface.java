@@ -168,7 +168,7 @@ public class Interface {
 
 			if (platforms.length() <= 0) {
 				AppService appCoreService = null;
-				appCoreService = (AppService) popjava.PopJava.newActive(
+				appCoreService = (AppService) PopJava.newActive(
 						POPAppService.class, POPSystem.AppServiceAccessPoint);
 				POPString popStringPlatorm = new POPString();
 				appCoreService.getPlatform(objectName, popStringPlatorm);
@@ -197,13 +197,19 @@ public class Interface {
 
 			POPJobService jobManager = null;
 			try{
-				jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
+				if(Configuration.CONNECT_TO_POPCPP){
+					jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
+				}
 			}catch(Exception e){
+			}
+			
+			if(jobManager == null){
 				LogWriter.writeDebugInfo("Could not contact jobmanager, running objects without od.url is not supported");
 				return false;
 			}
 			
 			ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
+			
 			int createdCode = jobManager.createObject(POPSystem.AppServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
 					allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
 			jobManager.exit();
@@ -490,11 +496,18 @@ public class Interface {
 	 */
 	private static String getRemoteCodeFile(String objectName){
 		AppService appCoreService = null;
-		try{
-			appCoreService = (AppService) PopJava.newActive(
-					POPAppService.class, POPSystem.AppServiceAccessPoint);
-			appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
-		}catch(Exception e){
+		
+		if(Configuration.CONNECT_TO_POPCPP){
+			try{
+				appCoreService = (AppService) PopJava.newActive(
+						POPAppService.class, POPSystem.AppServiceAccessPoint);
+				appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
+			}catch(Exception e){
+				appCoreService = null;
+			}
+		}
+		
+		if(appCoreService == null){
 			try{				
 				appCoreService = (AppService) PopJava.newActive(
 						POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
@@ -644,7 +657,9 @@ public class Interface {
 	 * @throws POPException
 	 */
 	protected int popResponse(POPBuffer buffer) throws POPException {
+		
 		if (combox.receive(buffer) > 0) {
+			
 			MessageHeader messageHeader = buffer.getHeader();
 			if (messageHeader.getRequestType() == MessageHeader.Exception) {
 				int errorCode = messageHeader.getExceptionCode();

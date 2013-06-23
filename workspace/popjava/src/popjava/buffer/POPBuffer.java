@@ -415,25 +415,25 @@ public abstract class POPBuffer extends Object {
 		}		
 		
 		if (c.equals(byte.class) || c.equals(Byte.class)){
-			this.put((Byte) o);
+			put((Byte) o);
 		}else if (c.equals(int.class) || c.equals(Integer.class)){
-			this.putInt((Integer) o);
+			putInt((Integer) o);
 		}else if (c.equals(float.class) || c.equals(Float.class)){
-			this.putFloat((Float) o);
+			putFloat((Float) o);
 		}else if (c.equals(boolean.class) || c.equals(Boolean.class)){
-			this.putBoolean((Boolean) o);
+			putBoolean((Boolean) o);
 		}else if (c.equals(String.class)){
-			this.putString((String) o);
+			putString((String) o);
 		}else if (c.equals(char.class) || c.equals(Character.class)){
-			this.putChar((Character) o);
+			putChar((Character) o);
 		}else if (c.equals(long.class) || c.equals(Long.class)){
-			this.putLong((Long) o);
+			putLong((Long) o);
 		}else if (c.equals(double.class) || c.equals(Double.class)){
-			this.putDouble((Double) o);
+			putDouble((Double) o);
 		}else if (c.equals(short.class) || c.equals(Short.class)){
-			this.putShort((Short)o);
+			putShort((Short)o);
 		}else if (c.isArray()) {
-			this.putArray(o);
+			putArray(o);
 		} else if (IPOPBaseInput.class.isAssignableFrom(c)) {
 			try {
 				IPOPBaseInput temp = (IPOPBaseInput) o;
@@ -483,7 +483,7 @@ public abstract class POPBuffer extends Object {
 				this.putCharArray((char[]) o);
 			else {
 				length = Array.getLength(o);
-				this.putInt(length);
+				putInt(length);
 				for (int i = 0; i < length; i++) {
 					Object element = Array.get(o, i);
 					putValue(element,c.getComponentType());
@@ -501,9 +501,10 @@ public abstract class POPBuffer extends Object {
 	 */
 	public Object getArray(Class<?> arrayType) throws POPException {
 		int length = this.getInt();
-		if (length == 0)
+		
+		if (length == 0){
 			return null;
-		else {
+		} else {
 
 			if (arrayType.equals(byte[].class))
 				return this.getByteArray(length);
@@ -548,13 +549,11 @@ public abstract class POPBuffer extends Object {
 			} else if (IPOPBase.class.isAssignableFrom(type)) {
 				this.putValue(obj,type);
 			}
-
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
@@ -568,26 +567,22 @@ public abstract class POPBuffer extends Object {
 		Method m;
 
 		try {
-
-			if (IPOPBase.class.isAssignableFrom(type)){				
-					m = type.getMethod("deserialize", POPBuffer.class);
-					m.setAccessible(true);
-					m.invoke(obj, this);				
+			if (IPOPBase.class.isAssignableFrom(type)){
+				
+				m = type.getMethod("deserialize", POPBuffer.class);
+				m.setAccessible(true);
+				m.invoke(obj, this);
+				
 			} else if (type.isArray()) {
-				Object array=this.getArray(type);
-				if(array!=null)
-				System.arraycopy(array, 0, obj, 0, Array.getLength(array));				
+				
+				Object array = getArray(type);
+				
+				if(array != null){
+					System.arraycopy(array, 0, obj, 0, Array.getLength(array));
+				}
 			}
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			LogWriter.writeExceptionLog(e);
 		}
 
 	}

@@ -15,7 +15,7 @@
         </delete>
     </target>
     
-    <target name="all"
+    <target name="all" depends="clean"
         description="compile the source " >
         <exec executable="popjc">
             <arg line="-n Integer.pjava TestInteger.pjava"/>

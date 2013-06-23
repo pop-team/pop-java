@@ -74,19 +74,10 @@ public class PJProxyFactory extends ProxyFactory {
 			Object result = c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);
 			return result;
-		} catch (java.lang.InstantiationException e) {
-			e.printStackTrace();
-		} catch (java.lang.IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			LogWriter.writeExceptionLog(e);
 		}
+		
 		return null;
 	}
 
@@ -108,18 +99,8 @@ public class PJProxyFactory extends ProxyFactory {
 			Object result = c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);
 			return result;
-		} catch (java.lang.InstantiationException e) {
-			e.printStackTrace();
-		} catch (java.lang.IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			LogWriter.writeExceptionLog(e);
 		}
 		return null;
 	}
@@ -146,19 +127,10 @@ public class PJProxyFactory extends ProxyFactory {
 				POPException.throwObjectBindException(methodHandler
 						.getAccessPoint());
 			}
-		} catch (java.lang.InstantiationException e) {
-			e.printStackTrace();
-		} catch (java.lang.IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			LogWriter.writeExceptionLog(e);
 		}
+		
 		LogWriter.writeDebugInfo("result");
 		return result;
 	}

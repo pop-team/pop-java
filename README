@@ -8,6 +8,8 @@ This transcript helps you to set up POP-Java on our system.
 
 To install POP-Java be sure to install the latest verion of POP-C++ before any other steps.
 
+Compile popjava with the command "ant".
+
 Launch the script "install" included in this directory to perform the installation of POP-Java.
 
 After the completion of the installation, you can start a test suite by launch the script "launch_testsuite" located in the POP-Java installation directory.

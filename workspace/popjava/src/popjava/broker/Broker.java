@@ -1,9 +1,11 @@
 package popjava.broker;
 
+import popjava.PopJava;
 import popjava.combox.*;
 import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 import popjava.util.Util;
+import popjava.annotation.POPParameter;
 import popjava.base.MessageHeader;
 import popjava.base.MethodInfo;
 import popjava.base.POPErrorCode;
@@ -18,6 +20,7 @@ import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -134,23 +137,10 @@ public class Broker {
 
 		if (exception == null) {
 			parameterTypes = constructor.getParameterTypes();
-			parameters = new Object[parameterTypes.length];
-			int index = 0;
-			// Get parameters
-			for (index = 0; index < parameterTypes.length; index++) {
-				try {
-					parameters[index] = requestBuffer
-							.getValue(parameterTypes[index]);
-				} catch (POPException e) {
-					exception = new POPException(e.errorCode, e.errorMessage);
-					break;
-				} catch (Exception e) {
-					exception = new POPException(
-							POPErrorCode.UNKNOWN_EXCEPTION,
-							"Unknown exception when get parameter "
-									+ parameterTypes[index].getName());
-					break;
-				}
+			try{
+				parameters = getParameters(requestBuffer, parameterTypes);
+			}catch(POPException e){
+				exception = e;
 			}
 		}
 		if (exception == null) {
@@ -202,6 +192,34 @@ public class Broker {
 		return true;
 	}
 
+	private Object[] getParameters(POPBuffer requestBuffer,
+			Class<?>[] parameterTypes) throws POPException{
+		Object[] parameters;
+		parameters = new Object[parameterTypes.length];
+		int index = 0;
+		// Get parameters
+		for (index = 0; index < parameterTypes.length; index++) {
+			try {
+				parameters[index] = requestBuffer
+						.getValue(parameterTypes[index]);
+				if(parameters[index] != null && parameters[index] instanceof POPObject){
+					POPObject temp = (POPObject)parameters[index];
+					//t=(Toto)PopJava.newActive(Toto.class, t.getAccessPoint());
+					/*parameters[index]= PopJava.newActive(parameters[index].getClass().getSuperclass(),
+							temp.getAccessPoint());*/
+				}
+			} catch (POPException e) {
+				throw new POPException(e.errorCode, e.errorMessage);
+			} catch (Exception e) {
+				throw new POPException(
+						POPErrorCode.UNKNOWN_EXCEPTION,
+						"Unknown exception when get parameter "
+								+ parameterTypes[index].getName());
+			}
+		}
+		return parameters;
+	}
+
 	/**
 	 * This method is responsible to call the correct method on the associated
 	 * object
@@ -237,29 +255,19 @@ public class Broker {
 
 			returnType = method.getReturnType();
 			parameterTypes = method.getParameterTypes();
-			parameters = new Object[parameterTypes.length];
-			// Get parameters
-			for (index = 0; index < parameterTypes.length; index++) {
-
-				try {
-					parameters[index] = requestBuffer.getValue(parameterTypes[index]);
-				} catch (POPException e) {
-					exception = new POPException(e.errorCode, e.errorMessage);
-					break;
-				} catch (Exception e) {
-					exception = new POPException(
-							POPErrorCode.UNKNOWN_EXCEPTION,
-							"Unknown exception when get parameter "
-									+ parameterTypes[index].getName());
-					break;
-				}
+			
+			try{
+				parameters = getParameters(requestBuffer, parameterTypes);
+			}catch(POPException e){
+				exception = e;
 			}
 		}
+		
 		// Invoke the method if success to get all parameter
 		if (exception == null) {
 			try {
 				method.setAccessible(true);
-				if (returnType != Void.class && returnType != void.class) {
+				if (returnType != Void.class && returnType != void.class) {					
 					result = method.invoke(popObject, parameters);
 				} else {
 					method.invoke(popObject, parameters);
@@ -288,17 +296,20 @@ public class Broker {
 				POPBuffer responseBuffer = request.getCombox().getBufferFactory()
 						.createBuffer();
 				responseBuffer.setHeader(messageHeader);
+				
+				Annotation[][] annotations = method.getParameterAnnotations();
 
+				//Put all parameters back in the response, if needed
 				for (index = 0; index < parameterTypes.length; index++) {
-					try {
-						responseBuffer.serializeReferenceObject(
-								parameterTypes[index], parameters[index]);
-					} catch (POPException e) {
-						LogWriter
-								.writeDebugInfo("Execption serialize parameter");
-						exception = new POPException(e.errorCode,
-								e.errorMessage);
-						break;
+					if(Util.serializeParameter(annotations[index])){
+						try {
+							responseBuffer.serializeReferenceObject(
+									parameterTypes[index], parameters[index]);
+						} catch (POPException e) {
+							LogWriter.writeDebugInfo("Execption serializing parameter "+parameterTypes[index].getName());
+							exception = new POPException(e.errorCode, e.errorMessage);
+							break;
+						}
 					}
 				}
 				if (exception == null) {

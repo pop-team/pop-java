@@ -17,6 +17,8 @@ public class Configuration {
 	public static final String SelectedEncoding = "raw";
 	public static final String DefaultProtocol = "socket";
 
+	public static final boolean CONNECT_TO_POPCPP = true;
+	
 	/**
 	 * Default constructor
 	 */

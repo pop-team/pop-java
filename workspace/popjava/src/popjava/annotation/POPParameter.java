@@ -5,13 +5,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * 
- * @author Beat Wolf
- *
- */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface POPAsyncConc {
+@Target(ElementType.PARAMETER)
+public @interface POPParameter {
 
+	enum Direction{
+		IN,
+		OUT,
+		INOUT
+	}
+	
+	Direction value();
 }

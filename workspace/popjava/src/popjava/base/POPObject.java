@@ -518,7 +518,7 @@ public class POPObject implements IPOPBase {
 	protected void defineMethod(Class<?>c,String methodName,int methodId,int semanticId,Class<?>...paramTypes)
 	{
 		try {
-			Method m=c.getMethod(methodName, paramTypes);
+			Method m = c.getMethod(methodName, paramTypes);
 			MethodInfo methodInfo = new MethodInfo(this.getClassId(),
 					methodId);
 			methodInfos.put(methodInfo, m);

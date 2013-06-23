@@ -413,8 +413,9 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public void putFloatArray(float[] value) {
 		int arrayLength = 0;
-		if (value != null)
+		if (value != null){
 			arrayLength = value.length;
+		}
 		this.putInt(arrayLength);
 		if(arrayLength>0)
 		{
@@ -428,15 +429,15 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public void putIntArray(int[] value) {
 		int arrayLength = 0;
-		if (value != null)
+		if (value != null){
 			arrayLength = value.length;
-		this.putInt(arrayLength);
-		if(arrayLength>0)
-		{
-			this.resize(arrayLength*Integer.SIZE/Byte.SIZE);
+		}
+		putInt(arrayLength);
+		if(arrayLength > 0) {
+			resize(arrayLength*Integer.SIZE/Byte.SIZE);
 			IntBuffer intBuffer=buffer.asIntBuffer();
 			intBuffer.put(value);
-			this.position(this.position()+arrayLength*Integer.SIZE/Byte.SIZE);			
+			position(position()+arrayLength*Integer.SIZE/Byte.SIZE);			
 		}		
 	}
 
