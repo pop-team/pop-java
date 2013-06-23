@@ -31,9 +31,9 @@ public class POPJobManager extends POPJobService {
 		
 		defineMethod(c, "registerNode",13, Semantic.Concurrent
 				| Semantic.Asynchronous,String.class);
-		defineMethod(c, "query", 14,Semantic.Sequence | Semantic.Synchronous,String.class,String.class);
+		defineMethod(c, "query", 14,Semantic.Sequence | Semantic.Synchronous,POPString.class,POPString.class);
 		defineMethod(c, "createObject", 12,Semantic.Concurrent | Semantic.Synchronous,
-				POPAccessPoint.class, String.class,	ObjectDescriptionInput.class, int.class, POPAccessPoint[].class, int.class, POPAccessPoint[].class);
+				POPAccessPoint.class, POPString.class,	ObjectDescriptionInput.class, int.class, POPAccessPoint[].class, int.class, POPAccessPoint[].class);
 		defineMethod(c, "allocResource", 16,Semantic.Concurrent
 				| Semantic.Synchronous,String.class, String.class,
 				ObjectDescriptionInput.class, int.class, float[].class,
@@ -42,7 +42,7 @@ public class POPJobManager extends POPJobService {
 		defineMethod(c, "cancelReservation", 18,Semantic.Sequence
 				| Semantic.Asynchronous,int[].class, int.class);
 
-		defineMethod(c, "execObj", 19,Semantic.Concurrent | Semantic.Synchronous,String.class, int.class, int[].class,
+		defineMethod(c, "execObj", 19,Semantic.Concurrent | Semantic.Synchronous,POPString.class, int.class, int[].class,
 				String.class, POPAccessPoint[].class);
 		defineMethod(c, "dump", 20,Semantic.Sequence | Semantic.Asynchronous);
 		defineMethod(c, "start", 21,Semantic.Sequence |Semantic.Synchronous);
@@ -86,7 +86,7 @@ public class POPJobManager extends POPJobService {
 	 * @param value	Output argument - Value of the configuration element
 	 * @return 0 if the configuration element is not found
 	 */
-	public int query(String type, POPString value) {
+	public int query(POPString type, POPString value) {
 		return 0;
 	}
 
@@ -99,7 +99,7 @@ public class POPJobManager extends POPJobService {
 	 * @param jobcontacts	Output arguments - contacts to the objects created
 	 * @return 0 if the object is created correctly
 	 */
-	public int createObject(POPAccessPoint localservice, String objname,
+	public int createObject(POPAccessPoint localservice, POPString objname,
 			ObjectDescriptionInput od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		return 0;
 	}
@@ -143,7 +143,7 @@ public class POPJobManager extends POPJobService {
 	 * @param objcontacts	Output arguments - contacts to the objects created
 	 * @return	0 if the execution hasn't failed
 	 */
-	public int execObj(String objname, int howmany, int[] reserveIDs,
+	public int execObj(POPString objname, int howmany, int[] reserveIDs,
 			String localservice, POPAccessPoint[] objcontacts) {
 		return 0;
 	}

@@ -1,5 +1,6 @@
 package popjava;
 
+import popjava.annotation.POPParameter;
 import popjava.base.*;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.BufferFactory;
@@ -7,8 +8,10 @@ import popjava.buffer.POPBuffer;
 import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
+import popjava.util.Util;
 import javassist.util.proxy.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -71,12 +74,17 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		POPBuffer popBuffer = factory.createBuffer();
 		popBuffer.setHeader(messageHeader);
 		for (int index = 0; index < argvs.length; index++) {
+			/*if(argvs[index] instanceof POPObject){
+				argvs[index]= PopJava.newActive(argvs[index].getClass().getSuperclass(),
+						((POPObject)argvs[index]).getAccessPoint());
+			}*/
+			
 			popBuffer.putValue(argvs[index], parameterTypes[index]);
 		}
 
 		popDispatch(popBuffer);
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-		this.popResponse(responseBuffer);
+		popResponse(responseBuffer);
 		for (int index = 0; index < parameterTypes.length; index++) {
 			responseBuffer.deserializeReferenceObject(parameterTypes[index],
 					argvs[index]);
@@ -107,6 +115,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 */
 	public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
 			throws Throwable {
+		
 		Object result = null;
 		// If serialize or de-serialize
 		boolean[] canExecute = new boolean[1];
@@ -130,24 +139,37 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
 		Class<?>[] parameterTypes = m.getParameterTypes();
+		
+		
 		for (int index = 0; index < argvs.length; index++) {
 			popBuffer.putValue(argvs[index], parameterTypes[index]);
 		}
 		popDispatch(popBuffer);
 		
 		if ((methodSemantics & Semantic.Synchronous) != 0) {
-			POPBuffer responseBuffer = combox.getBufferFactory()
-					.createBuffer();
+			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer);
+			
+			//Recover the data from the calling method. The called method can
+			//Modify the content of an array and it gets copied back in here
+			Annotation[][] annotations = m.getParameterAnnotations();
+			
 			for (int index = 0; index < parameterTypes.length; index++) {
-				responseBuffer.deserializeReferenceObject(
-						parameterTypes[index], argvs[index]);
+				
+				if(Util.serializeParameter(annotations[index])){
+					responseBuffer.deserializeReferenceObject(
+							parameterTypes[index], argvs[index]);
+				}
 			}
+			
+			//Get the return value in case the called method has one
 			if (returnType != Void.class && returnType != void.class){
 				result = responseBuffer.getValue(returnType);
 			}
 			
 		} else {
+			//If the method is async and has a return type, return default value
+			//This should never happen
 			if (returnType != Void.class && returnType != void.class) {
 				try {
 					if (returnType.isPrimitive()) {

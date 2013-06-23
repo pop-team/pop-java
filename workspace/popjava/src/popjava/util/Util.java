@@ -1,5 +1,6 @@
 package popjava.util;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -7,6 +8,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import popjava.annotation.POPParameter;
 import popjava.system.POPSystem;
 
 /**
@@ -166,5 +168,23 @@ public class Util {
 	 */
 	public static int byteArrayToInt(byte[] value) {
 		return value[0]<<24 | (value[1]&0xff)<<16 | (value[2]&0xff)<<8 | (value[3]&0xff);		
+	}
+	
+	/**
+	 * Returns true of one of the annotations defines a IN only parameter
+	 * @param annotations
+	 * @return
+	 */
+	public static boolean serializeParameter(Annotation [] annotations){
+		for(Annotation annotation: annotations){
+			if(annotation.annotationType() == POPParameter.class){
+				POPParameter popParameter = (POPParameter) annotation;
+				if(popParameter.value() == POPParameter.Direction.IN){
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 }

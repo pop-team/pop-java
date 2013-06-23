@@ -3,6 +3,7 @@ package test;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
+import popjava.util.LogWriter;
 
 @POPClass
 public class Titi {
@@ -21,11 +22,8 @@ private int identity;
 
    @POPSyncSeq
    public void setToto(Toto t){
-      try{
-         toto = t;   
-      } catch(POPException e){
-               
-      }
+		LogWriter.writeDebugInfo("*****"+t.getAccessPoint());
+		toto = t;
    }
    
    @POPSyncSeq
