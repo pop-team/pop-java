@@ -73,21 +73,20 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		BufferFactory factory = combox.getBufferFactory();
 		POPBuffer popBuffer = factory.createBuffer();
 		popBuffer.setHeader(messageHeader);
-		for (int index = 0; index < argvs.length; index++) {
-			/*if(argvs[index] instanceof POPObject){
-				argvs[index]= PopJava.newActive(argvs[index].getClass().getSuperclass(),
-						((POPObject)argvs[index]).getAccessPoint());
-			}*/
-			
+		for (int index = 0; index < argvs.length; index++) {			
 			popBuffer.putValue(argvs[index], parameterTypes[index]);
 		}
 
 		popDispatch(popBuffer);
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 		popResponse(responseBuffer);
+		
+		Annotation [][] annotations = constructor.getParameterAnnotations();
 		for (int index = 0; index < parameterTypes.length; index++) {
-			responseBuffer.deserializeReferenceObject(parameterTypes[index],
-					argvs[index]);
+			if(Util.isOutParameter(annotations[index])){
+				responseBuffer.deserializeReferenceObject(parameterTypes[index],
+						argvs[index]);
+			}
 		}
 		return true;
 
@@ -156,7 +155,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			
 			for (int index = 0; index < parameterTypes.length; index++) {
 				
-				if(Util.serializeParameter(annotations[index])){
+				if(Util.isOutParameter(annotations[index])){
 					responseBuffer.deserializeReferenceObject(
 							parameterTypes[index], argvs[index]);
 				}

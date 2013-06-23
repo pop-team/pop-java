@@ -175,7 +175,7 @@ public class Util {
 	 * @param annotations
 	 * @return
 	 */
-	public static boolean serializeParameter(Annotation [] annotations){
+	public static boolean isOutParameter(Annotation [] annotations){
 		for(Annotation annotation: annotations){
 			if(annotation.annotationType() == POPParameter.class){
 				POPParameter popParameter = (POPParameter) annotation;

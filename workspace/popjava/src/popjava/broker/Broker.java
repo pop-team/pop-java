@@ -160,15 +160,17 @@ public class Broker {
 						.createBuffer();
 				responseBuffer.setHeader(messageHeader);
 
+				Annotation [][] annotations = constructor.getParameterAnnotations();
 				for (int index = 0; index < parameterTypes.length; index++) {
-					try {
-						responseBuffer.serializeReferenceObject(
-								parameterTypes[index], parameters[index]);
-					} catch (POPException e) {
-						exception = new POPException(e.errorCode,
-								e.errorMessage);
-						break;
+					if(Util.isOutParameter(annotations[index])){
+						try {
+							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
+						} catch (POPException e) {
+							exception = new POPException(e.errorCode, e.errorMessage);
+							break;
+						}
 					}
+					
 				}
 				if (exception == null) {
 					sendResponse(request.getCombox(), responseBuffer);
@@ -301,7 +303,7 @@ public class Broker {
 
 				//Put all parameters back in the response, if needed
 				for (index = 0; index < parameterTypes.length; index++) {
-					if(Util.serializeParameter(annotations[index])){
+					if(Util.isOutParameter(annotations[index])){
 						try {
 							responseBuffer.serializeReferenceObject(
 									parameterTypes[index], parameters[index]);
