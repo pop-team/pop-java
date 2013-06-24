@@ -138,7 +138,7 @@ public class Broker {
 		if (exception == null) {
 			parameterTypes = constructor.getParameterTypes();
 			try{
-				parameters = getParameters(requestBuffer, parameterTypes);
+				parameters = getParameters(requestBuffer, parameterTypes, constructor.getParameterAnnotations());
 			}catch(POPException e){
 				exception = e;
 			}
@@ -162,7 +162,7 @@ public class Broker {
 
 				Annotation [][] annotations = constructor.getParameterAnnotations();
 				for (int index = 0; index < parameterTypes.length; index++) {
-					if(Util.isOutParameter(annotations[index])){
+					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
 						try {
 							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
 						} catch (POPException e) {
@@ -195,28 +195,31 @@ public class Broker {
 	}
 
 	private Object[] getParameters(POPBuffer requestBuffer,
-			Class<?>[] parameterTypes) throws POPException{
+			Class<?>[] parameterTypes, Annotation [][] annotations) throws POPException{
 		Object[] parameters;
 		parameters = new Object[parameterTypes.length];
 		int index = 0;
 		// Get parameters
 		for (index = 0; index < parameterTypes.length; index++) {
-			try {
-				parameters[index] = requestBuffer
-						.getValue(parameterTypes[index]);
-				if(parameters[index] != null && parameters[index] instanceof POPObject){
-					POPObject temp = (POPObject)parameters[index];
-					//t=(Toto)PopJava.newActive(Toto.class, t.getAccessPoint());
-					/*parameters[index]= PopJava.newActive(parameters[index].getClass().getSuperclass(),
-							temp.getAccessPoint());*/
+			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT)){
+				try {
+					parameters[index] = requestBuffer
+							.getValue(parameterTypes[index]);
+					
+					if(parameters[index] != null && parameters[index] instanceof POPObject){
+						POPObject temp = (POPObject)parameters[index];
+						//t=(Toto)PopJava.newActive(Toto.class, t.getAccessPoint());
+						/*parameters[index]= PopJava.newActive(parameters[index].getClass().getSuperclass(),
+								temp.getAccessPoint());*/
+					}
+				} catch (POPException e) {
+					throw new POPException(e.errorCode, e.errorMessage);
+				} catch (Exception e) {
+					throw new POPException(
+							POPErrorCode.UNKNOWN_EXCEPTION,
+							"Unknown exception when get parameter "
+									+ parameterTypes[index].getName());
 				}
-			} catch (POPException e) {
-				throw new POPException(e.errorCode, e.errorMessage);
-			} catch (Exception e) {
-				throw new POPException(
-						POPErrorCode.UNKNOWN_EXCEPTION,
-						"Unknown exception when get parameter "
-								+ parameterTypes[index].getName());
 			}
 		}
 		return parameters;
@@ -259,7 +262,7 @@ public class Broker {
 			parameterTypes = method.getParameterTypes();
 			
 			try{
-				parameters = getParameters(requestBuffer, parameterTypes);
+				parameters = getParameters(requestBuffer, parameterTypes, method.getParameterAnnotations());
 			}catch(POPException e){
 				exception = e;
 			}
@@ -303,7 +306,7 @@ public class Broker {
 
 				//Put all parameters back in the response, if needed
 				for (index = 0; index < parameterTypes.length; index++) {
-					if(Util.isOutParameter(annotations[index])){
+					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
 						try {
 							responseBuffer.serializeReferenceObject(
 									parameterTypes[index], parameters[index]);

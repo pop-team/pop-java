@@ -175,11 +175,11 @@ public class Util {
 	 * @param annotations
 	 * @return
 	 */
-	public static boolean isOutParameter(Annotation [] annotations){
+	public static boolean isParameterNotOfDirection(Annotation [] annotations, POPParameter.Direction direction){
 		for(Annotation annotation: annotations){
 			if(annotation.annotationType() == POPParameter.class){
 				POPParameter popParameter = (POPParameter) annotation;
-				if(popParameter.value() == POPParameter.Direction.IN){
+				if(popParameter.value() == direction){
 					return false;
 				}
 			}
