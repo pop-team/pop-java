@@ -46,4 +46,9 @@ public class Integer {
 		
 		return 19;
    }
+   
+   @POPSyncConc
+   public boolean arrayChanger3(@POPParameter(Direction.OUT) int [] array){
+		return array == null;
+   }
 }

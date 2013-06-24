@@ -73,17 +73,19 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		BufferFactory factory = combox.getBufferFactory();
 		POPBuffer popBuffer = factory.createBuffer();
 		popBuffer.setHeader(messageHeader);
-		for (int index = 0; index < argvs.length; index++) {			
-			popBuffer.putValue(argvs[index], parameterTypes[index]);
+		
+		Annotation [][] annotations = constructor.getParameterAnnotations();
+		for (int index = 0; index < argvs.length; index++) {
+			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT)){
+				popBuffer.putValue(argvs[index], parameterTypes[index]);
+			}
 		}
-
 		popDispatch(popBuffer);
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 		popResponse(responseBuffer);
 		
-		Annotation [][] annotations = constructor.getParameterAnnotations();
 		for (int index = 0; index < parameterTypes.length; index++) {
-			if(Util.isOutParameter(annotations[index])){
+			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
 				responseBuffer.deserializeReferenceObject(parameterTypes[index],
 						argvs[index]);
 			}
@@ -139,9 +141,12 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		popBuffer.setHeader(messageHeader);
 		Class<?>[] parameterTypes = m.getParameterTypes();
 		
+		Annotation[][] annotations = m.getParameterAnnotations();
 		
 		for (int index = 0; index < argvs.length; index++) {
-			popBuffer.putValue(argvs[index], parameterTypes[index]);
+			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT)){
+				popBuffer.putValue(argvs[index], parameterTypes[index]);
+			}
 		}
 		popDispatch(popBuffer);
 		
@@ -151,11 +156,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			
 			//Recover the data from the calling method. The called method can
 			//Modify the content of an array and it gets copied back in here
-			Annotation[][] annotations = m.getParameterAnnotations();
-			
 			for (int index = 0; index < parameterTypes.length; index++) {
 				
-				if(Util.isOutParameter(annotations[index])){
+				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
 					responseBuffer.deserializeReferenceObject(
 							parameterTypes[index], argvs[index]);
 				}
