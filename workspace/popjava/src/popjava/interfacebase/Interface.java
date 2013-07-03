@@ -497,7 +497,7 @@ public class Interface {
 	private static String getRemoteCodeFile(String objectName){
 		AppService appCoreService = null;
 		
-		if(!POPSystem.AppServiceAccessPoint.isEmpty()){
+		//if(!POPSystem.AppServiceAccessPoint.isEmpty()){
 			if(Configuration.CONNECT_TO_POPCPP){
 				try{
 					appCoreService = (AppService) PopJava.newActive(
@@ -516,7 +516,7 @@ public class Interface {
 					e2.printStackTrace();
 				}
 			}
-		}
+		//}
 		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
