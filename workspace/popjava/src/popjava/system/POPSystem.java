@@ -264,9 +264,12 @@ public class POPSystem {
 		JobService.setAccessString(jobservice);
 		String appservicecode = Util.removeStringFromArrayList(argvList,
 				"-appservicecode=");
+
+		System.out.println("!!!!!!!!!!!! A: "+appservicecode);
 		if (appservicecode == null || appservicecode.length() == 0) {
 			appservicecode = POPJavaConfiguration.getPopAppCoreService();
-	
+
+			System.out.println("!!!!!!!!!!!! B: "+appservicecode);
 		}
 		String proxy = Util.removeStringFromArrayList(argvList, "-proxy=");
 		String appservicecontact = Util.removeStringFromArrayList(argvList,
@@ -277,7 +280,7 @@ public class POPSystem {
 		}
 		
 		AppService coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
-		System.out.println("Core service created");
+		
 		if(coreServiceManager != null){
 			AppServiceAccessPoint = coreServiceManager.getAccessPoint();
 			prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
