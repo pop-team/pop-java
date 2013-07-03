@@ -250,8 +250,6 @@ public class POPSystem {
 		if(coreServiceManager != null){
 			AppServiceAccessPoint = coreServiceManager.getAccessPoint();
 			
-			System.out.println("Debug!! "+AppServiceAccessPoint.toString());
-			
 			prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
 			prlt.start();
 		}
@@ -279,6 +277,7 @@ public class POPSystem {
 			}
 			if(new File(appservicecode).exists()){
 				try{
+					System.out.println("Debug!! A");
 					return createAppCoreService(url);
 				}catch(POPException e){
 					e.printStackTrace();
@@ -289,6 +288,7 @@ public class POPSystem {
 			POPAccessPoint accessPoint = new POPAccessPoint();
 			accessPoint.setAccessString(appservicecontact);
 			try{
+				System.out.println("Debug!! B");
 				return (POPAppService) PopJava.newActive(
 						POPAppService.class, accessPoint);
 			}catch(POPException e){
