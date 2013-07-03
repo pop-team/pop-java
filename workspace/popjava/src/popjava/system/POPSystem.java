@@ -277,7 +277,6 @@ public class POPSystem {
 			}
 			if(new File(appservicecode).exists()){
 				try{
-					System.out.println("Debug!! A");
 					return createAppCoreService(url);
 				}catch(POPException e){
 					e.printStackTrace();
@@ -288,7 +287,6 @@ public class POPSystem {
 			POPAccessPoint accessPoint = new POPAccessPoint();
 			accessPoint.setAccessString(appservicecontact);
 			try{
-				System.out.println("Debug!! B");
 				return (POPAppService) PopJava.newActive(
 						POPAppService.class, accessPoint);
 			}catch(POPException e){
@@ -408,8 +406,15 @@ public class POPSystem {
 		ObjectDescription objectDescription = POPSystem.getDefaultOD();
 		objectDescription.setHostname(POPSystem.getHost());
 		objectDescription.setCodeFile(codelocation);
-		return (POPAppService) PopJava.newActive(POPAppService.class,
+		
+
+		System.out.println("Debug!! XX "+POPSystem.getHost());
+		
+		POPAppService appService = (POPAppService) PopJava.newActive(POPAppService.class,
 				objectDescription, randString, false, codelocation);
+		
+		System.out.println("Debug!! YY "+appService.getAccessPoint().toString());
+		return appService;
 	}
 	
 	public static void end(){
