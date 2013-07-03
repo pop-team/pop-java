@@ -36,22 +36,11 @@ public class POPAccessPoint implements IPOPBase {
 	 */
 	public POPAccessPoint(boolean initialize) {
 		if (initialize) {
-		/*	try {*/
-				
-				
-				/*java.net.InetAddress localAddress;
-				localAddress = java.net.InetAddress.getLocalHost();*/
-				
-				String localAddress = POPSystem.getHost();
+			String localAddress = POPSystem.getHost();
 
-				String accessString = String.format("%s://%s:0",
-						ComboxSocketFactory.Protocol, localAddress);
-				this.setAccessString(accessString);
-		/*	} catch (UnknownHostException e) {
-				e.printStackTrace();
-				this.setAccessString(String.format("%s://127.0.0.1:0",
-						ComboxSocketFactory.Protocol));
-			}*/
+			String accessString = String.format("%s://%s:0",
+					ComboxSocketFactory.Protocol, localAddress);
+			this.setAccessString(accessString);
 		}
 
 	}

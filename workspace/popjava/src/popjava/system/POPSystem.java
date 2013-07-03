@@ -249,6 +249,9 @@ public class POPSystem {
 		
 		if(coreServiceManager != null){
 			AppServiceAccessPoint = coreServiceManager.getAccessPoint();
+			
+			System.out.println("Debug!! "+AppServiceAccessPoint.toString());
+			
 			prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
 			prlt.start();
 		}
