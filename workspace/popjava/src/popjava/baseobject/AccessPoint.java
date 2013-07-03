@@ -1,4 +1,9 @@
 package popjava.baseobject;
+
+import java.net.UnknownHostException;
+
+import popjava.system.POPSystem;
+
 /**
  * This class represent an access to a broker-side parallel object
  */
@@ -27,12 +32,26 @@ public class AccessPoint {
 	 * @param port		Port on which the broker is listening to
 	 */
 	public AccessPoint(String protocol, String host, int port) {
-
-		this.host = host;
+		this.host = normalizeHostname(host);
 		this.protocol = protocol;
 		this.port = port;
 	}
 
+	private String normalizeHostname(String hostname){
+		String host = null;
+		try {
+			host = java.net.InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			return hostname;
+		}
+		
+		if(host != null && hostname.equals(host)){
+			return POPSystem.getHostIP();
+		}
+		
+		return hostname;
+	}
+	
 	/**
 	 * Create an access point from a formatted string
 	 * @param accessString	Formatted access string

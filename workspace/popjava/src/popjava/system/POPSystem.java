@@ -117,7 +117,7 @@ public class POPSystem {
 	 * Get the host of the local node
 	 * @return	Host name as a string value
 	 */
-	public static String getHost() {
+	public static String getHostIP() {
 		String result = "";
 		Enumeration<NetworkInterface> en;
 		try {
@@ -226,7 +226,7 @@ public class POPSystem {
 		String jobservice = Util.removeStringFromArrayList(argvList,
 				"-jobservice=");
 		if (jobservice == null || jobservice.length() == 0) {
-			jobservice = String.format("%s:%d", POPSystem.getHost(),
+			jobservice = String.format("%s:%d", POPSystem.getHostIP(),
 					POPJobManager.DEFAULT_PORT);
 		}
 		JobService.setAccessString(jobservice);
@@ -404,7 +404,7 @@ public class POPSystem {
 		}
 
 		ObjectDescription objectDescription = POPSystem.getDefaultOD();
-		objectDescription.setHostname(POPSystem.getHost());
+		objectDescription.setHostname(POPSystem.getHostIP());
 		objectDescription.setCodeFile(codelocation);
 		
 		POPAppService appService = (POPAppService) PopJava.newActive(POPAppService.class,
