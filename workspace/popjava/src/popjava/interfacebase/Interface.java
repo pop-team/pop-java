@@ -509,13 +509,11 @@ public class Interface {
 		
 		if(appCoreService == null){
 			try{
-				System.out.println("Create AppService "+POPSystem.AppServiceAccessPoint.toString());
-				appCoreService = (AppService) PopJava.newActive(
-						POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
+				appCoreService = (AppService) PopJava.newActive(POPJavaAppService.class);
 			}catch(POPException e2){
 				e2.printStackTrace();
 			}
-		}
+		} 
 		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
