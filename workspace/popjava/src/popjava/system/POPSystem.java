@@ -259,7 +259,7 @@ public class POPSystem {
 		String jobservice = Util.removeStringFromArrayList(argvList,
 				"-jobservice=");
 		if (jobservice == null || jobservice.length() == 0) {
-			jobservice = String.format("%s:%d", POPSystem.getHostName(),
+			jobservice = String.format("%s:%d", POPSystem.getHost(),
 					POPJobManager.DEFAULT_PORT);
 		}
 		JobService.setAccessString(jobservice);

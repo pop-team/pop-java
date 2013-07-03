@@ -593,13 +593,11 @@ public class Interface {
 			argvList.add(objectString);
 		}
 		if (appserv != null && !appserv.isEmpty()) {
-			String appString = String.format("-appservice=%s", appserv
-					.toString());
+			String appString = String.format("-appservice=%s", appserv.toString());
 			argvList.add(appString);
 		}
 		if (jobserv != null && !jobserv.isEmpty()) {
-			String jobString = String.format("-jobservice=%s", jobserv
-					.toString());
+			String jobString = String.format("-jobservice=%s", jobserv.toString());
 			argvList.add(jobString);
 		}
 
