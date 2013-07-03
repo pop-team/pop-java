@@ -14,9 +14,6 @@ public class POPJavaConfiguration {
 			ConfigurationWorker cw = new ConfigurationWorker();
 			
 			String configValue = cw.getValue(value);
-			if(configValue != "null"){
-				return configValue;
-			}
 		} catch (Exception e) {
 		}
 		

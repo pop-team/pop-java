@@ -265,11 +265,9 @@ public class POPSystem {
 		String appservicecode = Util.removeStringFromArrayList(argvList,
 				"-appservicecode=");
 
-		System.out.println("!!!!!!!!!!!! A: "+appservicecode);
+		
 		if (appservicecode == null || appservicecode.length() == 0) {
 			appservicecode = POPJavaConfiguration.getPopAppCoreService();
-
-			System.out.println("!!!!!!!!!!!! B: "+appservicecode);
 		}
 		String proxy = Util.removeStringFromArrayList(argvList, "-proxy=");
 		String appservicecontact = Util.removeStringFromArrayList(argvList,
@@ -301,7 +299,6 @@ public class POPSystem {
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){
-		
 		if (appservicecontact == null || appservicecontact.length() == 0) {
 			String url = "";
 			if (proxy == null || proxy.length() == 0) {
@@ -330,7 +327,7 @@ public class POPSystem {
 		
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
-			System.out.println("Create native popjava service "+appservicecontact);
+			System.out.println("Create native popjava service");
 			return (AppService) PopJava.newActive(POPJavaAppService.class);			
 		}catch(POPException e){
 			e.printStackTrace();
