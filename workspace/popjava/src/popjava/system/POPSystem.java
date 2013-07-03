@@ -114,39 +114,6 @@ public class POPSystem {
 	}
 
 	/**
-	 * Retrieve the local IP address and format it as a String
-	 * @return String value of the local IP address
-	 */
-	public static String getIP() {
-		String result = "";
-		try {
-			java.net.InetAddress localAddress = java.net.InetAddress
-					.getLocalHost();
-			result = localAddress.getHostAddress();
-		} catch (java.net.UnknownHostException e) {
-			result = "127.0.0.1";
-		}
-		return result;
-	}
-
-	/**
-	 * Retrieve the local hostname and format it as a String
-	 * @return String value of the local hostname
-	 */
-	public static String getHostName() {
-		String result = "";
-		try {
-			java.net.InetAddress localAddress = java.net.InetAddress
-					.getLocalHost();
-			result = localAddress.getHostName();
-
-		} catch (java.net.UnknownHostException e) {
-			result = "localhost";
-		}
-		return result;
-	}
-
-	/**
 	 * Get the host of the local node
 	 * @return	Host name as a string value
 	 */
@@ -169,7 +136,7 @@ public class POPSystem {
 				}
 			}
 		} catch (SocketException e) {
-			result = "localhost";
+			result = "127.0.0.1";
 		}
 		
 		return result;
