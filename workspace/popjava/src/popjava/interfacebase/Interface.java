@@ -508,7 +508,8 @@ public class Interface {
 		}
 		
 		if(appCoreService == null){
-			try{				
+			try{
+				System.out.println("Create AppService "+POPSystem.AppServiceAccessPoint.toString());
 				appCoreService = (AppService) PopJava.newActive(
 						POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
 			}catch(POPException e2){
