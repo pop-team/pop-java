@@ -32,6 +32,7 @@ import popjava.combox.ComboxSocketFactory;
 
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
+import popjava.util.LogWriter;
 import popjava.util.Util;
 
 /**
@@ -327,7 +328,7 @@ public class POPSystem {
 		
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
-			System.out.println("Create native popjava service");
+			LogWriter.writeDebugInfo("Create native popjava service");
 			return (AppService) PopJava.newActive(POPJavaAppService.class);			
 		}catch(POPException e){
 			e.printStackTrace();
