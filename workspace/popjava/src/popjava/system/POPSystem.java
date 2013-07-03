@@ -407,13 +407,8 @@ public class POPSystem {
 		objectDescription.setHostname(POPSystem.getHost());
 		objectDescription.setCodeFile(codelocation);
 		
-
-		System.out.println("Debug!! XX "+POPSystem.getHost());
-		
 		POPAppService appService = (POPAppService) PopJava.newActive(POPAppService.class,
 				objectDescription, randString, false, codelocation);
-		
-		System.out.println("Debug!! YY "+appService.getAccessPoint().toString());
 		return appService;
 	}
 	
