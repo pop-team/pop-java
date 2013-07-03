@@ -497,24 +497,26 @@ public class Interface {
 	private static String getRemoteCodeFile(String objectName){
 		AppService appCoreService = null;
 		
-		if(Configuration.CONNECT_TO_POPCPP){
-			try{
-				appCoreService = (AppService) PopJava.newActive(
-						POPAppService.class, POPSystem.AppServiceAccessPoint);
-				appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
-			}catch(Exception e){
-				appCoreService = null;
+		if(!POPSystem.AppServiceAccessPoint.isEmpty()){
+			if(Configuration.CONNECT_TO_POPCPP){
+				try{
+					appCoreService = (AppService) PopJava.newActive(
+							POPAppService.class, POPSystem.AppServiceAccessPoint);
+					appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
+				}catch(Exception e){
+					appCoreService = null;
+				}
+			}
+			
+			if(appCoreService == null){
+				try{
+					appCoreService = (AppService) PopJava.newActive(
+							POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
+				}catch(POPException e2){
+					e2.printStackTrace();
+				}
 			}
 		}
-		
-		if(appCoreService == null){
-			try{
-				appCoreService = (AppService) PopJava.newActive(
-						POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
-			}catch(POPException e2){
-				e2.printStackTrace();
-			}
-		} 
 		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
