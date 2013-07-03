@@ -35,7 +35,7 @@ public class ComboxServerSocket extends ComboxServer {
 	 */
 	public String GetUrl() {
 		return String.format("%s://%s:%d", ComboxSocketFactory.Protocol,
-				POPSystem.getHost(), serverSocket.getLocalPort());
+				POPSystem.getHostIP(), serverSocket.getLocalPort());
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class ComboxServerSocket extends ComboxServer {
 			Thread thread = new Thread(serverCombox, "Server combox acception thread");
 			thread.start();
 			accessPoint.setProtocol(ComboxSocketFactory.Protocol);
-			accessPoint.setHost(POPSystem.getHost());
+			accessPoint.setHost(POPSystem.getHostIP());
 			accessPoint.setPort(serverSocket.getLocalPort());
 		} catch (IOException e) {
 		}

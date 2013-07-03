@@ -192,7 +192,7 @@ public class Interface {
 
 			if (jobContact.isEmpty()) {
 				jobContact.setAccessString(String.format("%s:%d", POPSystem
-						.getHost(), POPJobManager.DEFAULT_PORT));
+						.getHostIP(), POPJobManager.DEFAULT_PORT));
 			}
 
 			POPJobService jobManager = null;

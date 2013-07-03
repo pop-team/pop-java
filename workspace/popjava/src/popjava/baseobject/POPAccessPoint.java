@@ -36,7 +36,7 @@ public class POPAccessPoint implements IPOPBase {
 	 */
 	public POPAccessPoint(boolean initialize) {
 		if (initialize) {
-			String localAddress = POPSystem.getHost();
+			String localAddress = POPSystem.getHostIP();
 
 			String accessString = String.format("%s://%s:0",
 					ComboxSocketFactory.Protocol, localAddress);

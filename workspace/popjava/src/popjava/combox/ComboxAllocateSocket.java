@@ -23,7 +23,7 @@ public class ComboxAllocateSocket {
 	 */
 	public ComboxAllocateSocket() {		
 		try {
-			SocketAddress sockAddr = new InetSocketAddress(POPSystem.getHost(), 0);
+			SocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);
 			serverSocket = new ServerSocket();
 			serverSocket.bind(sockAddr);
 			serverSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
@@ -47,7 +47,7 @@ public class ComboxAllocateSocket {
 	 */
 	public String getUrl() {
 		return String.format("%s://%s:%d", ComboxSocketFactory.Protocol,
-				POPSystem.getHost(), serverSocket.getLocalPort());
+				POPSystem.getHostIP(), serverSocket.getLocalPort());
 	}
 
 	/**

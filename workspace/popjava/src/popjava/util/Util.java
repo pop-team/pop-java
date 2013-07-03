@@ -53,7 +53,7 @@ public class Util {
 	 * @return	true if the contact string is the local host
 	 */
 	public static boolean isLocal(String hostname) {
-		String myhost = POPSystem.getHost();
+		String myhost = POPSystem.getHostIP();
 		
 		boolean isLocal = (hostname == null || hostname.length() == 0
 				|| popjava.util.Util.sameContact(myhost, hostname)
