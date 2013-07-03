@@ -12,7 +12,11 @@ public class POPJavaConfiguration {
 	private static String getConfigurationValue(String value){
 		try {
 			ConfigurationWorker cw = new ConfigurationWorker();
-			return cw.getValue(value);
+			
+			String configValue = cw.getValue(value);
+			if(configValue != "null"){
+				return configValue;
+			}
 		} catch (Exception e) {
 		}
 		
