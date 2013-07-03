@@ -509,7 +509,8 @@ public class Interface {
 		
 		if(appCoreService == null){
 			try{
-				appCoreService = (AppService) PopJava.newActive(POPJavaAppService.class);
+				appCoreService = (AppService) PopJava.newActive(
+						POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
 			}catch(POPException e2){
 				e2.printStackTrace();
 			}

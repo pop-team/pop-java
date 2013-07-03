@@ -280,8 +280,11 @@ public class POPSystem {
 		
 		AppService coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
 		
+		System.out.println("coreServiceManager "+(coreServiceManager == null));
+		
 		if(coreServiceManager != null){
 			AppServiceAccessPoint = coreServiceManager.getAccessPoint();
+			System.out.println("!!! AP: "+AppServiceAccessPoint.toString());
 			prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
 			prlt.start();
 		}
