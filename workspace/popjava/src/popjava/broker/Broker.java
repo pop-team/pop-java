@@ -619,6 +619,9 @@ public class Broker {
 	 */
 	public boolean initialize(ArrayList<String> argvs) {
 		accessPoint = new POPAccessPoint();
+		
+		System.out.println("Debug!! XX "+accessPoint.toString());
+		
 		buffer = new BufferXDR();
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 		int comboxCount = finder.getFactoryCount();
@@ -639,6 +642,9 @@ public class Broker {
 			AccessPoint ap = new AccessPoint(factory.getComboxName(),
 					POPSystem.getHost(), iPort);
 			accessPoint.addAccessPoint(ap);
+			
+			System.out.println("Debug!! XX "+accessPoint.toString()+" "+POPSystem.getHost());
+			
 			comboxServer = factory.createServerCombox(ap, buffer, this);
 		}
 		return true;
