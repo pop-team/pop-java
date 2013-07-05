@@ -32,6 +32,7 @@ import popjava.combox.ComboxSocketFactory;
 
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 
@@ -268,21 +269,21 @@ public class POPSystem {
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){
-		if (appservicecontact == null || appservicecontact.length() == 0) {
+		if ((appservicecontact == null || appservicecontact.length() == 0)) {
+			
 			String url = "";
 			if (proxy == null || proxy.length() == 0) {
 				url = appservicecode;
 			} else {
 				url = String.format("%s -proxy=%s", appservicecode, proxy);
 			}
-			if(new File(appservicecode).exists()){
+			if(Configuration.CONNECT_TO_POPCPP && new File(appservicecode).exists()){
 				try{
 					return createAppCoreService(url);
 				}catch(POPException e){
 					e.printStackTrace();
 				}
 			}
-			
 		} else {
 			POPAccessPoint accessPoint = new POPAccessPoint();
 			accessPoint.setAccessString(appservicecontact);
