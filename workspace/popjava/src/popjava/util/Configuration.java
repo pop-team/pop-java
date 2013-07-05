@@ -17,6 +17,7 @@ public class Configuration {
 	public static final String SelectedEncoding = "raw";
 	public static final String DefaultProtocol = "socket";
 
+	public static final boolean ACTIVATE_JMX = false;
 	public static final boolean CONNECT_TO_POPCPP = false;
 	
 	/**
