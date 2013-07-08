@@ -70,9 +70,9 @@ public class LogWriter {
 	 * @param info	Information to write
 	 */
 	public static void writeDebugInfo(String info) {
-		System.out.println(info);
 		
 		if (Configuration.Debug) {
+			System.out.println(info);
 			info = PID + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
 			info += "\r\n";
 			String path = String.format("%s%s%s.txt", LogFolder, File.separator, Prefix);
