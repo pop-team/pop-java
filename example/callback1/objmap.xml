@@ -2,12 +2,12 @@
 <CodeInfoList>
 <CodeInfo>
 <ObjectName>test.Toto</ObjectName>
-<CodeFile Type="popjava">/home/asraniel/workspace/POPJava/trunk/example/callback1/callback.jar</CodeFile>
+<CodeFile Type="popjava">/Users/lin/Development/dev/trunk/example/callback1/callback.jar</CodeFile>
 <PlatForm>*-*</PlatForm>
 </CodeInfo>
 <CodeInfo>
 <ObjectName>test.Titi</ObjectName>
-<CodeFile Type="popjava">/home/asraniel/workspace/POPJava/trunk/example/callback1/callback.jar</CodeFile>
+<CodeFile Type="popjava">/Users/lin/Development/dev/trunk/example/callback1/callback.jar</CodeFile>
 <PlatForm>*-*</PlatForm>
 </CodeInfo>
 </CodeInfoList>

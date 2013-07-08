@@ -517,7 +517,7 @@ public class Broker {
 	 * Kill the broker and its associated object
 	 */
 	public synchronized void kill() {
-		this.setState(Broker.Exit);
+		setState(Broker.Exit);
 	}
 
 	/**
@@ -749,6 +749,7 @@ public class Broker {
 			POPBuffer buffer = new BufferXDR();
 			buffer.setHeader(messageHeader);
 			buffer.putInt(status);
+			LogWriter.writeDebugInfo("Broker can be accessed at "+Broker.getAccessPoint().toString());
 			Broker.getAccessPoint().serialize(buffer);
 			callback.send(buffer);
 		}
