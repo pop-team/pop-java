@@ -140,6 +140,10 @@ public class POPSystem {
 			result = "127.0.0.1";
 		}
 		
+		if(result.isEmpty()){
+			result = "127.0.0.1";
+		}
+		
 		return result;
 	}
 
