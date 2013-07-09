@@ -560,7 +560,7 @@ public class Interface {
 	 * @param objaccess	Output arguments - Access point to the object
 	 * @return -1 if the local execution failed 
 	 */
-	private static int localExec(String hostname, String codeFile,
+	private int localExec(String hostname, String codeFile,
 			String classname, String rport, POPAccessPoint jobserv,
 			POPAccessPoint appserv, POPAccessPoint objaccess) {
 		
@@ -578,7 +578,14 @@ public class Interface {
 		ArrayList<String> codeList = Util.splitTheCommand(codeFile);
 		argvList.addAll(codeList);
 		
-		if(Configuration.ACTIVATE_JMX){
+		/*if(od.getMemoryMin() >  0){
+			argvList.add(1, "-Xms"+od.getMemoryMin()+"m");
+		}
+		if(od.getMemoryReq() >  0){
+			argvList.add(1, "-Xmx"+od.getMemoryReq()+"m");
+		}*/
+		
+		if(codeFile.startsWith("java") && Configuration.ACTIVATE_JMX){
 			argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
 			argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
 			argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");

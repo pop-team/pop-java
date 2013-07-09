@@ -125,16 +125,21 @@ public class POPSystem {
 			en = NetworkInterface.getNetworkInterfaces();
 			while(en.hasMoreElements()){
 				NetworkInterface ni = en.nextElement();
-				Enumeration<InetAddress> enina = ni.getInetAddresses();
-				while(enina.hasMoreElements()){
-					InetAddress ina = enina.nextElement();
-					if(!ina.getHostAddress().contains(":") 
-							&& !ina.getHostAddress().equals("127.0.0.1")
-							&& !ina.getHostAddress().equals("127.0.1.1")){
-						result = ina.getHostAddress();
-						break;
+				
+				if(ni.isUp()){
+					Enumeration<InetAddress> enina = ni.getInetAddresses();
+					
+					while(enina.hasMoreElements()){
+						InetAddress ina = enina.nextElement();
+						if(!ina.getHostAddress().contains(":") 
+								&& !ina.getHostAddress().equals("127.0.0.1")
+								&& !ina.getHostAddress().equals("127.0.1.1")){
+							result = ina.getHostAddress();
+							break;
+						}
 					}
 				}
+				
 			}
 		} catch (SocketException e) {
 			result = "127.0.0.1";
