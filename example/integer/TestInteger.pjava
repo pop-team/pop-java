@@ -1,12 +1,12 @@
 public class TestInteger{
    public static void main(String[] args){
-      Integer i1 = new Integer();
-      Integer i2 = new Integer();
+      Integer i1 = new Integer("localhost");
+      Integer i2 = new Integer("localhost");
       //Create an array 
       Integer[] tab = new Integer[10];
       //Initialize the array
       for (int i=0; i<tab.length;i++){
-         tab[i] = new Integer();
+         tab[i] = new Integer("localhost");
       }
       i1.set(11);
       i2.set(14);
