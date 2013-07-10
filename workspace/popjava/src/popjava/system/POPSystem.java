@@ -131,18 +131,18 @@ public class POPSystem {
 					
 					while(enina.hasMoreElements()){
 						InetAddress ina = enina.nextElement();
+						
 						if(!ina.getHostAddress().contains(":") 
 								&& !ina.getHostAddress().equals("127.0.0.1")
-								&& !ina.getHostAddress().equals("127.0.1.1")){
-							result = ina.getHostAddress();
-							break;
+								&& !ina.getHostAddress().equals("127.0.1.1") &&
+								!ina.getHostAddress().isEmpty()){
+							return ina.getHostAddress();
 						}
 					}
 				}
 				
 			}
 		} catch (SocketException e) {
-			result = "127.0.0.1";
 		}
 		
 		if(result.isEmpty()){
