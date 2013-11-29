@@ -3,8 +3,9 @@ import java.util.concurrent.Semaphore;
 @POPClass
 public class Self {
 
-	int loopCount = 10;
+	private int loopCount = 10;
 	private Semaphore locker = new Semaphore(4);
+	private int testVariable = 0;
 
 	@POPObjectDescription(url = "localhost")
 	public Self(){
@@ -12,6 +13,8 @@ public class Self {
 	
 	@POPSyncConc
 	public void test(){
+		this.testVariable = 10;
+		
 		Self test = this;
 		for(int i = 0; i< loopCount; i++){
 			test.pause();
