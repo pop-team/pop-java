@@ -8,6 +8,7 @@ import popjava.system.POPSystem;
 
 import popjava.annotation.*;
 import popjava.annotation.POPConfig.Type;
+import popjava.annotation.POPParameter.Direction;
 public class Integer extends POPObject  {
     public Integer(){
         initializePOPObject();
@@ -17,9 +18,7 @@ public class Integer extends POPObject  {
         initializePOPObject();
         value = 0;
     }
-    /*public Integer(){
-      value = 0;
-   }*/    @ POPSyncConc public int get ( )     {
+    @ POPSyncConc public int get ( )     {
          POPSystem.writeLog("Get value on Integer ("+getPOPCReference()+"): "+value);
          return value;
     }
@@ -31,5 +30,24 @@ public class Integer extends POPObject  {
     @ POPAsyncMutex public void set ( int val )     {
          POPSystem.writeLog("Set value on Integer ("+getPOPCReference()+"): "+val);
          value = val;
+    }
+    @ POPSyncConc public int arrayChanger ( int [ ] array )     {
+         for(int i = 0;
+        i < array.length;
+        i ++) {
+            array [ i ] *= 2;
+        }
+        return 19;
+    }
+    @ POPSyncConc public int arrayChanger2 ( @ POPParameter ( Direction . IN ) int [ ] array )     {
+         for(int i = 0;
+        i < array.length;
+        i ++) {
+            array [ i ] *= 2;
+        }
+        return 19;
+    }
+    @ POPSyncConc public boolean arrayChanger3 ( @ POPParameter ( Direction . OUT ) int [ ] array )     {
+         return array == null;
     }
     }

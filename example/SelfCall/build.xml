@@ -1,0 +1,37 @@
+<project name="Integer" default="build" basedir=".">
+    <description>
+        Self calling example
+    </description>
+    
+    <property name="objectmap" value="objectmap.xml"/>
+    <property name="source.folder" value=""/>
+    
+    <target name="clean" 
+        description="clean the build folder" >
+        
+        <delete file= "${objectmap}"/>
+        <delete>
+            <fileset dir="${source.folder}" includes="*.class"/>
+        </delete>
+    </target>
+    
+    <target name="build" depends="clean"
+        description="compile the source" >
+        <exec executable="popjc">
+            <arg line="-n Main.pjava Self.pjava"/>
+        </exec>
+        <exec executable="popjrun" output = "${objectmap}">
+            <arg line="--listlong Self.class"/>
+        </exec>
+    </target>
+    
+    <target name="run" depends="build"
+        description="Run the application" >
+        <exec executable="popjrun">
+            <arg line="${objectmap} Main"/>
+        </exec>
+    </target>
+    
+    
+</project>
+ 

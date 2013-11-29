@@ -55,8 +55,27 @@ public class Broker {
 	protected int connectionCount = 0;
 	protected Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
-	private ExecutorService threadPoolSequential = Executors.newFixedThreadPool(1);
-	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*3);
+	private ExecutorService threadPoolSequential = Executors.newFixedThreadPool(1, new ThreadFactory() {
+		
+		@Override
+		public Thread newThread(Runnable arg0) {
+			Thread thread = Executors.defaultThreadFactory().newThread(arg0);
+			thread.setName("Sequential request thread");
+			return thread;
+		}
+	});
+	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*3,
+			new ThreadFactory() {
+		
+		private int threadIndex = 0;
+		
+		@Override
+		public Thread newThread(Runnable arg0) {
+			Thread thread = Executors.defaultThreadFactory().newThread(arg0);
+			thread.setName("Concurrent request thread "+threadIndex++);
+			return thread;
+		}
+	});
 			//Executors.newCachedThreadPool());//
 
 	/**
@@ -68,6 +87,7 @@ public class Broker {
 	 *            Name of the object to create
 	 */
 	public Broker(String codelocation, String objectName) {
+		
 		URLClassLoader urlClassLoader = null;
 		if (codelocation != null && codelocation.length() > 0) {
 			URL[] urls = new URL[1];

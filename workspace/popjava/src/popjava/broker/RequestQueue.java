@@ -88,13 +88,16 @@ public class RequestQueue {
 		boolean waitSuccess = false;
 		lock.lock();
 
-		try {			
+		try {
+			//LogWriter.writeDebugInfo("Peek, queue contains "+size()+" requests "+System.currentTimeMillis());
 			if (availableRequest == null){
+				//LogWriter.writeDebugInfo("Search for new request "+System.currentTimeMillis());
 				waitSuccess = canPeek.await(time, timeUnit);
 			} else {
 				waitSuccess = true;
 			}
 			
+			//LogWriter.writeDebugInfo("Got request? "+waitSuccess+" "+System.currentTimeMillis());
 			if (waitSuccess) {
 				request = availableRequest;
 				request.setStatus(Request.Serving);

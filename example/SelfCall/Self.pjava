@@ -1,0 +1,65 @@
+import java.util.concurrent.Semaphore;
+ 
+@POPClass
+public class Self {
+
+	int loopCount = 10;
+	private Semaphore locker = new Semaphore(4);
+
+	@POPObjectDescription(url = "localhost")
+	public Self(){
+	}
+	
+	@POPSyncConc
+	public void test(){
+		Self test = this;
+		for(int i = 0; i< loopCount; i++){
+			test.pause();
+		}
+		
+		for(int i = 0; i< loopCount; i++){
+			try{
+				locker.acquire();
+			}catch(Exception e){
+			}
+		}
+	}
+	
+	@POPSyncConc
+	public void test2(){
+		for(int i = 0; i< loopCount; i++){
+			this.pause();
+		}
+		
+		for(int i = 0; i< loopCount; i++){
+			try{
+				locker.acquire();
+			}catch(Exception e){
+			}
+		}
+	}
+	
+	@POPSyncConc
+	public void test3(){
+		for(int i = 0; i< loopCount; i++){
+			((Self)this).pause();
+		}
+		
+		for(int i = 0; i< loopCount; i++){
+			try{
+				locker.acquire();
+			}catch(Exception e){
+			}
+		}
+	}
+
+	@POPAsyncConc
+	public void pause(){
+		try{
+			Thread.sleep(1000);
+		}catch(Exception e){
+		}
+		
+		locker.release();
+	}
+}
