@@ -687,7 +687,11 @@ public static void main(String args[]) {
         //if the token is this			
         else if (tok.kind == THIS && Holder.isParclass){
                         if(tok.next.kind == DOT){
-                                print("(("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint()))",0);
+                                if(tok.next.next.next.kind != ASSIGN){
+                                        print("(("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint()))",0);
+                                }else{
+                                        print(tok.toString(), 0);
+                                }
                         }else{
                                 print("("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint())",0);
                         }
