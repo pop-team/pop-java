@@ -139,6 +139,7 @@ public class POPJParser implements POPJParserConstants {
         println("//Import added by the POP-Java compiler",0);
         println("import popjava.PopJava;",0);
         println("import popjava.base.POPException;",0);
+                println("import popjava.annotation.*;",0);
         if(isMain){
             println("import popjava.baseobject.ObjectDescription;",0);
             println("import popjava.system.POPSystem;",0);
@@ -393,14 +394,14 @@ public static void main(String args[]) {
                 }
             } while(tok.kind != LBRACE);
 
-            if(!toBePrinted.equals("")){
+            //if(!toBePrinted.equals("")){
                 println("throws POPException {", indent++);
                 print(toBePrinted, indent);
                 printIndent(indent);
-            } else {
+            /*} else {
                 println("{", indent++);
                 printIndent(indent);
-            }
+            }*/
         }
 
         //If the token is an identifier, check if it's an instantiation
@@ -485,7 +486,11 @@ public static void main(String args[]) {
                         parclassInstance = true;
                     }
                     //Check if its the beginning of a constructor
-                    else if(id.equals(Holder.thisClassName) && (tok.next.next.next.next.next.kind != NEW) && (tok.next.next.next.kind != NEW) && (lastKind != NEW) && !inParen){
+                    else if(id.equals(Holder.thisClassName) &&
+                                                (tok.next.next.next.next.next.kind != NEW) &&
+                                                (tok.next.next.next.kind != NEW) &&
+                                                (lastKind != NEW) && !inParen &&
+                                                (tok.next.next.kind != ASSIGN)){
                             constructor = true;
                     }
                     //Parclass instantiation
@@ -597,7 +602,7 @@ public static void main(String args[]) {
                                     println("setClassName(\u005c""+ci.getClassName()+"\u005c");", indent);
                             println("hasDestructor("+ci.hasDestructor()+");", indent);
                     }
-                    println("initializePOPObject();", indent);
+                    println("initializePOPObject();//A", indent);
 
                     ArrayList<Semantic> sem = Holder.parclass.getSemantics();
                     for (int i = 0; i < sem.size(); i++){
@@ -616,7 +621,7 @@ public static void main(String args[]) {
                         }
                         println("hasDestructor("+ci.hasDestructor()+");", indent);
                     }
-                    println("initializePOPObject();", indent);
+                    println("initializePOPObject();//B", indent);
                     //println("class POPJavaWorkaroundClass{};", indent);
                     //println("loadODAnnotations(POPJavaWorkaroundClass.class.getEnclosingConstructor());", indent); //Black java voodoo magic
                     //Print the objects description
@@ -680,8 +685,12 @@ public static void main(String args[]) {
             inParen = false;
         }
         //if the token is this			
-        else if (tok.kind == THIS && Holder.isParclass && tok.next.kind != DOT){
-            print("("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint())",0);
+        else if (tok.kind == THIS && Holder.isParclass){
+                        if(tok.next.kind == DOT){
+                                print("(("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint()))",0);
+                        }else{
+                                print("("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint())",0);
+                        }
         }
         //If no rules apply just print the token
         else if(tok.kind != 0){
@@ -4093,16 +4102,6 @@ int modifiers;
     catch(LookaheadSuccess ls) { return true; }
   }
 
-  private boolean jj_3R_78() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(65)) {
-    jj_scanpos = xsp;
-    if (jj_3R_106()) return true;
-    }
-    return false;
-  }
-
   private boolean jj_3_14() {
     if (jj_3R_70()) return true;
     return false;
@@ -6594,6 +6593,16 @@ int modifiers;
 
   private boolean jj_3R_106() {
     if (jj_3R_62()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_78() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(65)) {
+    jj_scanpos = xsp;
+    if (jj_3R_106()) return true;
+    }
     return false;
   }
 

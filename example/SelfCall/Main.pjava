@@ -1,0 +1,13 @@
+public class Main{
+	public static void main(String[] args){
+	
+		long start = System.currentTimeMillis();
+		
+		Self self = new Self();
+		//self.test();
+		self.test2();
+		//self.test3();
+		
+		System.out.println("Finished in "+(System.currentTimeMillis() - start)/1000+"s");
+	}
+} 
