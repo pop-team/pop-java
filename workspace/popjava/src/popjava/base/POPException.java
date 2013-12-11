@@ -7,7 +7,7 @@ import popjava.dataswaper.IPOPBase;
 /**
  * This class is the base implementation for all POP exception
  */
-public class POPException extends Exception implements IPOPBase {
+public class POPException extends RuntimeException implements IPOPBase {
 
 	private static final long serialVersionUID = 4815021357012126570L;
 	/**

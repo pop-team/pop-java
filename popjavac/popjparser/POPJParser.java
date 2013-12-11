@@ -333,9 +333,9 @@ public static void main(String args[]) {
         //Apply rules to some special token
 
         //Find the annotation for parallel classes
-        if(tok.kind == ANNOTPARCLASS){
+        /*if(tok.kind == ANNOTPARCLASS){
             tok = tok.next;
-        }
+        }*/
 
         //Replace keyword parclass by class and add needed extends
         if(tok.kind == CLASS && Holder.isParclass){
@@ -395,7 +395,7 @@ public static void main(String args[]) {
             } while(tok.kind != LBRACE);
 
             //if(!toBePrinted.equals("")){
-                println("throws POPException {", indent++);
+                println("{", indent++);
                 print(toBePrinted, indent);
                 printIndent(indent);
             /*} else {

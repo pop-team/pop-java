@@ -6,26 +6,22 @@ import popjava.annotation.POPParameter.Direction;
 public class Integer {
    private int value;
    
-   
    public Integer(@POPConfig(Type.URL) String url){
     value = 0;
    }
 
    @POPSyncConc
    public int get(){
-      System.out.println("Get value on Integer ("+getPOPCReference()+"): "+value);	
       return value;
    }
 
    @POPAsyncMutex
    public void add(Integer i){
-      System.out.println("Add integer ("+i.getPOPCReference()+") to the Integer ("+getPOPCReference()+")");	
       value += i.get();
    }
 
    @POPAsyncMutex
    public void set(int val){
-      System.out.println("Set value on Integer ("+getPOPCReference()+"): "+val);	
       value = val;
    }
    

@@ -17,7 +17,7 @@ public class Toto {
 	}
 	
 	@POPSyncSeq
-	public int getIdent() throws POPException {
+	public int getIdent(){
 		Titi t = new Titi();
 		setIdent(222);
 		t.computeIdent(this);
