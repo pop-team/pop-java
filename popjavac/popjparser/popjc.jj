@@ -319,7 +319,7 @@ public static void main(String args[]) {
         cix.loadFile();
         ci = cix.getInfo(filename);
         if (ci!=null){
-                printPOPCInfo=true;
+			printPOPCInfo=true;
         }
     }
     /* ############################
@@ -357,15 +357,15 @@ public static void main(String args[]) {
         //Apply rules to some special token
         
         //Find the annotation for parallel classes
-        if(tok.kind == ANNOTPARCLASS){
+        /*if(tok.kind == ANNOTPARCLASS){
             tok = tok.next;
-        }
+        }*/
         
         //Replace keyword parclass by class and add needed extends
         if(tok.kind == CLASS && Holder.isParclass){
-            print("class ", 0);
+            print(tok.toString(),0); //class
             tok = tok.next;
-            print(tok.toString(),0);
+            print(tok.toString(),0); //Class name
             tok = tok.next;
             //If the parclass does not inherit from a super class then add the extends statement 
             if(tok.kind != EXTENDS){
@@ -419,7 +419,7 @@ public static void main(String args[]) {
             } while(tok.kind != LBRACE);
             
             //if(!toBePrinted.equals("")){
-                println("throws POPException {", indent++);
+                println("{", indent++);
                 print(toBePrinted, indent);
                 printIndent(indent);
             /*} else {
@@ -621,16 +621,17 @@ public static void main(String args[]) {
                     println("public "+Holder.thisClassName+"(){", indent++);
                     //Print special informations for POP-C++ usage
                     if(printPOPCInfo){
-                            println("setClassId("+ci.getClassUID()+");", indent);
-                            if(!ci.getClassName().equals("") || ci.getClassName()!=null)
-                                    println("setClassName(\""+ci.getClassName()+"\");", indent);
-                            println("hasDestructor("+ci.hasDestructor()+");", indent);
+						println("setClassId("+ci.getClassUID()+");", indent);
+						if(!ci.getClassName().equals("") || ci.getClassName()!=null){
+							println("setClassName(\""+ci.getClassName()+"\");", indent);
+						}
+						println("hasDestructor("+ci.hasDestructor()+");", indent);
                     }
                     println("initializePOPObject();//A", indent);
 
                     ArrayList<Semantic> sem = Holder.parclass.getSemantics();
                     for (int i = 0; i < sem.size(); i++){
-                            println(sem.get(i).toString(), indent);						
+						println(sem.get(i).toString(), indent);						
                     }
                     println("}",--indent);
                     printDefaultConstructor=false;

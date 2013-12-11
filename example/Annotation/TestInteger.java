@@ -1,6 +1,7 @@
 //Import added by the POP-Java compiler
 import popjava.PopJava;
 import popjava.base.POPException;
+import popjava.annotation.*;
 import popjava.baseobject.ObjectDescription;
 import popjava.system.POPSystem;
 
