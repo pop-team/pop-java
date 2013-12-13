@@ -8,7 +8,6 @@ public class MyAnnotatedPopObject extends POPObject{
 
 	
 	public MyAnnotatedPopObject(@POPConfig(Type.URL) String host){
-		initializePOPObject();
 	}
 	
 }

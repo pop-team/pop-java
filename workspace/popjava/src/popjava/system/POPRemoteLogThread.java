@@ -49,9 +49,14 @@ public class POPRemoteLogThread extends Thread {
 	 * it is stopped
 	 */
 	public void run() {
+		if(new File("/tmp").exists()){
+			filename = "/tmp/";
+		}else{
+			filename = System.getProperty("java.io.tmpdir");
+		}
 
-		filename = new String("/tmp/popjava_logremote_");
-		filename += appID;
+		
+		filename += "popjava_logremote_" + appID;
 
 		File logFile = new File(filename);
 		if (!logFile.exists()) {
