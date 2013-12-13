@@ -1,13 +1,13 @@
 package junit;
 
 import junit.annotations.AnnotationTests;
-import junit.annotations.od.TestOD;
+import junit.localtests.LocalTests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses( { AnnotationTests.class})
+@Suite.SuiteClasses( { AnnotationTests.class, LocalTests.class})
 public class AllTests {
 
 }

@@ -7,6 +7,7 @@ import popjava.system.*;
 import popjava.util.*;
 
 import java.lang.reflect.*;
+
 import javassist.util.proxy.*;
 
 /**
@@ -26,6 +27,13 @@ public class PJProxyFactory extends ProxyFactory {
 	 */
 	public PJProxyFactory(Class<?> targetClass) {
 		this.targetClass = targetClass;
+		
+		try{
+			targetClass.getConstructor();
+		}catch(Exception e){
+			throw new POPException(POPErrorCode.UNKNOWN_EXCEPTION, "Class "+targetClass.getName()+" does not have a default constructor");
+		}
+		
 		setSuperclass(targetClass);
 		MethodFilter methodFilter = new PJMethodFilter();
 		setFilter(methodFilter);
@@ -53,6 +61,8 @@ public class PJProxyFactory extends ProxyFactory {
 			throws POPException {
 		try {
 			POPObject popObject = null;
+			//Check if object has a default constructor
+			
 			try{
 				Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
 				Constructor<?> constructor = targetClass.getConstructor(parameterTypes);

@@ -28,6 +28,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
+import javassist.util.proxy.ProxyObject;
+
 /**
  * This class is the base class of all broker-side parallel object. The broker
  * is responsible to receive the requests from the interface-side and to execute
@@ -163,6 +165,9 @@ public class Broker {
 				exception = e;
 			}
 		}
+		
+		normalizePOPParamameters(parameters);
+		
 		if (exception == null) {
 			try {
 				popObject = (POPObject) constructor.newInstance(parameters);
@@ -190,7 +195,6 @@ public class Broker {
 							break;
 						}
 					}
-					
 				}
 				if (exception == null) {
 					sendResponse(request.getCombox(), responseBuffer);
@@ -201,7 +205,8 @@ public class Broker {
 
 				if (POPObject.class.isAssignableFrom(parameterTypes[index])
 						&& parameters[index] != null) {
-					((POPObject) parameters[index]).exit();
+					POPObject obj = (POPObject) parameters[index];
+					obj.exit();
 				}
 			}
 		}
@@ -288,6 +293,8 @@ public class Broker {
 			}
 		}
 		
+		normalizePOPParamameters(parameters);
+		
 		// Invoke the method if success to get all parameter
 		if (exception == null) {
 			try {
@@ -357,7 +364,10 @@ public class Broker {
 
 				if (POPObject.class.isAssignableFrom(parameterTypes[index])
 						&& parameters[index] != null) {
-					((POPObject) parameters[index]).exit();
+					POPObject object = (POPObject)parameters[index];
+					if(object.isTemporary()){
+						object.exit();
+					}
 				}
 			}
 		}
@@ -375,6 +385,16 @@ public class Broker {
 			sequentialSemaphore.release();
 		}
 		return true;
+	}
+	
+	private void normalizePOPParamameters(Object[] parameters){
+		for(int i = 0; parameters != null && i < parameters.length; i++){
+			if(parameters[i] instanceof POPObject && ! (parameters[i] instanceof ProxyObject)){
+				POPObject object = (POPObject)parameters[i];
+				parameters[i] = PopJava.newActive(object.getClass(), object.getAccessPoint());
+				object.makeTemporary();
+			}
+		}
 	}
 
 	/**
@@ -777,6 +797,7 @@ public class Broker {
 		if (status == 0){
 			broker.treatRequests();
 		}
+		LogWriter.writeDebugInfo("End broker life");
 		System.exit(0);
 	}
 

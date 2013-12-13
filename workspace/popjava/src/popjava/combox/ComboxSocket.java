@@ -50,7 +50,10 @@ public class ComboxSocket extends Combox {
 	public void close() {
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
-				//LogWriter.writeDebugInfo("Close ComboxSocket "+outputStream);
+				/*LogWriter.writeDebugInfo("Close ComboxSocket "+outputStream);
+				Exception e = new Exception();
+				LogWriter.writeExceptionLog(e);*/
+				
 				peerConnection.sendUrgentData(-1);
 				outputStream.close();
 				inputStream.close();
@@ -164,8 +167,7 @@ public class ComboxSocket extends Combox {
 				final int length = buffer.size();
 				final byte[] dataSend = buffer.array();
 				
-				//LogWriter.writeDebugInfo("Write data to "+outputStream+" "+buffer.getHeader().toString());
-				
+				//LogWriter.writeDebugInfo("Write data to "+outputStream+" "+buffer.getHeader().toString());				
 				outputStream.write(dataSend, 0, length);
 				outputStream.flush();
 				

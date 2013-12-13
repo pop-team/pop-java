@@ -73,6 +73,12 @@ public class LogWriter {
 		
 		if (Configuration.Debug) {
 			System.out.println(info);
+			logInfo(info);
+		}
+	}
+	
+	private static void logInfo(String info){
+		if (Configuration.Debug) {
 			info = PID + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
 			info += "\r\n";
 			String path = String.format("%s%s%s.txt", LogFolder, File.separator, Prefix);
@@ -86,9 +92,10 @@ public class LogWriter {
 	 * @param e The exception to be logged
 	 */
 	public static void writeExceptionLog(Throwable e){
-		writeDebugInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
+		e.printStackTrace();
+		logInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
         for(int i = 0; i < e.getStackTrace().length; i++){
-        	writeDebugInfo(e.getStackTrace()[i].getClassName()+" "+e.getStackTrace()[i].getLineNumber());
+        	logInfo(e.getStackTrace()[i].getClassName()+" "+e.getStackTrace()[i].getLineNumber());
         }
 	}
 

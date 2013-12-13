@@ -11,7 +11,6 @@ import popjava.codemanager.POPJavaAppService;
 import popjava.combox.*;
 import popjava.dataswaper.ObjectDescriptionInput;
 import popjava.dataswaper.POPString;
-import popjava.scripts.Popjrun;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
@@ -30,7 +29,6 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.*;
 
 import java.util.*;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 
 /**
@@ -589,6 +587,13 @@ public class Interface {
 			argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
 			argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
 			argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");
+		}
+		
+		if(od.getJVMParameters() != null && !od.getJVMParameters().isEmpty()){
+			String [] jvmParameters = od.getJVMParameters().split(" ");
+			for(String parameter: jvmParameters){
+				argvList.add(1, parameter);
+			}
 		}
 		
 		ComboxAllocateSocket allocateCombox = new ComboxAllocateSocket();

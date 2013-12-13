@@ -10,7 +10,6 @@ public class POPSystemTest {
 	@Test
 	public void testGetIp(){
 		String ip = POPSystem.getHostIP();
-		System.out.println(ip);
 		assertNotSame("", ip);
 	}
 

@@ -1,0 +1,11 @@
+public class Main{
+	public static void main(String[] args){
+	
+		long start = System.currentTimeMillis();
+		
+		B self = new B();
+		self.test();
+		
+		System.out.println("Finished in "+(System.currentTimeMillis() - start)/1000+"s");
+	}
+} 

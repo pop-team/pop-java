@@ -24,11 +24,11 @@ public class PopJava {
 	 * @return references to the parallel object created
 	 * @throws POPException 
 	 */
-	public static Object newActive(Class<?> targetClass,
+	public static <T> T newActive(Class<T> targetClass,
 			ObjectDescription objectDescription, Object... argvs)
 			throws POPException {
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return factoryProxy.newPOPObject(objectDescription, argvs);
+		return (T)factoryProxy.newPOPObject(objectDescription, argvs);
 	}
 	
 	/**
@@ -38,10 +38,10 @@ public class PopJava {
 	 * @return references to the parallel object created
 	 * @throws POPException
 	 */
-	public static Object newActive(Class<?> targetClass, Object... argvs)
+	public static <T> T newActive(Class<T> targetClass, Object... argvs)
 			throws POPException {
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return factoryProxy.newPOPObject(argvs);
+		return (T)factoryProxy.newPOPObject(argvs);
 	}
 
 	/**
@@ -51,10 +51,10 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
-	public static Object newActive(Class<?> targetClass,
+	public static <T> T newActive(Class<T> targetClass,
 			POPAccessPoint accessPoint) throws POPException {
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return factoryProxy.bindPOPObject(accessPoint);
+		return (T)factoryProxy.bindPOPObject(accessPoint);
 	}
 
 	/**
@@ -64,9 +64,9 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
-	public static Object newActiveFromBuffer(Class<?> targetClass, POPBuffer buffer)
+	public static <T> T newActiveFromBuffer(Class<T> targetClass, POPBuffer buffer)
 			throws POPException {
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return factoryProxy.newActiveFromBuffer(buffer);
+		return (T)factoryProxy.newActiveFromBuffer(buffer);
 	}
 }

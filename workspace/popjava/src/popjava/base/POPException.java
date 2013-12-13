@@ -174,7 +174,7 @@ public class POPException extends RuntimeException implements IPOPBase {
 	 */
 	public static POPException throwNullObjectNotAllowException() throws POPException {
 			throw new POPException(POPErrorCode.NOT_ALLOW_PUT_NULL_OBJECT_TP_BUFFER,
-					"Not allow to put null object to buffer except a null array");
+					"Not allowed to put null object to buffer except a null array");
 	}
 	
 	/**

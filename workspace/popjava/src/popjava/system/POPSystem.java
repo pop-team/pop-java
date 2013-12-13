@@ -42,6 +42,7 @@ import popjava.util.Util;
 public class POPSystem {
 	private static POPRemoteLogThread prlt;
 	private static String Platform = "linux";
+	private static boolean initialized = false;
 	
 	/**
 	 * POP-Java location environement variable name
@@ -197,19 +198,6 @@ public class POPSystem {
 		return Platform;
 	}
 
-	/**
-	 * Entry point for the application scope initialization
-	 * @param argvs	Any arguments to pass to the initialization
-	 * @return	true if the initialization is succeed
-	 * @throws POPException thrown is any problems occurred during the initialization
-	 */
-	public static boolean initialize(String... argvs) throws POPException {
-		ArrayList<String> argvList = new ArrayList<String>();
-		for (String str : argvs)
-			argvList.add(str);
-		return initialize(argvList);
-	}
-	
 	private static String getNeededClasspath(){
 		
 		try{
@@ -223,6 +211,30 @@ public class POPSystem {
 		
 		return POPJavaConfiguration.getPOPJavaCodePath();
 	}
+	
+	/**
+	 * Entry point for the application scope initialization
+	 * @param argvs	Any arguments to pass to the initialization
+	 * @return	true if the initialization is succeed
+	 * @throws POPException thrown is any problems occurred during the initialization
+	 */
+	public static String[] initialize(String ... args){
+		ArrayList<String> argvList = new ArrayList<String>();
+		for (String str : args){
+			argvList.add(str);
+		}
+		initialize(argvList);
+		
+		if(args.length > 0 && args[0].startsWith("-codeconf=")){
+            String[] tmpArg = new String[args.length-1];
+            for (int i = 0; i < tmpArg.length; i++) {
+                tmpArg[i] = args[i+1];
+            }
+            args = tmpArg;
+        }
+		
+		return args;
+	}
 
 	/**
 	 * Initialize the application scope services 
@@ -230,8 +242,7 @@ public class POPSystem {
 	 * @return	true if the initialization is succeed
 	 * @throws POPException	thrown is any problems occurred during the initialization
 	 */
-	public static boolean initialize(ArrayList<String> argvList)
-			throws POPException {		
+	public static boolean initialize(ArrayList<String> argvList){
 		String POPJavaObjectExecuteCommand = String.format(
 				POPJavaConfiguration.getBrokerCommand(),
 				getNeededClasspath());
@@ -245,7 +256,6 @@ public class POPSystem {
 		JobService.setAccessString(jobservice);
 		String appservicecode = Util.removeStringFromArrayList(argvList,
 				"-appservicecode=");
-
 		
 		if (appservicecode == null || appservicecode.length() == 0) {
 			appservicecode = POPJavaConfiguration.getPopAppCoreService();
@@ -277,11 +287,14 @@ public class POPSystem {
 					File.separator);
 		}
 		
-		return initCodeService(codeconf, POPJavaObjectExecuteCommand, coreServiceManager);
+		initialized = initCodeService(codeconf, POPJavaObjectExecuteCommand, coreServiceManager);
+		return initialized;
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){
-		if ((appservicecontact == null || appservicecontact.length() == 0)) {
+		System.out.println("getCoreService "+proxy+ " "+appservicecontact+" "+appservicecode);
+		
+		if(appservicecontact == null || appservicecontact.length() == 0){
 			
 			String url = "";
 			if (proxy == null || proxy.length() == 0) {
@@ -308,7 +321,7 @@ public class POPSystem {
 		
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
-			LogWriter.writeDebugInfo("Create native popjava service");
+			LogWriter.writeDebugInfo("Create appservice in Java");
 			return (AppService) PopJava.newActive(POPJavaAppService.class);			
 		}catch(POPException e){
 			e.printStackTrace();
@@ -435,6 +448,10 @@ public class POPSystem {
 			
 			prlt.setRunning(false);
 		}
+	}
+	
+	public static boolean isInitialized(){
+		return initialized;
 	}
 	
 }
