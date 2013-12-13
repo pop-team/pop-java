@@ -18,7 +18,7 @@ public class CallBackMain {
                 args = tmpArg;
             }
              System.out.println("Callback test started ...");
-            Toto t = (Toto)PopJava.newActive(Toto.class);
+            Toto t = (Toto)PopJava.newActive(Toto.class /*C*/);
             t.setIdent(1234);
             int value = t.getIdent();
             System.out.println("Identity callback is " + value);

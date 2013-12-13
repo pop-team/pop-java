@@ -11,5 +11,10 @@ public @interface POPObjectDescription {
 	
 	String url() default "";
 	
+	/**
+	 * JVM parameters to be used when creating this object
+	 * @return
+	 */
+	String jvmParameters() default "";
 	
 }

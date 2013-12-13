@@ -1,25 +1,25 @@
 package testsuite.callback;
 
+import popjava.annotation.POPClass;
+import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
-import popjava.base.Semantic;
 
+@POPClass(classId = 1034)
 public class Titi extends POPObject {
 	private int identity;
 	
+	@POPObjectDescription(url = "localhost")
 	public Titi(){
-		setClassId(1034);
-		od.setHostname("localhost");
-		Class<?> c = Titi.class;
-		initializePOPObject();
 		identity = -1;
-		addSemantic(c, "setIdent", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "computeIdent", Semantic.Synchronous | Semantic.Sequence);
 	}
 	
+	@POPSyncSeq
 	public void setIdent(int i){
 		identity = i;
 	}
 	
+	@POPSyncSeq
 	public void computeIdent(Toto t){
 		t.setIdent(identity);
 	}

@@ -3,6 +3,7 @@ package popjava.base;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
@@ -13,13 +14,11 @@ import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
-import popjava.util.LogWriter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
 import java.lang.reflect.Modifier;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
@@ -37,13 +36,32 @@ public class POPObject implements IPOPBase {
 	private ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<MethodInfo, Method>();
 	private ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<MethodInfo, Constructor<?>>();
 
+	private boolean temporary = false;
+	
 	/**
 	 * Creates a new instance of POPObject
 	 */
 	public POPObject() {
+		loadClassAnnotations();
 		refCount = 0;
 		Class<?> c = getClass();
 		className = c.getName();
+		initializePOPObject();
+	}
+	
+	private void loadClassAnnotations(){
+		for (Annotation annotation : getClass().getDeclaredAnnotations()) {
+			if(annotation instanceof POPClass){
+				POPClass popClassAnnotation = (POPClass) annotation;
+				if(!popClassAnnotation.className().isEmpty()){
+					setClassName(popClassAnnotation.className());
+				}
+				if(popClassAnnotation.classId() != -1){
+					setClassId(popClassAnnotation.classId());
+				}
+				hasDestructor(popClassAnnotation.deconstructor());
+			}
+		}
 	}
 	
 	/**
@@ -54,6 +72,7 @@ public class POPObject implements IPOPBase {
 		POPObjectDescription objectDescription = constructor.getAnnotation(POPObjectDescription.class);
 		if(objectDescription != null){
 			od.setHostname(objectDescription.url());
+			od.setJVMParamters(objectDescription.jvmParameters());
 		}
 	}
 	
@@ -631,5 +650,17 @@ public class POPObject implements IPOPBase {
 	 */
 	public String getPOPCReference(){
 		return getAccessPoint().toString();
+	}
+	
+	public boolean isTemporary(){
+		return temporary;
+	}
+	
+	public void makeTemporary(){
+		temporary = true;
+	}
+	
+	public void makePermanent(){
+		temporary = false;
 	}
 }

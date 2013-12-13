@@ -357,13 +357,41 @@ public static void main(String args[]) {
         //Apply rules to some special token
         
         //Find the annotation for parallel classes
-        /*if(tok.kind == ANNOTPARCLASS){
+        if(tok.kind == ANNOTPARCLASS){
+			print(tok.toString(),0);
+			if(tok.next.kind == LPAREN){ //If the annotation is alread "full", print it completely
+				int left = 1;
+				tok = tok.next;
+				while(left > 0){
+					print(tok.toString(),0);
+					tok = tok.next;
+					if(tok.kind == LPAREN){
+						left++;
+					}
+					
+					if(tok.kind == RPAREN){
+						left--;
+					}
+				}
+				println(tok.toString(),0);
+			}else if(printPOPCInfo){				
+				print("(",0);
+				
+				print("classId = "+ ci.getClassUID(),0);
+				if(!ci.getClassName().equals("") || ci.getClassName()!=null){
+					print(", className = \""+ ci.getClassName()+"\"",0);
+				}
+				print(", deconstructor = "+ ci.hasDestructor(),0);
+				println(")",0);
+			}else{
+				println("",0);
+			}
             tok = tok.next;
-        }*/
+        }
         
         //Replace keyword parclass by class and add needed extends
         if(tok.kind == CLASS && Holder.isParclass){
-            print(tok.toString(),0); //class
+            print(tok.toString()+" ",0); //class
             tok = tok.next;
             print(tok.toString(),0); //Class name
             tok = tok.next;
@@ -389,7 +417,7 @@ public static void main(String args[]) {
             if(!parclasses.contains(id)){
                 print(tok.toString(),0);
             }else {
-                print("("+id+")PopJava.newActive("+id+".class", 0);
+                print("PopJava.newActive("+id+".class /*C*/", 0);
                 tok = tok.next.next; //Go to first parameter
                 if(tok.next.kind != RPAREN){
                     print(",", 0);
@@ -409,7 +437,7 @@ public static void main(String args[]) {
             do{
                 String id = tok.toString();
                 if((id.equals(Holder.thisClassName) || parclasses.contains(id))){
-                    toBePrinted += tok.next.toString()+"=("+id+")PopJava.newActive("+id+".class, "+tok.next.toString()+".getAccessPoint());\n";
+                    //toBePrinted += tok.next.toString()+"=("+id+")PopJava.newActive("+id+".class, "+tok.next.toString()+".getAccessPoint());/*D*/\n";
                     print(id+" "+tok.next.toString(),0);
                     tok = tok.next.next;
                 } else {
@@ -454,7 +482,7 @@ public static void main(String args[]) {
                         }
                         tok = tok.next;
                         
-                        print(varName+" = ("+_parCl+")PopJava.newActive("+_parCl+".class", 0);
+                        print(varName+" = PopJava.newActive("+_parCl+".class/*E*/", 0);
                         
                         if(tok.kind != RPAREN){
                             print(",", 0);
@@ -468,9 +496,8 @@ public static void main(String args[]) {
                         print("", indent);
                     } else {
                         String _parCl = Holder._hm_parclasses.get(tok.toString());
-                        print(tok.toString()+" = ("+_parCl+")  PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint())", 0);
-                        println(";", 0);
-                        print("", indent);
+                        //println(tok.toString()+" = PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint());/*F*/", 0);
+                        println(tok.toString()+" = "+tok.next.next+";"+tok.next.next+".makePermanent();", 0);
                         while(tok.kind != SEMICOLON){
                             tok = tok.next;
                         }
@@ -489,15 +516,9 @@ public static void main(String args[]) {
                     }
                     
                     if(parclasses.contains(_parID)){
-                        if(tok.next.kind == RPAREN){
-                            inParen = false;
-                            print("("+_parID+")PopJava.newActive("+_parID+".class", 0);
-                            canPrintCatch = true;
-                        } else {
-                            inParen = false;
-                            print("("+_parID+")PopJava.newActive("+_parID+".class,", 0);
-                            canPrintCatch = true;
-                        }
+                        inParen = false;
+						print("PopJava.newActive("+_parID+".class/*G*/", 0);
+						canPrintCatch = true;
                     }else{
                         print(_parID+tok.toString() ,0);
                     }
@@ -559,16 +580,7 @@ public static void main(String args[]) {
             //Print the needed code lines at the beginning of the main
             println("public static void main(String... args){", 0);
             indent++;
-            println("try{", indent++);
-            println("POPSystem.initialize(args);", indent);
-
-            println("if(args.length > 0 && args[0].startsWith(\"-codeconf=\")){", indent++);
-                        println("String[] tmpArg = new String[args.length-1];", indent);
-                        println("for (int i = 0; i < tmpArg.length; i++) {", indent++);
-            println("tmpArg[i] = args[i+1];", indent);
-            println("}", --indent);
-                        println("args = tmpArg;", indent);
-            println("}", --indent);
+            println("args = POPSystem.initialize(args);", indent);
             print("",indent);
             //Go to the next useful token
             while(tok.kind != LBRACE){
@@ -603,9 +615,6 @@ public static void main(String args[]) {
             if(canPrintCatch){
                 if(!Holder.isMain){
                     indent--;
-                    println("} catch(POPException e) {", indent++);
-                    println("e.printStackTrace();", indent--);
-                    println("}", indent);
                 }
                 canPrintCatch=false;
             }
@@ -619,16 +628,6 @@ public static void main(String args[]) {
                 //Printing the default constructor
                 if(printDefaultConstructor && !Holder.parclass.hasDefaultConstructor() && !Holder.isMain){
                     println("public "+Holder.thisClassName+"(){", indent++);
-                    //Print special informations for POP-C++ usage
-                    if(printPOPCInfo){
-						println("setClassId("+ci.getClassUID()+");", indent);
-						if(!ci.getClassName().equals("") || ci.getClassName()!=null){
-							println("setClassName(\""+ci.getClassName()+"\");", indent);
-						}
-						println("hasDestructor("+ci.hasDestructor()+");", indent);
-                    }
-                    println("initializePOPObject();//A", indent);
-
                     ArrayList<Semantic> sem = Holder.parclass.getSemantics();
                     for (int i = 0; i < sem.size(); i++){
 						println(sem.get(i).toString(), indent);						
@@ -639,14 +638,6 @@ public static void main(String args[]) {
                 
                 //If we are in the constructor print the information
                 if(constructor){
-                    if(printPOPCInfo){
-                        println("setClassId("+ci.getClassUID()+");", indent);
-                        if(ci.getClassName().length() != 0){
-                                println("setClassName(\""+ci.getClassName()+"\");", indent);
-                        }
-                        println("hasDestructor("+ci.hasDestructor()+");", indent);
-                    }
-                    println("initializePOPObject();//B", indent);
                     //println("class POPJavaWorkaroundClass{};", indent);
                     //println("loadODAnnotations(POPJavaWorkaroundClass.class.getEnclosingConstructor());", indent); //Black java voodoo magic
                     //Print the objects description
@@ -672,16 +663,11 @@ public static void main(String args[]) {
             //If it's the main class and the depth is 0, we can print the end of the try catch statement
             if(Holder.inMain){
                 if(Holder.depthMain==0){
-                    println("POPSystem.end();", indent);
                     indent--;
-                    println("} catch(POPException e) {", indent++);
-                    println("POPSystem.end();", indent);
-                    println("System.err.println(\"POP-Java exception catched :\"+e.errorMessage);",indent--);
-                    println("}", indent--);
-                    print("",indent);
+                    println("POPSystem.end();",indent);
                     Holder.inMain=false;
                 } else {
-                        Holder.depthMain--;
+					Holder.depthMain--;
                 }
             }
             //Decrement indentation
@@ -712,13 +698,16 @@ public static void main(String args[]) {
         //if the token is this			
         else if (tok.kind == THIS && Holder.isParclass){
 			if(tok.next.kind == DOT){
-				if(tok.next.next.next.kind != ASSIGN){
-					print("(("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint()))",0);
+				if(tok.next.next.next.kind != ASSIGN && tok.next.next.next.kind != SEMICOLON){
+					//print("(("+Holder.thisClassName+")this)",0);
+					
+					print("PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint()) /*A*/",0);
 				}else{
 					print(tok.toString(), 0);
 				}
 			}else{
-				print("("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint())",0);
+				print(tok.toString(),0);
+				//print("("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint())/*B*/",0);
 			}
         }
         //If no rules apply just print the token
@@ -1111,8 +1100,20 @@ void POPClassAnnotation():
 {}
 {
 {Holder.isParclass = true;}
+(
+LOOKAHEAD( <ANNOTPARCLASS> "(" ( <IDENTIFIER> "=" | ")" ))
+POPClassAnnotationWithValues()
+|
 <ANNOTPARCLASS>
+)
 }
+
+void POPClassAnnotationWithValues():
+{}
+{
+<ANNOTPARCLASS> "(" [ MemberValuePairs() ] ")"
+}
+
 
 /*
 * Modifiers. We match all modifiers in a single rule to reduce the chances of

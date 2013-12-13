@@ -1,6 +1,6 @@
 <project name="Integer" default="build" basedir=".">
     <description>
-        Integer example
+        Self calling example
     </description>
     
     <property name="objectmap" value="objectmap.xml"/>
@@ -15,20 +15,20 @@
         </delete>
     </target>
     
-    <target name="build"
-        description="compile the source " >
+    <target name="build" depends="clean"
+        description="compile the source" >
         <exec executable="popjc">
-            <arg line="-n Integer.pjava TestInteger.pjava"/>
+            <arg line="-n Main.pjava A.pjava B.pjava"/>
         </exec>
         <exec executable="popjrun" output = "${objectmap}">
-            <arg line="--listlong Integer.class"/>
+            <arg line="--listlong A.class B.class"/>
         </exec>
     </target>
     
     <target name="run" depends="build"
         description="Run the application" >
         <exec executable="popjrun">
-            <arg line="${objectmap} TestInteger"/>
+            <arg line="${objectmap} Main"/>
         </exec>
     </target>
     

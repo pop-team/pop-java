@@ -7,7 +7,6 @@ import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
-import popjava.util.LogWriter;
 import popjava.util.Util;
 import javassist.util.proxy.*;
 
@@ -15,7 +14,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -57,6 +55,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	public boolean popConstructor(Class<?> targetClass, Object... argvs)
 			throws POPException, NoSuchMethodException {
 
+		replacePOPObjectArguments(argvs);
+		
 		Constructor<?> constructor = null;
 		Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
 		constructor = ClassUtil.getConstructor(targetClass, parameterTypes);
@@ -116,6 +116,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 */
 	public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
 			throws Throwable {
+		
+		replacePOPObjectArguments(argvs);
 		
 		Object result = null;
 		// If serialize or de-serialize
@@ -188,7 +190,15 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 
 		}
 		return result;
-
+	}
+	
+	private void replacePOPObjectArguments(Object[] args){
+		for(int i = 0; i < args.length; i++){
+			if(args[i] instanceof POPObject && !(args[i] instanceof ProxyObject)){
+				POPObject object = (POPObject)args[i];
+				args[i] = PopJava.newActive(object.getClass(), object.getAccessPoint());
+			}
+		}
 	}
 
 	private int hashMethod(Method m){

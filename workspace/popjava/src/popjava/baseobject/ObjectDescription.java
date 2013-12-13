@@ -37,6 +37,8 @@ public class ObjectDescription implements IPOPBase {
 	protected String codeFile;
 	protected String cwd;
 	protected String batch;
+	
+	protected String jvmParamters;
 
 	private java.util.concurrent.ConcurrentHashMap<String, String> attributes = new java.util.concurrent.ConcurrentHashMap<String, String>();
 
@@ -316,6 +318,14 @@ public class ObjectDescription implements IPOPBase {
 	}
 
 	/**
+	 * Sets the jvm parameters that should be used when creating this object
+	 * @param parameters
+	 */
+	public void setJVMParamters(String parameters){
+		this.jvmParamters = parameters;
+	}
+	
+	/**
 	 * Get the OD power value
 	 * @return power value set in this OD
 	 */
@@ -401,6 +411,15 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	public String getEncoding() {
 		return encoding;
+	}
+	
+	/**
+	 * Returns the parameters that should be used when creating the JVM
+	 * for this object
+	 * @return
+	 */
+	public String getJVMParameters(){
+		return jvmParamters;
 	}
 
 	/**
