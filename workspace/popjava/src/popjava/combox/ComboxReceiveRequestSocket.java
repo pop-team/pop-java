@@ -8,6 +8,7 @@ import popjava.buffer.*;
 import popjava.util.LogWriter;
 
 import java.net.*;
+import java.util.Random;
 import java.io.*;
 
 /**
@@ -23,6 +24,8 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	protected RequestQueue requestQueue;
 	protected Broker broker;
 	protected int status = Exit;
+	
+	private final int random = (new Random().nextInt());
 	
 	/**
 	 * Crate a new instance of ComboxReceiveRequestSocket
@@ -42,8 +45,8 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	 * Start the thread 
 	 */
 	public void run() {
-		this.setStatus(Running);
-		while (this.getStatus() == Running) {
+		setStatus(Running);
+		while (getStatus() == Running) {
 			Request popRequest = new Request();
 			try {
 				if (!receiveRequest(popRequest)) {
@@ -59,7 +62,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 				setStatus(Exit);
 			}
 		}
-		this.close();
+		close();
 	}
 
 	/**
@@ -81,7 +84,6 @@ public class ComboxReceiveRequestSocket implements Runnable {
 			request.setCombox(combox);
 			return true;
 		}
-		
 		return false;
 	}
 

@@ -7,6 +7,7 @@ import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
+import popjava.util.LogWriter;
 import popjava.util.Util;
 import javassist.util.proxy.*;
 
@@ -89,6 +90,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				responseBuffer.deserializeReferenceObject(parameterTypes[index],
 						argvs[index]);
 			}
+			
+			if(argvs[index] instanceof POPObject){
+				POPObject object = (POPObject)argvs[index];
+				if(object.isTemporary()){
+					object.exit();
+				}
+			}
 		}
 		return true;
 
@@ -159,10 +167,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			//Recover the data from the calling method. The called method can
 			//Modify the content of an array and it gets copied back in here
 			for (int index = 0; index < parameterTypes.length; index++) {
-				
 				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
-					responseBuffer.deserializeReferenceObject(
-							parameterTypes[index], argvs[index]);
+					responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
 				}
 			}
 			
@@ -185,10 +191,19 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				} catch (Exception e) {
 					result = null;
 				}
-
 			}
-
 		}
+		
+		for (int index = 0; index < argvs.length; index++) {
+			if(argvs[index] instanceof POPObject){
+				POPObject object = (POPObject)argvs[index];
+				LogWriter.writeDebugInfo("Closing POPObject again");
+				if(object.isTemporary()){
+					object.exit();
+				}
+			}
+		}
+		
 		return result;
 	}
 	
@@ -197,6 +212,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			if(args[i] instanceof POPObject && !(args[i] instanceof ProxyObject)){
 				POPObject object = (POPObject)args[i];
 				args[i] = PopJava.newActive(object.getClass(), object.getAccessPoint());
+				((POPObject)args[i]).makeTemporary();
 			}
 		}
 	}
@@ -267,6 +283,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			}
 			return result;
 		} else if (methodName.equals("exit") && argvs.length == 0) {
+			LogWriter.writeDebugInfo("Close method handler through exit");
 			canExcute[0] = true;
 			invokeExit();
 		} else {

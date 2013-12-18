@@ -187,4 +187,14 @@ public class Util {
 		
 		return true;
 	}
+	
+	public static boolean isParameterOfAnyDirection(Annotation [] annotations){
+		for(Annotation annotation: annotations){
+			if(annotation.annotationType() == POPParameter.class){
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }

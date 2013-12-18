@@ -81,18 +81,17 @@ public class Interface {
 		boolean result = true;
 		od.deserialize(buffer);
 		popAccessPoint.deserialize(buffer);
-		int ref = buffer.getInt();
+		int ref = buffer.getInt(); //related to the addRef called in serialize()
 		if (ref > 0) {
 			try {
 				bind(popAccessPoint);
 			} catch (POPException e) {
 				result = false;
-				LogWriter.writeDebugInfo("Deserialize. Cannot bind to "
-						+ popAccessPoint.toString());
+				LogWriter.writeDebugInfo("Deserialize. Cannot bind to " + popAccessPoint.toString());
 				e.printStackTrace();
 			}
 			if (result){
-				this.decRef();
+				decRef();
 			}
 		}
 		return result;
@@ -249,7 +248,7 @@ public class Interface {
 			POPException.throwAccessPointNotAvailableException();
 		}
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-
+		
 		if (combox != null){
 			combox.close();
 		}
@@ -272,7 +271,6 @@ public class Interface {
 			default:
 				break;
 			}
-
 		} else {
 			POPException.throwObjectBindException(accesspoint);
 		}
@@ -346,8 +344,7 @@ public class Interface {
 			return -1;
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
-		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.AddRefCall, Semantic.Synchronous);
+		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.AddRefCall, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);

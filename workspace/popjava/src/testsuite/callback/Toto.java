@@ -10,11 +10,9 @@ import popjava.base.*;
 @POPClass(classId = 1035)
 public class Toto extends POPObject {
 	private int identity;
-	Toto thisObject;
 	
 	@POPObjectDescription(url = "localhost")
 	public Toto(){
-		thisObject = this;
 	}
 	
 	@POPSyncSeq
@@ -26,7 +24,7 @@ public class Toto extends POPObject {
 	public int getIdent() throws POPException {
 		Titi t = PopJava.newActive(Titi.class);
 		setIdent(222);
-		t.computeIdent(thisObject);
+		t.computeIdent(this);
 		return identity;
 	}
 }
