@@ -333,7 +333,9 @@ public class Broker {
 
 				//Put all parameters back in the response, if needed
 				for (index = 0; index < parameterTypes.length; index++) {
-					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
+					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
+							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
+							){
 						try {
 							responseBuffer.serializeReferenceObject(
 									parameterTypes[index], parameters[index]);
@@ -365,7 +367,9 @@ public class Broker {
 				if (POPObject.class.isAssignableFrom(parameterTypes[index])
 						&& parameters[index] != null) {
 					POPObject object = (POPObject)parameters[index];
+					LogWriter.writeDebugInfo("POPObject parameter is temporary: "+object.isTemporary());
 					if(object.isTemporary()){
+						LogWriter.writeDebugInfo("Exit popobject");
 						object.exit();
 					}
 				}
@@ -389,10 +393,13 @@ public class Broker {
 	
 	private void normalizePOPParamameters(Object[] parameters){
 		for(int i = 0; parameters != null && i < parameters.length; i++){
-			if(parameters[i] instanceof POPObject && ! (parameters[i] instanceof ProxyObject)){
+			if(parameters[i] instanceof POPObject){
 				POPObject object = (POPObject)parameters[i];
-				parameters[i] = PopJava.newActive(object.getClass(), object.getAccessPoint());
+				if(!(parameters[i] instanceof ProxyObject)){
+					object = PopJava.newActive(object.getClass(), object.getAccessPoint());
+				}
 				object.makeTemporary();
+				parameters[i] = object;
 			}
 		}
 	}
@@ -590,6 +597,7 @@ public class Broker {
 	 */
 	public void onNewConnection() {
 		connectionCount++;
+		LogWriter.writeDebugInfo("Open connection "+connectionCount);
 	}
 
 	/**

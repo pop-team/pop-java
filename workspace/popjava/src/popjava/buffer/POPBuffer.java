@@ -412,7 +412,7 @@ public abstract class POPBuffer extends Object {
 	public void putValue(Object o, Class<?>c) throws POPException {
 		if (o == null && !c.isArray()) {			
 			POPException.throwNullObjectNotAllowException();
-		}		
+		}
 		
 		if (c.equals(byte.class) || c.equals(Byte.class)){
 			put((Byte) o);
@@ -564,15 +564,10 @@ public abstract class POPBuffer extends Object {
 	 */
 	public void deserializeReferenceObject(Class<?> type, Object obj)
 			throws POPException {
-		Method m;
-
 		try {
 			if (IPOPBase.class.isAssignableFrom(type)){
-				
-				m = type.getMethod("deserialize", POPBuffer.class);
-				m.setAccessible(true);
-				m.invoke(obj, this);
-				
+				IPOPBase base = (IPOPBase) obj;
+				base.deserialize(this);
 			} else if (type.isArray()) {
 				
 				Object array = getArray(type);

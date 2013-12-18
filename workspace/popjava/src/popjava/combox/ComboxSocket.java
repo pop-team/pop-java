@@ -8,6 +8,7 @@ import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 import java.net.*;
+import java.nio.ByteBuffer;
 import java.io.*;
 /**
  * This combox implement the protocol Socket
@@ -48,11 +49,14 @@ public class ComboxSocket extends Combox {
 
 	@Override
 	public void close() {
+		//LogWriter.writeDebugInfo("Try to close ComboxSocket "+peerConnection.getLocalPort()+" "+peerConnection.getPort());
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
-				/*LogWriter.writeDebugInfo("Close ComboxSocket "+outputStream);
-				Exception e = new Exception();
+				//LogWriter.writeDebugInfo("Close ComboxSocket "+peerConnection.getLocalPort()+" "+peerConnection.getPort());
+				/*Exception e = new Exception();
 				LogWriter.writeExceptionLog(e);*/
+				
+				//LogWriter.writeExceptionLog(new Exception(hashCode()+" Close ComboxSocket "+peerConnection.getLocalPort()+" "+peerConnection.getPort()));
 				
 				peerConnection.sendUrgentData(-1);
 				outputStream.close();
@@ -61,12 +65,13 @@ public class ComboxSocket extends Combox {
 			}
 
 		} catch (IOException e) {
-			
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 
 	@Override
 	public boolean connect() {
+		
 		available = false;
 		int accessPointSize = accessPoint.size();
 		for (int i = 0; i < accessPointSize && !available; i++) {
@@ -84,6 +89,9 @@ public class ComboxSocket extends Combox {
 							port);
 					peerConnection = new Socket();
 					peerConnection.connect(sockaddress, timeOut);
+					
+					//LogWriter.writeExceptionLog(new Exception());
+					//LogWriter.writeExceptionLog(new Exception("Open connection to "+host+":"+port+" remote: "+peerConnection.getLocalPort()));
 				} else {
 					peerConnection = new Socket(host, port);
 				}
@@ -109,7 +117,7 @@ public class ComboxSocket extends Combox {
 				buffer.resetToReceive();
 				// Receive message length
 				byte[] temp = new byte[4];
-				int read = inputStream.read(temp);
+				int read = inputStream.read(temp); //TODO: blocking right here
 				int messageLength = buffer.getTranslatedInteger(temp);
 				
 				if (messageLength <= 0) {
@@ -135,8 +143,6 @@ public class ComboxSocket extends Combox {
 
 				int headerLength = MessageHeader.HeaderLength;
 				if (result < headerLength) {
-
-					LogWriter.writeDebugInfo("Wrong read size "+read+" "+temp[0]+" "+temp[1]+" "+temp[2]+" "+temp[3]);
 					if (Configuration.DebugCombox) {
 						String logInfo = String.format(
 								"%s.failed to receive header. receivedLength= %d < %d Message length %d",
@@ -147,6 +153,7 @@ public class ComboxSocket extends Combox {
 				} else {
 					buffer.extractHeader();				
 				}
+				
 				return result;
 			} catch (Exception e) {
 				if (Configuration.DebugCombox){

@@ -597,7 +597,7 @@ public class POPObject implements IPOPBase {
 	 * Exit method
 	 */
 	public void exit() {
-
+		
 	}
 
 	/**
@@ -660,7 +660,8 @@ public class POPObject implements IPOPBase {
 		temporary = true;
 	}
 	
-	public void makePermanent(){
+	public POPObject makePermanent(){
 		temporary = false;
+		return this;
 	}
 }
