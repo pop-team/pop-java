@@ -111,6 +111,7 @@ public class LogWriter {
 		try {
 			File logFile = new File(path);
 			if(!logFile.exists()){
+				logFile.getParentFile().mkdirs();
 				logFile.createNewFile();
 			}
 			fstream = new FileWriter(logFile, true);
