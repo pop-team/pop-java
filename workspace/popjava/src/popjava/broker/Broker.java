@@ -206,7 +206,9 @@ public class Broker {
 				if (POPObject.class.isAssignableFrom(parameterTypes[index])
 						&& parameters[index] != null) {
 					POPObject obj = (POPObject) parameters[index];
-					obj.exit();
+					if(obj.isTemporary()){
+						obj.exit();
+					}
 				}
 			}
 		}

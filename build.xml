@@ -47,10 +47,11 @@
         </javac>
 </target>
 
-<target name="make-testsuite-java" depends="make-popjava" description="build the the popjava testsuite">
+<target name="make-testsuite-java" depends="jar-popjava" description="build the the popjava testsuite">
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${testsuite.src}"
                 destdir="${classes.dir}"
+        	    classpath="${jar.dir}/${popjava.jar}"
                 debug="true" debuglevel="lines,vars,source"
                 target="7"
                 source="7"
@@ -59,18 +60,20 @@
         </javac>
 </target>
 	
-<target name="make-testsuite-popc" depends="make-popjava" unless="isWindows" description="build the the popjava testsuite">
+<target name="make-testsuite-popc" depends="make-testsuite-java" unless="isWindows" description="build the the popjava testsuite">
 	<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
     <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
 </target>
 
-<target name="jar-popjava" depends="make-testsuite-java, make-testsuite-popc" description="create jar for popjava">
+<target name="jar-popjava" depends="make-popjava" description="create jar for popjava">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${popjava.jar}" basedir="${classes.dir}" 
                 excludes="**/testsuite/**">
                 <zipgroupfileset dir="." includes="${javassist.jar}"/>
                 <zipgroupfileset dir="." includes="${sshj.jar}"/>
                 <zipgroupfileset dir="." includes="${log4j.jar}"/>
+        	<service type="javax.annotation.processing.Processor" 
+        	    provider="popjava.annotation.processors.POPClassProcessor" />
         </jar>
 </target>
 

@@ -2,8 +2,6 @@ package testsuite.callback;
 
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPParameter;
-import popjava.annotation.POPParameter.Direction;
 import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
 

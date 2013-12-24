@@ -660,8 +660,8 @@ public class POPObject implements IPOPBase {
 		temporary = true;
 	}
 	
-	public POPObject makePermanent(){
+	public <T extends POPObject> T makePermanent(){
 		temporary = false;
-		return this;
+		return (T)this;
 	}
 }
