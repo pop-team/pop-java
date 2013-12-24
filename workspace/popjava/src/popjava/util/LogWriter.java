@@ -2,6 +2,7 @@ package popjava.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -108,14 +109,18 @@ public class LogWriter {
 		path = path.replace(".txt", PID + ".txt");
 		FileWriter fstream;
 		try {
-			fstream = new FileWriter(path, true);
+			File logFile = new File(path);
+			if(!logFile.exists()){
+				logFile.createNewFile();
+			}
+			fstream = new FileWriter(logFile, true);
 			BufferedWriter out = new BufferedWriter(fstream);
 			out.write(info);
 
 			// Close the output stream
 			out.close();
 			fstream.close();
-		} catch (IOException e) {
+		}catch (IOException e) {
 			e.printStackTrace();
 		}
 
