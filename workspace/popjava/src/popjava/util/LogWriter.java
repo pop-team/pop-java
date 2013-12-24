@@ -44,12 +44,13 @@ public class LogWriter {
 		
 		String popLocation = POPJavaConfiguration.getPopJavaLocation();
 		
+		System.out.println("DEBUG : "+popLocation);
+		
 		if(!popLocation.isEmpty()){
 			LogFolder = String.format("%s%s%s", popLocation, File.separator, LOG_FOLDER_NAME);
 		}else{
 			LogFolder = DEFAULT_LOCATION;
 		}
-		
 		
 		new File(LogFolder).mkdirs(); //Create log folder if it does not exist yet
 	}
@@ -109,12 +110,7 @@ public class LogWriter {
 		path = path.replace(".txt", PID + ".txt");
 		FileWriter fstream;
 		try {
-			File logFile = new File(path);
-			if(!logFile.exists()){
-				logFile.getParentFile().mkdirs();
-				logFile.createNewFile();
-			}
-			fstream = new FileWriter(logFile, true);
+			fstream = new FileWriter(path, true);
 			BufferedWriter out = new BufferedWriter(fstream);
 			out.write(info);
 
