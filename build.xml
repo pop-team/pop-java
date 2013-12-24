@@ -72,8 +72,8 @@
                 <zipgroupfileset dir="." includes="${javassist.jar}"/>
                 <zipgroupfileset dir="." includes="${sshj.jar}"/>
                 <zipgroupfileset dir="." includes="${log4j.jar}"/>
-        	<service type="javax.annotation.processing.Processor" 
-        	    provider="popjava.annotation.processors.POPClassProcessor" />
+        	<!-- <service type="javax.annotation.processing.Processor" 
+        	    provider="popjava.annotation.processors.POPClassProcessor" /> -->
         </jar>
 </target>
 
