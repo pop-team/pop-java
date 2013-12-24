@@ -67,8 +67,9 @@ public class POPRemoteLogThread extends Thread {
 			}
 		}
 
+		RandomAccessFile log = null;
 		try {
-			RandomAccessFile log = new RandomAccessFile(logFile, "r");
+			log = new RandomAccessFile(logFile, "r");
 			long filePointer = 0;
 			while (running) {
 				long fileLength = log.length();
@@ -87,6 +88,14 @@ public class POPRemoteLogThread extends Thread {
 			logFile.delete();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally{
+			if(log != null){
+				try {
+					log.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 	}

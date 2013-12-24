@@ -15,6 +15,7 @@ private int identity;
 		identity = -1;
 	}
 	
+	
    @POPSyncSeq
 	public void setIdent(int i){
 		identity = i;

@@ -8,7 +8,6 @@ import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.io.*;
 /**
  * This combox implement the protocol Socket

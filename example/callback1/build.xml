@@ -2,11 +2,17 @@
     <description>
         Callback2 example
     </description>
+	
+	<property environment="env"/>
+	<property name="popjava.jar" value="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"/>
     
     <property name="application.jar" value="callback.jar"/>
     <property name="objectmap" value="objmap.xml"/>
     <property name="source.folder" value="test"/>
-    
+	<property name="class.folder" value="build"/>
+	
+	<property name="popjava.files" value="${source.folder}/Toto.pjava ${source.folder}/Titi.pjava ${source.folder}/CallBackMain.pjava"/>
+	
     <target name="clean" 
         description="clean the build folder" >
         
@@ -19,9 +25,24 @@
     
     <target name="build"
         description="compile the source " depends="clean">
-        <exec executable="popjc">
-            <arg line="-v -n -j ${application.jar} ${source.folder}/Toto.pjava ${source.folder}/Titi.pjava ${source.folder}/CallBackMain.pjava"/>
+    	
+    	<exec executable="popjc">
+            <arg line="-t ${popjava.files}"/>
         </exec>
+    	
+    	<mkdir dir="${class.folder}"/>
+    	
+    	<javac srcdir="${source.folder}"
+    	            destdir="${class.folder}"
+    	            classpath="${popjava.jar}"
+	    />
+    	
+    	<exec executable="popjc">
+            <arg line="-l ${popjava.files}"/>
+        </exec>
+    	
+    	<jar destfile="${application.jar}" basedir="${class.folder}"/>
+        
         <exec executable="popjrun" output = "${objectmap}">
             <arg line="--listlong ${application.jar}"/>
         </exec>
