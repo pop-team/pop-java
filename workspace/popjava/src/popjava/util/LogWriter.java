@@ -122,6 +122,7 @@ public class LogWriter {
 			out.close();
 			fstream.close();
 		}catch (IOException e) {
+			System.err.println("Error on file "+path);
 			e.printStackTrace();
 		}
 
