@@ -62,11 +62,34 @@ public class POPJavaConfiguration {
 				return DEFAULT_POPJ_LOCATION;
 			}
 			
+			URL temp = getMyJar();
+			if(temp != null){
+				File source = new File(temp.getFile()).getParentFile();
+				return source.getAbsolutePath();
+			}
+			
 			return "";
 		}
 		
 		return popJavaLocation;
 	}
+	
+	private static URL getMyJar(){
+		POPJavaConfiguration me = new POPJavaConfiguration();
+		
+        for(URL url: ((URLClassLoader)me.getClass().getClassLoader()).getURLs()){
+            boolean exists = false;
+            try{ //WIndows hack
+                exists = new File(url.toURI()).exists();
+            }catch(Exception e){
+                exists = new File(url.getPath()).exists();
+            }
+            if(url.getFile().endsWith("popjava.jar") && exists){
+                return url;
+            }
+        }
+        return null;
+    }
 	
 	/**
 	 * Retrieve the POP-Java plugin location
