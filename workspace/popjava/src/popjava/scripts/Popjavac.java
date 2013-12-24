@@ -326,6 +326,8 @@ public class Popjavac {
 		ArrayList<String> outputFiles = new ArrayList<String>();
 		//javac -cp ".:$ADD_CLASSPATH:$POPJAVA_JAR$CLASSPATHADD" $COMPILE_FILES $STDFILES
 
+		System.out.println("Compile java files: "+javaFiles.size()+" files");
+		
 		String [] command = new String[3+javaFiles.size()];
 		command[0] = JAVAC;
 		command[1] = "-cp";
