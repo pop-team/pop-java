@@ -473,7 +473,7 @@ public static void main(String args[]) {
                     } else {
                         String _parCl = Holder._hm_parclasses.get(tok.toString());
                         //println(tok.toString()+" = PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint());/*F*/", 0);
-                        println(tok.toString()+" = "+tok.next.next+";"+tok.next.next+".makePermanent();", 0);
+                        println(tok.toString()+" = "+tok.next.next+".makePermanent();", 0);
                         while(tok.kind != SEMICOLON){
                             tok = tok.next;
                         }
