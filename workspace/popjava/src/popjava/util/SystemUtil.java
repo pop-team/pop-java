@@ -25,7 +25,13 @@ public class SystemUtil {
 			LogWriter.writeDebugInfo(arg);
 		}
 		
-		ProcessBuilder pb = new ProcessBuilder(argvs).inheritIO();
+		ProcessBuilder pb = new ProcessBuilder(argvs);
+		if(Configuration.REDIRECT_OUTPUT_TO_ROOT){
+			pb = pb.inheritIO();
+		}else{
+			pb.redirectErrorStream(true);
+			pb.redirectOutput(new File("/dev/null"));
+		}
 		if (pb != null) {
 			try {
 				String directory = System.getProperty("java.io.tmpdir");
@@ -93,7 +99,7 @@ public class SystemUtil {
 	}
 	
 	public static int runRemoteCmd(String url, List<String> command){
-		if(commandExists("ssh")){
+		if(Configuration.USE_NATIVE_SSH_IF_POSSIBLE && commandExists("ssh")){
 			command.add(0, url);
 			command.add(0, "ssh");
 			
