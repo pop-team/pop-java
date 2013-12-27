@@ -64,7 +64,7 @@ public class POPJavaConfiguration {
 			
 			URL temp = getMyJar();
 			if(temp != null){
-				File source = new File(temp.getFile()).getParentFile();
+				File source = new File(temp.getFile()).getParentFile().getParentFile();
 				return source.getAbsolutePath();
 			}
 			

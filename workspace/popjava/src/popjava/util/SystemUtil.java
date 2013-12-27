@@ -40,8 +40,9 @@ public class SystemUtil {
 				if (currentDirectory != null) {
 					//pb.directory(currentDirectory);
 				}
-				pb.start();
+				Process process = pb.start();
 				LogWriter.writeDebugInfo("Started command after "+(System.currentTimeMillis() - startTime));
+				process.destroy();
 				return 0;
 			} catch (IOException e) {
 				e.printStackTrace();
