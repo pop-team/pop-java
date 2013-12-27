@@ -49,8 +49,6 @@ public class LogWriter {
 			LogFolder = DEFAULT_LOCATION;
 		}
 		
-		System.out.println("Use logfolder: "+LogFolder);
-		
 		new File(LogFolder).mkdirs(); //Create log folder if it does not exist yet
 	}
 
