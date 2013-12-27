@@ -627,13 +627,14 @@ public class Interface {
 		}
 		
 		allocateCombox.startToAcceptOneConnection();
-		BufferXDR buffer = new BufferXDR();
-		int result = 0;
 		
 		if(!allocateCombox.isComboxConnected()){
 			LogWriter.writeDebugInfo("Could not connect broker");
 			return -1;
 		}
+		
+		BufferXDR buffer = new BufferXDR();
+		int result = 0;
 		
 		if (allocateCombox.receive(buffer) > 0) {
 			int status = buffer.getInt();
