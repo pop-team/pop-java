@@ -38,7 +38,6 @@ public class ComboxAllocateSocket {
 	public void startToAcceptOneConnection() {
 		try {
 			Socket peerConnection = serverSocket.accept();
-			LogWriter.writeDebugInfo("Accepted connection!");
 			combox = new ComboxSocket(peerConnection);
 		} catch (IOException e) {
 			LogWriter.writeExceptionLog(e);
