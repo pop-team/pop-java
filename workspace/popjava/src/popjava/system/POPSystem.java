@@ -29,11 +29,11 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
 import popjava.codemanager.POPJavaAppService;
 import popjava.combox.ComboxSocketFactory;
-
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.SystemUtil;
 import popjava.util.Util;
 
 /**
@@ -439,6 +439,7 @@ public class POPSystem {
 	}
 	
 	public static void end(){
+		SystemUtil.endAllChildren();
 		if(prlt != null){ //If initialize failed, prlt will be null
 			try {
 				Thread.sleep(1000); //TODO: this looks like a huge HACK

@@ -369,7 +369,7 @@ public class Broker {
 				if (POPObject.class.isAssignableFrom(parameterTypes[index])
 						&& parameters[index] != null) {
 					POPObject object = (POPObject)parameters[index];
-					LogWriter.writeDebugInfo("POPObject parameter is temporary: "+object.isTemporary());
+					//LogWriter.writeDebugInfo("POPObject parameter is temporary: "+object.isTemporary());
 					if(object.isTemporary()){
 						LogWriter.writeDebugInfo("Exit popobject");
 						object.exit();

@@ -2,6 +2,7 @@ package popjava.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.schmizz.sshj.SSHClient;
@@ -13,7 +14,15 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
  */
 
 public class SystemUtil {
+	
+	private static List<Process> processes = new ArrayList<Process>();
 
+	public static void endAllChildren(){
+		for(Process process: processes){
+			process.destroy();
+		}
+	}
+	
 	/**
 	 * Run a new command
 	 * @param argvs arguments to pass to the new process
@@ -42,7 +51,7 @@ public class SystemUtil {
 				if (currentDirectory != null) {
 					//pb.directory(currentDirectory);
 				}
-				pb.start();
+				processes.add(pb.start());
 				LogWriter.writeDebugInfo("Started command after "+(System.currentTimeMillis() - startTime));
 				return 0;
 			} catch (IOException e) {
