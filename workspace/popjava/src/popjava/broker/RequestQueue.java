@@ -16,12 +16,14 @@ public class RequestQueue {
 	protected final Lock lock = new ReentrantLock();
 	protected final Condition canPeek = lock.newCondition();
 	protected final Condition canInsert = lock.newCondition();
-	protected ArrayList<Request> requests = new ArrayList<Request>();
+	protected ArrayList<Request> requestsConc = new ArrayList<Request>();
+	protected ArrayList<Request> requestsSeq = new ArrayList<Request>();
+	protected ArrayList<Request> requestsMutex = new ArrayList<Request>();
 	protected Request servingMutex = null;
 	protected ArrayList<Request> servingConcurrent = new ArrayList<Request>();
 	protected Request servingSequential = null;
 	protected Request availableRequest = null;
-	protected int maxQueue = 300;
+	protected int maxQueue = 200;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
@@ -34,7 +36,7 @@ public class RequestQueue {
 	 * @return number of requests
 	 */
 	public synchronized int size() {
-		return requests.size() + 
+		return requestsConc.size() + requestsSeq.size() + requestsMutex.size() +
 				(servingMutex == null ? 0 : 1) + 
 				servingConcurrent.size() +
 				(servingSequential == null ? 0 : 1);
@@ -61,13 +63,34 @@ public class RequestQueue {
 	 * @param request Request to add
 	 * @return true if the request is added correctly
 	 */
-	public boolean add(Request request) {		
+	public boolean add(Request request) {
 		lock.lock();
 		try {
-			while (size() >= maxQueue){
-				canInsert.await();
+			
+			
+			if(request.isConcurrent()){
+				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsConc.size());
+				while (requestsConc.size() >= maxQueue){
+					canInsert.await();
+				}
+				
+				requestsConc.add(request);
+			}else if(request.isSequential()){
+				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size());
+				while (requestsSeq.size() >= maxQueue){
+					canInsert.await();
+				}
+				
+				requestsSeq.add(request);
+			}else if(request.isMutex()){
+				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsMutex.size());
+				while (requestsMutex.size() >= maxQueue){
+					canInsert.await();
+				}
+				
+				requestsMutex.add(request);
 			}
-			requests.add(request);
+			
 			canPeek();
 		} catch (InterruptedException e) {
 
@@ -112,19 +135,27 @@ public class RequestQueue {
 			lock.unlock();
 		}
 		
-		if (requests.size() > 0 && !waitSuccess && requests.get(0).getStatus() == Request.Pending) {
+		/*if (requestsConc.size() + requestsSeq.size() + requestsMutex.size() > 0 &&
+				!waitSuccess && requests.get(0).getStatus() == Request.Pending) {
 			Request temp = requests.get(0);
 			String info = String.format("Request.MethodId=%d.Semantics=%s\n",
 					temp.getMethodId(), temp.getSenmatics());
 			LogWriter.writeLogfile(info, LogWriter.LogFolder
 					+ File.separator + "bug.txt");
-		}
+		}*/
 		return request;
 	}
 
 	private void serveRequest(Request request){
 		//Migrate request to serving queue
-		requests.remove(request);
+		if(request.isConcurrent()){
+			requestsConc.remove(request);
+		}else if(request.isSequential()){
+			requestsSeq.remove(request);
+		}else if(request.isMutex()){
+			requestsMutex.remove(request);
+		}
+		
 		if(request.isMutex()){
 			servingMutex = request;
 		}else if(request.isSequential()){
@@ -170,13 +201,15 @@ public class RequestQueue {
 		try {
 			if(request.isMutex() && servingMutex == request){
 				servingMutex = null;
+				requestsMutex.remove(request);
 			}else if(request.isSequential() && servingSequential == request){
 				servingSequential = null;
+				requestsSeq.remove(request);
 			}else{
 				servingConcurrent.remove(request);
+				requestsConc.remove(request);
 			}
 			
-			requests.remove(request);
 			canPeek();
 			canInsert.signal();
 		}
@@ -193,7 +226,9 @@ public class RequestQueue {
 	 */
 	public synchronized boolean clear() {
 		availableRequest = null;
-		requests.clear();
+		requestsConc.clear();
+		requestsMutex.clear();
+		requestsSeq.clear();
 		servingMutex = null;
 		servingSequential = null;
 		servingConcurrent.clear();
@@ -211,6 +246,22 @@ public class RequestQueue {
 			return true;
 		}
 		
+		if(canPeekType(requestsConc)){
+			return true;
+		}
+		
+		if(canPeekType(requestsSeq)){
+			return true;
+		}
+		
+		if(canPeekType(requestsMutex)){
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean canPeekType(List<Request> requests){
 		int requestCount = requests.size();
 		for (int i = 0; i < requestCount; i++) {
 			Request currentRequest = requests.get(i);
@@ -222,10 +273,10 @@ public class RequestQueue {
 				return true;
 			}
 		}
-
+		
 		return false;
 	}
-
+	
 	/**
 	 * Check if a specific request can be peeked
 	 * @param request	Request to be peeked

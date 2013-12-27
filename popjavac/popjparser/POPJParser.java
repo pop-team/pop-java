@@ -473,7 +473,12 @@ public static void main(String args[]) {
                     } else {
                         String _parCl = Holder._hm_parclasses.get(tok.toString());
                         //println(tok.toString()+" = PopJava.newActive("+_parCl+".class, "+tok.next.next.toString()+".getAccessPoint());/*F*/", 0);
-                        println(tok.toString()+" = "+tok.next.next+".makePermanent();", 0);
+                                                if(tok.next.next.kind == THIS){
+                                                        println(tok.toString()+" = getThis("+Holder.thisClassName+".class);", 0);
+                                                }else{
+                                                        println(tok.toString()+" = "+tok.next.next+".makePermanent();", 0);
+                                                }
+
                         while(tok.kind != SEMICOLON){
                             tok = tok.next;
                         }
@@ -673,16 +678,21 @@ public static void main(String args[]) {
         }
         //if the token is this			
         else if (tok.kind == THIS && Holder.isParclass){
-                        if(tok.next.kind == DOT){
+                        if(tok.next.kind == DOT){ //For calls with this.method();
                                 if(tok.next.next.next.kind != ASSIGN && tok.next.next.next.kind != SEMICOLON){
                                         //print("(("+Holder.thisClassName+")this)",0);
-
-                                        print("PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint()) /*A*/",0);
+                                        print("getThis("+Holder.thisClassName+".class)", 0);
+                                        //print("PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint()) /*A*/",0);
                                 }else{
                                         print(tok.toString(), 0);
                                 }
                         }else{
-                                print(tok.toString(),0);
+                                if(tok.next.kind == SEMICOLON){ //For assignments like a = this;
+                                        print("getThis("+Holder.thisClassName+".class)",0);
+                                }else{
+                                        print(tok.toString(),0);
+                                }
+
                                 //print("("+Holder.thisClassName+")PopJava.newActive("+Holder.thisClassName+".class, this.getAccessPoint())/*B*/",0);
                         }
         }
@@ -4126,45 +4136,6 @@ int modifiers;
     catch(LookaheadSuccess ls) { return true; }
   }
 
-  private boolean jj_3_15() {
-    if (jj_3R_71()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_77() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(15)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(20)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(17)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(53)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(40)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(42)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(33)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(26)) return true;
-    }
-    }
-    }
-    }
-    }
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_170() {
-    if (jj_scan_token(COMMA)) return true;
-    if (jj_3R_98()) return true;
-    return false;
-  }
-
   private boolean jj_3_12() {
     if (jj_scan_token(LBRACKET)) return true;
     if (jj_scan_token(RBRACKET)) return true;
@@ -6645,6 +6616,45 @@ int modifiers;
     jj_scanpos = xsp;
     if (jj_3R_107()) return true;
     }
+    return false;
+  }
+
+  private boolean jj_3_15() {
+    if (jj_3R_71()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_77() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(15)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(20)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(17)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(53)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(40)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(42)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(33)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(26)) return true;
+    }
+    }
+    }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_170() {
+    if (jj_scan_token(COMMA)) return true;
+    if (jj_3R_98()) return true;
     return false;
   }
 

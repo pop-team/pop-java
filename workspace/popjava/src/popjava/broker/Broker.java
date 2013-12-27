@@ -296,7 +296,7 @@ public class Broker {
 		}
 		
 		normalizePOPParamameters(parameters);
-		
+		//LogWriter.writeDebugInfo("Call method "+method.getName());
 		// Invoke the method if success to get all parameter
 		if (exception == null) {
 			try {
@@ -588,6 +588,7 @@ public class Broker {
 			Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
 					TimeUnit.MILLISECONDS);
 			if (request != null) {
+				//LogWriter.writeDebugInfo("Serve "+request.getMethodId()+" : "+request.getSenmatics());
 				serveRequest(request);
 			}
 		}

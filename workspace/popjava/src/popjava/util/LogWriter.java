@@ -44,8 +44,6 @@ public class LogWriter {
 		
 		String popLocation = POPJavaConfiguration.getPopJavaLocation();
 		
-		System.out.println("DEBUG : "+popLocation);
-		
 		if(!popLocation.isEmpty()){
 			LogFolder = String.format("%s%s%s", popLocation, File.separator, LOG_FOLDER_NAME);
 		}else{
@@ -71,7 +69,7 @@ public class LogWriter {
 	 * Write a new debug information line in the file
 	 * @param info	Information to write
 	 */
-	public static void writeDebugInfo(String info) {
+	public synchronized static void writeDebugInfo(String info) {
 		
 		if (Configuration.Debug) {
 			System.out.println(info);
@@ -108,18 +106,20 @@ public class LogWriter {
 	 */
 	public synchronized static void writeLogfile(String info, String path) {
 		path = path.replace(".txt", PID + ".txt");
-		FileWriter fstream;
+		BufferedWriter out = null;
 		try {
-			fstream = new FileWriter(path, true);
-			BufferedWriter out = new BufferedWriter(fstream);
+			out = new BufferedWriter(new FileWriter(path, true));
 			out.write(info);
-
-			// Close the output stream
-			out.close();
-			fstream.close();
 		}catch (IOException e) {
-			System.err.println("Error on file "+path);
 			e.printStackTrace();
+		}finally{
+			if(out != null){
+				try {
+					out.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 	}
