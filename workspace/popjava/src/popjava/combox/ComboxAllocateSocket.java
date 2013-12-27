@@ -15,7 +15,7 @@ import popjava.util.LogWriter;
  */
 public class ComboxAllocateSocket {
 	
-	private static final int SOCKET_TIMEOUT_MS = 10000;
+	private static final int SOCKET_TIMEOUT_MS = 30000;
 	
 	protected ServerSocket serverSocket = null;	
 	private ComboxSocket combox = null;
