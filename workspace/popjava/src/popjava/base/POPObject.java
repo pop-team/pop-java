@@ -1,5 +1,6 @@
 package popjava.base;
 
+import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
@@ -37,6 +38,8 @@ public class POPObject implements IPOPBase {
 	private ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<MethodInfo, Constructor<?>>();
 
 	private boolean temporary = false;
+	
+	private POPObject me = null;
 	
 	/**
 	 * Creates a new instance of POPObject
@@ -663,5 +666,12 @@ public class POPObject implements IPOPBase {
 	public <T extends POPObject> T makePermanent(){
 		temporary = false;
 		return (T)this;
+	}
+	
+	public <T extends POPObject> T getThis(Class<T> myClass){
+		if(me == null){
+			me = PopJava.newActive(getClass(), getAccessPoint());
+		}
+		return (T) me;
 	}
 }

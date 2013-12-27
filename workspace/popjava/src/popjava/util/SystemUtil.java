@@ -25,7 +25,7 @@ public class SystemUtil {
 			LogWriter.writeDebugInfo(arg);
 		}
 		
-		ProcessBuilder pb = new ProcessBuilder(argvs);
+		ProcessBuilder pb = new ProcessBuilder(argvs).inheritIO();
 		if (pb != null) {
 			try {
 				String directory = System.getProperty("java.io.tmpdir");
@@ -33,7 +33,6 @@ public class SystemUtil {
 				if (currentDirectory != null) {
 					//pb.directory(currentDirectory);
 				}
-				
 				pb.start();
 				return 0;
 			} catch (IOException e) {
