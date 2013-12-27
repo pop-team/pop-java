@@ -42,7 +42,7 @@ public class SystemUtil {
 				if (currentDirectory != null) {
 					//pb.directory(currentDirectory);
 				}
-				pb.start();
+				pb.start().destroy();
 				LogWriter.writeDebugInfo("Started command after "+(System.currentTimeMillis() - startTime));
 				return 0;
 			} catch (IOException e) {
