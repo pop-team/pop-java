@@ -25,16 +25,16 @@ public class SystemUtil {
 		for(String arg: argvs){
 			LogWriter.writeDebugInfo(arg);
 		}
-		argvs.add("$>/dev/null");
-		argvs.add("&");
+		/*argvs.add("$>/dev/null");
+		argvs.add("&");*/
 		
 		ProcessBuilder pb = new ProcessBuilder(argvs);
-		/*if(Configuration.REDIRECT_OUTPUT_TO_ROOT){
+		if(Configuration.REDIRECT_OUTPUT_TO_ROOT){
 			pb = pb.inheritIO();
 		}else{
 			pb.redirectErrorStream(true);
 			pb.redirectOutput(new File("/dev/null"));
-		}*/
+		}
 		if (pb != null) {
 			try {
 				String directory = System.getProperty("java.io.tmpdir");
@@ -42,7 +42,7 @@ public class SystemUtil {
 				if (currentDirectory != null) {
 					//pb.directory(currentDirectory);
 				}
-				pb.start().destroy();
+				pb.start();
 				LogWriter.writeDebugInfo("Started command after "+(System.currentTimeMillis() - startTime));
 				return 0;
 			} catch (IOException e) {
