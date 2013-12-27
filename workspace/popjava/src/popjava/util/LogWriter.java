@@ -2,7 +2,6 @@ package popjava.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -49,6 +48,8 @@ public class LogWriter {
 		}else{
 			LogFolder = DEFAULT_LOCATION;
 		}
+		
+		System.out.println("Use logfolder: "+LogFolder);
 		
 		new File(LogFolder).mkdirs(); //Create log folder if it does not exist yet
 	}

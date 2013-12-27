@@ -20,6 +20,7 @@ public class SystemUtil {
 	 * @return 0 if the command launch is a success
 	 */
 	public static int runCmd(List<String> argvs) {
+		long startTime = System.currentTimeMillis();
 		LogWriter.writeDebugInfo("Run command");
 		for(String arg: argvs){
 			LogWriter.writeDebugInfo(arg);
@@ -40,6 +41,7 @@ public class SystemUtil {
 					//pb.directory(currentDirectory);
 				}
 				pb.start();
+				LogWriter.writeDebugInfo("Started command after "+(System.currentTimeMillis() - startTime));
 				return 0;
 			} catch (IOException e) {
 				e.printStackTrace();
