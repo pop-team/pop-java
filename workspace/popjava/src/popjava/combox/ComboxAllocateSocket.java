@@ -5,8 +5,10 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+
 import popjava.buffer.*;
 import popjava.system.POPSystem;
+import popjava.util.LogWriter;
 
 /**
  * This class is responsible to send an receive message on the server combox socket
@@ -34,10 +36,11 @@ public class ComboxAllocateSocket {
 	 * Start the socket and wait for a connection
 	 */
 	public void startToAcceptOneConnection() {
-		try {			
+		try {
 			Socket peerConnection = serverSocket.accept();
 			combox = new ComboxSocket(peerConnection);
 		} catch (IOException e) {
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 
