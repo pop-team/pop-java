@@ -2,6 +2,9 @@ package popjava.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+
+import javassist.util.proxy.Proxy;
+import javassist.util.proxy.ProxyObject;
 /**
  * This class gives some static methods to look inside a class
  */
@@ -14,6 +17,9 @@ public class ClassUtil {
 				parameterTypes[index] = Object.class;
 			}
 			parameterTypes[index] = objects[index].getClass();
+			if(ProxyObject.class.isAssignableFrom(parameterTypes[index])){
+				parameterTypes[index] = parameterTypes[index].getSuperclass();
+			}
 		}
 		
 		return parameterTypes;
