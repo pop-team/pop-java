@@ -23,7 +23,7 @@ public class RequestQueue {
 	protected ArrayList<Request> servingConcurrent = new ArrayList<Request>();
 	protected Request servingSequential = null;
 	protected Request availableRequest = null;
-	protected int maxQueue = 100;
+	protected int maxQueue = 250;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
