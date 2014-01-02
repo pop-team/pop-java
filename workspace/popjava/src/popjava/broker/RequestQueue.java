@@ -66,8 +66,6 @@ public class RequestQueue {
 	public boolean add(Request request) {
 		lock.lock();
 		try {
-			
-			
 			if(request.isConcurrent()){
 				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsConc.size());
 				while (requestsConc.size() >= maxQueue){
@@ -76,7 +74,7 @@ public class RequestQueue {
 				
 				requestsConc.add(request);
 			}else if(request.isSequential()){
-				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size());
+				LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size());
 				while (requestsSeq.size() >= maxQueue){
 					canInsert.await();
 				}
