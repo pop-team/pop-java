@@ -65,6 +65,9 @@ public class RequestQueue {
 	 */
 	public boolean add(Request request) {
 		LogWriter.writeDebugInfo("Add request, there are already "+size()+" requests");
+		LogWriter.writeDebugInfo("DEBUG: "+requestsConc.size() +" "+ requestsSeq.size() +" "+ requestsMutex.size()+" "+
+				servingConcurrent.size());
+		
 		lock.lock();
 		try {
 			if(request.isConcurrent()){
