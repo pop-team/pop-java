@@ -64,21 +64,21 @@ public class RequestQueue {
 	 * @return true if the request is added correctly
 	 */
 	public boolean add(Request request) {
-		LogWriter.writeDebugInfo("Add request, there are already "+size()+" requests");
-		LogWriter.writeDebugInfo("DEBUG: "+requestsConc.size() +" "+ requestsSeq.size() +" "+ requestsMutex.size()+" "+
-				servingConcurrent.size());
+		//LogWriter.writeDebugInfo("Add request, there are already "+size()+" requests");
+		//LogWriter.writeDebugInfo("DEBUG: "+requestsConc.size() +" "+ requestsSeq.size() +" "+ requestsMutex.size()+" "+
+				//servingConcurrent.size());
 		
 		lock.lock();
 		try {
 			if(request.isConcurrent()){
 				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsConc.size());
-				while (requestsConc.size() >= maxQueue){
+				while (requestsConc.size() + servingConcurrent.size() >= maxQueue){
 					canInsert.await();
 				}
 				
 				requestsConc.add(request);
 			}else if(request.isSequential()){
-				LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size());
+				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size());
 				while (requestsSeq.size() >= maxQueue){
 					canInsert.await();
 				}
