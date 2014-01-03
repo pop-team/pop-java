@@ -1,12 +1,8 @@
 package popjava.broker;
 
-import java.io.File;
 import java.util.concurrent.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
-
-import popjava.base.Semantic;
-import popjava.util.LogWriter;
 /**
  * This class represents the request queue used in the broker-side
  * Every requests are put into this request queue and are served in FIFO order
@@ -23,7 +19,7 @@ public class RequestQueue {
 	protected ArrayList<Request> servingConcurrent = new ArrayList<Request>();
 	protected Request servingSequential = null;
 	protected Request availableRequest = null;
-	protected int maxQueue = 250;
+	protected int maxQueue = 400;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
