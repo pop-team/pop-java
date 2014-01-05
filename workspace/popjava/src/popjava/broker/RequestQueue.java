@@ -3,32 +3,40 @@ package popjava.broker;
 import java.util.concurrent.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
+
+import popjava.util.LogWriter;
 /**
  * This class represents the request queue used in the broker-side
  * Every requests are put into this request queue and are served in FIFO order
  */
 
 public class RequestQueue {
-	protected final Lock lock = new ReentrantLock();
-	protected final Condition canPeek = lock.newCondition();
-	protected final Condition canInsert = lock.newCondition();
+	private final Lock lock = new ReentrantLock();
+	private final Condition canPeek = lock.newCondition();
+	private final Condition canInsert = lock.newCondition();
 	
-	protected ArrayList<Request> requestsConc = new ArrayList<Request>();
-	protected ArrayList<Request> requestsSeq = new ArrayList<Request>();
-	protected ArrayList<Request> requestsMutex = new ArrayList<Request>();
+	private List<Request> requestsConc = new ArrayList<Request>();
+	private List<Request> requestsSeq = new ArrayList<Request>();
+	private List<Request> requestsMutex = new ArrayList<Request>();
 	
-	protected Request servingMutex = null;
-	protected ArrayList<Request> servingConcurrent = new ArrayList<Request>();
-	protected Request servingSequential = null;
+	private int requestType = 0;
+	private List<List<Request>> requests = new ArrayList<>();
 	
-	protected Request availableRequest = null;
+	private Request servingMutex = null;
+	private ArrayList<Request> servingConcurrent = new ArrayList<Request>();
+	private Request servingSequential = null;
 	
-	protected int maxQueue = 300;
+	private Request availableRequest = null;
+	
+	private int maxQueue = 300;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
 	 */
 	public RequestQueue() {
+		requests.add(requestsConc);
+		requests.add(requestsSeq);
+		requests.add(requestsMutex);
 	}
 
 	/**
@@ -78,12 +86,14 @@ public class RequestQueue {
 				
 				requestsConc.add(request);
 			}else if(request.isSequential()){
+				//System.out.println("Add request "+request.getMethodId()+ " "+requestsSeq.size());
 				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size());
 				while (requestsSeq.size() >= maxQueue){
 					canInsert.await();
 				}
 				
 				requestsSeq.add(request);
+				//System.out.println("Added request "+request.getMethodId()+ " "+requestsSeq.size()+" "+request.hashCode());
 			}else if(request.isMutex()){
 				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsMutex.size());
 				while (requestsMutex.size() >= maxQueue){
@@ -126,6 +136,7 @@ public class RequestQueue {
 			if (waitSuccess) {
 				request = availableRequest;
 				request.setStatus(Request.Serving);
+				
 				
 				serveRequest(request);
 				
@@ -217,11 +228,16 @@ public class RequestQueue {
 	 * @return true if a request can be peeked
 	 */
 	public boolean canPeek() {
-		if (availableRequest != null ||
-				canPeekType(requestsConc) ||
-				canPeekType(requestsSeq) ||
-				canPeekType(requestsMutex)) {
+		requestType = (requestType + 1) % requests.size(); //Rotate through conc, seq, mutex to give them equal time
+		if (availableRequest == null) {
 			
+			for(int i = 0; i < 3; i++){
+				if(canPeekType(requests.get((requestType + i) % requests.size()))){
+					canPeek.signal();
+					return true;
+				}
+			}			
+		}else{
 			canPeek.signal();
 			return true;
 		}
@@ -231,8 +247,10 @@ public class RequestQueue {
 
 	private boolean canPeekType(List<Request> requests){
 		for (Request currentRequest: requests) {
+			//System.out.println("Test "+currentRequest.classId+" "+currentRequest.methodId+" "+currentRequest.hashCode()+" "+currentRequest.isMutex()+" "+currentRequest.isSequential()+" "+currentRequest.isConcurrent());
 			if (canPeek(currentRequest)) {
 				if (availableRequest == null) {
+					//System.out.println("Accepted");
 					availableRequest = currentRequest;
 				}
 				return true;
@@ -251,29 +269,29 @@ public class RequestQueue {
 		if (request.getStatus() != Request.Pending){
 			return false;
 		}
-		return true;
 		
-		/*
-		if (request.isMutex()) {
-			if (servingMutex != null && servingMutex.getStatus() == Request.Serving){
-				return false;
-			}
+		//If any mutex request is currently running, dont serve this request
+		if (servingMutex != null && servingMutex.getStatus() == Request.Serving){
+			return false;
 		}
 		
-		if (request.isConcurrent()) {
-			for (int i = 0; i < servingConcurrent.size(); i++) {
-				Request currentRequest = servingConcurrent.get(i);
-				if (currentRequest.getStatus() == Request.Serving && currentRequest.isMutex()){
-					return false;
-				}
-			}
-		}
 		
-		if (request.isSequential()) {
+		if (request.isMutex() || request.isSequential()) {
+			//Dont serve mutex or seq requests if there is any sequential request running
 			if (servingSequential != null && servingSequential.getStatus() == Request.Serving){
 				return false;
 			}
+			
+			if(request.isMutex()){
+				//Dont serve mutex request if any concurrent request is running
+				for (int i = 0; i < servingConcurrent.size(); i++) {
+					Request currentRequest = servingConcurrent.get(i);
+					if (currentRequest.getStatus() == Request.Serving && currentRequest.isMutex()){
+						return false;
+					}
+				}
+			}
 		}
-		return true;*/
+		return true;
 	}
 }
