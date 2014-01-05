@@ -20,6 +20,16 @@ public class ClassUtil {
 			if(ProxyObject.class.isAssignableFrom(parameterTypes[index])){
 				parameterTypes[index] = parameterTypes[index].getSuperclass();
 			}
+			
+			if(objects[index].getClass().equals(Integer.class)){
+				parameterTypes[index] = Integer.TYPE;
+			}else if(objects[index].getClass().equals(Double.class)){
+				parameterTypes[index] = Double.TYPE;
+			}else if(objects[index].getClass().equals(Long.class)){
+				parameterTypes[index] = Long.TYPE;
+			}else if(objects[index].getClass().equals(Short.class)){
+				parameterTypes[index] = Short.TYPE;
+			}
 		}
 		
 		return parameterTypes;

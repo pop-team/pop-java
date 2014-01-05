@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.system.XMLWorker;
+import popjava.util.LogWriter;
 
 /**
  * This class is responsible to discover the buffer
@@ -100,7 +101,7 @@ public class BufferFactoryFinder {
 		
 		XMLWorker xw = new XMLWorker();
 		if(!xw.isValid(bufferMapLocation, schemaLocation)){
-			System.out.println("The buffer plugin map is not valid");
+			LogWriter.printDebug("The buffer plugin map is not valid");
 			return;
 		}
 		

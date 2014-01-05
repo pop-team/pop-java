@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.*;
 
 import javassist.util.proxy.ProxyObject;
@@ -232,13 +233,6 @@ public class Broker {
 				try {
 					parameters[index] = requestBuffer
 							.getValue(parameterTypes[index]);
-					
-					if(parameters[index] != null && parameters[index] instanceof POPObject){
-						POPObject temp = (POPObject)parameters[index];
-						//t=(Toto)PopJava.newActive(Toto.class, t.getAccessPoint());
-						/*parameters[index]= PopJava.newActive(parameters[index].getClass().getSuperclass(),
-								temp.getAccessPoint());*/
-					}
 				} catch (POPException e) {
 					throw new POPException(e.errorCode, e.errorMessage);
 				} catch (Exception e) {
@@ -252,6 +246,8 @@ public class Broker {
 		return parameters;
 	}
 
+	private Map<Method, Annotation[][]> annotationCache = new ConcurrentHashMap<>();
+	
 	/**
 	 * This method is responsible to call the correct method on the associated
 	 * object
@@ -288,8 +284,15 @@ public class Broker {
 			returnType = method.getReturnType();
 			parameterTypes = method.getParameterTypes();
 			
+			/*Annotation[][] annotations = annotationCache.get(method);
+			if(annotations == null){
+				annotations = method.getParameterAnnotations();
+				annotationCache.put(method, annotations);
+			}*/
+			Annotation[][] annotations = method.getParameterAnnotations();
+			
 			try{
-				parameters = getParameters(requestBuffer, parameterTypes, method.getParameterAnnotations());
+				parameters = getParameters(requestBuffer, parameterTypes, annotations);
 			}catch(POPException e){
 				exception = e;
 			}
@@ -445,14 +448,25 @@ public class Broker {
 	 *            Request received from the interface-side
 	 * @throws InterruptedException 
 	 */
-	public void serveRequest(Request request) throws InterruptedException {
+	public void serveRequest(final Request request) throws InterruptedException {
 		request.setBroker(this);
 		request.setStatus(Request.Serving);
 		// Do not create new thread if method is mutex
 		if (request.isMutex()) {
 			invoke(request);
 		} else {
-			Runnable popRequest = new POPThread(request);
+			Runnable popRequest = new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						request.getBroker().invoke(request);
+					} catch (InterruptedException e) {
+						LogWriter.writeExceptionLog(e);
+					}
+				}
+			};
+			
 			if(request.isConcurrent()){
 				threadPoolConcurrent.execute(popRequest);
 			}else{

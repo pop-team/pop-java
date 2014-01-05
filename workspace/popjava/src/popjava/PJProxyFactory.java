@@ -67,15 +67,15 @@ public class PJProxyFactory extends ProxyFactory {
 				Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
 				
 				for(Constructor<?> constructor: targetClass.getConstructors()){
-					System.out.println("Constructor: ");
+					LogWriter.printDebug("Constructor: ");
 					for(Class<?> type: constructor.getParameterTypes()){
-						System.out.println(type.getName());
+						LogWriter.printDebug(type.getName());
 					}
 				}
 				
-				System.out.println("Search for");
+				LogWriter.printDebug("Search for");
 				for(Class<?> type: parameterTypes){
-					System.out.println(type.getName());
+					LogWriter.printDebug(type.getName());
 				}
 				
 				Constructor<?> constructor = targetClass.getConstructor(parameterTypes);

@@ -299,10 +299,11 @@ public class POPObject implements IPOPBase {
 				break;
 			}
 		}
-		if (method == null)
+		if (method == null){
 			throw new NoSuchMethodException();
-		else
-			return method;
+		}
+		
+		return method;
 	}
 
 	/**
