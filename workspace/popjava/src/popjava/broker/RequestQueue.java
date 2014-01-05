@@ -251,7 +251,9 @@ public class RequestQueue {
 		if (request.getStatus() != Request.Pending){
 			return false;
 		}
+		return true;
 		
+		/*
 		if (request.isMutex()) {
 			if (servingMutex != null && servingMutex.getStatus() == Request.Serving){
 				return false;
@@ -272,6 +274,6 @@ public class RequestQueue {
 				return false;
 			}
 		}
-		return true;
+		return true;*/
 	}
 }

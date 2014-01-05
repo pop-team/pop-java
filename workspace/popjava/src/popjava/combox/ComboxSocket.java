@@ -51,13 +51,16 @@ public class ComboxSocket extends Combox {
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
 				peerConnection.sendUrgentData(-1);
+			}
+		} catch (IOException e) {
+		}finally{
+			try {
 				outputStream.close();
 				inputStream.close();
 				peerConnection.close();
+			} catch (IOException e) {
+				LogWriter.writeExceptionLog(e);
 			}
-
-		} catch (IOException e) {
-			LogWriter.writeExceptionLog(e);
 		}
 	}
 
