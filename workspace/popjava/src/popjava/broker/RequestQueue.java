@@ -137,7 +137,6 @@ public class RequestQueue {
 				request = availableRequest;
 				request.setStatus(Request.Serving);
 				
-				
 				serveRequest(request);
 				
 				availableRequest = null;
@@ -159,16 +158,11 @@ public class RequestQueue {
 		return request;
 	}
 
+	/**
+	 * Move request from availableRequest to its proper request queue
+	 * @param request
+	 */
 	private void serveRequest(Request request){
-		//Migrate request to serving queue
-		if(request.isConcurrent()){
-			requestsConc.remove(request);
-		}else if(request.isSequential()){
-			requestsSeq.remove(request);
-		}else if(request.isMutex()){
-			requestsMutex.remove(request);
-		}
-		
 		if(request.isMutex()){
 			servingMutex = request;
 		}else if(request.isSequential()){
@@ -188,13 +182,10 @@ public class RequestQueue {
 		try {
 			if(request.isMutex() && servingMutex == request){
 				servingMutex = null;
-				requestsMutex.remove(request);
 			}else if(request.isSequential() && servingSequential == request){
 				servingSequential = null;
-				requestsSeq.remove(request);
 			}else{
 				servingConcurrent.remove(request);
-				requestsConc.remove(request);
 			}
 			
 			canPeek();
@@ -246,12 +237,13 @@ public class RequestQueue {
 	}
 
 	private boolean canPeekType(List<Request> requests){
-		for (Request currentRequest: requests) {
-			//System.out.println("Test "+currentRequest.classId+" "+currentRequest.methodId+" "+currentRequest.hashCode()+" "+currentRequest.isMutex()+" "+currentRequest.isSequential()+" "+currentRequest.isConcurrent());
+		for(int i = 0; i < requests.size(); i++){
+			Request currentRequest = requests.get(i);
 			if (canPeek(currentRequest)) {
 				if (availableRequest == null) {
 					//System.out.println("Accepted");
 					availableRequest = currentRequest;
+					requests.remove(i);
 				}
 				return true;
 			}
