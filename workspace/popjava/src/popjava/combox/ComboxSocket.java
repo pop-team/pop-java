@@ -48,15 +48,8 @@ public class ComboxSocket extends Combox {
 
 	@Override
 	public void close() {
-		//LogWriter.writeDebugInfo("Try to close ComboxSocket "+peerConnection.getLocalPort()+" "+peerConnection.getPort());
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
-				//LogWriter.writeDebugInfo("Close ComboxSocket "+peerConnection.getLocalPort()+" "+peerConnection.getPort());
-				/*Exception e = new Exception();
-				LogWriter.writeExceptionLog(e);*/
-				
-				//LogWriter.writeExceptionLog(new Exception(hashCode()+" Close ComboxSocket "+peerConnection.getLocalPort()+" "+peerConnection.getPort()));
-				
 				peerConnection.sendUrgentData(-1);
 				outputStream.close();
 				inputStream.close();
@@ -173,13 +166,14 @@ public class ComboxSocket extends Combox {
 				final int length = buffer.size();
 				final byte[] dataSend = buffer.array();
 				
-				//LogWriter.writeDebugInfo("Write data to "+outputStream+" "+buffer.getHeader().toString());				
+				//System.out.println("Write "+length+" bytes to socket");				
 				outputStream.write(dataSend, 0, length);
 				outputStream.flush();
 				
 				return length;
 			} catch (IOException e) {
 				if (Configuration.DebugCombox){
+					e.printStackTrace();
 					LogWriter.writeDebugInfo(this.getClass().getName()
 							+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
 					

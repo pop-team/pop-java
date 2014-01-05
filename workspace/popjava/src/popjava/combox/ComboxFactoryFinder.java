@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.system.XMLWorker;
+import popjava.util.LogWriter;
 
 /**
  * This class is responsible to find the different combox available in POP-Java
@@ -73,7 +74,7 @@ public class ComboxFactoryFinder {
 		
 		XMLWorker xw = new XMLWorker();
 		if(!xw.isValid(comboxMapLocation, schemaLocation)){
-			System.out.println("The combox plugin map is not valid");
+			LogWriter.printDebug("The combox plugin map is not valid");
 			return;
 		}
 		try {

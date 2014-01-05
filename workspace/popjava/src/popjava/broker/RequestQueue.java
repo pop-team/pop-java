@@ -12,14 +12,18 @@ public class RequestQueue {
 	protected final Lock lock = new ReentrantLock();
 	protected final Condition canPeek = lock.newCondition();
 	protected final Condition canInsert = lock.newCondition();
+	
 	protected ArrayList<Request> requestsConc = new ArrayList<Request>();
 	protected ArrayList<Request> requestsSeq = new ArrayList<Request>();
 	protected ArrayList<Request> requestsMutex = new ArrayList<Request>();
+	
 	protected Request servingMutex = null;
 	protected ArrayList<Request> servingConcurrent = new ArrayList<Request>();
 	protected Request servingSequential = null;
+	
 	protected Request availableRequest = null;
-	protected int maxQueue = 400;
+	
+	protected int maxQueue = 300;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
@@ -162,32 +166,6 @@ public class RequestQueue {
 			servingConcurrent.add(request);
 		}
 	}
-	
-	/**
-	 * Peek a request into the queue
-	 * @return The request peeked
-	 */
-	public Request peek() {
-		Request request = null;
-		lock.lock();
-		try {
-			while (availableRequest == null){
-				canPeek.await();
-			}
-			request = availableRequest;
-			request.setStatus(Request.Serving);
-			
-			serveRequest(request);
-			
-			availableRequest = null;
-			canPeek();
-		} catch (InterruptedException exception) {
-
-		} finally {
-			lock.unlock();
-		}
-		return request;
-	}
 
 	/**
 	 * Remove a specific request from the queue
@@ -238,21 +216,13 @@ public class RequestQueue {
 	 * Check if there is request to peek
 	 * @return true if a request can be peeked
 	 */
-	public synchronized boolean canPeek() {
-		if (availableRequest != null) {
+	public boolean canPeek() {
+		if (availableRequest != null ||
+				canPeekType(requestsConc) ||
+				canPeekType(requestsSeq) ||
+				canPeekType(requestsMutex)) {
+			
 			canPeek.signal();
-			return true;
-		}
-		
-		if(canPeekType(requestsConc)){
-			return true;
-		}
-		
-		if(canPeekType(requestsSeq)){
-			return true;
-		}
-		
-		if(canPeekType(requestsMutex)){
 			return true;
 		}
 
@@ -260,14 +230,11 @@ public class RequestQueue {
 	}
 
 	private boolean canPeekType(List<Request> requests){
-		int requestCount = requests.size();
-		for (int i = 0; i < requestCount; i++) {
-			Request currentRequest = requests.get(i);
+		for (Request currentRequest: requests) {
 			if (canPeek(currentRequest)) {
 				if (availableRequest == null) {
 					availableRequest = currentRequest;
 				}
-				canPeek.signal();
 				return true;
 			}
 		}
@@ -280,7 +247,7 @@ public class RequestQueue {
 	 * @param request	Request to be peeked
 	 * @return true if the request can be peeked
 	 */
-	public synchronized boolean canPeek(Request request) {
+	private boolean canPeek(Request request) {
 		if (request.getStatus() != Request.Pending){
 			return false;
 		}
@@ -290,6 +257,7 @@ public class RequestQueue {
 				return false;
 			}
 		}
+		
 		if (request.isConcurrent()) {
 			for (int i = 0; i < servingConcurrent.size(); i++) {
 				Request currentRequest = servingConcurrent.get(i);
@@ -298,6 +266,7 @@ public class RequestQueue {
 				}
 			}
 		}
+		
 		if (request.isSequential()) {
 			if (servingSequential != null && servingSequential.getStatus() == Request.Serving){
 				return false;

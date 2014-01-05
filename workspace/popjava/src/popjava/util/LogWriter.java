@@ -64,6 +64,12 @@ public class LogWriter {
 
 	}
 
+	public static synchronized void printDebug(String message){
+		if (Configuration.Debug) {
+			System.out.println(message);
+		}
+	}
+	
 	/**
 	 * Write a new debug information line in the file
 	 * @param info	Information to write

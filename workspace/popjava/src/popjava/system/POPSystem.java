@@ -292,7 +292,7 @@ public class POPSystem {
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){
-		System.out.println("getCoreService "+proxy+ " "+appservicecontact+" "+appservicecode);
+		LogWriter.printDebug("getCoreService "+proxy+ " "+appservicecontact+" "+appservicecode);
 		
 		if(appservicecontact == null || appservicecontact.length() == 0){
 			
@@ -344,7 +344,7 @@ public class POPSystem {
 		XMLWorker xw = new XMLWorker();
 		
 		if(!new File(POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd").exists()){
-			System.out.println("Could not open objectmap.xsd at "+POPJavaConfiguration.getPopJavaLocation());
+			LogWriter.printDebug("Could not open objectmap.xsd at "+POPJavaConfiguration.getPopJavaLocation());
 			return false;
 		}
 		
