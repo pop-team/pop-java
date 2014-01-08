@@ -15,7 +15,7 @@ import java.io.*;
 public class ComboxSocket extends Combox {
 	protected Socket peerConnection = null;
 	protected byte[] receivedBuffer;
-	public static int BufferLength = 1024 * 32;
+	public static int BufferLength = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
 
