@@ -490,6 +490,11 @@ public class Interface {
 	 * @return
 	 */
 	private static String getRemoteCodeFile(String objectName){
+		System.out.println("**** "+objectName+" "+POPAppService.class.getName());
+		if(objectName.equals(POPAppService.class.getName())){
+			return getPOPCodeFile();
+		}
+		
 		AppService appCoreService = null;
 		
 		if(!POPSystem.AppServiceAccessPoint.isEmpty()){
@@ -616,7 +621,7 @@ public class Interface {
 		}
 		
 		int ret = -1;
-		if(isLocal){
+		if(false && isLocal){
 			ret = SystemUtil.runCmd(argvList);
 		}else{
 			ret = SystemUtil.runRemoteCmd(hostname, argvList);

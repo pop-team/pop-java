@@ -672,6 +672,9 @@ public class POPObject implements IPOPBase {
 	public <T extends POPObject> T getThis(Class<T> myClass){
 		if(me == null){
 			me = PopJava.newActive(getClass(), getAccessPoint());
+			if(me != null && Broker.getBroker() != null){
+				Broker.getBroker().onCloseConnection();
+			}
 		}
 		return (T) me;
 	}
