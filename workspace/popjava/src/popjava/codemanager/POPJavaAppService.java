@@ -3,27 +3,23 @@ package popjava.codemanager;
 import java.util.HashMap;
 import java.util.Map;
 
+import popjava.annotation.POPClass;
+import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
 import popjava.dataswaper.POPString;
 import popjava.system.POPJavaConfiguration;
 import popjava.util.LogWriter;
 
+@POPClass(classId = 99923, deconstructor = false)
 public class POPJavaAppService extends POPObject implements AppService{
 	
 	private static final String ALL_PLATFORMS = "*-*";
 	
+	@POPObjectDescription(url = "localhost")
 	public POPJavaAppService() {
-		this.setClassId(99923);
-		this.hasDestructor(false);
-		od.setHostname("localhost");
-		initializePOPObject();
-		this.definedMethodId = true;
-		Class<?> c = this.getClass();
-		addSemantic(c, "registerCode", Semantic.Sequence | Semantic.Synchronous);
-		addSemantic(c, "queryCode", Semantic.Sequence | Semantic.Synchronous);
-		addSemantic(c, "getPlatform", Semantic.Sequence | Semantic.Synchronous);
-		addSemantic(c, "getPOPCAppID", Semantic.Sequence | Semantic.Synchronous);
+		//this.definedMethodId = true;
 	}
 
 	//Platform, objectname, codefile
@@ -36,6 +32,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	 * @param platform	Platform of the executable
 	 * @param codefile	Path of the executable code file
 	 */
+	@POPSyncSeq
 	public void registerCode(String objname, String platform, String codefile) {
 		Map<String, String> platf = registeredCode.get(platform);
 		if(platf == null){
@@ -52,6 +49,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	 * @param codefile	Output argument - code file for the specific object and the specific platform
 	 * @return	0 if the code file is not available
 	 */
+	@POPSyncSeq
 	public int queryCode(String objname, String platform, POPString codefile) {
 		Map<String, String> platf = registeredCode.get(platform);
 		String storeCodeFile = null;
@@ -102,10 +100,12 @@ public class POPJavaAppService extends POPObject implements AppService{
 	 * @param platform	Output argument - platform available for the object
 	 * @return	number of platform available
 	 */
+	@POPSyncSeq
 	public int getPlatform(String objname, POPString platform) {
 		return 0;
 	}
 	
+	@POPSyncSeq
 	public String getPOPCAppID(){
 		return "PopJavaApp";
 	}

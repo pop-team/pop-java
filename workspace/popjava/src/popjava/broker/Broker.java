@@ -81,6 +81,12 @@ public class Broker {
 	});
 			//Executors.newCachedThreadPool());//
 
+	private static Broker me;
+	
+	public static Broker getBroker(){
+		return me;
+	}
+	
 	/**
 	 * Creates a new instance of POPBroker
 	 * 
@@ -89,7 +95,10 @@ public class Broker {
 	 * @param objectName
 	 *            Name of the object to create
 	 */
-	public Broker(String codelocation, String objectName) {
+	private Broker(String codelocation, String objectName) {
+		if(me == null){
+			me = this;
+		}
 		
 		URLClassLoader urlClassLoader = null;
 		if (codelocation != null && codelocation.length() > 0) {
@@ -612,7 +621,7 @@ public class Broker {
 	/**
 	 * Increment the connection counter
 	 */
-	public void onNewConnection() {
+	public synchronized void onNewConnection() {
 		connectionCount++;
 		LogWriter.writeDebugInfo("Open connection "+connectionCount);
 	}
@@ -621,7 +630,7 @@ public class Broker {
 	 * Decrement de connection counter and exit the broker if there is no more
 	 * connection
 	 */
-	public void onCloseConnection() {
+	public synchronized void onCloseConnection() {
 		connectionCount--;
 		LogWriter.writeDebugInfo("Close connection, left "+connectionCount);
 		if (connectionCount <= 0){

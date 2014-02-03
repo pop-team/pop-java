@@ -48,8 +48,12 @@ public class ComboxSocket extends Combox {
 
 	@Override
 	public void close() {
+		
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
+				LogWriter.writeExceptionLog(new Exception("Close connection to "+peerConnection.getInetAddress()+
+						":"+peerConnection.getPort()+" remote: "+peerConnection.getLocalPort()));
+
 				peerConnection.sendUrgentData(-1);
 			}
 		} catch (IOException e) {
@@ -86,7 +90,7 @@ public class ComboxSocket extends Combox {
 					peerConnection.connect(sockaddress, timeOut);
 					
 					//LogWriter.writeExceptionLog(new Exception());
-					//LogWriter.writeExceptionLog(new Exception("Open connection to "+host+":"+port+" remote: "+peerConnection.getLocalPort()));
+					LogWriter.writeExceptionLog(new Exception("Open connection to "+host+":"+port+" remote: "+peerConnection.getLocalPort()));
 				} else {
 					peerConnection = new Socket(host, port);
 				}
