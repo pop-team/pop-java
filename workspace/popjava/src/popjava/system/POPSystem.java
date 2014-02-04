@@ -59,6 +59,7 @@ public class POPSystem {
 	 * POP-Java Job service access point
 	 */
 	public static POPAccessPoint JobService = new POPAccessPoint();
+	private static AppService coreServiceManager;
 	
 	/**
 	 * POP-Java application service access point 
@@ -268,7 +269,7 @@ public class POPSystem {
 			return false;
 		}
 		
-		AppService coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
+		coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
 		
 		if(coreServiceManager != null){
 			AppServiceAccessPoint = coreServiceManager.getAccessPoint();
@@ -439,6 +440,7 @@ public class POPSystem {
 	}
 	
 	public static void end(){
+		coreServiceManager.exit();
 		SystemUtil.endAllChildren();
 		if(prlt != null){ //If initialize failed, prlt will be null
 			try {
