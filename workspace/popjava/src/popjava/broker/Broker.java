@@ -308,7 +308,7 @@ public class Broker {
 		}
 		
 		normalizePOPParamameters(parameters);
-		LogWriter.writeDebugInfo("Call method "+method.getName());
+		//LogWriter.writeDebugInfo("Call method "+method.getName());
 		// Invoke the method if success to get all parameter
 		if (exception == null) {
 			try {

@@ -1,0 +1,389 @@
+\label{mixed}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% POP-JAVA AND POP-C++
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{POP-Java and POP-C++ interoperability}
+POP-Java can use POP-C++ parallel classes and POP-C++ can also use POP-Java parallel classes. This chapter will explain everything the programmer needs to know to develop mixed POP application. 
+
+
+\subsection{Restrictions}
+As Java and C++ are different languages, there are some restrictions. In this section, all the restrictions or programming tips will be given.
+
+\subsubsection{Java primitives}
+As Java primitives are always passed by value, the is no way to modify a Java primitive in a POP-C++ object. In pure POP-C++ the programmer can deal with the passing by reference but not in POP-Java.
+
+\subsubsection{Parameters passing}
+Some parameters cannot be passed from a POP-Java application to a POP-C++ parallel object and vice versa. The list below explain the restrictions on certain primitive types. The Java primitive types are taken as the basis.
+
+\begin{itemize}
+\item \textbf{byte} : This type does not exist in C++ so it's not possible to pass a byte.
+\item \textbf{long} : The Java long is coded on 8 bytes as it's coded on 4 bytes with C++. Some unexpected behavior can occurred.
+\item \textbf{char[]} : The char array cannot be used in the current version of POP-Java with POP-C++ parallel classes.
+\end{itemize}
+
+\subsubsection{Dealing with array}
+Passing arrays from POP-Java to POP-C++ is a bit tricky. As POP-Java and POP-C++ do not behave the same with array, the programmer must be aware of the way to pass the array. Here is a example of a method with an array as parameter.\s
+
+\textbf{The method declaration in POP-C++}\\
+In POP-C++, the programmer must give the array size to the compiler.
+\begin{lstlisting}
+sync seq void changeIntArray(int n, [in, out, size=n] int *i);
+\end{lstlisting}\s
+
+\textbf{Method declaration in POP-Java}\\
+As POP-C++ will need the size of the array, POP-Java must declare this size as well.
+\begin{lstlisting}
+@POPSyncSeq
+public void changeIntArray(int n, int[] i){}
+\end{lstlisting}\s
+
+\textbf{Method call from POP-Java}\\
+In the POP-Java application, the programmer need to give the array size in the method call.
+\begin{lstlisting}
+p.changeIntArray(iarray.length, iarray);
+\end{lstlisting}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% POP-JAVA APPLICATION WITH POP-C++ PARCLASS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+\subsection{POP-Java application using POP-C++ parallel objects}
+This section will teach the programmer how to develop a POP-Java application with a POP-C++ parallel class. The same example of the parallel class Integer will be used.  For more details about the POP-C++ programming please have a look to "Parallel Object Programming C++ - User and Installation Manual"\cite{popc_intro}. In the following example, the main class used is the same as the one shown in the figure[\ref{fig:code_testinteger.pjava}]. All the sources can be found in the directory "example/mixed1" of the POP-Java distribution.
+
+\subsubsection{Develop the POP-C++ parallel class}
+First, the programmer needs to write the parallel class in POP-C++ as it should be for a POP-C++ application. The figure[\ref{fig:file_integer.ph}] shows the header file of the parclass Integer. There is two rules to follow when the programmer develop a POP-C++ parallel class for POP-Java usage.
+\begin{enumerate}
+\item The parclass must declare a classuid.
+\item The methods must be declared in alphabetics order.
+\end{enumerate}
+
+\begin{figure}[ht]
+	\caption{File integer.ph}
+	\label{fig:file_integer.ph}
+\begin{lstlisting}
+parclass Integer
+{
+  classuid(1000);
+public:	
+  Integer();
+  ~Integer();
+
+  mutex void Add(Integer &other);
+  conc int Get();
+  seq async void Set(int val);
+
+private:
+  int data;
+};
+\end{lstlisting}
+\end{figure}
+
+\pagebreak
+The figure[\ref{fig:file_integer.cc}] shows the implementation of the parallel class Integer. There is no important information in this file for the POP-Java usage.
+
+\begin{figure}[ht]
+	\caption{File integer.cc}
+	\label{fig:file_integer.cc}
+\begin{lstlisting}
+#include <stdio.h>
+#include "integer.ph"
+#include <unistd.h>
+
+Integer::Integer() {
+  printf("Create remote object Integer on %s\n",
+		   (const char *)POPSystem::GetHost());
+}
+
+Integer::~Integer() {
+  printf("Destroying Integer object...\n");
+}
+
+void Integer::Set(int val) {
+  data=val;
+}
+
+int Integer::Get() {
+  return data;
+}
+
+void Integer::Add(Integer &other) {
+  data += other.Get();
+}
+@pack(Integer);
+\end{lstlisting}
+\end{figure}
+
+
+\textbf{Compilation of the parallel class}\\
+Once the parclass implementation is finished, it can be compiles with the POP-C++ compiler. The following command will create an object executable of our parclass Integer.
+\begin{lstlisting}
+popcc -object -o integer.obj integer.cc integer.ph
+\end{lstlisting}
+
+
+\pagebreak
+\subsubsection{Create the partial POP-Java parallel class}
+To be used in a POP-Java application, a POP-C++ parallel class must have its partial implementation in POP-Java language. A partial implementation means that all the methods must be declared but does not need to be implemented. \s
+
+The figure [\ref{fig:file_integer.pjava}] shows the partial implementation of the parallel class Integer. All the methods are just declared. This partial implementation is a translation of the POP-C++ source code to POP-Java source code. \s
+
+\textbf{Remark} : In the future version of POP-C++ and POP-Java, the partial implementation would be generated by the compiler. For the moment, the programmer will need to do it by hand.
+\begin{figure}[ht]
+	\caption{File integer.cc}
+	\label{fig:file_integer.pjava}
+\begin{lstlisting}
+@POPClass
+public class Integer {
+  private int value;
+
+  public Integer(){
+  }
+
+  @POPSyncMutex
+  public void add(Integer i){
+  }
+
+  @POPSyncConc
+  public int get(){
+	return 0;  
+  }
+  
+  @POPAsyncSeq
+  public void set(int val){
+  }
+}
+\end{lstlisting}
+\end{figure}
+
+
+\pagebreak
+\subsubsection{Special compilation}
+To compile the partial POP-Java parallel class, the compiler needs some additional informations. The POP-Java compiler has an option to generate an additional informations XML file. To generate this file use the following command line : 
+
+\begin{lstlisting}
+popjc -x Integer.pjava
+\end{lstlisting}\s
+
+This command will generate a file (additional-infos.xml) in the current directory. This file is incomplete. The programmer will need to edit it with the informations of the POP-C++ parallel class. The figure [\ref{fig:add_info_xml}] shows the file generated by the POP-Java compiler.
+
+\begin{figure}[ht]
+	\caption{Generated file additional-infos.xml}
+	\label{fig:add_info_xml}
+\begin{lstlisting}
+<popjparser-infos>
+  <popc-parclass file="Integer.pjava" name="" classuid="" 
+    hasDestructor="true"/>
+</popjparser-infos>
+\end{lstlisting}
+\end{figure}
+
+The two empty attributes \textbf{name} and \textbf{classuid} must be informed with the value of the POP-C++ parallel class. The complete file must look like the figure [\ref{fig:complete_add_info_xml}].
+
+\begin{figure}[ht]
+	\caption{Completed file additional-infos.xml}
+	\label{fig:complete_add_info_xml}
+\begin{lstlisting}
+<popjparser-infos>
+  <popc-parclass file="Integer.pjava" name="Integer" classuid="1000" 
+    hasDestructor="true"/>
+</popjparser-infos>
+\end{lstlisting}
+\end{figure}
+
+All the informations to compile the POP-Java application are now known. Here is the command to compile it : \s
+
+\textbf{Compilation as .class files}
+\begin{lstlisting}
+popjc -p additional-infos.xml Integer.pjava TestInteger.pjava
+\end{lstlisting}\s
+
+\textbf{Compilation as .jar file}
+\begin{lstlisting}
+popjc -j myjar.jar -p additional-infos.xml Integer.pjava 
+  TestInteger.pjava
+\end{lstlisting}
+
+\subsubsection{Generate the object map}
+An object map is also needed for a POP-Java application using POP-C++ parallel classes. The programmer can generate this object map with the POP-Java application launcher and the option "--listlong". This option accept also the POP-C++ executable files. Here is the command used for the example application : 
+
+\begin{lstlisting}
+popjrun --listlong integer.obj > objmap.xml
+\end{lstlisting}\s
+
+\pagebreak
+Generated objmap.xml file (path and architecture can differ from the ones shown here): 
+\begin{lstlisting}
+<CodeInfoList>
+  <CodeInfo>
+    <ObjectName>Integer</ObjectName>
+    <CodeFile>/home/clementval/pop/popjava-1.0/example/mixed/
+      integer.obj</CodeFile>
+    <PlatForm>i686-pc-Linux</PlatForm>
+  </CodeInfo>
+</CodeInfoList>
+\end{lstlisting}
+
+\subsubsection{Running the application}
+To run the mixed application, the programmer needs to use the POP-Java application launcher. As the application main class is written in POP-Java, only this tool can run this application. Here is the command used to run the application : 
+\begin{lstlisting}
+popjrun objmap.xml TestInteger
+\end{lstlisting}\s
+
+The output of the example application should be like the following : 
+\begin{lstlisting}
+i1=23
+i2=25
+i1+i2=48
+Test Integer Successful 
+\end{lstlisting}\s
+
+If any problems occurred with the compilation or the launching of the application, please see the chapter \ref{trouble}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% POP-C++ APPLICATION WITH POP-JAVA PARCLASS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+\subsection{POP-C++ application using POP-Java parallel objects}
+A POP-C++ application can also use POP-Java parallel classes. The following chapter shows how to develop, compile and run a POP-C++ using POP-Java parallel objects.
+
+\subsubsection{Developing and compiling the POP-Java parallel class}
+The POP-Java parallel class will be the same as the one shown in the figure[\ref{fig:code_integer.pjava}]. The compilation will be a little bit different. As for a POP-Java application using a POP-C++ parclass, the POP-Java will need some additional informations during the compilation process. These additional informations must be given in a XML file. The POP-Java compiler can generate a canvas of this file with the option "-x". Here is the command we used : 
+
+\begin{lstlisting}
+popjc -x Integer.pjava
+\end{lstlisting}\s
+
+The genrated file will be similar to the one shown on the figure[\ref{fig:add_info_xml}]. This time the attribute "name" must stay empty as we want to keep the real name of the POP-Java parallel class. The completed file should looks like the figure[\ref{fig:complete_add_info_xml2}].
+
+\begin{figure}[ht]
+	\caption{Completed file additional-infos.xml}
+	\label{fig:complete_add_info_xml2}
+\begin{lstlisting}
+<popjparser-infos>
+  <popc-parclass file="Integer.pjava" name="" classuid="1000" 
+    hasDestructor="true"/>
+</popjparser-infos>
+\end{lstlisting}
+\end{figure}
+
+This file can be given to the compiler to compile the parallel class with the following command : 
+\begin{lstlisting}
+popjc -p additional-infos.xml Integer.pjava
+\end{lstlisting}
+
+\pagebreak
+\subsubsection{The POP-C++ partial implementation}
+As for the POP-Java application using POP-C++ parallel objects, the POP-C++ application will need a partial implementation of the parallel class in POP-C++. The header file will stay the same as the one shown in the figure[\ref{fig:file_integer.ph}]. The figure[\ref{fig:file_integer2.cc}] shows the partial implementation of the POP-C++ parallel class. Once again, the method are declared but not implemented. 
+
+\begin{figure}[ht]
+	\caption{File integer.cc}
+	\label{fig:file_integer2.cc}
+\begin{lstlisting}
+#include <stdio.h>
+#include "integer.ph"
+#include <unistd.h>
+
+Integer::Integer() {
+  printf("Create remote object Integer on %s\n",
+		   (const char *)POPSystem::GetHost());
+}
+
+Integer::~Integer() {
+}
+
+void Integer::Set(int val) {
+}
+
+int Integer::Get() {
+  return 0;
+}
+
+void Integer::Add(Integer &other) {
+}
+@pack(Integer);
+\end{lstlisting}
+\end{figure}
+
+\pagebreak
+\subsubsection{The POP-C++ main}
+To be able to run this application, a main function must be written. The figure[\ref{fig:main.cc}] shows the file including the main of the POP-C++ application.
+
+\begin{figure}[ht]
+	\caption{File main.cc}
+	\label{fig:main.cc}
+\begin{lstlisting}
+#include "integer.ph"
+#include <iostream>
+using namespace std;
+int main(int argc, char **argv)
+{
+  try{
+    // Create 2 Integer objects
+    Integer o1;
+    Integer o2;
+    o1.Set(1); o2.Set(2);
+    cout << endl << "o1="<< o1.Get() << "; o2=" << o2.Get() << endl;
+    cout<<"Add o2 to o1"<<endl;
+    o1.Add(o2);
+    cout << "o1=o1+o2; o1=" << o1.Get() << endl << endl;
+  } catch (POPException *e) {
+    cout << "Exception occurs in application :" << endl;
+    e->Print();
+    delete e;
+    return -1;
+  } // catch
+  return 0;
+}
+\end{lstlisting}
+\end{figure}
+
+The main is very similar to the one used in POP-Java but this time it is written in POP-C++. 
+
+\subsubsection{Object map}
+As the current version of POP-C++ is not able to generate the object map for a POP-Java parallel class, the programmer needs to edit the object map manually.\s
+
+The code below is the canvas of the line to add in a POP-C++ object map for a POP-Java parallel class.\s
+
+\begin{lstlisting}
+POPCObjectName *-* /usr/bin/java -cp POPJAVA_LOCATION 
+popjava.broker.Broker -codelocation=CODE_LOCATION 
+-actualobject=POPJAVAObjectName
+\end{lstlisting}\s
+
+Here is the line for the example (the path will be different on your computer) : 
+\begin{lstlisting}
+Integer *-* /usr/bin/java -cp /home/clementval/popj 
+popjava.broker.Broker
+-codelocation=/home/clementval/pop/popjava-1.0/example/mixed2
+-actualobject=Integer
+\end{lstlisting}
+
+\subsubsection{Compile and run the POP-C++ application}
+The POP-Java parallel class is compiled and the object map is complete. The main and the partial implementation of the parallel class in POP-C++ must be compiled. The following command will compile our application : 
+
+\begin{lstlisting}
+popcc -o main integer.ph integer.cc main.cc
+popcc -object -o integer.obj integer.cc integer.ph main.cc
+\end{lstlisting}\s
+
+Everything is compiled and we can run the application with the "popcrun" tool.
+\begin{lstlisting}
+popcrun obj.map ./main
+\end{lstlisting}\s
+
+The output of the application should look like this :
+\begin{lstlisting}
+popcrun obj.map ./main
+
+o1=1; o2=2
+Add o2 to o1
+o1=o1+o2; o1=3
+\end{lstlisting}
+
+
+
+
+

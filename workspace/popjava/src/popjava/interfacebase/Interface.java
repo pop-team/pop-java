@@ -490,7 +490,6 @@ public class Interface {
 	 * @return
 	 */
 	private static String getRemoteCodeFile(String objectName){
-		System.out.println("**** "+objectName+" "+POPAppService.class.getName());
 		if(objectName.equals(POPAppService.class.getName())){
 			return getPOPCodeFile();
 		}
