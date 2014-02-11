@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2013.12.18)  4 FEB 2014 10:44
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2013.12.18)  7 FEB 2014 10:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -502,19 +502,19 @@ Package caption Info: listings package is loaded.
 (./manual_main.aux)
 \openout1 = `manual_main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 77.
-LaTeX Font Info:    ... okay on input line 77.
-LaTeX Font Info:    Try loading font information for T1+lmss on input line 77.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 70.
+LaTeX Font Info:    ... okay on input line 70.
+LaTeX Font Info:    Try loading font information for T1+lmss on input line 70.
  (/usr/share/texmf/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
@@ -539,7 +539,7 @@ Package lastpage Info: Please have a look at the pageslts package at
 (lastpage)             or
 (lastpage)             http://www.ctan.org/tex-archive/ 
 (lastpage)             install/macros/latex/contrib/pageslts.tds.zip
-(lastpage)             ! on input line 77.
+(lastpage)             ! on input line 70.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -589,38 +589,37 @@ File: popjava_official.png Graphic file (type png)
 <use popjava_official.png>
 Package pdftex.def Info: popjava_official.png used on input line 8.
 (pdftex.def)             Requested size: 177.45985pt x 136.30682pt.
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 28.
- (/usr/share/texmf/tex/latex/lm/ot1lmr.fd
+ [1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./eif_logo.png> <./popjava
+_official.png>]) (./manual_main.toc
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 4.
+
+(/usr/share/texmf/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 28.
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 4.
 
 (/usr/share/texmf/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 28.
-
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 4.
 
 (/usr/share/texmf/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 28.
-
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 4.
 
 (/usr/share/texmf/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 28.
+(Font)              <10.95> on input line 4.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 28.
+(Font)              <8> on input line 4.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 28.
- [1
+(Font)              <6> on input line 4.
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./eif_logo.png> <./popjava
-_official.png>])
-(./manual_main.toc
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
  Make it at least 13.59999pt.
@@ -641,7 +640,7 @@ LaTeX Font Warning: Font shape `OMS/lmss/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
 (Font)              for symbol `textbullet' on input line 48.
 
-<architecture.pdf, id=22, 794.97pt x 614.295pt>
+<architecture.pdf, id=21, 794.97pt x 614.295pt>
 File: architecture.pdf Graphic file (type pdf)
  <use architecture.pdf>
 Package pdftex.def Info: architecture.pdf used on input line 63.
@@ -667,7 +666,7 @@ rted-to.pdf fig_use_scenario.eps>
 (epstopdf)             \includegraphics on input line 80.
 Package epstopdf Info: Output file is already uptodate.
 
-<fig_use_scenario-eps-converted-to.pdf, id=49, 748.7975pt x 444.66125pt>
+<fig_use_scenario-eps-converted-to.pdf, id=48, 748.7975pt x 444.66125pt>
 File: fig_use_scenario-eps-converted-to.pdf Graphic file (type pdf)
 
 <use fig_use_scenario-eps-converted-to.pdf>
@@ -686,7 +685,7 @@ d-to.pdf fig_inv_async.eps>
 (epstopdf)             \includegraphics on input line 124.
 Package epstopdf Info: Output file is already uptodate.
 
-<fig_inv_async-eps-converted-to.pdf, id=78, 389.455pt x 366.36874pt>
+<fig_inv_async-eps-converted-to.pdf, id=77, 389.455pt x 366.36874pt>
 File: fig_inv_async-eps-converted-to.pdf Graphic file (type pdf)
 
 <use fig_inv_async-eps-converted-to.pdf>
@@ -704,7 +703,7 @@ erted-to.pdf fig_inv_semantics.eps>
 (epstopdf)             \includegraphics on input line 156.
 Package epstopdf Info: Output file is already uptodate.
 
-<fig_inv_semantics-eps-converted-to.pdf, id=79, 761.84625pt x 299.1175pt>
+<fig_inv_semantics-eps-converted-to.pdf, id=78, 761.84625pt x 299.1175pt>
 File: fig_inv_semantics-eps-converted-to.pdf Graphic file (type pdf)
 
 <use fig_inv_semantics-eps-converted-to.pdf>
@@ -714,13 +713,13 @@ ine 156.
  [8 <./fig_inv_async-eps-converted-to.pdf>] [9 <./fig_inv_semantics-eps-convert
 ed-to.pdf>]) [10]
 (./development.tex [11] [12] [13] [14] [15]
-<exception.pdf, id=115, 794.97pt x 614.295pt>
+<exception.pdf, id=114, 794.97pt x 614.295pt>
 File: exception.pdf Graphic file (type pdf)
  <use exception.pdf>
 Package pdftex.def Info: exception.pdf used on input line 234.
 (pdftex.def)             Requested size: 238.49284pt x 184.28992pt.
 ) [16 <./exception.pdf>] (./compile.tex
-<popjcompiler.png, id=126, 718.93594pt x 328.22626pt>
+<popjcompiler.png, id=125, 718.93594pt x 328.22626pt>
 File: popjcompiler.png Graphic file (type png)
  <use popjcompiler.png>
 Package pdftex.def Info: popjcompiler.png used on input line 12.
@@ -739,7 +738,7 @@ f combox.eps>
 (epstopdf)             \includegraphics on input line 16.
 Package epstopdf Info: Output file is already uptodate.
 
-<combox-eps-converted-to.pdf, id=176, 665.48625pt x 363.3575pt>
+<combox-eps-converted-to.pdf, id=175, 665.48625pt x 363.3575pt>
 File: combox-eps-converted-to.pdf Graphic file (type pdf)
 
 <use combox-eps-converted-to.pdf>
@@ -757,7 +756,7 @@ Package epstopdf Info: Source file: <comboxserver.eps>
 (epstopdf)             \includegraphics on input line 26.
 Package epstopdf Info: Output file is already uptodate.
 
-<comboxserver-eps-converted-to.pdf, id=182, 565.11125pt x 305.14pt>
+<comboxserver-eps-converted-to.pdf, id=181, 565.11125pt x 305.14pt>
 File: comboxserver-eps-converted-to.pdf Graphic file (type pdf)
 
 <use comboxserver-eps-converted-to.pdf>
@@ -775,7 +774,7 @@ d-to.pdf comboxfactory.eps>
 (epstopdf)             \includegraphics on input line 35.
 Package epstopdf Info: Output file is already uptodate.
 
-<comboxfactory-eps-converted-to.pdf, id=183, 657.45625pt x 230.8625pt>
+<comboxfactory-eps-converted-to.pdf, id=182, 657.45625pt x 230.8625pt>
 File: comboxfactory-eps-converted-to.pdf Graphic file (type pdf)
 
 <use comboxfactory-eps-converted-to.pdf>
@@ -795,7 +794,7 @@ f buffer.eps>
 (epstopdf)             \includegraphics on input line 61.
 Package epstopdf Info: Output file is already uptodate.
 
-<buffer-eps-converted-to.pdf, id=191, 620.3175pt x 1328.965pt>
+<buffer-eps-converted-to.pdf, id=190, 620.3175pt x 1328.965pt>
 File: buffer-eps-converted-to.pdf Graphic file (type pdf)
 
 <use buffer-eps-converted-to.pdf>
@@ -813,7 +812,7 @@ d-to.pdf bufferfactory.eps>
 (epstopdf)             \includegraphics on input line 70.
 Package epstopdf Info: Output file is already uptodate.
 
-<bufferfactory-eps-converted-to.pdf, id=197, 280.04625pt x 105.39375pt>
+<bufferfactory-eps-converted-to.pdf, id=196, 280.04625pt x 105.39375pt>
 File: bufferfactory-eps-converted-to.pdf Graphic file (type pdf)
 
 <use bufferfactory-eps-converted-to.pdf>
@@ -827,7 +826,7 @@ Package pdftex.def Info: bufferfactory-eps-converted-to.pdf used on input line
 \openout4 = `manual_main.lof'.
 
  [45]
-Underfull \hbox (badness 1009) in paragraph at lines 170--175
+Underfull \hbox (badness 1009) in paragraph at lines 163--168
 []\T1/lmss/m/n/10.95 W. All-cock, J. Bester, J. Bres-na-han, A. Cher-ve-nak, L.
  Lim-ing, S. Meder, and S. Tuecke.
  []
@@ -842,21 +841,20 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 Here is how much of TeX's memory you used:
  6441 strings out of 495002
  91504 string characters out of 6180261
- 208793 words of memory out of 5000000
+ 208753 words of memory out of 5000000
  9496 multiletter control sequences out of 15000+600000
  44402 words of font info for 39 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  42i,12n,43p,741b,1681s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}</usr/share/texlive/texmf-dist
 /fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fonts/type1/public
-/lm/lmss10.pfb></usr/share/texmf/fonts/type1/public/lm/lmss12.pfb></usr/share/t
-exmf/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf/fonts/type1/public/lm
-/lmsso10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/tex
-mf/fonts/type1/public/lm/lmtt8.pfb>
-Output written on manual_main.pdf (50 pages, 1007428 bytes).
+/lm/lmss10.pfb></usr/share/texmf/fonts/type1/public/lm/lmssbx10.pfb></usr/share
+/texmf/fonts/type1/public/lm/lmsso10.pfb></usr/share/texmf/fonts/type1/public/l
+m/lmtt10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt8.pfb>
+Output written on manual_main.pdf (50 pages, 988078 bytes).
 PDF statistics:
- 276 PDF objects out of 1000 (max. 8388607)
- 188 compressed objects within 2 object streams
+ 272 PDF objects out of 1000 (max. 8388607)
+ 185 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  66 words of extra memory for PDF output out of 10000 (max. 10000000)
 

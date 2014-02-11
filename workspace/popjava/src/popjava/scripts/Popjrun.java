@@ -189,7 +189,7 @@ public class Popjrun {
                 command[5] = "-file="+files;
                 //command[7] = "-file="+files;
                 
-                ScriptUtils.runNativeApplication(command, "Java not installed", null, false);
+                ScriptUtils.runNativeApplication(command, "Java not installed", null, verbose);
         }
         
         private static class StreamReader implements Runnable{

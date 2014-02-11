@@ -4,6 +4,7 @@
         <property name="build.dir" value ="build"/>
         <property name="temp.dir" value ="temp"/>
         <property name="classes.dir" value="${build.dir}/classes"/>
+	    <property name="objgenclasses.dir" value="${classes.dir}/objgen"/>
         <property name="jar.dir"     value="${build.dir}/jar"/>      
         
         <property name="release.dir" value ="release"/>
@@ -14,10 +15,11 @@
 	    <property name="junit.jar" value="dependencies/junit-4.8.2.jar"/>
         
         <property name="popjava.jar" value="popjava.jar"/>
-        <property name="testsuite.jar" value="testsuite.jar"/>   
-        
+        <property name="testsuite.jar" value="testsuite.jar"/>
+	    <property name="objmapgen.jar" value="popjobjectmapgen.jar"/>   
         
         <property name="popjava.src" value ="workspace/popjava/src/popjava"/>
+	   <property name="objmapgen.src" value ="workspace/ObjectMapGen/src/"/>
         <property name="testsuite.src" value ="workspace/popjava/src/testsuite"/>
         
         <property name="popjavac.dir" value ="popjavac"/>
@@ -39,6 +41,20 @@
         <javac srcdir="${popjava.src}"
                 destdir="${classes.dir}"
                 classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}"
+                debug="true" debuglevel="lines,vars,source"
+                target="7"
+                source="7"
+        >
+          <compilerarg value="-Xlint:deprecation,unchecked"/>
+        </javac>
+</target>
+	
+	
+<target name="make-objectmapgen" depends="jar-popjava" description="build the popjava library">
+        <mkdir dir="${objgenclasses.dir}"/>
+        <javac srcdir="${objmapgen.src}"
+                destdir="${objgenclasses.dir}"
+        	   classpath="${jar.dir}/${popjava.jar}"
                 debug="true" debuglevel="lines,vars,source"
                 target="7"
                 source="7"
@@ -68,7 +84,7 @@
 <target name="jar-popjava" depends="make-popjava" description="create jar for popjava">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${popjava.jar}" basedir="${classes.dir}" 
-                excludes="**/testsuite/**">
+                excludes="**/testsuite/**,**/objgen/**">
                 <zipgroupfileset dir="." includes="${javassist.jar}"/>
                 <zipgroupfileset dir="." includes="${sshj.jar}"/>
                 <zipgroupfileset dir="." includes="${log4j.jar}"/>
@@ -80,10 +96,16 @@
 <target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
-                excludes="**/popjava/**">
+                excludes="**/popjava/**,**/objgen/**">
         </jar>
 </target>
 	
+<target name="jar-objmapgen" depends="make-objectmapgen" description="create jar for the objectmapgen">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${objmapgen.jar}" basedir="${objgenclasses.dir}">
+        </jar>
+</target>
+
 <target name="run-testsuite" depends="jar-testsuite, jar-popjava" description="Run the testsuite">
 	<java classname="testsuite.Testsuite" fork="true">
 		<classpath>
@@ -93,7 +115,7 @@
 	</java>
 </target>
 
-<target name="make" depends="clean, jar-popjava, jar-testsuite" description="Builds the whole sourcecode">
+<target name="make" depends="clean, jar-popjava, jar-testsuite, jar-objmapgen" description="Builds the whole sourcecode">
 </target>
 
 <target name="make-release-folder" depends="make" description="Creates the directory that will be installed">
@@ -115,7 +137,7 @@
   <!-- Copy jars -->
   <copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
   <copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
-  <copy file="${popjavac.dir}/popjobjectmapgen.jar" todir="${release.dir}/JarFile"/>
+  <copy file="${jar.dir}/${objmapgen.jar}" todir="${release.dir}/JarFile"/>
   <copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
   
   
