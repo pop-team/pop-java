@@ -20,22 +20,32 @@ public class JARReader {
 		JarFile jf = new JarFile(file);
 		Enumeration<JarEntry> e = jf.entries();
 		while (e.hasMoreElements()) {
-			JarEntry je = e.nextElement();
-			String className = je.getName();
-			if (className.endsWith(".class")) {
-				className = className.substring(0, className.indexOf("."));
-				className = className.replace("/", ".");
-				ClassLoader loader = URLClassLoader.newInstance(
-						new URL[] { new URL("file://" + file) }, getClass()
-								.getClassLoader());
-				Class<?> c = Class.forName(className, true, loader);
-				Class<?> sc = c.getSuperclass();
-				while(sc != null && sc != POPObject.class)
-					sc = sc.getSuperclass();
-				if (sc == POPObject.class) {
-					parclasses.add(className);
+			
+				JarEntry je = e.nextElement();
+				String className = je.getName();
+				if (className.endsWith(".class")) {
+					className = className.substring(0, className.indexOf("."));
+					className = className.replace("/", ".");
+					ClassLoader loader = URLClassLoader.newInstance(
+							new URL[] { new URL("file://" + file) }, getClass()
+									.getClassLoader());
+
+					
+					try{
+						Class<?> c = Class.forName(className, true, loader);
+						Class<?> sc = c.getSuperclass();
+						while(sc != null && sc != POPObject.class){
+							sc = sc.getSuperclass();
+						}
+						
+						if (sc == POPObject.class) {
+							parclasses.add(className);
+						}
+					}catch(NoClassDefFoundError ex){
+						//ex.printStackTrace();
+					}
 				}
-			}
+			
 		}
 		return parclasses;
 	}
