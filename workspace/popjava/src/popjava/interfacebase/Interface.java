@@ -620,7 +620,7 @@ public class Interface {
 		}
 		
 		int ret = -1;
-		if(false && isLocal){
+		if(isLocal){
 			ret = SystemUtil.runCmd(argvList);
 		}else{
 			ret = SystemUtil.runRemoteCmd(hostname, argvList);
