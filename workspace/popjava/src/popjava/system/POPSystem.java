@@ -75,7 +75,8 @@ public class POPSystem {
 				System.out.println(log);
 			}
 			
-		} catch (POPException e) {
+		} catch (Exception e) {
+			System.out.println(log);
 			/*try{
 				POPAppService app = (POPAppService)PopJava.newActive(POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
 				app.logPJ(app.getPOPCAppID(), log);
