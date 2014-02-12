@@ -40,7 +40,7 @@ public class Broker {
 	static public final int Running = 0;
 	static public final int Exit = 1;
 	static public final int Abort = 2;
-	static public final int REQUEST_QUEUE_TIMEOUT_MS = 100;
+	static public final int REQUEST_QUEUE_TIMEOUT_MS = 20;
 	static public final int BasicCallMaxRange = 10;
 	static public final int ConstructorSemanticId = 21;
 	static public final String CallBackPrefix = "-callback=";
@@ -67,6 +67,7 @@ public class Broker {
 			return thread;
 		}
 	});
+	
 	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*5,
 			new ThreadFactory() {
 		
