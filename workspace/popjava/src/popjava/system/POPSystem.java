@@ -67,7 +67,8 @@ public class POPSystem {
 	public static POPAccessPoint AppServiceAccessPoint = new POPAccessPoint();
 	
 	public static void writeLog(String log){
-		try {
+		LogWriter.writeDebugInfo(log);
+		/*try {
 			POPAppService app = (POPAppService)PopJava.newActive(POPAppService.class, POPSystem.AppServiceAccessPoint);
 			if(app != null){
 				app.logPJ(app.getPOPCAppID(), log);
@@ -77,13 +78,13 @@ public class POPSystem {
 			
 		} catch (Exception e) {
 			System.out.println(log);
-			/*try{
+			try{
 				POPAppService app = (POPAppService)PopJava.newActive(POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
 				app.logPJ(app.getPOPCAppID(), log);
 			} catch (POPException e2) {
 				e2.printStackTrace();
-			}*/
-		}
+			}
+		}*/
 	}
 
 	static {
