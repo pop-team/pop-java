@@ -69,7 +69,12 @@ public class POPSystem {
 	public static void writeLog(String log){
 		try {
 			POPAppService app = (POPAppService)PopJava.newActive(POPAppService.class, POPSystem.AppServiceAccessPoint);
-			app.logPJ(app.getPOPCAppID(), log);
+			if(app != null){
+				app.logPJ(app.getPOPCAppID(), log);
+			}else{
+				System.out.println(log);
+			}
+			
 		} catch (POPException e) {
 			/*try{
 				POPAppService app = (POPAppService)PopJava.newActive(POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
