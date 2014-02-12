@@ -23,12 +23,12 @@ public class RequestQueue {
 	private List<List<Request>> requests = new ArrayList<>();
 	
 	private Request servingMutex = null;
-	private ArrayList<Request> servingConcurrent = new ArrayList<Request>();
 	private Request servingSequential = null;
+	private ArrayList<Request> servingConcurrent = new ArrayList<Request>();
 	
 	private Request availableRequest = null;
 	
-	private int maxQueue = 300;
+	private int maxQueue = 600;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
@@ -72,9 +72,9 @@ public class RequestQueue {
 	 * @return true if the request is added correctly
 	 */
 	public boolean add(Request request) {
-		LogWriter.writeDebugInfo(hashCode()+" Add request, there are already "+size()+" requests");
+		/*LogWriter.writeDebugInfo(hashCode()+" Add request, there are already "+size()+" requests");
 		LogWriter.writeDebugInfo(hashCode()+" DEBUG: "+requestsConc.size() +" "+ requestsSeq.size() +" "+ requestsMutex.size()+" "+
-				servingConcurrent.size());
+				servingConcurrent.size());*/
 		
 		lock.lock();
 		try {
