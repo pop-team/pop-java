@@ -110,12 +110,14 @@ public class ComboxSocket extends Combox {
 	
 	@Override
 	public int receive(POPBuffer buffer) {
-		synchronized (inputStream) {
-			int result = 0;
-			try {
-				buffer.resetToReceive();
-				// Receive message length
-				byte[] temp = new byte[4];
+		
+		int result = 0;
+		try {
+			buffer.resetToReceive();
+			// Receive message length
+			byte[] temp = new byte[4];
+			
+			synchronized (inputStream) {
 				int read = inputStream.read(temp); //TODO: blocking right here
 				int messageLength = buffer.getTranslatedInteger(temp);
 				
@@ -139,55 +141,55 @@ public class ComboxSocket extends Combox {
 						break;
 					}
 				}
+			}
 
-				int headerLength = MessageHeader.HeaderLength;
-				if (result < headerLength) {
-					if (Configuration.DebugCombox) {
-						String logInfo = String.format(
-								"%s.failed to receive header. receivedLength= %d < %d Message length %d",
-								this.getClass().getName(), result, headerLength, messageLength);
-						LogWriter.writeDebugInfo(logInfo);
-					}
-					close();
-				} else {
-					buffer.extractHeader();				
-				}
-				
-				return result;
-			} catch (Exception e) {
-				if (Configuration.DebugCombox){
-					LogWriter.writeDebugInfo("ComboxSocket Error while receiving data:"
-									+ e.getMessage());
+			int headerLength = MessageHeader.HeaderLength;
+			if (result < headerLength) {
+				if (Configuration.DebugCombox) {
+					String logInfo = String.format(
+							"%s.failed to receive header. receivedLength= %d < %d Message length %d",
+							this.getClass().getName(), result, headerLength);
+					LogWriter.writeDebugInfo(logInfo);
 				}
 				close();
-				return -2;
+			} else {
+				buffer.extractHeader();				
 			}
+			
+			return result;
+		} catch (Exception e) {
+			if (Configuration.DebugCombox){
+				LogWriter.writeDebugInfo("ComboxSocket Error while receiving data:"
+								+ e.getMessage());
+			}
+			close();
+			return -2;
 		}
 	}
 
 	@Override
 	public int send(POPBuffer buffer) {
-		synchronized (outputStream) {
-			try {
-				buffer.packMessageHeader();
-				final int length = buffer.size();
-				final byte[] dataSend = buffer.array();
-				
-				//System.out.println("Write "+length+" bytes to socket");				
-				outputStream.write(dataSend, 0, length);
-				outputStream.flush();
-				
-				return length;
-			} catch (IOException e) {
-				if (Configuration.DebugCombox){
-					e.printStackTrace();
-					LogWriter.writeDebugInfo(this.getClass().getName()
-							+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
-					
-					LogWriter.writeExceptionLog(new Exception());
-				}
-				return -1;
+		try {
+			buffer.packMessageHeader();
+			final int length = buffer.size();
+			final byte[] dataSend = buffer.array();
+			
+			//System.out.println("Write "+length+" bytes to socket");			
+			synchronized (outputStream) {
+			outputStream.write(dataSend, 0, length);
+			outputStream.flush();
 			}
+			
+			return length;
+		} catch (IOException e) {
+			if (Configuration.DebugCombox){
+				e.printStackTrace();
+				LogWriter.writeDebugInfo(this.getClass().getName()
+						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
+				
+				LogWriter.writeExceptionLog(new Exception());
+			}
+			return -1;
 		}
 	}
 
