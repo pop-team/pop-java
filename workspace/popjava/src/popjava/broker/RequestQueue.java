@@ -28,7 +28,9 @@ public class RequestQueue {
 	
 	private Request availableRequest = null;
 	
-	private int maxQueue = 250;
+	public static final int DEFAULT_REQUEST_QUEUE_SIZE = 250;
+	
+	private int maxQueue = DEFAULT_REQUEST_QUEUE_SIZE;
 
 	/**
 	 * Creates a new instance of POPRequestQueue

@@ -5,6 +5,7 @@ import popjava.combox.*;
 import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 import popjava.util.Util;
+import popjava.annotation.POPClass;
 import popjava.annotation.POPParameter;
 import popjava.base.MessageHeader;
 import popjava.base.MethodInfo;
@@ -717,6 +718,11 @@ public class Broker {
 			accessPoint.addAccessPoint(ap);
 			
 			comboxServer = factory.createServerCombox(ap, buffer, this);
+			
+			POPClass annotation = (POPClass)popObject.getClass().getAnnotation(POPClass.class);
+			if(annotation != null){
+				comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
+			}
 		}
 		return true;
 	}
