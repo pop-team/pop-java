@@ -11,6 +11,7 @@ import popjava.util.LogWriter;
  */
 
 public class RequestQueue {
+	
 	private final Lock lock = new ReentrantLock();
 	private final Condition canPeek = lock.newCondition();
 	private final Condition canInsert = lock.newCondition();
@@ -88,8 +89,8 @@ public class RequestQueue {
 				
 				requestsConc.add(request);
 			}else if(request.isSequential()){
-				System.out.println("Add request "+request.getMethodId()+ " "+requestsSeq.size());
-				LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size()+" "+maxQueue);
+				//System.out.println("Add request "+request.getMethodId()+ " "+requestsSeq.size());
+				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size()+" "+maxQueue);
 				while (requestsSeq.size() >= maxQueue){
 					canInsert.await();
 				}
