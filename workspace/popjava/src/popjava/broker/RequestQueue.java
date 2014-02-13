@@ -88,8 +88,8 @@ public class RequestQueue {
 				
 				requestsConc.add(request);
 			}else if(request.isSequential()){
-				//System.out.println("Add request "+request.getMethodId()+ " "+requestsSeq.size());
-				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size());
+				System.out.println("Add request "+request.getMethodId()+ " "+requestsSeq.size());
+				LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size()+" "+maxQueue);
 				while (requestsSeq.size() >= maxQueue){
 					canInsert.await();
 				}
