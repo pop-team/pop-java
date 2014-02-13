@@ -28,7 +28,7 @@ public class RequestQueue {
 	
 	private Request availableRequest = null;
 	
-	private int maxQueue = 600;
+	private int maxQueue = 250;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
@@ -227,7 +227,7 @@ public class RequestQueue {
 					canPeek.signal();
 					return true;
 				}
-			}			
+			}
 		}else{
 			canPeek.signal();
 			return true;
