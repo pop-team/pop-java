@@ -11,7 +11,7 @@ import popjava.util.LogWriter;
  */
 
 public class RequestQueue {
-	private final Lock lock = new ReentrantLock(true);
+	private final Lock lock = new ReentrantLock();
 	private final Condition canPeek = lock.newCondition();
 	private final Condition canInsert = lock.newCondition();
 	
@@ -192,9 +192,7 @@ public class RequestQueue {
 			
 			canPeek();
 			canInsert.signal();
-		}
-
-		finally {
+		} finally {
 			lock.unlock();
 		}
 		return true;

@@ -444,7 +444,9 @@ public static void main(String args[]) {
                     }
                     println(";", 0);
                     print("", indent);
-                }
+                }else{
+                                        print(tok.toString(),0);
+                                }
             } else {
                 boolean printThis= true;
                 if(Holder._hm_parclasses.containsKey(tok.toString()) && tok.next.kind == ASSIGN){
