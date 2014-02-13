@@ -6,6 +6,7 @@ import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
 import popjava.system.POPSystem;
+
 import java.net.*;
 import java.io.*;
 /**
@@ -43,7 +44,9 @@ public class ComboxServerSocket extends ComboxServer {
 	 */
 	public void createServer() {
 		try {
-			serverSocket = new ServerSocket(accessPoint.getPort());
+			serverSocket = new ServerSocket();
+			serverSocket.setReceiveBufferSize(1024*8*500);
+			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));			
 			serverCombox = new ComboxAcceptSocket(broker, requestQueue,
 					serverSocket);
 			serverCombox.setStatus(Running);

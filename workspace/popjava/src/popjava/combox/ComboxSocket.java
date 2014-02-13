@@ -18,6 +18,7 @@ public class ComboxSocket extends Combox {
 	public static int BufferLength = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
+	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024 * 1024; //8MB
 
 	/**
 	 * Create a new combox on the given socket
@@ -27,8 +28,8 @@ public class ComboxSocket extends Combox {
 	public ComboxSocket(Socket socket) throws IOException {
 		peerConnection = socket;
 		receivedBuffer = new byte[BufferLength];
-		inputStream = new BufferedInputStream(peerConnection.getInputStream());
-		outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
+		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
+		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
 	}
 
 	
