@@ -28,7 +28,7 @@ public class RequestQueue {
 	
 	private Request availableRequest = null;
 	
-	private int maxQueue = 600;
+	private int maxQueue = 1000;
 
 	/**
 	 * Creates a new instance of POPRequestQueue
