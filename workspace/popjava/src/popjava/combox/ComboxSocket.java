@@ -18,7 +18,7 @@ public class ComboxSocket extends Combox {
 	public static int BufferLength = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
-	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024 * 1024; //8MB
+	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024; //8MB
 
 	/**
 	 * Create a new combox on the given socket
