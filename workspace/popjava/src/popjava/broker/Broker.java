@@ -183,6 +183,11 @@ public class Broker {
 		if (exception == null) {
 			try {
 				popObject = (POPObject) constructor.newInstance(parameters);
+				POPClass annotation = (POPClass)popObject.getClass().getAnnotation(POPClass.class);
+				if(annotation != null){
+					comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
+				}
+				
 			} catch (Exception e) {
 				exception = POPException.createReflectException(
 						constructor.getName(), e.getMessage());
@@ -719,10 +724,6 @@ public class Broker {
 			
 			comboxServer = factory.createServerCombox(ap, buffer, this);
 			
-			POPClass annotation = (POPClass)popObject.getClass().getAnnotation(POPClass.class);
-			if(annotation != null){
-				comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
-			}
 		}
 		return true;
 	}
