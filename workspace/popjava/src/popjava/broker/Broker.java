@@ -69,7 +69,7 @@ public class Broker {
 		}
 	});
 	
-	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*30,
+	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*3000,
 			new ThreadFactory() {
 		
 		private int threadIndex = 0;
