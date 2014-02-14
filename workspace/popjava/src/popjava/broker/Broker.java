@@ -41,7 +41,7 @@ public class Broker {
 	static public final int Running = 0;
 	static public final int Exit = 1;
 	static public final int Abort = 2;
-	static public final int REQUEST_QUEUE_TIMEOUT_MS = 20;
+	static public final int REQUEST_QUEUE_TIMEOUT_MS = 600;
 	static public final int BasicCallMaxRange = 10;
 	static public final int ConstructorSemanticId = 21;
 	static public final String CallBackPrefix = "-callback=";
@@ -59,7 +59,7 @@ public class Broker {
 	protected int connectionCount = 0;
 	protected Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
-	private ExecutorService threadPoolSequential = Executors.newFixedThreadPool(1, new ThreadFactory() {
+	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		
 		@Override
 		public Thread newThread(Runnable arg0) {
@@ -620,6 +620,8 @@ public class Broker {
 			
 			if (request != null) {
 				serveRequest(request);
+			}else {
+				Thread.sleep(100);
 			}
 		}
 		LogWriter.writeDebugInfo("Close broker");

@@ -150,14 +150,6 @@ public class RequestQueue {
 			lock.unlock();
 		}
 		
-		/*if (requestsConc.size() + requestsSeq.size() + requestsMutex.size() > 0 &&
-				!waitSuccess && requests.get(0).getStatus() == Request.Pending) {
-			Request temp = requests.get(0);
-			String info = String.format("Request.MethodId=%d.Semantics=%s\n",
-					temp.getMethodId(), temp.getSenmatics());
-			LogWriter.writeLogfile(info, LogWriter.LogFolder
-					+ File.separator + "bug.txt");
-		}*/
 		return request;
 	}
 
