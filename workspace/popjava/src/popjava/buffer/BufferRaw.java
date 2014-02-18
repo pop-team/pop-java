@@ -179,10 +179,11 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public void putBoolean(boolean value) {
-		if (value == true)
+		if (value == true) {
 			this.putInt(1);
-		else
+		}else {
 			this.putInt(0);
+		}
 	}
 
 	@Override

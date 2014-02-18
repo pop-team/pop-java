@@ -204,7 +204,9 @@ public class Broker {
 
 				Annotation [][] annotations = constructor.getParameterAnnotations();
 				for (int index = 0; index < parameterTypes.length; index++) {
-					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
+					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)
+							&&
+							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 						try {
 							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
 						} catch (POPException e) {
@@ -300,11 +302,6 @@ public class Broker {
 			returnType = method.getReturnType();
 			parameterTypes = method.getParameterTypes();
 			
-			/*Annotation[][] annotations = annotationCache.get(method);
-			if(annotations == null){
-				annotations = method.getParameterAnnotations();
-				annotationCache.put(method, annotations);
-			}*/
 			Annotation[][] annotations = method.getParameterAnnotations();
 			
 			try{
@@ -354,6 +351,8 @@ public class Broker {
 
 				//Put all parameters back in the response, if needed
 				for (index = 0; index < parameterTypes.length; index++) {
+					//If parameter is not a IN variable and
+					//The parameter is not a POPObject without any specified direction
 					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
 							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
 							){
