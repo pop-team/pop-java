@@ -4,7 +4,6 @@ import java.util.concurrent.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
 
-import popjava.util.LogWriter;
 /**
  * This class represents the request queue used in the broker-side
  * Every requests are put into this request queue and are served in FIFO order

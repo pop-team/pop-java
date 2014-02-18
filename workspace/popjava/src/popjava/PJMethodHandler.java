@@ -86,7 +86,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		popResponse(responseBuffer);
 		
 		for (int index = 0; index < parameterTypes.length; index++) {
-			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
+			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)
+					&&
+					!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 				responseBuffer.deserializeReferenceObject(parameterTypes[index],
 						argvs[index]);
 			}
@@ -167,7 +169,10 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			//Recover the data from the calling method. The called method can
 			//Modify the content of an array and it gets copied back in here
 			for (int index = 0; index < parameterTypes.length; index++) {
-				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)){
+				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)
+						&&
+						!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
+						){
 					responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
 				}
 			}
