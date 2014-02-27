@@ -1,6 +1,6 @@
 ---------------------------------
 |                               |
-|      POP-JAVA 1.0 - beta      |
+|         POP-JAVA 1.0          |
 |                               |
 ---------------------------------
 
@@ -13,6 +13,13 @@ Compile popjava with the command "ant".
 Launch the script "install" included in this directory to perform the installation of POP-Java.
 
 After the completion of the installation, you can start a test suite by launch the script "launch_testsuite" located in the POP-Java installation directory.
+
+INSTALLATION:
+To install popjava, as described before, launch the following commands:
+
+ant
+sudo ./install
+
 
 DOCUMENTATION:
 - The "doc" directory contains the POP-Java library documentation (Javadoc and doxygen format). Just open the "index.html" file located in this directory.
