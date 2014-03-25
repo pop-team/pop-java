@@ -6,11 +6,31 @@
 Welcome to POP-Java's documentation!
 ====================================
 
-Contents:
+User manual
 
 .. toctree::
    :maxdepth: 2
 
+   introduction
+   model
+   applications-development
+   running
+   mixed-applications
+   plugin
+   installation
+   troubleshooting
+
+
+Guides
+
+.. toctree::
+   :maxdepth: 2
+
+
+Reference documents
+
+
+Developers manual
 
 
 Indices and tables

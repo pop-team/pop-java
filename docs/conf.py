@@ -8,11 +8,12 @@
 
 import sys
 import os
+from os.path import join, dirname
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, join(dirname(__file__), '_extensions'))
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
@@ -28,7 +29,10 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
+    'numfig',
 ]
+
+todo_include_todos = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
