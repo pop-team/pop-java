@@ -57,7 +57,9 @@ Options:
   version.
 
 The files in the command line are the ones to compile (``.pjava`` or
-``.java``). The command help is available in the appendix :ref:`popjc_help`.
+``.java``).
+
+.. The command help is available in the appendix :ref:`popjc_help`.
 
 
 The POP-Java application launcher
