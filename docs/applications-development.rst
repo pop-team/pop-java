@@ -47,21 +47,21 @@ sequential class.
 
 **Simple parallel class declaration**
 
-::
+.. code-block:: java
 
-  @POPClass
-  public class MyParallelClass {
-    //Implementation
-  }
+   @POPClass
+   public class MyParallelClass {
+      // Implementation
+   }
 
 **Parallel class declaration with an inheritance**
 
-::
+.. code-block:: java
 
-  @POPClass
-  public class MyParallelClass extends AnotherParallelClass {
-    //Implementation
-  }
+   @POPClass
+   public class MyParallelClass extends AnotherParallelClass {
+      // Implementation
+   }
 
 As Java allows only the single inheritance, a parallel class can only inherit
 from **one** other parallel class. The Java language also impose that the file
@@ -121,23 +121,27 @@ annotation.
 
 The combination of the interface and object-side semantics defines the overall
 semantics of a method. There are 6 possible combinations of the interface and
-object-side semantics, resulting in 6 annotions::
+object-side semantics, resulting in 6 annotions:
 
-  @POPSyncConc
-  @POPSyncSeq
-  @POPSyncMutex
-  @POPAsyncConc
-  @POPAsyncSeq
-  @POPAsyncMutex
+.. code-block:: java
+
+   @POPSyncConc
+   @POPSyncSeq
+   @POPSyncMutex
+   @POPAsyncConc
+   @POPAsyncSeq
+   @POPAsyncMutex
 
 
 For example, a synchronous concurrent method returning an int value must be
-declared as follow::
+declared as follow:
 
-  @POPSyncConc
-  public int myMethod(){
-    return myIntValue;
-  }
+.. code-block:: java
+
+   @POPSyncConc
+   public int myMethod(){
+      return myIntValue;
+   }
 
 A method declared as asynchronous must have its return type set to void.
 Otherwise, the compiler will raise an error.
@@ -153,16 +157,20 @@ execution of an object. Object descriptions are declared along with parallel
 object constructor declarations. The object description can be declared in a
 static way as an annotation of the constructor, or in a dynamic way as an
 annotation on the parameters of the constructor. First an example of a static
-annotation::
+annotation:
 
-  @POPObjectDescription(url="localhost")
-  public MyObject(){
-  }
+.. code-block:: java
 
-and now a dynamic example::
+   @POPObjectDescription(url="localhost")
+   public MyObject(){
+   }
 
-  public MyObject(@POPConfig(Type.URL) String host){
-  }
+and now a dynamic example:
+
+.. code-block:: java
+
+   public MyObject(@POPConfig(Type.URL) String host){
+   }
 
 Currently only the url annotation is implemented, allowing to specify the
 URL/IP of the machine on which the POP-Object is executed. If the annotation is
@@ -187,17 +195,19 @@ If the programmer want to pass a special object to or between parallel classes,
 this object must implement the IPOPBase interface from the POP-Java library.
 This library is located in the installation directory
 (``POPJAVA_LOCATION/JarFile/popjava.jar``). By implementing this interface,
-the programmer will have to override the two following methods::
+the programmer will have to override the two following methods:
 
-  @Override
-  public boolean deserialize(Buffer buffer) {
-    return true;
-  }
+.. code-block:: java
 
-  @Override
-  public boolean serialize(Buffer buffer) {
-    return true;
-  }
+   @Override
+   public boolean deserialize(Buffer buffer) {
+      return true;
+   }
+
+   @Override
+   public boolean serialize(Buffer buffer) {
+      return true;
+   }
 
 These methods will be called by the POP-Java system when an argument of this
 type need to be serialized or deserialized. As the object will be reconstruct
@@ -206,41 +216,44 @@ method, any class implementing the ``IPOPBase`` interface must have a default
 constructor.
 
 The code below shows a full example of a class implementing the IPOPBase
-interface::
+interface:
 
-  import popjava.buffer.Buffer;
-  import popjava.dataswaper.IPOPBase;
+.. code-block:: java
+   :linenos:
 
-  public class MyComplexType implements IPOPBase {
-    private int theInt;
-    private double theDouble;
-    private int[] someInt;
+   import popjava.buffer.Buffer;
+   import popjava.dataswaper.IPOPBase;
 
-    public MyComplexType(){}
+   public class MyComplexType implements IPOPBase {
+      private int theInt;
+      private double theDouble;
+      private int[] someInt;
 
-    public MyComplexType(int i, double d, int[] ia){
-        theInt = i;
-        theDouble = d;
-        someInt = ia;
-    }
+      public MyComplexType(){}
 
-    @Override
-    public boolean deserialize(Buffer buffer) {
-        theInt = buffer.getInt();
-        theDouble = buffer.getDouble();
-        int size = buffer.getInt();
-        someInt = buffer.getIntArray(size);
-        return true;
-    }
+      public MyComplexType(int i, double d, int[] ia){
+         theInt = i;
+         theDouble = d;
+         someInt = ia;
+      }
 
-    @Override
-    public boolean serialize(Buffer buffer) {
-        buffer.putInt(is);
-        buffer.putDouble(ds);
-        buffer.putIntArray(ias);
-        return true;
-    }
-  }
+      @Override
+      public boolean deserialize(Buffer buffer) {
+         theInt = buffer.getInt();
+         theDouble = buffer.getDouble();
+         int size = buffer.getInt();
+         someInt = buffer.getIntArray(size);
+         return true;
+      }
+
+      @Override
+      public boolean serialize(Buffer buffer) {
+         buffer.putInt(is);
+         buffer.putDouble(ds);
+         buffer.putIntArray(ias);
+         return true;
+      }
+   }
 
 
 POP-Java behavior

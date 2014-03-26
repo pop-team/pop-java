@@ -48,7 +48,7 @@ of doubt the default values can be used.
 
 For more informations about the POP-C++ installation and configuration process,
 please see "Parallel Object Programming C++ - User and Installation Manual"
-\cite{popc_intro}.
+:cite:`popc_intro`.
 
 
 Installation process
@@ -163,7 +163,7 @@ variables on the .bashrc or equivalent file.
    file or equivalent :
    ---------
        POPC_LOCATION=/home/clementval/popc
-       PATH=\$PATH:\$POPC_LOCATION/bin:\$POPC_LOCATION/sbin
+       PATH=$PATH:$POPC_LOCATION/bin:$POPC_LOCATION/sbin
 
    Press <Return> to continue
 
@@ -204,7 +204,7 @@ required packages:
 Installation process
 ~~~~~~~~~~~~~~~~~~~~
 
-To install POP-Java we need to launch the command \textbf{ant} int the POP-Java
+To install POP-Java we need to launch the command ``ant`` int the POP-Java
 directory. Once the source code is compiled, launch the installation with the
 install script: ``sudo ./install``.
 This script will guide us trough the installation by asking us some questions.
@@ -248,7 +248,7 @@ Test the installation
 
 POP-Java includes a test suite. We can run this test suite to check if our POP
 system is correctly installed. To run this test suite, we need to launch the
-``launch\_testsuite`` script located in the POP-Java installation location.
+``launch_testsuite`` script located in the POP-Java installation location.
 
 Here is the output we should get after the completion of the test suite::
 

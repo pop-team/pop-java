@@ -10,30 +10,31 @@ Programming large heterogeneous distributed environments such as GRID or P2P
 infrastructures is a challenging task. This statement remains true even if
 we consider researches that have focused on enabling these types of
 infrastructures for scientific computing such as resource management and
-discovery \cite{Foster97, Grimshaw99, Czajkowski98}, service architecture
-\cite{Foster02}, security \cite{Welch03} and data management
-\cite{Allcock02, Stockinger01}.
-Efforts to port traditional programming tools such as MPI
-\cite{Foster98:2, Roy00, Karonis03} or BSP \cite{Tong03, Williams00},
-also had some success. These tools allow programmers to run their existing
-parallel applications on large heterogeneous distributed environments. However,
-efficient exploitation of performance regarding the heterogeneity still
-needs to be manually controlled and tuned by programmers.\s
+discovery :cite:`Foster97`, :cite:`Grimshaw99`, :cite:`Czajkowski98`, service
+architecture :cite:`Foster02`, security :cite:`Welch03` and data management
+:cite:`Allcock02`, :cite:`Stockinger01`. Efforts to port traditional
+programming tools such as MPI :cite:`Foster98:2`, :cite:`Roy00`,
+:cite:`Karonis03` or BSP :cite:`Tong03`, :cite:`Williams00`, also had some
+success. These tools allow programmers to run their existing parallel
+applications on large heterogeneous distributed environments. However,
+efficient exploitation of performance regarding the heterogeneity still needs
+to be manually controlled and tuned by programmers.
 
 POP-C++ and POP-Java are implementations of the POP (**P**\ arallel
-**O**\ bject
-**P**\ rograming) model first introduced by Dr. Tuan Anh Nguyen in
-his PhD thesis \cite{Nguyen04}. POP-C++ is an extension of the C++ programming language\cite{Nguyen07} and POP-Java is an extension of the Java programming language\cite{popjava_tech}. The POP model is based on the very simple
-idea that objects are suitable structures to distribute data and executable
-codes over heterogeneous distributed hardware and to make them interact
-between each other.
+**O**\ bject **P**\ rograming) model first introduced by Dr. Tuan Anh Nguyen in
+his PhD thesis :cite:`popc_thesis`. POP-C++ is an extension of the C++
+programming language :cite:`Nguyen07` and POP-Java is an extension of the Java
+programming language :cite:`popjava_tech`. The POP model is based on the very
+simple idea that objects are suitable structures to distribute data and
+executable codes over heterogeneous distributed hardware and to make them
+interact between each other.
 
-Inspired by CORBA \cite{corba26} and C++, the POP-C++ programming
-language extends C++ by adding a new type of **parallel object**,
-allowing to run C++ objects in distributed environments. With POP-C++,
-programming efficients distributed applications is as simple as writing
-a C++ programs. The POP-Java programming language extends Java and implements the same mechanisms as POP-C++.
-
+Inspired by CORBA :cite:`corba26` and C++, the POP-C++ programming language
+extends C++ by adding a new type of **parallel object**, allowing to run C++
+objects in distributed environments. With POP-C++, programming efficients
+distributed applications is as simple as writing a C++ programs. The POP-Java
+programming language extends Java and implements the same mechanisms as
+POP-C++.
 
 
 The POP model
@@ -86,21 +87,22 @@ Globus) and the operating system. The essential service abstraction layer
 provides an abstract interface for the programming layer. On top of the
 architecture is the programming layer, which provides necessary support
 for developing distributed object-oriented applications. More details of
-the POP-C++ runtime layers are given in a separate document \cite{Nguyen04}.
+the POP-C++ runtime layers are given in a separate document
+:cite:`popc_thesis`.
 
 
 Structure of this manual
 ------------------------
 
-.. todo:: Update to match actual structure
+This manual has 8 chapters, including this introduction:
 
-This manual has 8 chapters, including this introduction. The
-:ref:`next chapter <popmodel>` explains the POP model. The chapter \ref{dev}
-describes the POP-Java application development process. The chapter
-\ref{compileandrun} explains the compilation and the launch process of a
-POP-Java application. The chapter \ref{mixed} aims to describe and explain how
-to use of POP-C++ and POP-Java together in a same application. The chapter
-\ref{plugin} describes the POP-Java plugin system. The chapter \ref{install}
-guides the user trough the installation process. Finally, the chapter
-\ref{trouble} gives some hints to solve the main problems that can occurs with
-a POP-Java application.
+* :ref:`popmodel` explains the POP model.
+* :ref:`dev` describes the POP-Java application development process.
+* :ref:`compileandrun` explains the compilation and the launch process of a
+  POP-Java application.
+* :ref:`mixed` aims to describe and explain how to use of POP-C++ and POP-Java
+  together in a same application.
+* :ref:`plugin` describes the POP-Java plugin system.
+* :ref:`install` guides the user trough the installation process.
+* Finally, :ref:`trouble` gives some hints to solve the main problems that can
+  occur with a POP-Java application.

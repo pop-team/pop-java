@@ -29,6 +29,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
+    'sphinxcontrib.bibtex',
     'numfig',
 ]
 

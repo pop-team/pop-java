@@ -225,7 +225,7 @@ creation. The programmer can provide an object description to each object
 constructor. The object descriptions can be parametrized by the arguments of
 the constructor. Object descriptions are used by the runtime system to select
 an appropriate resource for the object. Some example  of the syntax of object
-descriptions can be found in the section \ref{dev:objdesc}.
+descriptions can be found in the section :ref:`dev-objdesc`.
 
 It can occur that, due to some changes on the object data or some increase of
 the computation demand, an object description needs to be re-adjusted during

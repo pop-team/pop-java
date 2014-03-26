@@ -131,6 +131,7 @@ Programming
 When we start to develop a POP-Java application the main part is the parallel
 classes. The following code snippet shows the parallel class implementation:
 
+.. _testintegerclass:
 .. code-block:: java
    :linenos:
 
@@ -169,6 +170,7 @@ for the programmer.
 Once the parallel class is implemented, we can write a main class that use this
 parallel class. The following code snippet shows the code of the main class:
 
+.. _testintegermain:
 .. code-block:: java
    :linenos:
 
