@@ -1,7 +1,1 @@
-sphinxcontrib-bibtex==0.2.9
-latexcodec==0.3.1
-pybtex==0.17
-pybtex-docutils==0.2.0
-oset==0.1.3
-six==1.6.1
-PyYAML==3.10
+sphinxcontrib-bibtex
