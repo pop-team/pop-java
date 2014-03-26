@@ -6,10 +6,19 @@
 Welcome to POP-Java's documentation!
 ====================================
 
+* :ref:`user-manual`
+* :ref:`references`
+* :ref:`developer-manual`
+
+.. ............................................................................
+
+.. _user-manual:
+
 User manual
+-----------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    introduction
    model
@@ -20,23 +29,22 @@ User manual
    installation
    troubleshooting
 
+.. ............................................................................
 
-Guides
+.. _developer-manual:
+
+Developer manual
+----------------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
+.. ............................................................................
 
-Reference documents
+.. _references:
 
+References
+----------
 
-Developers manual
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+.. toctree::
+   :maxdepth: 1
