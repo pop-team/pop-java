@@ -107,10 +107,24 @@ command::
 
    python -c 'import sphinx'
 
-.. todo:: POP-Java specific requirements (bibtex, rtd_theme, ...)
+In addition to Sphinx itself, this documentation makes use of one additional
+required and one additional optional packages:
 
-----
+* The ``bibtex`` extension allows to use BibTeX databases to manage
+  references. You can install it by executing::
 
+     pip install sphinxcontrib-bibtex
+
+* The ``sphinx_rtd_theme`` is the theme used on Read The Docs. If the
+  corresponding package is installed, it will be used for local builds as
+  well. The theme can be installed by running::
+
+     pip install sphinx_rtd_theme
+
+.. note::
+
+   If you had to use ``sudo`` When installing Sphinx, then the commands to
+   install these additional packages will have to be prefixed with it as well.
 
 Once you have a working Sphinx installation on your system, it's time to start
 building your documentation. As the initial setup is already done for the
@@ -218,8 +232,44 @@ directly from the
 
 Once installed, the steps needed to build the documentation are very simple::
 
-   
+   doxygen doxygen.conf
+
+The resulting build will be available in the ``doxygen/html`` and
+``doxygen/latex`` directories. The HTML version is ready to use, while the
+LaTeX version needs and additional build to get to the PDF version::
+
+   cd doxygen/latex
+   make
+
+The resulting PDF will be available at ``doxygen/latex/refman.pdf``.
 
 
 Publishing on GitHub pages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GitHub supports a basic kind of static website hosting, based on GIT
+repositories. This service is called GitHub pages; you can find out more about
+it on http://pages.github.com/.
+
+Currently, the latest build of the HTML version of the API reference is made
+available for browsing at http://gridgroup.github.io/pop-java/api/ and the PDF
+version at http://gridgroup.github.io/pop-java/api/POP-Java.pdf.
+
+The steps involved in the update process of the ``gh-pages`` branch (the branch
+from which the static website is made available on GitHub) are summarized as
+follows:
+
+.. code-block:: bash
+
+   git checkout gh-pages                   # Checkout the 'gh-pages' branch
+   mv doxygen/html api                     # Move the built HTML reference into place
+   git commit -am 'API reference update'   # Commit everything
+   git push origin gh-pages                # Push to GitHub (publish)
+   git checkout <oldbranch>                # Go back to the branch we were working on
+
+To make it easier to build and publish the documentation, a script to automate
+the process is made available at ``scripts/api-reference`` from the root of the
+repository. In order to build, commit, and publish a new version of the API
+reference, it suffices to execute it with no arguments::
+
+   ./scripts/api-reference

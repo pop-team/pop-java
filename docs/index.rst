@@ -1,5 +1,3 @@
-.. _index:
-
 Welcome to POP-Java's documentation!
 ====================================
 
@@ -74,6 +72,8 @@ References
    :maxdepth: 1
 
    API Reference <http://gridgroup.github.io/pop-java/api/>
+   examples
+   commands
    releases
    POP-Java homepage <http://gridgroup.hefr.ch/popj/>
    POP-C++ homepage <http://gridgroup.hefr.ch/popc/>

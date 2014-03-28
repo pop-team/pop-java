@@ -110,6 +110,7 @@ described below (example of syntax in :ref:`dev`):
 
     .. _fig-inv-async:
     .. figure:: images/inv_async.png
+       :width: 10cm
 
        Callback method returning values from an asynchronous call
 

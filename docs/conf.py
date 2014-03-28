@@ -206,15 +206,16 @@ latex_elements = {
 #'pointsize': '10pt',
 
 # Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    'preamble': r'''
+    ''',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'POP-Java.tex', u'POP-Java Documentation',
-   authors, 'manual'),
+  ('latex_index', 'POP-Java.tex', u'POP-Java Documentation',
+   authors.replace('&', r'\&'), 'manual', True),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -223,7 +224,7 @@ latex_documents = [
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
-#latex_use_parts = False
+latex_use_parts = True
 
 # If true, show page references after internal links.
 #latex_show_pagerefs = False
