@@ -1,186 +1,173 @@
 <?xml version="1.0"?>
 <project name="PopJava" default="make-release-folder" basedir=".">
+	<property name="build.dir" value ="build"/>
+	<property name="temp.dir" value ="temp"/>
+	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="objgenclasses.dir" value="${classes.dir}/objgen"/>
+	<property name="jar.dir"     value="${build.dir}/jar"/>
 
-        <property name="build.dir" value ="build"/>
-        <property name="temp.dir" value ="temp"/>
-        <property name="classes.dir" value="${build.dir}/classes"/>
-	    <property name="objgenclasses.dir" value="${classes.dir}/objgen"/>
-        <property name="jar.dir"     value="${build.dir}/jar"/>      
-        
-        <property name="release.dir" value ="release"/>
-        
-        <property name="javassist.jar" value="dependencies/javassist.jar"/>
-        <property name="sshj.jar" value="dependencies/sshj-0.9.0-SNAPSHOT-jar-with-dependencies.jar"/>
-        <property name="log4j.jar" value="dependencies/slf4j-nop-1.7.2.jar"/>
-	    <property name="junit.jar" value="dependencies/junit-4.8.2.jar"/>
-        
-        <property name="popjava.jar" value="popjava.jar"/>
-        <property name="testsuite.jar" value="testsuite.jar"/>
-	    <property name="objmapgen.jar" value="popjobjectmapgen.jar"/>   
-        
-        <property name="popjava.src" value ="workspace/popjava/src/popjava"/>
-	   <property name="objmapgen.src" value ="workspace/ObjectMapGen/src/"/>
-        <property name="testsuite.src" value ="workspace/popjava/src/testsuite"/>
-        
-        <property name="popjavac.dir" value ="popjavac"/>
-        <property name="javadoc.dir" value ="doc"/>
-        <property name="etc.dir" value ="etc"/>
-        <property name="plugins.dir" value ="plugin"/>
-	
+	<property name="release.dir" value ="release"/>
+
+	<property name="javassist.jar" value="dependencies/javassist.jar"/>
+	<property name="sshj.jar" value="dependencies/sshj-0.9.0-SNAPSHOT-jar-with-dependencies.jar"/>
+	<property name="log4j.jar" value="dependencies/slf4j-nop-1.7.2.jar"/>
+	<property name="junit.jar" value="dependencies/junit-4.8.2.jar"/>
+
+	<property name="popjava.jar" value="popjava.jar"/>
+	<property name="testsuite.jar" value="testsuite.jar"/>
+	<property name="objmapgen.jar" value="popjobjectmapgen.jar"/>
+
+	<property name="popjava.src" value ="workspace/popjava/src/popjava"/>
+	<property name="objmapgen.src" value ="workspace/ObjectMapGen/src/"/>
+	<property name="testsuite.src" value ="workspace/popjava/src/testsuite"/>
+
+	<property name="popjavac.dir" value ="popjavac"/>
+	<property name="javadoc.dir" value ="doc"/>
+	<property name="etc.dir" value ="etc"/>
+	<property name="plugins.dir" value ="plugin"/>
+
 	<condition property="isWindows">
-        <os family="windows" />
-	 </condition>
+		<os family="windows" />
+	</condition>
+
+	<target name="clean" description="clean build directory">
+		<delete dir="${build.dir}"/>
+		<delete dir="${release.dir}"/>
+	</target>
+
+	<target name="make-popjava" description="build the popjava library">
+		<mkdir dir="${classes.dir}"/>
+		<javac srcdir="${popjava.src}"
+				destdir="${classes.dir}"
+				classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}"
+				debug="true" debuglevel="lines,vars,source"
+				target="7"
+				source="7">
+			<compilerarg value="-Xlint:deprecation,unchecked"/>
+		</javac>
+	</target>
+
+	<target name="make-objectmapgen" depends="jar-popjava" description="build the popjava library">
+		<mkdir dir="${objgenclasses.dir}"/>
+		<javac srcdir="${objmapgen.src}"
+				destdir="${objgenclasses.dir}"
+				classpath="${jar.dir}/${popjava.jar}"
+				debug="true" debuglevel="lines,vars,source"
+				target="7"
+				source="7">
+			<compilerarg value="-Xlint:deprecation,unchecked"/>
+		</javac>
+	</target>
+
+	<target name="make-testsuite-java" depends="jar-popjava" description="build the the popjava testsuite">
+			<mkdir dir="${classes.dir}"/>
+			<javac srcdir="${testsuite.src}"
+					destdir="${classes.dir}"
+					classpath="${jar.dir}/${popjava.jar}"
+					debug="true" debuglevel="lines,vars,source"
+					target="7"
+					source="7">
+				<compilerarg value="-Xlint:deprecation,unchecked"/>
+			</javac>
+	</target>
 		
-<target name="clean" description="clean build directory">
-    <delete dir="${build.dir}"/>
-    <delete dir="${release.dir}"/>
-</target>
+	<target name="make-testsuite-popc" depends="make-testsuite-java" unless="isWindows" description="build the the popjava testsuite">
+		<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
+		<exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
+	</target>
 
-<target name="make-popjava" description="build the popjava library">
-        <mkdir dir="${classes.dir}"/>
-        <javac srcdir="${popjava.src}"
-                destdir="${classes.dir}"
-                classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}"
-                debug="true" debuglevel="lines,vars,source"
-                target="7"
-                source="7"
-        >
-          <compilerarg value="-Xlint:deprecation,unchecked"/>
-        </javac>
-</target>
-	
-	
-<target name="make-objectmapgen" depends="jar-popjava" description="build the popjava library">
-        <mkdir dir="${objgenclasses.dir}"/>
-        <javac srcdir="${objmapgen.src}"
-                destdir="${objgenclasses.dir}"
-        	   classpath="${jar.dir}/${popjava.jar}"
-                debug="true" debuglevel="lines,vars,source"
-                target="7"
-                source="7"
-        >
-          <compilerarg value="-Xlint:deprecation,unchecked"/>
-        </javac>
-</target>
+	<target name="jar-popjava" depends="make-popjava" description="create jar for popjava">
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${popjava.jar}" basedir="${classes.dir}"
+				excludes="**/testsuite/**,**/objgen/**">
+			<zipgroupfileset dir="." includes="${javassist.jar}"/>
+			<zipgroupfileset dir="." includes="${sshj.jar}"/>
+			<zipgroupfileset dir="." includes="${log4j.jar}"/>
+			<service type="javax.annotation.processing.Processor"
+					provider="popjava.annotation.processors.POPClassProcessor" />
+		</jar>
+	</target>
 
-<target name="make-testsuite-java" depends="jar-popjava" description="build the the popjava testsuite">
-        <mkdir dir="${classes.dir}"/>
-        <javac srcdir="${testsuite.src}"
-                destdir="${classes.dir}"
-        	    classpath="${jar.dir}/${popjava.jar}"
-                debug="true" debuglevel="lines,vars,source"
-                target="7"
-                source="7"
-        >
-          <compilerarg value="-Xlint:deprecation,unchecked"/>
-        </javac>
-</target>
-	
-<target name="make-testsuite-popc" depends="make-testsuite-java" unless="isWindows" description="build the the popjava testsuite">
-	<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
-    <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
-</target>
+	<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}"
+				excludes="**/popjava/**,**/objgen/**">
+		</jar>
+	</target>
+		
+	<target name="jar-objmapgen" depends="make-objectmapgen" description="create jar for the objectmapgen">
+		<mkdir dir="${jar.dir}"/>
+		<jar destfile="${jar.dir}/${objmapgen.jar}" basedir="${objgenclasses.dir}"></jar>
+	</target>
 
-<target name="jar-popjava" depends="make-popjava" description="create jar for popjava">
-        <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${popjava.jar}" basedir="${classes.dir}" 
-                excludes="**/testsuite/**,**/objgen/**">
-                <zipgroupfileset dir="." includes="${javassist.jar}"/>
-                <zipgroupfileset dir="." includes="${sshj.jar}"/>
-                <zipgroupfileset dir="." includes="${log4j.jar}"/>
-        	 <service type="javax.annotation.processing.Processor" 
-        	    provider="popjava.annotation.processors.POPClassProcessor" /> 
-        </jar>
-</target>
+	<target name="run-testsuite" depends="jar-testsuite, jar-popjava" description="Run the testsuite">
+		<java classname="testsuite.Testsuite" fork="true">
+			<classpath>
+				<pathelement location="${jar.dir}/${popjava.jar}"/>
+				<pathelement location="${jar.dir}/${testsuite.jar}"/>
+			</classpath>
+		</java>
+	</target>
 
-<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
-        <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
-                excludes="**/popjava/**,**/objgen/**">
-        </jar>
-</target>
-	
-<target name="jar-objmapgen" depends="make-objectmapgen" description="create jar for the objectmapgen">
-        <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${objmapgen.jar}" basedir="${objgenclasses.dir}">
-        </jar>
-</target>
+	<target name="make" depends="clean, jar-popjava, jar-testsuite, jar-objmapgen" description="Builds the whole sourcecode"></target>
 
-<target name="run-testsuite" depends="jar-testsuite, jar-popjava" description="Run the testsuite">
-	<java classname="testsuite.Testsuite" fork="true">
-		<classpath>
-			<pathelement location="${jar.dir}/${popjava.jar}"/>
-			<pathelement location="${jar.dir}/${testsuite.jar}"/>
-         </classpath>
-	</java>
-</target>
+	<target name="make-release-folder" depends="make" description="Creates the directory that will be installed">
+		<delete dir="${temp.dir}"/>
 
-<target name="make" depends="clean, jar-popjava, jar-testsuite, jar-objmapgen" description="Builds the whole sourcecode">
-</target>
+		<!-- Create folders -->
+		<mkdir dir="${release.dir}"/>
+		<mkdir dir="${release.dir}/bin"/>
+		<mkdir dir="${release.dir}/etc"/>
+		<mkdir dir="${release.dir}/doc"/>
+		<mkdir dir="${release.dir}/JarFile"/>
+		<mkdir dir="${release.dir}/logFolder"/>
 
-<target name="make-release-folder" depends="make" description="Creates the directory that will be installed">
-  <delete dir="${temp.dir}"/>
-  
-  <!-- Create folders -->
-  <mkdir dir="${release.dir}"/>
-  <mkdir dir="${release.dir}/bin"/>
-  <mkdir dir="${release.dir}/etc"/>
-  <mkdir dir="${release.dir}/doc"/>
-  <mkdir dir="${release.dir}/JarFile"/>
-  <mkdir dir="${release.dir}/logFolder"/>
-  
-  <!-- Copy executables -->
-  <copy file="${popjavac.dir}/popjc" todir="${release.dir}/bin"/>
-  <copy file="${popjavac.dir}/popjrun" todir="${release.dir}/bin"/>
-  <copy file="launch_testsuite" todir="${release.dir}"/>
-  
-  <!-- Copy jars -->
-  <copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
-  <copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
-  <copy file="${jar.dir}/${objmapgen.jar}" todir="${release.dir}/JarFile"/>
-  <copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
-  
-  
-  <!-- Copy rest -->
-  <copy todir="${release.dir}/doc">
-    <fileset dir="${javadoc.dir}"/>
-  </copy>
-  
-  <copy todir="${release.dir}/etc">
-    <fileset dir="${etc.dir}"/>
-  </copy>
-  
-  <copy file="${popjavac.dir}/xml/additional-parser-infos.xsd" todir="${release.dir}/etc"/>
-  
-  
-  <copy todir="${release.dir}/plugin">
-    <fileset dir="${plugins.dir}"/>
-  </copy>
-  
-  <delete dir="${release.dir}/META-INF"/>
-  
-  <copy todir="${release.dir}/testsuite/popc-obj">
-    <fileset dir="${testsuite.src}/popc-obj"/>
-  </copy>
-  
-  
-  <!-- Set filepremisions-->
-  <chmod dir="${release.dir}" perm="774" 
-       includes="**/*" type="file"/>
-       
-  <chmod dir="${release.dir}" perm="775" 
-  includes="**/*" type="dir"/>
+		<!-- Copy executables -->
+		<copy file="${popjavac.dir}/popjc" todir="${release.dir}/bin"/>
+		<copy file="${popjavac.dir}/popjrun" todir="${release.dir}/bin"/>
+		<copy file="launch_testsuite" todir="${release.dir}"/>
 
-  <chmod dir="${release.dir}/bin" perm="775" 
-       includes="**/*"/>
-       
-  <chmod file="${release.dir}/launch_testsuite" perm="775"/>
-       
-  <chmod file="${release.dir}/logFolder" perm="777" type="both"/>
-  <chmod file="${release.dir}/testsuite" perm="777" type="both"/>
-         
-  
-  
-</target>
+		<!-- Copy jars -->
+		<copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
+		<copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
+		<copy file="${jar.dir}/${objmapgen.jar}" todir="${release.dir}/JarFile"/>
+		<copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
 
+		<!-- Copy rest -->
+		<copy todir="${release.dir}/doc">
+			<fileset dir="${javadoc.dir}"/>
+		</copy>
+
+		<copy todir="${release.dir}/etc">
+			<fileset dir="${etc.dir}"/>
+		</copy>
+
+		<copy file="${popjavac.dir}/xml/additional-parser-infos.xsd" todir="${release.dir}/etc"/>
+
+
+		<copy todir="${release.dir}/plugin">
+			<fileset dir="${plugins.dir}"/>
+		</copy>
+
+		<delete dir="${release.dir}/META-INF"/>
+
+		<copy todir="${release.dir}/testsuite/popc-obj">
+			<fileset dir="${testsuite.src}/popc-obj"/>
+		</copy>
+
+		<!-- Set filepremisions-->
+		<chmod dir="${release.dir}" perm="774"
+			includes="**/*" type="file"/>
+			
+		<chmod dir="${release.dir}" perm="775"
+		includes="**/*" type="dir"/>
+
+		<chmod dir="${release.dir}/bin" perm="775"
+			includes="**/*"/>
+			
+		<chmod file="${release.dir}/launch_testsuite" perm="775"/>
+			
+		<chmod file="${release.dir}/logFolder" perm="777" type="both"/>
+		<chmod file="${release.dir}/testsuite" perm="777" type="both"/>
+	</target>
 </project>
