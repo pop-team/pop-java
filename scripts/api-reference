@@ -1,0 +1,18 @@
+#!/bin/bash
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Generate documentation
+doxygen doxygen.conf
+
+# Commit to gh-pages
+git checkout gh-pages
+rm -rf api
+mv doxygen/html api
+git add api
+git commit -m 'API reference update'
+git push origin gh-pages
+git checkout "$BRANCH"
+
+# Remove leftovers
+rm -rf api
