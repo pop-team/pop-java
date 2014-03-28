@@ -17,7 +17,7 @@ rm -rf api
 
 echo 'Adding new reference...'
 mv doxygen/html api
-mv doxygen/latex/POP-Java.pdf api/POP-Java.pdf
+mv doxygen/latex/refman.pdf api/POP-Java.pdf
 
 echo 'Committing...'
 git add api
