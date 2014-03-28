@@ -201,8 +201,25 @@ GitHub editing interface:
 Building and publishing the API reference
 -----------------------------------------
 
+In the introduction to the present chapter we mentioned that the
+`API Reference <http://gridgroup.github.io/pop-java/api/>`_ is currently being
+generated using `Doxygen <http://www.doxygen.org/>`_. In the following
+paragraphs we will describe how the documentation can be rebuilt and how the
+resulting artifact can be published on the GitHub pages service.
+
+
 Building
 ~~~~~~~~
 
-Publishing on Github pages
+To build the documentation you need a working installation of Doxygen on your
+system. Extensive documentation about the installation process is available
+directly from the
+`Doxygen manual <http://www.stack.nl/~dimitri/doxygen/manual/install.html>`_.
+
+Once installed, the steps needed to build the documentation are very simple::
+
+   
+
+
+Publishing on GitHub pages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

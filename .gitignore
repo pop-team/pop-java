@@ -1,6 +1,9 @@
+# Documentation artifacts
 /docs/_build
-/doc/html
-/doc/latex
+/doxygen
 
+# OS X junk
 .DS_Store
+
+# Generated compiled python files
 *.pyc
