@@ -42,10 +42,8 @@ respectively.
 For quick and small edits, it is possible to use the GitHub editing interface
 instead of a complete local clone + edit + commit + push process. The
 documentation files are available on GitHub in the `gridgroup/pop-java
-<https://github.com/gridgroup/pop-java/tree/sphinx-documentation/docs>`_
+<https://github.com/gridgroup/pop-java/tree/master/docs>`_
 repository.
-
-.. todo:: Update with the link to the master branch, once merged.
 
 Building and publishing the prose documentation
 -----------------------------------------------
