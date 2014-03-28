@@ -2,3 +2,5 @@
 /doc/html
 /doc/latex
 
+.DS_Store
+*.pyc
