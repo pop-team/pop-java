@@ -20,7 +20,7 @@ public class RequestQueue {
 	private List<Request> requestsMutex = new ArrayList<Request>();
 	
 	private int requestType = 0;
-	private List<List<Request>> requests = new ArrayList<>();
+	private List<List<Request>> requests = new ArrayList<List<Request>>();
 	
 	private Request servingMutex = null;
 	private Request servingSequential = null;

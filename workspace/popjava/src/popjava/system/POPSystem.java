@@ -443,27 +443,18 @@ public class POPSystem {
 		
 		POPAppService appService = (POPAppService) PopJava.newActive(POPAppService.class,
 				objectDescription, randString, false, codelocation);
-<<<<<<< HEAD
-		
 		//Failsave test to check if the appservice is really working
 		if(appService != null){
 			appService.getPOPCAppID();
 		}
 		
-=======
->>>>>>> remotes/github/master
 		return appService;
 	}
 	
 	public static void end(){
-<<<<<<< HEAD
 		if(coreServiceManager != null){
 			coreServiceManager.exit();
 		}
-		
-=======
-		coreServiceManager.exit();
->>>>>>> remotes/github/master
 		SystemUtil.endAllChildren();
 		if(prlt != null){ //If initialize failed, prlt will be null
 			try {

@@ -89,7 +89,7 @@ public class Popjrun {
         private static String classPath = "";
         
         private static List<String> parseArguments(String[] args){
-        	List<String> arguments = new ArrayList<>();
+        	List<String> arguments = new ArrayList<String>();
         	int i = 0;
         	for(;i < args.length; i++){
         		if(args[i].equals("-h") || args[i].equals("--help")){

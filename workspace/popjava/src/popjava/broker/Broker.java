@@ -264,7 +264,7 @@ public class Broker {
 		return parameters;
 	}
 
-	private Map<Method, Annotation[][]> annotationCache = new ConcurrentHashMap<>();
+	private Map<Method, Annotation[][]> annotationCache = new ConcurrentHashMap<Method, Annotation[][]>();
 	
 	/**
 	 * This method is responsible to call the correct method on the associated
