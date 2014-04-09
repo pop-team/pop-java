@@ -22,7 +22,7 @@ public class POPCodeManager extends POPRemoteLog{
 		defineMethod(c,"registerCode",13,Semantic.Sequence
 				| Semantic.Synchronous,String.class,String.class,String.class);
 		defineMethod(c, "queryCode",14,Semantic.Sequence | Semantic.Synchronous,String.class,String.class,POPString.class);
-		defineMethod(c, "getPlatform",15,Semantic.Sequence | Semantic.Synchronous,String.class,POPString.class);		
+		defineMethod(c, "getPlatform",15,Semantic.Sequence | Semantic.Synchronous,String.class,POPString.class);
 		
 	}
 	
