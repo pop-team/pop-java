@@ -1,0 +1,33 @@
+#!/bin/bash
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Generate HTML + LaTeX documentation
+doxygen doxygen.conf
+
+# Generate PDF
+cd doxygen/latex
+make
+cd ../..
+
+# Commit to gh-pages
+git checkout gh-pages
+echo 'Removing old reference...'
+rm -rf api
+
+echo 'Adding new reference...'
+mv doxygen/html api
+mv doxygen/latex/refman.pdf api/POP-Java.pdf
+
+echo 'Committing...'
+git add api
+git commit -m 'API reference update'
+
+echo 'Pushing to remote...'
+git push origin gh-pages
+
+echo 'Cleaning up...'
+git checkout "$BRANCH"
+
+# Remove leftovers
+rm -rf api
