@@ -169,7 +169,7 @@ public class Broker {
 					e.getMessage());
 		}
 
-		if (exception == null) {
+		if (exception == null && constructor != null) {
 			parameterTypes = constructor.getParameterTypes();
 			try{
 				parameters = getParameters(requestBuffer, parameterTypes, constructor.getParameterAnnotations());
@@ -180,7 +180,7 @@ public class Broker {
 		
 		normalizePOPParamameters(parameters);
 		
-		if (exception == null) {
+		if (exception == null && constructor != null) {
 			try {
 				popObject = (POPObject) constructor.newInstance(parameters);
 				POPClass annotation = (POPClass)popObject.getClass().getAnnotation(POPClass.class);
@@ -194,7 +194,7 @@ public class Broker {
 			}
 		}
 
-		if (exception == null) {
+		if (exception == null && constructor != null && parameterTypes != null && parameters != null) {
 			if ((request.getSenmatics() & Semantic.Synchronous) != 0) {
 				// Return the value to caller
 				MessageHeader messageHeader = new MessageHeader();
@@ -297,7 +297,7 @@ public class Broker {
 					e.getMessage());
 		}
 		// Get parameter if found the method
-		if (exception == null) {
+		if (exception == null && method != null) {
 
 			returnType = method.getReturnType();
 			parameterTypes = method.getParameterTypes();
@@ -314,7 +314,7 @@ public class Broker {
 		normalizePOPParamameters(parameters);
 		//LogWriter.writeDebugInfo("Call method "+method.getName());
 		// Invoke the method if success to get all parameter
-		if (exception == null) {
+		if (exception == null && method != null) {
 			try {
 				method.setAccessible(true);
 				if (returnType != Void.class && returnType != void.class) {					
@@ -338,7 +338,7 @@ public class Broker {
 			}
 		}
 		// Prepare the response buffer if success to invoke method
-		if (exception == null) {
+		if (exception == null && method != null && parameterTypes != null && parameters != null) {
 			// Send response
 			if (request.isSynchronous()) {
 
@@ -837,7 +837,7 @@ public class Broker {
 			callback.send(buffer);
 		}
 
-		if (status == 0){
+		if (status == 0 && broker != null){
 			broker.treatRequests();
 		}
 		LogWriter.writeDebugInfo("End broker life");

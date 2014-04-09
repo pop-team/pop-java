@@ -25,7 +25,7 @@ public class PopJava {
 	 * @throws POPException 
 	 */
 	public static <T> T newActive(Class<T> targetClass,
-			ObjectDescription objectDescription, Object... argvs)
+			ObjectDescription objectDescription, Object ... argvs)
 			throws POPException {
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newPOPObject(objectDescription, argvs);

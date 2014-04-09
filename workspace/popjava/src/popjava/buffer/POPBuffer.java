@@ -408,11 +408,13 @@ public abstract class POPBuffer extends Object {
 	 * @throws POPException	thrown if the serialization process is not going well
 	 */
 	public void putValue(Object o, Class<?>c) throws POPException {
-		if (o == null && !c.isArray()) {			
-			POPException.throwNullObjectNotAllowException();
-		}
-		
-		if (c.equals(byte.class) || c.equals(Byte.class)){
+		if (o == null) {
+			if (c.isArray()) {
+				putArray(o);
+			}else{
+				POPException.throwNullObjectNotAllowException();
+			}
+		}else if (c.equals(byte.class) || c.equals(Byte.class)){
 			put((Byte) o);
 		}else if (c.equals(int.class) || c.equals(Integer.class)){
 			putInt((Integer) o);

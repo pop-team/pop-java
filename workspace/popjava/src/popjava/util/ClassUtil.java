@@ -3,8 +3,8 @@ package popjava.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyObject;
+
 /**
  * This class gives some static methods to look inside a class
  */
@@ -29,6 +29,8 @@ public class ClassUtil {
 				parameterTypes[index] = Long.TYPE;
 			}else if(objects[index].getClass().equals(Short.class)){
 				parameterTypes[index] = Short.TYPE;
+			}if(objects[index].getClass().equals(Boolean.class)){
+				parameterTypes[index] = Boolean.TYPE;
 			}
 		}
 		
@@ -50,6 +52,7 @@ public class ClassUtil {
 			if (isSameConstructor(constructor, parameterTypes))
 				return constructor;
 		}
+		
 		String sign = getMethodSign(c.getName(), parameterTypes);
 		String errorMessage = String.format(
 				"Cannot find the method %s in class %s", sign, c.getName());
@@ -117,26 +120,34 @@ public class ClassUtil {
 	 * @param second	Second class
 	 * @return	true is the class is assignable
 	 */
-	private static boolean isAssignableFrom(Class<?> first, Class<?> second) {
-		if (first.isPrimitive()) {
-			if (first.equals(boolean.class))
-				first = Boolean.class;
-			else if (first.equals(byte.class))
-				first = Byte.class;
-			else if (first.equals(char.class))
-				first = Character.class;
-			else if (first.equals(short.class))
-				first = Short.class;
-			else if (first.equals(int.class))
-				first = Integer.class;
-			else if (first.equals(long.class))
-				first = Long.class;
-			else if (first.equals(float.class))
-				first = Float.class;
-			else if (first.equals(double.class))
-				first = Double.class;
-		}
+	public static boolean isAssignableFrom(Class<?> first, Class<?> second) {
+		first = normalizeType(first);
+		second = normalizeType(second);
+		
 		return first.isAssignableFrom(second);
+	}
+
+	private static Class<?> normalizeType(Class<?> first) {
+		if (first.isPrimitive()) {
+			if (first.equals(boolean.class)){
+				first = Boolean.class;
+			}else if (first.equals(byte.class)){
+				first = Byte.class;
+			}else if (first.equals(char.class)){
+				first = Character.class;
+			}else if (first.equals(short.class)){
+				first = Short.class;
+			}else if (first.equals(int.class)){
+				first = Integer.class;
+			}else if (first.equals(long.class)){
+				first = Long.class;
+			}else if (first.equals(float.class)){
+				first = Float.class;
+			}else if (first.equals(double.class)){
+				first = Double.class;
+			}
+		}
+		return first;
 	}
 
 	/**
@@ -150,6 +161,11 @@ public class ClassUtil {
 		if (params == null)
 			return false;
 		Class<?>[] parameters = constructor.getParameterTypes();
+		return areParameterTypesTheSame(params, parameters);
+	}
+
+	public static boolean areParameterTypesTheSame(Class<?>[] params,
+			Class<?>[] parameters) {
 		if (parameters.length > params.length
 				|| (parameters.length == 0 && params.length > 0))
 			return false;

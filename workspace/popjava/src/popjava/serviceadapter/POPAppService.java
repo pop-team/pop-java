@@ -41,7 +41,7 @@ public class POPAppService extends POPObjectMonitor implements AppService{
 	 *            path of the executable code
 	 */
 	public POPAppService(String challenge, boolean daemon, String codelocation) {
-
+		this();
 	}
 
 	/**
