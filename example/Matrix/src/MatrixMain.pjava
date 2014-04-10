@@ -99,5 +99,39 @@ public class MatrixMain {
 		System.out.println("\nParameters are:");
 		System.out.println("Matrix Size="+Alines+", Blocs of lines="+divLine+", Blocs of columns="+divCol+", Workers="+nbWorker+"\n");
 
+		MatrixWorker* mw[divLine][divCol];
+
+		  Timer timer = new Timer();
+		  double initTime, compTime, sendTime;
+
+		  printf("\nStarting Matrix multiplication program...\n\n");
+		  timer.start(); //---------------------------------------------- Start Timer  
+		  try
+		  {
+		    // Create the workers
+		    int lines, cols;               // Actual number of lin/col in a bloc
+
+		    int averline = Alines/divLine; // Average number of lines in a bloc
+		    int avercol = Bcols/divCol;    // Average number of col. in a bloc
+		    int extraL, extraC;            // Remaining lines or column
+
+		    extraL = Alines % divLine;
+		    for (int i=0; i<divLine; i++)
+		    {
+		      extraC = Bcols % divCol;
+		      if (extraL>0) {lines=averline+1; extraL--;} else lines = averline;
+		      for (int j=0; j<divCol; j++)
+		      {
+		        if (extraC>0) {cols =avercol+1;  extraC--;} else cols  = avercol;
+		        // Create workers
+		        //printf("Start worker on machine %s\n", (const char*)(*(machine[(j+i*divCol)%nbOfMachines].name)));
+		        mw[i][j] = new MatrixWorker(j+i*divCol, lines, Acols, cols,
+		                        *(machine[(j+i*divCol)%nbOfMachines].name),
+		                          machine[(j+i*divCol)%nbOfMachines].cores);
+		      }
+		    }
+
+		    // Get time to create all workers
+		    initTime = timer.Elapsed();  // ---------------------- Initialisation Time
 	}
 }
