@@ -4,6 +4,18 @@ import lib.Matrix2D;
 
 public class Matrix2Dlc extends Matrix2D{
 	
+	public Matrix2Dlc(){
+		
+	}
+	
+	public Matrix2Dlc(int line, int col){
+		super(line, col);
+	}
+	
+	public Matrix2Dlc(Matrix2D m){
+		super(m);
+	}
+	
 	@Override
 	public double testMat()
 	{
@@ -36,7 +48,7 @@ public class Matrix2Dlc extends Matrix2D{
 	    tmp.nbCol = nbCol;
 	    tmp.nbLine = nbLines;
 	    tmp.dataSize = dataSize;
-	    tmp.value = &(value[noLine*nbCol]);
+	    tmp.value = value ;//TODO: Correctly implement this: &(value[noLine*nbCol]);
 		  if(shared==null){
 			  tmp.shared = value; 
 		  }else {
@@ -76,8 +88,10 @@ public class Matrix2Dlc extends Matrix2D{
 	     }
 	       
 		 }
-		 else printf("Matrix ERROR: Non coherent bloc setting (%d,%d) !!!\n",
-	               noLine, noCol);
+		 else{
+			 System.out.println("Matrix ERROR: Non coherent bloc setting ("+noLine+","+noCol+") !!!");
+		 }
+	               
 	}
 
 	public void setLinesBloc(int noLine, Matrix2Dlc v)
@@ -89,7 +103,7 @@ public class Matrix2Dlc extends Matrix2D{
 	       dataSize = nbLine * nbCol;
 	       value = new double[dataSize+1];
 	       value[dataSize]=0;
-	       shared = NULL;
+	       shared = null;
 	     }
 	     // memcpy(&(value[noLine*nbCol]), v.value, v.nbCol*v.nbLine*sizeof(ValueType));
 	     // memcpy replaces the following for loop
@@ -97,7 +111,9 @@ public class Matrix2Dlc extends Matrix2D{
 		   //  value[noLine*nbCol+i]=v.value[i];
 	     System.arraycopy(v.value, 0, value, noLine * nbCol, v.nbCol*v.nbLine);
 		 }
-		 else printf("Matrix ERROR: Non coherent line setting !!!\n");
+		 else {
+			 System.out.println("Matrix ERROR: Non coherent line setting !!!");
+		 }
 	}
 
 	public void display()
@@ -115,7 +131,7 @@ public class Matrix2Dlc extends Matrix2D{
 	  
 	}
 
-	public void Matrix2Dlc::display(int n)
+	public void display(int n)
 	{
 		n = Math.min(nbCol, Math.min(n, nbLine));
 		

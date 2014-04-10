@@ -4,6 +4,18 @@ import lib.Matrix2D;
 
 public class Matrix2Dcl extends Matrix2D {
 
+	public Matrix2Dcl(){
+		
+	}
+	
+	public Matrix2Dcl(int line, int col){
+		super(line, col);
+	}
+	
+	public Matrix2Dcl(Matrix2D m){
+		super(m);
+	}
+	
 	@Override
 	public double testMat()
 	{
@@ -13,7 +25,7 @@ public class Matrix2Dcl extends Matrix2D {
 		        value[i*nbCol + j] = j+1;
 		      }
 		    }
-		    return (nbLine*(nbLine+1)*(2*nbLine+1))/6.);
+		    return (nbLine*(nbLine+1)*(2*nbLine+1))/6.;
 		 }
 		 
 		return -1;
@@ -37,7 +49,7 @@ public class Matrix2Dcl extends Matrix2D {
 	    tmp.nbCol = nbCols;
 	    tmp.nbLine = nbLine;
 	    tmp.dataSize = dataSize;
-	    tmp.value=&(value[noCol*nbLine]);
+	    tmp.value=value; //TODO: Correctly implement this: &(value[noCol*nbLine]);
 	    if(shared==null){
 	    	tmp.shared = value; 
 	    }else{
@@ -116,7 +128,7 @@ public class Matrix2Dcl extends Matrix2D {
 	}
 
 	@Override
-	void display(int n) {
+	public void display(int n) {
 		n = Math.min(nbCol, Math.min(n, nbLine));
 
 		for (int i = 0; i < n; i++) {

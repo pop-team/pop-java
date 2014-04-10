@@ -36,7 +36,7 @@ public class Timer{
 	 */
 	public void reset(){
 		//TODO: this is probably wrong, semantic unclear. What happens if timer is not running?
-		start_point=GetCurrentTime();
+		start_point=getCurrentTime();
 	    elapsed=0;
 	}
 	

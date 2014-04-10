@@ -6,18 +6,22 @@ import aligner.algorithm.data.RawRead;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
-public class Matrix2D implements IPOPBase {
+public abstract class Matrix2D implements IPOPBase {
 	
-	private int nbLine;
-	private int nbCol;
-	private int dataSize;
-	private double [] value;
-	private double [] shared;
+	protected int nbLine;
+	protected int nbCol;
+	protected int dataSize;
+	protected double [] value;
+	protected double [] shared;
+	
+	public Matrix2D(){
+		
+	}
 	
 	public Matrix2D(int line, int col){
 		nbLine = line;
 		nbCol= col;
-		dataSize = n bLine*nbCol;
+		dataSize = nbLine*nbCol;
 		value = new double[dataSize + 1];
 		
 		value[dataSize] = 0;
@@ -47,9 +51,9 @@ public class Matrix2D implements IPOPBase {
 	  if (shared != null){
 		  System.out.print("ref = %f, "+shared[dataSize]);
 	  }else if (value != null){
-		  System.out.print("ref = %f, ", value[dataSize]);
+		  System.out.print("ref = %f, "+ value[dataSize]);
 	  }
-	  System.out.print("shared = ", shared.hashCode());
+	  System.out.print("shared = "+ shared.hashCode());
 	  if (value != null){
 		  System.out.print(" at " + value[dataSize]);
 	  }
@@ -73,7 +77,7 @@ public class Matrix2D implements IPOPBase {
 	/**
 	 * Inits the matrix with the content specified in a certain file
 	 */
-	public void Matrix2D::init(String filename) // from file
+	public void init(String filename) // from file
 	{ 
 		//TODO: Implement
 		zero();
@@ -85,9 +89,9 @@ public class Matrix2D implements IPOPBase {
 	 */
 	public void fill(double v) // fill with v
 	{
-	  if (value!=NULL){
+	  if (value!=null){
 		  for (int i=0; i<nbCol*nbLine; i++){
-		      value[i] = sv;
+		      value[i] = v;
 		  }
 	  }
 	}
@@ -95,7 +99,7 @@ public class Matrix2D implements IPOPBase {
 	/**
 	 * Fills the matrix with the value 0
 	 */
-	public void Matrix2D::zero() // fill with 0
+	public void zero() // fill with 0
 	{
 	  if (value != null){
 		  for (int i=0; i<nbCol*nbLine; i++){
@@ -107,7 +111,7 @@ public class Matrix2D implements IPOPBase {
 	/**
 	 * Transforms the matrix in 0x0 matrix
 	 */
-	public void ()  // if possible Free memory space used by data 
+	public void reset()  // if possible Free memory space used by data 
 	{
 		value = null;
 		shared = null;
@@ -120,13 +124,13 @@ public class Matrix2D implements IPOPBase {
 	
 	public abstract double get(int line, int col);
 
-	public abstract void  set(int line, int col, double v);
+	public abstract void set(int line, int col, double v);
 	
 	public int getLines(){
 		return nbLine;
 	}
 
-	public int Matrix2D::getCols(){
+	public int getCols(){
 		return nbCol;
 	}
 	
@@ -176,8 +180,8 @@ public class Matrix2D implements IPOPBase {
 
 	@Override
 	public boolean serialize(POPBuffer buffer) {
-		buffer.put(nbCol);
-		buffer.put(nbLine);
+		buffer.putInt(nbCol);
+		buffer.putInt(nbLine);
 		buffer.putDoubleArray(value);
 		return true;
 	}
