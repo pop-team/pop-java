@@ -414,7 +414,7 @@ public static void main(String args[]) {
             //Print the token new only if the object instantiated is not a parclass
         else if(tok.kind == NEW){
             String id = tok.next.toString();
-            if(!parclasses.contains(id)){
+            if(!parclasses.contains(id) || tok.next.next.kind == LBRACKET){
                 print(tok.toString(),0);
             }else {
                 print("PopJava.newActive("+id+".class /*C*/", 0);

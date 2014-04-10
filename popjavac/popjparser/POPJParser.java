@@ -190,7 +190,7 @@ public static void main(String args[]) {
                 if (j==parstr.length() || parstr.charAt(j) == File.pathSeparatorChar){
                     if(!parclass.endsWith(".pjava")){
                         if(parclass.isEmpty()){
-                            System.err.println("parclasses parameter was malformed, trying to recover");
+                            System.err.println("parclasses parameter is empty, trying to recover");
                             break;
                         }
                         System.err.println("Parclass must be POP-Java file (.pjava) "+parclass);
@@ -390,7 +390,7 @@ public static void main(String args[]) {
             //Print the token new only if the object instantiated is not a parclass
         else if(tok.kind == NEW){
             String id = tok.next.toString();
-            if(!parclasses.contains(id)){
+            if(!parclasses.contains(id) || tok.next.next.kind == LBRACKET){
                 print(tok.toString(),0);
             }else {
                 print("PopJava.newActive("+id+".class /*C*/", 0);

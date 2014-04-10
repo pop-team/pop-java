@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import lib.*;
+
 /**
  * Main class of the Matrix application
  * 
@@ -79,14 +81,14 @@ public class MatrixMain {
 			return;
 		}
 
-		//Parse parameters
+		// Parse parameters
 		int Alines, Acols, Bcols;
 		Alines = Acols = Bcols = Integer.parseInt(args[0]);
 		int divLine = Integer.parseInt(args[1]);
 		int divCol = Integer.parseInt(args[2]);
-		
-		//Optional output file
-		String resultFileName = null; 
+
+		// Optional output file
+		String resultFileName = null;
 		if (args.length >= 4) {
 			resultFileName = args[3];
 		}
@@ -96,120 +98,127 @@ public class MatrixMain {
 		// Get the available machines
 		List<Machine> machines = getAvailableMachines(MACHINE_LIST);
 
-		System.out.println("mainpopc has started with "+nbWorker+" tasks.");
+		System.out.println("mainpopc has started with " + nbWorker + " tasks.");
 		System.out.println("Initializing arrays...");
 		System.out.println("\nParameters are:");
-		System.out.println("Matrix Size="+Alines+", Blocs of lines="+divLine+", Blocs of columns="+divCol+", Workers="+nbWorker+"\n");
+		System.out.println("Matrix Size=" + Alines + ", Blocs of lines="
+				+ divLine + ", Blocs of columns=" + divCol + ", Workers="
+				+ nbWorker + "\n");
 
-		MatrixWorker* mw[divLine][divCol];
+		MatrixWorker [][] mw = new MatrixWorker[divLine][divCol];
 
-		  Timer timer = new Timer();
-		  double initTime, compTime, sendTime;
+		Timer timer = new Timer();
+		double initTime, compTime, sendTime;
 
-		  printf("\nStarting Matrix multiplication program...\n\n");
-		  timer.start(); //---------------------------------------------- Start Timer  
-		  try
-		  {
-		    // Create the workers
-		    int lines, cols;               // Actual number of lin/col in a bloc
+		System.out.println("\nStarting Matrix multiplication program...");
+		timer.start(); // ---------------------------------------------- Start
+						// Timer
+		// Create the workers
+		int lines, cols; // Actual number of lin/col in a bloc
 
-		    int averline = Alines/divLine; // Average number of lines in a bloc
-		    int avercol = Bcols/divCol;    // Average number of col. in a bloc
-		    int extraL, extraC;            // Remaining lines or column
+		int averline = Alines / divLine; // Average number of lines in a bloc
+		int avercol = Bcols / divCol; // Average number of col. in a bloc
+		int extraL, extraC; // Remaining lines or column
 
-		    extraL = Alines % divLine;
-		    for (int i=0; i<divLine; i++)
-		    {
-		      extraC = Bcols % divCol;
-		      if (extraL>0) {lines=averline+1; extraL--;} else lines = averline;
-		      for (int j=0; j<divCol; j++)
-		      {
-		        if (extraC>0) {cols =avercol+1;  extraC--;} else cols  = avercol;
-		        // Create workers
-		        //printf("Start worker on machine %s\n", (const char*)(*(machine[(j+i*divCol)%nbOfMachines].name)));
-		        mw[i][j] = new MatrixWorker(j+i*divCol, lines, Acols, cols,
-		                        *(machine[(j+i*divCol)%nbOfMachines].name),
-		                          machine[(j+i*divCol)%nbOfMachines].cores);
-		      }
-		    }
+		extraL = Alines % divLine;
+		for (int i = 0; i < divLine; i++) {
+			extraC = Bcols % divCol;
+			if (extraL > 0) {
+				lines = averline + 1;
+				extraL--;
+			} else
+				lines = averline;
+			for (int j = 0; j < divCol; j++) {
+				if (extraC > 0) {
+					cols = avercol + 1;
+					extraC--;
+				} else
+					cols = avercol;
+				// Create workers
+				// printf("Start worker on machine %s\n", (const
+				// char*)(*(machine[(j+i*divCol)%nbOfMachines].name)));
+				mw[i][j] = new MatrixWorker(j + i * divCol, lines, Acols, cols,
+						machines.get((j + i * divCol) % nbOfMachines).name,
+						machines.get((j + i * divCol) % nbOfMachines).cores);
+			}
+		}
 
-		    // Get time to create all workers
-		    initTime = timer.Elapsed();  // ---------------------- Initialisation Time
-		    
-		  //send the bloc of Matrix A and the Matrix B and launch the computation
-		    int offsetL, offsetC;
-		    offsetL = 0;
-		    for (int i=0; i<divLine; i++)
-		    {
-		      offsetC = 0;
-		      for (int j=0; j<divCol; j++)
-		      {
-		        // Launch computation
-		        mw[i][j].solve(a.getLinesBloc(offsetL,lines),
-		                        b.getColsBloc(offsetC, cols));
-		        offsetC = offsetC + cols;
-		      }
-		      offsetL = offsetL + lines;
-		    }
+		// Get time to create all workers
+		initTime = timer.Elapsed(); // ---------------------- Initialisation
+									// Time
 
-		    // Get time to send all data to workers and launch computation
-		    sendTime = timer.elapsed() - initTime;  // ------------------ Sending Time
+		// send the bloc of Matrix A and the Matrix B and launch the computation
+		int offsetL, offsetC;
+		offsetL = 0;
+		for (int i = 0; i < divLine; i++) {
+			offsetC = 0;
+			for (int j = 0; j < divCol; j++) {
+				// Launch computation
+				mw[i][j].solve(a.getLinesBloc(offsetL, lines),
+						b.getColsBloc(offsetC, cols));
+				offsetC = offsetC + cols;
+			}
+			offsetL = offsetL + lines;
+		}
 
-		    //Create a matrix for getting the results
-		    Matrix2Dlc res;
+		// Get time to send all data to workers and launch computation
+		sendTime = timer.elapsed() - initTime; // ------------------ Sending
+												// Time
 
-		    // Declare vector to store wait time of workers
-		    double workerTw[divLine][divCol];
-		    // Declare vector to store computing time of workers
-		    double workerTc[divLine][divCol];
-		    //Get the results and put inside matrix A
-		    offsetL=0;
-		    for (int i=0; i<divLine; i++)
-		    {
-		      offsetC=0;
-		      for (int j=0; j<divCol; j++)
-		      {
-		        res=mw[i][j].getResult(workerTw[i][j], workerTc[i][j]);
-		        a.setBloc(offsetL, offsetC, res);
-		        offsetC = offsetC + res.getCols();
-		      }
-		      offsetL = offsetL + res.getLines();
-		   }
+		// Create a matrix for getting the results
+		Matrix2Dlc res;
 
-		    // Get the elapsed time since all data have been sent (computing time)
-		    compTime = timer.elapsed() - sendTime - initTime;  // --- Computing Time
-		    timer.Stop();
+		// Declare vector to store wait time of workers
+		double [][] workerTw = new double[divLine][divCol];
+		// Declare vector to store computing time of workers
+		double [][] workerTc = new double[divLine][divCol];
+		// Get the results and put inside matrix A
+		offsetL = 0;
+		for (int i = 0; i < divLine; i++) {
+			offsetC = 0;
+			for (int j = 0; j < divCol; j++) {
+				res = mw[i][j].getResult(workerTw[i][j], workerTc[i][j]);
+				a.setBloc(offsetL, offsetC, res);
+				offsetC = offsetC + res.getCols();
+			}
+			offsetL = offsetL + res.getLines();
+		}
 
-		    System.out.println("Times (init, send and computing) = "+initTime+", "+sendTime+", "+compTime+" sec");
-		    System.out.println("...End of matrix multiplication"); 
-		    res.display(5);
+		// Get the elapsed time since all data have been sent (computing time)
+		compTime = timer.elapsed() - sendTime - initTime; // --- Computing Time
+		timer.Stop();
 
-		    // Storage of Results and Parametres in the file resultFileName
-		    if (resultFileName != null)
-		    {
-		    	File outFile = new File(resultFileName);
-		    	if(outFile.exists() && outFile.canWrite()){
-		    		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
-			    	
-			    	out.write(Alines+"\t"+ divLine+"\t"+ divCol+"\t"+ initTime+"\t"+ sendTime+"\t"+ compTime);
-			        for (int i=0; i<divLine; i++){
-			          for (int j=0; j<divCol; j++){
-			        	  out.write("\tworkerTw[i][j]\tworkerTc[i][j]");
-			          }
-			        }
-			        
-			        out.write("\n");
-			        out.close();
-		    	}else{
-		    		System.out.println("ERROR OPENING result file - no results has been saved !!");
-		    	}
-		    }
+		System.out.println("Times (init, send and computing) = " + initTime
+				+ ", " + sendTime + ", " + compTime + " sec");
+		System.out.println("...End of matrix multiplication");
+		res.display(5);
 
-		    // Delete the workers
-		    /*for (int i=0; i<divLine; i++){
-		    	for (int j=0; j<divCol; j++){
-		    		if (mw[i][j]!=NULL) delete mw[i][j];
-		    	}
-		    }*/
+		// Storage of Results and Parametres in the file resultFileName
+		if (resultFileName != null) {
+			File outFile = new File(resultFileName);
+			if (outFile.exists() && outFile.canWrite()) {
+				BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
+
+				out.write(Alines + "\t" + divLine + "\t" + divCol + "\t"
+						+ initTime + "\t" + sendTime + "\t" + compTime);
+				for (int i = 0; i < divLine; i++) {
+					for (int j = 0; j < divCol; j++) {
+						out.write("\tworkerTw[i][j]\tworkerTc[i][j]");
+					}
+				}
+
+				out.write("\n");
+				out.close();
+			} else {
+				System.out
+						.println("ERROR OPENING result file - no results has been saved !!");
+			}
+		}
+
+		// Delete the workers
+		/*
+		 * for (int i=0; i<divLine; i++){ for (int j=0; j<divCol; j++){ if
+		 * (mw[i][j]!=NULL) delete mw[i][j]; } }
+		 */
 	}
 }

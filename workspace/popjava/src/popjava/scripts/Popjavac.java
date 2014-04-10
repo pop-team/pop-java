@@ -317,7 +317,8 @@ public class Popjavac {
 		try {
 			writer = new BufferedWriter(new FileWriter(new File(output)));
 			if(ScriptUtils.runNativeApplication(ScriptUtils.listToArray(parameters), "Could not find java executable in path", writer, verbose) != 0){
-				throw new RuntimeException("Error while compiling "+input);
+				System.err.println("Error while compiling "+input);
+				System.exit(1);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
