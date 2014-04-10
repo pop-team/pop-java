@@ -55,7 +55,7 @@ public class Matrix2Dcl extends Matrix2D {
 	    if(shared==null){
 	    	tmp.shared = value; 
 	    }else{
-	    	tmp.shared=shared;
+	    	tmp.shared = shared;
 	    }
 	    if (tmp.shared != null){
 	    	tmp.shared[dataSize] = tmp.shared[dataSize] + 1;

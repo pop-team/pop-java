@@ -62,7 +62,7 @@
     <target name="run" depends="build"
         description="Run the application" >
         <exec executable="popjrun">
-            <arg line="-c ${matrix.jar} ${objectmap} ${matrix.main} 20 4 4"/>
+            <arg line="-c ${matrix.jar} ${objectmap} ${matrix.main} 1000 2 2"/>
         </exec>
     </target>
     
