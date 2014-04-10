@@ -34,8 +34,6 @@ public class SystemUtil {
 		for(String arg: argvs){
 			LogWriter.writeDebugInfo(arg);
 		}
-		/*argvs.add("$>/dev/null");
-		argvs.add("&");*/
 		
 		ProcessBuilder pb = new ProcessBuilder(argvs);
 		if(Configuration.REDIRECT_OUTPUT_TO_ROOT){

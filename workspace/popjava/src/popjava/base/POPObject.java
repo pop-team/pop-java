@@ -76,6 +76,7 @@ public class POPObject implements IPOPBase {
 		if(objectDescription != null){
 			od.setHostname(objectDescription.url());
 			od.setJVMParamters(objectDescription.jvmParameters());
+			od.setConnectionType(objectDescription.connection());
 		}
 	}
 	
