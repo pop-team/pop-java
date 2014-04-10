@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -201,8 +202,9 @@ public class MatrixMain {
 		compTime = timer.elapsed() - sendTime - initTime; // --- Computing Time
 		timer.stop();
 
-		System.out.println("Times (init, send and computing) = " + initTime
-				+ ", " + sendTime + ", " + compTime + " sec");
+		DecimalFormat df = new DecimalFormat("#.###");
+		System.out.println("Times (init, send and computing) = "+df.format(initTime)+
+				", "+df.format(sendTime)+", "+df.format(compTime)+" sec\n\n");
 		System.out.println("...End of matrix multiplication");
 		res.display(5);
 
@@ -213,11 +215,11 @@ public class MatrixMain {
 				try{
 					BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 
-					out.write(Alines + "\t" + divLine + "\t" + divCol + "\t"
-							+ initTime + "\t" + sendTime + "\t" + compTime);
+					out.write(String.format("%d\t%d\t%d\t%g\t%g\t%g",
+                Alines, divLine, divCol, initTime, sendTime, compTime));
 					for (int i = 0; i < divLine; i++) {
 						for (int j = 0; j < divCol; j++) {
-							out.write("\tworkerTw[i][j]\tworkerTc[i][j]");
+							out.write(String.format("\t%g\t%g", workerTw[i][j],workerTc[i][j]));
 						}
 					}
 

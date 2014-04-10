@@ -1,5 +1,7 @@
 package lib;
 
+import java.text.DecimalFormat;
+
 import lib.Matrix2D;
 
 public class Matrix2Dlc extends Matrix2D{
@@ -119,10 +121,11 @@ public class Matrix2Dlc extends Matrix2D{
 	public void display()
 	{
 	  if (value != null){
+		  DecimalFormat df = new DecimalFormat("#.###");
 		  for (int i=0; i<nbLine; i++)
 		  {
 		    for (int j=0; j<nbCol; j++){
-		    	System.out.print(""+value[i*nbCol+j]);
+		    	System.out.print(df.format(value[i*nbCol+j]));
 		    }
 		    System.out.println();
 		  }
@@ -134,14 +137,14 @@ public class Matrix2Dlc extends Matrix2D{
 	public void display(int n)
 	{
 		n = Math.min(nbCol, Math.min(n, nbLine));
-		
+		DecimalFormat df = new DecimalFormat("#.###");
 	 for (int i=0; i<n; i++)
 	  {
 	    for (int j=0; j<n; j++){
-	    	System.out.print(value[i*nbCol+j]+" ");
+	    	System.out.print(df.format(value[i*nbCol+j])+" ");
 	    }
 	      
-	    System.out.println(".. "+value[nbCol*(i+1)-1]+" ");
+	    System.out.println(".. "+df.format(value[nbCol*(i+1)-1])+" ");
 	  }
 	 System.out.println("....................");
 	}

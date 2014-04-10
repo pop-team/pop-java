@@ -1,5 +1,7 @@
 package lib;
 
+import java.text.DecimalFormat;
+
 import lib.Matrix2D;
 
 public class Matrix2Dcl extends Matrix2D {
@@ -49,7 +51,7 @@ public class Matrix2Dcl extends Matrix2D {
 	    tmp.nbCol = nbCols;
 	    tmp.nbLine = nbLine;
 	    tmp.dataSize = dataSize;
-	    tmp.value=value; //TODO: Correctly implement this: &(value[noCol*nbLine]);
+	    tmp.value = value; //TODO: Correctly implement this: &(value[noCol*nbLine]);
 	    if(shared==null){
 	    	tmp.shared = value; 
 	    }else{
@@ -119,8 +121,9 @@ public class Matrix2Dcl extends Matrix2D {
 	@Override
 	public void display() {
 		for (int i = 0; i < nbLine; i++) {
+			DecimalFormat df = new DecimalFormat("#.###");
 			for (int j = 0; j < nbCol; j++) {
-				System.out.print("" + value[j * nbLine + i]);
+				System.out.print(df.format(value[j * nbLine + i]));
 			}
 
 			System.out.println();
@@ -130,12 +133,12 @@ public class Matrix2Dcl extends Matrix2D {
 	@Override
 	public void display(int n) {
 		n = Math.min(nbCol, Math.min(n, nbLine));
-
+		DecimalFormat df = new DecimalFormat("#.###");
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
-				System.out.print("" + value[j * nbLine + i]);
+				System.out.print(df.format(value[j * nbLine + i])+" ");
 			}
-			System.out.println(".. " + value[nbLine * (nbCol - 1) + i] + " ");
+			System.out.println(".. "+df.format(value[nbLine * (nbCol - 1) + i])+" ");
 		}
 		System.out.println("...................." + value[(nbLine * nbCol) - 1]
 				+ " \n");
