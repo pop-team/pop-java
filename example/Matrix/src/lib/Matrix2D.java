@@ -2,7 +2,6 @@ package lib;
 
 import java.util.Random;
 
-import aligner.algorithm.data.RawRead;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 

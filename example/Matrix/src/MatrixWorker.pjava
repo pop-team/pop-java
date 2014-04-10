@@ -20,11 +20,11 @@ public class MatrixWorker {
 
 	private Timer timer = new Timer();
 	private double computeTime, waitTime;
-	
+
 	private Semaphore workerSemaphore = new Semaphore(0);
 
 	public MatrixWorker(int i, int nbLineA, int nbColA, int nbColB,
-			@POPConfig(Type = Type.URL) String machine, int NbC) {
+			@POPConfig(Type.URL) String machine, int NbC) {
 		nbLinesA = nbLineA;
 		nbColsA = nbColA;
 		nbColsB = nbColB;
@@ -34,38 +34,38 @@ public class MatrixWorker {
 	}
 
 	public MatrixWorker(int i, int nbLineA, int nbColA, int nbColB,
-			@POPConfig(Type = Type.URL) String machine) {
+			@POPConfig(Type.URL) String machine) {
 		this(i, nbLineA, nbColA, nbColB, machine, 4);
 	}
 
 	@POPAsyncSeq
-    public void solve(Matrix2Dlc a, Matrix2Dcl b){
+	public void solve(Matrix2Dlc a, Matrix2Dcl b) throws InterruptedException {
 		waitTime = timer.elapsed();
-	  aMat = a;
-	  bMat = b;
+		aMat = a;
+		bMat = b;
 
-	  // Launch NbCores "SolveCore" methods (Threads)
-	  for (int i=0; i<NbCores; i++){
-		  this.solveCore(i);
-	  }
-	  
-	  // Wait until all "SolveCore" methods are terminated
-	  workerSemaphore.acquire(NbCores);
-	  
-	  computeTime = timer.elapsed() - waitTime;
-	  timer.stop();
-    }
+		// Launch NbCores "SolveCore" methods (Threads)
+		for (int i = 0; i < NbCores; i++) {
+			this.solveCore(i);
+		}
+
+		// Wait until all "SolveCore" methods are terminated
+		workerSemaphore.acquire(NbCores);
+
+		computeTime = timer.elapsed() - waitTime;
+		timer.stop();
+	}
 
 	@POPAsyncConc
 	public void solveCore(int st) {
-		for (int j=st; j<nbLinesA; j=j+NbCores){
-			for (int k=0; k<nbColsB; k++) {
-		      for (int l=0; l<nbColsA; l++) {
-		         c.set(j,k, c.get(j,k) + aMat.get(j,l) * bMat.get(l,k));
-		      }
+		for (int j = st; j < nbLinesA; j = j + NbCores) {
+			for (int k = 0; k < nbColsB; k++) {
+				for (int l = 0; l < nbColsA; l++) {
+					c.set(j, k, c.get(j, k) + aMat.get(j, l) * bMat.get(l, k));
+				}
 			}
 		}
-		    
+
 		workerSemaphore.release();
 	}
 

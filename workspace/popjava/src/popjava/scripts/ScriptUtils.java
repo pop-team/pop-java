@@ -79,7 +79,7 @@ public class ScriptUtils {
 		return array;
 	}
 	
-	public static void runNativeApplication(String [] arguments, String notFoundError, BufferedWriter out, boolean verbose){
+	public static int runNativeApplication(String [] arguments, String notFoundError, BufferedWriter out, boolean verbose){
 		if(verbose){
 			for(String arg: arguments){
 				System.out.print(arg+" ");
@@ -94,7 +94,8 @@ public class ScriptUtils {
 			builder.directory(new File(System.getProperty("user.dir")));
 			
 			Process p = builder.start();
-			if(p.waitFor() == 2){
+			int exitValue = p.waitFor();
+			if(exitValue == 2){
 				System.err.println(notFoundError);
 			}
 			
@@ -115,10 +116,14 @@ public class ScriptUtils {
 			while((line = error.readLine()) != null){
 				System.out.println(line);
 			}
+			
+			return exitValue;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		return -1;
 	}
 }

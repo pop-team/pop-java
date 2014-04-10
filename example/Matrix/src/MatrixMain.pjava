@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -133,5 +135,81 @@ public class MatrixMain {
 
 		    // Get time to create all workers
 		    initTime = timer.Elapsed();  // ---------------------- Initialisation Time
+		    
+		  //send the bloc of Matrix A and the Matrix B and launch the computation
+		    int offsetL, offsetC;
+		    offsetL = 0;
+		    for (int i=0; i<divLine; i++)
+		    {
+		      offsetC = 0;
+		      for (int j=0; j<divCol; j++)
+		      {
+		        // Launch computation
+		        mw[i][j].solve(a.getLinesBloc(offsetL,lines),
+		                        b.getColsBloc(offsetC, cols));
+		        offsetC = offsetC + cols;
+		      }
+		      offsetL = offsetL + lines;
+		    }
+
+		    // Get time to send all data to workers and launch computation
+		    sendTime = timer.elapsed() - initTime;  // ------------------ Sending Time
+
+		    //Create a matrix for getting the results
+		    Matrix2Dlc res;
+
+		    // Declare vector to store wait time of workers
+		    double workerTw[divLine][divCol];
+		    // Declare vector to store computing time of workers
+		    double workerTc[divLine][divCol];
+		    //Get the results and put inside matrix A
+		    offsetL=0;
+		    for (int i=0; i<divLine; i++)
+		    {
+		      offsetC=0;
+		      for (int j=0; j<divCol; j++)
+		      {
+		        res=mw[i][j].getResult(workerTw[i][j], workerTc[i][j]);
+		        a.setBloc(offsetL, offsetC, res);
+		        offsetC = offsetC + res.getCols();
+		      }
+		      offsetL = offsetL + res.getLines();
+		   }
+
+		    // Get the elapsed time since all data have been sent (computing time)
+		    compTime = timer.elapsed() - sendTime - initTime;  // --- Computing Time
+		    timer.Stop();
+
+		    System.out.println("Times (init, send and computing) = "+initTime+", "+sendTime+", "+compTime+" sec");
+		    System.out.println("...End of matrix multiplication"); 
+		    res.display(5);
+
+		    // Storage of Results and Parametres in the file resultFileName
+		    if (resultFileName != null)
+		    {
+		    	File outFile = new File(resultFileName);
+		    	if(outFile.exists() && outFile.canWrite()){
+		    		BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
+			    	
+			    	out.write(Alines+"\t"+ divLine+"\t"+ divCol+"\t"+ initTime+"\t"+ sendTime+"\t"+ compTime);
+			        for (int i=0; i<divLine; i++){
+			          for (int j=0; j<divCol; j++){
+			        	  out.write("\tworkerTw[i][j]\tworkerTc[i][j]");
+			          }
+			        }
+			        
+			        out.write("\n");
+			        out.close();
+		    	}else{
+		    		System.out.println("ERROR OPENING result file - no results has been saved !!");
+		    	}
+		    }
+
+		    // Delete the workers
+		    /*for (int i=0; i<divLine; i++){
+		    	for (int j=0; j<divCol; j++){
+		    		if (mw[i][j]!=NULL) delete mw[i][j];
+		    	}
+		    }*/
 	}
 }
