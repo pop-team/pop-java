@@ -231,8 +231,10 @@ public class Popjavac {
 			}			
 		}
 		
-		while(sources.charAt(sources.length() - 1) == File.pathSeparatorChar){
-			sources = sources.substring(0, sources.length() - 1);
+		if(sources.length() > 0){
+			while(sources.charAt(sources.length() - 1) == File.pathSeparatorChar){
+				sources = sources.substring(0, sources.length() - 1);
+			}
 		}
 		
 		List<String> javaFiles = new ArrayList<String>();

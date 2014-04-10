@@ -1,0 +1,103 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Main class of the Matrix application
+ * 
+ * @author Beat Wolf
+ * 
+ */
+
+public class MatrixMain {
+
+	private static final int NB_MAX_MACHINES = 200;
+	private static final String MACHINE_LIST = "machines.ip";
+
+	/**
+	 * This class holds the description of a machine
+	 * 
+	 * @author Beat Wolf
+	 * 
+	 */
+	private static class Machine {
+		String name;
+		int cores;
+	}
+
+	/**
+	 * Returns the list of all machines defined in the specified file. If the
+	 * specified file is not valid or empty, the localhost machine will be
+	 * returned with 1 core.
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	private static List<Machine> getAvailableMachines(String fileName) {
+		List<Machine> machines = new ArrayList<Machine>();
+		File file = new File(fileName);
+
+		if (file.exists() && file.canRead()) {
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(file));
+
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					String[] tokens = line.split(" ");
+					if (tokens.length == 2) {
+						Machine machine = new Machine();
+						machine.name = tokens[0];
+						machine.cores = Integer.parseInt(tokens[1]);
+						machines.add(machine);
+					}
+				}
+			} catch (IOException e) {
+				machines.clear();
+			}
+		}
+
+		if (machines.size() == 0) {
+			Machine machine = new Machine();
+			machine.name = "localhost";
+			machine.cores = 1;
+			machines.add(machine);
+		}
+
+		return machines;
+	}
+
+	public static void main(String[] args) {
+
+		if (args.length < 3) {
+			System.err
+					.println("Usage: popjrun objmap MatrixMain size divLine divCol [resultFileName]");
+			return;
+		}
+
+		//Parse parameters
+		int Alines, Acols, Bcols;
+		Alines = Acols = Bcols = Integer.parseInt(args[0]);
+		int divLine = Integer.parseInt(args[1]);
+		int divCol = Integer.parseInt(args[2]);
+		
+		//Optional output file
+		String resultFileName = null; 
+		if (args.length >= 4) {
+			resultFileName = args[3];
+		}
+
+		int nbWorker = divLine * divCol;
+
+		// Get the available machines
+		List<Machine> machines = getAvailableMachines(MACHINE_LIST);
+
+		System.out.println("mainpopc has started with "+nbWorker+" tasks.");
+		System.out.println("Initializing arrays...");
+		System.out.println("\nParameters are:");
+		System.out.println("Matrix Size="+Alines+", Blocs of lines="+divLine+", Blocs of columns="+divCol+", Workers="+nbWorker+"\n");
+
+	}
+}

@@ -1,0 +1,71 @@
+<project name="Matrix" default="build" basedir=".">
+    <description>
+        Matrix multiplication example
+    </description>
+    
+    <property name="objectmap" value="objectmap.xml"/>
+    <property name="source.folder" value="src"/>
+	<property name="build.dir"   value="build"/>
+	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="jar.dir"     value="${build.dir}/jar"/>
+	    
+	<property name="matrix.jar" value="${jar.dir}/matrix.jar"/>
+	<property name="matrix.main" value="MatrixMain"/>
+	
+	
+	<property environment="env"/>
+	<property name="pop.jar"     value="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"/>
+    
+    <target name="clean" description="clean the build folder" >
+        
+        <delete file= "${objectmap}"/>
+    	<delete dir="${build.dir}"/>
+    	<delete file="${source.folder}/MatrixMain.java"/>
+    	<delete file="${source.folder}/MatrixWorker.java"/>
+    	
+    </target>
+    
+    <target name="build"
+        description="compile the source " >
+    	<mkdir dir="${classes.dir}"/>
+    	
+        <exec executable="popjc">
+            <arg line="-v -t ${source.folder}/*.pjava"/>
+        </exec>
+    	
+    	<echo message="Hello, world ${pop.jar}"/>
+    	
+    	<javac srcdir="${source.folder}"
+	                destdir="${classes.dir}"
+	                classpath="${pop.jar}"
+	                debug="true" debuglevel="lines,vars,source"
+	                target="7"
+	                source="7"
+	              verbose="false">
+	               <compilerarg value="-Xlint:deprecation,unchecked"/>
+	        </javac>
+    	
+    	<mkdir dir="${jar.dir}"/>
+	        <jar destfile="${matrix.jar}" basedir="${classes.dir}">
+	            <manifest>
+	                <attribute name="Class-Path" value="." />
+	                <attribute name="Main-Class" value="${matrix.main}" />
+	            </manifest>
+	            <zipgroupfileset dir="." includes="${pop.jar}" excludes="META-INF/MANIFEST.MF"/>
+	        </jar>
+    	
+        <exec executable="popjrun" output = "${objectmap}">
+            <arg line="--listlong ${matrix.jar}"/>
+        </exec>
+    </target>
+    
+    <target name="run" depends="build"
+        description="Run the application" >
+        <exec executable="popjrun">
+            <arg line="-c ${matrix.jar} ${objectmap} ${matrix.main}"/>
+        </exec>
+    </target>
+    
+    
+</project>
+ 

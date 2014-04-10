@@ -214,7 +214,7 @@ public static void main(String args[]) {
                 if (j==parstr.length() || parstr.charAt(j) == File.pathSeparatorChar){
                     if(!parclass.endsWith(".pjava")){
                         if(parclass.isEmpty()){
-                            System.err.println("parclasses parameter was malformed, trying to recover");
+                            System.err.println("parclasses parameter is empty, trying to recover");
                             break;
                         }
                         System.err.println("Parclass must be POP-Java file (.pjava) "+parclass);

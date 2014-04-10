@@ -1,0 +1,24 @@
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncSeq;
+
+@POPClass
+public class MatrixWorker{
+
+	@POPAsyncSeq
+    public void solve(){
+    
+    }
+    
+	@POPSyncSeq
+    public void getResult(){
+    
+    }
+    
+	@POPAsyncConc
+    public void solveCore(int st){
+    
+    }
+
+}
