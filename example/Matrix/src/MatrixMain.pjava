@@ -19,7 +19,7 @@ import lib.*;
 public class MatrixMain {
 
 	private static final int NB_MAX_MACHINES = 200;
-	private static final String MACHINE_LIST = "machines.ip";
+	private static final String MACHINE_LIST = "";//"machines.ip";
 
 	/**
 	 * This class holds the description of a machine

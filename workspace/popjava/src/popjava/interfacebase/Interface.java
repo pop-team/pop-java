@@ -512,14 +512,14 @@ public class Interface {
 					appCoreService = (AppService) PopJava.newActive(
 							POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
 				}catch(POPException e2){
-					e2.printStackTrace();
+					LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
+					//e2.printStackTrace();
 				}
 			}
 		}
 		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
-			appCoreService.exit();
 			return codeFile;
 		}
 		
@@ -540,6 +540,7 @@ public class Interface {
 		
 		manager.queryCode(objectName, POPSystem.getPlatform(), popStringCodeFile);
 		String codeFile = popStringCodeFile.getValue();
+		
 		if(codeFile == null || codeFile.isEmpty()){
 			POPJavaAppService appService = new POPJavaAppService();
 			codeFile = appService.getLocalJavaFileLocation(objectName);
