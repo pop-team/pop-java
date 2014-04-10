@@ -97,13 +97,20 @@ public class MatrixMain {
 
 		// Get the available machines
 		List<Machine> machines = getAvailableMachines(MACHINE_LIST);
-
+		int nbOfMachines = machines.size();
+		
 		System.out.println("mainpopc has started with " + nbWorker + " tasks.");
 		System.out.println("Initializing arrays...");
 		System.out.println("\nParameters are:");
 		System.out.println("Matrix Size=" + Alines + ", Blocs of lines="
 				+ divLine + ", Blocs of columns=" + divCol + ", Workers="
 				+ nbWorker + "\n");
+		
+		Matrix2Dlc a = new Matrix2Dlc(Alines,Acols);
+		Matrix2Dcl b = new Matrix2Dcl(Acols,Bcols);  
+		// Randomly initialize Matrix a and b 
+		a.init();
+		b.init();
 
 		MatrixWorker [][] mw = new MatrixWorker[divLine][divCol];
 
@@ -114,7 +121,10 @@ public class MatrixMain {
 		timer.start(); // ---------------------------------------------- Start
 						// Timer
 		// Create the workers
-		int lines, cols; // Actual number of lin/col in a bloc
+		
+		// Actual number of lin/col in a bloc
+		int lines = 1;
+		int cols = 1; 
 
 		int averline = Alines / divLine; // Average number of lines in a bloc
 		int avercol = Bcols / divCol; // Average number of col. in a bloc
@@ -126,14 +136,16 @@ public class MatrixMain {
 			if (extraL > 0) {
 				lines = averline + 1;
 				extraL--;
-			} else
+			} else {
 				lines = averline;
+			}
 			for (int j = 0; j < divCol; j++) {
 				if (extraC > 0) {
 					cols = avercol + 1;
 					extraC--;
-				} else
+				} else {
 					cols = avercol;
+				}
 				// Create workers
 				// printf("Start worker on machine %s\n", (const
 				// char*)(*(machine[(j+i*divCol)%nbOfMachines].name)));
@@ -144,8 +156,7 @@ public class MatrixMain {
 		}
 
 		// Get time to create all workers
-		initTime = timer.Elapsed(); // ---------------------- Initialisation
-									// Time
+		initTime = timer.elapsed(); // ---------------------- Initialisation Time
 
 		// send the bloc of Matrix A and the Matrix B and launch the computation
 		int offsetL, offsetC;
@@ -166,7 +177,7 @@ public class MatrixMain {
 												// Time
 
 		// Create a matrix for getting the results
-		Matrix2Dlc res;
+		Matrix2Dlc res = null;
 
 		// Declare vector to store wait time of workers
 		double [][] workerTw = new double[divLine][divCol];
@@ -177,7 +188,9 @@ public class MatrixMain {
 		for (int i = 0; i < divLine; i++) {
 			offsetC = 0;
 			for (int j = 0; j < divCol; j++) {
-				res = mw[i][j].getResult(workerTw[i][j], workerTc[i][j]);
+				res = mw[i][j].getResult();
+				workerTw[i][j] = mw[i][j].getWaitTime();
+				workerTc[i][j] = mw[i][j].getComputeTime();
 				a.setBloc(offsetL, offsetC, res);
 				offsetC = offsetC + res.getCols();
 			}
@@ -186,7 +199,7 @@ public class MatrixMain {
 
 		// Get the elapsed time since all data have been sent (computing time)
 		compTime = timer.elapsed() - sendTime - initTime; // --- Computing Time
-		timer.Stop();
+		timer.stop();
 
 		System.out.println("Times (init, send and computing) = " + initTime
 				+ ", " + sendTime + ", " + compTime + " sec");
@@ -197,18 +210,23 @@ public class MatrixMain {
 		if (resultFileName != null) {
 			File outFile = new File(resultFileName);
 			if (outFile.exists() && outFile.canWrite()) {
-				BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
+				try{
+					BufferedWriter out = new BufferedWriter(new FileWriter(outFile));
 
-				out.write(Alines + "\t" + divLine + "\t" + divCol + "\t"
-						+ initTime + "\t" + sendTime + "\t" + compTime);
-				for (int i = 0; i < divLine; i++) {
-					for (int j = 0; j < divCol; j++) {
-						out.write("\tworkerTw[i][j]\tworkerTc[i][j]");
+					out.write(Alines + "\t" + divLine + "\t" + divCol + "\t"
+							+ initTime + "\t" + sendTime + "\t" + compTime);
+					for (int i = 0; i < divLine; i++) {
+						for (int j = 0; j < divCol; j++) {
+							out.write("\tworkerTw[i][j]\tworkerTc[i][j]");
+						}
 					}
-				}
 
-				out.write("\n");
-				out.close();
+					out.write("\n");
+					out.close();
+				}catch(IOException e){
+					e.printStackTrace();
+				}
+				
 			} else {
 				System.out
 						.println("ERROR OPENING result file - no results has been saved !!");

@@ -39,7 +39,7 @@ public class MatrixWorker {
 	}
 
 	@POPAsyncSeq
-	public void solve(Matrix2Dlc a, Matrix2Dcl b) throws InterruptedException {
+	public void solve(Matrix2Dlc a, Matrix2Dcl b) {
 		waitTime = timer.elapsed();
 		aMat = a;
 		bMat = b;
@@ -50,7 +50,12 @@ public class MatrixWorker {
 		}
 
 		// Wait until all "SolveCore" methods are terminated
-		workerSemaphore.acquire(NbCores);
+		try{
+			workerSemaphore.acquire(NbCores);
+		}catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		
 
 		computeTime = timer.elapsed() - waitTime;
 		timer.stop();
