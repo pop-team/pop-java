@@ -2,6 +2,7 @@ package popjava.service;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import popjava.system.POPJavaConfiguration;
 import popjava.util.SystemUtil;
 
 /**
@@ -52,9 +54,31 @@ public class POPJavaDeamon {
 				String line = null;
 				
 				System.out.println("Execute command: ");
+				boolean isJava = false;
+				int parameterIndex = 0;
+				
+				boolean isClassPath = false;
 				while((line = reader.readLine()) != null){
+					if(isJava && isClassPath){ //If the current parameter is the classpath, modify it to fit local system
+						if(!line.contains(File.pathSeparator) &&
+								!new File(line).exists()){
+							String temp = POPJavaConfiguration.getPOPJavaCodePath();
+							if(temp != null && !temp.isEmpty()){
+								line = temp;
+							}							
+						}
+					}
+					
 					commands.add(line);
 					System.out.print(line+" ");
+					
+					if(parameterIndex == 0 && line.equals("java")){
+						isJava = true;
+					}
+					
+					parameterIndex++;
+					
+					isClassPath = line.equals("-cp");
 				}
 				System.out.println();
 				
