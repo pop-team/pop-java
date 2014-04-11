@@ -1,8 +1,11 @@
 package popjava.system;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.security.CodeSource;
 
 import popjava.broker.Broker;
@@ -128,10 +131,18 @@ public class POPJavaConfiguration {
 			URL [] urls = ((URLClassLoader)POPJavaAppService.class.getClassLoader()).getURLs();
 			for(int i = 0; i < urls.length; i++){
 				URL url = urls[i];
-	            popJar += url.getPath();
-	            if(i != urls.length - 1){
-	            	popJar += File.pathSeparatorChar;
-	            }
+				try {
+					String path = new File(url.toURI()).getAbsolutePath();
+					System.out.println(path);
+					popJar += path;
+					if(i != urls.length - 1){
+		            	popJar += File.pathSeparatorChar;
+		            }
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+				
+	            
 	        }
 		}
 		return popJar;
