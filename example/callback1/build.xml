@@ -55,5 +55,11 @@
         </exec>
     </target>
     
+    <target name="run-nobuild"
+        description="Run the application without rebuilding it" >
+        <exec executable="popjrun">
+            <arg line="-v -c ${application.jar} ${objectmap} test.CallBackMain"/>
+        </exec>
+    </target>
     
 </project>

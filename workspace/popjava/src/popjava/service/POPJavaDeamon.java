@@ -65,7 +65,6 @@ public class POPJavaDeamon {
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 	public static void main(String ... args) throws IOException{
