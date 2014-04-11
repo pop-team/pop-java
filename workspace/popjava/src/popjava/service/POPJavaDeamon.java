@@ -22,6 +22,7 @@ import popjava.util.SystemUtil;
 public class POPJavaDeamon {
 
 	public static final int POP_JAVA_DEAMON_PORT = 43424;
+	private ServerSocket serverSocket;
 	
 	/**
 	 * Class that handles the accepted connections and runs the Broker with the provided paramters
@@ -68,10 +69,20 @@ public class POPJavaDeamon {
 	}
 	
 	public static void main(String ... args) throws IOException{
-		
-		ServerSocket serverSocket = new ServerSocket(POP_JAVA_DEAMON_PORT);
+		POPJavaDeamon deamon = new POPJavaDeamon();
+		deamon.start();
+	}
+	
+	/**
+	 * Starts the POP-Java listener deamon
+	 * @throws IOException
+	 */
+	public void start() throws IOException{
+		serverSocket = new ServerSocket(POP_JAVA_DEAMON_PORT);
 		
 		Executor executor = Executors.newCachedThreadPool();
+		
+		System.out.println("Started POP-Java deamon");
 		
 		while(!Thread.interrupted()){
 			Socket socket = serverSocket.accept();
@@ -80,6 +91,14 @@ public class POPJavaDeamon {
 		}
 		
 		serverSocket.close();
+		System.out.println("Closed POP-Java deamon");
 	}
 	
+	/**
+	 * Stops the POP-Java listener deamon
+	 * @throws IOException 
+	 */
+	public void stop() throws IOException{
+		serverSocket.close();
+	}
 }

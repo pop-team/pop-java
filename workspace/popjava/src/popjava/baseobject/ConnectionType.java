@@ -6,7 +6,18 @@ package popjava.baseobject;
  *
  */
 public enum ConnectionType {
-	SSH,
-	DEAMON,
-	ANY
+	SSH("SSH"),
+	DEAMON("POP-Java deamon"),
+	ANY("Any");
+	
+	private ConnectionType(String name){
+		this.name = name;
+	}	
+	
+	private String name;
+	
+	@Override
+	public String toString(){
+		return name;
+	}
 }
