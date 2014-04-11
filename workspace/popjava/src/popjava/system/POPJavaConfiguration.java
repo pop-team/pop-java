@@ -140,9 +140,7 @@ public class POPJavaConfiguration {
 		            }
 				} catch (URISyntaxException e) {
 					e.printStackTrace();
-				}
-				
-	            
+				}	            
 	        }
 		}
 		return popJar;
