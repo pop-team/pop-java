@@ -39,6 +39,7 @@ public class ObjectDescription implements IPOPBase {
 	
 	protected String jvmParamters;
 	protected ConnectionType connectionType;
+	protected String connectionSecret;
 
 	private java.util.concurrent.ConcurrentHashMap<String, String> attributes = new java.util.concurrent.ConcurrentHashMap<String, String>();
 
@@ -334,6 +335,15 @@ public class ObjectDescription implements IPOPBase {
 	}
 	
 	/**
+	 * Sets the secret key to be used to connect to this object.
+	 * This option only makes sense when the POP-Java deamon connection type is used
+	 * @param secret
+	 */
+	public void setConnectionSecret(String secret){
+		connectionSecret = secret;
+	}
+	
+	/**
 	 * Get the OD power value
 	 * @return power value set in this OD
 	 */
@@ -436,6 +446,10 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	public ConnectionType getConnectionType(){
 		return connectionType;
+	}
+	
+	public String getConnectionSecret(){
+		return connectionSecret;
 	}
 
 	/**
