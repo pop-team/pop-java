@@ -33,7 +33,7 @@ public class POPJavaDeamonConnector {
 	 * @param command
 	 * @throws IOException
 	 */
-	public void sendCommand(String secret, List<String> command) throws IOException{
+	public boolean sendCommand(String secret, List<String> command) throws IOException{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		String salt = reader.readLine();
 		String saltedHash = POPJavaDeamon.getSaltedHash(salt, secret);
@@ -41,10 +41,15 @@ public class POPJavaDeamonConnector {
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 		
 		writer.write(saltedHash+"\n");
+		writer.write(command.size()+"\n");
 		for(String part: command){
 			writer.write(part+"\n");
 		}
+		writer.flush();
 		
+		String answer = reader.readLine();
 		writer.close();
+		
+		return answer != null && answer.equals(POPJavaDeamon.SUCCESS);
 	}
 }

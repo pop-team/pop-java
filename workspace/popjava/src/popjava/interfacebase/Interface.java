@@ -644,8 +644,9 @@ public class Interface {
 				POPJavaDeamonConnector connector;
 				try {
 					connector = new POPJavaDeamonConnector(hostname);
-					connector.sendCommand(od.getConnectionSecret(), argvList);
-					ret = 0;
+					if(connector.sendCommand(od.getConnectionSecret(), argvList)){
+						ret = 0;
+					}
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
