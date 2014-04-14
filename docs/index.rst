@@ -1,7 +1,7 @@
 Welcome to POP-Java's documentation!
 ====================================
 
-Welcome to POP-Java's documentation. POP-Java is an implementation of the POP
+Welcome to POP-C++'s documentation. POP-Java is an implementation of the POP
 (**P**\ arallel **O**\ bject **P**\ rograming) model for the Java programming
 language. The POP model is based on the very simple idea that objects are
 suitable structures to distribute data and executable code over heterogeneous
