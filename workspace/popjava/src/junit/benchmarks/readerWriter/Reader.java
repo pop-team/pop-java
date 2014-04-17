@@ -1,4 +1,4 @@
-package junit.localtests.benchmark;
+package junit.benchmarks.readerWriter;
 
 import java.util.List;
 
