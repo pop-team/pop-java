@@ -13,6 +13,7 @@
         <property name="sshj.jar" value="dependencies/sshj-0.9.0-SNAPSHOT-jar-with-dependencies.jar"/>
         <property name="log4j.jar" value="dependencies/slf4j-nop-1.7.2.jar"/>
 	    <property name="junit.jar" value="dependencies/junit-4.8.2.jar"/>
+        <property name="junit-benchmark.jar" value="dependencies/junit-benchmarks-0.2.1.jar"/>
         
         <property name="popjava.jar" value="popjava.jar"/>
         <property name="testsuite.jar" value="testsuite.jar"/>
@@ -40,7 +41,7 @@
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${popjava.src}"
                 destdir="${classes.dir}"
-                classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}"
+                classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}:${junit-benchmark.jar}"
                 debug="true" debuglevel="lines,vars,source"
                 target="7"
                 source="7"
