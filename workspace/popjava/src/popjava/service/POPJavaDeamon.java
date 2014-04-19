@@ -104,7 +104,7 @@ public class POPJavaDeamon {
 							String temp = POPJavaConfiguration.getPOPJavaCodePath();
 							if(temp != null && !temp.isEmpty()){
 								line = temp;
-							}							
+							}
 						}
 					}
 					
