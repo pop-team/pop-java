@@ -3,7 +3,6 @@ package popjava.baseobject;
 import java.util.Enumeration;
 import popjava.buffer.*;
 import popjava.dataswaper.IPOPBase;
-import popjava.dataswaper.POPString;
 
 /**
  * This class represents the object description for a parallel object. The object description is the resource requirements for a specific parallel object.
@@ -39,6 +38,7 @@ public class ObjectDescription implements IPOPBase {
 	protected String batch;
 	
 	protected String jvmParamters;
+	protected ConnectionType connectionType;
 
 	private java.util.concurrent.ConcurrentHashMap<String, String> attributes = new java.util.concurrent.ConcurrentHashMap<String, String>();
 
@@ -326,6 +326,14 @@ public class ObjectDescription implements IPOPBase {
 	}
 	
 	/**
+	 * Sets the connection type to be used if the object has to be created remotely
+	 * @param type
+	 */
+	public void setConnectionType(ConnectionType type){
+		connectionType = type;
+	}
+	
+	/**
 	 * Get the OD power value
 	 * @return power value set in this OD
 	 */
@@ -420,6 +428,14 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	public String getJVMParameters(){
 		return jvmParamters;
+	}
+	
+	/**
+	 * Returns the connection type to be used if the object has to be run remotely
+	 * @return
+	 */
+	public ConnectionType getConnectionType(){
+		return connectionType;
 	}
 
 	/**

@@ -11,6 +11,7 @@ import popjava.codemanager.POPJavaAppService;
 import popjava.combox.*;
 import popjava.dataswaper.ObjectDescriptionInput;
 import popjava.dataswaper.POPString;
+import popjava.service.POPJavaDeamonConnector;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
@@ -28,6 +29,8 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.*;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.*;
 
 
@@ -621,10 +624,30 @@ public class Interface {
 		}
 		
 		int ret = -1;
+		
+		//DEBUG:
+		isLocal = false;
+		
 		if(isLocal){
 			ret = SystemUtil.runCmd(argvList);
 		}else{
-			ret = SystemUtil.runRemoteCmd(hostname, argvList);
+			switch(od.getConnectionType()){
+			case ANY:
+			case SSH:
+				ret = SystemUtil.runRemoteCmd(hostname, argvList);
+				break;
+			case DEAMON:
+				POPJavaDeamonConnector connector;
+				try {
+					connector = new POPJavaDeamonConnector(hostname);
+					connector.sendCommand(argvList);
+					ret = 0;
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		if (ret == -1) {
