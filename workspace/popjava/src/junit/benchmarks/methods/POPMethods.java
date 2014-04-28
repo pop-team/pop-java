@@ -29,4 +29,14 @@ public class POPMethods extends POPObject{
 	public String[] noParamComplex(){
 		return complexReturn;
 	}
+	
+	@POPSyncMutex
+	public void simpleParam(int param){
+		
+	}
+	
+	@POPSyncMutex
+	public void complexParam(String [] param){
+		
+	}
 }

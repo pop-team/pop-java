@@ -4,27 +4,58 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.rmi.NotBoundException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
+import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
+import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
+import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
+
 import popjava.PopJava;
 import popjava.system.POPSystem;
 
-public class TestMethods {
+@AxisRange(min = 0, max = 1)
+@BenchmarkMethodChart(filePrefix = "benchmark-methods")
+@BenchmarkHistoryChart(filePrefix = "benchmark-methods-history", maxRuns=10)
+public class TestMethods extends AbstractBenchmark {
 
-	private static final int REPETITIONS = 10000;
+	private static final int REPETITIONS = 7000;
 	private static POPMethods object;
+	private static RMIInterface obj;
+	private static RMIMethodsObj m;
+	
+	private static Thread server;
+	private static SocketConnector con;
+	
+	private static final String [] complexParam = new String[]{"aaasdff", "adsfasdf", "asdfffd"};
+	
 	@BeforeClass
-	public static void startPOPJava(){
+	public static void startPOPJava() throws NotBoundException, UnknownHostException, IOException{
 		POPSystem.initialize();
 		object = PopJava.newActive(POPMethods.class);
+		
+		m = new RMIMethodsObj();
+		m.publish();
+		
+		obj = RMIMethodsObj.getRemote();
+		
+		server = new Thread(new SocketServer());
+		server.start();
+		
+		con = new SocketConnector();
 	}
 	
 	@AfterClass
-	public static void endPOPJava(){
+	public static void endPOPJava() throws NotBoundException, InterruptedException, IOException{
+		con.close();
 		POPSystem.end();
+		m.depublish();
+		
+		server.join();
 	}
 	
 	@Test
@@ -35,7 +66,7 @@ public class TestMethods {
 			object.noParamNoReturn();
 		}
 		
-		System.out.println("testPOPNoParamNoReturn() "+(System.currentTimeMillis() - start)+" ms");
+		//System.out.println("testPOPNoParamNoReturn() "+(System.currentTimeMillis() - start)+" ms");
 	}
 	
 	@Test
@@ -46,7 +77,7 @@ public class TestMethods {
 			assertEquals(100, object.noParamSimple());
 		}
 		
-		System.out.println("testPOPNoParamSimple() "+(System.currentTimeMillis() - start)+" ms");
+		//System.out.println("testPOPNoParamSimple() "+(System.currentTimeMillis() - start)+" ms");
 	}
 	
 	@Test
@@ -57,57 +88,107 @@ public class TestMethods {
 			assertEquals(3, object.noParamComplex().length);
 		}
 		
-		System.out.println("testPOPNoParamComplex() "+(System.currentTimeMillis() - start)+" ms");
+		//System.out.println("testPOPNoParamComplex() "+(System.currentTimeMillis() - start)+" ms");
+	}
+	
+	@Test
+	public void testPOPSimpleParam(){
+		long start = System.currentTimeMillis();
+		
+		for(int i = 0; i < REPETITIONS; i++){
+			object.simpleParam(100);
+		}
+		
+		//System.out.println("testPOPSimpleParam() "+(System.currentTimeMillis() - start)+" ms");
+	}
+	
+	@Test
+	public void testPOPComplexParam(){
+		
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < REPETITIONS; i++){
+			object.complexParam(complexParam);
+		}
+		
+		//System.out.println("testPOPComplexParam() "+(System.currentTimeMillis() - start)+" ms");
 	}
 	
 	@Test
 	public void testSocketNoParamNoReturn() throws UnknownHostException, IOException, InterruptedException{
-		Thread server = new Thread(new SocketServer());
-		server.start();
 		
-		SocketConnector con = new SocketConnector();
 		
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < REPETITIONS; i++){
 			con.noParamNoReturn();
 		}
-		System.out.println("testSocketNoParamNoReturn() "+(System.currentTimeMillis() - start)+" ms");
-		
-		con.close();
-		server.join();
+		//System.out.println("testSocketNoParamNoReturn() "+(System.currentTimeMillis() - start)+" ms");
 	}
 	
 	@Test
 	public void testSocketNoParamSimple() throws UnknownHostException, IOException, InterruptedException{
-		Thread server = new Thread(new SocketServer());
-		server.start();
-		
-		SocketConnector con = new SocketConnector();
 		
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < REPETITIONS; i++){
 			assertEquals(100, con.noParamSimple());
 		}
-		System.out.println("testSocketNoParamSimple() "+(System.currentTimeMillis() - start)+" ms");
-		
-		con.close();
-		server.join();
+		//System.out.println("testSocketNoParamSimple() "+(System.currentTimeMillis() - start)+" ms");
 	}
 	
 	@Test
 	public void testSocketNoParamComplex() throws UnknownHostException, IOException, InterruptedException{
-		Thread server = new Thread(new SocketServer());
-		server.start();
-		
-		SocketConnector con = new SocketConnector();
-		
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < REPETITIONS; i++){
 			assertEquals(3, con.noParamComplex().length);
 		}
-		System.out.println("testSocketNoParamComplex() "+(System.currentTimeMillis() - start)+" ms");
+		//System.out.println("testSocketNoParamComplex() "+(System.currentTimeMillis() - start)+" ms");
+	}
+	
+	@Test
+	public void testRMINoParamNoReturn() throws NotBoundException, IOException{
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < REPETITIONS; i++){
+			obj.noParamNoReturn();
+		}
+		//System.out.println("testRMINoParamNoReturn() "+(System.currentTimeMillis() - start)+" ms");
+	}
+	
+	@Test
+	public void testRMINoParamSimple() throws NotBoundException, IOException{
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < REPETITIONS; i++){
+			assertEquals(100, obj.noParamSimple());
+		}
+		//System.out.println("testRMINoParamSimple() "+(System.currentTimeMillis() - start)+" ms");
+	}
+	
+	@Test
+	public void testRMINoParamComplex() throws NotBoundException, IOException{
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < REPETITIONS; i++){
+			assertEquals(3, obj.noParamComplex().length);
+		}
+		//System.out.println("testRMINoParamComplex() "+(System.currentTimeMillis() - start)+" ms");
+	}
+	
+	@Test
+	public void testRMISimple() throws IOException{
+		long start = System.currentTimeMillis();
 		
-		con.close();
-		server.join();
+		for(int i = 0; i < REPETITIONS; i++){
+			obj.simpleParam(100);
+		}
+		
+		//System.out.println("testRMISimple() "+(System.currentTimeMillis() - start)+" ms");
+	}
+	
+	@Test
+	public void testRMIComplex() throws IOException{
+		long start = System.currentTimeMillis();
+		
+		for(int i = 0; i < REPETITIONS; i++){
+			obj.complexParam(complexParam);
+		}
+		
+		//System.out.println("testRMIComplex() "+(System.currentTimeMillis() - start)+" ms");
 	}
 }
