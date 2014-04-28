@@ -1,10 +1,12 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPClass;
 import popjava.base.Semantic;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the RemoteLog parallel object of POP-C++
  */
+@POPClass(classId = 3, className = "RemoteLog")
 public class POPRemoteLog extends POPServiceBase {
 	
 	/**
@@ -12,9 +14,8 @@ public class POPRemoteLog extends POPServiceBase {
 	 * Create a POP-C++ object RomoteLog
 	 */
 	public POPRemoteLog() {
-		this.setClassId(3);
-		this.hasDestructor(true);
-		this.setClassName("RemoteLog");
+		hasDestructor(true);
+		setClassId(3);
 		Class<?> c = POPRemoteLog.class;
 		this.definedMethodId = true;
 		defineConstructor(c,10);		

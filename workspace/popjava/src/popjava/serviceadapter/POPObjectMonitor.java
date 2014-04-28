@@ -1,10 +1,12 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPClass;
 import popjava.base.Semantic;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the ObjectMonitor parallel object of POP-C++
  */
+@POPClass(classId = 4, className = "ObjectMonitor")
 public class POPObjectMonitor extends POPCodeManager {
 	
 	/**
@@ -12,9 +14,9 @@ public class POPObjectMonitor extends POPCodeManager {
 	 * Create a POP-C++ object JobMgr
 	 */
 	public POPObjectMonitor() {
-		this.setClassId(4);
-		this.hasDestructor(true);
-		this.setClassName("ObjectMonitor");
+		setClassId(4);
+		hasDestructor(true);
+		
 		Class<?> c = POPObjectMonitor.class;
 		this.definedMethodId = true;
 		defineConstructor(c,10);

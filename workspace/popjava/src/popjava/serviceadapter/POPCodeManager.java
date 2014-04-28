@@ -1,10 +1,12 @@
 package popjava.serviceadapter;
+import popjava.annotation.POPClass;
 import popjava.base.Semantic;
 import popjava.dataswaper.POPString;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the CodeMgr parallel object of POP-C++
  */
+@POPClass(classId = 2, className = "CodeMgr")
 public class POPCodeManager extends POPRemoteLog{
 	
 	/**
@@ -12,11 +14,11 @@ public class POPCodeManager extends POPRemoteLog{
 	 * Create a POP-C++ object CodeMgr
 	 */
 	public POPCodeManager() {
-		this.setClassId(2);
-		this.hasDestructor(true);
-		this.setClassName("CodeMgr");
+		hasDestructor(true);
+		setClassId(2);
+		
 		Class<?> c = POPCodeManager.class;
-		this.definedMethodId=true;
+		definedMethodId=true;
 		defineConstructor(c,10);
 		defineConstructor(c,11,String.class);
 		defineMethod(c,"registerCode",13,Semantic.Sequence

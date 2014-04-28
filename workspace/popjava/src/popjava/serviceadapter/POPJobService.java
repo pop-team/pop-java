@@ -1,23 +1,24 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPClass;
 import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.ObjectDescriptionInput;
-import popjava.dataswaper.POPString;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the JobMgr parallel object of POP-C++
  */
+@POPClass(classId = 10, className = "JobCoreService")
 public class POPJobService extends POPServiceBase {
 	/**
 	 * Default constructor of POPJobService.
 	 * Create a POP-C++ object JobCoreService
 	 */
 	public POPJobService() {
-		this.setClassId(10);
-		this.setClassName("JobCoreService");
+		setClassId(10);
+		definedMethodId = true;
+		
 		Class<?> c = POPJobService.class;
-		this.definedMethodId = true;
 		defineConstructor(c, 10);
 		defineConstructor(c, 11, String.class);
 		//Define method with same MethodID as POP-C++ MethodID

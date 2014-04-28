@@ -313,7 +313,7 @@ public class POPSystem {
 			} else {
 				url = String.format("%s -proxy=%s", appservicecode, proxy);
 			}
-			if(Configuration.CONNECT_TO_POPCPP && new File(appservicecode).exists()){
+			if(Configuration.CONNECT_TO_POPCPP){// && new File(appservicecode).exists()){
 				try{
 					return createAppCoreService(url);
 				}catch(POPException e){

@@ -116,6 +116,7 @@ public class PJProxyFactory extends ProxyFactory {
 			Constructor<?> constructor = targetClass.getConstructor();
 			POPObject popObject = (POPObject) constructor.newInstance();
 			popObject.loadPOPAnnotations(constructor);
+			
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.bindObject(accessPoint);
 			this.setHandler(methodHandler);

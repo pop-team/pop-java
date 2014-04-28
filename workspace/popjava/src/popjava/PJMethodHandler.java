@@ -82,6 +82,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			}
 		}
 		popDispatch(popBuffer);
+		
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 		popResponse(responseBuffer);
 		
@@ -149,6 +150,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		int methodSemantics = (Integer) popObjectInfo.getSemantic(info);
 		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info
 				.getMethodId(), methodSemantics);
+		
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
 		Class<?>[] parameterTypes = m.getParameterTypes();
@@ -160,6 +162,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				popBuffer.putValue(argvs[index], parameterTypes[index]);
 			}
 		}
+		
 		popDispatch(popBuffer);
 		
 		if ((methodSemantics & Semantic.Synchronous) != 0) {

@@ -46,7 +46,9 @@ public class POPJavaConfiguration {
 //	if (service.length() <= 0)
 //		return DefaultPopAppCoreService;
 //	return service;
-			appCoreService = "/usr/local/popc/services/appservice";
+			//appCoreService = "gdb -ex=run --args /usr/local/popc/services/appservice";
+			appCoreService = "valgrind --log-file=/home/asraniel/valgrind.txt /usr/local/popc/services/appservice";
+			//appCoreService = "/usr/local/popc/services/appservice";
 		}
 		
 		return appCoreService;

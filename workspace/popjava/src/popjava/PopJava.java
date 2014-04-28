@@ -15,7 +15,7 @@ public class PopJava {
 	/** Creates a new instance of PopJava */
 	public PopJava() {
 	}
-
+	
 	/**
 	 * Static method used to create a new parallel object by passing an object description
 	 * @param targetClass			the parallel class to be created
