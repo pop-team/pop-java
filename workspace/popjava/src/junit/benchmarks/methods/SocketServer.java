@@ -1,5 +1,7 @@
 package junit.benchmarks.methods;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +10,7 @@ import java.net.Socket;
 
 public class SocketServer implements Runnable{
 
-	public static final int PORT = 5543;
+	public static final int PORT = 5541;
 	
 	private static String [] complexReturn = new String[]{"asdfasdf", "asdfasdf", "asdfasdf"};
 	
@@ -19,8 +21,8 @@ public class SocketServer implements Runnable{
 			serverSocket = new ServerSocket(PORT);
 			Socket socket = serverSocket.accept();
 			
-			InputStream in = socket.getInputStream();
-			OutputStream out = socket.getOutputStream();
+			InputStream in = new BufferedInputStream(socket.getInputStream());
+			OutputStream out = new BufferedOutputStream(socket.getOutputStream());
 			int data = -1;
 			while((data = in.read()) != -1 && !Thread.interrupted()){
 				switch(data){
@@ -28,6 +30,7 @@ public class SocketServer implements Runnable{
 					break;
 				case 2:
 					out.write(100);
+					out.flush();
 					break;
 				case 3:
 					out.write(complexReturn.length);
@@ -35,6 +38,7 @@ public class SocketServer implements Runnable{
 						out.write(s.length());
 						out.write(s.getBytes());
 					}
+					out.flush();
 					break;
 				}
 			}
