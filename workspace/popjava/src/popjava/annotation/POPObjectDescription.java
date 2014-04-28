@@ -28,4 +28,6 @@ public @interface POPObjectDescription {
 	 */
 	ConnectionType connection() default ConnectionType.SSH;
 	
+	String connectionSecret() default "";
+	
 }

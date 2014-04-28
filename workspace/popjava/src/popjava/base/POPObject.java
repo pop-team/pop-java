@@ -77,6 +77,7 @@ public class POPObject implements IPOPBase {
 			od.setHostname(objectDescription.url());
 			od.setJVMParamters(objectDescription.jvmParameters());
 			od.setConnectionType(objectDescription.connection());
+			od.setConnectionSecret(objectDescription.connectionSecret());
 		}
 	}
 	
@@ -100,6 +101,22 @@ public class POPObject implements IPOPBase {
 									" was not of type String for Annotation URL");
 						}
 						
+						break;
+					case CONNECTION:
+						if(argvs[i] instanceof ConnectionType){
+							od.setConnectionType((ConnectionType) argvs[i]);
+						}else{
+							throw new RuntimeException("Annotated paramater "+i+" in "+this.getClassName()+
+									" was not of type ConnectionType for Annotation CONNECTION");
+						}
+						break;
+					case CONNECTION_SECRET:
+						if(argvs[i] instanceof String){
+							od.setConnectionSecret((String)argvs[i]);
+						}else{
+							throw new RuntimeException("Annotated paramater "+i+" in "+this.getClassName()+
+									" was not of type String for Annotation CONNECTION_SECRET");
+						}
 						break;
 					}
 					

@@ -10,7 +10,9 @@ import java.lang.annotation.Target;
 public @interface POPConfig {
 
 	public enum Type{
-		URL
+		URL,
+		CONNECTION,
+		CONNECTION_SECRET
 	}
 	
 	Type value();
