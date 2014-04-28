@@ -1,26 +1,28 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPClass;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the paroc_service_base parallel object of POP-C++
  */
+@POPClass(classId = 0, className = "paroc_service_base")
 public class POPServiceBase extends POPObject {
 	/**
 	 * Default constructor of POPCodeManager.
 	 * Create a POP-C++ object CodeMgr
 	 */
 	public POPServiceBase() {
-		this.setClassId(0);
-		this.setClassName("paroc_service_base");
+		setClassId(0);
+		definedMethodId = true;
+		
 		Class<?> c = POPServiceBase.class;
-		this.definedMethodId = true;
-		defineConstructor(c,10);		
-		defineConstructor(c,11,String.class);
-		defineMethod(c, "start", 12,Semantic.Sequence | Semantic.Synchronous);
-		defineMethod(c, "start", 13,Semantic.Sequence | Semantic.Synchronous,String.class);
-		defineMethod(c, "stop", 14,Semantic.Sequence | Semantic.Synchronous,String.class);
+		defineConstructor(c, 10);
+		defineConstructor(c, 11, String.class);
+		defineMethod(c, "start", 12, Semantic.Sequence | Semantic.Synchronous);
+		defineMethod(c, "start", 13, Semantic.Sequence | Semantic.Synchronous,String.class);
+		defineMethod(c, "stop", 14, Semantic.Sequence | Semantic.Synchronous,String.class);
 	}
 
 	/**

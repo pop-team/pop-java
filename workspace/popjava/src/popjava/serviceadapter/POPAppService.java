@@ -1,5 +1,6 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPClass;
 import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
@@ -9,17 +10,19 @@ import popjava.codemanager.AppService;
  * This class declares the necessary methods to use the AppService parallel
  * object of POP-C++
  */
+@POPClass(classId = 20, className = "AppCoreService")
 public class POPAppService extends POPObjectMonitor implements AppService{
+	
 	/**
 	 * Default constructor of POPAppService. Create a POP-C++ object
 	 * AppCoreService
 	 */
 	public POPAppService() {
-		this.setClassId(20);
-		this.hasDestructor(true);
-		this.setClassName("AppCoreService");
+		setClassId(20);
+		hasDestructor(true);
+		
 		Class<?> c = POPAppService.class;
-		this.definedMethodId = true;
+		definedMethodId = true;
 		defineConstructor(c, 10);
 		defineConstructor(c, 11, String.class, boolean.class, String.class);
 		defineMethod(c, "getPOPCAppID", 13, Semantic.Sequence | Semantic.Synchronous);

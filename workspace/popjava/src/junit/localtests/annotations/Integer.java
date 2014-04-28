@@ -10,7 +10,7 @@ import popjava.annotation.POPConfig.Type;
 import popjava.annotation.POPParameter.Direction;
 import popjava.base.POPObject;
 
-@POPClass
+@POPClass(classId = 1000)
 public class Integer extends POPObject{
    private int value;
    

@@ -181,7 +181,7 @@ public class Interface {
 							"OBJECT_EXECUTABLE_NOTFOUND");
 				}
 				od.setPlatform(platforms);
-				appCoreService.exit();
+				//appCoreService.exit();
 			}
 			// Global Resource management system --> Find a resource.
 			String jobUrl = od.getJobUrl();

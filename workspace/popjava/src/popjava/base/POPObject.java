@@ -21,14 +21,17 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.lang.reflect.Modifier;
+
+import javassist.util.proxy.ProxyObject;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
  */
 public class POPObject implements IPOPBase {
+	
 	protected int refCount;
 	private int classId = 0;
 	protected boolean generateClassId = true;
-	protected boolean definedMethodId=false;
+	protected boolean definedMethodId = false;
 	private boolean hasDestructor = false;	
 	protected ObjectDescription od = new ObjectDescription();
 	private String className = "";
@@ -45,15 +48,23 @@ public class POPObject implements IPOPBase {
 	 * Creates a new instance of POPObject
 	 */
 	public POPObject() {
-		loadClassAnnotations();
 		refCount = 0;
-		Class<?> c = getClass();
-		className = c.getName();
+		className = getRealClass().getName();
+		
+		loadClassAnnotations();
 		initializePOPObject();
 	}
 	
+	private Class<? extends POPObject> getRealClass(){
+		if(this instanceof ProxyObject){
+			return (Class<? extends POPObject>) getClass().getSuperclass();
+		}
+		
+		return getClass();
+	}
+	
 	private void loadClassAnnotations(){
-		for (Annotation annotation : getClass().getDeclaredAnnotations()) {
+		for (Annotation annotation : getRealClass().getDeclaredAnnotations()) {
 			if(annotation instanceof POPClass){
 				POPClass popClassAnnotation = (POPClass) annotation;
 				if(!popClassAnnotation.className().isEmpty()){
@@ -89,7 +100,7 @@ public class POPObject implements IPOPBase {
 					POPConfig config = (POPConfig)annotations[i][loop];
 					 
 					if(argvs[i] == null){
-						throw new RuntimeException("Annotated paramater "+i+" for "+this.getClassName()+" was is null");
+						throw new RuntimeException("Annotated paramater "+i+" for "+getClassName()+" was is null");
 					}
 					
 					switch(config.value()){
@@ -97,7 +108,7 @@ public class POPObject implements IPOPBase {
 						if(argvs[i] instanceof String){
 							od.setHostname((String)argvs[i]);
 						}else{
-							throw new RuntimeException("Annotated paramater "+i+" in "+this.getClassName()+
+							throw new RuntimeException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type String for Annotation URL");
 						}
 						
@@ -106,7 +117,7 @@ public class POPObject implements IPOPBase {
 						if(argvs[i] instanceof ConnectionType){
 							od.setConnectionType((ConnectionType) argvs[i]);
 						}else{
-							throw new RuntimeException("Annotated paramater "+i+" in "+this.getClassName()+
+							throw new RuntimeException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type ConnectionType for Annotation CONNECTION");
 						}
 						break;
@@ -114,7 +125,7 @@ public class POPObject implements IPOPBase {
 						if(argvs[i] instanceof String){
 							od.setConnectionSecret((String)argvs[i]);
 						}else{
-							throw new RuntimeException("Annotated paramater "+i+" in "+this.getClassName()+
+							throw new RuntimeException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type String for Annotation CONNECTION_SECRET");
 						}
 						break;
@@ -142,8 +153,36 @@ public class POPObject implements IPOPBase {
 		throw new RuntimeException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
 	}
 	
+	private boolean isMethodPOPAnnotated(Method method){
+		if(method.isAnnotationPresent(POPSyncConc.class)){
+			return true;
+		}
+		
+		if(method.isAnnotationPresent(POPSyncSeq.class)){
+			return true;
+		}
+		
+		if(method.isAnnotationPresent(POPSyncMutex.class)){
+			return true;
+		}
+		
+		if(method.isAnnotationPresent(POPAsyncConc.class)){
+			return true;
+		}
+		
+		if(method.isAnnotationPresent(POPAsyncSeq.class)){
+			return true;
+		}
+		
+		if(method.isAnnotationPresent(POPAsyncMutex.class)){
+			return true;
+		}
+		
+		return false;
+	}
+	
 	private void loadMethodSemantics(){
-		Class<?> c = getClass();
+		Class<?> c = getRealClass();
 		
 		for(Method method: c.getDeclaredMethods()){
 			int semantic = -1;
@@ -198,11 +237,11 @@ public class POPObject implements IPOPBase {
 	 * @param c	the class to initialize
 	 */
 	protected final void initializePOPObject() {
-		if (this.generateClassId){
+		if (generateClassId){
 			classId++;
 		}
 		
-		Class<?> c = getClass();
+		Class<?> c = getRealClass();
 		if (!c.equals(POPObject.class)) {
 			int startIndex = initializeConstructorInfo(c, startMethodIndex);
 			if (hasDestructor) {
@@ -503,9 +542,10 @@ public class POPObject implements IPOPBase {
 			
 			int index = startIndex;
 			for (Method m : allMethods) {
-				if (Modifier.isPublic(m.getModifiers())) {
-					MethodInfo methodInfo = new MethodInfo(this.getClassId(),
-							index);
+				if (Modifier.isPublic(m.getModifiers()) &&
+						isMethodPOPAnnotated(m)) {
+					MethodInfo methodInfo = new MethodInfo(getClassId(), index);
+					
 					methodInfos.put(methodInfo, m);
 					index++;
 				}
@@ -537,7 +577,7 @@ public class POPObject implements IPOPBase {
 
 			for (Constructor<?> constructor : allConstructors) {
 				if (Modifier.isPublic(constructor.getModifiers())) {
-					MethodInfo info = new MethodInfo(this.getClassId(), index);
+					MethodInfo info = new MethodInfo(getClassId(), index);
 					constructorInfos.put(info, constructor);
 					semantics.put(info, Semantic.Constructor
 							| Semantic.Synchronous | Semantic.Sequence);
@@ -560,9 +600,10 @@ public class POPObject implements IPOPBase {
 	{
 		try {
 			Method m = c.getMethod(methodName, paramTypes);
-			MethodInfo methodInfo = new MethodInfo(this.getClassId(),
+			MethodInfo methodInfo = new MethodInfo(getClassId(),
 					methodId);
 			methodInfos.put(methodInfo, m);
+			
 			if (semantics.containsKey(methodInfo)) {
 				semantics.replace(methodInfo, semanticId);
 			} else {
@@ -582,11 +623,11 @@ public class POPObject implements IPOPBase {
 	 * @param constructorId	Unique identifier of the constructor
 	 * @param paramTypes	Parameters of the constructor
 	 */
-	protected void defineConstructor(Class<?>c,int constructorId,Class<?>...paramTypes)
+	protected void defineConstructor(Class<?>c,int constructorId, Class<?>...paramTypes)
 	{
 		try {
-			Constructor<?> constructor=c.getConstructor(paramTypes);
-			MethodInfo info = new MethodInfo(this.getClassId(),
+			Constructor<?> constructor = c.getConstructor(paramTypes);
+			MethodInfo info = new MethodInfo(getClassId(),
 					constructorId);
 			constructorInfos.put(info, constructor);
 			semantics.put(info, Semantic.Constructor

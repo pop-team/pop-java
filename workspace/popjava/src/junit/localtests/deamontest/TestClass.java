@@ -11,7 +11,9 @@ import popjava.baseobject.ConnectionType;
 @POPClass
 public class TestClass extends POPObject {
 
-	@POPObjectDescription(connection=ConnectionType.DEAMON, url = POPObjectDescription.LOCAL_DEBUG_URL)
+	//@POPObjectDescription(connection=ConnectionType.DEAMON, url = POPObjectDescription.LOCAL_DEBUG_URL)
+	
+	@POPObjectDescription(connection=ConnectionType.DEAMON, connectionSecret = "password")
 	public TestClass(){
 	}
 	

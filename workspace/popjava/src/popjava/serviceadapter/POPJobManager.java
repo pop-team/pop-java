@@ -1,5 +1,6 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPClass;
 import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.ObjectDescriptionInput;
@@ -8,6 +9,7 @@ import popjava.dataswaper.POPString;
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the JobMgr parallel object of POP-C++
  */
+@POPClass(className = "JobMgr")
 public class POPJobManager extends POPJobService {
 
 	/**
@@ -20,9 +22,8 @@ public class POPJobManager extends POPJobService {
 	 * Create a POP-C++ object JobMgr
 	 */
 	public POPJobManager() {
-		this.setClassId(15);
-		this.hasDestructor(true);
-		this.setClassName("JobMgr");
+		setClassId(15);
+		hasDestructor(true);
 		Class<?> c = POPJobManager.class;
 		this.definedMethodId = true;			
 		defineConstructor(c,10);
