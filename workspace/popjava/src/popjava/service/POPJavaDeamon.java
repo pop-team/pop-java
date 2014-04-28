@@ -27,18 +27,22 @@ public class POPJavaDeamon {
 
 	public static final int POP_JAVA_DEAMON_PORT = 43424;
 	private ServerSocket serverSocket;
-	private static String secret = "";
+	private String password = "";
+	
+	public POPJavaDeamon(String password){
+		this.password = password;
+	}
 	
 	/**
 	 * Class that handles the accepted connections and runs the Broker with the provided paramters
 	 * @author Beat Wolf
 	 *
 	 */
-	private static class Acceptor implements Runnable{
+	private class Acceptor implements Runnable{
 		
 		private final Socket socket;
 		private Random rand = new Random();
-		private static final int SECRET_LENGTH = 10;
+		private static final int SALT_LENGTH = 10;
 		
 		public Acceptor(Socket socket){
 			this.socket = socket;
@@ -47,7 +51,7 @@ public class POPJavaDeamon {
 		private String createSecret(){
 			String secret = "";
 			
-			for(int i = 0;i < SECRET_LENGTH; i++){
+			for(int i = 0;i < SALT_LENGTH; i++){
 				secret += (char)(rand.nextInt(26) + 'a');
 			}
 			
@@ -81,12 +85,12 @@ public class POPJavaDeamon {
 				
 				boolean isClassPath = false;
 				
-				String saltedHash = getSaltedHash(salt, secret);
+				String saltedHash = getSaltedHash(salt, password);
 				
 				while((line = reader.readLine()) != null){
 					//The supplied secret was wrong
 					if(parameterIndex == 0 && !saltedHash.equals(line)){
-						System.err.println("The supplied secret was wrong : "+line+" should be "+saltedHash);
+						System.err.println("The supplied secret was wrong : "+line+" should be "+saltedHash+" using password "+password);
 						return;
 					}
 					
@@ -133,7 +137,7 @@ public class POPJavaDeamon {
 	}
 	
 	public static void main(String ... args) throws IOException{
-		POPJavaDeamon deamon = new POPJavaDeamon();
+		POPJavaDeamon deamon = new POPJavaDeamon("");
 		deamon.start();
 	}
 	
@@ -162,7 +166,7 @@ public class POPJavaDeamon {
 	 * Stops the POP-Java listener deamon
 	 * @throws IOException 
 	 */
-	public void stop() throws IOException{
+	public void close() throws IOException{
 		serverSocket.close();
 	}
 	

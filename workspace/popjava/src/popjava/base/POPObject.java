@@ -110,7 +110,7 @@ public class POPObject implements IPOPBase {
 									" was not of type ConnectionType for Annotation CONNECTION");
 						}
 						break;
-					case CONNECTION_SECRET:
+					case CONNECTION_PWD:
 						if(argvs[i] instanceof String){
 							od.setConnectionSecret((String)argvs[i]);
 						}else{
