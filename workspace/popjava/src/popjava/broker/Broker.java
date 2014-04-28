@@ -105,10 +105,10 @@ public class Broker {
 		URLClassLoader urlClassLoader = null;
 		if (codelocation != null && codelocation.length() > 0) {
 			URL[] urls = new URL[1];
-			if (codelocation.indexOf("::/") < 0) {// file
+			if (codelocation.indexOf("://") < 0) {// file
 				File codeFile = new File(codelocation);
 				try {
-					LogWriter.writeDebugInfo("url file" + codelocation);
+					LogWriter.writeDebugInfo("Local file " + codelocation);
 					urls[0] = codeFile.toURI().toURL();
 				} catch (MalformedURLException e) {
 					LogWriter.writeDebugInfo(this.getClass().getName()
@@ -117,7 +117,7 @@ public class Broker {
 				}
 			} else {
 				try {
-					LogWriter.writeDebugInfo("url file" + codelocation);
+					LogWriter.writeDebugInfo("Remote file " + codelocation);
 					urls[0] = new URL(codelocation);
 				} catch (MalformedURLException e) {
 					LogWriter.writeDebugInfo(this.getClass().getName()

@@ -27,6 +27,7 @@ import popjava.base.POPException;
 import popjava.base.Semantic;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
+import popjava.broker.Broker;
 import popjava.buffer.*;
 
 import java.io.IOException;
@@ -602,15 +603,15 @@ public class Interface {
 		}
 		
 		ComboxAllocateSocket allocateCombox = new ComboxAllocateSocket();
-		String callbackString = String.format("-callback=%s", allocateCombox
+		String callbackString = String.format(Broker.CallBackPrefix+"%s", allocateCombox
 				.getUrl());
 		argvList.add(callbackString);
 		if (classname != null && classname.length() > 0) {
-			String objectString = String.format("-object=%s", classname);
+			String objectString = String.format(Broker.ObjectNamePrefix+"%s", classname);
 			argvList.add(objectString);
 		}
 		if (appserv != null && !appserv.isEmpty()) {
-			String appString = String.format("-appservice=%s", appserv.toString());
+			String appString = String.format(Broker.AppServicePrefix+"%s", appserv.toString());
 			argvList.add(appString);
 		}
 		if (jobserv != null && !jobserv.isEmpty()) {
@@ -624,9 +625,6 @@ public class Interface {
 		}
 		
 		int ret = -1;
-		
-		//DEBUG:
-		isLocal = false;
 		
 		if(isLocal){
 			ret = SystemUtil.runCmd(argvList);
