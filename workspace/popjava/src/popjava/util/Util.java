@@ -196,4 +196,22 @@ public class Util {
 		
 		return false;
 	}
+	
+	public enum OSType{
+		UNIX,
+		Windows
+	}
+	
+	
+	/**
+	 * Returns the OS type on which this machine runs. Can return windows or unix.
+	 * @return
+	 */
+	public static OSType getOSType(){
+		if(System.getProperty("os.name").toLowerCase().contains("win")){
+			return OSType.Windows;
+		}
+		
+		return OSType.UNIX;
+	}
 }

@@ -35,6 +35,7 @@ import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.SystemUtil;
 import popjava.util.Util;
+import popjava.util.Util.OSType;
 
 /**
  * This class is responsible for the initialization of a POP-Java application. It has also the responsibility to retrieve the configuration parameters.
@@ -141,12 +142,14 @@ public class POPSystem {
 						InetAddress ina = enina.nextElement();
 						
 						try {
-							if(!ina.getHostAddress().contains(":") 
-									&& !ina.getHostAddress().equals("127.0.0.1")
-									&& !ina.getHostAddress().equals("127.0.1.1") &&
-									!ina.getHostAddress().isEmpty() &&
-									ina.isReachable(20)){
-								return ina.getHostAddress();
+							String address = ina.getHostAddress();
+							if(!address.contains(":") && 
+									!address.equals("127.0.0.1") &&
+									!address.equals("127.0.1.1") &&
+									!address.isEmpty() &&
+									(Util.getOSType() == OSType.Windows || ina.isReachable(20))
+									){
+								return address;
 							}
 						} catch (IOException e) {
 						}
