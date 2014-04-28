@@ -2,6 +2,11 @@ package junit.benchmarks.methods;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import popjava.PopJava;
@@ -9,13 +14,21 @@ import popjava.system.POPSystem;
 
 public class TestMethods {
 
-	private static final int REPETITIONS = 1000;
+	private static final int REPETITIONS = 5000;
+	private static POPMethods object;
+	@BeforeClass
+	public static void startPOPJava(){
+		POPSystem.initialize();
+		object = PopJava.newActive(POPMethods.class);
+	}
+	
+	@AfterClass
+	public static void endPOPJava(){
+		POPSystem.end();
+	}
 	
 	@Test
-	public void testPOPNoParamNoReturn(){
-		POPSystem.initialize();
-		POPMethods object = PopJava.newActive(POPMethods.class);
-		
+	public void testPOPNoParamNoReturn(){		
 		long start = System.currentTimeMillis();
 		
 		for(int i = 0; i < REPETITIONS; i++){
@@ -23,15 +36,10 @@ public class TestMethods {
 		}
 		
 		System.out.println("testPOPNoParamNoReturn() "+(System.currentTimeMillis() - start)+" ms");
-		
-		POPSystem.end();
 	}
 	
 	@Test
-	public void testPOPNoParamSimple(){
-		POPSystem.initialize();
-		POPMethods object = PopJava.newActive(POPMethods.class);
-		
+	public void testPOPNoParamSimple(){		
 		long start = System.currentTimeMillis();
 		
 		for(int i = 0; i < REPETITIONS; i++){
@@ -39,15 +47,10 @@ public class TestMethods {
 		}
 		
 		System.out.println("testPOPNoParamSimple() "+(System.currentTimeMillis() - start)+" ms");
-		
-		POPSystem.end();
 	}
 	
 	@Test
-	public void testPOPNoParamComples(){
-		POPSystem.initialize();
-		POPMethods object = PopJava.newActive(POPMethods.class);
-		
+	public void testPOPNoParamComplex(){
 		long start = System.currentTimeMillis();
 		
 		for(int i = 0; i < REPETITIONS; i++){
@@ -55,7 +58,39 @@ public class TestMethods {
 		}
 		
 		System.out.println("testPOPNoParamComplex() "+(System.currentTimeMillis() - start)+" ms");
+	}
+	
+	@Test
+	public void testSocketNoParamNoReturn() throws UnknownHostException, IOException{
+		Thread server = new Thread(new SocketServer());
+		server.start();
 		
-		POPSystem.end();
+		SocketConnector con = new SocketConnector();
+		
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < REPETITIONS; i++){
+			con.noParamNoReturn();
+		}
+		System.out.println("testSocketNoParamNoReturn() "+(System.currentTimeMillis() - start)+" ms");
+		
+		con.close();
+		server.interrupt();
+	}
+	
+	@Test
+	public void testSocketNoParamSimple() throws UnknownHostException, IOException{
+		Thread server = new Thread(new SocketServer());
+		server.start();
+		
+		SocketConnector con = new SocketConnector();
+		
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < REPETITIONS; i++){
+			assertEquals(100, con.noParamSimple());
+		}
+		System.out.println("testSocketNoParamSimple() "+(System.currentTimeMillis() - start)+" ms");
+		
+		con.close();
+		server.interrupt();
 	}
 }
