@@ -395,6 +395,10 @@ public abstract class POPBuffer extends Object {
 				POPException.throwReflectSerializeException(c.getName(), e
 						.getMessage());
 			}
+		}else if( c.isEnum()){
+			String name = this.getString();
+			Class<? extends Enum> t = (Class<? extends Enum>)c;
+			return Enum.valueOf(t, name);
 		}
 		
 		LogWriter.writeDebugInfo("Return null ");
@@ -450,7 +454,9 @@ public abstract class POPBuffer extends Object {
 				LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
 			}
-		} 
+		} else if( c.isEnum()){
+			putString(((Enum) o).name());
+		}
 	}
 
 	/**

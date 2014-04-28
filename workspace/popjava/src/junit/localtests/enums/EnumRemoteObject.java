@@ -24,11 +24,13 @@ public class EnumRemoteObject extends POPObject{
 	@POPObjectDescription(url = "localhost")
 	public EnumRemoteObject(Test param){
 		constructor = param;
+		System.out.println("Const "+param.name());
 	}
 	
 	@POPSyncMutex
 	public void setEnum(Test param){
 		method = param;
+		System.out.println("Func "+param.name());
 	}
 	
 	@POPSyncMutex
