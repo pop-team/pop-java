@@ -495,7 +495,8 @@ public class Interface {
 	 * @return
 	 */
 	private static String getRemoteCodeFile(String objectName){
-		if(objectName.equals(POPAppService.class.getName())){
+		if(objectName.equals(POPAppService.class.getName()) ||
+				objectName.equals(POPJavaAppService.class.getName())){
 			return getPOPCodeFile();
 		}
 		
@@ -522,6 +523,7 @@ public class Interface {
 				}
 			}
 		}
+		
 		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);

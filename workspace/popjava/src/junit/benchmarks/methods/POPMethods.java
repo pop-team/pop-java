@@ -18,4 +18,15 @@ public class POPMethods extends POPObject{
 		
 	}
 	
+	@POPSyncMutex
+	public int noParamSimple(){
+		return 100;
+	}
+	
+	private static String [] complexReturn = new String[]{"asdfasdf", "asdfasdf", "asdfasdf"};
+	
+	@POPSyncMutex
+	public String[] noParamComplex(){
+		return complexReturn;
+	}
 }

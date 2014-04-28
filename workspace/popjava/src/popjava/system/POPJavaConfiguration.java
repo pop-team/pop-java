@@ -133,7 +133,6 @@ public class POPJavaConfiguration {
 				URL url = urls[i];
 				try {
 					String path = new File(url.toURI()).getAbsolutePath();
-					System.out.println(path);
 					popJar += path;
 					if(i != urls.length - 1){
 		            	popJar += File.pathSeparatorChar;
