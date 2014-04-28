@@ -11,7 +11,7 @@ import popjava.system.POPSystem;
 
 public class Benchmark {
 
-	private static final int TOTAL = 200000;
+	private static final int TOTAL = 20000;
 	
 	@Test
 	public void test(){

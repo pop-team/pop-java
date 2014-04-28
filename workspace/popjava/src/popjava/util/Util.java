@@ -33,8 +33,8 @@ public class Util {
 		if (source.compareTo(dest) == 0){
 			return true;
 		}
-		if (source == null || source.length() == 0 || dest == null
-				|| dest.length() == 0){
+		if (source == null || source.isEmpty() || dest == null
+				|| dest.isEmpty()){
 			return false;
 		}
 		String[] allDestHost = dest.split("[ \t\r\n]");
@@ -57,8 +57,7 @@ public class Util {
 		
 		boolean isLocal = (hostname == null || hostname.length() == 0
 				|| popjava.util.Util.sameContact(myhost, hostname)
-				|| hostname.compareTo("localhost") == 0 || hostname
-				.compareTo("127.0.0.1") == 0);
+				|| hostname.equals("localhost") || hostname.equals("127.0.0.1"));
 		
 		return isLocal;
 	}

@@ -20,6 +20,7 @@ import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.SystemUtil;
 import popjava.util.Util;
+import popjava.annotation.POPObjectDescription;
 import popjava.base.BindStatus;
 import popjava.base.MessageHeader;
 import popjava.base.POPErrorCode;
@@ -625,6 +626,11 @@ public class Interface {
 		}
 		
 		int ret = -1;
+		
+		//Allow local objects to be declared as remote to test remote object creation locally
+		if(hostname.equals(POPObjectDescription.LOCAL_DEBUG_URL)){
+			hostname = "localhost";
+		}
 		
 		if(isLocal){
 			ret = SystemUtil.runCmd(argvList);

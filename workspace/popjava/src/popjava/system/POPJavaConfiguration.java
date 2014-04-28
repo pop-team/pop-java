@@ -3,6 +3,7 @@ package popjava.system;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.CodeSource;
 
 import popjava.broker.Broker;
 import popjava.codemanager.POPJavaAppService;
@@ -113,15 +114,26 @@ public class POPJavaConfiguration {
 	
 	public static String getPOPJavaCodePath(){
 		String popJar = "";
-		URL [] urls = ((URLClassLoader)POPJavaAppService.class.getClassLoader()).getURLs();
-		for(int i = 0; i < urls.length; i++){
-			URL url = urls[i];
-            popJar += url.getPath();
-            if(i != urls.length - 1){
-            	popJar += File.pathSeparatorChar;
-            }
-        }
 		
+		CodeSource temp = POPSystem.class.getProtectionDomain().getCodeSource();
+		if(temp != null){
+			String location = temp.getLocation().toString();
+			if(location.endsWith(".jar")){
+				popJar = location;
+			}			
+		}
+		
+		//This is used for debug environment where popjava is not in a jar file
+		if(popJar.isEmpty()){
+			URL [] urls = ((URLClassLoader)POPJavaAppService.class.getClassLoader()).getURLs();
+			for(int i = 0; i < urls.length; i++){
+				URL url = urls[i];
+	            popJar += url.getPath();
+	            if(i != urls.length - 1){
+	            	popJar += File.pathSeparatorChar;
+	            }
+	        }
+		}
 		return popJar;
 	}
 	

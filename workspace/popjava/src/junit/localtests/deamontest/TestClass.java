@@ -9,7 +9,7 @@ import popjava.baseobject.ConnectionType;
 @POPClass
 public class TestClass extends POPObject {
 
-	@POPObjectDescription(connection=ConnectionType.DEAMON, url = "localhost")
+	@POPObjectDescription(connection=ConnectionType.DEAMON, url = POPObjectDescription.LOCAL_DEBUG_URL)
 	public TestClass(){
 	}
 	
