@@ -1,6 +1,7 @@
 package testsuite.integer;
 
 import popjava.annotation.POPAsyncSeq;
+
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncMutex;
@@ -13,6 +14,10 @@ public class Integer extends POPObject{
 	@POPObjectDescription(url = "localhost")
 	public Integer(){
 		value = 10;
+	}
+	
+	public Integer(boolean test){
+		value = 20;
 	}
 	
 	@POPSyncMutex
