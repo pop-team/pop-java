@@ -25,6 +25,7 @@ import popjava.util.SystemUtil;
  */
 public class POPJavaDeamon {
 
+	public static final String SUCCESS = "OK";
 	public static final int POP_JAVA_DEAMON_PORT = 43424;
 	private ServerSocket serverSocket;
 	private String password = "";
@@ -62,39 +63,42 @@ public class POPJavaDeamon {
 		public void run() {
 			
 			try {
-				String salt = createSecret();
-				System.out.println("SALT: "+salt);
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				
+				String salt = createSecret();
+				
+				//Send salt to connectin client
 				writer.write(salt+"\n");
 				writer.flush();
 				
-				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				//TODO: add security
-				
-				
-				//Read command to execute
-				
-				//Execute command
 				List<String> commands = new ArrayList<String>();
 				
-				String line = null;
+				
 				
 				System.out.println("Execute command: ");
-				boolean isJava = false;
-				int parameterIndex = 0;
 				
-				boolean isClassPath = false;
 				
 				String saltedHash = getSaltedHash(salt, password);
 				
-				while((line = reader.readLine()) != null){
-					//The supplied secret was wrong
-					if(parameterIndex == 0 && !saltedHash.equals(line)){
-						System.err.println("The supplied secret was wrong : "+line+" should be "+saltedHash+" using password "+password);
-						return;
-					}
-					
-					if(isJava && isClassPath){ //If the current parameter is the classpath, modify it to fit local system
+				//Read command to execute
+				String challengeAnswer = reader.readLine();
+				if(!saltedHash.equals(challengeAnswer)){
+					System.err.println("The supplied secret was wrong : "+challengeAnswer+" should be "+saltedHash+" using password "+password);
+					writer.write("ERROR PASS\n");
+					writer.close();
+					reader.close();
+					return;
+				}
+				
+				int commandLength = Integer.parseInt(reader.readLine());
+				
+				boolean isJava = false;
+				boolean isClassPath = false;
+				for(int i = 0; i < commandLength; i++){
+					String line = reader.readLine();
+					//If the current parameter is the classpath, modify it to fit local system
+					if(isJava && isClassPath){ 
 						if(!line.contains(File.pathSeparator) &&
 								!new File(line).exists()){
 							String temp = POPJavaConfiguration.getPOPJavaCodePath();
@@ -104,26 +108,28 @@ public class POPJavaDeamon {
 						}
 					}
 					
-					if(parameterIndex > 0){
-						commands.add(line);
-						System.out.print(line+" ");
-					}
+					commands.add(line);
+					System.out.print(line+" ");
 
-					if(parameterIndex == 1 && line.equals("java")){
+					if(i == 0 && line.equals("java")){
 						isJava = true;
 					}
-					
-					parameterIndex++;
 					
 					isClassPath = line.equals("-cp");
 				}
 				System.out.println();
 				
-				SystemUtil.runCmd(commands);
+				//Execute command
+				if(isJava){					
+					SystemUtil.runCmd(commands);
+					writer.write(SUCCESS+"\n");
+					writer.flush();
+				}else{
+					writer.write("ERROR NOT JAVA\n");
+					writer.flush();
+				}
 				
 				reader.close();
-				writer.close();
-				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}finally{
