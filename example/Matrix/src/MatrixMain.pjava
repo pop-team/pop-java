@@ -112,6 +112,18 @@ public class MatrixMain {
 		// Randomly initialize Matrix a and b 
 		a.init();
 		b.init();
+		
+		/*a.initInc();
+		b.initInc();*/
+		
+		//Set all to 1
+		/*a.fill(1);
+		b.fill(1);*/
+		
+		/*a.display();
+		System.out.println("*");
+		b.display();
+		System.out.println("=");*/
 
 		MatrixWorker [][] mw = new MatrixWorker[divLine][divCol];
 
@@ -155,7 +167,7 @@ public class MatrixMain {
 						machines.get((j + i * divCol) % nbOfMachines).cores);
 			}
 		}
-
+		
 		// Get time to create all workers
 		initTime = timer.elapsed(); // ---------------------- Initialisation Time
 
@@ -166,8 +178,9 @@ public class MatrixMain {
 			offsetC = 0;
 			for (int j = 0; j < divCol; j++) {
 				// Launch computation
-				mw[i][j].solve(a.getLinesBloc(offsetL, lines),
-						b.getColsBloc(offsetC, cols));
+				Matrix2Dlc l = a.getLinesBloc(offsetL, lines);
+				Matrix2Dcl c = b.getColsBloc(offsetC, cols);				
+				mw[i][j].solve(l, c);
 				offsetC = offsetC + cols;
 			}
 			offsetL = offsetL + lines;
@@ -176,7 +189,7 @@ public class MatrixMain {
 		// Get time to send all data to workers and launch computation
 		sendTime = timer.elapsed() - initTime; // ------------------ Sending
 												// Time
-
+		
 		// Create a matrix for getting the results
 		Matrix2Dlc res = null;
 
@@ -206,8 +219,10 @@ public class MatrixMain {
 		System.out.println("Times (init, send and computing) = "+df.format(initTime)+
 				", "+df.format(sendTime)+", "+df.format(compTime)+" sec\n\n");
 		System.out.println("...End of matrix multiplication");
-		res.display(5);
-
+		//res.display(5);
+		
+		a.display(5);
+		
 		// Storage of Results and Parametres in the file resultFileName
 		if (resultFileName != null) {
 			File outFile = new File(resultFileName);

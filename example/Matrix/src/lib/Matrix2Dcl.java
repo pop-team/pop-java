@@ -50,8 +50,9 @@ public class Matrix2Dcl extends Matrix2D {
 	    Matrix2Dcl tmp = new Matrix2Dcl();
 	    tmp.nbCol = nbCols;
 	    tmp.nbLine = nbLine;
-	    tmp.dataSize = dataSize;
-	    tmp.value = value; //TODO: Correctly implement this: &(value[noCol*nbLine]);
+	    tmp.dataSize = nbCols * nbLine + 1;
+	    tmp.value = new double[tmp.dataSize]; //TODO: Correctly implement this: &(value[noCol*nbLine]);
+	    System.arraycopy(value, noCol*nbLine, tmp.value, 0, nbCols * nbLine);
 	    if(shared==null){
 	    	tmp.shared = value; 
 	    }else{
@@ -120,10 +121,11 @@ public class Matrix2Dcl extends Matrix2D {
 
 	@Override
 	public void display() {
+		DecimalFormat df = new DecimalFormat("#.###");
+		
 		for (int i = 0; i < nbLine; i++) {
-			DecimalFormat df = new DecimalFormat("#.###");
 			for (int j = 0; j < nbCol; j++) {
-				System.out.print(df.format(value[j * nbLine + i]));
+				System.out.print(df.format(value[j * nbLine + i])+" ");
 			}
 
 			System.out.println();

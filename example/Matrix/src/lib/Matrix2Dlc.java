@@ -44,13 +44,16 @@ public class Matrix2Dlc extends Matrix2D{
 	
 	public Matrix2Dlc getLinesBloc(int noLine, int nbLines)
 	{
-	  if ( (value!=null) || (nbLine>=(noLine+nbLines)) )
+	  if ( (value!=null) || (nbLine >= (noLine+nbLines)) )
 	  {
-		  Matrix2Dlc tmp = new Matrix2Dlc();
+		
+		Matrix2Dlc tmp = new Matrix2Dlc();
 	    tmp.nbCol = nbCol;
 	    tmp.nbLine = nbLines;
-	    tmp.dataSize = dataSize;
-	    tmp.value = value ;//TODO: Correctly implement this: &(value[noLine*nbCol]);
+	    tmp.dataSize = nbLines*nbCol + 1;
+	    tmp.value = new double[tmp.dataSize];
+	    System.arraycopy(value, noLine*nbCol, tmp.value, 0, nbLines*nbCol);
+	    //tmp.value = value ;//TODO: Correctly implement this: &(value[noLine*nbCol]);
 		  if(shared==null){
 			  tmp.shared = value; 
 		  }else {
@@ -80,20 +83,19 @@ public class Matrix2Dlc extends Matrix2D{
 	       value[dataSize]=0;
 	       shared = null;
 	     }
+	     
 	     for (int i=0; i<v.nbLine; i++){
 	    	 //memcpy(&(value[(noLine+i)*nbCol+noCol]),&(v.value[i*v.nbCol]), v.nbCol*sizeof(ValueType));
 		      // memcpy replaces the following for loop
 		      //for (int j=0; j<v.nbCol; j++)
 			    //  value[(noLine+i)*nbCol+noCol+j]=v.value[i*v.nbCol+j];
-	    	 
+	    	// System.out.println("** "+i*v.nbCol+" "+((noLine+i)*nbCol+noCol)+" "+v.nbCol);
 	    	 System.arraycopy(v.value, i*v.nbCol, value, (noLine+i)*nbCol+noCol, v.nbCol);
 	     }
-	       
-		 }
-		 else{
-			 System.out.println("Matrix ERROR: Non coherent bloc setting ("+noLine+","+noCol+") !!!");
-		 }
-	               
+	 }
+	 else{
+		 System.out.println("Matrix ERROR: Non coherent bloc setting ("+noLine+","+noCol+") !!!");
+	 }
 	}
 
 	public void setLinesBloc(int noLine, Matrix2Dlc v)
@@ -125,13 +127,12 @@ public class Matrix2Dlc extends Matrix2D{
 		  for (int i=0; i<nbLine; i++)
 		  {
 		    for (int j=0; j<nbCol; j++){
-		    	System.out.print(df.format(value[i*nbCol+j]));
+		    	System.out.print(df.format(value[i*nbCol+j])+" ");
 		    }
 		    System.out.println();
 		  }
 		  System.out.println("....................");
 	  }
-	  
 	}
 
 	public void display(int n)

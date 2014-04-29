@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,7 +69,7 @@ public class Util {
 	 * @param prefix	The prefix of the string to remove
 	 * @return	The entire string removed
 	 */
-	public static String removeStringFromArrayList(ArrayList<String> list,
+	public static String removeStringFromList(List<String> list,
 			String prefix) {
 		String result = null;
 

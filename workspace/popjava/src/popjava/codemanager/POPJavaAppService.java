@@ -79,7 +79,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	public String getLocalJavaFileLocation(String objname){
 		String codePath = null;
 		try{
-			ClassLoader classloader = this.getClass().getClassLoader();
+			ClassLoader classloader = getClass().getClassLoader();
 			Class<?> javaClass = classloader.loadClass(objname);
 			
 			codePath = String.format(

@@ -8,6 +8,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Random;
 
 import javassist.util.proxy.ProxyFactory;
@@ -68,6 +69,9 @@ public class POPSystem {
 	public static POPAccessPoint AppServiceAccessPoint = new POPAccessPoint();
 	
 	public static void writeLog(String log){
+		if(!Configuration.Debug){
+			System.out.println(log);
+		}
 		LogWriter.writeDebugInfo(log);
 		/*try {
 			POPAppService app = (POPAppService)PopJava.newActive(POPAppService.class, POPSystem.AppServiceAccessPoint);
@@ -253,25 +257,25 @@ public class POPSystem {
 	 * @return	true if the initialization is succeed
 	 * @throws POPException	thrown is any problems occurred during the initialization
 	 */
-	public static boolean initialize(ArrayList<String> argvList){
+	public static boolean initialize(List<String> argvList){
 		String POPJavaObjectExecuteCommand = String.format(
 				POPJavaConfiguration.getBrokerCommand(),
 				getNeededClasspath());
 		
-		String jobservice = Util.removeStringFromArrayList(argvList,
+		String jobservice = Util.removeStringFromList(argvList,
 				"-jobservice=");
 		if (jobservice == null || jobservice.length() == 0) {
 			jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
 		}
 		JobService.setAccessString(jobservice);
-		String appservicecode = Util.removeStringFromArrayList(argvList,
+		String appservicecode = Util.removeStringFromList(argvList,
 				"-appservicecode=");
 		
 		if (appservicecode == null || appservicecode.length() == 0) {
 			appservicecode = POPJavaConfiguration.getPopAppCoreService();
 		}
-		String proxy = Util.removeStringFromArrayList(argvList, "-proxy=");
-		String appservicecontact = Util.removeStringFromArrayList(argvList,
+		String proxy = Util.removeStringFromList(argvList, "-proxy=");
+		String appservicecontact = Util.removeStringFromList(argvList,
 				"-appservicecontact=");
 		if ((jobservice == null || jobservice.length() == 0)
 				&& (appservicecontact == null || appservicecontact.length() == 0)){
@@ -288,7 +292,7 @@ public class POPSystem {
 		}
 		
 		String codeconf = Util
-				.removeStringFromArrayList(argvList, "-codeconf=");
+				.removeStringFromList(argvList, "-codeconf=");
 		
 		if (codeconf == null || codeconf.length() == 0) {
 			codeconf = String.format("%s%setc%sdefaultobjectmap.xml",

@@ -43,7 +43,7 @@ public class MatrixWorker {
 		waitTime = timer.elapsed();
 		aMat = a;
 		bMat = b;
-
+		
 		// Launch NbCores "SolveCore" methods (Threads)
 		for (int i = 0; i < NbCores; i++) {
 			this.solveCore(i);
@@ -66,6 +66,7 @@ public class MatrixWorker {
 		for (int j = st; j < nbLinesA; j = j + NbCores) {
 			for (int k = 0; k < nbColsB; k++) {
 				for (int l = 0; l < nbColsA; l++) {
+					//System.out.println(j+" "+ k+" "+c.get(j, k)+" "+aMat.get(j, l) +" * "+bMat.get(l, k));
 					c.set(j, k, c.get(j, k) + aMat.get(j, l) * bMat.get(l, k));
 				}
 			}

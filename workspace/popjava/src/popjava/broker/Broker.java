@@ -709,7 +709,7 @@ public class Broker {
 			ComboxFactory factory = finder.get(i);
 			String prefix = String.format("-%s_port=", factory.getComboxName());
 
-			String port = Util.removeStringFromArrayList(argvs, prefix);
+			String port = Util.removeStringFromList(argvs, prefix);
 			int iPort = 0;
 			if (port != null && port.length() > 0) {
 				try {
@@ -777,18 +777,18 @@ public class Broker {
 		}
 		LogWriter.writeDebugInfo("Broker parameters end");
 		
-		String appservice = Util.removeStringFromArrayList(argvList,
+		String appservice = Util.removeStringFromList(argvList,
 				AppServicePrefix);
-		String codelocation = Util.removeStringFromArrayList(argvList,
+		String codelocation = Util.removeStringFromList(argvList,
 				CodeLocationPrefix);
-		String objectName = Util.removeStringFromArrayList(argvList,
+		String objectName = Util.removeStringFromList(argvList,
 				ObjectNamePrefix);
-		String actualObjectName = Util.removeStringFromArrayList(argvList,
+		String actualObjectName = Util.removeStringFromList(argvList,
 				ActualObjectNamePrefix);
 		if (actualObjectName != null && actualObjectName.length() > 0) {
 			objectName = actualObjectName;
 		}
-		String callbackString = Util.removeStringFromArrayList(argvList,
+		String callbackString = Util.removeStringFromList(argvList,
 				CallBackPrefix);
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.AppServiceAccessPoint.setAccessString(appservice);

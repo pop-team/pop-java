@@ -42,6 +42,7 @@ public class SystemUtil {
 			pb.redirectErrorStream(true);
 			pb.redirectOutput(new File("/dev/null"));
 		}
+		
 		if (pb != null) {
 			try {
 				String directory = System.getProperty("java.io.tmpdir");

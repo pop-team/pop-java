@@ -68,7 +68,15 @@ public abstract class Matrix2D implements IPOPBase {
 		Random random = new Random();
 		if(value != null){
 		  for (int i=0; i < nbCol * nbLine; i++){
-		      value[i] = (random.nextInt() % 200)/7.;
+		      value[i] = random.nextInt(200)/7.;
+		  }
+	  }
+	}
+	
+	public void initInc(){
+		if(value != null){
+		  for (int i=0; i < nbCol * nbLine; i++){
+		      value[i] = i + 1;
 		  }
 	  }
 	}
