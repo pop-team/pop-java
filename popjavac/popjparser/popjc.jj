@@ -586,7 +586,7 @@ public static void main(String args[]) {
             //Print the needed code lines at the beginning of the main
             println("public static void main(String... args){", 0);
             indent++;
-            println("args = POPSystem.initialize(args);", indent);
+            //println("args = POPSystem.initialize(args);", indent);
             print("",indent);
             //Go to the next useful token
             while(tok.kind != LBRACE){
@@ -670,7 +670,7 @@ public static void main(String args[]) {
             if(Holder.inMain){
                 if(Holder.depthMain==0){
                     indent--;
-                    println("POPSystem.end();",indent);
+                    //println("POPSystem.end();",indent);
                     Holder.inMain=false;
                 } else {
 					Holder.depthMain--;

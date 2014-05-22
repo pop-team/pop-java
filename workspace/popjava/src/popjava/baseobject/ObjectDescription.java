@@ -1,6 +1,8 @@
 package popjava.baseobject;
 
 import java.util.Enumeration;
+import java.util.concurrent.ConcurrentHashMap;
+
 import popjava.buffer.*;
 import popjava.dataswaper.IPOPBase;
 
@@ -38,10 +40,10 @@ public class ObjectDescription implements IPOPBase {
 	protected String batch;
 	
 	protected String jvmParamters;
-	protected ConnectionType connectionType;
+	protected ConnectionType connectionType = ConnectionType.ANY;
 	protected String connectionSecret;
 
-	private java.util.concurrent.ConcurrentHashMap<String, String> attributes = new java.util.concurrent.ConcurrentHashMap<String, String>();
+	private ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<String, String>();
 
 	/**
 	 * Create a new empty instance of ObjectDescription

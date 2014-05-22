@@ -1,5 +1,8 @@
 package lib;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 
 import popjava.buffer.POPBuffer;
@@ -84,10 +87,8 @@ public abstract class Matrix2D implements IPOPBase {
 	/**
 	 * Inits the matrix with the content specified in a certain file
 	 */
-	public void init(String filename) // from file
-	{ 
-		//TODO: Implement
-		zero();
+	public void init(String filename) throws IOException{ 
+		
 	}
 
 	/**

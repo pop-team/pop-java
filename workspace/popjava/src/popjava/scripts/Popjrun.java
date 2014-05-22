@@ -38,7 +38,8 @@ public class Popjrun {
 	private static final String DEFAULT_POP_JAVA_LOCATION;
 
 	private static final boolean USE_SEPARATE_JVM = true;
-
+	private static final boolean USE_PROXY_MAIN = true;
+	
 	static {
 		if (ScriptUtils.isWindows()) {
 			DEFAULT_POP_JAVA_LOCATION = "C:\\Users\\asraniel\\workspace\\PopJava\\release\\";
@@ -222,7 +223,9 @@ public class Popjrun {
 
 		arguments.add(0, "-codeconf=" + objectMap);
 		arguments.add(0, main);
-		//arguments.add(0, "-Djava.system.class.loader="+POPJavaClassloader.class.getName());
+		if(USE_PROXY_MAIN){
+			arguments.add(0, POPJRunProxy.class.getName());
+		}
 		arguments.add(0, classPath);
 		arguments.add(0, "-cp");
 		if (Configuration.ACTIVATE_JMX) {
