@@ -13,7 +13,7 @@ POP-Java and POP-C++ interoperability
 
 POP-Java can use POP-C++ parallel classes and POP-C++ can also use POP-Java
 parallel classes. This chapter will explain everything the programmer needs to
-know to develop mixed POP application.
+know to develop mixed POP applications.
 
 
 Restrictions
@@ -38,6 +38,8 @@ Some parameters cannot be passed from a POP-Java application to a POP-C++
 parallel object and vice versa. The list below explain the restrictions on
 certain primitive types. The Java primitive types are taken as the basis.
 
+.. todo: Make a more detailed list of compatibility issues, like long long etc
+
 * ``byte``: This type does not exist in C++ so it's not possible to pass a
   byte.
 * ``long``: The Java long is coded on 8 bytes as it's coded on 4 bytes with
@@ -51,7 +53,7 @@ Dealing with array
 
 Passing arrays from POP-Java to POP-C++ is a bit tricky. As POP-Java and
 POP-C++ do not behave the same with array, the programmer must be aware of the
-way to pass the array. Here is a example of a method with an array as
+way to pass the array. Here is an example of a method with an array as
 parameter.
 
 **The method declaration in POP-C++** |br|
@@ -158,7 +160,7 @@ usage.
 
 
 **Compilation of the parallel class** |br|
-Once the parclass implementation is finished, it can be compiles with the
+Once the parclass implementation is finished, it can be compiled with the
 POP-C++ compiler. The following command will create an object executable of our
 parclass Integer.
 
@@ -213,8 +215,8 @@ Special compilation
 ~~~~~~~~~~~~~~~~~~~
 
 To compile the partial POP-Java parallel class, the compiler needs some
-additional informations. The POP-Java compiler has an option to generate an
-additional informations XML file. To generate this file use the following
+additional information. The POP-Java compiler has an option to generate an
+additional information XML file. To generate this file use the following
 command line::
 
    popjc -x Integer.pjava
@@ -243,7 +245,7 @@ look like is given below:
                      hasDestructor="true"/>
    </popjparser-infos>
 
-All the informations to compile the POP-Java application are now known. Here is
+All the information to compile the POP-Java application is now known. Here is
 the command to compile it:
 
 **Compilation as .class files**
@@ -264,7 +266,7 @@ Generate the object map
 
 An object map is also needed for a POP-Java application using POP-C++ parallel
 classes. The programmer can generate this object map with the POP-Java
-application launcher and the option ``--listlong``. This option accept also the
+application launcher and the option ``--listlong``. This option also accepts the
 POP-C++ executable files. Here is the command used for the example
 application::
 
@@ -321,13 +323,13 @@ The POP-Java parallel class will be the same as the one shown in the
 :ref:`previous chapter <testintegerclass>`. The compilation will be a little
 bit different. As for a POP-Java application using a POP-C++ parclass, the
 POP-Java will need some additional informations during the compilation process.
-These additional informations must be given in a XML file. The POP-Java
+These additional information must be given in a XML file. The POP-Java
 compiler can generate a canvas of this file with the option "-x". Here is the
 command we used::
 
    popjc -x Integer.pjava
 
-The genrated file will be similar to the one shown in the
+The generated file will be similar to the one shown in the
 :ref:`Special compilation section <additional-infos-xml>`. This time the
 attribute ``name`` must stay empty as we want to keep the real name of the
 POP-Java parallel class. The completed file should look like in the following

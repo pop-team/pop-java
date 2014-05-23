@@ -19,7 +19,7 @@ programmer needs another protocol, he can create his own Combox.
 To create a new protocol for POP-Java, the programmer needs to create three
 different classes : a combox, a combox server and a combox factory.
 
-The combox must inherits from the super class ComboxPlugin located in the
+The combox must inherit from the super class ComboxPlugin located in the
 package ``popjava.combox`` in the POP-Java library. The
 :num:`fig-combox-class` shows the ``ComboxPlugin`` class signature.
 
@@ -30,7 +30,7 @@ package ``popjava.combox`` in the POP-Java library. The
 
    ComboxPlugin class signature
 
-The combox server must inherits from the super class ComboxServer located in
+The combox server must inherit from the super class ComboxServer located in
 the package popjava.combox in the POP-Java library. The
 :num:`fig-comboxserver-class` shows the ComboxServer class signature.
 
@@ -76,10 +76,10 @@ encoding and the other is using the XDR encoding. If the programmer needs a
 special encoding protocol, he can also create his own and add it to the
 POP-Java system as a plugin.
 
-To implement a new encoding protocol, the programmer needs to create two class.
+To implement a new encoding protocol, the programmer needs to create two classes.
 A buffer and a buffer factory.
 
-The buffer must inherits from the super class BufferPlugin located in the
+The buffer must inherit from the class BufferPlugin located in the
 package ``popjava.buffer`` in the POP-Java library. The
 :num:`fig-buffer-class` shows the ``BufferPlugin`` class signature.
 

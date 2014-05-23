@@ -15,7 +15,7 @@ Its syntax remains as close as possible to standard Java so that Java
 programmer can easily learn it and existing Java libraries can be parallelized
 without much effort. Changing a sequential Java application into a distributed
 parallel application is rather straightforward. POP-Java is also very close to
-POP-C++ so that POP programmer can use both system easily.
+POP-C++ so that POP programmer can use both systems easily.
 
 Parallel objects are created using parallel classes. Any object that
 instantiates a parallel class is a parallel object and can be executed
@@ -44,6 +44,7 @@ parallel classes. The declaration of a parallel class is the same as a standard
 Java class declaration, but it has to be annotated with the annotation 
 ``@POPClass``. The parallel class can extend another parallel class but not a
 sequential class.
+.. todo:: Explain how this applies to the Object base class of Java
 
 **Simple parallel class declaration**
 
@@ -63,11 +64,11 @@ sequential class.
       // Implementation
    }
 
-As Java allows only the single inheritance, a parallel class can only inherit
-from **one** other parallel class. The Java language also impose that the file
+As Java allows only single inheritance, a parallel class can only inherit
+from **one** other parallel class. The Java language also imposes that the file
 including the parallel class has the same name than the parallel class.
 
-POP-Java imposes also one restrictions. The parallel class must be declared and
+POP-Java imposes another restrictions. The parallel class must be declared and
 implemented in a file with ``.pjava`` extension. For example, the parallel
 class ``MyParallelClass`` declared before, must be in a file
 ``MyParallelClass.pjava``.
@@ -77,7 +78,7 @@ some different behavior, some restrictions applied to the parallel classes:
 
 * All attributes in a parallel class must be protected or private
 * The objects do not access any global variable
-* A parallel class does not contain any static attributes or static methods
+* A parallel class does not contain any static methods or non final static attributes
 
 
 Creation and destruction
@@ -107,21 +108,20 @@ Parallel class methods
 Like sequential classes, parallel classes contain methods and attributes.
 Method can be public or private but attribute must be either protected or
 private. For each public method, the programmer must define the invocation
-semantics. These semantics, described in :ref:``semantic``, are specified by an
+semantics. These semantics, described in :ref:`semantic`, are specified by an
 annotation.
 
 * **Interface side**: These semantics affect the caller side.
   * ``sync``: Synchronous invocation.
   * ``async``: Asynchronous invocation.
-* **Object side**: These semantics affect the order of the class inside the
-  object itself.
+* **Object side**: These semantics affect the order of incoming method calls on the object.
   * ``seq``: Sequential invocation
   * ``conc``: Concurrent invocation
   * ``mutex``: Mutual exclusive invocation
 
 The combination of the interface and object-side semantics defines the overall
 semantics of a method. There are 6 possible combinations of the interface and
-object-side semantics, resulting in 6 annotions:
+object-side semantics, resulting in 6 annotations:
 
 .. code-block:: java
 
@@ -133,8 +133,7 @@ object-side semantics, resulting in 6 annotions:
    @POPAsyncMutex
 
 
-For example, a synchronous concurrent method returning an int value must be
-declared as follow:
+The following code example shows a synchronous concurrent method that returns an int value:
 
 .. code-block:: java
 
@@ -180,18 +179,18 @@ not set, POP-Java will use the POP-C++ jobmanager to find a suitable machine.
 Data marshaling and IPOPBase
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When calling a remote methods, the arguments must be transferred to the object
+When calling a remote method, the arguments must be transferred to the object
 being called (the same happens for the return value and the exception). In
-order to operate with different memory spaces and different architecture, data
-is marshaled into a standard format prior to be send to remote objects. All
-data passed is serialized (marshaled) at the caller side an deserialized
-(unmarshaled) at the called side.
+order to operate with different memory spaces and different architectures, the data
+is marshaled into a standard format prior to be sent to remote objects. All
+data is serialized (marshaled) at the caller side an deserialized
+(unmarshaled) at the remote side.
 
-With POP-Java all primitive types, primitive types arrays and parallel classes
+With POP-Java all primitive types, primitive type arrays and parallel classes
 can be passed without any trouble to another parallel object. This mechanism is
 transparent for the programmer.
 
-If the programmer want to pass a special object to or between parallel classes,
+If the programmer wants to pass a special object to or between parallel classes,
 this object must implement the IPOPBase interface from the POP-Java library.
 This library is located in the installation directory
 (``POPJAVA_LOCATION/JarFile/popjava.jar``). By implementing this interface,
@@ -210,7 +209,7 @@ the programmer will have to override the two following methods:
    }
 
 These methods will be called by the POP-Java system when an argument of this
-type need to be serialized or deserialized. As the object will be reconstruct
+type needs to be serialized or deserialized. As the object will be reconstructed
 on the other side and after the values will be set to it by the deserialize
 method, any class implementing the ``IPOPBase`` interface must have a default
 constructor.
@@ -259,14 +258,15 @@ interface:
 POP-Java behavior
 -----------------
 
-This section aims to explain to difference between the standard Java behavior
+This section aims to explain the difference between the standard Java behavior
 and the POP-Java behavior.
 
 As in standard Java, the primitive types will not be affected by any
-manipulations inside a methods. The objects will be affected only if the method
-semantic is “Synchronous”. In fact, POP-Java serialize the method arguments to
+manipulation inside a method as they are passed by value and not by reference.
+Objects passed as arguments tho methods will only be affected if the method semantic is “Synchronous”.
+In fact, POP-Java serializes the method arguments to
 pass them on the object-side. Once the method work is done, the arguments are
-serialize once again to be send back to the interface-side. If the method
+serialized once again to be sent back to the interface-side. If the method
 semantic is “Synchronous”, the interface-side will deserialize the arguments
 and replace the local ones by the deserialized arguments. If the method
 semantic is “Asynchronous”, the interface-side will not wait for any answer
@@ -281,7 +281,7 @@ Exception handling
 
 Errors can be efficiently handled using exceptions. Instead of handling each
 error separately based on an error code returned by a function call,
-exceptions allow the programmer to filter and centrally manage errors trough
+exceptions allow the programmer to filter and centrally manage errors through
 several calling stacks. When an error is detected inside a certain method call,
 the program can throw an exception that will be caught somewhere else.
 
@@ -290,7 +290,7 @@ components run within the same memory address space is fairly simple. The
 compiler just need to pass a pointer to the exception from the place where it
 is thrown to the place where it is caught.  However, in distributed
 environments where each component is executed in a separated memory address
-space (and eventually data are represented differently due to heterogeneity),
+space (and the data is represented differently due to heterogeneity),
 the propagation of exception back to a remote component is complex.
 
 .. _fig-exception:
@@ -309,4 +309,4 @@ of exceptions:
 The invocation semantics of POP-Java affect the propagation of exceptions. For
 the moment, only synchronous methods can propagate the exception. Asynchronous
 methods will not propagate any exception to the caller. POP-Java current
-behavior is to abort the application execution when such exception occurs.
+behavior is to abort the application execution when such an exception occurs.

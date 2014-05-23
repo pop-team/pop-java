@@ -49,7 +49,7 @@ Building and publishing the prose documentation
 -----------------------------------------------
 
 The building process transforms the input documents in reStructuredText format
-into one of the outputs formats supported by Sphinx (HTML, PDF, ePub, ...).
+into one of the output formats supported by Sphinx (HTML, PDF, ePub, ...).
 
 There are two different ways to build the documentation:
 
@@ -72,7 +72,7 @@ Sphinx requires at least Python 2.5 or 3.1; you can read more about additional
 details regarding the requirements on the
 `Sphinx introduction <http://sphinx-doc.org/intro.html#prerequisites>`_ page.
 
-To check if an which version of python you have installed, run the following
+To check  which version of python you have installed, run the following
 command::
 
    python -V

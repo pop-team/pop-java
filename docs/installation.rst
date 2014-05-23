@@ -12,14 +12,14 @@ POP-C++ installation
 --------------------
 
 In order to use POP-Java we need to install the latest version of POP-C++. This
-section will help us to get trough th installation process and make sure the
+section will help us to get through th installation process and make sure the
 installation is fine for a POP-Java usage.
 
 
 Requirements
 ~~~~~~~~~~~~
 
-In order to install POP-C++ we need few additional software. The following
+In order to install POP-C++ we need to install additional software. The following
 packages are required before compiling:
 
 * a C++ compiler (g++ or equivalent)
@@ -46,7 +46,7 @@ of doubt the default values can be used.
   execution (default ``/tmp``).
 * Resource topology. The administrator must choose what computer form the grid.
 
-For more informations about the POP-C++ installation and configuration process,
+For more information about the POP-C++ installation and configuration process,
 please see "Parallel Object Programming C++ - User and Installation Manual"
 :cite:`popc_intro`.
 
@@ -54,7 +54,7 @@ please see "Parallel Object Programming C++ - User and Installation Manual"
 Installation process
 ~~~~~~~~~~~~~~~~~~~~
 
-This section will guide us trough the POP-C++ installation process. In the POP
+This section will guide us through the POP-C++ installation process. In the POP
 distribution we find a directory including POP-C++. First, we need to configure
 the installation. If we use the configure script without any option, POP-C++
 will be installed in the default directory (``/usr/local/popc``). We can also
@@ -81,7 +81,7 @@ the root directory of POP-C++.
    make
 
 Finally, to install POP-C++, we need to run the install target of the make
-file. This script will guide us trough the installation. To be sure that our
+file. This script will guide us through the installation. To be sure that our
 installation will fit the requirements of POP-Java, please follow the
 instructions below.
 
@@ -141,7 +141,7 @@ scripts?".
    Do you want to generate the POP-C++ startup scripts? (y/n)
    y
 
-Depends on our configuration, we can modify the default values of the startup
+Depending on our configuration, we can modify the default values of the startup
 script or just keep them. One important thing is to copy the environment
 variables on the .bashrc or equivalent file.
 
@@ -187,7 +187,7 @@ stop and restart options.
 POP-Java installation
 ---------------------
 
-This section will guide us trough the POP-Java installation process.
+This section will guide us through the POP-Java installation process.
 
 Requirements
 ~~~~~~~~~~~~
@@ -207,7 +207,7 @@ Installation process
 To install POP-Java we need to launch the command ``ant`` int the POP-Java
 directory. Once the source code is compiled, launch the installation with the
 install script: ``sudo ./install``.
-This script will guide us trough the installation by asking us some questions.
+This script will guide us through the installation by asking us some questions.
 Be aware that if we install POP-Java in the default location we need the
 administrator rights. Please use the option ``-E`` with the sudo command to
 keep the environment variables.
@@ -238,7 +238,7 @@ Here is the output we should have on our shell::
 
    [POP-Java installation]: Installation done.
 
-At the end of the installation, the script ask us to copy some environment
+At the end of the installation, the script asks to copy some environment
 variable declarations in the .bashrc or equivalent file. This step is mandatory
 to make POP-Java work correctly.
 

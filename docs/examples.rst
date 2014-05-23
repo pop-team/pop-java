@@ -7,7 +7,7 @@ examples have a ``Makefile`` to compile and a special target ``run`` to run
 them. The following examples are available for the moment:
 
 * ``Callback``: this example shows the ability of a parallel object to
-  call back the one who called him.
+  call back the one that called him.
 * ``Integer``: this is a simple example of a parallel object integer
   (same as the example in POP-C++).
 * ``Mixed1``: this example is a POP-Java application using a POP-C++

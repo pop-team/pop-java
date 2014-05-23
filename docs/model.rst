@@ -123,7 +123,7 @@ described below (example of syntax in :ref:`dev`):
     mutex calls previously arrived.
   * **A concurrent call** can be executed concurrently (time sharing) with
     other concurrent or sequential calls, except if mutex calls are pending or
-    executing. In the later case he is executed after completion of all mutex
+    executing. In the latter case the call is executed after completion of all mutex
     calls previously arrived.
 
 In a nutshell, different object-side invocation semantics can be expressed in
@@ -159,7 +159,7 @@ placeholder. The second step is the object creation itself. Similarly, when an
 object is no longer in use, it must be destroyed in order to release the
 resources it is occupying in its placeholder. The POP-C++ runtime system
 provides automatic placeholder selection, object allocation, and object
-destruction. This automatic features result in a dynamic usage of computational
+destruction. Those automatic features result in a dynamic usage of computational
 resources and gives to the applications the ability to adapt to the changes in
 both the environment and the user behavior.
 
@@ -179,14 +179,14 @@ Requirement-driven parallel objects
 -----------------------------------
 
 Parallel processing is increasingly being done using distributed systems, with
-a strong tendency towards web and global computing. Efficiently extract high
+a strong tendency towards web and global computing. Efficiently extracting high
 performance from highly heterogeneous and dynamic distributed environments is a
 challenge today. POP-C++ and POP-Java were conceived under the belief that for
 such environments, high performance can only be obtained if the two following
 conditions are satisfied:
 
 * The application should be able to adapt to the environment;
-* The programming environment should somehow enables objects to describe their
+* The programming environment should somehow enable objects to describe their
   resource requirements.
 
 The application adaptation to the environment can be fulfilled by multilevel
@@ -194,7 +194,7 @@ parallelism, dynamic utilization of resources or adaptive task size
 partitioning. One solution is to dynamically create parallel objects on demand.
 
 Resource requirements can be expressed by the quality of service that objects
-require from the environment. Most of the systems offeringquality of service
+require from the environment. Most of the systems offering quality of service
 focus on low-level aspects, such as network bandwidth reservation or real-time
 scheduling. Both POP-C++ and POP-Java integrate the programmer requirements
 into parallel objects in the form of high-level resource descriptions. Each
@@ -219,13 +219,13 @@ other hand, give the system more freedom in selecting a resource. Resource that
 partially match the requirements are acceptable although a full qualification
 resource is  preferable. For example, a certain object has a preferred
 performance 150MFlops although 100MFlops is acceptable (non-strict item), but
-it need memory storage of at least 128MB (strict item).
+it needs memory storage of at least 128MB (strict item).
 
 The construction of object descriptions occurs during the parallel object
 creation. The programmer can provide an object description to each object
 constructor. The object descriptions can be parametrized by the arguments of
 the constructor. Object descriptions are used by the runtime system to select
-an appropriate resource for the object. Some example  of the syntax of object
+an appropriate resource for the object. Some examples of the syntax of object
 descriptions can be found in the section :ref:`dev-objdesc`.
 
 It can occur that, due to some changes on the object data or some increase of
