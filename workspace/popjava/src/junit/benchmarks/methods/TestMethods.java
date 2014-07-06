@@ -31,7 +31,7 @@ public class TestMethods extends AbstractBenchmark {
 	private static Thread server;
 	private static SocketConnector con;
 	
-	private static final String [] complexParam = new String[]{"aaasdff", "adsfasdf", "asdfffd"};
+	private static final String [] COMPLEX_PARAM = new String[]{"aaasdff", "adsfasdf", "asdfffd"};
 	
 	@BeforeClass
 	public static void startPOPJava() throws NotBoundException, UnknownHostException, IOException{
@@ -107,7 +107,7 @@ public class TestMethods extends AbstractBenchmark {
 		
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < REPETITIONS; i++){
-			object.complexParam(complexParam);
+			object.complexParam(COMPLEX_PARAM);
 		}
 		
 		//System.out.println("testPOPComplexParam() "+(System.currentTimeMillis() - start)+" ms");
@@ -186,7 +186,7 @@ public class TestMethods extends AbstractBenchmark {
 		long start = System.currentTimeMillis();
 		
 		for(int i = 0; i < REPETITIONS; i++){
-			obj.complexParam(complexParam);
+			obj.complexParam(COMPLEX_PARAM);
 		}
 		
 		//System.out.println("testRMIComplex() "+(System.currentTimeMillis() - start)+" ms");

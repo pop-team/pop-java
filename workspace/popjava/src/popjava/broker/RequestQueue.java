@@ -137,7 +137,7 @@ public class RequestQueue {
 			//LogWriter.writeDebugInfo("Got request? "+waitSuccess+" "+System.currentTimeMillis());
 			if (waitSuccess) {
 				request = availableRequest;
-				request.setStatus(Request.Serving);
+				request.setStatus(Request.SERVING);
 				
 				serveRequest(request);
 				
@@ -250,19 +250,19 @@ public class RequestQueue {
 	 * @return true if the request can be peeked
 	 */
 	private boolean canPeek(Request request) {
-		if (request.getStatus() != Request.Pending){
+		if (request.getStatus() != Request.PENDING){
 			return false;
 		}
 		
 		//If any mutex request is currently running, dont serve this request
-		if (servingMutex != null && servingMutex.getStatus() == Request.Serving){
+		if (servingMutex != null && servingMutex.getStatus() == Request.SERVING){
 			return false;
 		}
 		
 		
 		if (request.isMutex() || request.isSequential()) {
 			//Dont serve mutex or seq requests if there is any sequential request running
-			if (servingSequential != null && servingSequential.getStatus() == Request.Serving){
+			if (servingSequential != null && servingSequential.getStatus() == Request.SERVING){
 				return false;
 			}
 			
@@ -270,7 +270,7 @@ public class RequestQueue {
 				//Dont serve mutex request if any concurrent request is running
 				for (int i = 0; i < servingConcurrent.size(); i++) {
 					Request currentRequest = servingConcurrent.get(i);
-					if (currentRequest.getStatus() == Request.Serving && currentRequest.isMutex()){
+					if (currentRequest.getStatus() == Request.SERVING && currentRequest.isMutex()){
 						return false;
 					}
 				}

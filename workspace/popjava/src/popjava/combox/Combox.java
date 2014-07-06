@@ -30,7 +30,7 @@ public abstract class Combox {
 		accessPoint = accesspoint;
 		timeOut = timeout;
 		bufferFactory = BufferFactoryFinder.getInstance().findFactory(
-				Configuration.DefaultEncoding);
+				Configuration.DEFAULT_ENCODING);
 	}
 
 	/**

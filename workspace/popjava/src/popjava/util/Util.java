@@ -16,7 +16,7 @@ import popjava.system.POPSystem;
  * This class gives some static utility methods
  */
 
-public class Util {
+public final class Util {
 
 	/**
 	 * Default empty constructor
@@ -31,13 +31,14 @@ public class Util {
 	 * @return	true if the contact strings are the same
 	 */
 	public static boolean sameContact(String source, String dest) {
+	    if (source == null || source.isEmpty() || dest == null || dest.isEmpty()){
+            return false;
+        }
+	    
 		if (source.compareTo(dest) == 0){
 			return true;
 		}
-		if (source == null || source.isEmpty() || dest == null
-				|| dest.isEmpty()){
-			return false;
-		}
+		
 		String[] allDestHost = dest.split("[ \t\r\n]");
 		for (String str : allDestHost) {
 			if (source.indexOf(str) >= 0){

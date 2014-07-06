@@ -37,18 +37,19 @@ import javassist.util.proxy.ProxyObject;
  * is responsible to receive the requests from the interface-side and to execute
  * them on the real object
  */
-public class Broker {
-	static public final int Running = 0;
-	static public final int Exit = 1;
-	static public final int Abort = 2;
+public final class Broker {
+	static public final int RUNNING = 0;
+	static public final int EXIT = 1;
+	static public final int ABORT = 2;
+	
 	static public final int REQUEST_QUEUE_TIMEOUT_MS = 600;
-	static public final int BasicCallMaxRange = 10;
-	static public final int ConstructorSemanticId = 21;
-	static public final String CallBackPrefix = "-callback=";
-	static public final String CodeLocationPrefix = "-codelocation=";
-	static public final String ObjectNamePrefix = "-object=";
-	static public final String ActualObjectNamePrefix = "-actualobject=";
-	static public final String AppServicePrefix = "-appservice=";
+	static public final int BASIC_CALL_MAX_RANGE = 10;
+	static public final int CONSTRUCTOR_SEMANTIC_ID = 21;
+	static public final String CALLBACK_PREFIX = "-callback=";
+	static public final String CODELOCATION_PREFIX = "-codelocation=";
+	static public final String OBJECT_NAME_PREFIX = "-object=";
+	static public final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
+	static public final String APPSERVICE_PREFIX = "-appservice=";
 
 	protected int state;
 	protected ComboxServer comboxServer;
@@ -263,8 +264,6 @@ public class Broker {
 		}
 		return parameters;
 	}
-
-	private Map<Method, Annotation[][]> annotationCache = new ConcurrentHashMap<Method, Annotation[][]>();
 	
 	/**
 	 * This method is responsible to call the correct method on the associated
@@ -439,7 +438,7 @@ public class Broker {
 		} else {
 			invokeMethod(request);
 		}
-		request.setStatus(Request.Served);
+		request.setStatus(Request.SERVED);
 		clearResourceAfterInvoke(request);
 
 		return true;
@@ -465,7 +464,7 @@ public class Broker {
 	 */
 	public void serveRequest(final Request request) throws InterruptedException {
 		request.setBroker(this);
-		request.setStatus(Request.Serving);
+		request.setStatus(Request.SERVING);
 		// Do not create new thread if method is mutex
 		if (request.isMutex()) {
 			invoke(request);
@@ -498,14 +497,14 @@ public class Broker {
 	 * @return true if the request has been treated correctly
 	 */
 	public boolean popCall(Request request) {
-		if (request.getMethodId() >= BasicCallMaxRange){
+		if (request.getMethodId() >= BASIC_CALL_MAX_RANGE){
 			return false;
 		}
 		POPBuffer buffer = request.getBuffer();
 		POPBuffer responseBuffer = request.getCombox().getBufferFactory()
 				.createBuffer();
 		switch (request.getMethodId()) {
-		case MessageHeader.BindStatusCall:
+		case MessageHeader.BIND_STATUS_CALL:
 			// BindStatus call
 			if ((request.getSenmatics() & Semantic.Synchronous) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
@@ -518,7 +517,7 @@ public class Broker {
 				sendResponse(request.getCombox(), responseBuffer);
 			}
 			break;
-		case MessageHeader.AddRefCall: {
+		case MessageHeader.ADD_REF_CALL: {
 			// AddRef call...
 			if (popInfo == null) {
 				return false;
@@ -533,7 +532,7 @@ public class Broker {
 			}
 		}
 			break;
-		case MessageHeader.DecRefCall: {
+		case MessageHeader.DEC_REF_CALL: {
 			// DecRef call....
 			if (popInfo == null) {
 				return false;
@@ -548,7 +547,7 @@ public class Broker {
 			}
 		}
 			break;
-		case MessageHeader.GetEncodingCall: {
+		case MessageHeader.GET_ENCODING_CALL: {
 			// GetEncoding call...
 			String encoding = buffer.getString();
 			boolean foundEncoding = findEndcoding(encoding);
@@ -565,14 +564,14 @@ public class Broker {
 			}
 		}
 			break;
-		case MessageHeader.KillCall: {
+		case MessageHeader.KILL_ALL: {
 			// Kill call...
 			if (popInfo != null && popInfo.canKill()) {
 				System.exit(1);
 			}
 		}
 			break;
-		case MessageHeader.ObjectAliveCall: {
+		case MessageHeader.OBJECT_ALIVE_CALL: {
 			// ObjectAlive call
 			if (popInfo == null)
 				return false;
@@ -595,7 +594,7 @@ public class Broker {
 	 * Kill the broker and its associated object
 	 */
 	public synchronized void kill() {
-		setState(Broker.Exit);
+		setState(Broker.EXIT);
 	}
 
 	/**
@@ -612,8 +611,8 @@ public class Broker {
 	 * @throws InterruptedException 
 	 */
 	public void treatRequests() throws InterruptedException { 
-		setState(Broker.Running);
-		while (getState() == Broker.Running) {
+		setState(Broker.RUNNING);
+		while (getState() == Broker.RUNNING) {
 			Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
 					TimeUnit.MILLISECONDS);
 			
@@ -642,7 +641,7 @@ public class Broker {
 		connectionCount--;
 		LogWriter.writeDebugInfo("Close connection, left "+connectionCount);
 		if (connectionCount <= 0){
-			setState(Broker.Exit);
+			setState(Broker.EXIT);
 		}
 	}
 
@@ -666,7 +665,7 @@ public class Broker {
 	 */
 	public synchronized int getState() {
 		if (isDaemon()){
-			return Broker.Running;
+			return Broker.RUNNING;
 		}
 		return state;
 	}
@@ -778,20 +777,20 @@ public class Broker {
 		LogWriter.writeDebugInfo("Broker parameters end");
 		
 		String appservice = Util.removeStringFromList(argvList,
-				AppServicePrefix);
+				APPSERVICE_PREFIX);
 		String codelocation = Util.removeStringFromList(argvList,
-				CodeLocationPrefix);
+				CODELOCATION_PREFIX);
 		String objectName = Util.removeStringFromList(argvList,
-				ObjectNamePrefix);
+				OBJECT_NAME_PREFIX);
 		String actualObjectName = Util.removeStringFromList(argvList,
-				ActualObjectNamePrefix);
+				ACTUAL_OBJECT_NAME_PREFIX);
 		if (actualObjectName != null && actualObjectName.length() > 0) {
 			objectName = actualObjectName;
 		}
 		String callbackString = Util.removeStringFromList(argvList,
-				CallBackPrefix);
+				CALLBACK_PREFIX);
 		if (appservice != null && appservice.length() > 0) {
-			POPSystem.AppServiceAccessPoint.setAccessString(appservice);
+			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}
 		ComboxSocket callback = null;
 		if (callbackString != null && callbackString.length() > 0) {

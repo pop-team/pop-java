@@ -9,9 +9,11 @@ import popjava.combox.*;
  */
 public class Request {
 
-	public static final int Pending = 0;
-	public static final int Serving = 1;
-	public static final int Served = 2;
+    //TODO: use an enum
+	public static final int PENDING = 0;
+	public static final int SERVING = 1;
+	public static final int SERVED = 2;
+	
 	protected int classId;
 	protected int methodId;
 	protected int semantics;
@@ -25,7 +27,7 @@ public class Request {
 	 * Creating a new pending request
 	 */
 	public Request() {
-		status = Pending;
+		status = PENDING;
 	}
 
 	/**
@@ -42,7 +44,7 @@ public class Request {
 		this.methodId = methodId;
 		this.semantics = semantics;
 		this.broker = broker;
-		status = Pending;
+		status = PENDING;
 		this.combox = combox;
 	}
 
@@ -60,7 +62,7 @@ public class Request {
 		this.methodId = methodId;
 		this.semantics = semantics;
 		this.broker = broker;
-		status = Pending;
+		status = PENDING;
 		this.combox = combox;
 	}
 

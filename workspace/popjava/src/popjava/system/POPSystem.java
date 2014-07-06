@@ -43,13 +43,13 @@ import popjava.util.Util.OSType;
  */
 public class POPSystem {
 	private static POPRemoteLogThread prlt;
-	private static String Platform = "linux";
+	private static String platform = "linux";
 	private static boolean initialized = false;
 	
 	/**
 	 * POP-Java location environement variable name
 	 */
-	public static final String PopLocationEnviromentName = "POP_LOCATION";
+	public static final String POP_LOCATION_ENVIRONMENT_NAME = "POP_LOCATION";
 //	public static final String PopPluginLocationEnviromentName = "POP_PLUGIN_LOCATION";
 //	public static final String PopAppCoreServiceEnviromentName = "POP_APP_CORE_SERVICE_CONFIG";
 //	public static final String DefaultPopLocation = "/home/clementval/popj";
@@ -60,16 +60,16 @@ public class POPSystem {
 	/**
 	 * POP-Java Job service access point
 	 */
-	public static POPAccessPoint JobService = new POPAccessPoint();
+	public static POPAccessPoint jobService = new POPAccessPoint();
 	private static AppService coreServiceManager;
 	
 	/**
 	 * POP-Java application service access point 
 	 */
-	public static POPAccessPoint AppServiceAccessPoint = new POPAccessPoint();
+	public static POPAccessPoint appServiceAccessPoint = new POPAccessPoint();
 	
 	public static void writeLog(String log){
-		if(!Configuration.Debug){
+		if(!Configuration.DEBUG){
 			System.out.println(log);
 		}
 		LogWriter.writeDebugInfo(log);
@@ -97,7 +97,7 @@ public class POPSystem {
 		String osName = System.getProperty("os.name");
 		// String osArchitect = System.getProperty("os.arch");
 		String osArchitect = "i686";
-		Platform = String.format("%s-pc-%s", osArchitect, osName);
+		platform = String.format("%s-pc-%s", osArchitect, osName);
 //		String popLocation = POPSystem.getPopLocation();
 //		POPJavaObjectExecuteCommand = String.format(
 //				"/usr/bin/java -cp %s popjava.broker.Broker -codelocation=",
@@ -178,7 +178,7 @@ public class POPSystem {
 	public static POPAccessPoint getDefaultAccessPoint() {
 		POPAccessPoint parrocAccessPoint = new POPAccessPoint();
 		parrocAccessPoint.setAccessString(String.format("%s://127.0.0.1:0",
-				ComboxSocketFactory.Protocol));
+				ComboxSocketFactory.PROTOCOL));
 		return parrocAccessPoint;
 	}
 
@@ -210,7 +210,7 @@ public class POPSystem {
 	 * @return platform as a string value
 	 */
 	public static String getPlatform() {
-		return Platform;
+		return platform;
 	}
 
 	private static String getNeededClasspath(){
@@ -258,7 +258,7 @@ public class POPSystem {
 	 * @throws POPException	thrown is any problems occurred during the initialization
 	 */
 	public static boolean initialize(List<String> argvList){
-		String POPJavaObjectExecuteCommand = String.format(
+		String popJavaObjectExecuteCommand = String.format(
 				POPJavaConfiguration.getBrokerCommand(),
 				getNeededClasspath());
 		
@@ -267,7 +267,7 @@ public class POPSystem {
 		if (jobservice == null || jobservice.length() == 0) {
 			jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
 		}
-		JobService.setAccessString(jobservice);
+		jobService.setAccessString(jobservice);
 		String appservicecode = Util.removeStringFromList(argvList,
 				"-appservicecode=");
 		
@@ -285,7 +285,7 @@ public class POPSystem {
 		coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
 		
 		if(coreServiceManager != null){
-			AppServiceAccessPoint = coreServiceManager.getAccessPoint();
+			appServiceAccessPoint = coreServiceManager.getAccessPoint();
 			
 			prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
 			prlt.start();
@@ -301,7 +301,7 @@ public class POPSystem {
 					File.separator);
 		}
 		
-		initialized = initCodeService(codeconf, POPJavaObjectExecuteCommand, coreServiceManager);
+		initialized = initCodeService(codeconf, popJavaObjectExecuteCommand, coreServiceManager);
 		return initialized;
 	}
 	
@@ -352,7 +352,7 @@ public class POPSystem {
 	 * @throws POPException 
 	 */
 	public static boolean initCodeService(String fileconf,
-			String POPJavaObjectExecuteCommand,
+			String popJavaObjectExecuteCommand,
 			AppService appCoreService) throws POPException {
 		fileconf = fileconf.trim();
 		XMLWorker xw = new XMLWorker();
@@ -403,7 +403,7 @@ public class POPSystem {
 								if (codeFileType != null
 										&& codeFileType
 												.equalsIgnoreCase("popjava")) {
-									codefile = POPJavaObjectExecuteCommand  + codefile;
+									codefile = popJavaObjectExecuteCommand  + codefile;
 								}
 							} else if (childNode.getNodeName().equals(
 									"PlatForm")) {

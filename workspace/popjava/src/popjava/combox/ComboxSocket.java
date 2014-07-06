@@ -15,7 +15,7 @@ import java.io.*;
 public class ComboxSocket extends Combox {
 	protected Socket peerConnection = null;
 	protected byte[] receivedBuffer;
-	public static int BufferLength = 1024 * 1024 * 8;
+	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
 	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024; //8MB
@@ -27,7 +27,7 @@ public class ComboxSocket extends Combox {
 	 */
 	public ComboxSocket(Socket socket) throws IOException {
 		peerConnection = socket;
-		receivedBuffer = new byte[BufferLength];
+		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
 		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
 	}
@@ -35,7 +35,7 @@ public class ComboxSocket extends Combox {
 	
 	public ComboxSocket(POPAccessPoint accesspoint, int timeout) {
 		super(accesspoint, timeout);
-		receivedBuffer = new byte[BufferLength];
+		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class ComboxSocket extends Combox {
 		for (int i = 0; i < accessPointSize && !available; i++) {
 			AccessPoint ap = accessPoint.get(i);
 			if (ap.getProtocol().compareToIgnoreCase(
-					ComboxSocketFactory.Protocol) != 0){
+					ComboxSocketFactory.PROTOCOL) != 0){
 				continue;
 			}
 			String host = ap.getHost();
@@ -132,7 +132,7 @@ public class ComboxSocket extends Combox {
 				
 				int receivedLength = 0;
 				while (messageLength > 0) {
-					int count = messageLength < BufferLength ? messageLength : BufferLength;
+					int count = messageLength < BUFFER_LENGTH ? messageLength : BUFFER_LENGTH;
 					receivedLength = inputStream.read(receivedBuffer, 0, count);
 					if (receivedLength > 0) {
 						messageLength -= receivedLength;
@@ -144,9 +144,9 @@ public class ComboxSocket extends Combox {
 				}
 			}
 
-			int headerLength = MessageHeader.HeaderLength;
+			int headerLength = MessageHeader.HEADER_LENGTH;
 			if (result < headerLength) {
-				if (Configuration.DebugCombox) {
+				if (Configuration.DEBUG_COMBOBOX) {
 					String logInfo = String.format(
 							"%s.failed to receive header. receivedLength= %d < %d Message length %d",
 							this.getClass().getName(), result, headerLength);
@@ -159,7 +159,7 @@ public class ComboxSocket extends Combox {
 			
 			return result;
 		} catch (Exception e) {
-			if (Configuration.DebugCombox){
+			if (Configuration.DEBUG_COMBOBOX){
 				LogWriter.writeDebugInfo("ComboxSocket Error while receiving data:"
 								+ e.getMessage());
 			}
@@ -183,12 +183,10 @@ public class ComboxSocket extends Combox {
 			
 			return length;
 		} catch (IOException e) {
-			if (Configuration.DebugCombox){
+			if (Configuration.DEBUG_COMBOBOX){
 				e.printStackTrace();
 				LogWriter.writeDebugInfo(this.getClass().getName()
 						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
-				
-				LogWriter.writeExceptionLog(new Exception());
 			}
 			return -1;
 		}

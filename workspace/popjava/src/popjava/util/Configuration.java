@@ -8,14 +8,14 @@ public class Configuration {
 	/**
 	 * Creates a new instance of POPConfiguration
 	 */
-	public static final boolean Debug = true;
-	public static final boolean DebugCombox = false;
+	public static final boolean DEBUG = true;
+	public static final boolean DEBUG_COMBOBOX = false;
 	public static final int RESERVE_TIMEOUT = 60000;
 	public static final int ALLOC_TIMEOUT = 30000;
 	public static final int CONNECTION_TIMEOUT = 30000;
-	public static final String DefaultEncoding = "xdr";
-	public static final String SelectedEncoding = "raw";
-	public static final String DefaultProtocol = "socket";
+	public static final String DEFAULT_ENCODING = "xdr";
+	public static final String SELECTED_ENCODING = "raw";
+	public static final String DEFAULT_PROTOCOL = "socket";
 
 	public static final boolean ACTIVATE_JMX = false;
 	public static boolean CONNECT_TO_POPCPP = false;

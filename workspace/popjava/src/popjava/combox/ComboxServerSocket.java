@@ -13,7 +13,7 @@ import java.io.*;
  * This class is an implementation of the combox with the protocol socket for the server side.
  */
 public class ComboxServerSocket extends ComboxServer {
-	public static int BufferLength = 1024;
+	public static final int BUFFER_LENGTH = 1024;
 	protected ServerSocket serverSocket = null;
 	private ComboxAcceptSocket serverCombox = null;
 
@@ -34,8 +34,8 @@ public class ComboxServerSocket extends ComboxServer {
 	 * Get the URL of the combox
 	 * @return	URL as a string value
 	 */
-	public String GetUrl() {
-		return String.format("%s://%s:%d", ComboxSocketFactory.Protocol,
+	public String getUrl() {
+		return String.format("%s://%s:%d", ComboxSocketFactory.PROTOCOL,
 				POPSystem.getHostIP(), serverSocket.getLocalPort());
 	}
 
@@ -49,10 +49,10 @@ public class ComboxServerSocket extends ComboxServer {
 			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));			
 			serverCombox = new ComboxAcceptSocket(broker, requestQueue,
 					serverSocket);
-			serverCombox.setStatus(Running);
+			serverCombox.setStatus(RUNNING);
 			Thread thread = new Thread(serverCombox, "Server combox acception thread");
 			thread.start();
-			accessPoint.setProtocol(ComboxSocketFactory.Protocol);
+			accessPoint.setProtocol(ComboxSocketFactory.PROTOCOL);
 			accessPoint.setHost(POPSystem.getHostIP());
 			accessPoint.setPort(serverSocket.getLocalPort());
 		} catch (IOException e) {

@@ -171,7 +171,7 @@ public class Interface {
 			if (platforms.length() <= 0) {
 				AppService appCoreService = null;
 				appCoreService = (AppService) PopJava.newActive(
-						POPAppService.class, POPSystem.AppServiceAccessPoint);
+						POPAppService.class, POPSystem.appServiceAccessPoint);
 				POPString popStringPlatorm = new POPString();
 				appCoreService.getPlatform(objectName, popStringPlatorm);
 				platforms = popStringPlatorm.getValue();
@@ -189,7 +189,7 @@ public class Interface {
 			if (jobUrl.length() > 0) {
 				jobContact.setAccessString(jobUrl);
 			} else {
-				jobContact = POPSystem.JobService;
+				jobContact = POPSystem.jobService;
 			}
 
 			if (jobContact.isEmpty()) {
@@ -212,7 +212,7 @@ public class Interface {
 			
 			ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
 			
-			int createdCode = jobManager.createObject(POPSystem.AppServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
+			int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
 					allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
 			jobManager.exit();
 			if (createdCode != 0) {
@@ -257,7 +257,7 @@ public class Interface {
 		if (combox != null){
 			combox.close();
 		}
-		combox = finder.findFactory(Configuration.DefaultProtocol)
+		combox = finder.findFactory(Configuration.DEFAULT_PROTOCOL)
 				.createClientCombox(accesspoint);
 		
 		if (combox.connect(accesspoint, Configuration.CONNECTION_TIMEOUT)) {
@@ -265,13 +265,13 @@ public class Interface {
 			BindStatus bindStatus = new BindStatus();
 			bindStatus(bindStatus);
 			switch (bindStatus.getCode()) {
-			case BindStatus.BindOK:
+			case BindStatus.BIND_OK:
 				this.getOD().setPlatform(bindStatus.getPlatform());
-				negotiateEncoding(Configuration.SelectedEncoding, bindStatus
+				negotiateEncoding(Configuration.SELECTED_ENCODING, bindStatus
 						.getPlatform());
 				return true;
-			case BindStatus.BindForwardSession:
-			case BindStatus.BindForwardPermanent:
+			case BindStatus.BIND_FORWARD_SESSION:
+			case BindStatus.BIND_FORWARD_PERMANENT:
 				break;
 			default:
 				break;
@@ -295,7 +295,7 @@ public class Interface {
 
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.BindStatusCall, Semantic.Synchronous);
+				MessageHeader.BIND_STATUS_CALL, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 		this.popDispatch(popBuffer);
 		int errorcode = 0;
@@ -324,9 +324,9 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.GetEncodingCall, Semantic.Synchronous);
+				MessageHeader.GET_ENCODING_CALL, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
-		popBuffer.putString(Configuration.SelectedEncoding);
+		popBuffer.putString(Configuration.SELECTED_ENCODING);
 
 		popDispatch(popBuffer);
 
@@ -336,7 +336,7 @@ public class Interface {
 		result = responseBuffer.getBoolean();
 		if (result) {
 			BufferFactory bufferFactory = BufferFactoryFinder.getInstance()
-					.findFactory(Configuration.SelectedEncoding);
+					.findFactory(Configuration.SELECTED_ENCODING);
 			combox.setBufferFactory(bufferFactory);
 			
 			//TODO: Check out why this was done
@@ -349,7 +349,7 @@ public class Interface {
 			return -1;
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
-		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.AddRefCall, Semantic.Synchronous);
+		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.ADD_REF_CALL, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -370,7 +370,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.DecRefCall, Semantic.Synchronous);
+				MessageHeader.DEC_REF_CALL, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -395,7 +395,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.ObjectAliveCall, Semantic.Synchronous);
+				MessageHeader.OBJECT_ALIVE_CALL, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -419,7 +419,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.KillCall, Semantic.Synchronous);
+				MessageHeader.KILL_ALL, Semantic.Synchronous);
 		popBuffer.setHeader(messageHeader);
 
 		this.popDispatch(popBuffer);
@@ -480,7 +480,7 @@ public class Interface {
 		}
 
 		int status = localExec(joburl, codeFile, objectName, rport,
-				POPSystem.JobService, POPSystem.AppServiceAccessPoint, accesspoint);
+				POPSystem.jobService, POPSystem.appServiceAccessPoint, accesspoint);
 		
 		if (status != 0) {
 			// Throw exception
@@ -502,11 +502,11 @@ public class Interface {
 		
 		AppService appCoreService = null;
 		
-		if(!POPSystem.AppServiceAccessPoint.isEmpty()){
+		if(!POPSystem.appServiceAccessPoint.isEmpty()){
 			if(Configuration.CONNECT_TO_POPCPP){
 				try{
 					appCoreService = (AppService) PopJava.newActive(
-							POPAppService.class, POPSystem.AppServiceAccessPoint);
+							POPAppService.class, POPSystem.appServiceAccessPoint);
 					appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
 				}catch(Exception e){
 					appCoreService = null;
@@ -516,7 +516,7 @@ public class Interface {
 			if(appCoreService == null){
 				try{
 					appCoreService = (AppService) PopJava.newActive(
-							POPJavaAppService.class, POPSystem.AppServiceAccessPoint);
+							POPJavaAppService.class, POPSystem.appServiceAccessPoint);
 				}catch(POPException e2){
 					LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
 					//e2.printStackTrace();
@@ -606,15 +606,15 @@ public class Interface {
 		}
 		
 		ComboxAllocateSocket allocateCombox = new ComboxAllocateSocket();
-		String callbackString = String.format(Broker.CallBackPrefix+"%s", allocateCombox
+		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox
 				.getUrl());
 		argvList.add(callbackString);
 		if (classname != null && classname.length() > 0) {
-			String objectString = String.format(Broker.ObjectNamePrefix+"%s", classname);
+			String objectString = String.format(Broker.OBJECT_NAME_PREFIX+"%s", classname);
 			argvList.add(objectString);
 		}
 		if (appserv != null && !appserv.isEmpty()) {
-			String appString = String.format(Broker.AppServicePrefix+"%s", appserv.toString());
+			String appString = String.format(Broker.APPSERVICE_PREFIX+"%s", appserv.toString());
 			argvList.add(appString);
 		}
 		if (jobserv != null && !jobserv.isEmpty()) {
@@ -706,7 +706,7 @@ public class Interface {
 		if (combox.receive(buffer) > 0) {
 			
 			MessageHeader messageHeader = buffer.getHeader();
-			if (messageHeader.getRequestType() == MessageHeader.Exception) {
+			if (messageHeader.getRequestType() == MessageHeader.EXCEPTION) {
 				int errorCode = messageHeader.getExceptionCode();
 				POPBuffer.checkAndThrow(errorCode, buffer);
 			}

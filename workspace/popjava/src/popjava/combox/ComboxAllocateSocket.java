@@ -49,7 +49,7 @@ public class ComboxAllocateSocket {
 	 * @return	The URL as a string value
 	 */
 	public String getUrl() {
-		return String.format("%s://%s:%d", ComboxSocketFactory.Protocol,
+		return String.format("%s://%s:%d", ComboxSocketFactory.PROTOCOL,
 				POPSystem.getHostIP(), serverSocket.getLocalPort());
 	}
 

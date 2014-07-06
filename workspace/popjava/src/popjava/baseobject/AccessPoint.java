@@ -8,11 +8,13 @@ import popjava.system.POPSystem;
  * This class represent an access to a broker-side parallel object
  */
 public class AccessPoint {
-	public static final String SocketProtocol = "socket";
-	public static final String WSProtocol = "webservice";
-	public static final String HTTPProtocol = "http";
-	public static final int DefaultPort = 12008;
-	public static final String DefaultHost = "localhost";
+    
+	public static final String SOCKET_PROTOCOL = "socket";
+	public static final String WEBSERVICE_PROTOCOL = "webservice";
+	public static final String HTTP_PROTOCOL = "http";
+	public static final int DEFAULT_PORT = 12008;
+	public static final String DEFAULT_HOST = "localhost";
+	
 	protected String protocol;
 	protected int port;
 	protected String host;
@@ -21,8 +23,8 @@ public class AccessPoint {
 	 * Create a new AccessPoint
 	 */
 	public AccessPoint() {
-		host = DefaultHost;
-		port = DefaultPort;
+		host = DEFAULT_HOST;
+		port = DEFAULT_PORT;
 	}
 
 	/**
@@ -75,13 +77,13 @@ public class AccessPoint {
 			host = datas[1].trim();
 			port = Integer.parseInt(datas[2]);
 		} else if (n == 2) {
-			protocol = SocketProtocol;
+			protocol = SOCKET_PROTOCOL;
 			host = datas[0].trim();
 			port = Integer.parseInt(datas[1]);
 		} else {
-			protocol = SocketProtocol;
-			host = DefaultHost;
-			port = DefaultPort;
+			protocol = SOCKET_PROTOCOL;
+			host = DEFAULT_HOST;
+			port = DEFAULT_PORT;
 		}
 		if (protocol.length() > 0 && host.length() > 0)
 			return new AccessPoint(protocol, host, port);

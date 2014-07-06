@@ -13,19 +13,19 @@ public class ObjectDescription implements IPOPBase {
 
 	protected boolean isLocalJob;
 	protected boolean isManual;
-	protected int max_depth;
-	protected int wait_time;
-	protected int max_size;
+	protected int maxDepth;
+	protected int waitTime;
+	protected int maxSize;
 	protected boolean searchSet;
 	protected String hostarch;
 	protected String hostcore;
 	protected String hostuser;
-	protected float power_min;
-	protected float power_req;
-	protected float bandwidth_min;
-	protected float bandwidth_req;
-	protected float memory_min;
-	protected float memory_req;
+	protected float powerMin;
+	protected float powerReq;
+	protected float bandwidthMin;
+	protected float bandwidthReq;
+	protected float memoryMin;
+	protected float memoryReq;
 //	protected ODElement power;
 //	protected ODElement od_memory;
 //	protected ODElement od_bandwidth;
@@ -61,16 +61,16 @@ public class ObjectDescription implements IPOPBase {
 		codeFile = "";
 		cwd ="";
 		batch = "";
-		wait_time=-1;
+		waitTime=-1;
 		hostarch = "";
 		hostcore = "";
 		hostuser = "";
-		power_min = -1;
-		power_req = -1;
-		bandwidth_min = -1;
-		bandwidth_req = -1;
-		memory_min = -1;
-		memory_req = -1;
+		powerMin = -1;
+		powerReq = -1;
+		bandwidthMin = -1;
+		bandwidthReq = -1;
+		memoryMin = -1;
+		memoryReq = -1;
 
 	}
 	
@@ -96,8 +96,8 @@ public class ObjectDescription implements IPOPBase {
 	 * @param min		The minimum power
 	 */
 	public void setPower(float required, float min) {
-		this.power_min = min;
-		this.power_req = required;
+		this.powerMin = min;
+		this.powerReq = required;
 //		ODElement tmp = new ODElement(required, min);
 //		power = tmp;
 //		this.power.requiredValue = required;
@@ -118,8 +118,8 @@ public class ObjectDescription implements IPOPBase {
 	 * @param min		The minimum memory
 	 */
 	public void setMemory(float required, float min) {
-		this.memory_min = min;
-		this.memory_req = required;
+		this.memoryMin = min;
+		this.memoryReq = required;
 //		ODElement tmp = new ODElement(required, min); 
 //		
 //		od_memory = tmp;
@@ -141,8 +141,8 @@ public class ObjectDescription implements IPOPBase {
 	 * @param min		The minimum bandwidth
 	 */
 	public void setBandwidth(float required, float min) {
-		this.bandwidth_min = min;
-		this.bandwidth_req = required;
+		this.bandwidthMin = min;
+		this.bandwidthReq = required;
 //		this.od_bandwidth.setMinValue(min);
 //		this.od_bandwidth.setRequiredValue(required);
 	}
@@ -171,9 +171,9 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	public void setSearch(int maxdepth, int maxsize, int waittime){
 		searchSet = true;
-		max_depth = maxdepth;
-		max_size = maxsize;
-		wait_time = waittime;
+		maxDepth = maxdepth;
+		maxSize = maxsize;
+		waitTime = waittime;
 	}
 	
 	/**
@@ -181,7 +181,7 @@ public class ObjectDescription implements IPOPBase {
 	 * @return maximum depth value set in the OD
 	 */
 	public int getSearchMaxDepth(){
-		return max_depth;
+		return maxDepth;
 	}
 	
 	/**
@@ -189,7 +189,7 @@ public class ObjectDescription implements IPOPBase {
 	 * @return maximum size value set in the OD
 	 */
 	public int getSearchMaxSize(){
-		return max_size;
+		return maxSize;
 	}
 	
 	/**
@@ -197,7 +197,7 @@ public class ObjectDescription implements IPOPBase {
 	 * @return waiting time value set in the OD
 	 */
 	public int getSearchWaitTime(){
-		return wait_time;
+		return waitTime;
 	}
 	
 	/**
@@ -370,27 +370,27 @@ public class ObjectDescription implements IPOPBase {
 //	}
 	
 	public float getPowerMin(){
-		return power_min;
+		return powerMin;
 	}
 	
 	public float getPowerReq(){
-		return power_req;
+		return powerReq;
 	}
 	
 	public float getMemoryMin(){
-		return memory_min;
+		return memoryMin;
 	}
 	
 	public float getMemoryReq(){
-		return memory_req;
+		return memoryReq;
 	}
 	
 	public float getBandwidthMin(){
-		return bandwidth_min;
+		return bandwidthMin;
 	}
 	
 	public float getBandwidthReq(){
-		return bandwidth_req;
+		return bandwidthReq;
 	}
 
 	/**
@@ -515,7 +515,7 @@ public class ObjectDescription implements IPOPBase {
 	 * @return true if empty
 	 */
 	public boolean isEmpty() {
-		if (power_min <=0 && power_req <=0 && bandwidth_min <=0 && bandwidth_req <=0 && memory_min <= 0 && memory_req <=0
+		if (powerMin <=0 && powerReq <=0 && bandwidthMin <=0 && bandwidthReq <=0 && memoryMin <= 0 && memoryReq <=0
 				&& wallTime <= 0 && encoding.length() == 0
 				&& protocol.length() == 0 && platform.length() == 0
 				&& hostName.length() == 0 && jobUrl.length() == 0
@@ -541,12 +541,12 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
-		float tmp_power_min = buffer.getFloat();
-		float tmp_power_req = buffer.getFloat();
-		float tmp_memory_min = buffer.getFloat();
-		float tmp_memory_req = buffer.getFloat();
-		float tmp_bandwidth_min = buffer.getFloat();
-		float tmp_bandwidth_req = buffer.getFloat();
+		float tmpPowerMin = buffer.getFloat();
+		float tmpPowerReq = buffer.getFloat();
+		float tmpMemoryMin = buffer.getFloat();
+		float tmpMemoryReq = buffer.getFloat();
+		float tmpBandwidthMin = buffer.getFloat();
+		float tmpBandwidthReq = buffer.getFloat();
 //		ODElement power = ODElement.deserialize(buffer);
 //		ODElement memory = ODElement.deserialize(buffer);
 //		ODElement bandwidth = ODElement.deserialize(buffer);
@@ -566,9 +566,9 @@ public class ObjectDescription implements IPOPBase {
 		String platform = buffer.getString();
 		String protocol = buffer.getString();
 		String encoding = buffer.getString();
-		this.setPower(tmp_power_req, tmp_power_min);
-		this.setMemory(tmp_memory_req, tmp_memory_min);
-		this.setBandwidth(tmp_bandwidth_req, tmp_bandwidth_min);
+		this.setPower(tmpPowerReq, tmpPowerMin);
+		this.setMemory(tmpMemoryReq, tmpMemoryMin);
+		this.setBandwidth(tmpBandwidthReq, tmpBandwidthMin);
 		this.setWallTime(walltime);
 		this.manual(isManual);
 		this.setDirectory(cwd);
@@ -600,21 +600,21 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	@Override
 	public boolean serialize(POPBuffer buffer) {
-		buffer.putFloat(power_req);
-		buffer.putFloat(power_min);
-		buffer.putFloat(memory_req);
-		buffer.putFloat(memory_min);
-		buffer.putFloat(bandwidth_req);
-		buffer.putFloat(bandwidth_min);
+		buffer.putFloat(powerReq);
+		buffer.putFloat(powerMin);
+		buffer.putFloat(memoryReq);
+		buffer.putFloat(memoryMin);
+		buffer.putFloat(bandwidthReq);
+		buffer.putFloat(bandwidthMin);
 //		power.serialize(buffer);
 //		od_memory.serialize(buffer);
 //		od_bandwidth.serialize(buffer);
 		buffer.putFloat(wallTime);
 		buffer.putBoolean(isManual);
 		buffer.putString(cwd);
-		buffer.putInt(max_depth);
-		buffer.putInt(max_size);
-		buffer.putInt(wait_time);
+		buffer.putInt(maxDepth);
+		buffer.putInt(maxSize);
+		buffer.putInt(waitTime);
 		buffer.putString(hostName);
 		buffer.putString(hostuser);
 		buffer.putString(hostcore);
@@ -668,11 +668,11 @@ public class ObjectDescription implements IPOPBase {
 		if (od.getCodeFile().length() > 0)
 			codeFile = od.getCodeFile();
 		if(od.getSearchMaxDepth() > 0)
-			max_depth = od.getSearchMaxDepth();
+			maxDepth = od.getSearchMaxDepth();
 		if(od.getSearchMaxSize() > 0)
-			max_size = od.getSearchMaxSize();
+			maxSize = od.getSearchMaxSize();
 		if(od.getSearchWaitTime() >  0)
-			wait_time = od.getSearchWaitTime();
+			waitTime = od.getSearchWaitTime();
 	}
 
 	/**

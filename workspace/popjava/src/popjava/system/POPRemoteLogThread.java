@@ -12,7 +12,7 @@ public class POPRemoteLogThread extends Thread {
 	private String appID;
 	private String filename;
 	private boolean running = true;
-	private int POOLING_SLEEP = 750; //TODO: migreate to Java7 Watchservice
+	private static final int POLLING_SLEEP = 750; //TODO: migreate to Java7 Watchservice
 
 	/**
 	 * POPRemoteLogThread constructor
@@ -83,7 +83,7 @@ public class POPRemoteLogThread extends Thread {
 					}
 					filePointer = log.getFilePointer();
 				}
-				sleep(POOLING_SLEEP);
+				sleep(POLLING_SLEEP);
 			}
 			logFile.delete();
 		} catch (Exception e) {

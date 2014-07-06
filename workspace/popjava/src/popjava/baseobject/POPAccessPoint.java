@@ -14,9 +14,9 @@ import java.util.*;
 
 public class POPAccessPoint implements IPOPBase {
 	
-	private boolean _isService;
-	private boolean _noaddref = false;
-	private int _security;	
+	private boolean isService;
+	private boolean noaddref = false;
+	private int security;	
 
 	/**
 	 * The list of the different access points
@@ -39,7 +39,7 @@ public class POPAccessPoint implements IPOPBase {
 			String localAddress = POPSystem.getHostIP();
 
 			String accessString = String.format("%s://%s:0",
-					ComboxSocketFactory.Protocol, localAddress);
+					ComboxSocketFactory.PROTOCOL, localAddress);
 			this.setAccessString(accessString);
 		}
 
@@ -58,9 +58,9 @@ public class POPAccessPoint implements IPOPBase {
 	 */
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putString(toString());
-		buffer.putInt(_security);
-		buffer.putBoolean(_isService);
-		buffer.putBoolean(_noaddref);
+		buffer.putInt(security);
+		buffer.putBoolean(isService);
+		buffer.putBoolean(noaddref);
 		return true;
 	}
 
@@ -70,9 +70,9 @@ public class POPAccessPoint implements IPOPBase {
 	public boolean deserialize(POPBuffer buffer) {
 		String accessPoint = buffer.getString();
 		this.setAccessString(accessPoint);
-		_security = buffer.getInt();
-		_isService = buffer.getBoolean();
-		_noaddref = buffer.getBoolean();
+		security = buffer.getInt();
+		isService = buffer.getBoolean();
+		noaddref = buffer.getBoolean();
 		return true;
 	}
 

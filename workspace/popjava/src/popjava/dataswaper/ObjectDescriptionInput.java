@@ -14,12 +14,12 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 //	protected popjava.baseobject.ODElement power;
 //	protected ODElement memory;
 //	protected ODElement bandwidth;
-	protected float power_min;
-	protected float power_req;
-	protected float bandwidth_min;
-	protected float bandwidth_req;
-	protected float memory_min;
-	protected float memory_req;
+	protected float powerMin;
+	protected float powerReq;
+	protected float bandwidthMin;
+	protected float bandwidthReq;
+	protected float memoryMin;
+	protected float memoryReq;
 	protected float wallTime;
 	protected boolean isManual;
 	protected String cwd;
@@ -57,12 +57,12 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 		searchMaxDepth = -1;
 		searchMaxReq = -1;
 		searchWaitingtime = -1;
-		power_min = -1;
-		power_req = -1;
-		bandwidth_min = -1;
-		bandwidth_req = -1;
-		memory_min = -1;
-		memory_req = -1;
+		powerMin = -1;
+		powerReq = -1;
+		bandwidthMin = -1;
+		bandwidthReq = -1;
+		memoryMin = -1;
+		memoryReq = -1;
 	}
 
 	/**
@@ -76,12 +76,12 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 //		power.set(od.getPower());
 //		memory.set(od.getMemory());
 //		bandwidth.set(od.getBandwidth());
-		power_min = od.getPowerMin();
-		power_req = od.getPowerReq();
-		memory_min = od.getMemoryMin();
-		memory_req = od.getMemoryReq();
-		bandwidth_min = od.getBandwidthMin();
-		bandwidth_req = od.getBandwidthReq();
+		powerMin = od.getPowerMin();
+		powerReq = od.getPowerReq();
+		memoryMin = od.getMemoryMin();
+		memoryReq = od.getMemoryReq();
+		bandwidthMin = od.getBandwidthMin();
+		bandwidthReq = od.getBandwidthReq();
 		wallTime = od.getWallTime();
 		encoding = od.getEncoding();
 		protocol = od.getProtocol();
@@ -111,8 +111,8 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 	 * @param min		The minimum power
 	 */
 	public void setPower(float required, float min) {
-		power_req = required;
-		power_min = min;
+		powerReq = required;
+		powerMin = min;
 	}
 
 	/**
@@ -129,8 +129,8 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 	 * @param min		The minimum memory
 	 */
 	public void setMemory(float required, float min) {
-		memory_req = required;
-		memory_min = min;
+		memoryReq = required;
+		memoryMin = min;
 	}
 
 	/**
@@ -147,8 +147,8 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 	 * @param min		The minimum bandwidth
 	 */
 	public void setBandwidth(float required, float min) {
-		bandwidth_req = required;
-		bandwidth_min = min;
+		bandwidthReq = required;
+		bandwidthMin = min;
 	}
 
 	/**
@@ -333,7 +333,7 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 	 * @return true if empty
 	 */
 	public boolean isEmpty() {
-		if (power_min <=0 && power_req <=0 && bandwidth_min <=0 && bandwidth_req <=0 && memory_min <= 0 && memory_req <=0
+		if (powerMin <=0 && powerReq <=0 && bandwidthMin <=0 && bandwidthReq <=0 && memoryMin <= 0 && memoryReq <=0
 				&& wallTime <= 0 && encoding.length() == 0
 				&& protocol.length() == 0 && platform.length() == 0
 				&& hostName.length() == 0 && jobUrl.length() == 0
@@ -374,12 +374,12 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 //		power.serialize(buffer);
 //		memory.serialize(buffer);
 //		bandwidth.serialize(buffer);
-		buffer.putFloat(power_req);
-		buffer.putFloat(power_min);
-		buffer.putFloat(memory_req);
-		buffer.putFloat(memory_min);
-		buffer.putFloat(bandwidth_req);
-		buffer.putFloat(bandwidth_min);
+		buffer.putFloat(powerReq);
+		buffer.putFloat(powerMin);
+		buffer.putFloat(memoryReq);
+		buffer.putFloat(memoryMin);
+		buffer.putFloat(bandwidthReq);
+		buffer.putFloat(bandwidthMin);
 		buffer.putFloat(wallTime);
 		buffer.putBoolean(isManual);
 		buffer.putString(cwd);

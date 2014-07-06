@@ -12,11 +12,11 @@ public class ComboxSocketFactory extends ComboxFactory {
 	/**
 	 * Name of the implemented protocol
 	 */
-	public static final String Protocol = "socket";
+	public static final String PROTOCOL = "socket";
 
 	@Override
 	public String getComboxName() {
-		return Protocol;
+		return PROTOCOL;
 	}
 
 	@Override

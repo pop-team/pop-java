@@ -6,7 +6,6 @@ import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncSeq;
 import popjava.annotation.POPConfig.Type;
 import popjava.annotation.POPSyncMutex;
 import popjava.base.POPObject;

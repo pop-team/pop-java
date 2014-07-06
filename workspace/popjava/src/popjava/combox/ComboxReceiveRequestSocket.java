@@ -16,14 +16,15 @@ import java.io.*;
  */
 public class ComboxReceiveRequestSocket implements Runnable {
 
-	static public final int Running = 0;
-	static public final int Exit = 1;
-	static public final int Abort = 2;
+    //TODO: use enum
+	static public final int RUNNING = 0;
+	static public final int EXIT = 1;
+	static public final int ABORT = 2;
 	
 	protected ComboxSocket combox;
 	protected RequestQueue requestQueue;
 	protected Broker broker;
-	protected int status = Exit;
+	protected int status = EXIT;
 	
 	private final int random = (new Random().nextInt());
 	
@@ -45,12 +46,12 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	 * Start the thread 
 	 */
 	public void run() {
-		setStatus(Running);
-		while (getStatus() == Running) {
+		setStatus(RUNNING);
+		while (getStatus() == RUNNING) {
 			Request popRequest = new Request();
 			try {
 				if (!receiveRequest(popRequest)) {
-					setStatus(Exit);
+					setStatus(EXIT);
 					break;
 				}
 				// add request to fifo list
@@ -59,7 +60,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 				}
 			} catch (Exception e) {
 				LogWriter.writeExceptionLog(e);
-				setStatus(Exit);
+				setStatus(EXIT);
 			}
 		}
 		close();

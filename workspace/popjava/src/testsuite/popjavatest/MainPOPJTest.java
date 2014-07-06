@@ -3,7 +3,6 @@ package testsuite.popjavatest;
 import popjava.PopJava;
 import popjava.base.POPException;
 import popjava.system.POPSystem;
-import testsuite.javatest.InsideClass;
 
 public class MainPOPJTest {
 	

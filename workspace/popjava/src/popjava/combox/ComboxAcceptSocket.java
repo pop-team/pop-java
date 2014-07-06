@@ -13,14 +13,15 @@ import java.io.*;
  */
 public class ComboxAcceptSocket implements Runnable {
 
-	static public final int Running = 0;
-	static public final int Exit = 1;
-	static public final int Abort = 2;
+    //TODO: replace with enum
+	static public final int RUNNING = 0;
+	static public final int EXIT = 1;
+	static public final int ABORT = 2;
 	
 	protected Broker broker;
 	protected RequestQueue requestQueue;
 	protected ServerSocket serverSocket;
-	protected int status = Exit;
+	protected int status = EXIT;
 	protected LinkedList<Socket> concurentConnections = new LinkedList<Socket>();
 
 	/**
@@ -40,7 +41,7 @@ public class ComboxAcceptSocket implements Runnable {
 	 * Start the local thread
 	 */
 	public void run() {
-		while (status != Exit) {
+		while (status != EXIT) {
 			Socket connection = null;
 			try {
 				connection = serverSocket.accept();

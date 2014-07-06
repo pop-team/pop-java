@@ -8,11 +8,11 @@ import popjava.broker.RequestQueue;
  */
 public abstract class ComboxServer {
 	
-	static public final int Running = 0;
-	static public final int Exit = 1;
-	static public final int Abort = 2;
+	static public final int RUNNING = 0;
+	static public final int EXIT = 1;
+	static public final int ABORT = 2;
 	
-	protected int status = Exit;
+	protected int status = EXIT;
 	protected RequestQueue requestQueue = new RequestQueue();
 	protected Broker broker;
 	protected int timeOut = 0;

@@ -1,10 +1,7 @@
 package testsuite.popc_integer;
 
-import popjava.PopJava;
-import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
-import popjava.baseobject.POPAccessPoint;
 
 public class Jinteger extends POPObject {
 	private int value;

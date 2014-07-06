@@ -1,8 +1,6 @@
 package popjava.buffer;
 
 import popjava.base.*;
-import popjava.util.LogWriter;
-
 import java.nio.*;
 
 /**
@@ -12,7 +10,7 @@ public class BufferRaw extends POPBuffer {
 	/**
 	 * Size of the buffer
 	 */
-	public static final int BufferLength = 20000;
+	public static final int BUFFER_LENGTH = 20000;
 	
 	/**
 	 * Byte buffer to store data
@@ -23,10 +21,10 @@ public class BufferRaw extends POPBuffer {
 	 * Default constructor
 	 */
 	public BufferRaw() {
-		buffer = ByteBuffer.allocate(BufferLength);
+		buffer = ByteBuffer.allocate(BUFFER_LENGTH);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
-		size = MessageHeader.HeaderLength;
-		buffer.position(MessageHeader.HeaderLength);
+		size = MessageHeader.HEADER_LENGTH;
+		buffer.position(MessageHeader.HEADER_LENGTH);
 	}
 
 	/**
@@ -35,10 +33,10 @@ public class BufferRaw extends POPBuffer {
 	 */
 	public BufferRaw(MessageHeader messageHeader) {
 		super(messageHeader);
-		buffer = ByteBuffer.allocate(BufferLength);
+		buffer = ByteBuffer.allocate(BUFFER_LENGTH);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
-		buffer.position(MessageHeader.HeaderLength);
-		size = MessageHeader.HeaderLength;
+		buffer.position(MessageHeader.HEADER_LENGTH);
+		size = MessageHeader.HEADER_LENGTH;
 	}
 
 	@Override
@@ -49,25 +47,25 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public MessageHeader extractHeader() {
 		messageHeader = new MessageHeader();
-		if (buffer.limit() >= MessageHeader.HeaderLength) {
+		if (buffer.limit() >= MessageHeader.HEADER_LENGTH) {
 			int requestType = this.getInt(4);
 			messageHeader.setRequestType(requestType);
 			switch (requestType) {
-			case MessageHeader.Request:
+			case MessageHeader.REQUEST:
 				messageHeader.setClassId(this.getInt(8));
 				messageHeader.setMethodId(this.getInt(12));
 				messageHeader.setSenmatics(this.getInt(16));
 				break;
-			case MessageHeader.Exception:
+			case MessageHeader.EXCEPTION:
 				messageHeader.setExceptionCode(this
 						.getInt(8));
 				break;
-			case MessageHeader.Response:
+			case MessageHeader.RESPONSE:
 				break;
 			default:
 				break;
 			}
-			position(MessageHeader.HeaderLength);
+			position(MessageHeader.HEADER_LENGTH);
 		}
 		return this.messageHeader;
 	}
@@ -265,7 +263,7 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public void reset() {
 		buffer.clear();
-		size = MessageHeader.HeaderLength;
+		size = MessageHeader.HEADER_LENGTH;
 		this.position(size);
 	}
 
@@ -538,15 +536,15 @@ public class BufferRaw extends POPBuffer {
 		
 		putInt(4, type);
 		switch (type) {
-			case MessageHeader.Request:
+			case MessageHeader.REQUEST:
 				putInt(8, messageHeader.getClassId());
 				putInt(12, messageHeader.getMethodId());
 				putInt(16, messageHeader.getSenmatics());
 				break;
-			case MessageHeader.Exception:
+			case MessageHeader.EXCEPTION:
 				putInt(8, messageHeader.getExceptionCode());
 				break;
-			case MessageHeader.Response:
+			case MessageHeader.RESPONSE:
 				break;
 			default:
 				break;

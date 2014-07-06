@@ -4,10 +4,10 @@ package popjava.base;
  *	This class represent the different bind status that a connection between a interface and a broker can have.
  */
 public class BindStatus {
-	public static final int BindOK = 0;
-	public static final int BindForwardSession = 1;
-	public static final int BindForwardPermanent = 2;
-	public static final int BindAllocRetry = 3;
+	public static final int BIND_OK = 0;
+	public static final int BIND_FORWARD_SESSION = 1;
+	public static final int BIND_FORWARD_PERMANENT = 2;
+	public static final int BIND_ALLOC_RETRY = 3;
 
 	protected int code;
 	protected String platform;

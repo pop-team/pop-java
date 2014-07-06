@@ -4,18 +4,18 @@ package popjava.base;
  */
 public class MessageHeader {
 
-	static public final int Request = 0;
-	static public final int Response = 1;
-	static public final int Exception = 2;
+	static public final int REQUEST = 0;
+	static public final int RESPONSE = 1;
+	static public final int EXCEPTION = 2;
 
-	static public final int BindStatusCall = 0;
-	static public final int AddRefCall = 1;
-	static public final int DecRefCall = 2;
-	static public final int GetEncodingCall = 3;
-	static public final int KillCall = 4;
-	static public final int ObjectAliveCall = 5;
+	static public final int BIND_STATUS_CALL = 0;
+	static public final int ADD_REF_CALL = 1;
+	static public final int DEC_REF_CALL = 2;
+	static public final int GET_ENCODING_CALL = 3;
+	static public final int KILL_ALL = 4;
+	static public final int OBJECT_ALIVE_CALL = 5;
 
-	static public final int HeaderLength = 20;
+	static public final int HEADER_LENGTH = 20;
 
 	protected int requestType;
 	protected int classId;
@@ -33,7 +33,7 @@ public class MessageHeader {
 		this.classId = classId;
 		this.methodId = methodId;
 		this.semantics = semantics;
-		requestType = Request;
+		requestType = REQUEST;
 		exceptionCode = 0;
 	}
 
@@ -41,7 +41,7 @@ public class MessageHeader {
 	 * Initialize a new message header for sending a response
 	 */
 	public MessageHeader() {
-		requestType = Response;
+		requestType = RESPONSE;
 		exceptionCode = 0;
 		classId = 0;
 		methodId = 0;
@@ -53,7 +53,7 @@ public class MessageHeader {
 	 * @param exceptionCode	code of the exception to be sent
 	 */
 	public MessageHeader(int exceptionCode) {
-		requestType = Exception;
+		requestType = EXCEPTION;
 		this.exceptionCode = exceptionCode;
 		classId = 0;
 		methodId = 0;

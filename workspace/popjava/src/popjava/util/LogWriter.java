@@ -20,36 +20,36 @@ public class LogWriter {
 	/**
 	 * Process identifier
 	 */
-	private static String PID = "";
+	private static String pid = "";
 	
 	/**
 	 * Log folder where the log files will be written
 	 */
-	public static String LogFolder;
+	public static String logFolder;
 	
 	/**
 	 * Prefix of the log file
 	 */
-	public static String Prefix = "";
+	public static String prefix = "";
 
 	static {
-		String pid = ManagementFactory.getRuntimeMXBean()
+		String pidTemp = ManagementFactory.getRuntimeMXBean()
 				.getName();
-		for (int index = 0; index < pid.length(); index++) {
-			if (Character.isLetterOrDigit(pid.charAt(index))){
-				PID += pid.charAt(index);
+		for (int index = 0; index < pidTemp.length(); index++) {
+			if (Character.isLetterOrDigit(pidTemp.charAt(index))){
+				pid += pidTemp.charAt(index);
 			}
 		}
 		
 		String popLocation = POPJavaConfiguration.getPopJavaLocation();
 		
 		if(!popLocation.isEmpty()){
-			LogFolder = String.format("%s%s%s", popLocation, File.separator, LOG_FOLDER_NAME);
+			logFolder = String.format("%s%s%s", popLocation, File.separator, LOG_FOLDER_NAME);
 		}else{
-			LogFolder = DEFAULT_LOCATION;
+			logFolder = DEFAULT_LOCATION;
 		}
 		
-		new File(LogFolder).mkdirs(); //Create log folder if it does not exist yet
+		new File(logFolder).mkdirs(); //Create log folder if it does not exist yet
 	}
 
 	/**
@@ -58,14 +58,14 @@ public class LogWriter {
 	 * @param filePath	Path of the log file
 	 */
 	public static void writeLogInfo(String info, String filePath) {
-		info = PID + "-" + (new Date()).toString() +":"+System.currentTimeMillis() + "-" + info;
+		info = pid + "-" + (new Date()).toString() +":"+System.currentTimeMillis() + "-" + info;
 		info += "\r\n";
 		writeLogfile(info, filePath);
 
 	}
 
 	public static synchronized void printDebug(String message){
-		if (Configuration.Debug) {
+		if (Configuration.DEBUG) {
 			System.out.println(message);
 		}
 	}
@@ -76,17 +76,17 @@ public class LogWriter {
 	 */
 	public synchronized static void writeDebugInfo(String info) {
 		
-		if (Configuration.Debug) {
+		if (Configuration.DEBUG) {
 			System.out.println(info);
 			logInfo(info);
 		}
 	}
 	
 	private static void logInfo(String info){
-		if (Configuration.Debug) {
-			info = PID + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
+		if (Configuration.DEBUG) {
+			info = pid + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
 			info += "\r\n";
-			String path = String.format("%s%s%s.txt", LogFolder, File.separator, Prefix);
+			String path = String.format("%s%s%s.txt", logFolder, File.separator, prefix);
 			writeLogfile(info, path);
 		}
 	}
@@ -110,7 +110,7 @@ public class LogWriter {
 	 * @param path	Path of the file
 	 */
 	public synchronized static void writeLogfile(String info, String path) {
-		path = path.replace(".txt", PID + ".txt");
+		path = path.replace(".txt", pid + ".txt");
 		BufferedWriter out = null;
 		try {
 			out = new BufferedWriter(new FileWriter(path, true));
@@ -134,7 +134,7 @@ public class LogWriter {
 	 * @return	true if the action is succeed
 	 */
 	public static boolean deleteLogDir() {
-		File dir = new File(LogFolder);
+		File dir = new File(logFolder);
 		String[] children = dir.list();
 		for (int i = 0; i < children.length; i++) {
 			new File(dir, children[i]).delete();

@@ -21,7 +21,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import popjava.system.POPJavaConfiguration;
-import popjava.system.POPSystem;
 import popjava.system.XMLWorker;
 import popjava.util.LogWriter;
 
