@@ -22,7 +22,7 @@ public class POPJobService extends POPServiceBase {
 		defineConstructor(c, 10);
 		defineConstructor(c, 11, String.class);
 		//Define method with same MethodID as POP-C++ MethodID
-		defineMethod(c, "createObject", 12, Semantic.Concurrent | Semantic.Synchronous, 
+		defineMethod(c, "createObject", 12, Semantic.CONCURRENT | Semantic.SYNCHRONOUS, 
 				POPAccessPoint.class, String.class,	ObjectDescriptionInput.class, 
 				int.class, POPAccessPoint[].class, int.class, POPAccessPoint[].class);
 	}

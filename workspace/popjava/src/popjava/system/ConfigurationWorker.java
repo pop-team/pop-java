@@ -1,6 +1,7 @@
 package popjava.system;
 
 import java.io.File;
+import java.security.InvalidParameterException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -70,7 +71,7 @@ public class ConfigurationWorker extends XMLWorker {
 				+ CONFIG_SUFFIX + XSD_FILE_EXTENSION;
 
 		if (!isValid(configFileLocation, configSchemaLocation)) {
-			throw new Exception("Configuration file is not valid");
+			throw new InvalidParameterException("Configuration file is not valid");
 		}
 	}
 

@@ -30,24 +30,24 @@ public class POPJobManager extends POPJobService {
 		defineConstructor(c,11,String.class,String.class);
 		//defineConstructor(c,12,String.class,String.class,String.class);
 		
-		defineMethod(c, "registerNode",13, Semantic.Concurrent
-				| Semantic.Asynchronous,String.class);
-		defineMethod(c, "query", 14,Semantic.Sequence | Semantic.Synchronous,POPString.class,POPString.class);
-		defineMethod(c, "createObject", 12,Semantic.Concurrent | Semantic.Synchronous,
+		defineMethod(c, "registerNode",13, Semantic.CONCURRENT
+				| Semantic.ASYNCHRONOUS,String.class);
+		defineMethod(c, "query", 14,Semantic.SEQUENCE | Semantic.SYNCHRONOUS,POPString.class,POPString.class);
+		defineMethod(c, "createObject", 12,Semantic.CONCURRENT | Semantic.SYNCHRONOUS,
 				POPAccessPoint.class, POPString.class,	ObjectDescriptionInput.class, int.class, POPAccessPoint[].class, int.class, POPAccessPoint[].class);
-		defineMethod(c, "allocResource", 16,Semantic.Concurrent
-				| Semantic.Synchronous,String.class, String.class,
+		defineMethod(c, "allocResource", 16,Semantic.CONCURRENT
+				| Semantic.SYNCHRONOUS,String.class, String.class,
 				ObjectDescriptionInput.class, int.class, float[].class,
 				POPAccessPoint[].class, int[].class, int[].class,
 				int[].class, int.class);
-		defineMethod(c, "cancelReservation", 18,Semantic.Sequence
-				| Semantic.Asynchronous,int[].class, int.class);
+		defineMethod(c, "cancelReservation", 18,Semantic.SEQUENCE
+				| Semantic.ASYNCHRONOUS,int[].class, int.class);
 
-		defineMethod(c, "execObj", 19,Semantic.Concurrent | Semantic.Synchronous,POPString.class, int.class, int[].class,
+		defineMethod(c, "execObj", 19,Semantic.CONCURRENT | Semantic.SYNCHRONOUS,POPString.class, int.class, int[].class,
 				String.class, POPAccessPoint[].class);
-		defineMethod(c, "dump", 20,Semantic.Sequence | Semantic.Asynchronous);
-		defineMethod(c, "start", 21,Semantic.Sequence |Semantic.Synchronous);
-		defineMethod(c, "selfRegister", 22,Semantic.Asynchronous);
+		defineMethod(c, "dump", 20,Semantic.SEQUENCE | Semantic.ASYNCHRONOUS);
+		defineMethod(c, "start", 21,Semantic.SEQUENCE |Semantic.SYNCHRONOUS);
+		defineMethod(c, "selfRegister", 22,Semantic.ASYNCHRONOUS);
 
 	}
 

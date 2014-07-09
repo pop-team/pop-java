@@ -20,8 +20,8 @@ public class POPRemoteLog extends POPServiceBase {
 		this.definedMethodId = true;
 		defineConstructor(c,10);		
 		defineConstructor(c,11,String.class);
-		defineMethod(c, "log", 13,Semantic.Sequence | Semantic.Asynchronous,String.class);
-		defineMethod(c, "logPJ", 14, Semantic.Sequence | Semantic.Asynchronous,String.class, String.class);
+		defineMethod(c, "log", 13,Semantic.SEQUENCE | Semantic.ASYNCHRONOUS,String.class);
+		defineMethod(c, "logPJ", 14, Semantic.SEQUENCE | Semantic.ASYNCHRONOUS,String.class, String.class);
 	}
 	
 	/**

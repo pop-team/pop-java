@@ -20,9 +20,9 @@ public class POPServiceBase extends POPObject {
 		Class<?> c = POPServiceBase.class;
 		defineConstructor(c, 10);
 		defineConstructor(c, 11, String.class);
-		defineMethod(c, "start", 12, Semantic.Sequence | Semantic.Synchronous);
-		defineMethod(c, "start", 13, Semantic.Sequence | Semantic.Synchronous,String.class);
-		defineMethod(c, "stop", 14, Semantic.Sequence | Semantic.Synchronous,String.class);
+		defineMethod(c, "start", 12, Semantic.SEQUENCE | Semantic.SYNCHRONOUS);
+		defineMethod(c, "start", 13, Semantic.SEQUENCE | Semantic.SYNCHRONOUS,String.class);
+		defineMethod(c, "stop", 14, Semantic.SEQUENCE | Semantic.SYNCHRONOUS,String.class);
 	}
 
 	/**

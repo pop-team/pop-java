@@ -111,7 +111,7 @@ public class POPClassProcessor extends AbstractProcessor {
 			if (subelement.getKind() == ElementKind.CONSTRUCTOR
 					&& subelement.getModifiers().contains(Modifier.PUBLIC)) {
 				TypeMirror mirror = subelement.asType();
-				if (mirror.accept(noArgsVisitor, null)){
+				if (mirror.accept(NO_ARGS_VISITOR, null)){
 					return true;
 				}
 			}
@@ -130,7 +130,7 @@ public class POPClassProcessor extends AbstractProcessor {
         };
 	}
 
-	private static final TypeVisitor<Boolean, Void> noArgsVisitor = new SimpleTypeVisitor6<Boolean, Void>() {
+	private static final TypeVisitor<Boolean, Void> NO_ARGS_VISITOR = new SimpleTypeVisitor6<Boolean, Void>() {
 		public Boolean visitExecutable(ExecutableType t, Void v) {
 			return t.getParameterTypes().isEmpty();
 		}

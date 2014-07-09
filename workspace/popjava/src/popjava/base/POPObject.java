@@ -18,6 +18,7 @@ import popjava.util.ClassUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.lang.reflect.Modifier;
@@ -100,7 +101,7 @@ public class POPObject implements IPOPBase {
 					POPConfig config = (POPConfig)annotations[i][loop];
 					 
 					if(argvs[i] == null){
-						throw new RuntimeException("Annotated paramater "+i+" for "+getClassName()+" was is null");
+						throw new InvalidParameterException("Annotated paramater "+i+" for "+getClassName()+" was is null");
 					}
 					
 					switch(config.value()){
@@ -108,7 +109,7 @@ public class POPObject implements IPOPBase {
 						if(argvs[i] instanceof String){
 							od.setHostname((String)argvs[i]);
 						}else{
-							throw new RuntimeException("Annotated paramater "+i+" in "+getClassName()+
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type String for Annotation URL");
 						}
 						
@@ -117,7 +118,7 @@ public class POPObject implements IPOPBase {
 						if(argvs[i] instanceof ConnectionType){
 							od.setConnectionType((ConnectionType) argvs[i]);
 						}else{
-							throw new RuntimeException("Annotated paramater "+i+" in "+getClassName()+
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type ConnectionType for Annotation CONNECTION");
 						}
 						break;
@@ -125,7 +126,7 @@ public class POPObject implements IPOPBase {
 						if(argvs[i] instanceof String){
 							od.setConnectionSecret((String)argvs[i]);
 						}else{
-							throw new RuntimeException("Annotated paramater "+i+" in "+getClassName()+
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type String for Annotation CONNECTION_SECRET");
 						}
 						break;
@@ -150,7 +151,7 @@ public class POPObject implements IPOPBase {
 	}
 	
 	private void throwMultipleAnnotationsError(Class<?> c, Method method){
-		throw new RuntimeException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
+		throw new InvalidParameterException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
 	}
 	
 	private boolean isMethodPOPAnnotated(Method method){
@@ -192,38 +193,38 @@ public class POPObject implements IPOPBase {
 				if(semantic != -1){
 					throwMultipleAnnotationsError(c, method);
 				}
-				semantic = Semantic.Synchronous | Semantic.Concurrent;
+				semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
 			}
 			if(method.isAnnotationPresent(POPSyncSeq.class)){
 				if(semantic != -1){
 					throwMultipleAnnotationsError(c, method);
 				}
-				semantic = Semantic.Synchronous | Semantic.Sequence;
+				semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
 			}
 			if(method.isAnnotationPresent(POPSyncMutex.class)){
 				if(semantic != -1){
 					throwMultipleAnnotationsError(c, method);
 				}
-				semantic = Semantic.Synchronous | Semantic.Mutex;
+				semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
 			}
 			//Async
 			if(method.isAnnotationPresent(POPAsyncConc.class)){
 				if(semantic != -1){
 					throwMultipleAnnotationsError(c, method);
 				}
-				semantic = Semantic.Asynchronous | Semantic.Concurrent;
+				semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
 			}
 			if(method.isAnnotationPresent(POPAsyncSeq.class)){
 				if(semantic != -1){
 					throwMultipleAnnotationsError(c, method);
 				}
-				semantic = Semantic.Asynchronous | Semantic.Sequence;
+				semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
 			}
 			if(method.isAnnotationPresent(POPAsyncMutex.class)){
 				if(semantic != -1){
 					throwMultipleAnnotationsError(c, method);
 				}
-				semantic = Semantic.Asynchronous | Semantic.Mutex;
+				semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
 			}
 			
 			if(semantic != -1){
@@ -460,7 +461,7 @@ public class POPObject implements IPOPBase {
 		if (semantics.containsKey(methodInfo)) {
 			return semantics.get(methodInfo);
 		} else {
-			return Semantic.Synchronous;
+			return Semantic.SYNCHRONOUS;
 		}
 	}
 
@@ -579,8 +580,8 @@ public class POPObject implements IPOPBase {
 				if (Modifier.isPublic(constructor.getModifiers())) {
 					MethodInfo info = new MethodInfo(getClassId(), index);
 					constructorInfos.put(info, constructor);
-					semantics.put(info, Semantic.Constructor
-							| Semantic.Synchronous | Semantic.Sequence);
+					semantics.put(info, Semantic.CONSTRUCTOR
+							| Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
 					index++;
 				}
 			}
@@ -630,8 +631,8 @@ public class POPObject implements IPOPBase {
 			MethodInfo info = new MethodInfo(getClassId(),
 					constructorId);
 			constructorInfos.put(info, constructor);
-			semantics.put(info, Semantic.Constructor
-					| Semantic.Synchronous | Semantic.Sequence);
+			semantics.put(info, Semantic.CONSTRUCTOR
+					| Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
 			
 		} catch (SecurityException e) {
 			e.printStackTrace();

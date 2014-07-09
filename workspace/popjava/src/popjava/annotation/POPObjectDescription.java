@@ -11,7 +11,7 @@ import popjava.baseobject.ConnectionType;
 @Target(ElementType.CONSTRUCTOR)
 public @interface POPObjectDescription {
 	
-	public static String LOCAL_DEBUG_URL = "localhost-debug";
+	public static final String LOCAL_DEBUG_URL = "localhost-debug";
 	
 	String url() default "";
 	

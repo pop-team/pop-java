@@ -45,7 +45,7 @@ public class MessageHeader {
 		exceptionCode = 0;
 		classId = 0;
 		methodId = 0;
-		semantics = Semantic.Synchronous;
+		semantics = Semantic.SYNCHRONOUS;
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class MessageHeader {
 		this.exceptionCode = exceptionCode;
 		classId = 0;
 		methodId = 0;
-		semantics = Semantic.Synchronous;
+		semantics = Semantic.SYNCHRONOUS;
 	}
 
 	/**

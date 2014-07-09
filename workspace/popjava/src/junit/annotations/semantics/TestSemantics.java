@@ -13,7 +13,7 @@ public class TestSemantics {
 		SemanticObject obj = new SemanticObject();
 		obj.loadPOPAnnotations(obj.getClass().getConstructor());
 		
-		assertEquals(Semantic.Synchronous | Semantic.Concurrent, 
+		assertEquals(Semantic.SYNCHRONOUS | Semantic.CONCURRENT, 
 				obj.getSemantic(SemanticObject.class.getMethod("testSyncConc")));
 	}
 	

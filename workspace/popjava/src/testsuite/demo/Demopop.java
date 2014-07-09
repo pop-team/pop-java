@@ -10,10 +10,10 @@ public class Demopop extends POPObject {
 	public Demopop(){
 		Class<?> c = Demopop.class;
 		initializePOPObject();
-		addSemantic(c, "sendIDto", Semantic.Asynchronous | Semantic.Sequence);
-		addSemantic(c, "getID", Semantic.Synchronous | Semantic.Concurrent);
-		addSemantic(c, "recAnId", Semantic.Asynchronous | Semantic.Concurrent);
-		addSemantic(c, "wait", Semantic.Synchronous | Semantic.Mutex);
+		addSemantic(c, "sendIDto", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "getID", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
+		addSemantic(c, "recAnId", Semantic.ASYNCHRONOUS | Semantic.CONCURRENT);
+		addSemantic(c, "wait", Semantic.SYNCHRONOUS | Semantic.MUTEX);
 	}
 	
 	public Demopop(int newID, int wanted, int minp){
@@ -21,10 +21,10 @@ public class Demopop extends POPObject {
 		od.setPower(wanted, minp);
 		initializePOPObject();
 //		printf("POPCobject with ID=%d created (by JobMgr) on machine:%s\n", newID, (const char*)POPSystem::GetHost());
-		addSemantic(c, "sendIDto", Semantic.Asynchronous | Semantic.Sequence);
-		addSemantic(c, "getID", Semantic.Synchronous | Semantic.Concurrent);
-		addSemantic(c, "recAnId", Semantic.Asynchronous | Semantic.Concurrent);
-		addSemantic(c, "wait", Semantic.Synchronous | Semantic.Mutex);
+		addSemantic(c, "sendIDto", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "getID", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
+		addSemantic(c, "recAnId", Semantic.ASYNCHRONOUS | Semantic.CONCURRENT);
+		addSemantic(c, "wait", Semantic.SYNCHRONOUS | Semantic.MUTEX);
 		iD=newID;
 		System.out.println("Demopop with ID="+iD+" created (byJobMgr) on machine:"+getAccessPoint().toString());
 	}
@@ -34,10 +34,10 @@ public class Demopop extends POPObject {
 		od.setHostname(machine);
 		initializePOPObject();
 //		printf("POPCobject with ID=%d created on machine:%s\n", newID, (const char*)POPSystem::GetHost());
-		addSemantic(c, "sendIDto", Semantic.Asynchronous | Semantic.Sequence);
-		addSemantic(c, "getID", Semantic.Synchronous | Semantic.Concurrent);
-		addSemantic(c, "recAnId", Semantic.Asynchronous | Semantic.Concurrent);
-		addSemantic(c, "wait", Semantic.Synchronous | Semantic.Mutex);
+		addSemantic(c, "sendIDto", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "getID", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
+		addSemantic(c, "recAnId", Semantic.ASYNCHRONOUS | Semantic.CONCURRENT);
+		addSemantic(c, "wait", Semantic.SYNCHRONOUS | Semantic.MUTEX);
 		iD=newID;
 		System.out.println("Demopop with ID="+iD+" created on machine:"+getAccessPoint().toString());
 	}

@@ -14,9 +14,9 @@ public class Integer extends POPObject {
 		Class<?> c = Integer.class;
 		hasDestructor(true);
 		initializePOPObject();
-		addSemantic(c, "get", Semantic.Concurrent | Semantic.Synchronous);
-		addSemantic(c, "set", Semantic.Sequence | Semantic.Asynchronous);
-		addSemantic(c, "add", Semantic.Mutex | Semantic.Synchronous);
+		addSemantic(c, "get", Semantic.CONCURRENT | Semantic.SYNCHRONOUS);
+		addSemantic(c, "set", Semantic.SEQUENCE | Semantic.ASYNCHRONOUS);
+		addSemantic(c, "add", Semantic.MUTEX | Semantic.SYNCHRONOUS);
 	}
 	
 	

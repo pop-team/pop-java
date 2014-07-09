@@ -207,7 +207,7 @@ public class Request {
 	 * @return
 	 */
 	public boolean isSynchronous(){
-		return (getSenmatics() & Semantic.Synchronous) != 0;
+		return (getSenmatics() & Semantic.SYNCHRONOUS) != 0;
 	}
 	
 	/**
@@ -215,7 +215,7 @@ public class Request {
 	 * @return
 	 */
 	public boolean isConcurrent(){
-		return (getSenmatics() & Semantic.Concurrent) != 0;
+		return (getSenmatics() & Semantic.CONCURRENT) != 0;
 	}
 	
 	/**
@@ -223,7 +223,7 @@ public class Request {
 	 * @return
 	 */
 	public boolean isMutex(){
-		return (getSenmatics() & Semantic.Mutex) != 0;
+		return (getSenmatics() & Semantic.MUTEX) != 0;
 	}
 	
 	/**

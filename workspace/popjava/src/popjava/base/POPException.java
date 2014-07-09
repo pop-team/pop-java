@@ -54,7 +54,6 @@ public class POPException extends RuntimeException implements IPOPBase {
 	 */
 	public static void throwObjectBindException(POPAccessPoint accessPoint)
 			throws POPException {
-		new Exception().printStackTrace();
 		throw new POPException(POPErrorCode.OBJECT_BIND_FAIL,
 				"Cannot bind to access point:" + accessPoint.toString());
 	}

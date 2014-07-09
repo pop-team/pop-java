@@ -165,7 +165,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		
 		popDispatch(popBuffer);
 		
-		if ((methodSemantics & Semantic.Synchronous) != 0) {
+		if ((methodSemantics & Semantic.SYNCHRONOUS) != 0) {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer);
 			

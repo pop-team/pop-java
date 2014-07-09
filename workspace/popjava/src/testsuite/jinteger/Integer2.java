@@ -12,9 +12,9 @@ public class Integer2 extends POPObject {
 		setClassId(1000);
 		hasDestructor(true);
 		initializePOPObject();
-		addSemantic(c, "set", Semantic.Asynchronous | Semantic.Sequence);
-		addSemantic(c, "get", Semantic.Synchronous | Semantic.Concurrent);
-		addSemantic(c, "add", Semantic.Synchronous | Semantic.Mutex);
+		addSemantic(c, "set", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "get", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
+		addSemantic(c, "add", Semantic.SYNCHRONOUS | Semantic.MUTEX);
 	}
 	
 	public void add(Jinteger i){

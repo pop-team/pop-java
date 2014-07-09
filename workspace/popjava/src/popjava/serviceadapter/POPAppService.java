@@ -25,12 +25,12 @@ public class POPAppService extends POPObjectMonitor implements AppService{
 		definedMethodId = true;
 		defineConstructor(c, 10);
 		defineConstructor(c, 11, String.class, boolean.class, String.class);
-		defineMethod(c, "getPOPCAppID", 13, Semantic.Sequence | Semantic.Synchronous);
+		defineMethod(c, "getPOPCAppID", 13, Semantic.SEQUENCE | Semantic.SYNCHRONOUS);
 
-		defineMethod(c, "queryService", 14, Semantic.Sequence | Semantic.Asynchronous, String.class, POPServiceBase.class);
-		defineMethod(c, "queryService", 15, Semantic.Sequence | Semantic.Asynchronous, String.class, POPAccessPoint.class);
-		defineMethod(c, "registerService", 16, Semantic.Sequence | Semantic.Asynchronous, String.class, POPServiceBase.class);
-		defineMethod(c, "unregisterService", 17, Semantic.Sequence | Semantic.Asynchronous, String.class);
+		defineMethod(c, "queryService", 14, Semantic.SEQUENCE | Semantic.ASYNCHRONOUS, String.class, POPServiceBase.class);
+		defineMethod(c, "queryService", 15, Semantic.SEQUENCE | Semantic.ASYNCHRONOUS, String.class, POPAccessPoint.class);
+		defineMethod(c, "registerService", 16, Semantic.SEQUENCE | Semantic.ASYNCHRONOUS, String.class, POPServiceBase.class);
+		defineMethod(c, "unregisterService", 17, Semantic.SEQUENCE | Semantic.ASYNCHRONOUS, String.class);
 	}
 
 	/**

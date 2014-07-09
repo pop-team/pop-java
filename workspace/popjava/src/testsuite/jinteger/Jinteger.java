@@ -11,8 +11,8 @@ public class Jinteger extends POPObject {
 		setClassId(1001);
 		hasDestructor(true);
 		initializePOPObject();
-		addSemantic(c, "set", Semantic.Asynchronous | Semantic.Sequence);
-		addSemantic(c, "get", Semantic.Synchronous | Semantic.Concurrent);
+		addSemantic(c, "set", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "get", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
 	}
 	
 	public void set(int value){

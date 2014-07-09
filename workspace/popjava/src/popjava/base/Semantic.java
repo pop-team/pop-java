@@ -7,10 +7,10 @@ package popjava.base;
  * Concurrent, Sequence and mutex must not be combined together. 
  */
 public class Semantic {
-	static public final int Synchronous = 1;
-	static public final int Asynchronous = 0;
-	static public final int Constructor = 4;
-	static public final int Concurrent = 8;
-	static public final int Mutex = 16;
-	static public final int Sequence = 0;
+	static public final int SYNCHRONOUS = 1;
+	static public final int ASYNCHRONOUS = 0;
+	static public final int CONSTRUCTOR = 4;
+	static public final int CONCURRENT = 8;
+	static public final int MUTEX = 16;
+	static public final int SEQUENCE = 0;
 }

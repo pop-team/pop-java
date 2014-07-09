@@ -295,7 +295,7 @@ public class Interface {
 
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.BIND_STATUS_CALL, Semantic.Synchronous);
+				MessageHeader.BIND_STATUS_CALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
 		this.popDispatch(popBuffer);
 		int errorcode = 0;
@@ -324,7 +324,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.GET_ENCODING_CALL, Semantic.Synchronous);
+				MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
 		popBuffer.putString(Configuration.SELECTED_ENCODING);
 
@@ -349,7 +349,7 @@ public class Interface {
 			return -1;
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
-		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.ADD_REF_CALL, Semantic.Synchronous);
+		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.ADD_REF_CALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -370,7 +370,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.DEC_REF_CALL, Semantic.Synchronous);
+				MessageHeader.DEC_REF_CALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -395,7 +395,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.OBJECT_ALIVE_CALL, Semantic.Synchronous);
+				MessageHeader.OBJECT_ALIVE_CALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -419,7 +419,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.KILL_ALL, Semantic.Synchronous);
+				MessageHeader.KILL_ALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
 
 		this.popDispatch(popBuffer);

@@ -9,27 +9,27 @@ public class POPJParclass extends POPObject {
 	public POPJParclass(){
 		Class<?> c = POPJParclass.class;
 		initializePOPObject();
-		addSemantic(c, "change", Semantic.Synchronous | Semantic.Sequence);		
-		addSemantic(c, "changeInt", Semantic.Synchronous | Semantic.Sequence);		
+		addSemantic(c, "change", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);		
+		addSemantic(c, "changeInt", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);		
 		
-		addSemantic(c, "changeByte", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeByteArray", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeShort", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeShortArray", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeChar", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeCharArray", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeInt", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeIntArray", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeDouble", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeDoubleArray", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeLong", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeLongArray", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeFloat", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeFloatArray", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeBoolean", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeBooleanArray", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeString", Semantic.Synchronous | Semantic.Sequence);
-		addSemantic(c, "changeStringArray", Semantic.Synchronous | Semantic.Sequence);
+		addSemantic(c, "changeByte", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeByteArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeShort", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeShortArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeChar", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeCharArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeInt", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeIntArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeDouble", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeDoubleArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeLong", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeLongArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeFloat", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeFloatArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeBoolean", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeBooleanArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeString", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+		addSemantic(c, "changeStringArray", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
 	}
 	
 	public void change(SerialObject so){

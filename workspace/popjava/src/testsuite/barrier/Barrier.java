@@ -20,7 +20,7 @@ public class Barrier extends POPObject {
 	public Barrier(){
 		Class<?> c = Barrier.class;
 		initializePOPObject();
-		addSemantic(c, "activate", Semantic.Synchronous | Semantic.Concurrent);
+		addSemantic(c, "activate", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
 		counter = 15;
 	}
 	
@@ -28,7 +28,7 @@ public class Barrier extends POPObject {
 		BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/barrier", true));
 		Class<?> c = Barrier.class;
 		initializePOPObject();
-		addSemantic(c, "activate", Semantic.Synchronous | Semantic.Concurrent);
+		addSemantic(c, "activate", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
 		counter = n.intValue();
 		out.write("Barrier closed for "+counter+"\n");
 		out.close();

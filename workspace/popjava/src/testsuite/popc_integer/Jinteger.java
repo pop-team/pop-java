@@ -13,10 +13,10 @@ public class Jinteger extends POPObject {
 		od.setPower(100, 10);
 		hasDestructor(true);
 		initializePOPObject();
-		addSemantic(c, "add", Semantic.Mutex | Semantic.Synchronous);
-		addSemantic(c, "jadd", Semantic.Mutex | Semantic.Synchronous);
-		addSemantic(c, "jget", Semantic.Concurrent | Semantic.Synchronous);
-		addSemantic(c, "jset", Semantic.Sequence | Semantic.Asynchronous);
+		addSemantic(c, "add", Semantic.MUTEX | Semantic.SYNCHRONOUS);
+		addSemantic(c, "jadd", Semantic.MUTEX | Semantic.SYNCHRONOUS);
+		addSemantic(c, "jget", Semantic.CONCURRENT | Semantic.SYNCHRONOUS);
+		addSemantic(c, "jset", Semantic.SEQUENCE | Semantic.ASYNCHRONOUS);
 	}
 	
 	public int jget() {

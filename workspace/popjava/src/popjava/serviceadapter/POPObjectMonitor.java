@@ -21,14 +21,14 @@ public class POPObjectMonitor extends POPCodeManager {
 		this.definedMethodId = true;
 		defineConstructor(c,10);
 		defineConstructor(c,11,String.class);
-		defineMethod(c, "killAll", 13,Semantic.Concurrent | Semantic.Asynchronous);
-		defineMethod(c, "manageObject",14, Semantic.Sequence
-				| Semantic.Asynchronous,String.class);
-		defineMethod(c, "unManageObject", 15,Semantic.Sequence
-				| Semantic.Asynchronous,String.class);
+		defineMethod(c, "killAll", 13,Semantic.CONCURRENT | Semantic.ASYNCHRONOUS);
+		defineMethod(c, "manageObject",14, Semantic.SEQUENCE
+				| Semantic.ASYNCHRONOUS,String.class);
+		defineMethod(c, "unManageObject", 15,Semantic.SEQUENCE
+				| Semantic.ASYNCHRONOUS,String.class);
 		
-		defineMethod(c, "checkObjects", 16,Semantic.Concurrent
-				| Semantic.Asynchronous);
+		defineMethod(c, "checkObjects", 16,Semantic.CONCURRENT
+				| Semantic.ASYNCHRONOUS);
 	}
 
 	/**
