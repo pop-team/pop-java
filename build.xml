@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <project name="PopJava" default="make-release-folder" basedir=".">
 
+	    <property name="agent" value ="popjava.javaagent.POPJavaAgent"/>
+	
         <property name="build.dir" value ="build"/>
         <property name="temp.dir" value ="temp"/>
         <property name="classes.dir" value="${build.dir}/classes"/>
@@ -78,22 +80,29 @@
 </target>
 	
 <target name="make-testsuite-popc" depends="make-testsuite-java" unless="isWindows" description="build the the popjava testsuite">
-	<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
-    <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
+	<!--<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
+    <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>-->
 </target>
 
 <target name="jar-popjava" depends="make-popjava" description="create jar for popjava">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${popjava.jar}" basedir="${classes.dir}" 
                 excludes="**/testsuite/**,**/objgen/**">
-                <zipgroupfileset dir="." includes="${javassist.jar}"/>
-                <zipgroupfileset dir="." includes="${sshj.jar}"/>
-                <zipgroupfileset dir="." includes="${log4j.jar}"/>
-        	 <service type="javax.annotation.processing.Processor" 
-        	    provider="popjava.annotation.processors.POPClassProcessor" /> 
+        	
+        	<manifest>
+                <attribute name="Premain-Class" value="${agent}" />
+                <attribute name="Can-Redefine-Classes" value="true" />
+                <attribute name="Can-Retransform-Classes" value="true" />
+                <attribute name="Can-Set-Native-Method-Prefix" value="true" />
+            </manifest>
+        	
+            <zipgroupfileset dir="." includes="${javassist.jar}"/>
+            <zipgroupfileset dir="." includes="${sshj.jar}"/>
+            <zipgroupfileset dir="." includes="${log4j.jar}"/>
+        	<service type="javax.annotation.processing.Processor" provider="popjava.annotation.processors.POPClassProcessor" /> 
         </jar>
 </target>
-
+	
 <target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
@@ -101,20 +110,36 @@
         </jar>
 </target>
 	
+<target name="run-tests" depends="jar-popjava, jar-testsuite" description="run the test apps">
+	
+	<java classname="testsuite.pure.integer.TestInteger" fork="true">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+        	<pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+		
+		<jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
+    </java>
+ </target>
+	
+<target name="run-testsuite" depends="jar-testsuite, jar-popjava" description="Run the testsuite">
+    <java classname="testsuite.Testsuite" fork="true">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+            <pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+    </java>
+</target>
+
+
+	
 <target name="jar-objmapgen" depends="make-objectmapgen" description="create jar for the objectmapgen">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${objmapgen.jar}" basedir="${objgenclasses.dir}">
         </jar>
 </target>
 
-<target name="run-testsuite" depends="jar-testsuite, jar-popjava" description="Run the testsuite">
-	<java classname="testsuite.Testsuite" fork="true">
-		<classpath>
-			<pathelement location="${jar.dir}/${popjava.jar}"/>
-			<pathelement location="${jar.dir}/${testsuite.jar}"/>
-         </classpath>
-	</java>
-</target>
+
 
 <target name="make" depends="clean, jar-popjava, jar-testsuite, jar-objmapgen" description="Builds the whole sourcecode">
 </target>
