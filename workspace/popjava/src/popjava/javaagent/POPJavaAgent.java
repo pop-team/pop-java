@@ -5,10 +5,13 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.HashSet;
+import java.util.Set;
 
 import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.base.POPObject;
+import popjava.system.POPSystem;
 import javassist.ByteArrayClassPath;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -34,6 +37,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
      */
     private final ClassPool classPool;
     
+    private final Set<String> IGNORED = new HashSet<String>();
+    
     /**
      * Constructor of the POPJavaAgent,
      * should only be called by the static premain method in this class.
@@ -45,6 +50,9 @@ public final class POPJavaAgent implements ClassFileTransformer{
         
         // Add our transformer to the list of transformers
         instrumentation.addTransformer( this );
+        
+        IGNORED.add("popjava.");
+        IGNORED.add("com.sun.");
     }
 
     /**
@@ -60,6 +68,16 @@ public final class POPJavaAgent implements ClassFileTransformer{
         new POPJavaAgent(inst);
     }
 
+    private boolean isInIgnoredPackage(String className){
+        for(String packageName: IGNORED){
+            if(className.startsWith(packageName)){
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
     @Override
     public byte[] transform(final ClassLoader loader, final String className,
             final Class<?> classBeingRedefined, final ProtectionDomain protectionDomain,
@@ -70,39 +88,56 @@ public final class POPJavaAgent implements ClassFileTransformer{
         
         final String dotClassName = className.replace( '/', '.' );
         
+        if(isInIgnoredPackage(dotClassName)){
+            return null;
+        }
+        
         try
         {
             // Create a Javassist CtClass from the bype code
             classPool.insertClassPath( new ByteArrayClassPath( className, classfileBuffer ) );
             final CtClass rawClass = classPool.get( dotClassName );
-            
+                        
             // Only transform unfrozen popjava classes
-            if(  ! rawClass.isFrozen() && isPOPObject(rawClass))
+            if(  !rawClass.isFrozen() && isPOPClass(rawClass))
             {
+                System.out.println(dotClassName);
                 //Add POPObject as parent object if needed
                 if(classNeedsSuperclass(rawClass)){
+                    System.out.println("Add superclass");
                     final CtClass superClass = classPool.get(POP_JAVA_BASE);
                     rawClass.setSuperclass(superClass);
                 }
                 
                 if(!hasDefaultConstructor(rawClass)){
+                    System.out.println("Add default constructor");
                     //TODO: create default constructor
                 }
                 
                 for( final CtMethod method: rawClass.getMethods())
                 {
+                    //TODO: correctly identify main method
+                    if(method.getName().equals("main")){
+                        System.out.println("this is the main! Initialize popjava");
+                        method.insertBefore("$1 = "+POPSystem.class.getName()+".initialize($1);");
+                        
+                        method.insertAfter(POPSystem.class.getName()+".end();");
+                    }
+                    
                     final String longMethodName = method.getLongName();
                     
                     // Only transform methods in this class, not in the super class because
                     // the super class will be transformed separately
                     if( longMethodName.startsWith( dotClassName ) )
                     {
+                        System.out.println("Instrument method");
                         instrumentCode(method);
                         //TODO: do awesome popjava stuff here
                     }
                 }
                 
                 for( final CtConstructor constructor: rawClass.getConstructors()){
+                    System.out.println("Instrument constructor");
                     instrumentCode(constructor);
                 }
 
@@ -140,10 +175,12 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     throws CannotCompileException {
                 
                 try {
+                    final CtClass newClass = e.getConstructor().getDeclaringClass();
+                    
                     //Replace all calls to new for popjava objects with the correct instatiation
-                    if(POPObject.class.isAssignableFrom(e.getConstructor().getClass())){
+                    if(isPOPClass(newClass)){
                         System.out.println("Const call "+e.getConstructor().getName());
-                        String newCall = "$_ = "+PopJava.class.getName()+".getInstance("+e.getClassName()+".class, $args);";
+                        String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+e.getClassName()+".class, $args);";
                         System.out.println(newCall);
                         
                         e.replace(newCall);
@@ -163,7 +200,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
      * @param rawClass
      * @return
      */
-    private boolean isPOPObject(final CtClass rawClass){
+    private boolean isPOPClass(final CtClass rawClass){
         try {
             final Object popClass = rawClass.getAnnotation(POPClass.class);
             if(popClass != null){
@@ -171,7 +208,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
             }else{
                 final CtClass superClass = rawClass.getSuperclass();
                 if(superClass != null){
-                    return isPOPObject(superClass);
+                    return isPOPClass(superClass);
                 }
             }
         } catch (ClassNotFoundException e) {
@@ -196,7 +233,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                 return false;
             }
             
-            boolean parentIsPOPObject = isPOPObject(superClass);
+            boolean parentIsPOPObject = isPOPClass(superClass);
             
             return !parentIsPOPObject;
         } catch (NotFoundException e) {

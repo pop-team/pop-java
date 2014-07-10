@@ -1,9 +1,12 @@
 package testsuite.integer;
 
 import popjava.PopJava;
+import popjava.annotation.POPClass;
 import popjava.system.POPSystem;
 
+@POPClass
 public class TestInteger {
+    
 	public static void main(String... args){
 		args = POPSystem.initialize(args);
 		Integer i1 = (Integer) PopJava.newActive(Integer.class);

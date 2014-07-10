@@ -110,7 +110,7 @@
         </jar>
 </target>
 	
-<target name="run-tests" depends="jar-popjava, jar-testsuite" description="run the test apps">
+<target name="run-tests" depends="clean, jar-popjava, jar-testsuite" description="run the test apps">
 	
 	<java classname="testsuite.pure.integer.TestInteger" fork="true">
         <classpath>
