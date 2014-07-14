@@ -19,6 +19,8 @@
         
         <property name="popjava.jar" value="popjava.jar"/>
         <property name="testsuite.jar" value="testsuite.jar"/>
+	    <property name="obj.map" value="testsuite.jar.map"/>
+	
 	    <property name="objmapgen.jar" value="popjobjectmapgen.jar"/>   
         
         <property name="popjava.src" value ="workspace/popjava/src/popjava"/>
@@ -103,22 +105,49 @@
         </jar>
 </target>
 	
-<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
+<target name="jar-objmapgen" depends="make-objectmapgen" description="create jar for the objectmapgen">
         <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
-                excludes="**/popjava/**,**/objgen/**">
+        <jar destfile="${jar.dir}/${objmapgen.jar}" basedir="${objgenclasses.dir}">
         </jar>
 </target>
 	
+<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc, jar-objmapgen" description="create jar for the popjava testsuite">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
+                excludes="**/popjava/**, **/objgen/**">
+        </jar>
+	
+	<java classname="popjava.scripts.Popjrun" fork="true" output="${jar.dir}/${obj.map}">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+         </classpath>
+		
+		 <arg value="--listlong"/>
+		 <arg value="${jar.dir}/${testsuite.jar}"/>
+    </java>
+</target>
+	
+	
 <target name="run-tests" depends="clean, jar-popjava, jar-testsuite" description="run the test apps">
 	
-	<java classname="testsuite.pure.integer.TestInteger" fork="true">
+	<!--<java classname="testsuite.pure.integer.TestInteger" fork="true">
         <classpath>
             <pathelement location="${jar.dir}/${popjava.jar}"/>
         	<pathelement location="${jar.dir}/${testsuite.jar}"/>
          </classpath>
 		
 		<jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
+    </java>-->
+	
+	<java classname="testsuite.pure.callback.CallBackMain" fork="true">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+            <pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+		
+        <jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
+		<arg value="-codeconf=${jar.dir}/${obj.map}"/>
+		
     </java>
  </target>
 	
@@ -130,16 +159,6 @@
          </classpath>
     </java>
 </target>
-
-
-	
-<target name="jar-objmapgen" depends="make-objectmapgen" description="create jar for the objectmapgen">
-        <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${objmapgen.jar}" basedir="${objgenclasses.dir}">
-        </jar>
-</target>
-
-
 
 <target name="make" depends="clean, jar-popjava, jar-testsuite, jar-objmapgen" description="Builds the whole sourcecode">
 </target>
@@ -204,9 +223,6 @@
        
   <chmod file="${release.dir}/logFolder" perm="777" type="both"/>
   <chmod file="${release.dir}/testsuite" perm="777" type="both"/>
-         
-  
-  
 </target>
 
 </project>

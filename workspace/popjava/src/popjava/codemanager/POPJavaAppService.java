@@ -62,7 +62,6 @@ public class POPJavaAppService extends POPObject implements AppService{
 			storeCodeFile = platf.get(objname);
 			
 		}
-		
 		if(storeCodeFile == null){
 			storeCodeFile = getLocalJavaFileLocation(objname);
 		}
