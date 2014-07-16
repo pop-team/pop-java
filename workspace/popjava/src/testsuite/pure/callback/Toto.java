@@ -23,7 +23,8 @@ public class Toto extends POPObject {
 	public int getIdent() throws POPException {
 		Titi t = new Titi();
 		setIdent(222);
-		t.computeIdent(this);
+		t.setIdent(this);
+		t.computeIdent();
 		return identity;
 	}
 }

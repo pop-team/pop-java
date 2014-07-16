@@ -534,11 +534,13 @@ public class Interface {
 	}
 	
 	private static String getPOPCodeFile(){
+	    
 		String popPath = POPJavaConfiguration.getPOPJavaCodePath();
 		String popJar = POPJavaConfiguration.getPopJavaJar();
 		
 		return String.format(
 				POPJavaConfiguration.getBrokerCommand(),
+				popJar,
 				popPath)+popJar;
 	}
 	

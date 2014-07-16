@@ -260,7 +260,9 @@ public class POPSystem {
 	public static boolean initialize(List<String> argvList){
 		String popJavaObjectExecuteCommand = String.format(
 				POPJavaConfiguration.getBrokerCommand(),
+				POPJavaConfiguration.getPopJavaJar(),
 				getNeededClasspath());
+		
 		
 		String jobservice = Util.removeStringFromList(argvList,
 				"-jobservice=");

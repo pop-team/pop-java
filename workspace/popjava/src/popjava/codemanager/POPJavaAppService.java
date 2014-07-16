@@ -80,11 +80,13 @@ public class POPJavaAppService extends POPObject implements AppService{
 		try{
 			ClassLoader classloader = getClass().getClassLoader();
 			Class<?> javaClass = classloader.loadClass(objname);
-			
+						
 			codePath = String.format(
 					POPJavaConfiguration.getBrokerCommand(),
+					POPJavaConfiguration.getPopJavaJar(),
 					POPJavaConfiguration.getPOPJavaCodePath()) + 
 					javaClass.getProtectionDomain().getCodeSource().getLocation().getPath();
+			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
