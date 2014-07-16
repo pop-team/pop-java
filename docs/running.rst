@@ -119,7 +119,12 @@ Here are the commands used for our example:
 ::
 
   popjrun --listlong parclasses.jar > objectmap.xml
-
+  
+An example of a generated objectmap can be found here: :ref:`objectmap`.
+The objectmap contains the path to the compiled classfile for every POP-Java class passed to the popjrun command.
+The path can either be a path to a folder containing the class file, or a jar file containing the class file.
+The path can either be a local path, or a url accessible by http. Keep in mind that all paths indicated
+need to be accessible by every machine that will create a POP-Java object.
 
 Full example
 ------------
@@ -228,9 +233,10 @@ Create the object map
 ~~~~~~~~~~~~~~~~~~~~~
 
 Before running the example application, the programmer needs to generate the
-object map. The object map will be given to the POP-Java launcher. This file
-will inform the POP-C++ runtime system where to find the compiled files. The
-POP-Java launcher has a specific option to generate this file from the compiled
+object map. The object map will be given to the POP-Java launcher which
+will inform the POP-C++ runtime system where to find the compiled files.
+The specified path needs to be accessible on every machine where an object of that type
+is initialized. The POP-Java launcher has a specific option to generate this file from the compiled
 files (``.class``) or the JAR file (``.jar``). Here is the command used for our
 example::
 
@@ -241,6 +247,7 @@ save this file, we redirect the output in a file named objmap.xml. This file
 contains the following XML code (the path specified in the element CodeFile
 will be different on your computer):
 
+.. example-objectmap:
 .. code-block:: xml
 
    <CodeInfoList>
