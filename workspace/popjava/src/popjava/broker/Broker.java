@@ -2,6 +2,7 @@ package popjava.broker;
 
 import popjava.PopJava;
 import popjava.combox.*;
+import popjava.javaagent.POPJavaAgent;
 import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 import popjava.util.Util;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import javassist.NotFoundException;
+import javassist.URLClassPath;
 import javassist.util.proxy.ProxyObject;
 
 /**
@@ -105,21 +108,26 @@ public final class Broker {
 		
 		URLClassLoader urlClassLoader = null;
 		if (codelocation != null && codelocation.length() > 0) {
-			URL[] urls = new URL[1];
+			URL[] urls = new URL[1]; //TODO: expand this for multiple jars
 			if (codelocation.indexOf("://") < 0) {// file
 				File codeFile = new File(codelocation);
 				try {
 					LogWriter.writeDebugInfo("Local file " + codelocation);
 					urls[0] = codeFile.toURI().toURL();
+					POPJavaAgent.getInstance().addJar(codelocation);
 				} catch (MalformedURLException e) {
 					LogWriter.writeDebugInfo(this.getClass().getName()
 							+ ".MalformedURLException: " + e.getMessage());
 					System.exit(0);
-				}
+				} catch (NotFoundException e) {
+                    e.printStackTrace();
+                    System.exit(0);
+                }
 			} else {
 				try {
 					LogWriter.writeDebugInfo("Remote file " + codelocation);
 					urls[0] = new URL(codelocation);
+					
 				} catch (MalformedURLException e) {
 					LogWriter.writeDebugInfo(this.getClass().getName()
 							+ ".MalformedURLException: " + e.getMessage());

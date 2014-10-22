@@ -65,6 +65,12 @@ public final class POPJavaAgent implements ClassFileTransformer{
         IGNORED.add("javassist");
     }
 
+    private static POPJavaAgent me;
+    
+    public static POPJavaAgent getInstance(){
+        return me;
+    }
+    
     /**
      * This method is called by the JVM before the main method is loaded.
      * It registers this class as the JavaAgent to be loaded
@@ -75,7 +81,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
      */
     public static void premain( final String agentArgs, final Instrumentation inst )
     {
-        new POPJavaAgent(inst);
+        me = new POPJavaAgent(inst);
     }
 
     /**
@@ -114,6 +120,12 @@ public final class POPJavaAgent implements ClassFileTransformer{
         return false;
     }
     
+    public void addJar(String file) throws NotFoundException{
+        synchronized(classPool){
+            classPool.appendClassPath(file);
+        }        
+    }
+    
     @Override
     public byte[] transform(final ClassLoader loader, final String className,
             final Class<?> classBeingRedefined, final ProtectionDomain protectionDomain,
@@ -130,8 +142,11 @@ public final class POPJavaAgent implements ClassFileTransformer{
         
         try
         {
-            // Create a Javassist CtClass from the byte code            
-            classPool.insertClassPath( new ByteArrayClassPath( dotClassName, classfileBuffer ) );
+            // Create a Javassist CtClass from the byte code
+            synchronized(classPool){
+                classPool.insertClassPath( new ByteArrayClassPath( dotClassName, classfileBuffer ) );
+            }
+            
             final CtClass rawClass = classPool.get( dotClassName );
                         
             // Only transform unfrozen popjava classes
@@ -219,18 +234,23 @@ public final class POPJavaAgent implements ClassFileTransformer{
                         return;
                     }
                     
+                    CtClass clazz = e.getConstructor().getDeclaringClass();
                     Class<?> temp = loader.loadClass(e.getClassName());
                     
                     //Replace all calls to new for popjava objects with the correct instatiation
-                    if(isPOPClass(temp)){
-                        //System.out.println("Const call "+e.getConstructor().getName());
-                        String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+e.getClassName()+".class, $args);";
-                        //System.out.println(newCall);
+                    if(isPOPClass(clazz)){
+                        System.out.println("Const call "+e.getClassName());
+                        String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+clazz.getName()+".class, $args);";
+                        System.out.println(newCall);
                         
                         e.replace(newCall);
+                        System.out.println("added");
                     }
                     
                 } catch (ClassNotFoundException e1) {
+                    e1.printStackTrace();
+                } catch (NotFoundException e1) {
+                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
             }

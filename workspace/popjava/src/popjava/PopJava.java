@@ -31,6 +31,10 @@ public class PopJava {
 		return (T)factoryProxy.newPOPObject(objectDescription, argvs);
 	}
 	
+	public static Object newActive(String targetClass, Object... argvs) throws POPException, ClassNotFoundException{
+	    return newActive(Class.forName(targetClass), argvs);
+	}
+	
 	/**
 	 * Static method used to create a new parallel object
 	 * @param targetClass	the parallel class to be created
