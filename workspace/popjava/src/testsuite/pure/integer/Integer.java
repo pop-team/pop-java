@@ -8,7 +8,7 @@ import popjava.annotation.POPSyncMutex;
 @POPClass
 public class Integer {
 
-protected int value;
+    protected int value;
     
     @POPObjectDescription(url = "localhost")
     public Integer(){
@@ -27,12 +27,12 @@ protected int value;
     @POPSyncMutex
     public void add(Integer i){
         int val = i.get();
-        this.value+=val;
+        this.value += val;
     }
     
     @POPAsyncSeq
     public void set(int val){
-        this.value=val;
+        this.value = val;
     }
     
 }

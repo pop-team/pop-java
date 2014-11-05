@@ -7,6 +7,7 @@ import popjava.base.POPObject;
 
 @POPClass(classId = 1034)
 public class Titi extends POPObject {
+    
 	private int identity;
 	private Toto t;
 	
@@ -22,11 +23,14 @@ public class Titi extends POPObject {
 	
 	@POPSyncSeq
 	public void setIdent(Toto t){
+        System.out.println("A "+(t == null));
 		this.t = t;
 	}
 	
 	@POPSyncSeq
 	public void computeIdent(){
+        System.out.println("B "+(t == null));
 	    t.setIdent(identity);
+	    System.out.println("E");
 	}
 }

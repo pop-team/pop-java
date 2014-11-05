@@ -34,7 +34,7 @@ public class Popjrun {
 	private static final String JAR_OBJMAPGEN = JAR_FOLDER + File.separatorChar
 			+ "popjobjectmapgen.jar";
 	private static final String JAR_POPJAVA = JAR_FOLDER + File.separatorChar
-			+ "popjava.jar";
+			+ Popjavac.POP_JAVA_JAR_FILE;
 	private static final String DEFAULT_POP_JAVA_LOCATION;
 
 	private static final boolean USE_SEPARATE_JVM = true;

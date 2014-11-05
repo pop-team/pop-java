@@ -12,6 +12,7 @@ import java.util.Set;
 
 import popjava.broker.Broker;
 import popjava.codemanager.POPJavaAppService;
+import popjava.scripts.Popjavac;
 
 public class POPJavaConfiguration {
 	
@@ -92,7 +93,7 @@ public class POPJavaConfiguration {
             }catch(Exception e){
                 exists = new File(url.getPath()).exists();
             }
-            if(url.getFile().endsWith("popjava.jar") && exists){
+            if(url.getFile().endsWith(Popjavac.POP_JAVA_JAR_FILE) && exists){
                 return url;
             }
         }
@@ -169,7 +170,7 @@ public class POPJavaConfiguration {
             }catch(Exception e){
                 exists = new File(url.getPath()).exists();
             }
-            if(exists && url.getFile().endsWith("popjava.jar")){
+            if(exists && url.getFile().endsWith(Popjavac.POP_JAVA_JAR_FILE)){
             	popJar = new File(url.getPath()).getAbsolutePath();
             }
         }
@@ -181,6 +182,10 @@ public class POPJavaConfiguration {
 					break;
 				}
 			}
+		}
+		
+		if(!popJar.endsWith(".jar")){
+		    popJar = "build/jar/"+Popjavac.POP_JAVA_JAR_FILE;
 		}
 		
 		return popJar;

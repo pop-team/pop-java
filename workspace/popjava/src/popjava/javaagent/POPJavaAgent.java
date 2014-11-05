@@ -14,7 +14,6 @@ import popjava.base.POPObject;
 import popjava.system.POPSystem;
 import javassist.ByteArrayClassPath;
 import javassist.CannotCompileException;
-import javassist.ClassPath;
 import javassist.ClassPool;
 import javassist.CtBehavior;
 import javassist.CtClass;
@@ -23,9 +22,8 @@ import javassist.CtMethod;
 import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.FieldAccess;
+import javassist.expr.MethodCall;
 import javassist.expr.NewExpr;
-import javassist.util.proxy.Proxy;
-import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
 
 /**
@@ -61,8 +59,13 @@ public final class POPJavaAgent implements ClassFileTransformer{
         //TODO: make a more complete list
         IGNORED.add("popjava.");
         IGNORED.add("com.sun.");
-        IGNORED.add("sun");
-        IGNORED.add("javassist");
+        IGNORED.add("sun.");
+        IGNORED.add("javassist.");
+        IGNORED.add("java.");
+        IGNORED.add("javax.");
+        IGNORED.add("org.w3c.");
+        IGNORED.add("org.xml.");
+        IGNORED.add("javax.");        
     }
 
     private static POPJavaAgent me;
@@ -122,6 +125,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
     
     public void addJar(String file) throws NotFoundException{
         synchronized(classPool){
+            System.out.println("Add jar to classpoll "+file);
             classPool.appendClassPath(file);
         }        
     }
@@ -148,13 +152,14 @@ public final class POPJavaAgent implements ClassFileTransformer{
             }
             
             final CtClass rawClass = classPool.get( dotClassName );
-                        
+            
             // Only transform unfrozen popjava classes
             if(  !rawClass.isFrozen() && isPOPClass(rawClass) && !isProxy(rawClass)) {
                 System.out.println("Transform "+dotClassName);
+                
                 //Add POPObject as parent object if needed
                 if(classNeedsSuperclass(rawClass)){
-                    System.out.println("Add superclass");
+                    System.out.println("Add superclass "+POP_JAVA_BASE);
                     final CtClass superClass = classPool.get(POP_JAVA_BASE);
                     rawClass.setSuperclass(superClass);
                 }
@@ -166,11 +171,11 @@ public final class POPJavaAgent implements ClassFileTransformer{
                 
                 for( final CtMethod method: rawClass.getMethods())
                 {
+                    //System.out.println(method.getName());
                     //TODO: correctly identify main method
                     if(method.getName().equals("main")){
                         System.out.println("this is the main! Initialize popjava");
                         method.insertBefore("$1 = "+POPSystem.class.getName()+".initialize($1);");
-                        
                         method.insertAfter(POPSystem.class.getName()+".end();");
                     }
                     
@@ -223,7 +228,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
         ExprEditor ed = new ExprEditor(){
             
             /**
-             * Replace all new invocations of pop classes by the proper popjava way to initiliaze objects
+             * Replace all new invocations of pop classes by the proper popjava way to initialize objects
              */
             @Override
             public void edit(NewExpr e)
@@ -234,22 +239,21 @@ public final class POPJavaAgent implements ClassFileTransformer{
                         return;
                     }
                     
+                    System.out.println("*!!!!!! *NEW ** "+e.getClassName());
+                    //Class<?> temp = loader.loadClass(e.getClassName());
                     CtClass clazz = e.getConstructor().getDeclaringClass();
-                    Class<?> temp = loader.loadClass(e.getClassName());
                     
                     //Replace all calls to new for popjava objects with the correct instatiation
                     if(isPOPClass(clazz)){
-                        System.out.println("Const call "+e.getClassName());
                         String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+clazz.getName()+".class, $args);";
                         System.out.println(newCall);
                         
                         e.replace(newCall);
-                        System.out.println("added");
                     }
                     
-                } catch (ClassNotFoundException e1) {
+                /*} catch (ClassNotFoundException e1) {
                     e1.printStackTrace();
-                } catch (NotFoundException e1) {
+                */} catch (NotFoundException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
@@ -258,8 +262,33 @@ public final class POPJavaAgent implements ClassFileTransformer{
             @Override
             public void edit(FieldAccess f) throws CannotCompileException {
                 if(f.isWriter()){
-                    System.out.println("FieldAccess: "+f.getFieldName()+" "+f.getSignature());
+                    if(isInIgnoredPackage(f.getClassName())){
+                        return;
+                    }
+                    
+                    System.out.println(f.getClassName()+" FieldAccess: "+f.getFieldName()+" "+f.getSignature());
+                    CtClass clazz;
+                    try {
+                        clazz = f.getField().getType();
+                        if(isPOPClass(clazz)){
+                            String newAssign = "$0."+f.getFieldName()+ " = ("+clazz.getName()+") $1.makePermanent();";
+                            System.out.println(newAssign);
+                            f.replace(newAssign);
+                        }
+                    } catch (NotFoundException e) {
+                        e.printStackTrace();
+                    }                
+                    
                 }
+            }
+            
+            @Override
+            public void edit(MethodCall e){
+                if(isInIgnoredPackage(e.getClassName())){
+                    return;
+                }
+                
+                System.out.println(e.getClassName()+" "+e.getMethodName());
             }
             
         };

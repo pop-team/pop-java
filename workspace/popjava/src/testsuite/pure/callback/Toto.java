@@ -8,6 +8,7 @@ import popjava.base.*;
 
 @POPClass(classId = 1035)
 public class Toto extends POPObject {
+    
 	private int identity;
 	
 	@POPObjectDescription(url = "localhost")
@@ -17,6 +18,8 @@ public class Toto extends POPObject {
 	@POPSyncSeq
 	public void setIdent(int i){
 		identity = i;
+
+        System.out.println("C");
 	}
 	
 	@POPSyncConc
@@ -24,7 +27,12 @@ public class Toto extends POPObject {
 		Titi t = new Titi();
 		setIdent(222);
 		t.setIdent(this);
-		t.computeIdent();
+		
+		for(int i = 0; i < 1; i++){
+		    t.computeIdent();
+		}
+
+        System.out.println("D");
 		return identity;
 	}
 }

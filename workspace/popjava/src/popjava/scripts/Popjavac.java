@@ -60,8 +60,9 @@ public class Popjavac {
 	
 	private static final String JAR_FOLDER = "JarFile";
 	
+	public static final String POP_JAVA_JAR_FILE = "popjava.jar";
 	private static final String COMPILER_JAR = POPJAVA_FOLDER+JAR_FOLDER+File.separatorChar+"popjparser.jar";
-	private static final String POPJAVA_JAR = POPJAVA_FOLDER+JAR_FOLDER+File.separatorChar+"popjava.jar";
+	private static final String POPJAVA_JAR = POPJAVA_FOLDER+JAR_FOLDER+File.separatorChar+POP_JAVA_JAR_FILE;
 	private static final String COMPILER_MAIN = "POPJParser";
 	
 	
