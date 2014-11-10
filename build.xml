@@ -137,7 +137,7 @@
          </classpath>
 		
 		<jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
-    </java>-->
+    </java>
 	
 	<java classname="testsuite.pure.callback.CallBackMain" fork="true">
         <classpath>
@@ -148,6 +148,17 @@
         <jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
 		<arg value="-codeconf=${jar.dir}/${obj.map}"/>
 		
+    </java>-->
+	
+	<java classname="testsuite.pure.sync.SynchronizationTest" fork="true">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+            <pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+        
+        <jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
+        <arg value="-codeconf=${jar.dir}/${obj.map}"/>
+        
     </java>
  </target>
 	

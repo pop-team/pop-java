@@ -24,9 +24,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	protected ComboxSocket combox;
 	protected RequestQueue requestQueue;
 	protected Broker broker;
-	protected int status = EXIT;
-	
-	private final int random = (new Random().nextInt());
+	protected int status = EXIT;  
 	
 	/**
 	 * Crate a new instance of ComboxReceiveRequestSocket

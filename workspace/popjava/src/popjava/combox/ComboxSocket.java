@@ -177,8 +177,8 @@ public class ComboxSocket extends Combox {
 			
 			//System.out.println("Write "+length+" bytes to socket");			
 			synchronized (outputStream) {
-			outputStream.write(dataSend, 0, length);
-			outputStream.flush();
+    			outputStream.write(dataSend, 0, length);
+    			outputStream.flush();
 			}
 			
 			return length;

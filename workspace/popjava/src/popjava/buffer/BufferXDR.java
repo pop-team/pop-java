@@ -1,6 +1,7 @@
 package popjava.buffer;
 
 import popjava.base.*;
+
 import java.nio.*;
 /**
  * This class is a XDR extension of the BufferRAW class
@@ -11,8 +12,7 @@ public class BufferXDR extends BufferRaw {
 	 * Default constructor. Create a new instance of XDR buffer
 	 */
 	public BufferXDR() {
-		super();
-		buffer.order(ByteOrder.BIG_ENDIAN);		
+		this(new MessageHeader());	
 	}
 
 	/**
@@ -20,7 +20,7 @@ public class BufferXDR extends BufferRaw {
 	 * @param messageHeader	Message header to be associated with this buffer
 	 */
 	public BufferXDR(MessageHeader messageHeader) {
-		super(messageHeader);
+		super(messageHeader);		
 		buffer.order(ByteOrder.BIG_ENDIAN);
 	}
 
@@ -28,12 +28,26 @@ public class BufferXDR extends BufferRaw {
 	 * Insert a boolean value
 	 * @param value The boolean value to be inserted
 	 */
+	@Override
 	public void putBoolean(boolean value)
 	{
-		if(value)
-			super.putInt(Integer.reverseBytes(1));
-		else
-			super.putInt(0);
+		if(value){
+			putInt(Integer.reverseBytes(1));
+		}else{
+			putInt(0);
+		}
+	}
+	
+	@Override
+	public boolean getBoolean(){
+	    int value = getInt();
+	    if(value == 0){
+	        return false;
+	    }else if(value == Integer.reverseBytes(1)){
+	        return true;
+	    }
+	    
+	    throw new RuntimeException("Invalid Boolean encoding: "+value);
 	}
 
 	/**

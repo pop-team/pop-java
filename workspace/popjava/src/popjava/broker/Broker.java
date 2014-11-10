@@ -4,6 +4,7 @@ import popjava.PopJava;
 import popjava.combox.*;
 import popjava.javaagent.POPJavaAgent;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 import popjava.annotation.POPClass;
@@ -17,6 +18,7 @@ import popjava.base.POPSystemErrorCode;
 import popjava.base.Semantic;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
+import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
@@ -559,9 +561,7 @@ public final class Broker {
 			// GetEncoding call...
 			String encoding = buffer.getString();
 			boolean foundEncoding = findEndcoding(encoding);
-			if (foundEncoding) {
-				request.setBuffer(encoding);
-			}
+			
 			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
 				responseBuffer.setHeader(messageHeader);
@@ -570,6 +570,13 @@ public final class Broker {
 				responseBuffer.putBoolean(foundEncoding);
 				sendResponse(request.getCombox(), responseBuffer);
 			}
+			
+			if (foundEncoding) {
+                request.setBuffer(encoding);
+                
+                BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(encoding);
+                request.getCombox().setBufferFactory(bufferFactory);
+            }
 		}
 			break;
 		case MessageHeader.KILL_ALL: {
@@ -696,6 +703,7 @@ public final class Broker {
 	 * @return true if the encoding is available
 	 */
 	protected boolean findEndcoding(String encoding) {
+	    //TODO: implement
 		return true;
 	}
 

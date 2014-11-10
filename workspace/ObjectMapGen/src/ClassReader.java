@@ -2,6 +2,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import popjava.annotation.POPClass;
 import popjava.base.POPObject;
 
 /**
@@ -40,14 +41,19 @@ public class ClassReader {
 		ClassLoader loader = URLClassLoader.newInstance(new URL[] { new URL(
 				"file://" + cleanPath) }, getClass().getClassLoader());
 		Class<?> c = Class.forName(className, true, loader);
+		
 		Class<?> sc = c.getSuperclass();
 		if (sc == POPObject.class) {
 			Package p = c.getPackage();
-			if (p != null)
+			if (p != null){
 				packageName = p.getName();
+			}
 			return true;
 		}
-		return false;
+		
+		POPClass popAnnotation = c.getAnnotation(POPClass.class);
+		
+		return popAnnotation != null;
 	}
 
 	/**

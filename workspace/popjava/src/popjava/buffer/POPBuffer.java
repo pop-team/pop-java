@@ -29,8 +29,16 @@ public abstract class POPBuffer extends Object {
 	 * Default constructor
 	 */
 	public POPBuffer() {
-		messageHeader=new MessageHeader();
+	    this(new MessageHeader());
 	}
+	
+    /**
+     * Constructor with given values
+     * @param messageHeader Message header to be associated with this buffer
+     */
+    public POPBuffer(MessageHeader messageHeader) {
+        this.messageHeader = messageHeader;
+    }
 
 	/**
 	 * Erase the buffer and set the pointer to the beginning
@@ -290,14 +298,6 @@ public abstract class POPBuffer extends Object {
 	public abstract int packMessageHeader();
 	
 	/**
-	 * Constructor with given values
-	 * @param messageHeader	Message header to be associated with this buffer
-	 */
-	public POPBuffer(MessageHeader messageHeader) {
-		this.messageHeader = messageHeader;
-	}
-
-	/**
 	 * Associate a message header with this buffer
 	 * @param messageHeader	Message header to be associated with this buffer
 	 */
@@ -377,7 +377,6 @@ public abstract class POPBuffer extends Object {
 			} catch(NoSuchMethodException e){
 				POPException.throwReflectSerializeException(c.getName(), "Default constructor is missing");
 			} catch (Exception e) {
-					LogWriter.writeDebugInfo("Catch error");
 					LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e
 						.getMessage());
@@ -390,7 +389,6 @@ public abstract class POPBuffer extends Object {
 			} catch(NoSuchMethodException e){
 				POPException.throwReflectSerializeException(c.getName(), "Default constructor is missing");
 			} catch (Exception e) {
-					LogWriter.writeDebugInfo("Catch error");
 					LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e
 						.getMessage());
@@ -401,7 +399,6 @@ public abstract class POPBuffer extends Object {
 			return Enum.valueOf(t, name);
 		}
 		
-		LogWriter.writeDebugInfo("Return null ");
 		return null;
 	}
 
@@ -492,7 +489,7 @@ public abstract class POPBuffer extends Object {
 				putInt(length);
 				for (int i = 0; i < length; i++) {
 					Object element = Array.get(o, i);
-					putValue(element,c.getComponentType());
+					putValue(element, c.getComponentType());
 				}
 			}
 		}
@@ -532,8 +529,30 @@ public abstract class POPBuffer extends Object {
 				Class<?> elementType = arrayType.getComponentType();
 				Object resultArray = Array.newInstance(elementType, length);
 				for (int index = 0; index < length; index++) {
-					Object value = this.getValue(elementType);
-					Array.set(resultArray, index, value);
+				    //System.out.println("read array index "+index);
+				    try{
+				        /*if(index == 636){
+				            BufferRaw raw = ((BufferRaw)this);
+	                        
+	                        System.err.println("Array error buffer pos: "+raw.position());
+	                        for(int i = raw.position() - 5; i < raw.position() + 15; i++){
+	                            System.err.println("A "+i+" "+raw.array()[i]);
+	                        }
+				        }*/
+				        
+				        Object value = getValue(elementType);
+				        Array.set(resultArray, index, value);
+				    }catch(POPException e){
+				        System.err.println("Error on array index: "+index+" out of "+length);
+				        
+				        BufferRaw raw = ((BufferRaw)this);
+				        
+				        System.err.println("Array error buffer pos: "+raw.position());
+				        for(int i = raw.position() - 15; i < raw.position() + 15; i++){
+				            System.err.println("B "+i+" "+raw.array()[i]);
+				        }
+				        throw e;
+				    }
 				}
 				return resultArray;
 			}

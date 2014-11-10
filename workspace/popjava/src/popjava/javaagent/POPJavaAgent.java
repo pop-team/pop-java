@@ -125,7 +125,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
     
     public void addJar(String file) throws NotFoundException{
         synchronized(classPool){
-            System.out.println("Add jar to classpoll "+file);
+            //System.out.println("Add jar to classpoll "+file);
             classPool.appendClassPath(file);
         }        
     }
@@ -155,17 +155,17 @@ public final class POPJavaAgent implements ClassFileTransformer{
             
             // Only transform unfrozen popjava classes
             if(  !rawClass.isFrozen() && isPOPClass(rawClass) && !isProxy(rawClass)) {
-                System.out.println("Transform "+dotClassName);
+                //System.out.println("Transform "+dotClassName);
                 
                 //Add POPObject as parent object if needed
                 if(classNeedsSuperclass(rawClass)){
-                    System.out.println("Add superclass "+POP_JAVA_BASE);
+                    //System.out.println("Add superclass "+POP_JAVA_BASE);
                     final CtClass superClass = classPool.get(POP_JAVA_BASE);
                     rawClass.setSuperclass(superClass);
                 }
                 
                 if(!hasDefaultConstructor(rawClass)){
-                    System.out.println("Add default constructor");
+                    //System.out.println("Add default constructor");
                     //TODO: create default constructor
                 }
                 
@@ -174,7 +174,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     //System.out.println(method.getName());
                     //TODO: correctly identify main method
                     if(method.getName().equals("main")){
-                        System.out.println("this is the main! Initialize popjava");
+                        //System.out.println("this is the main! Initialize popjava");
                         method.insertBefore("$1 = "+POPSystem.class.getName()+".initialize($1);");
                         method.insertAfter(POPSystem.class.getName()+".end();");
                     }
@@ -239,14 +239,14 @@ public final class POPJavaAgent implements ClassFileTransformer{
                         return;
                     }
                     
-                    System.out.println("*!!!!!! *NEW ** "+e.getClassName());
+                    //System.out.println("*!!!!!! *NEW ** "+e.getClassName());
                     //Class<?> temp = loader.loadClass(e.getClassName());
                     CtClass clazz = e.getConstructor().getDeclaringClass();
                     
                     //Replace all calls to new for popjava objects with the correct instatiation
                     if(isPOPClass(clazz)){
                         String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+clazz.getName()+".class, $args);";
-                        System.out.println(newCall);
+                        //System.out.println(newCall);
                         
                         e.replace(newCall);
                     }
@@ -259,6 +259,14 @@ public final class POPJavaAgent implements ClassFileTransformer{
                 }
             }
 
+            /**
+             * Handle the following scenarios:
+             * 
+             * this.a = POP_OBJECT;
+             * 
+             * TODO:
+             * this.a = this;
+             */
             @Override
             public void edit(FieldAccess f) throws CannotCompileException {
                 if(f.isWriter()){
@@ -266,13 +274,14 @@ public final class POPJavaAgent implements ClassFileTransformer{
                         return;
                     }
                     
-                    System.out.println(f.getClassName()+" FieldAccess: "+f.getFieldName()+" "+f.getSignature());
+                    //System.out.println(f.getClassName()+" FieldAccess: "+f.getFieldName()+" "+f.getSignature());
                     CtClass clazz;
                     try {
                         clazz = f.getField().getType();
                         if(isPOPClass(clazz)){
-                            String newAssign = "$0."+f.getFieldName()+ " = ("+clazz.getName()+") $1.makePermanent();";
-                            System.out.println(newAssign);
+                            
+                            String newAssign = "$0."+f.getFieldName()+ " = ("+clazz.getName()+") (("+POPObject.class.getName()+")$1).makePermanent();";
+                            //System.out.println(newAssign);
                             f.replace(newAssign);
                         }
                     } catch (NotFoundException e) {
@@ -282,13 +291,19 @@ public final class POPJavaAgent implements ClassFileTransformer{
                 }
             }
             
+            /**
+             * TODO:
+             * Intercept calls on this.method();
+             */
             @Override
             public void edit(MethodCall e){
                 if(isInIgnoredPackage(e.getClassName())){
                     return;
                 }
                 
-                System.out.println(e.getClassName()+" "+e.getMethodName());
+                if(e.getEnclosingClass().equals(method.getDeclaringClass())){
+                    //System.out.println("!!! "+e.getClassName()+" "+e.getMethodName()+" "+e.isSuper()+" "+e.where().getLongName());
+                }                
             }
             
         };

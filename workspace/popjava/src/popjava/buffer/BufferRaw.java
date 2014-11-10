@@ -1,6 +1,7 @@
 package popjava.buffer;
 
 import popjava.base.*;
+
 import java.nio.*;
 
 /**
@@ -21,10 +22,7 @@ public class BufferRaw extends POPBuffer {
 	 * Default constructor
 	 */
 	public BufferRaw() {
-		buffer = ByteBuffer.allocate(BUFFER_LENGTH);
-		buffer.order(ByteOrder.LITTLE_ENDIAN);
-		size = MessageHeader.HEADER_LENGTH;
-		buffer.position(MessageHeader.HEADER_LENGTH);
+	    this(new MessageHeader());
 	}
 
 	/**
@@ -73,11 +71,15 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public boolean getBoolean() {
-		int value = buffer.getInt();
-		if (value == 0)
-			return false;
-		else
-			return true;
+		final int value = getInt();
+		
+		if (value == 0){
+		    return false;
+		}else if(value == 1){
+		    return true;
+		}
+		
+		throw new RuntimeException("Invalid Boolean encoding: "+value);
 	}
 
 	@Override
@@ -87,7 +89,8 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public int getInt() {
-		return buffer.getInt();
+	    final int value = buffer.getInt();
+		return value;
 	}
 
 	/**
@@ -101,8 +104,8 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public char getChar() {
-		char c= buffer.getChar();
-		this.position(this.position()+2);
+		final char c = buffer.getChar();
+		position(position() + 2);
 		return c;
 	}
 
@@ -119,14 +122,28 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public String getString() {
 		int stringLength = getInt();
+		if(stringLength < 0){
+		    throw new RuntimeException("Invalid string length: "+stringLength);
+		}
+		
+		if(stringLength == 0){
+		    return "";
+		}
+		
 		try {
-			byte[] data = new byte[stringLength];
-			buffer.get(data, 0, stringLength);
+			byte[] data = new byte[stringLength - 1];
+			buffer.get(data, 0, data.length);
+			
+			int padding = 1;
+			
 			if ((stringLength % 4) != 0){
-				position(position() + 4 - (stringLength % 4));
+			    padding += 4 - (stringLength % 4);
 			}
-			return (new String(data)).trim();
-		} catch (Exception e) {			
+			
+			position(position() + padding);
+			
+			return new String(data);
+		} catch (Exception e) {
 			return "";
 		}
 	}
@@ -147,14 +164,16 @@ public class BufferRaw extends POPBuffer {
 	public void put(byte value) {
 		resize(4);
 		buffer.put(value);
-		this.position(this.position() + 3);
+		buffer.put((byte) 0);
+		buffer.put((byte) 0);
+		buffer.put((byte) 0);
 	}
 
 	@Override
 	public void put(byte[] data) {
 		int len = data.length;
 		if((len%4) != 0){
-				len = len + 4 - len % 4;
+			len = len + 4 - len % 4;
 		}
 		resize(len);
 		buffer.put(data);
@@ -165,22 +184,17 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public void put(byte[] data, int offset, int length) {
-		int len=length;
-		if((len%4)!=0){
-				len=len+4-len%4;
-		}
-		resize(length);		
+		resize(length);
 		buffer.put(data, offset, length);
-		if((length%4)!=0)
-			this.position(this.position()+4-length%4);
 	}
 
 	@Override
+	//TODO: This should really not be an INT, check with popc++ for compatiblity and reduce to one byte
 	public void putBoolean(boolean value) {
 		if (value == true) {
-			this.putInt(1);
+			putInt(1);
 		}else {
-			this.putInt(0);
+			putInt(0);
 		}
 	}
 
@@ -188,7 +202,8 @@ public class BufferRaw extends POPBuffer {
 	public void putChar(char value) {
 		resize(4);
 		buffer.putChar(value);
-		buffer.position(this.position()+2);
+		buffer.put((byte) 0);
+		buffer.put((byte) 0);
 	}
 
 	@Override
@@ -232,9 +247,12 @@ public class BufferRaw extends POPBuffer {
      * @return
      */
     private static byte[] stringToBytesASCII(String str) {
-    	byte[] b = new byte[str.length()];
+    	final byte[] b = new byte[str.length()];
         for (int i = 0; i < b.length; i++) {
             b[i] = (byte) str.charAt(i);
+            if(b[i] == 0){
+                throw new RuntimeException("Can no have 0 in a string");
+            }
         }
         return b;
     }
@@ -246,15 +264,23 @@ public class BufferRaw extends POPBuffer {
 			int stringLength = data.length() + 1; //0 terminated
 			byte[] datas = stringToBytesASCII(data);
 			
-			//Integrate putInt code so that resize is called only once
-			resize(stringLength +(Integer.SIZE / Byte.SIZE));
-			buffer.putInt(stringLength);
+			int padding = 0;
+            
+            if ((stringLength % 4) != 0){
+                padding = 4 - (stringLength % 4);
+            }
 			
+			//Integrate putInt code so that resize is called only once
+			resize(stringLength + (Integer.SIZE / Byte.SIZE) + padding);
+			buffer.putInt(stringLength);
 			buffer.put(datas);
-			buffer.put((byte) 0);//0 terminated
-			if ((stringLength % 4) != 0){
-				position(position() + 4 - (stringLength % 4));
+			//buffer.put((byte) 0);//0 terminated
+			
+			for(int i = 0; i < padding + 1; i++){//0 terminated + padding (also 0)
+			    buffer.put((byte) 0);
 			}
+			
+			//position(position() + padding);
 		} else {
 			putInt(0);
 		}
@@ -264,19 +290,23 @@ public class BufferRaw extends POPBuffer {
 	public void reset() {
 		buffer.clear();
 		size = MessageHeader.HEADER_LENGTH;
-		this.position(size);
+		for(int i = 0; i < size; i++){
+		    buffer.put((byte) 0);
+		}
+		//position(size);
 	}
 
 	@Override
 	public void resetToReceive() {
 		buffer.clear();
 		size = 0;
-		this.position(size);
+		position(size);
 	}
 
 	@Override
+	//TODO: remove this from this class
 	public int getTranslatedInteger(byte[] value) {
-		return value[3]<<24 | (value[2]&0xff)<<16 | (value[1]&0xff)<<8 | (value[0]&0xff);		
+		return (value[3] & 0xff) << 24 | (value[2] & 0xff) << 16 | (value[1] & 0xff) << 8 | (value[0] & 0xff);		
 	}
 
 	/**
@@ -346,7 +376,7 @@ public class BufferRaw extends POPBuffer {
 	private void resizeBuffer(int newCapacity){
 		ByteBuffer tempBuffer = ByteBuffer.allocate(newCapacity);
 		tempBuffer.order(buffer.order());
-		tempBuffer.put(buffer.array(),0,buffer.position());
+		tempBuffer.put(buffer.array(), 0 , buffer.position());
 		buffer = tempBuffer;
 	}
 	
@@ -357,8 +387,7 @@ public class BufferRaw extends POPBuffer {
 	public void resize(int moreCapacity) {
 		size += moreCapacity;
 		int position = position() + moreCapacity;
-		int capacity = buffer.capacity();
-		if (position > capacity * 4. / 5) {
+		if (position >= buffer.capacity()) {
 			int newCapacity = (int)(position * 2);
 			resizeBuffer(newCapacity);
 		}
@@ -524,6 +553,15 @@ public class BufferRaw extends POPBuffer {
 		this.putInt(value.length);
 		this.put(value);
 	}
+	
+	/**
+	 * Format:
+	 * Size
+	 * Type (0, 1, 2) (response, request, exeption)
+	 * 
+	 * 
+	 * @return
+	 */
 	@Override
 	public int packMessageHeader() {
 		int index = 0;

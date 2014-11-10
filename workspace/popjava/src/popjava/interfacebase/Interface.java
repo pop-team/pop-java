@@ -332,6 +332,7 @@ public class Interface {
 
 		boolean result = false;
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
+		System.out.println("Get encoding result using "+responseBuffer.getClass().getName());
 		popResponse(responseBuffer);
 		result = responseBuffer.getBoolean();
 		if (result) {

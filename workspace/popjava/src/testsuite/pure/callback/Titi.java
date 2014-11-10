@@ -6,7 +6,7 @@ import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
 
 @POPClass(classId = 1034)
-public class Titi extends POPObject {
+public class Titi{
     
 	private int identity;
 	private Toto t;
