@@ -170,7 +170,6 @@
   <!-- Copy jars -->
   <copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
   <copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
-  <copy file="${jar.dir}/${objmapgen.jar}" todir="${release.dir}/JarFile"/>
   <copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
   
   

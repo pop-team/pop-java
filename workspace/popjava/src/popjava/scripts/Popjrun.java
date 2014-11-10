@@ -11,7 +11,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import mapgen.POPJObjectMap;
+import popjava.mapgen.POPJObjectMap;
 import popjava.system.POPJavaClassloader;
 import popjava.util.Configuration;
 

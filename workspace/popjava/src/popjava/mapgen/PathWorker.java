@@ -1,4 +1,4 @@
-package mapgen;
+package popjava.mapgen;
 
 public class PathWorker {
 	

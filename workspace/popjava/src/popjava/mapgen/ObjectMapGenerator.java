@@ -1,4 +1,4 @@
-package mapgen;
+package popjava.mapgen;
 import java.util.ArrayList;
 
 /**

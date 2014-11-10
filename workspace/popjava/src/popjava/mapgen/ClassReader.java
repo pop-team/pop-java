@@ -1,4 +1,4 @@
-package mapgen;
+package popjava.mapgen;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
