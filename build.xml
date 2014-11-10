@@ -19,12 +19,9 @@
         
         <property name="popjava.jar" value="popjava.jar"/>
         <property name="testsuite.jar" value="testsuite.jar"/>
-	    <property name="obj.map" value="testsuite.jar.map"/>
-	
-	    <property name="objmapgen.jar" value="popjobjectmapgen.jar"/>   
+	    <property name="obj.map" value="testsuite.jar.map"/> 
         
         <property name="popjava.src" value ="workspace/popjava/src/popjava"/>
-	   <property name="objmapgen.src" value ="workspace/ObjectMapGen/src/"/>
         <property name="testsuite.src" value ="workspace/popjava/src/testsuite"/>
         
         <property name="popjavac.dir" value ="popjavac"/>
@@ -46,20 +43,6 @@
         <javac srcdir="${popjava.src}"
                 destdir="${classes.dir}"
                 classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}:${junit-benchmark.jar}"
-                debug="true" debuglevel="lines,vars,source"
-                target="7"
-                source="7"
-        >
-          <compilerarg value="-Xlint:deprecation,unchecked"/>
-        </javac>
-</target>
-	
-	
-<target name="make-objectmapgen" depends="jar-popjava" description="build the popjava library">
-        <mkdir dir="${objgenclasses.dir}"/>
-        <javac srcdir="${objmapgen.src}"
-                destdir="${objgenclasses.dir}"
-        	   classpath="${jar.dir}/${popjava.jar}"
                 debug="true" debuglevel="lines,vars,source"
                 target="7"
                 source="7"
@@ -105,13 +88,7 @@
         </jar>
 </target>
 	
-<target name="jar-objmapgen" depends="make-objectmapgen" description="create jar for the objectmapgen">
-        <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${objmapgen.jar}" basedir="${objgenclasses.dir}">
-        </jar>
-</target>
-	
-<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc, jar-objmapgen" description="create jar for the popjava testsuite">
+<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
                 excludes="**/popjava/**, **/objgen/**">
@@ -171,7 +148,7 @@
     </java>
 </target>
 
-<target name="make" depends="clean, jar-popjava, jar-testsuite, jar-objmapgen" description="Builds the whole sourcecode">
+<target name="make" depends="clean, jar-popjava, jar-testsuite" description="Builds the whole sourcecode">
 </target>
 
 <target name="make-release-folder" depends="make" description="Creates the directory that will be installed">

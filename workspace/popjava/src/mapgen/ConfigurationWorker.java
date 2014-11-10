@@ -1,3 +1,4 @@
+package mapgen;
 
 
 import java.io.File;

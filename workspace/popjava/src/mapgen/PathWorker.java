@@ -1,3 +1,4 @@
+package mapgen;
 
 public class PathWorker {
 	

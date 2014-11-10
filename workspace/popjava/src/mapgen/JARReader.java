@@ -1,3 +1,4 @@
+package mapgen;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,12 +40,8 @@ public class JARReader {
 					
 					try{
 						Class<?> c = Class.forName(className, true, loader);
-						Class<?> sc = c.getSuperclass();
-						while(sc != null && sc != POPObject.class){
-							sc = sc.getSuperclass();
-						}
 						
-						if (sc == POPObject.class) {
+						if (ClassReader.isParclass(c)) {
 							parclasses.add(className);
 						}
 					}catch(NoClassDefFoundError ex){

@@ -1,3 +1,4 @@
+package mapgen;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -42,18 +43,34 @@ public class ClassReader {
 				"file://" + cleanPath) }, getClass().getClassLoader());
 		Class<?> c = Class.forName(className, true, loader);
 		
-		Class<?> sc = c.getSuperclass();
-		if (sc == POPObject.class) {
-			Package p = c.getPackage();
-			if (p != null){
-				packageName = p.getName();
-			}
-			return true;
+		if(isParclass(c)){
+		    Package p = c.getPackage();
+            if (p != null){
+                packageName = p.getName();
+            }
+            return true;
 		}
 		
-		POPClass popAnnotation = c.getAnnotation(POPClass.class);
-		
-		return popAnnotation != null;
+		return false;
+	}
+	
+	public static boolean isParclass(Class<?> c){
+	    Class<?> sc = c;
+	    do{
+	        POPClass popAnnotation = sc.getAnnotation(POPClass.class);
+	        
+	        if(popAnnotation != null){
+	            return true;
+	        }
+	        
+	        if (sc == POPObject.class) {
+	            return true;
+	        }
+	        
+	        sc = sc.getSuperclass();
+	    }while(sc != null);
+	    
+        return false;
 	}
 
 	/**

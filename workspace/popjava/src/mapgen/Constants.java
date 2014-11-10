@@ -1,3 +1,4 @@
+package mapgen;
 
 public class Constants {
 	public static final String JAR_EXT = ".jar";

@@ -1,3 +1,4 @@
+package mapgen;
 import java.util.ArrayList;
 
 /**
@@ -34,14 +35,16 @@ public class ObjectMapGenerator {
 		ObjectMapWriter omw = new ObjectMapWriter(file, append);
 		for (int i = 0; i < files.size(); i++) {
 			String crtFile = files.get(i);
+			
 			if (crtFile.endsWith(Constants.JAR_EXT)) {
 				JARReader jr = new JARReader(crtFile);
 				ArrayList<String> parclasses = jr.getParclassFromJar();
 				omw.writePOPJavaEntries(parclasses, crtFile);
 			} else if (crtFile.endsWith(Constants.CLASS_EXT)) {
 				ClassReader cr = new ClassReader(crtFile);
-				if (cr.isParclass())
+				if (cr.isParclass()){
 					omw.writePOPJavaEntry(cr.getClassFullName(), cr.getCleanPath());
+				}
 			} else if (crtFile.endsWith(Constants.POPC_OBJ) || crtFile.endsWith(Constants.POPC_MOD)) {
 				POPCPPParclassWorker ppw = new POPCPPParclassWorker(crtFile);
 				ppw.loadExecutableInfo();

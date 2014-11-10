@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import mapgen.POPJObjectMap;
 import popjava.system.POPJavaClassloader;
 import popjava.util.Configuration;
 
@@ -241,21 +242,11 @@ public class Popjrun {
 	}
 
 	private static void listLong(String files) {
-		// java -cp
-		// $POPJAVA_LOCATION$JAR_OBJMAPGEN:$POPJAVA_LOCATION$JAR_POPJAVA:$POPJAVA_LOCATION$JAR_JAVASSIST
-		// $CLASS_OBJMAPGEN -cwd=$PWD $APPEND$FILE -file=$FILES
-		String[] command = new String[6];
-		command[0] = "java";
-		command[1] = "-cp";
-		command[2] = getPopJavaLocation() + JAR_OBJMAPGEN
-				+ File.pathSeparatorChar + getPopJavaLocation() + JAR_POPJAVA;
-		command[3] = "POPJObjectMap";
-		command[4] = "-cwd=" + System.getProperty("user.dir");
-		command[5] = "-file=" + files;
-		// command[7] = "-file="+files;
-
-		ScriptUtils.runNativeApplication(command, "Java not installed", null,
-				verbose);
+		String[] command = new String[2];
+	    command[0] = "-cwd=" + System.getProperty("user.dir");
+		command[1] = "-file=" + files;
+		
+		POPJObjectMap.main(command);
 	}
 
 	private static class StreamReader implements Runnable {
