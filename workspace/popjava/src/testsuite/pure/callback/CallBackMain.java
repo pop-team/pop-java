@@ -1,8 +1,6 @@
 package testsuite.pure.callback;
 
-import popjava.PopJava;
 import popjava.annotation.POPClass;
-import popjava.system.POPSystem;
 
 @POPClass
 public class CallBackMain {
