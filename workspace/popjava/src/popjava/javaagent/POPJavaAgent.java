@@ -176,7 +176,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     if(method.getName().equals("main") && Modifier.isStatic(method.getModifiers())){
                         //System.out.println("this is the main! Initialize popjava");
                         method.insertBefore("$1 = "+POPSystem.class.getName()+".initialize($1);");
-                        method.insertAfter(POPSystem.class.getName()+".end();");
+                        method.insertAfter(POPSystem.class.getName()+".end();", true);
                     }
                     
                     final String longMethodName = method.getLongName();
