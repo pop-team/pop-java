@@ -379,10 +379,9 @@ public final class Broker {
 					if (returnType != Void.class && returnType != void.class
 							&& returnType != Void.TYPE)
 						try {
-							responseBuffer.putValue(result, returnType);
+						    responseBuffer.putValue(result, returnType);
 						} catch (POPException e) {
-							exception = new POPException(e.errorCode,
-									e.errorMessage);
+							exception = e;
 						}
 				}
 				// Send response if success to put parameter to response buffer
@@ -408,8 +407,7 @@ public final class Broker {
 		// or cannot put the output parameter,
 		// send it to the interface
 		if (exception != null) {
-			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException : "
-					+ exception.getMessage());
+			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException : " + exception.getMessage());
 			if (request.isSynchronous()){
 				sendException(request.getCombox(), exception);
 			}
@@ -869,6 +867,8 @@ public final class Broker {
 	 * @return true if the exception has been sent
 	 */
 	public boolean sendException(Combox combox, POPException exception) {
+	    exception.printStackTrace();
+	    
 		POPBuffer buffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(
 				POPSystemErrorCode.EXCEPTION_PAROC_STD);

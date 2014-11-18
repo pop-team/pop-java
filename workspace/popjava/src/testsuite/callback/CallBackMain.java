@@ -1,15 +1,14 @@
 package testsuite.callback;
 
-import popjava.PopJava;
-import popjava.system.POPSystem;
+import popjava.annotation.POPClass;
 
+@POPClass(isMain = true)
 public class CallBackMain {
 	
 	public static void main(String... argvs){
 		System.out.println("Callback test started ...");
-		argvs = POPSystem.initialize(argvs);
 		
-		Toto t = PopJava.newActive(Toto.class);
+		Toto t = new Toto();
 		t.setIdent(1234);
 		
 		int value = t.getIdent();
@@ -20,7 +19,5 @@ public class CallBackMain {
 		}else{
 			System.out.println("Callback test failed");
 		}
-		
-		POPSystem.end();
 	}
 }

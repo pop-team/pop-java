@@ -9,10 +9,8 @@ public class Testsuite {
 	public static void main(String ... args){
 		LogWriter.writeDebugInfo("Start callback");
 		CallBackMain.main();
-		
-		//Pop is not ended correctly i think
-		
 		TestInteger.main();
+		
 	}
 	
 }

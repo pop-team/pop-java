@@ -8,3 +8,4 @@
 # Generated compiled python files
 *.pyc
 /bin
+/.apt_generated/

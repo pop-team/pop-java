@@ -90,6 +90,7 @@ public class POPObject implements IPOPBase {
 			od.setJVMParamters(objectDescription.jvmParameters());
 			od.setConnectionType(objectDescription.connection());
 			od.setConnectionSecret(objectDescription.connectionSecret());
+			od.setEncoding(objectDescription.encoding().toString());
 		}
 	}
 	

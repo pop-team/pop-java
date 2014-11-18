@@ -55,6 +55,7 @@ else
 fi
 
 CP=$LOCATION/JarFile/popjava.jar:$LOCATION/JarFile/testsuite.jar
+POP=$LOCATION/JarFile/popjava.jar
 
 N_TEST=6
 
@@ -65,27 +66,27 @@ echo "##############################"
 echo "Starting POP-Java test suite"
 echo "Launching passing arguments test (test 1/$N_TEST)... "
 echo "java -cp $CP testsuite.arg.MainArgTest"
-java -cp $CP testsuite.arg.MainArgTest
+java -javaagent:$POP -cp $CP testsuite.arg.MainArgTest
 echo "Passing arguments test is finished ... "
 
 echo "Launching multi parallel object test (test 2/$N_TEST)... "
-java -cp $CP testsuite.multiobj.Mutliobj
+java -javaagent:$POP -cp $CP testsuite.multiobj.Mutliobj
 echo "Multi parallel object test is finished... "
 
 echo "Launching callback test (test 3/$N_TEST)... "
-java -cp $CP testsuite.callback.CallBackMain
+java -javaagent:$POP -cp $CP testsuite.callback.CallBackMain
 echo "Callback test is finished... "
 
 echo "Launching barrier test (test 4/$N_TEST)... "
-java -cp $CP testsuite.barrier.MainBarrier
+java -javaagent:$POP -cp $CP testsuite.barrier.MainBarrier
 echo "Barrier test is finished... "
 
 echo "Launching integer test (test 5/$N_TEST)... "
-java -cp $CP testsuite.integer.TestInteger
+java -javaagent:$POP -cp $CP testsuite.integer.TestInteger
 echo "Integer test is finished... "
 
 echo "Launching Demo POP-Java test (test 6/$N_TEST)... "
-java -cp $CP testsuite.demo.DemoMain 4 127.0.0.1
+java -javaagent:$POP -cp $CP testsuite.demo.DemoMain 4 127.0.0.1
 echo "Demo POP-Java test is finished... "
 echo ""
 
@@ -104,7 +105,7 @@ else
 fi
 echo "Launching POP-C++ integer with POP-Java application test (test 1/$N_TEST)"
 echo "java -cp $CP testsuite.popc_integer.TestPopcInteger"
-java -cp $CP testsuite.popc_integer.TestPopcInteger
+java -javaagent:$POP -cp $CP testsuite.popc_integer.TestPopcInteger
 echo "POP-C++ integer with POP-Java application test is finishied ..."
 
 if [ -a $CP/testsuite/popc-obj/jinteger/integer.obj ]
@@ -116,7 +117,7 @@ else
 	cd $OLDPWD
 fi
 echo "Launching Integer mix (POP-C++ and POP-Java) with POP-Java application test(test 2/$N_TEST)"
-java -cp $CP testsuite.jinteger.TestRef
+java -javaagent:$POP -cp $CP testsuite.jinteger.TestRef
 echo "Integer mix (POP-C++ and POP-Java) with POP-Java application test is finishied ..."
 
 echo "########################################"

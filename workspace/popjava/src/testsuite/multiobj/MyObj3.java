@@ -1,25 +1,21 @@
 package testsuite.multiobj;
 
+import popjava.annotation.POPClass;
+import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncSeq;
 import popjava.base.POPException;
-import popjava.base.POPObject;
-import popjava.base.Semantic;
 import popjava.*;
 
-
-
-public class MyObj3 extends POPObject{
+@POPClass(classId = 1210)
+public class MyObj3{
 	protected int data;
 	
-	public MyObj3(){
-		setClassId(1210);
-		Class<?> c = MyObj3.class;
-		od.setHostname("localhost");
-		initializePOPObject();
-		addSemantic(c, "set",	Semantic.SEQUENCE | Semantic.SYNCHRONOUS);
-		addSemantic(c, "get",	Semantic.CONCURRENT | Semantic.SYNCHRONOUS);
-		
+	@POPObjectDescription(url = "localhost")
+	public MyObj3(){		
 	}
 	
+	@POPSyncSeq
 	public void set(int value) throws POPException {
 		MyObj4 o4 = (MyObj4) PopJava.newActive(MyObj4.class);
 		o4.set(value);
@@ -27,6 +23,7 @@ public class MyObj3 extends POPObject{
 		
 	}
 	
+	@POPSyncConc
 	public int get(){
 		return data + 200;
 	}

@@ -4,6 +4,7 @@ import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
 public class ComplexType2 implements IPOPBase {
+    
 	private int size;
 	private double[] d;
 	
@@ -22,7 +23,6 @@ public class ComplexType2 implements IPOPBase {
 	public double[] getDouble(){
 		return d;
 	}
-	
 
 	@Override
 	public boolean deserialize(POPBuffer buffer) {

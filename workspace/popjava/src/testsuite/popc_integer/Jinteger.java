@@ -1,33 +1,32 @@
 package testsuite.popc_integer;
 
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncMutex;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
 
-public class Jinteger extends POPObject {
+@POPClass(classId = 1001, deconstructor = true)
+public class Jinteger{
 	private int value;
 	
 	public Jinteger(){
-		Class<?> c = Jinteger.class;
-		//setClassName("Jinteger");
-		setClassId(1001);
-		od.setPower(100, 10);
-		hasDestructor(true);
-		initializePOPObject();
-		addSemantic(c, "add", Semantic.MUTEX | Semantic.SYNCHRONOUS);
-		addSemantic(c, "jadd", Semantic.MUTEX | Semantic.SYNCHRONOUS);
-		addSemantic(c, "jget", Semantic.CONCURRENT | Semantic.SYNCHRONOUS);
-		addSemantic(c, "jset", Semantic.SEQUENCE | Semantic.ASYNCHRONOUS);
+		//TODO: implement power
+		//od.setPower(100, 10);
 	}
 	
+	@POPSyncConc
 	public int jget() {
 		return value;
 	}
 
-	
+	@POPAsyncSeq
 	public void jset(int value) {
 		this.value=value;
 	}
 
+	@POPSyncMutex
 	public void jadd(Jinteger other) {
 		this.value += other.jget();
 //		try {
@@ -39,6 +38,7 @@ public class Jinteger extends POPObject {
 //		}	
 	}
 	
+	@POPSyncMutex
 	public void add(Integer other){
 		this.value += other.get();
 	}

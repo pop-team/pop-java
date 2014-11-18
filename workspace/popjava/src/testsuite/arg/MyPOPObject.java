@@ -1,9 +1,11 @@
 package testsuite.arg;
 
-import popjava.base.POPObject;
-import popjava.base.Semantic;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
 
-public class MyPOPObject extends POPObject {
+@POPClass
+public class MyPOPObject{
 	private byte myByte;
 	private byte[] byteArray;
 	private int myValue;
@@ -26,239 +28,236 @@ public class MyPOPObject extends POPObject {
 	private MyComplexType mct;
 	private ComplexType2 ct2;
 	private ComplexType3 ct3;
-	
-	public MyPOPObject(){
-		Class<?> c = MyPOPObject.class;
-		initializePOPObject();
-		od.setPower(100, 80);
-		addSemantic(c, "setInt", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "changeInt", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getInt", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setDouble", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getDouble", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setLong", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getLong", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setFloat", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getFloat", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setIntArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getIntArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setDoubleArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getDoubleArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setFloatArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getFloatArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setShort", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getShort", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setShortArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getShortArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setChar", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getChar", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setCharArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getCharArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setBoolean", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getBoolean", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setBooleanArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getBooleanArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setString", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getString", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setStringArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getStringArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setLongArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getLongArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setByteArray", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getByteArray", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setByte", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getByte", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "changeString", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		addSemantic(c, "setMyType", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getMyType", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "setMyComplexType", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getMyComplexType", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "setComplexType2", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getComplexType2", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "setComplexType3", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "getComplexType3", Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
-	}
-	
+		
+	@POPAsyncSeq
 	public void setInt(int value){
 		myValue = value;
 	}
 	
+	@POPAsyncSeq
 	public void changeInt(int value){
 		value+=value;
 	}
 	
+	@POPSyncConc
 	public int getInt(){
 		return myValue;
 	}
 	
+	@POPAsyncSeq
 	public void setDouble(double value){
 		myDoubleValue = value;
 	}
 	
+	@POPSyncConc
 	public double getDouble(){
 		return myDoubleValue;
 	}
 	
+	@POPAsyncSeq
 	public void setLong(long value){
 		myLongValue = value;
 	}
 	
+	@POPSyncConc
 	public long getLong(){
 		return myLongValue;
 	}
 	
+	@POPAsyncSeq
 	public void setFloat(float value){
 		myFloatValue = value;
 	}
 	
+	@POPSyncConc
 	public float getFloat(){
 		return myFloatValue;
 	}
 	
+	@POPAsyncSeq
 	public void setIntArray(int[] array){
 		intArray = array;
 	}
 	
+	@POPSyncConc
 	public int[] getIntArray(){
 		return intArray;
 	}
 	
+	@POPAsyncSeq
 	public void setDoubeArray(double[] array){
 		doubleArray = array;
 	}
 	
+	@POPSyncConc
 	public double[] getDoubleArray(){
 		return doubleArray;
 	}
 	
+	@POPAsyncSeq
 	public void setFloatArray(float[] array){
 		floatArray = array;
 	}
 	
+	@POPSyncConc
 	public float[] getFloatArray(){
 		return floatArray;
 	}
 	
+	@POPAsyncSeq
 	public void setShort(short value){
 		myShort = value;
 	}
 	
+	@POPSyncConc
 	public short getShort(){
 		return myShort;
 	}
 	
+	@POPAsyncSeq
 	public void setShortArray(short[] array){
 		shortArray = array;
 	}
 	
+	@POPSyncConc
 	public short[] getShortArray(){
 		return shortArray;
 	}
 	
+	@POPAsyncSeq
 	public void setChar(char c){
 		myChar = c;
 	}
 	
+	@POPSyncConc
 	public char getChar(){
 		return myChar;
 	}
 	
+	@POPAsyncSeq
 	public void setCharArray(char[] c){
 		charArray = c;
 	}
 	
+	@POPSyncConc
 	public char[] getCharArray(){
 		return charArray;
 	}
 	
+	@POPAsyncSeq
 	public void setBoolean(boolean b){
 		myBoolean = b;
 	}
 	
+	@POPSyncConc
 	public boolean getBoolean(){
 		return myBoolean;
 	}
 	
+	@POPAsyncSeq
 	public void setBooleanArray(boolean[] array){
 		boolArray = array;
 	}
 	
+	@POPSyncConc
 	public boolean[] getBooleanArray(){
 		return boolArray;
 	}
 	
+	@POPAsyncSeq
 	public void setString(String value){
 		myString = value;
 	}
 	
+	@POPSyncConc
 	public String getString(){
 		return myString;
 	}
 	
+	@POPAsyncSeq
 	public void setStringArray(String[] value){
 		stringArray = value;
 	}
 	
+	@POPSyncConc
 	public String[] getStringArray(){
 		return stringArray;
 	}
 	
+	@POPAsyncSeq
 	public void changeString(String s){
 		s = "theStringhasBeenChanged";
 	}
 	
+	@POPAsyncSeq
 	public void setLongArray(long[] array){
 		longArray = array;
 	}
 	
+	@POPSyncConc
 	public long[] getLongArray(){
 		return longArray;
 	}
 	
+	@POPAsyncSeq
 	public void setMyType(MyType mt){
+	    System.out.println("************************ 1 "+(mt == null));
 		myType = mt;
+		System.out.println("************************ 2 "+(myType == null));
 	}
 	
+	@POPSyncConc
 	public MyType getMyType(){
+	    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!! "+(myType == null));
 		return myType;
 	}
 	
+	@POPAsyncSeq
 	public void setMyComplexType(MyComplexType mct){
 		this.mct = mct;
 	}
 	
+	@POPSyncConc
 	public MyComplexType getMyComplexType(){
 		return mct;
 	}
 	
+	@POPAsyncSeq
 	public void setComplexType2(ComplexType2 ct2){
 		this.ct2 = ct2;
 	}
 	
+	@POPSyncConc
 	public ComplexType2 getComplexType2(){
 		return ct2;
 	}
 	
+	@POPAsyncSeq
 	public void setComplexType3(ComplexType3 ct3){
 		this.ct3 = ct3;
 	}
 	
+	@POPSyncConc
 	public ComplexType3 getComplexType3(){
 		return ct3;
 	}
 	
+	@POPAsyncSeq
 	public void setByte(byte b){
 		myByte = b;
 	}
 	
+	@POPSyncConc
 	public byte getByte(){
 		return myByte;
 	}
 	
+	@POPAsyncSeq
 	public void setByteArray(byte[] array){
 		byteArray = array;
 	}
 	
+	@POPSyncConc
 	public byte[] getByteArray(){
 		return byteArray;
 	}

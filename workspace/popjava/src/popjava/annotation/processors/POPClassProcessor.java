@@ -21,6 +21,7 @@ import javax.lang.model.util.SimpleTypeVisitor6;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
 import popjava.annotation.POPSyncSeq;
@@ -40,8 +41,7 @@ public class POPClassProcessor extends AbstractProcessor {
 	}
 	
 	@Override
-	public boolean process(Set<? extends TypeElement> annotations,
-			RoundEnvironment env) {
+	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
 		for (TypeElement type : annotations) {
 			processNoArgsConstructorClasses(env, type);
 		}
@@ -49,28 +49,40 @@ public class POPClassProcessor extends AbstractProcessor {
 		return true;
 	}
 
-	private void processNoArgsConstructorClasses(RoundEnvironment env,
-			TypeElement type) {
+	private void processNoArgsConstructorClasses(RoundEnvironment env, TypeElement type) {
 		for (Element element : env.getElementsAnnotatedWith(type)) {
 			processClass(element);
 		}
 	}
 
 	private void processClass(Element element) {
+	    POPClass popAnnotation = element.getAnnotation(POPClass.class);
+	    if(popAnnotation == null){
+	        messager.printMessage(Diagnostic.Kind.ERROR, "POP-Class " + element + " did not have the @"+POPClass.class.getName()+" annotation", element);
+	        return;
+	    }
+	    
+	    if(popAnnotation.isMain()){
+	        return;
+	    }
+	    
 		if (!doesClassContainNoArgsConstructor(element)) {
-			messager.printMessage(Diagnostic.Kind.ERROR,
-					"Class " + element + " needs a No-Args Constructor",
-					element);
+			messager.printMessage(Diagnostic.Kind.ERROR, "Class " + element + " needs a No-Args Constructor", element);
 		}
 		
 		for (Element subelement : element.getEnclosedElements()) {
-			if(subelement.getKind() == ElementKind.METHOD){
-				checkPublicMethodAnnotation(subelement);
-			}
-		}
+            if(subelement.getKind() == ElementKind.METHOD &&
+                    subelement.getModifiers().contains(Modifier.PUBLIC)){
+                checkPublicMethodAnnotation(subelement);
+            }
+        }
 	}
 	
 	private void checkPublicMethodAnnotation(Element method){
+	    if(method.getModifiers().contains(Modifier.STATIC)){
+	        messager.printMessage(Diagnostic.Kind.ERROR, "Method " + method + " can not be public and static", method);
+	    }
+	    
 		if(method.getAnnotation(POPAsyncSeq.class) == null &&
 				method.getAnnotation(POPAsyncConc.class) == null &&
 				method.getAnnotation(POPAsyncMutex.class) == null &&
@@ -108,8 +120,7 @@ public class POPClassProcessor extends AbstractProcessor {
 	
 	private boolean doesClassContainNoArgsConstructor(Element el) {
 		for (Element subelement : el.getEnclosedElements()) {
-			if (subelement.getKind() == ElementKind.CONSTRUCTOR
-					&& subelement.getModifiers().contains(Modifier.PUBLIC)) {
+			if (subelement.getKind() == ElementKind.CONSTRUCTOR && subelement.getModifiers().contains(Modifier.PUBLIC)) {
 				TypeMirror mirror = subelement.asType();
 				if (mirror.accept(NO_ARGS_VISITOR, null)){
 					return true;

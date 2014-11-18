@@ -5,10 +5,9 @@ import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncMutex;
-import popjava.base.*;
 
 @POPClass
-public class Integer extends POPObject{
+public class Integer{
 	protected int value;
 	
 	@POPObjectDescription(url = "localhost")

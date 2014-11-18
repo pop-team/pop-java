@@ -23,7 +23,6 @@ public class MyType implements IPOPBase {
 		return theString;
 	}
 	
-	
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
 		theInt = buffer.getInt();
@@ -33,10 +32,8 @@ public class MyType implements IPOPBase {
 
 	@Override
 	public boolean serialize(POPBuffer buffer) {
-		int value = getInt();
-		buffer.putInt(value);
-		String s = getString();
-		buffer.putString(s);
+		buffer.putInt(getInt());
+		buffer.putString(getString());
 		return true;
 	}
 	

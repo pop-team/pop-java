@@ -1,6 +1,7 @@
 package popjava;
 
 import popjava.base.POPException;
+import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
@@ -72,5 +73,14 @@ public class PopJava {
 			throws POPException {
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newActiveFromBuffer(buffer);
+	}
+	
+	public static POPAccessPoint getAccessPoint(Object object){
+	    if(object instanceof POPObject){
+	        POPObject temp = (POPObject) object;
+	        return temp.getAccessPoint();
+	    }
+	    
+	    throw new RuntimeException("Object was not of type "+POPObject.class.getName());
 	}
 }

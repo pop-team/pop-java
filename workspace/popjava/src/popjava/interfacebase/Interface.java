@@ -165,81 +165,94 @@ public class Interface {
 				throw new POPException(-1, "Could not create "+objectName+" on "+od.getHostName());
 			}
 			
-			// ask the job manager to allocate the broker
-			String platforms = od.getPlatform();
-
-			if (platforms.length() <= 0) {
-				AppService appCoreService = null;
-				appCoreService = (AppService) PopJava.newActive(
-						POPAppService.class, POPSystem.appServiceAccessPoint);
-				POPString popStringPlatorm = new POPString();
-				appCoreService.getPlatform(objectName, popStringPlatorm);
-				platforms = popStringPlatorm.getValue();
-				if (platforms.length() <= 0) {
-					throw new POPException(
-							POPErrorCode.OBJECT_EXECUTABLE_NOTFOUND,
-							"OBJECT_EXECUTABLE_NOTFOUND");
-				}
-				od.setPlatform(platforms);
-				//appCoreService.exit();
-			}
-			// Global Resource management system --> Find a resource.
-			String jobUrl = od.getJobUrl();
-			POPAccessPoint jobContact = new POPAccessPoint();
-			if (jobUrl.length() > 0) {
-				jobContact.setAccessString(jobUrl);
-			} else {
-				jobContact = POPSystem.jobService;
-			}
-
-			if (jobContact.isEmpty()) {
-				jobContact.setAccessString(String.format("%s:%d", POPSystem
-						.getHostIP(), POPJobManager.DEFAULT_PORT));
-			}
-
-			POPJobService jobManager = null;
-			try{
-				if(Configuration.CONNECT_TO_POPCPP){
-					jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
-				}
-			}catch(Exception e){
-			}
+			boolean allocated = allocateThroughJobmanager(objectName, allocatedAccessPoint,
+                    remotejobscontact);
 			
-			if(jobManager == null){
-				LogWriter.writeDebugInfo("Could not contact jobmanager, running objects without od.url is not supported");
-				return false;
+			if(!allocated && od.getHostName().isEmpty()){
+			    LogWriter.printDebug("No url specified for "+objectName+", fallback to localhost");
+			    od.setHostname("localhost");
+			    tryLocal(objectName, popAccessPoint);
 			}
-			
-			ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
-			
-			int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
-					allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
-			jobManager.exit();
-			if (createdCode != 0) {
-				switch (createdCode) {
-					case POPErrorCode.POP_EXEC_FAIL:
-						throw new POPException(createdCode,
-							"OBJECT_EXECUTABLE_NOTFOUND");
-					case POPErrorCode.POP_JOBSERVICE_FAIL:
-						throw new POPException(createdCode, "NO_RESOURCE_MATCH "+objectName);
-					default:
-						throw new POPException(createdCode, "UNABLE_TO_CREATED_THE_PARALLEL_OBJECT");
-				}
-			}
-
-			for (int i = 0; i < allocatedAccessPoint.length; i++) {
-				if(allocatedAccessPoint[0].size() >= 1 && (
-						allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") || 
-						allocatedAccessPoint[0].get(0).getHost().equals("127.0.1.1"))){
-					allocatedAccessPoint[0].get(0).setHost(remotejobscontact[0].get(0).getHost());
-				}
-			}
-			popAccessPoint.setAccessString(allocatedAccessPoint[0].toString());
-
 		}
 		
 		return bind(popAccessPoint);
 	}
+
+    public boolean allocateThroughJobmanager(String objectName,
+            POPAccessPoint[] allocatedAccessPoint,
+            POPAccessPoint[] remotejobscontact) {
+        // ask the job manager to allocate the broker
+        String platforms = od.getPlatform();
+
+        if (platforms.length() <= 0) {
+        	AppService appCoreService = null;
+        	appCoreService = (AppService) PopJava.newActive(
+        			POPAppService.class, POPSystem.appServiceAccessPoint);
+        	POPString popStringPlatorm = new POPString();
+        	appCoreService.getPlatform(objectName, popStringPlatorm);
+        	platforms = popStringPlatorm.getValue();
+        	if (platforms.length() <= 0) {
+        		throw new POPException(
+        				POPErrorCode.OBJECT_EXECUTABLE_NOTFOUND,
+        				"OBJECT_EXECUTABLE_NOTFOUND");
+        	}
+        	od.setPlatform(platforms);
+        	//appCoreService.exit();
+        }
+        // Global Resource management system --> Find a resource.
+        String jobUrl = od.getJobUrl();
+        POPAccessPoint jobContact = new POPAccessPoint();
+        if (jobUrl.length() > 0) {
+        	jobContact.setAccessString(jobUrl);
+        } else {
+        	jobContact = POPSystem.jobService;
+        }
+
+        if (jobContact.isEmpty()) {
+        	jobContact.setAccessString(String.format("%s:%d", POPSystem
+        			.getHostIP(), POPJobManager.DEFAULT_PORT));
+        }
+
+        POPJobService jobManager = null;
+        try{
+        	if(Configuration.CONNECT_TO_POPCPP){
+        		jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
+        	}
+        }catch(Exception e){
+        }
+        
+        if(jobManager == null){
+            return false;
+        }
+        
+        ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
+        
+        int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
+        		allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
+        jobManager.exit();
+        if (createdCode != 0) {
+        	switch (createdCode) {
+        		case POPErrorCode.POP_EXEC_FAIL:
+        			throw new POPException(createdCode,
+        				"OBJECT_EXECUTABLE_NOTFOUND");
+        		case POPErrorCode.POP_JOBSERVICE_FAIL:
+        			throw new POPException(createdCode, "NO_RESOURCE_MATCH "+objectName);
+        		default:
+        			throw new POPException(createdCode, "UNABLE_TO_CREATED_THE_PARALLEL_OBJECT");
+        	}
+        }
+
+        for (int i = 0; i < allocatedAccessPoint.length; i++) {
+        	if(allocatedAccessPoint[0].size() >= 1 && (
+        			allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") || 
+        			allocatedAccessPoint[0].get(0).getHost().equals("127.0.1.1"))){
+        		allocatedAccessPoint[0].get(0).setHost(remotejobscontact[0].get(0).getHost());
+        	}
+        }
+        popAccessPoint.setAccessString(allocatedAccessPoint[0].toString());
+        
+        return true;
+    }
 
 	/**
 	 * Bind the interface with a parallel object (Broker-side)
@@ -332,7 +345,7 @@ public class Interface {
 
 		boolean result = false;
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-		System.out.println("Get encoding result using "+responseBuffer.getClass().getName());
+		
 		popResponse(responseBuffer);
 		result = responseBuffer.getBoolean();
 		if (result) {

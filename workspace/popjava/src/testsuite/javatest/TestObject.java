@@ -83,25 +83,13 @@ public class TestObject {
 		s[1] = "Two";
 	}
 	
-	
-	
-	
-	
 	public void changeInteger(Integer i){
 		i++;
 	}
 	
-
-	
-	
-	
 	public void changeDouble(Double d){
 		d = new Double(3.0);
 	}
-	
-
-	
-	
 	
 	public void changeInsideClass(InsideClass ic){
 		ic.i = 10;

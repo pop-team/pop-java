@@ -18,4 +18,5 @@ public @interface POPClass {
 	int classId() default -1;
 	boolean deconstructor() default false;
 	int maxRequestQueue() default RequestQueue.DEFAULT_REQUEST_QUEUE_SIZE;
+	boolean isMain() default false;
 }

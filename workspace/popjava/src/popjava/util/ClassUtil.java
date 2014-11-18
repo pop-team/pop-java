@@ -28,7 +28,7 @@ public class ClassUtil {
 				parameterTypes[index] = Long.TYPE;
 			}else if(objects[index].getClass().equals(Short.class)){
 				parameterTypes[index] = Short.TYPE;
-			}if(objects[index].getClass().equals(Boolean.class)){
+			}else if(objects[index].getClass().equals(Boolean.class)){
 				parameterTypes[index] = Boolean.TYPE;
 			}
 		}
@@ -165,32 +165,34 @@ public class ClassUtil {
 	}
 
 	public static boolean areParameterTypesTheSame(Class<?>[] params,
-			Class<?>[] parameters) {
-		if (parameters.length > params.length
-				|| (parameters.length == 0 && params.length > 0))
+			Class<?>[] constructorParameters) {
+		if (constructorParameters.length > params.length
+				|| (constructorParameters.length == 0 && params.length > 0))
 			return false;
-		for (int index = 0; index < parameters.length; index++) {
+		for (int index = 0; index < constructorParameters.length; index++) {
 
-			if (index == parameters.length - 1) {
-				if (isAssignableFrom(parameters[index], params[index])) {
-					if (parameters.length == params.length)
+			if (index == constructorParameters.length - 1) {
+				if (isAssignableFrom(constructorParameters[index], params[index])) {
+					if (constructorParameters.length == params.length){
 						return true;
-					else
+					} else {
 						return false;
-				}
-				if (parameters[index].isArray()) {
+					}
+				}else if (constructorParameters[index].isArray()) {
 
-					Class<?> componentClass = parameters[index]
-							.getComponentType();
+					Class<?> componentClass = constructorParameters[index].getComponentType();
 					for (int i = index; i < params.length; i++) {
-						if (!isAssignableFrom(componentClass, params[i]))
+						if (!isAssignableFrom(componentClass, params[i])){
 							return false;
+						}
 					}
 
 					return true;
+				}else{
+				    return false;
 				}
 			} else {
-				if (!isAssignableFrom(parameters[index], params[index]))
+				if (!isAssignableFrom(constructorParameters[index], params[index]))
 					return false;
 			}
 

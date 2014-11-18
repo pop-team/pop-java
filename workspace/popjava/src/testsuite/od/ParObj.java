@@ -1,12 +1,12 @@
 package testsuite.od;
 
-import popjava.base.POPObject;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPObjectDescription;
 
-public class ParObj extends POPObject  {
-	public ParObj()  {
-		Class<?> c = ParObj.class;
-		initializePOPObject();
-		od.setHostname("localhost");	
-		
+@POPClass
+public class ParObj{
+    
+    @POPObjectDescription(url = "localhost")
+	public ParObj(){
 	}
 }

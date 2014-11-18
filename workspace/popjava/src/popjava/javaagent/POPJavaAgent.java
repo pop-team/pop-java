@@ -109,7 +109,6 @@ public final class POPJavaAgent implements ClassFileTransformer{
             if(parent != null){
                 
                 for(CtClass inter: rawClass.getInterfaces()){
-                    System.out.println(inter.getName()+" "+ProxyObject.class.getName());
                     if(inter.getName().equals(ProxyObject.class.getName())){
                         return true;
                     }
@@ -267,13 +266,13 @@ public final class POPJavaAgent implements ClassFileTransformer{
                         return;
                     }
                     
-                    System.out.println(f.getClassName()+" FieldAccess: "+f.getFieldName()+" "+f.getSignature());
+                    //System.out.println(f.getClassName()+" FieldAccess: "+f.getFieldName()+" "+f.getSignature());
                     CtClass clazz;
                     try {
                         clazz = f.getField().getType();
                         if(isPOPClass(clazz)){
                             
-                            System.out.println(f.where().toString());
+                            //System.out.println(f.where().toString());
                             
                             String newAssign = "";
                             String baseStart = "$0."+f.getFieldName()+ " = ";
@@ -285,7 +284,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                                 newAssign = baseStart + baseEnd;
                             }
                             
-                            System.out.println(newAssign);
+                            //System.out.println(newAssign);
                             f.replace(newAssign);
                         }
                     } catch (NotFoundException e) {

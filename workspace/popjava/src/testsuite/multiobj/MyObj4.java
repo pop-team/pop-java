@@ -1,26 +1,24 @@
 package testsuite.multiobj;
 
-import popjava.base.POPObject;
-import popjava.base.Semantic;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncSeq;
 
-
-public class MyObj4 extends POPObject{
+@POPClass(classId = 1211)
+public class MyObj4{
 	protected int data;
 	
-	public MyObj4(){
-		setClassId(1211);
-		Class<?> c = MyObj4.class;
-		od.setHostname("localhost");
-		initializePOPObject();
-		addSemantic(c, "set",	Semantic.SEQUENCE | Semantic.SYNCHRONOUS);
-		addSemantic(c, "get",	Semantic.CONCURRENT | Semantic.SYNCHRONOUS);
-		
+	@POPObjectDescription(url = "localhost")
+	public MyObj4(){		
 	}
 	
+	@POPSyncSeq
 	public void set(int value) {
 		data = value;
 	}
 	
+	@POPSyncConc
 	public int get(){
 		return data + 1000;
 	}

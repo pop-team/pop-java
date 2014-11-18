@@ -8,7 +8,7 @@ import popjava.annotation.POPSyncSeq;
 import popjava.base.*;
 
 @POPClass(classId = 1035)
-public class Toto extends POPObject {
+public class Toto{
 	private int identity;
 	
 	@POPObjectDescription(url = "localhost")

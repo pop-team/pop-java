@@ -2,7 +2,7 @@ package testsuite.pure.sync;
 
 import popjava.annotation.POPClass;
 
-@POPClass
+@POPClass(isMain = true)
 public class SynchronizationTest {
 
     public static void main(String [] args){

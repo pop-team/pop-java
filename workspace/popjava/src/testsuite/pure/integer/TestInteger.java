@@ -3,7 +3,7 @@ package testsuite.pure.integer;
 import popjava.annotation.POPClass;
 import testsuite.integer.Integer;
 
-@POPClass
+@POPClass(isMain = true)
 public class TestInteger {
 
     public static void main(String [] args){
