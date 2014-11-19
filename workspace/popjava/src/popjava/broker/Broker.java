@@ -297,8 +297,7 @@ public final class Broker {
 		Object[] parameters = null;
 		int index = 0;
 		try {
-			MethodInfo info = new MethodInfo(request.getClassId(),
-					request.getMethodId());
+			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 			method = popInfo.getMethodByInfo(info);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(

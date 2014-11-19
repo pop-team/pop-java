@@ -95,24 +95,25 @@ echo "####################################"
 echo "#   POP-C++ interoperability test  #"
 echo "####################################"
 
-if [ -a $CP/testsuite/popc-obj/integer/integer.obj ]
+echo "check if $LOCATION/testsuite/popc-obj/integer/integer.obj exists"
+if [ -a $LOCATION/testsuite/popc-obj/integer/integer.obj ]
 then
 	:
 else
-	cd $POPJAVA_LOCATION/testsuite/popc-obj/integer
+	cd $LOCATION/testsuite/popc-obj/integer
 	make
 	cd $OLDPWD
 fi
 echo "Launching POP-C++ integer with POP-Java application test (test 1/$N_TEST)"
-echo "java -cp $CP testsuite.popc_integer.TestPopcInteger"
+echo "java -javaagent:$POP -cp $CP testsuite.popc_integer.TestPopcInteger"
 java -javaagent:$POP -cp $CP testsuite.popc_integer.TestPopcInteger
 echo "POP-C++ integer with POP-Java application test is finishied ..."
 
-if [ -a $CP/testsuite/popc-obj/jinteger/integer.obj ]
+if [ -a $LOCATION/testsuite/popc-obj/jinteger/integer.obj ]
 then
 	:
 else
-	cd $POPJAVA_LOCATION/testsuite/popc-obj/jinteger
+	cd $LOCATION/testsuite/popc-obj/jinteger
 	make
 	cd $OLDPWD
 fi

@@ -184,6 +184,7 @@ public class POPException extends RuntimeException implements IPOPBase {
 	public boolean deserialize(POPBuffer buffer) {
 		this.errorCode = buffer.getInt();
 		errorMessage = buffer.getString();
+		
 		return true;
 	}
 

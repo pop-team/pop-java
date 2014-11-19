@@ -98,6 +98,8 @@ public class PJProxyFactory extends ProxyFactory {
 			Object result = c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);
 			return result;
+		} catch(POPException e){
+		    throw e;
 		} catch (Exception e) {
 			LogWriter.writeExceptionLog(e);
 		}

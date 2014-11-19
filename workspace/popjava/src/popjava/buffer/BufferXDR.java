@@ -1,6 +1,7 @@
 package popjava.buffer;
 
 import popjava.base.*;
+import popjava.util.LogWriter;
 
 import java.nio.*;
 /**
@@ -47,7 +48,9 @@ public class BufferXDR extends BufferRaw {
 	        return true;
 	    }
 	    
-	    throw new RuntimeException("Invalid Boolean encoding: "+value);
+	    LogWriter.writeDebugInfo("Decoding boolean using wrong buffer type "+this.getClass().getName());
+        return value != 0;
+	    //throw new RuntimeException("Invalid Boolean encoding: "+value);
 	}
 
 	/**

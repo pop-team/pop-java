@@ -5,10 +5,8 @@ import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
-import popjava.base.POPObject;
-import popjava.base.Semantic;
 
-@POPClass(classId = 1000, className = "Integer", deconstructor = true)
+@POPClass(classId = 1500, className = "Integer", deconstructor = true)
 public class Integer{
 	private int value=0;
 	

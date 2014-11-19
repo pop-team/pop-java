@@ -297,6 +297,7 @@ public class POPSystem {
 				.removeStringFromList(argvList, "-codeconf=");
 		
 		if (codeconf == null || codeconf.length() == 0) {
+		    System.out.println("Use default objectmap");
 			codeconf = String.format("%s%setc%sdefaultobjectmap.xml",
 					POPJavaConfiguration.getPopJavaLocation(),
 					File.separator,

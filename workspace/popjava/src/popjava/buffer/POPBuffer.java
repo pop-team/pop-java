@@ -651,7 +651,7 @@ public abstract class POPBuffer extends Object {
 		case POPSystemErrorCode.EXCEPTION_PAROC_STD:
 			POPException exception = new POPException();
 			exception.deserialize(buffer);
-			throw new POPException(exception.errorCode, exception.errorMessage);
+			throw new POPException(exception.errorCode, exception.errorMessage+" code "+exception.errorCode);
 		}
 	}
 

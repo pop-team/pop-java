@@ -1,6 +1,7 @@
 package popjava.buffer;
 
 import popjava.base.*;
+import popjava.util.LogWriter;
 
 import java.nio.*;
 
@@ -79,7 +80,9 @@ public class BufferRaw extends POPBuffer {
 		    return true;
 		}
 		
-		throw new RuntimeException("Invalid Boolean encoding: "+value);
+		LogWriter.writeDebugInfo("Decoding boolean using wrong buffer type "+this.getClass().getName());
+		return value != 0;
+		//throw new RuntimeException("Invalid Boolean encoding: "+value);
 	}
 
 	@Override
@@ -507,15 +510,16 @@ public class BufferRaw extends POPBuffer {
 	public byte[] getByteArray(int length) {
 		byte[]result=new byte[length];
 		buffer.get(result);
-		if((length%4)!=0)
+		if((length%4) != 0){
 			buffer.position(this.position()+4-length%4);
+		}
 		return result;
 	}
 
 	@Override
 	public double[] getDoubleArray(int length) {
-		DoubleBuffer doubleBuffer=buffer.asDoubleBuffer();
-		double[]result=new double[length];
+		DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
+		double[]result = new double[length];
 		doubleBuffer.get(result);		
 		this.position(this.position()+length*Double.SIZE/Byte.SIZE);
 		return result;

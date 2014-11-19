@@ -21,9 +21,10 @@ public class TestPopcInteger {
         int value = first.get();
         System.out.println("10 + 20 = "+ value);
         
-        if(value==30)
+        if(value==30){
             System.out.println("POPC Integer test successful");
-        else
-            System.out.println("POPC Integer test failed"); 
+        } else{
+            System.out.println("POPC Integer test failed");
+        }
 	}
 }

@@ -64,9 +64,9 @@
         </javac>
 </target>
 	
-<target name="make-testsuite-popc" depends="make-testsuite-java" unless="isWindows" description="build the the popjava testsuite">
-	<!--<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
-    <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>-->
+<target name="make-testsuite-popc" depends="" unless="isWindows" description="build the the popjava testsuite">
+	<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
+    <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
 </target>
 
 <target name="jar-popjava" depends="make-popjava" description="create jar for popjava">
@@ -197,14 +197,11 @@
   
   
   <!-- Set filepremisions-->
-  <chmod dir="${release.dir}" perm="774" 
-       includes="**/*" type="file"/>
+  <chmod dir="${release.dir}" perm="774" includes="**/*" type="file"/>
        
-  <chmod dir="${release.dir}" perm="775" 
-  includes="**/*" type="dir"/>
+  <chmod dir="${release.dir}" perm="775" includes="**/*" type="dir"/>
 
-  <chmod dir="${release.dir}/bin" perm="775" 
-       includes="**/*"/>
+  <chmod dir="${release.dir}/bin" perm="775" includes="**/*"/>
        
   <chmod file="${release.dir}/launch_testsuite" perm="775"/>
        

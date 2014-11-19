@@ -186,8 +186,7 @@ public class Interface {
 
         if (platforms.length() <= 0) {
         	AppService appCoreService = null;
-        	appCoreService = (AppService) PopJava.newActive(
-        			POPAppService.class, POPSystem.appServiceAccessPoint);
+        	appCoreService = (AppService) PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
         	POPString popStringPlatorm = new POPString();
         	appCoreService.getPlatform(objectName, popStringPlatorm);
         	platforms = popStringPlatorm.getValue();
@@ -233,8 +232,7 @@ public class Interface {
         if (createdCode != 0) {
         	switch (createdCode) {
         		case POPErrorCode.POP_EXEC_FAIL:
-        			throw new POPException(createdCode,
-        				"OBJECT_EXECUTABLE_NOTFOUND");
+        			throw new POPException(createdCode,	"OBJECT_EXECUTABLE_NOTFOUND");
         		case POPErrorCode.POP_JOBSERVICE_FAIL:
         			throw new POPException(createdCode, "NO_RESOURCE_MATCH "+objectName);
         		default:
@@ -336,8 +334,7 @@ public class Interface {
 			POPException.throwComboxNotAvailableException();
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
-		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
+		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
 		popBuffer.putString(Configuration.SELECTED_ENCODING);
 
@@ -349,8 +346,7 @@ public class Interface {
 		popResponse(responseBuffer);
 		result = responseBuffer.getBoolean();
 		if (result) {
-			BufferFactory bufferFactory = BufferFactoryFinder.getInstance()
-					.findFactory(Configuration.SELECTED_ENCODING);
+			BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.SELECTED_ENCODING);
 			combox.setBufferFactory(bufferFactory);
 			
 			//TODO: Check out why this was done

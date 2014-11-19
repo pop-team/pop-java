@@ -4,8 +4,6 @@ import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
-import popjava.base.POPObject;
-import popjava.base.Semantic;
 
 @POPClass(classId = 1000, className = "Integer2", deconstructor = true)
 public class Integer2 {

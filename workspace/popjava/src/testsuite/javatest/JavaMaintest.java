@@ -1,7 +1,5 @@
 package testsuite.javatest;
 
-import popjava.system.POPSystem;
-
 public class JavaMaintest {
 
 	/**
