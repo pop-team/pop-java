@@ -182,6 +182,7 @@ public class MainArgTest {
 		mt.setInt(10);
 		mt.setString("ten");
 		
+		//TODO: this is wrong. As setMyType is async, we can not be sure, that it is executed before getMyType
 		pop.setMyType(mt);
 		MyType mt2 = pop.getMyType();
 		if(!((mt2.getInt() == mt.getInt()) && (mt2.getString().equals(mt.getString())))){

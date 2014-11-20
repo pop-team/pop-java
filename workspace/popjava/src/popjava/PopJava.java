@@ -5,6 +5,7 @@ import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
+import popjava.system.POPSystem;
 
 /**
  * 
@@ -28,6 +29,7 @@ public class PopJava {
 	public static <T> T newActive(Class<T> targetClass,
 			ObjectDescription objectDescription, Object ... argvs)
 			throws POPException {
+	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newPOPObject(objectDescription, argvs);
 	}
@@ -45,6 +47,7 @@ public class PopJava {
 	 */
 	public static <T> T newActive(Class<T> targetClass, Object... argvs)
 			throws POPException {
+	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newPOPObject(argvs);
 	}
@@ -58,6 +61,7 @@ public class PopJava {
 	 */
 	public static <T> T newActive(Class<T> targetClass,
 			POPAccessPoint accessPoint) throws POPException {
+	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.bindPOPObject(accessPoint);
 	}
@@ -71,6 +75,7 @@ public class PopJava {
 	 */
 	public static <T> T newActiveFromBuffer(Class<T> targetClass, POPBuffer buffer)
 			throws POPException {
+	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newActiveFromBuffer(buffer);
 	}

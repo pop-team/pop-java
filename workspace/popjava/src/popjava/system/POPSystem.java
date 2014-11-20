@@ -250,62 +250,75 @@ public class POPSystem {
 		
 		return args;
 	}
+	
+	private static boolean isStarted = false;
+	
+	public static void setStarted(){
+	    isStarted = true;
+	}
+	
+	public synchronized static boolean start(){
+	    if(isStarted){
+	        return true;
+	    }
+	    isStarted = true;
+	    
+	    jobService.setAccessString(jobservice);
+        if (appservicecode == null || appservicecode.length() == 0) {
+            appservicecode = POPJavaConfiguration.getPopAppCoreService();
+        }
+        
+        if ((jobservice == null || jobservice.length() == 0) && (appservicecontact == null || appservicecontact.length() == 0)){
+            return false;
+        }
+        
+        coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
+        
+        if(coreServiceManager != null){
+            appServiceAccessPoint = coreServiceManager.getAccessPoint();
+            
+            prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
+            prlt.start();
+        }
+        
+        if (codeconf == null || codeconf.length() == 0) {
+            codeconf = String.format("%s%setc%sdefaultobjectmap.xml",
+                    POPJavaConfiguration.getPopJavaLocation(),
+                    File.separator,
+                    File.separator);
+        }
+        
+        String popJavaObjectExecuteCommand = String.format(
+                POPJavaConfiguration.getBrokerCommand(),
+                POPJavaConfiguration.getPopJavaJar(),
+                getNeededClasspath());
+        
+        initialized = initCodeService(codeconf, popJavaObjectExecuteCommand, coreServiceManager);
+	    
+        return initialized;
+	}
 
+	private static String jobservice;
+	private static String codeconf;
+	private static String appservicecode;
+	private static String proxy;
+	private static String appservicecontact;
+	
 	/**
 	 * Initialize the application scope services 
 	 * @param argvList	Any arguments to pass to the initialization
 	 * @return	true if the initialization is succeed
 	 * @throws POPException	thrown is any problems occurred during the initialization
 	 */
-	public static boolean initialize(List<String> argvList){
-		String popJavaObjectExecuteCommand = String.format(
-				POPJavaConfiguration.getBrokerCommand(),
-				POPJavaConfiguration.getPopJavaJar(),
-				getNeededClasspath());
-		
-		
-		String jobservice = Util.removeStringFromList(argvList,
-				"-jobservice=");
+	private static void initialize(List<String> argvList){
+		jobservice = Util.removeStringFromList(argvList, "-jobservice=");
 		if (jobservice == null || jobservice.length() == 0) {
 			jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
 		}
-		jobService.setAccessString(jobservice);
-		String appservicecode = Util.removeStringFromList(argvList,
-				"-appservicecode=");
-		
-		if (appservicecode == null || appservicecode.length() == 0) {
-			appservicecode = POPJavaConfiguration.getPopAppCoreService();
-		}
-		String proxy = Util.removeStringFromList(argvList, "-proxy=");
-		String appservicecontact = Util.removeStringFromList(argvList,
-				"-appservicecontact=");
-		if ((jobservice == null || jobservice.length() == 0)
-				&& (appservicecontact == null || appservicecontact.length() == 0)){
-			return false;
-		}
-		
-		coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
-		
-		if(coreServiceManager != null){
-			appServiceAccessPoint = coreServiceManager.getAccessPoint();
-			
-			prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
-			prlt.start();
-		}
-		
-		String codeconf = Util
-				.removeStringFromList(argvList, "-codeconf=");
-		
-		if (codeconf == null || codeconf.length() == 0) {
-		    System.out.println("Use default objectmap");
-			codeconf = String.format("%s%setc%sdefaultobjectmap.xml",
-					POPJavaConfiguration.getPopJavaLocation(),
-					File.separator,
-					File.separator);
-		}
-		
-		initialized = initCodeService(codeconf, popJavaObjectExecuteCommand, coreServiceManager);
-		return initialized;
+		codeconf = Util.removeStringFromList(argvList, "-codeconf=");
+		appservicecode = Util.removeStringFromList(argvList, "-appservicecode=");
+		proxy = Util.removeStringFromList(argvList, "-proxy=");
+        appservicecontact = Util.removeStringFromList(argvList, "-appservicecontact=");
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){

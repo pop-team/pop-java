@@ -4,7 +4,6 @@ import popjava.PopJava;
 import popjava.combox.*;
 import popjava.javaagent.POPJavaAgent;
 import popjava.system.POPSystem;
-import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 import popjava.annotation.POPClass;
@@ -772,6 +771,8 @@ public final class Broker {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] argvs) throws InterruptedException {
+	    POPSystem.setStarted();
+	    
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             
             @Override

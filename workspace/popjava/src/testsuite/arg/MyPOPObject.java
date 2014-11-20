@@ -201,14 +201,11 @@ public class MyPOPObject{
 	
 	@POPAsyncSeq
 	public void setMyType(MyType mt){
-	    System.out.println("************************ 1 "+(mt == null));
 		myType = mt;
-		System.out.println("************************ 2 "+(myType == null));
 	}
 	
 	@POPSyncConc
 	public MyType getMyType(){
-	    System.out.println("!!!!!!!!!!!!!!!!!!!!!!!! "+(myType == null));
 		return myType;
 	}
 	
