@@ -91,10 +91,8 @@ public class ComboxFactoryFinder {
 						&& node.getNodeName().equals(PackageNodeName)) {
 					Element packageElement = (Element) node;
 					// Get "package" attribute
-					String jarFileName = packageElement
-							.getAttribute(JarAttributeName);
-					String jarFileLocation = pluginLocation
-							+ File.separator + jarFileName;
+					String jarFileName = packageElement.getAttribute(JarAttributeName);
+					String jarFileLocation = pluginLocation + File.separator + jarFileName;
 					File jarFile = new File(jarFileLocation);
 					try {
 						URL[] urls = new URL[1];
@@ -109,8 +107,7 @@ public class ComboxFactoryFinder {
 					Node childNode = node.getFirstChild();
 					while (childNode != null) {
 						if (childNode.getNodeType() == Node.ELEMENT_NODE
-								&& childNode.getNodeName().equals(
-										ComboxFactoryNodeName)) {
+								&& childNode.getNodeName().equals(ComboxFactoryNodeName)) {
 							String factoryName = childNode.getTextContent();
 							if (factoryName != null && factoryName.length() > 0)
 								loadPlugin(factoryName, urlClassLoader);
@@ -173,23 +170,20 @@ public class ComboxFactoryFinder {
 	 * @param urlClassLoader	URL of the combox plug-in
 	 * @return	The combox factory loaded or null if the plug-in is not found
 	 */
-	private ComboxFactory loadPlugin(String comboxFactoryName,
-			URLClassLoader urlClassLoader) {
+	private ComboxFactory loadPlugin(String comboxFactoryName, URLClassLoader urlClassLoader) {
 		comboxFactoryName = comboxFactoryName.trim();
 		if (urlClassLoader == null || comboxFactoryName.length() == 0)
 			return null;
 		ComboxFactory comboxFactory = null;
 		try {
-			Class<?> comboxClass = Class.forName(comboxFactoryName, true,
-					urlClassLoader);
+			Class<?> comboxClass = Class.forName(comboxFactoryName, true, urlClassLoader);
 			Constructor<?> constructor = comboxClass.getConstructor();
 			comboxFactory = (ComboxFactory) constructor.newInstance();
 			if (!comboxFactoryList.containsKey(comboxFactory.getComboxName())) {
 				comboxFactoryList.put(comboxFactory.getComboxName(),
 						comboxFactory);
-			} else {
-
 			}
+			
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
