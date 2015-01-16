@@ -297,6 +297,14 @@ public class POPSystem {
 	    
         return initialized;
 	}
+    
+    public void registerCode(String file, String clazz){
+        start();
+        
+        if(coreServiceManager != null){
+            coreServiceManager.registerCode(clazz, POPJavaAppService.ALL_PLATFORMS, file);
+        }
+    }    
 
 	private static String jobservice;
 	private static String codeconf;

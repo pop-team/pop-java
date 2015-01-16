@@ -560,6 +560,15 @@ public class Interface {
 		manager.queryCode(objectName, POPSystem.getPlatform(), popStringCodeFile);
 		String codeFile = popStringCodeFile.getValue();
 		
+		//Get wildcard code first
+		if(codeFile == null || codeFile.isEmpty()){
+		    popStringCodeFile = new POPString();
+	        
+	        manager.queryCode("*", POPJavaAppService.ALL_PLATFORMS, popStringCodeFile);
+	        codeFile = popStringCodeFile.getValue();
+		}
+		
+		//Fall back to local popjava install path
 		if(codeFile == null || codeFile.isEmpty()){
 			POPJavaAppService appService = new POPJavaAppService();
 			codeFile = appService.getLocalJavaFileLocation(objectName);

@@ -14,7 +14,7 @@ import popjava.util.LogWriter;
 @POPClass(classId = 99923, deconstructor = false)
 public class POPJavaAppService extends POPObject implements AppService{
 	
-	private static final String ALL_PLATFORMS = "*-*";
+	public static final String ALL_PLATFORMS = "*-*";
 	
 	@POPObjectDescription(url = "localhost")
 	public POPJavaAppService() {
