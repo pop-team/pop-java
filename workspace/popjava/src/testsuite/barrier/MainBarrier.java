@@ -6,7 +6,7 @@ import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.baseobject.POPAccessPoint;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class MainBarrier {
     
 	public static void main(String... argvs) throws IOException {

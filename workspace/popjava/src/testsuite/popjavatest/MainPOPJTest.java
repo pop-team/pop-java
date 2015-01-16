@@ -2,7 +2,7 @@ package testsuite.popjavatest;
 
 import popjava.annotation.POPClass;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class MainPOPJTest {
 	
 	public static void main(String... argvs){

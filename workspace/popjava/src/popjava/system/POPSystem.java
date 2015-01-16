@@ -298,15 +298,20 @@ public class POPSystem {
         return initialized;
 	}
     
-    public void registerCode(String file, String clazz){
+    public static void registerCode(String file, String clazz){
         start();
         
+        String popJavaObjectExecuteCommand = String.format(
+                POPJavaConfiguration.getBrokerCommand(),
+                POPJavaConfiguration.getPopJavaJar(),
+                getNeededClasspath());
+        
         if(coreServiceManager != null){
-            coreServiceManager.registerCode(clazz, POPJavaAppService.ALL_PLATFORMS, file);
+            coreServiceManager.registerCode(clazz, POPJavaAppService.ALL_PLATFORMS, popJavaObjectExecuteCommand+file);
         }
     }    
 
-	private static String jobservice;
+	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
 	private static String codeconf;
 	private static String appservicecode;
 	private static String proxy;
@@ -319,10 +324,12 @@ public class POPSystem {
 	 * @throws POPException	thrown is any problems occurred during the initialization
 	 */
 	private static void initialize(List<String> argvList){
-		jobservice = Util.removeStringFromList(argvList, "-jobservice=");
-		if (jobservice == null || jobservice.length() == 0) {
-			jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
+		String tempJobservice = Util.removeStringFromList(argvList, "-jobservice=");
+		
+		if (tempJobservice != null && tempJobservice.length() != 0) {
+			jobservice = tempJobservice;
 		}
+		
 		codeconf = Util.removeStringFromList(argvList, "-codeconf=");
 		appservicecode = Util.removeStringFromList(argvList, "-appservicecode=");
 		proxy = Util.removeStringFromList(argvList, "-proxy=");

@@ -2,7 +2,7 @@ package testsuite.jinteger;
 
 import popjava.annotation.POPClass;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class TestRef {
 
 	/**

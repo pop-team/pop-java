@@ -510,29 +510,9 @@ public class Interface {
 			return getPOPCodeFile();
 		}
 		
-		AppService appCoreService = null;
+		AppService appCoreService = getAppcoreService();
 		
-		if(!POPSystem.appServiceAccessPoint.isEmpty()){
-			if(Configuration.CONNECT_TO_POPCPP){
-				try{
-					appCoreService = (AppService) PopJava.newActive(
-							POPAppService.class, POPSystem.appServiceAccessPoint);
-					appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
-				}catch(Exception e){
-					appCoreService = null;
-				}
-			}
-			
-			if(appCoreService == null){
-				try{
-					appCoreService = (AppService) PopJava.newActive(
-							POPJavaAppService.class, POPSystem.appServiceAccessPoint);
-				}catch(POPException e2){
-					LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
-					//e2.printStackTrace();
-				}
-			}
-		}
+		
 		
 		
 		if(appCoreService != null){
@@ -541,6 +521,33 @@ public class Interface {
 		}
 		
 		return getPOPCodeFile();
+	}
+	
+	public static AppService getAppcoreService(){
+	    AppService appCoreService = null;
+	    if(!POPSystem.appServiceAccessPoint.isEmpty()){
+            if(Configuration.CONNECT_TO_POPCPP){
+                try{
+                    appCoreService = (AppService) PopJava.newActive(
+                            POPAppService.class, POPSystem.appServiceAccessPoint);
+                    appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
+                }catch(Exception e){
+                    appCoreService = null;
+                }
+            }
+            
+            if(appCoreService == null){
+                try{
+                    appCoreService = (AppService) PopJava.newActive(
+                            POPJavaAppService.class, POPSystem.appServiceAccessPoint);
+                }catch(POPException e2){
+                    LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
+                    //e2.printStackTrace();
+                }
+            }
+        }
+	    
+	    return appCoreService;
 	}
 	
 	private static String getPOPCodeFile(){
@@ -554,7 +561,8 @@ public class Interface {
 				popPath)+popJar;
 	}
 	
-	private static String getCodeFile(AppService manager, String objectName){
+	public static String getCodeFile(AppService manager, String objectName){
+	    
 		POPString popStringCodeFile = new POPString();
 		
 		manager.queryCode(objectName, POPSystem.getPlatform(), popStringCodeFile);

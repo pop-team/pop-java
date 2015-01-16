@@ -2,7 +2,7 @@ package testsuite.od;
 import popjava.PopJava;
 import popjava.annotation.POPClass;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class MainClass {
 	public static void main(String... args){
 	    System.out.println("Create object without JobMgr");

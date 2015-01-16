@@ -3,7 +3,7 @@ package testsuite.multiobj;
 import popjava.*;
 import popjava.annotation.POPClass;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class Mutliobj {
     
 	public static void main(String... argvs){

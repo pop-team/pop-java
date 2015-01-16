@@ -2,7 +2,7 @@ package testsuite.arg;
 
 import popjava.annotation.POPClass;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class MainArgTest {
 	
 	public static void main(String... argvs){

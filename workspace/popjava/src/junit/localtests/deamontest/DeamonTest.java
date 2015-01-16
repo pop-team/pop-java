@@ -12,24 +12,6 @@ import popjava.service.POPJavaDeamon;
 import popjava.system.POPSystem;
 
 public class DeamonTest {
-
-	/**
-	 * Tests the creation of a POP-Java object locally using the POP-Java deamon,
-	 * without the deamon running. This should fail.
-	 */
-	@Test
-	public void testFail(){
-		POPSystem.initialize();
-		
-		try{
-			TestClass test = PopJava.newActive(TestClass.class);
-			test.test();
-			fail("The object creation should fail");			
-		}catch(Exception e){
-		}
-		
-		POPSystem.end();
-	}
 	
 	/**
 	 * Tests the creation of a local POP-Java object using the POP-Java deamon, without it running.

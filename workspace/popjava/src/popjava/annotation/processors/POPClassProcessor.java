@@ -62,7 +62,7 @@ public class POPClassProcessor extends AbstractProcessor {
 	        return;
 	    }
 	    
-	    if(popAnnotation.isMain()){
+	    if(!popAnnotation.isDistributable()){
 	        return;
 	    }
 	    

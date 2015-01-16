@@ -6,7 +6,7 @@ import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.system.POPSystem;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class TestJobMgr {
 
 	public static void main(String... argvs) {

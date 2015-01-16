@@ -2,7 +2,7 @@ package testsuite.popc_integer;
 
 import popjava.annotation.POPClass;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class TestPopcInteger {
 	
 	public static void main(String... argvs){

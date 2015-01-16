@@ -3,7 +3,7 @@ package testsuite.demo;
 import popjava.PopJava;
 import popjava.annotation.POPClass;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class DemoMain {
 
 	public static void main(String... argvs) {

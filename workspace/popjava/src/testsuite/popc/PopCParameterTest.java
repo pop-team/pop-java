@@ -4,7 +4,7 @@ import popjava.annotation.POPClass;
 import popjava.dataswaper.POPString;
 
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class PopCParameterTest {
 
 	/**

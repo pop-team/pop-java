@@ -2,7 +2,7 @@ package testsuite.callback;
 
 import popjava.annotation.POPClass;
 
-@POPClass(isMain = true)
+@POPClass(isDistributable = false)
 public class CallBackMain {
 	
 	public static void main(String... argvs){
