@@ -320,20 +320,14 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     return;
                 }
                 
-                try {
+                /* try {
                     if(call.getMethod().getDeclaringClass().equals(method.getDeclaringClass()) &&
                             isPOPMethod(call.getMethod())){
                         //TODO: Correcly replace call on this.XX with getThis().XX
-                        
-                        /*System.out.println("Change method call "+call.getMethod().getDeclaringClass().getName()+":"+call.getMethodName()+" in "+method.getDeclaringClass().getName());
-                        String newCall = "$_ = (("+method.getDeclaringClass().getName()+")getThis("+method.getDeclaringClass().getName()+".class))."+call.getMethodName()+"($$);";
-                        call.replace(newCall);*/
-                        
-                        //System.out.println("!!! "+e.getClassName()+" "+e.getMethodName()+" "+e.isSuper()+" "+e.where().getLongName());
                     }
                 } catch (NotFoundException e) {
                     e.printStackTrace();
-                }
+                }*/
             }
         };
         

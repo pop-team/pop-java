@@ -120,6 +120,18 @@ public class POPJavaConfiguration {
 		return popJavaPluginLocation;
 	}
 	
+	public static boolean isJar(){
+		CodeSource temp = POPSystem.class.getProtectionDomain().getCodeSource();
+		if(temp != null){
+		    File location = new File(temp.getLocation().toString());
+			if(location.isFile() && location.getAbsolutePath().endsWith(".jar")){
+				return true;
+			}			
+		}
+		
+		return false;
+	}
+	
 	public static String getPOPJavaCodePath(){
 		String popJar = "";
 		

@@ -30,6 +30,8 @@ public class POPJavaDeamon {
 	private ServerSocket serverSocket;
 	private String password = "";
 	
+	private static final String BACKUP_JAR = "build/jar/popjava.jar";
+	
 	public POPJavaDeamon(String password){
 		this.password = password;
 	}
@@ -74,8 +76,6 @@ public class POPJavaDeamon {
 				
 				List<String> commands = new ArrayList<String>();
 				
-				
-				
 				System.out.println("Execute command: ");
 				
 				
@@ -106,6 +106,14 @@ public class POPJavaDeamon {
 								line = temp;
 							}
 						}
+					}
+					
+					if(line.startsWith("-javaagent:")){
+						String popJavaJar = POPJavaConfiguration.getPOPJavaCodePath();
+						if(!POPJavaConfiguration.isJar()){
+							popJavaJar = BACKUP_JAR;
+						}
+						line = "-javaagent:"+popJavaJar;
 					}
 					
 					commands.add(line);
@@ -143,7 +151,7 @@ public class POPJavaDeamon {
 	}
 	
 	public static void main(String ... args) throws IOException{
-		POPJavaDeamon deamon = new POPJavaDeamon("");
+		POPJavaDeamon deamon = new POPJavaDeamon("test");
 		deamon.start();
 	}
 	
