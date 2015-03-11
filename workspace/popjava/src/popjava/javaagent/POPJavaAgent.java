@@ -166,11 +166,12 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     
                     if(isDistributable &&
                             rawClass.getSuperclass() != null &&
-                            !rawClass.getSuperclass().getName().equals(Object.class.getName())){
+                            !rawClass.getSuperclass().getName().equals(Object.class.getName()) &&
+                            !rawClass.getSuperclass().getName().equals(POPObject.class.getName())){
                         throw new RuntimeException(rawClass.getName()+" has non POPClass superclass "+rawClass.getSuperclass().getName());
                     }
                     
-                    if(isDistributable){
+                    if(isDistributable && (rawClass.getSuperclass() == null || !rawClass.getSuperclass().getName().equals(POPObject.class.getName()))){
                         //System.out.println("Add superclass "+POP_JAVA_BASE);
                         final CtClass superClass = classPool.get(POP_JAVA_BASE);
                         rawClass.setSuperclass(superClass);

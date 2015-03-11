@@ -532,6 +532,7 @@ public class Interface {
                             POPAppService.class, POPSystem.appServiceAccessPoint);
                     appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
                 }catch(Exception e){
+                	e.printStackTrace();
                     appCoreService = null;
                 }
             }
@@ -540,12 +541,14 @@ public class Interface {
                 try{
                     appCoreService = (AppService) PopJava.newActive(
                             POPJavaAppService.class, POPSystem.appServiceAccessPoint);
-                }catch(POPException e2){
+                }catch(POPException e){
                     LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
-                    //e2.printStackTrace();
+                    e.printStackTrace();
                 }
             }
-        }
+        }else{
+    		System.err.println("POPSystem.appServiceAccessPoint was empty");
+    	}
 	    
 	    return appCoreService;
 	}
@@ -562,6 +565,9 @@ public class Interface {
 	}
 	
 	public static String getCodeFile(AppService manager, String objectName){
+		if(manager == null){
+			throw new NullPointerException("AppService can not be null");
+		}
 	    
 		POPString popStringCodeFile = new POPString();
 		

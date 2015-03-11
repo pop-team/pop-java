@@ -1,13 +1,13 @@
 package testsuite.integer;
 
 import popjava.annotation.POPAsyncSeq;
-
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncMutex;
+import popjava.base.POPObject;
 
 @POPClass
-public class Integer{
+public class Integer extends POPObject{
 	protected int value;
 	
 	@POPObjectDescription(url = "localhost")
