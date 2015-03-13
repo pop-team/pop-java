@@ -229,7 +229,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
         }
         catch( Exception e )
         {
-            System.out.println( "An error occurred during class transformation: " + e.getMessage() );
+            System.out.println( "An error occurred during "+className+" class transformation: " + e.getMessage() );
             e.printStackTrace();
         }
         
@@ -258,6 +258,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     //Replace all calls to new for popjava objects with the correct instatiation
                     if(isPOPClass(clazz)){
                         String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+clazz.getName()+".class, $args);";
+                        System.out.println(newCall);
                         e.replace(newCall);
                     }
                 } catch (NotFoundException e1) {

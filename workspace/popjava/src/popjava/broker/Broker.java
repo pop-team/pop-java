@@ -112,6 +112,7 @@ public final class Broker {
 		}
 		
 		URLClassLoader urlClassLoader = null;
+		
 		if (codelocation != null && codelocation.length() > 0) {
 			URL url = null;
 			
@@ -125,7 +126,11 @@ public final class Broker {
 					FileOutputStream fos = new FileOutputStream(tempJar);
 					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 					
+					fos.close();
+					
 					codelocation = tempJar.getAbsolutePath();
+					
+					tempJar.deleteOnExit();
 				}catch(MalformedURLException e){
 					e.printStackTrace();
 					System.exit(0);
@@ -150,10 +155,9 @@ public final class Broker {
 			
 			if (url != null) {
 				LogWriter.writeDebugInfo("url construct");
+				
 				urlClassLoader = new URLClassLoader(new URL[]{url});
 			}
-			
-			
 			
 			/*URL[] urls = new URL[1]; //TODO: expand this for multiple jars
 			if (codelocation.indexOf("://") < 0) {// file
