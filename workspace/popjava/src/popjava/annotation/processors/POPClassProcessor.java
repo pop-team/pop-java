@@ -74,6 +74,7 @@ public class POPClassProcessor extends AbstractProcessor {
             if(subelement.getKind() == ElementKind.METHOD &&
                     subelement.getModifiers().contains(Modifier.PUBLIC)){
                 checkPublicMethodAnnotation(subelement);
+                //TODO: do a basic check if all parameters of the method can be serialized
             }
         }
 	}

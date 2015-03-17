@@ -196,6 +196,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     
                     final String longMethodName = method.getLongName();
                     
+                    checkMethodParameters(method);
+                    
                     // Only transform methods in this class, not in the super class because
                     // the super class will be transformed separately
                     if( longMethodName.startsWith( dotClassName ) )
@@ -235,6 +237,16 @@ public final class POPJavaAgent implements ClassFileTransformer{
         
         // Returning null means that we're going to use the uninstrumented bytecode
         return null;
+    }
+    
+    private void checkMethodParameters(CtMethod method) throws NotFoundException, ClassNotFoundException, CannotCompileException{
+        for(CtClass parameter : method.getParameterTypes()){
+            final POPClass popClass = (POPClass)parameter.getAnnotation(POPClass.class);
+            
+            if(popClass != null && popClass.isDistributable()){
+                throw new CannotCompileException("Can not pass "+parameter.getName() +" as parameter to "+method.getLongName());
+            }
+        }
     }
     
     private void instrumentCode(final ClassLoader loader, final CtBehavior method) throws CannotCompileException{
