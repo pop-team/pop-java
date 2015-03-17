@@ -23,11 +23,15 @@ import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -108,8 +112,54 @@ public final class Broker {
 		}
 		
 		URLClassLoader urlClassLoader = null;
+		
 		if (codelocation != null && codelocation.length() > 0) {
-			URL[] urls = new URL[1]; //TODO: expand this for multiple jars
+			URL url = null;
+			
+			if(codelocation.startsWith("http:")){
+				try{
+					URL website = new URL(codelocation);
+					ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+					
+					File tempJar = File.createTempFile(website.getFile(), ".jar");
+					
+					FileOutputStream fos = new FileOutputStream(tempJar);
+					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+					
+					fos.close();
+					
+					codelocation = tempJar.getAbsolutePath();
+					
+					tempJar.deleteOnExit();
+				}catch(MalformedURLException e){
+					e.printStackTrace();
+					System.exit(0);
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.exit(0);
+				}
+			}
+			
+			try {
+				LogWriter.writeDebugInfo("Local file " + codelocation);
+				url = new File(codelocation).toURI().toURL();
+				POPJavaAgent.getInstance().addJar(codelocation);
+			} catch (MalformedURLException e) {
+				LogWriter.writeDebugInfo(this.getClass().getName()
+						+ ".MalformedURLException: " + e.getMessage());
+				System.exit(0);
+			} catch (NotFoundException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+			
+			if (url != null) {
+				LogWriter.writeDebugInfo("url construct");
+				
+				urlClassLoader = new URLClassLoader(new URL[]{url});
+			}
+			
+			/*URL[] urls = new URL[1]; //TODO: expand this for multiple jars
 			if (codelocation.indexOf("://") < 0) {// file
 				File codeFile = new File(codelocation);
 				try {
@@ -139,7 +189,7 @@ public final class Broker {
 			if (urls[0] != null) {
 				LogWriter.writeDebugInfo("url construct");
 				urlClassLoader = new URLClassLoader(urls);
-			}
+			}*/
 		}
 
 		Class<?> targetClass;
@@ -751,8 +801,7 @@ public final class Broker {
 	 * @throws ClassNotFoundException
 	 *             thrown if the class is not found
 	 */
-	protected Class<?> getPOPObjectClass(String className,
-			URLClassLoader urlClassLoader) throws ClassNotFoundException {
+	protected Class<?> getPOPObjectClass(String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
 
 		if (urlClassLoader != null) {
 			Class<?> c = Class.forName(className, true, urlClassLoader);
