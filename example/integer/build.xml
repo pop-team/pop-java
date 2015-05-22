@@ -20,6 +20,8 @@
         <exec executable="popjc">
             <arg line="-n Integer.pjava TestInteger.pjava"/>
         </exec>
+    	
+    	
         <exec executable="popjrun" output = "${objectmap}">
             <arg line="--listlong Integer.class"/>
         </exec>
