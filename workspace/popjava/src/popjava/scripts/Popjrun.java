@@ -39,7 +39,6 @@ public class Popjrun {
 	private static final String DEFAULT_POP_JAVA_LOCATION;
 
 	private static final boolean USE_SEPARATE_JVM = true;
-	private static final boolean USE_PROXY_MAIN = true;
 	
 	static {
 		if (ScriptUtils.isWindows()) {
@@ -119,8 +118,7 @@ public class Popjrun {
 					listLong = args[i + 1];
 					i++;
 				} else {
-					System.err
-							.println("Listlong command needs a parameter following it");
+					System.err.println("Listlong command needs a parameter following it");
 					System.exit(0);
 				}
 			} else if (args[i].equals("-c") || args[i].equals("--classpath")) {
@@ -128,8 +126,7 @@ public class Popjrun {
 					classPath = createClassPath(args[i + 1]);
 					i++;
 				} else {
-					System.err
-							.println("Classpath parameter needs a parameter following it");
+					System.err.println("Classpath parameter needs a parameter following it");
 					System.exit(0);
 				}
 			} else {
@@ -221,12 +218,10 @@ public class Popjrun {
 		if (classPath.isEmpty()) {
 			classPath = createClassPath("");
 		}
-
+		
 		arguments.add(0, "-codeconf=" + objectMap);
 		arguments.add(0, main);
-		if(USE_PROXY_MAIN){
-			arguments.add(0, POPJRunProxy.class.getName());
-		}
+		
 		arguments.add(0, classPath);
 		arguments.add(0, "-cp");
 		if (Configuration.ACTIVATE_JMX) {
@@ -236,6 +231,8 @@ public class Popjrun {
 					"-Dcom.sun.management.jmxremote.authenticate=false");
 		}
 
+        arguments.add(0, "-javaagent:" + getPopJavaLocation() + JAR_POPJAVA);
+        
 		arguments.add(0, java);
 
 		runPopApplication(arguments);

@@ -1,6 +1,8 @@
 package junit.localtests.annotations;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -16,13 +18,17 @@ public class AnnotationsTest {
 		assertNotNull(i1);
 		Integer i2 = PopJava.newActive(Integer.class /* C */, "localhost");
 		assertNotNull(i2);
+		
 		// Create an array
 		Integer[] tab = new Integer[3];
+		
 		for (int i = 0; i < tab.length; i++) {
 			tab[i] = PopJava.newActive(Integer.class /* C */, "localhost");
 			assertNotNull(tab[i]);
 		}
+		
 		i1.set(11);
+		
 		i2.set(14);
 		System.out.println("i1=" + i1.get());
 		System.out.println("i2=" + i2.get());
@@ -41,6 +47,7 @@ public class AnnotationsTest {
 		assertEquals(4, testArray[1]);
 		assertEquals(6, testArray[2]);
 		assertTrue(i1.arrayChanger3(testArray));
+		
 		POPSystem.end();
 	}
 

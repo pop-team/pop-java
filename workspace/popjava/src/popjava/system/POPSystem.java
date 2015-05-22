@@ -330,7 +330,7 @@ public class POPSystem {
 			jobservice = tempJobservice;
 		}
 		
-		codeconf = Util.removeStringFromList(argvList, "-codeconf=");
+		codeconf = Util.removeStringFromList(argvList, "-codeconf=");		
 		appservicecode = Util.removeStringFromList(argvList, "-appservicecode=");
 		proxy = Util.removeStringFromList(argvList, "-proxy=");
         appservicecontact = Util.removeStringFromList(argvList, "-appservicecontact=");

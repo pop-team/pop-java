@@ -1,8 +1,10 @@
 package test;
 
+import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
+import popjava.base.POPObject;
 import popjava.baseobject.ConnectionType;
 import popjava.util.LogWriter;
 
@@ -24,7 +26,7 @@ private int identity;
 
    @POPSyncSeq
    public void setToto(Toto t){
-		LogWriter.writeDebugInfo("*****"+t.getAccessPoint());
+		LogWriter.writeDebugInfo("*****"+PopJava.getAccessPoint(t));
 		toto = t;
    }
    

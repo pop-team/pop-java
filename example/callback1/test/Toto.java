@@ -10,7 +10,6 @@ import popjava.baseobject.ConnectionType;
 public class Toto {
 	private int identity;
 
-
 	@POPObjectDescription(url="localhost")
 	public Toto(){
 	}
@@ -21,10 +20,10 @@ public class Toto {
 	}
 	
 	@POPSyncSeq
-	public int getIdent() throws POPException {
+	public int getIdent(){
 		Titi t = new Titi();
 		setIdent(222);
-      t.setToto(this);
+		t.setToto(this);
 		t.computeIdent();
 		return identity;
 	}

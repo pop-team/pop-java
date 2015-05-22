@@ -11,7 +11,7 @@
     <property name="source.folder" value="test"/>
 	<property name="class.folder" value="build"/>
 	
-	<property name="popjava.files" value="${source.folder}/Toto.pjava ${source.folder}/Titi.pjava ${source.folder}/CallBackMain.pjava"/>
+	<property name="popjava.files" value="${source.folder}/Toto.java ${source.folder}/Titi.java ${source.folder}/CallBackMain.java"/>
 	
     <target name="clean" 
         description="clean the build folder" >
@@ -58,7 +58,7 @@
     <target name="run-nobuild"
         description="Run the application without rebuilding it" >
         <exec executable="popjrun">
-            <arg line="-v -c ${application.jar} ${objectmap} test.CallBackMain"/>
+            <arg line="${objectmap} -v -c ${application.jar} test.CallBackMain"/>
         </exec>
     </target>
     

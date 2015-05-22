@@ -1,11 +1,17 @@
 import popjava.annotation.POPClass;
+import popjava.base.POPObject;
 
 @POPClass(isDistributable = false)
-
 public class TestInteger{
     
    public static void main(String[] args){
       Integer i1 = new Integer("localhost");
+      
+      if(!(((Object) i1) instanceof POPObject)){
+          System.out.println("i1 is not a POPObject, verify start parameters");
+          return;
+      }
+      
       Integer i2 = new Integer("localhost");
       //Create an array 
       Integer[] tab = new Integer[10];
@@ -13,6 +19,7 @@ public class TestInteger{
       for (int i=0; i<tab.length;i++){
          tab[i] = new Integer("localhost");
       }
+      
       i1.set(11);
       i2.set(14);
       System.out.println("i1="+i1.get());
