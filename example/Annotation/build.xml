@@ -1,6 +1,6 @@
 <project name="Integer" default="build" basedir=".">
     <description>
-        Integer example
+        Annotation example
     </description>
     
     <property name="objectmap" value="objectmap.xml"/>

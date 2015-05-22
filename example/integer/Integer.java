@@ -9,6 +9,10 @@ import popjava.annotation.POPConfig;
 public class Integer {
    private int value;
    
+   public Integer(){
+       
+   }
+   
    public Integer(@POPConfig(POPConfig.Type.URL) String url){
     value = 0;
    }

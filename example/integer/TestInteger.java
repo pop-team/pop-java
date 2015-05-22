@@ -1,4 +1,8 @@
+import popjava.annotation.POPClass;
+
+@POPClass(isDistributable = false)
 public class TestInteger{
+    
    public static void main(String[] args){
       Integer i1 = new Integer("localhost");
       Integer i2 = new Integer("localhost");
