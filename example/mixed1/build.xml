@@ -22,10 +22,6 @@
         <exec executable="popcc">
             <arg line="-object -o integer.obj integer.ph integer.cc"/>
         </exec>
-        
-        <!--<exec executable="popjc">
-            <arg line="-n -p additional-infos.xml TestInteger.java Integer.java"/>
-        </exec> ${objectmap} -->
     	
     	<javac srcdir="."
     	                destdir="."

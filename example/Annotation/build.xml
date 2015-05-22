@@ -18,7 +18,7 @@
     <target name="all" depends="clean"
         description="compile the source " >
         <exec executable="popjc">
-            <arg line="-n Integer.pjava TestInteger.pjava"/>
+            <arg line="-n Integer.java TestInteger.java"/>
         </exec>
         <exec executable="popjrun" output = "${objectmap}">
             <arg line="--listlong Integer.class"/>

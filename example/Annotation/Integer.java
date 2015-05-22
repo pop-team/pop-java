@@ -6,6 +6,10 @@ import popjava.annotation.POPParameter.Direction;
 public class Integer {
    private int value;
    
+   public Integer(){
+       
+   }
+   
    @POPObjectDescription(jvmParameters = "-XX:-UseParallelGC")
    public Integer(@POPConfig(Type.URL) String url){
     value = 0;
