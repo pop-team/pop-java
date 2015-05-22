@@ -5,7 +5,8 @@
     
     <property name="objectmap" value="objmap.xml"/>
     <property name="source.folder" value=""/>
-    
+	<property name="popjava.jar"     value="/usr/local/popj/JarFile/popjava.jar"/>
+	
     <target name="clean" 
         description="clean the build folder" >
         
@@ -22,9 +23,19 @@
             <arg line="-object -o integer.obj integer.ph integer.cc"/>
         </exec>
         
-        <exec executable="popjc">
-            <arg line="-n -p additional-infos.xml TestInteger.pjava Integer.pjava"/>
-        </exec>
+        <!--<exec executable="popjc">
+            <arg line="-n -p additional-infos.xml TestInteger.java Integer.java"/>
+        </exec> ${objectmap} -->
+    	
+    	<javac srcdir="."
+    	                destdir="."
+    	                classpath="${popjava.jar}"
+    	                debug="true" debuglevel="lines,vars,source"
+    	                target="7"
+    	                source="7" >
+          <compilerarg value="-Xlint:deprecation,unchecked"/>
+        </javac>
+    	
         
         <exec executable="popjrun" output = "${objectmap}">
             <arg line="--listlong integer.obj"/>
@@ -33,9 +44,16 @@
     
     <target name="run" depends="build"
         description="Run the application" >
-        <exec executable="popjrun">
-            <arg line="${objectmap} TestInteger"/>
-        </exec>
+    	
+    	<java classname="TestInteger" fork="true">
+    		<arg value="-codeconf=${objectmap}"/>
+    		<classpath>
+                <pathelement location="${popjava.jar}"/>
+                <pathelement location="."/>
+             </classpath>
+    		
+    		<jvmarg value="-javaagent:${popjava.jar}"/>
+       </java>
     </target>
     
 </project>

@@ -157,12 +157,12 @@ public final class POPJavaAgent implements ClassFileTransformer{
             if(  !rawClass.isFrozen() && isPOPClass(rawClass) && !isProxy(rawClass)) {
                 //System.out.println("Transform "+dotClassName);
                 
+                final POPClass popClass = (POPClass)rawClass.getAnnotation(POPClass.class);
+                
+                boolean isDistributable = popClass == null || popClass.isDistributable();
+                
                 //Add POPObject as parent object if needed
                 if(classNeedsSuperclass(rawClass)){
-                    
-                    final POPClass popClass = (POPClass)rawClass.getAnnotation(POPClass.class);
-                    
-                    boolean isDistributable = popClass == null || popClass.isDistributable();
                     
                     if(isDistributable &&
                             rawClass.getSuperclass() != null &&
@@ -196,13 +196,12 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     
                     final String longMethodName = method.getLongName();
                     
-                    checkMethodParameters(method);
-                    
                     // Only transform methods in this class, not in the super class because
                     // the super class will be transformed separately
                     if( longMethodName.startsWith( dotClassName ) )
                     {
                         instrumentCode(loader, method);
+                        checkMethodParameters(method);
                     }
                 }
                 
@@ -243,7 +242,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
         for(CtClass parameter : method.getParameterTypes()){
             final POPClass popClass = (POPClass)parameter.getAnnotation(POPClass.class);
             
-            if(popClass != null && popClass.isDistributable()){
+            if(popClass != null && !popClass.isDistributable()){
                 throw new CannotCompileException("Can not pass "+parameter.getName() +" as parameter to "+method.getLongName());
             }
         }

@@ -1,12 +1,11 @@
 package popjava.baseobject;
 
-import popjava.buffer.*;
+import java.util.ArrayList;
+
+import popjava.buffer.POPBuffer;
 import popjava.combox.ComboxSocketFactory;
 import popjava.dataswaper.IPOPBase;
 import popjava.system.POPSystem;
-
-
-import java.util.*;
 
 /**
  * This class represents multiple access to the broker-side parallel object
@@ -56,7 +55,8 @@ public class POPAccessPoint implements IPOPBase {
 	/**
 	 * Serialize the object into the buffer to be sent over the network
 	 */
-	public boolean serialize(POPBuffer buffer) {
+	@Override
+    public boolean serialize(POPBuffer buffer) {
 		buffer.putString(toString());
 		buffer.putInt(security);
 		buffer.putBoolean(isService);
@@ -67,7 +67,8 @@ public class POPAccessPoint implements IPOPBase {
 	/**
 	 * Deserialize the object from the buffer received from the network
 	 */
-	public boolean deserialize(POPBuffer buffer) {
+	@Override
+    public boolean deserialize(POPBuffer buffer) {
 		String accessPoint = buffer.getString();
 		this.setAccessString(accessPoint);
 		security = buffer.getInt();
@@ -99,7 +100,8 @@ public class POPAccessPoint implements IPOPBase {
 	/**
 	 * Format the POPAccessPoint to a string value
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 		String accessString = "";
 		for (int index = 0; index < accessPoints.size(); index++) {
 			accessString += accessPoints.get(index).toString() + " ";
@@ -115,12 +117,14 @@ public class POPAccessPoint implements IPOPBase {
 	public void setAccessString(String accessString) {
 		accessPoints.clear();
 		String[] accessStrings = accessString.split("[ \t\r\n]");
+		
 		for (String str : accessStrings) {
 			str = str.trim();
 			if (str.length() > 0) {
 				AccessPoint acessPoint = AccessPoint.create(str);
-				if (acessPoint != null)
+				if (acessPoint != null){
 					accessPoints.add(acessPoint);
+				}
 			}
 		}
 	}

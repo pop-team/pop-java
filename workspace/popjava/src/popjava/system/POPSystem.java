@@ -24,7 +24,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import popjava.PopJava;
-import popjava.base.*;
+import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
@@ -358,7 +358,7 @@ public class POPSystem {
 			POPAccessPoint accessPoint = new POPAccessPoint();
 			accessPoint.setAccessString(appservicecontact);
 			try{
-				return (POPAppService) PopJava.newActive(
+				return PopJava.newActive(
 						POPAppService.class, accessPoint);
 			}catch(POPException e){
 			}
@@ -367,7 +367,7 @@ public class POPSystem {
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
 			LogWriter.writeDebugInfo("Create appservice in Java");
-			return (AppService) PopJava.newActive(POPJavaAppService.class);			
+			return PopJava.newActive(POPJavaAppService.class);			
 		}catch(POPException e){
 			e.printStackTrace();
 		}
@@ -478,7 +478,7 @@ public class POPSystem {
 		objectDescription.setHostname(POPSystem.getHostIP());
 		objectDescription.setCodeFile(codelocation);
 		
-		POPAppService appService = (POPAppService) PopJava.newActive(POPAppService.class,
+		POPAppService appService = PopJava.newActive(POPAppService.class,
 				objectDescription, randString, false, codelocation);
 				
 		return appService;

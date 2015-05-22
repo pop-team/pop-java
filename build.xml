@@ -7,7 +7,7 @@
         <property name="temp.dir" value ="temp"/>
         <property name="classes.dir" value="${build.dir}/classes"/>
 	    <property name="objgenclasses.dir" value="${classes.dir}/objgen"/>
-        <property name="jar.dir"     value="${build.dir}/jar"/>      
+        <property name="jar.dir"     value="${build.dir}/jar"/>
         
         <property name="release.dir" value ="release"/>
         

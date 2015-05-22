@@ -59,7 +59,7 @@ public class AccessPoint {
 	 * @param accessString	Formatted access string
 	 * @return the new access point created from the string
 	 */
-	public static AccessPoint create(String accessString) {
+	public static AccessPoint create(String accessString) {	    
 		accessString = accessString.trim();
 		String protocol = "";
 		String host = "";
@@ -69,26 +69,34 @@ public class AccessPoint {
 		int n = 0;
 		for (int i = 0; i < args.length; i++) {
 			String tempString = args[i].trim();
-			if (tempString.length() > 0)
+			if (tempString.length() > 0){
 				datas[n++] = tempString;
+			}
 		}
+		
 		if (n == 3) {
 			protocol = datas[0].trim();
 			host = datas[1].trim();
 			port = Integer.parseInt(datas[2]);
 		} else if (n == 2) {
-			protocol = SOCKET_PROTOCOL;
-			host = datas[0].trim();
-			port = Integer.parseInt(datas[1]);
+		    if(args[0].trim().equalsIgnoreCase("socket")){
+		        protocol = SOCKET_PROTOCOL;
+	            host = datas[0].trim();
+	            port = Integer.parseInt(datas[1]);
+		    }else{
+		        return null;
+		    }
+			
 		} else {
 			protocol = SOCKET_PROTOCOL;
 			host = DEFAULT_HOST;
 			port = DEFAULT_PORT;
 		}
-		if (protocol.length() > 0 && host.length() > 0)
+		if (protocol.length() > 0 && host.length() > 0){
 			return new AccessPoint(protocol, host, port);
-		else
+		}else{
 			return null;
+		}
 	}
 
 	/**
@@ -154,7 +162,8 @@ public class AccessPoint {
 	/**
 	 * Format the access point as a string value
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 		return String.format("%s://%s:%d", protocol, host, port);
 	}
 }
