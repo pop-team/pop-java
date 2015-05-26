@@ -1,7 +1,7 @@
 import popjava.annotation.POPClass;
 import popjava.annotation.POPSyncSeq;
 
-@POPClass
+@POPClass(classId = 1501)
 public class PARObject {
 	
 	public PARObject(){

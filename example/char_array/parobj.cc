@@ -3,13 +3,13 @@
 
 PARObject::PARObject()
 {
-   cout << "PARObject created (by JobMgr) on machine:" << (const char*)POPSystem::GetHost() << popcendl;
+   cout << "PARObject created (by JobMgr) on machine:" << POPSystem::GetHost().c_str() << popcendl;
 }
 
 
 PARObject::~PARObject()
 {
-   cout << "PARObject on machine:" << (const char*)POPSystem::GetHost() <<" is being destroyed\n" << popcendl;
+   cout << "PARObject on machine:" << POPSystem::GetHost().c_str() <<" is being destroyed\n" << popcendl;
 }
 
 void PARObject::sendChar(int length, char* tab){

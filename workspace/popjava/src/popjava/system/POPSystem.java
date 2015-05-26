@@ -95,9 +95,14 @@ public class POPSystem {
 	static {
 		// Trick :(( I don't know why the system i386 doesn't work
 		String osName = System.getProperty("os.name");
-		// String osArchitect = System.getProperty("os.arch");
-		String osArchitect = "i686";
-		platform = String.format("%s-pc-%s", osArchitect, osName);
+		String osArchitect = System.getProperty("os.arch");
+		
+		if(osArchitect.contains("64")){
+		    osArchitect = "x86_64";
+		}
+		
+		platform = String.format("%s-%s", osArchitect, osName);
+		
 //		String popLocation = POPSystem.getPopLocation();
 //		POPJavaObjectExecuteCommand = String.format(
 //				"/usr/bin/java -cp %s popjava.broker.Broker -codelocation=",
