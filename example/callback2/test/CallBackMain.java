@@ -1,5 +1,10 @@
 package test;
+
+import popjava.annotation.POPClass;
+
+@POPClass(isDistributable = false)
 public class CallBackMain {
+    
 	public static void main(String... argvs){
 		System.out.println("Callback test started ...");
 		Toto t = new Toto();

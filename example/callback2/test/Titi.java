@@ -6,6 +6,7 @@ import popjava.annotation.POPSyncSeq;
 @POPClass
 public class Titi {
 	private int identity;
+	
 	public Titi(){
 		identity = -1;
 	}
