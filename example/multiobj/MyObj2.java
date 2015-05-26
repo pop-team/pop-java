@@ -11,7 +11,7 @@ public class MyObj2 {
 	}
 	
 	@POPSyncSeq
-	public void set(int value) throws POPException {
+	public void set(int value) {
        
    		MyObj3 o3 = new MyObj3();
 		o3.set(value);

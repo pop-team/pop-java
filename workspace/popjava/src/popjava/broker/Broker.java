@@ -1,11 +1,27 @@
 package popjava.broker;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import javassist.NotFoundException;
+import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
-import popjava.combox.*;
-import popjava.javaagent.POPJavaAgent;
-import popjava.system.POPSystem;
-import popjava.util.LogWriter;
-import popjava.util.Util;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPParameter;
 import popjava.base.MessageHeader;
@@ -18,27 +34,18 @@ import popjava.base.Semantic;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.BufferFactory;
-import popjava.buffer.POPBuffer;
 import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.*;
-
-import javassist.NotFoundException;
-import javassist.URLClassPath;
-import javassist.util.proxy.ProxyObject;
+import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
+import popjava.combox.ComboxFactory;
+import popjava.combox.ComboxFactoryFinder;
+import popjava.combox.ComboxServer;
+import popjava.combox.ComboxSocket;
+import popjava.javaagent.POPJavaAgent;
+import popjava.system.POPSystem;
+import popjava.util.LogWriter;
+import popjava.util.Util;
 
 /**
  * This class is the base class of all broker-side parallel object. The broker
@@ -225,7 +232,8 @@ public final class Broker {
 			constructor = popInfo.getConstructorByInfo(info);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
-					popInfo.getClass().getName(), request.getMethodId(),
+					popInfo.getClass().getName(), 
+					request.getClassId(), request.getMethodId(),
 					e.getMessage());
 		}
 
@@ -243,7 +251,7 @@ public final class Broker {
 		if (exception == null && constructor != null) {
 			try {
 				popObject = (POPObject) constructor.newInstance(parameters);
-				POPClass annotation = (POPClass)popObject.getClass().getAnnotation(POPClass.class);
+				POPClass annotation = popObject.getClass().getAnnotation(POPClass.class);
 				if(annotation != null){
 					comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
 				}
@@ -350,7 +358,8 @@ public final class Broker {
 			method = popInfo.getMethodByInfo(info);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
-					popInfo.getClass().getName(), request.getMethodId(),
+					popInfo.getClass().getName(),
+					request.getClassId(), request.getMethodId(),
 					e.getMessage());
 		}
 		// Get parameter if found the method
@@ -850,8 +859,7 @@ public final class Broker {
 		if (actualObjectName != null && actualObjectName.length() > 0) {
 			objectName = actualObjectName;
 		}
-		String callbackString = Util.removeStringFromList(argvList,
-				CALLBACK_PREFIX);
+		String callbackString = Util.removeStringFromList(argvList, CALLBACK_PREFIX);
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}

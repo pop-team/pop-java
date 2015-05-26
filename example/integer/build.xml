@@ -3,10 +3,10 @@
         Integer example
     </description>
     
+	<property environment="env"/>
     <property name="objectmap" value="objectmap.xml"/>
     <property name="source.folder" value=""/>
-	<property name="popjava.jar" value="/usr/local/popj/JarFile/popjava.jar"/>
-    
+	
     <target name="clean" 
         description="clean the build folder" >
         
@@ -21,7 +21,7 @@
     	
         <javac srcdir="."
                         destdir="."
-                        classpath="${popjava.jar}"
+                        classpath="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"
                         debug="true" debuglevel="lines,vars,source"
                         target="7"
                         source="7" >

@@ -1,14 +1,22 @@
 package popjava.combox;
 
-import popjava.base.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+
+import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.*;
+import popjava.buffer.POPBuffer;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
-
-import java.net.*;
-import java.io.*;
 /**
  * This combox implement the protocol Socket
  */

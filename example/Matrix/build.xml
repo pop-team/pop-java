@@ -3,6 +3,8 @@
         Matrix multiplication example
     </description>
     
+	<property environment="env"/>
+	
     <property name="objectmap" value="objectmap.xml"/>
     <property name="source.folder" value="src"/>
 	<property name="build.dir"   value="build"/>
@@ -12,8 +14,6 @@
 	<property name="matrix.jar" value="${jar.dir}/matrix.jar"/>
 	<property name="matrix.main" value="MatrixMain"/>
 	
-	
-	<property environment="env"/>
 	<property name="pop.jar"     value="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"/>
     
     <target name="clean" description="clean the build folder" >
@@ -28,10 +28,6 @@
     <target name="build"
         description="compile the source " >
     	<mkdir dir="${classes.dir}"/>
-    	
-        <exec executable="popjc">
-            <arg line="-v -t ${source.folder}/*.pjava"/>
-        </exec>
     	
     	<echo message="Hello, world ${pop.jar}"/>
     	

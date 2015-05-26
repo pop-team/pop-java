@@ -92,6 +92,7 @@ public class AccessPoint {
 			host = DEFAULT_HOST;
 			port = DEFAULT_PORT;
 		}
+		
 		if (protocol.length() > 0 && host.length() > 0){
 			return new AccessPoint(protocol, host, port);
 		}else{

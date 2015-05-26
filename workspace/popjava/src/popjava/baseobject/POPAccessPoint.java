@@ -37,11 +37,9 @@ public class POPAccessPoint implements IPOPBase {
 		if (initialize) {
 			String localAddress = POPSystem.getHostIP();
 
-			String accessString = String.format("%s://%s:0",
-					ComboxSocketFactory.PROTOCOL, localAddress);
-			this.setAccessString(accessString);
+			String accessString = String.format("socket://%s://%s:0", ComboxSocketFactory.PROTOCOL, localAddress);
+			setAccessString(accessString);
 		}
-
 	}
 
 	/**
@@ -49,7 +47,7 @@ public class POPAccessPoint implements IPOPBase {
 	 * @param accessString Formatted string to create the POPAccessPoint
 	 */
 	public POPAccessPoint(String accessString) {
-		this.setAccessString(accessString);
+		setAccessString(accessString);
 	}
 
 	/**
@@ -70,7 +68,7 @@ public class POPAccessPoint implements IPOPBase {
 	@Override
     public boolean deserialize(POPBuffer buffer) {
 		String accessPoint = buffer.getString();
-		this.setAccessString(accessPoint);
+		setAccessString(accessPoint);
 		security = buffer.getInt();
 		isService = buffer.getBoolean();
 		noaddref = buffer.getBoolean();
@@ -92,9 +90,7 @@ public class POPAccessPoint implements IPOPBase {
 	 * @return true is the current object is not set
 	 */
 	public boolean isEmpty() {
-		if (accessPoints.isEmpty())
-			return true;
-		return false;
+		return accessPoints.isEmpty();
 	}
 
 	/**

@@ -1,5 +1,8 @@
 import java.lang.*;
 
+import popjava.annotation.POPClass;
+
+@POPClass(isDistributable = false)
 public class MainClass{
    public static void main(String[] args){
       System.out.println("Start broker-side semantic test ...");

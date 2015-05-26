@@ -9,6 +9,7 @@ import popjava.annotation.POPSyncConc;
 @POPClass
 public class MethodObj {
    private int value;
+   
    public MethodObj(){
       value = 0;
    }

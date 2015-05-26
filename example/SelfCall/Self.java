@@ -1,6 +1,7 @@
 import java.util.concurrent.Semaphore;
 
-import popjava.annotation.POPSyncMutex;
+import popjava.PopJava;
+import popjava.annotation.*;
  
 @POPClass
 public class Self {
@@ -34,7 +35,7 @@ public class Self {
 	public void test2(){
 		this.testVariable = 20;
 		for(int i = 0; i< loopCount; i++){
-			this.pause();
+			PopJava.getThis(this).pause();
 		}
 		
 		for(int i = 0; i< loopCount; i++){

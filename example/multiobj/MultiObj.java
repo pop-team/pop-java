@@ -1,3 +1,8 @@
+import popjava.annotation.POPClass;
+
+
+
+@POPClass(isDistributable = false)
 public class MultiObj {
 	public static void main(String... argvs){		
 		System.out.println("Multiobjet test started ...");

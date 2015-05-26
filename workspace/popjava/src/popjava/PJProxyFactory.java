@@ -1,14 +1,19 @@
 package popjava;
 
-import popjava.base.*;
-import popjava.baseobject.*;
-import popjava.buffer.*;
-import popjava.system.*;
-import popjava.util.*;
+import java.lang.reflect.Constructor;
 
-import java.lang.reflect.*;
-
-import javassist.util.proxy.*;
+import javassist.util.proxy.MethodFilter;
+import javassist.util.proxy.ProxyFactory;
+import javassist.util.proxy.ProxyObject;
+import popjava.base.POPErrorCode;
+import popjava.base.POPException;
+import popjava.base.POPObject;
+import popjava.baseobject.ObjectDescription;
+import popjava.baseobject.POPAccessPoint;
+import popjava.buffer.POPBuffer;
+import popjava.system.POPSystem;
+import popjava.util.ClassUtil;
+import popjava.util.LogWriter;
 
 /**
  * POP-Java Proxy Factory : this class provide methods to create a proxy factory for a specified class. This class uses the Javassit library.
@@ -65,7 +70,7 @@ public class PJProxyFactory extends ProxyFactory {
 			
 			try{
 				Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
-				
+				/*
 				for(Constructor<?> constructor: targetClass.getConstructors()){
 					LogWriter.printDebug("Constructor: ");
 					for(Class<?> type: constructor.getParameterTypes()){
@@ -76,7 +81,7 @@ public class PJProxyFactory extends ProxyFactory {
 				LogWriter.printDebug("Search for");
 				for(Class<?> type: parameterTypes){
 					LogWriter.printDebug(type.getName());
-				}
+				}*/
 				
 				Constructor<?> constructor = targetClass.getConstructor(parameterTypes);
 				popObject = (POPObject) constructor.newInstance(argvs);

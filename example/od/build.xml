@@ -3,8 +3,10 @@
         Od usage example
     </description>
     
+	<property environment="env"/>
     <property name="application.jar" value="od.jar"/>
     <property name="objectmap" value="objectmap.xml"/>
+	<property name="source.folder" value="."/>
     
     <target name="clean" 
         description="clean the build folder" >
@@ -15,9 +17,14 @@
     
     <target name="build"
         description="compile the source " >
-        <exec executable="popjc">
-            <arg line="-j ${application.jar} *.pjava"/>
-        </exec>
+    	<javac srcdir="${source.folder}"
+                                    classpath="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"
+        debug="true" debuglevel="lines,vars,source"
+        />
+    	
+	   <jar destfile="${application.jar}" basedir=".">
+        </jar>
+    	
         <exec executable="popjrun" output = "${objectmap}">
             <arg line="--listlong ${application.jar}"/>
         </exec>

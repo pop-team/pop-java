@@ -182,7 +182,7 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint getDefaultAccessPoint() {
 		POPAccessPoint parrocAccessPoint = new POPAccessPoint();
-		parrocAccessPoint.setAccessString(String.format("%s://127.0.0.1:0",
+		parrocAccessPoint.setAccessString(String.format("socket://%s://127.0.0.1:0",
 				ComboxSocketFactory.PROTOCOL));
 		return parrocAccessPoint;
 	}
@@ -352,6 +352,7 @@ public class POPSystem {
 			} else {
 				url = String.format("%s -proxy=%s", appservicecode, proxy);
 			}
+			
 			if(Configuration.CONNECT_TO_POPCPP && new File(appservicecode).exists()){
 				try{
 					return createAppCoreService(url);
@@ -483,8 +484,7 @@ public class POPSystem {
 		objectDescription.setHostname(POPSystem.getHostIP());
 		objectDescription.setCodeFile(codelocation);
 		
-		POPAppService appService = PopJava.newActive(POPAppService.class,
-				objectDescription, randString, false, codelocation);
+		POPAppService appService = PopJava.newActive(POPAppService.class, objectDescription, randString, false, codelocation);
 				
 		return appService;
 	}

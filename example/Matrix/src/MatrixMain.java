@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import popjava.annotation.POPClass;
 import lib.*;
 
 /**
@@ -17,6 +18,7 @@ import lib.*;
  * 
  */
 
+@POPClass(isDistributable = false)
 public class MatrixMain {
 
 	private static final int NB_MAX_MACHINES = 200;

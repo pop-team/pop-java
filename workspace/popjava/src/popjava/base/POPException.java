@@ -109,28 +109,16 @@ public class POPException extends RuntimeException implements IPOPBase {
 	}
 
 	/**
-	 * Throw an exception when method is not found
-	 * @throws POPException exception thrown by this method
-	 */
-	public static void throwReflectMethodNotFoundException(String className,
-			int methodId, String errorMessage) throws POPException {
-
-		throw createReflectMethodNotFoundException(className, methodId,
-				errorMessage);
-	}
-
-	/**
 	 * Create an exception when method is not found
 	 * @return	the exception
 	 */
 	public static POPException createReflectMethodNotFoundException(
-		String className, int methodId, String errorMessage) {
+		String className, int classId, int methodId, String errorMessage) {
 		String message = String
 				.format(
-						"Cannot find the method id %d in class %s. More Information:%s",
-						methodId, className, errorMessage);
-		return new POPException(
-				POPErrorCode.REFLECT_METHOD_NOT_FOUND_EXCEPTION, message);
+						"Cannot find the method id %d in class %s (%d). More Information:%s",
+						methodId, className, classId, errorMessage);
+		return new POPException(POPErrorCode.REFLECT_METHOD_NOT_FOUND_EXCEPTION, message);
 	}
 
 	/**
@@ -160,10 +148,16 @@ public class POPException extends RuntimeException implements IPOPBase {
 	 * @return	the exception
 	 * @throws POPException exception thrown by this method
 	 */
-	public static POPException throwAccessPointNotAvailableException()
+	public static POPException throwAccessPointNotAvailableException(POPAccessPoint accesspoint)
 			throws POPException {
+	    String info = "null";
+	    
+	    if(accesspoint != null){
+	        info = accesspoint.toString();
+	    }
+	    
 		throw new POPException(POPErrorCode.POP_ACCESSPOINT_NOT_AVAILABLE,
-				"The accesspoint hasn't been initialized");
+				"The accesspoint hasn't been initialized: "+info);
 	}
 	
 	/**

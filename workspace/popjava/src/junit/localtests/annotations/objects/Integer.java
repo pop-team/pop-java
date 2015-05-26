@@ -1,4 +1,4 @@
-package junit.localtests.annotations;
+package junit.localtests.annotations.objects;
 
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPClass;

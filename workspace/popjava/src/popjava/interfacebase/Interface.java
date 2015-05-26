@@ -5,21 +5,11 @@
 
 package popjava.interfacebase;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+
 import popjava.PopJava;
-import popjava.codemanager.AppService;
-import popjava.codemanager.POPJavaAppService;
-import popjava.combox.*;
-import popjava.dataswaper.ObjectDescriptionInput;
-import popjava.dataswaper.POPString;
-import popjava.service.POPJavaDeamonConnector;
-import popjava.serviceadapter.POPAppService;
-import popjava.serviceadapter.POPJobManager;
-import popjava.serviceadapter.POPJobService;
-import popjava.system.*;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.SystemUtil;
-import popjava.util.Util;
 import popjava.annotation.POPObjectDescription;
 import popjava.base.BindStatus;
 import popjava.base.MessageHeader;
@@ -29,11 +19,27 @@ import popjava.base.Semantic;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
-import popjava.buffer.*;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.*;
+import popjava.buffer.BufferFactory;
+import popjava.buffer.BufferFactoryFinder;
+import popjava.buffer.BufferXDR;
+import popjava.buffer.POPBuffer;
+import popjava.codemanager.AppService;
+import popjava.codemanager.POPJavaAppService;
+import popjava.combox.Combox;
+import popjava.combox.ComboxAllocateSocket;
+import popjava.combox.ComboxFactoryFinder;
+import popjava.dataswaper.ObjectDescriptionInput;
+import popjava.dataswaper.POPString;
+import popjava.service.POPJavaDeamonConnector;
+import popjava.serviceadapter.POPAppService;
+import popjava.serviceadapter.POPJobManager;
+import popjava.serviceadapter.POPJobService;
+import popjava.system.POPJavaConfiguration;
+import popjava.system.POPSystem;
+import popjava.util.Configuration;
+import popjava.util.LogWriter;
+import popjava.util.SystemUtil;
+import popjava.util.Util;
 
 
 /**
@@ -186,7 +192,7 @@ public class Interface {
 
         if (platforms.length() <= 0) {
         	AppService appCoreService = null;
-        	appCoreService = (AppService) PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
+        	appCoreService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
         	POPString popStringPlatorm = new POPString();
         	appCoreService.getPlatform(objectName, popStringPlatorm);
         	platforms = popStringPlatorm.getValue();
@@ -208,14 +214,14 @@ public class Interface {
         }
 
         if (jobContact.isEmpty()) {
-        	jobContact.setAccessString(String.format("%s:%d", POPSystem
+        	jobContact.setAccessString(String.format("socket://%s:%d", POPSystem
         			.getHostIP(), POPJobManager.DEFAULT_PORT));
         }
 
         POPJobService jobManager = null;
         try{
         	if(Configuration.CONNECT_TO_POPCPP){
-        		jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
+        		jobManager = PopJava.newActive(POPJobService.class, jobContact);
         	}
         }catch(Exception e){
         }
@@ -261,8 +267,9 @@ public class Interface {
 	protected boolean bind(POPAccessPoint accesspoint) throws POPException {
 
 		if (accesspoint == null || accesspoint.isEmpty()){
-			POPException.throwAccessPointNotAvailableException();
+			POPException.throwAccessPointNotAvailableException(accesspoint);
 		}
+		
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 		
 		if (combox != null){
@@ -528,7 +535,7 @@ public class Interface {
 	    if(!POPSystem.appServiceAccessPoint.isEmpty()){
             if(Configuration.CONNECT_TO_POPCPP){
                 try{
-                    appCoreService = (AppService) PopJava.newActive(
+                    appCoreService = PopJava.newActive(
                             POPAppService.class, POPSystem.appServiceAccessPoint);
                     appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
                 }catch(Exception e){
@@ -539,7 +546,7 @@ public class Interface {
             
             if(appCoreService == null){
                 try{
-                    appCoreService = (AppService) PopJava.newActive(
+                    appCoreService = PopJava.newActive(
                             POPJavaAppService.class, POPSystem.appServiceAccessPoint);
                 }catch(POPException e){
                     LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
@@ -759,7 +766,8 @@ public class Interface {
 	/**
 	 * Close everything
 	 */
-	protected void finalize() throws Throwable {
+	@Override
+    protected void finalize() throws Throwable {
 		this.decRef();
 		try {
 			close(); // close open files

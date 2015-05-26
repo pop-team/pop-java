@@ -24,6 +24,7 @@
     	
 	   <javac srcdir="${source.folder}"
                     classpath="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"
+	   	debug="true" debuglevel="lines,vars,source"
         />
         
         <exec executable="popcc">

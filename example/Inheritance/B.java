@@ -1,4 +1,8 @@
 import java.util.concurrent.Semaphore;
+
+import popjava.PopJava;
+import popjava.annotation.*;
+import popjava.base.POPObject;
  
 @POPClass
 public class B extends A{
@@ -7,6 +11,8 @@ public class B extends A{
 	private Semaphore locker = new Semaphore(4);
 	private int testVariable = 0;
 
+	private B me;
+	
 	@POPObjectDescription(url = "localhost")
 	public B(){
 	}
@@ -15,7 +21,7 @@ public class B extends A{
 	@POPSyncConc
 	public void test(){
 		for(int i = 0; i< loopCount; i++){
-			this.pause();
+			PopJava.getThis(this).pause();
 		}
 		
 		for(int i = 0; i< loopCount; i++){

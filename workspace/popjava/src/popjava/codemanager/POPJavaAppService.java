@@ -20,7 +20,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	public POPJavaAppService() {
 		//this.definedMethodId = true;
 	}
-
+	
 	//Platform, objectname, codefile
 	private Map<String, Map<String, String>> registeredCode = new HashMap<String, Map<String,String>>();
 	
@@ -31,7 +31,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	 * @param codefile	Path of the executable code file
 	 */
 	@Override
-    @POPSyncSeq
+    @POPSyncSeq(id = 13)
 	public void registerCode(String objname, String platform, String codefile) {
 		Map<String, String> platf = registeredCode.get(platform);
 		
@@ -50,7 +50,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	 * @return	0 if the code file is not available
 	 */
 	@Override
-    @POPSyncSeq
+    @POPSyncSeq(id = 14)
 	public int queryCode(String objname, String platform, POPString codefile) {
 		Map<String, String> platf = registeredCode.get(platform);
 		String storeCodeFile = null;
@@ -115,7 +115,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	 * @return	number of platform available
 	 */
 	@Override
-    @POPSyncSeq
+    @POPSyncSeq(id = 15)
 	public int getPlatform(String objname, POPString platform) {
 		return 0;
 	}

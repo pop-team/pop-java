@@ -4,9 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Method;
+
+import junit.localtests.annotations.objects.Child;
+import junit.localtests.annotations.objects.Integer;
+import junit.localtests.annotations.objects.Parent;
+
 import org.junit.Test;
 
 import popjava.PopJava;
+import popjava.base.MethodInfo;
+import popjava.codemanager.POPJavaAppService;
 import popjava.system.POPSystem;
 
 public class AnnotationsTest {
@@ -51,4 +59,49 @@ public class AnnotationsTest {
 		POPSystem.end();
 	}
 
+	@Test
+	public void testMethodId() throws NoSuchMethodException{
+	    POPJavaAppService appservice = PopJava.newActive(POPJavaAppService.class);
+	    
+	    int classId = appservice.getClassId();
+	    
+	    assertEquals(99923, classId);
+	    MethodInfo info = new MethodInfo(classId, 14);
+	    Method method = appservice.getMethodByInfo(info);
+	    
+	    assertNotNull(method);
+	}
+	
+	@Test
+	public void testInheritedMethodId() throws NoSuchMethodException{
+	    Parent parent = PopJava.newActive(Parent.class);
+	    assertEquals(1234, parent.getClassId());
+	    
+	    Child child = PopJava.newActive(Child.class);
+	    assertEquals(1235, child.getClassId());
+	    
+	    MethodInfo info = new MethodInfo(parent.getClassId(), 20);
+        Method method = parent.getMethodByInfo(info);
+        assertNotNull(method);
+        
+        info = new MethodInfo(parent.getClassId(), 21);
+        method = parent.getMethodByInfo(info);
+        assertNotNull(method);
+        
+        info = new MethodInfo(child.getClassId(), 20);
+        method = child.getMethodByInfo(info);
+        assertNotNull(method);
+        
+        System.out.println(method.getName()+" "+method.getDeclaringClass().getName());
+        
+        /*info = new MethodInfo(parent.getClassId(), 20);
+        method = child.getMethodByInfo(info);
+        assertNotNull(method);
+        
+        System.out.println(method.getName()+" "+method.getDeclaringClass().getName());*/
+        
+        info = new MethodInfo(child.getClassId(), 22);
+        method = child.getMethodByInfo(info);
+        assertNotNull(method);
+	}
 }

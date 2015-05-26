@@ -88,4 +88,8 @@ public class PopJava {
 	    
 	    throw new RuntimeException("Object was not of type "+POPObject.class.getName());
 	}
+	
+	public static <T extends Object> T getThis(T object){
+	    return (T) ((POPObject) object).getThis(object.getClass());
+	}
 }

@@ -23,6 +23,10 @@ public class MatrixWorker {
 
 	private Semaphore workerSemaphore = new Semaphore(0);
 
+	public MatrixWorker() {
+	    
+	}
+	
 	public MatrixWorker(int i, int nbLineA, int nbColA, int nbColB,
 			@POPConfig(Type.URL) String machine, int NbC) {
 		nbLinesA = nbLineA;
