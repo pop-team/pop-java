@@ -13,7 +13,7 @@ public class Titi {
 private int identity;
    private Toto toto;
    
-   @POPObjectDescription(url="192.168.1.105", connection=ConnectionType.DEAMON)
+   @POPObjectDescription(url="localhost")
 	public Titi(){
 		identity = -1;
 	}

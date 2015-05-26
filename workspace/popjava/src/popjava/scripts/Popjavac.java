@@ -209,6 +209,8 @@ public class Popjavac {
 					
 					sources.add(file);
 				}
+				
+				stream.close();
 			}
 			
 		} catch (IOException e) {
