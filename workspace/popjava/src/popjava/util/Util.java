@@ -59,7 +59,9 @@ public final class Util {
 		
 		boolean isLocal = (hostname == null || hostname.length() == 0
 				|| popjava.util.Util.sameContact(myhost, hostname)
-				|| hostname.equals("localhost") || hostname.equals("127.0.0.1"));
+				|| hostname.equals("localhost") ||
+				hostname.equals("127.0.0.1") ||
+				hostname.equals("127.0.1.1"));
 		
 		return isLocal;
 	}
@@ -128,7 +130,7 @@ public final class Util {
 			if (randomInt < 0){
 				randomInt = -randomInt;
 			}
-			randomInt = (int) (((float) randomInt / Integer.MAX_VALUE) * 24 + (int) 'A');
+			randomInt = (int) (((float) randomInt / Integer.MAX_VALUE) * 24 + 'A');
 			result += Character.toString((char) randomInt);
 		}
 		return result;

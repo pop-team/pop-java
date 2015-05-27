@@ -18,7 +18,7 @@ public class Configuration {
 	public static final String DEFAULT_PROTOCOL = "socket";
 
 	public static final boolean ACTIVATE_JMX = false;
-	public static boolean CONNECT_TO_POPCPP = true;
+	public static boolean CONNECT_TO_POPCPP = false;
 	public static final boolean REDIRECT_OUTPUT_TO_ROOT = true;
 	public static final boolean USE_NATIVE_SSH_IF_POSSIBLE = true;
 	

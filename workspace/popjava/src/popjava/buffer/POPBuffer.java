@@ -1,19 +1,39 @@
 package popjava.buffer;
 
-import popjava.PopJava;
-import popjava.base.*;
-import popjava.dataswaper.IPOPBase;
-import popjava.dataswaper.IPOPBaseInput;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import popjava.PopJava;
+import popjava.base.MessageHeader;
+import popjava.base.POPException;
+import popjava.base.POPObject;
+import popjava.base.POPSystemErrorCode;
+import popjava.dataswaper.IPOPBase;
+import popjava.dataswaper.IPOPBaseInput;
 import popjava.util.LogWriter;
 /**
  * This abstract class defined all the required methods to implement a buffer. 
  * The buffer is responsible to encode and decode the data before sending them or receiving them over the network.
+ *
+ * Buffer usage:
+ * Put the data to be serialized into the buffer and take it out again in the same order.
+ * 
+ * A special note for Arrays.
+ * To put in an array, the putXXArray functions can be used.
+ * But to take them out again, first the array length needs to be retrieved with getInt();
+ * <br>
+ * Example:
+ * <pre>
+ * {@code
+ * buffer.putByteArray(byteArray);
+ * 
+ * byte [] deserialized = buffer.getByteArray(buffer.getInt());
+ * }
+ * </pre>
+ * <br>
+ * Note that null arrays can be stored in the buffer, but will be transformed to arrays of length 0 during deserializiation.
  */
 public abstract class POPBuffer extends Object {
 	/**

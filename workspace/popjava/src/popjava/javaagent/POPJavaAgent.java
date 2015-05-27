@@ -8,10 +8,6 @@ import java.security.ProtectionDomain;
 import java.util.HashSet;
 import java.util.Set;
 
-import popjava.PopJava;
-import popjava.annotation.POPClass;
-import popjava.base.POPObject;
-import popjava.system.POPSystem;
 import javassist.ByteArrayClassPath;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -26,6 +22,10 @@ import javassist.expr.FieldAccess;
 import javassist.expr.MethodCall;
 import javassist.expr.NewExpr;
 import javassist.util.proxy.ProxyObject;
+import popjava.PopJava;
+import popjava.annotation.POPClass;
+import popjava.base.POPObject;
+import popjava.system.POPSystem;
 
 /**
  * POPJava Java Agent. This class intercepts the class file loading.
@@ -198,8 +198,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     
                     // Only transform methods in this class, not in the super class because
                     // the super class will be transformed separately
-                    if( longMethodName.startsWith( dotClassName ) )
-                    {
+                    if( longMethodName.startsWith( dotClassName ) && !longMethodName.contains("access$")) {
                         instrumentCode(loader, method);
                         checkMethodParameters(method);
                     }

@@ -1,9 +1,15 @@
 package popjava.buffer;
 
-import popjava.base.*;
-import popjava.util.LogWriter;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 
-import java.nio.*;
+import popjava.base.MessageHeader;
+import popjava.util.LogWriter;
 
 /**
  * This class is a RAW implementation of the buffer abstract class
@@ -315,7 +321,8 @@ public class BufferRaw extends POPBuffer {
 	/**
 	 * 
 	 */
-	public String toIntString() {
+	@Override
+    public String toIntString() {
 		int position = this.position();
 		this.position(0);
 		StringBuilder sb = new StringBuilder();
@@ -330,7 +337,8 @@ public class BufferRaw extends POPBuffer {
 	/**
 	 * 
 	 */
-	public String toCharString() {
+	@Override
+    public String toCharString() {
 		int position = this.position();
 		this.position(0);
 		StringBuilder sb = new StringBuilder();
@@ -391,7 +399,7 @@ public class BufferRaw extends POPBuffer {
 		size += moreCapacity;
 		int position = position() + moreCapacity;
 		if (position >= buffer.capacity()) {
-			int newCapacity = (int)(position * 2);
+			int newCapacity = position * 2;
 			resizeBuffer(newCapacity);
 		}
 	}
@@ -554,8 +562,13 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public void putByteArray(byte[] value) {
-		this.putInt(value.length);
-		this.put(value);
+	    if(value != null){
+	        this.putInt(value.length);
+	        this.put(value);
+	    }else{
+	        this.putInt(0);
+	    }
+		
 	}
 	
 	/**

@@ -1,6 +1,7 @@
 package junit.system;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
 
@@ -14,7 +15,6 @@ public class RawBufferTest {
     @Test
     public void testStringStorage(){
         
-        
         for(int i = 0;i < 100; i++){
             BufferRaw buffer = new BufferRaw();
             String a = getRandomString(1, 100);
@@ -25,6 +25,25 @@ public class RawBufferTest {
             assertEquals(a, buffer.getString());
         }
         
+    }
+    
+    @Test
+    public void testByteArrayStorage(){
+        for(int i = 0;i < 100; i++){
+            BufferRaw buffer = new BufferRaw();
+            byte [] test = getRandomString(1, 100).getBytes();
+            byte [] test2 = getRandomString(1, 100).getBytes();
+            
+            buffer.putByteArray(test);
+            buffer.putByteArray(test2);
+            buffer.extractHeader();
+            
+            byte [] result = buffer.getByteArray(buffer.getInt());
+            byte [] result2 = buffer.getByteArray(buffer.getInt());
+            
+            assertArrayEquals(test, result);
+            assertArrayEquals(test2, result2);
+        }
     }
     
     private static String getRandomString(int min, int max){
