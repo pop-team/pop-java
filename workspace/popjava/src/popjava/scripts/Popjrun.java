@@ -184,7 +184,11 @@ public class Popjrun {
 			classPath = createClassPath("");
 		}
 		
-		arguments.add(0, "-codeconf=" + objectMap);
+		if(broker){
+		    arguments.add(0, objectMap);
+		}else{
+		    arguments.add(0, "-codeconf=" + objectMap);
+		}
 		arguments.add(0, main);
 		
 		if(broker){

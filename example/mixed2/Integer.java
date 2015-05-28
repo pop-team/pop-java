@@ -7,6 +7,7 @@ import popjava.annotation.POPSyncMutex;
 @POPClass(classId = 1000, deconstructor = true)
 public class Integer {
 	private int value;
+	
 	public Integer(){
 		value = 0;
 	}

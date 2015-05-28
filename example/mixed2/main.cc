@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 		printf("%s", "Exception occurs in application : %s", e->what());
 		delete e;
 		return -1;
-	} // catch
+	}
 
 	return 0;
-} //main
+}

@@ -172,10 +172,11 @@ public final class Broker {
 			targetClass = getPOPObjectClass(objectName, urlClassLoader);
 			popInfo = (POPObject) targetClass.getConstructor().newInstance();
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(this.getClass().getName()
-					+ ".Constructor Exception: " + e.getClass().getName()
-					+ ".Message:" + e.getMessage());
-			System.exit(0);
+			LogWriter.writeDebugInfo(getClass().getName()
+					+ " Constructor Exception: " + e.getClass().getName()
+					+ " Message:" + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
@@ -838,9 +839,8 @@ public final class Broker {
 					LogWriter.writeDebugInfo(String.format(
 							"-Error: fail to connect to callback:%s",
 							accessPoint.toString()));
-					System.exit(1);
+					//System.exit(1);
 				} else {
-
 					LogWriter.writeDebugInfo("Connected to callback socket");
 				}
 			}
