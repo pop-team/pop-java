@@ -839,7 +839,7 @@ public final class Broker {
 					LogWriter.writeDebugInfo(String.format(
 							"-Error: fail to connect to callback:%s",
 							accessPoint.toString()));
-					//System.exit(1);
+					System.exit(1);
 				} else {
 					LogWriter.writeDebugInfo("Connected to callback socket");
 				}
