@@ -127,13 +127,18 @@ public class ComboxSocket extends Combox {
 			byte[] temp = new byte[4];
 			
 			synchronized (inputStream) {
-				int read = inputStream.read(temp); //TODO: blocking right here
+			    int read = 0;
+			    while(read < temp.length){
+			        read += inputStream.read(temp, read, temp.length - read);
+			    }
+				
 				int messageLength = buffer.getTranslatedInteger(temp);
 				
 				if (messageLength <= 0) {
 					close();
 					return -1;
 				}
+				
 				result = 4;
 				buffer.putInt(messageLength);
 				messageLength = messageLength - 4;

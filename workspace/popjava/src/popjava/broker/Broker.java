@@ -165,38 +165,6 @@ public final class Broker {
 				
 				urlClassLoader = new URLClassLoader(new URL[]{url});
 			}
-			
-			/*URL[] urls = new URL[1]; //TODO: expand this for multiple jars
-			if (codelocation.indexOf("://") < 0) {// file
-				File codeFile = new File(codelocation);
-				try {
-					LogWriter.writeDebugInfo("Local file " + codelocation);
-					urls[0] = codeFile.toURI().toURL();
-					POPJavaAgent.getInstance().addJar(codelocation);
-				} catch (MalformedURLException e) {
-					LogWriter.writeDebugInfo(this.getClass().getName()
-							+ ".MalformedURLException: " + e.getMessage());
-					System.exit(0);
-				} catch (NotFoundException e) {
-                    e.printStackTrace();
-                    System.exit(0);
-                }
-			} else {
-				try {
-					LogWriter.writeDebugInfo("Remote file " + codelocation);
-					urls[0] = new URL(codelocation);
-					
-				} catch (MalformedURLException e) {
-					LogWriter.writeDebugInfo(this.getClass().getName()
-							+ ".MalformedURLException: " + e.getMessage());
-					System.exit(0);
-				}
-			}
-
-			if (urls[0] != null) {
-				LogWriter.writeDebugInfo("url construct");
-				urlClassLoader = new URLClassLoader(urls);
-			}*/
 		}
 
 		Class<?> targetClass;
@@ -409,8 +377,7 @@ public final class Broker {
 			if (request.isSynchronous()) {
 
 				MessageHeader messageHeader = new MessageHeader();
-				POPBuffer responseBuffer = request.getCombox().getBufferFactory()
-						.createBuffer();
+				POPBuffer responseBuffer = request.getCombox().getBufferFactory().createBuffer();
 				responseBuffer.setHeader(messageHeader);
 				
 				Annotation[][] annotations = method.getParameterAnnotations();
@@ -423,23 +390,22 @@ public final class Broker {
 							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
 							){
 						try {
-							responseBuffer.serializeReferenceObject(
-									parameterTypes[index], parameters[index]);
+							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
 						} catch (POPException e) {
-							LogWriter.writeDebugInfo("Execption serializing parameter "+parameterTypes[index].getName());
+							LogWriter.writeDebugInfo("Excecption serializing parameter "+parameterTypes[index].getName());
 							exception = new POPException(e.errorCode, e.errorMessage);
 							break;
 						}
 					}
 				}
 				if (exception == null) {
-					if (returnType != Void.class && returnType != void.class
-							&& returnType != Void.TYPE)
+					if (returnType != Void.class && returnType != void.class && returnType != Void.TYPE){
 						try {
 						    responseBuffer.putValue(result, returnType);
 						} catch (POPException e) {
 							exception = e;
 						}
+					}
 				}
 				// Send response if success to put parameter to response buffer
 				if (exception == null) {

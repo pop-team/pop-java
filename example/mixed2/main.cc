@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
 	} catch (POPException *e)
 	{
-		printf("%s", "Exception occurs in application :");
+		printf("%s", "Exception occurs in application : %s", e->what());
 		delete e;
 		return -1;
 	} // catch

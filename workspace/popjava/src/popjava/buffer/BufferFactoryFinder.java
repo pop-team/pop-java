@@ -59,11 +59,9 @@ public class BufferFactoryFinder {
 	protected BufferFactoryFinder() {
 		// Load default buffer factory
 		BufferRawFactory rawBufferFactory = new BufferRawFactory();
-		bufferFactoryList.put(rawBufferFactory.getBufferName(),
-				rawBufferFactory);
+		bufferFactoryList.put(rawBufferFactory.getBufferName(), rawBufferFactory);
 		BufferXDRFactory xdrBufferFactory = new BufferXDRFactory();
-		bufferFactoryList.put(xdrBufferFactory.getBufferName(),
-				xdrBufferFactory);
+		bufferFactoryList.put(xdrBufferFactory.getBufferName(), xdrBufferFactory);
 		// Load the plug-in factory
 		// It will read the file at POP_PLUGIN_LOCATION
 		// Each line in this file follows the format:

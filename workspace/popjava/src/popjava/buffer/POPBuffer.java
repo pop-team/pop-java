@@ -398,8 +398,7 @@ public abstract class POPBuffer extends Object {
 				POPException.throwReflectSerializeException(c.getName(), "Default constructor is missing");
 			} catch (Exception e) {
 					LogWriter.writeExceptionLog(e);
-				POPException.throwReflectSerializeException(c.getName(), e
-						.getMessage());
+				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
 			}
 		}else if(IPOPBaseInput.class.isAssignableFrom(c)) {
 			try {
@@ -409,9 +408,9 @@ public abstract class POPBuffer extends Object {
 			} catch(NoSuchMethodException e){
 				POPException.throwReflectSerializeException(c.getName(), "Default constructor is missing");
 			} catch (Exception e) {
-					LogWriter.writeExceptionLog(e);
-				POPException.throwReflectSerializeException(c.getName(), e
-						.getMessage());
+			    e.printStackTrace();
+				LogWriter.writeExceptionLog(e);
+				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
 			}
 		}else if( c.isEnum()){
 			String name = this.getString();

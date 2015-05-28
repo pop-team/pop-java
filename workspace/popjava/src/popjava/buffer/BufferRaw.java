@@ -52,18 +52,19 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public MessageHeader extractHeader() {
 		messageHeader = new MessageHeader();
+		
 		if (buffer.limit() >= MessageHeader.HEADER_LENGTH) {
-			int requestType = this.getInt(4);
+			int requestType = getInt(4);
 			messageHeader.setRequestType(requestType);
+			
 			switch (requestType) {
 			case MessageHeader.REQUEST:
-				messageHeader.setClassId(this.getInt(8));
-				messageHeader.setMethodId(this.getInt(12));
-				messageHeader.setSenmatics(this.getInt(16));
+				messageHeader.setClassId(getInt(8));
+				messageHeader.setMethodId(getInt(12));
+				messageHeader.setSenmatics(getInt(16));
 				break;
 			case MessageHeader.EXCEPTION:
-				messageHeader.setExceptionCode(this
-						.getInt(8));
+				messageHeader.setExceptionCode(getInt(8));
 				break;
 			case MessageHeader.RESPONSE:
 				break;
@@ -161,8 +162,9 @@ public class BufferRaw extends POPBuffer {
 		try {
 			byte[] data = new byte[length];
 			buffer.get(data, 0, length);
-			if ((length % 4) != 0)				
+			if ((length % 4) != 0){
 				this.position(this.position() + 4 - (length % 4));
+			}
 			return (new String(data)).trim();
 		} catch (Exception e) {			
 			return "";
@@ -468,15 +470,18 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public void putIntArray(int[] value) {
 		int arrayLength = 0;
+		
 		if (value != null){
 			arrayLength = value.length;
 		}
+		
 		putInt(arrayLength);
+		
 		if(arrayLength > 0) {
-			resize(arrayLength*Integer.SIZE/Byte.SIZE);
-			IntBuffer intBuffer=buffer.asIntBuffer();
+			resize(arrayLength *Integer.SIZE/Byte.SIZE);
+			IntBuffer intBuffer = buffer.asIntBuffer();
 			intBuffer.put(value);
-			position(position()+arrayLength*Integer.SIZE/Byte.SIZE);			
+			position(position()+arrayLength * Integer.SIZE/Byte.SIZE);			
 		}		
 	}
 
@@ -516,59 +521,77 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public byte[] getByteArray(int length) {
-		byte[]result=new byte[length];
-		buffer.get(result);
-		if((length%4) != 0){
-			buffer.position(this.position()+4-length%4);
+		byte [] result = new byte[length];
+		if(length > 0){
+		    buffer.get(result);
+	        
+	        if((length % 4) != 0){
+	            buffer.position(position() + 4 - length%4);
+	        }
 		}
+		
 		return result;
 	}
 
 	@Override
 	public double[] getDoubleArray(int length) {
-		DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
-		double[]result = new double[length];
-		doubleBuffer.get(result);		
-		this.position(this.position()+length*Double.SIZE/Byte.SIZE);
+	    double [] result = new double[length];
+	    
+	    if(length > 0){
+	        DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
+	        doubleBuffer.get(result);       
+	        position(position()+length*Double.SIZE/Byte.SIZE);
+	    }
+	    
 		return result;
 	}
 
 	@Override
 	public float[] getFloatArray(int length) {
-		float[]result=new float[length];
-		FloatBuffer floatBuffer=buffer.asFloatBuffer();
-		floatBuffer.get(result);
-		this.position(this.position()+length*Float.SIZE/Byte.SIZE);
+		float [] result = new float[length];
+		
+		if(length > 0){
+		    FloatBuffer floatBuffer=buffer.asFloatBuffer();
+	        floatBuffer.get(result);
+	        position(position()+length*Float.SIZE/Byte.SIZE);
+		}
+		
 		return result;
 	}
 
 	@Override
 	public int[] getIntArray(int length) {
-		int[]result=new int[length];
-		IntBuffer intBuffer=buffer.asIntBuffer();
-		intBuffer.get(result);
-		this.position(this.position()+length*Integer.SIZE/Byte.SIZE);
+		int [] result = new int[length];
+		
+		if(length > 0){
+		    IntBuffer intBuffer = buffer.asIntBuffer();
+	        intBuffer.get(result);
+	        position(position()+ length*Integer.SIZE/Byte.SIZE);
+		}
+		
 		return result;
 	}
 
 	@Override
 	public long[] getLongArray(int length) {
-		long[]result=new long[length];
-		LongBuffer longBuffer=buffer.asLongBuffer();
-		longBuffer.get(result);
-		this.position(this.position()+length*Long.SIZE/Byte.SIZE);
+		long[]result = new long[length];
+		if(length > 0){
+		    LongBuffer longBuffer=buffer.asLongBuffer();
+	        longBuffer.get(result);
+	        position(position()+length*Long.SIZE/Byte.SIZE);
+		}
+		
 		return result;
 	}
 
 	@Override
 	public void putByteArray(byte[] value) {
 	    if(value != null){
-	        this.putInt(value.length);
-	        this.put(value);
+	        putInt(value.length);
+	        put(value);
 	    }else{
-	        this.putInt(0);
+	        putInt(0);
 	    }
-		
 	}
 	
 	/**
@@ -586,7 +609,6 @@ public class BufferRaw extends POPBuffer {
 			putInt(index * 4, 0); //0, 4, 8, 12
 		}
 		int type = messageHeader.getRequestType();
-		//LogWriter.writeDebugInfo("Pack header "+size() +" "+position());
 		putInt(0, size());
 		
 		putInt(4, type);
@@ -620,26 +642,27 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public short[] getShortArray(int length) {
-		short[]result=new short[length];
-		ShortBuffer shortBuffer=buffer.asShortBuffer();
+		short [] result = new short[length];
+		ShortBuffer shortBuffer = buffer.asShortBuffer();
 		shortBuffer.get(result);
-		this.position(this.position()+length*Short.SIZE/Byte.SIZE);
+		position(position()+length*Short.SIZE/Byte.SIZE);
 		return result;
 	}
 
 	@Override
 	public void putShortArray(short[] value) {
 		int arrayLength = 0;
-		if (value != null)
+		if (value != null){
 			arrayLength = value.length;
-		this.putInt(arrayLength);
-		if(arrayLength>0)
-		{
-			this.resize(arrayLength*Short.SIZE/Byte.SIZE);
+		}
+		
+		putInt(arrayLength);
+		if(arrayLength>0){
+			resize(arrayLength*Short.SIZE/Byte.SIZE);
 			ShortBuffer shortBuffer=buffer.asShortBuffer();
 			shortBuffer.put(value);
-			this.position(this.position()+arrayLength*Short.SIZE/Byte.SIZE);			
-		}		
+			position(this.position()+arrayLength*Short.SIZE/Byte.SIZE);			
+		}
 		
 	}
 
@@ -648,39 +671,11 @@ public class BufferRaw extends POPBuffer {
 		String s = getStringLength(length);
 		char[] ret = s.toCharArray();
 		return ret;
-//		try {
-//			byte[] data = new byte[length];
-//			char[] charData = new char[length];
-//			buffer.get(data, 0, length);
-//			if ((length % 4) != 0)				
-//				this.position(this.position() + 4 - (length % 4));
-//			String value = (new String(data)).trim();
-//			value.getChars(0, length, charData, 0);
-//			return charData;
-//		} catch (Exception e) {			
-//			return new char[length];
-//		}
-		/*char[] result = new char[length];
-		CharBuffer charBuffer = buffer.asCharBuffer();
-		charBuffer.get(result);
-		this.position(this.position()+length*(Byte.SIZE*2)/Byte.SIZE);
-		return result;*/
 	}
 
 	@Override
 	public void putCharArray(char[] value) {
 		String arrayAsString = new String(value);
-		this.putString(arrayAsString);
-		/*int arrayLength = 0;
-		if (value != null)
-			arrayLength = value.length;
-		this.putInt(arrayLength);
-		if(arrayLength>0)
-		{
-			this.resize(arrayLength*(Byte.SIZE*2)/Byte.SIZE);
-			CharBuffer charBuffer = buffer.asCharBuffer();
-			charBuffer.put(value);
-			this.position(this.position()+arrayLength*(Byte.SIZE*2)/Byte.SIZE);			
-		}	*/	
+		putString(arrayAsString);
 	}
 }

@@ -31,8 +31,8 @@ public class RawBufferTest {
     public void testByteArrayStorage(){
         for(int i = 0;i < 100; i++){
             BufferRaw buffer = new BufferRaw();
-            byte [] test = getRandomString(1, 100).getBytes();
-            byte [] test2 = getRandomString(1, 100).getBytes();
+            byte [] test = getRandomString(0, 100).getBytes();
+            byte [] test2 = getRandomString(0, 100).getBytes();
             
             buffer.putByteArray(test);
             buffer.putByteArray(test2);
