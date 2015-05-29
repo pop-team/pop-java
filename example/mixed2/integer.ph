@@ -5,7 +5,7 @@ parclass Integer
 public:
 	Integer();
 	~Integer();
-	mutex void Add (Integer &other);
+	mutex sync void Add ([in]Integer &other);
 	conc int Get ();
 	seq async void Set(int val);
 	
