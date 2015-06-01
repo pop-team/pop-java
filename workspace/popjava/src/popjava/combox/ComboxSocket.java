@@ -70,7 +70,9 @@ public class ComboxSocket extends Combox {
 			try {
 				outputStream.close();
 				inputStream.close();
-				peerConnection.close();
+				if(peerConnection != null){
+				    peerConnection.close();
+				}
 			} catch (IOException e) {
 				LogWriter.writeExceptionLog(e);
 			}

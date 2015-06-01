@@ -2,6 +2,7 @@ package popjava.service;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,7 +24,7 @@ import popjava.util.SystemUtil;
  * @author Beat Wolf
  *
  */
-public class POPJavaDeamon {
+public class POPJavaDeamon implements Runnable, Closeable{
 
 	public static final String SUCCESS = "OK";
 	public static final int POP_JAVA_DEAMON_PORT = 43424;
@@ -166,13 +167,19 @@ public class POPJavaDeamon {
 		
 		System.out.println("Started POP-Java deamon");
 		
-		while(!Thread.interrupted()){
-			Socket socket = serverSocket.accept();
-			System.out.println("Accepted connection");
-			executor.execute(new Acceptor(socket));
+		try{
+    		while(!Thread.currentThread().isInterrupted()){
+		        Socket socket = serverSocket.accept();
+	            System.out.println("Accepted connection");
+	            executor.execute(new Acceptor(socket));
+    		}
+		}catch(IOException e){
+        }
+		
+		if(serverSocket != null){
+		    serverSocket.close();
 		}
 		
-		serverSocket.close();
 		System.out.println("Closed POP-Java deamon");
 	}
 	
@@ -180,11 +187,22 @@ public class POPJavaDeamon {
 	 * Stops the POP-Java listener deamon
 	 * @throws IOException 
 	 */
-	public void close() throws IOException{
+	@Override
+    public synchronized void close() throws IOException{
 		serverSocket.close();
+		serverSocket = null;
 	}
 	
 	public static String getSaltedHash(String salt, String secret){
 		return ""+(secret + salt).hashCode();
 	}
+
+	@Override
+    public void run() {
+        try {
+            start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

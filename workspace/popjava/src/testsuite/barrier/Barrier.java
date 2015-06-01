@@ -10,7 +10,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import popjava.annotation.POPClass;
 import popjava.annotation.POPSyncConc;
-import popjava.base.*;
 
 @POPClass
 public class Barrier{
@@ -33,6 +32,7 @@ public class Barrier{
 	
 	@POPSyncConc
 	public void activate() throws InterruptedException, IOException {
+	    //TODO: Find Bugs throws an error in this method. the lock is not always unlocked in all codepaths
 		lock.lock();
 		BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/barrier", true));
 		counter--;
@@ -45,7 +45,7 @@ public class Barrier{
 		} else {
 			out.write("Wait\n");
 			out.close();
-			event.await();
+			event.await();//TODO: Should be in a loop
 		}
 		
 		lock.unlock();

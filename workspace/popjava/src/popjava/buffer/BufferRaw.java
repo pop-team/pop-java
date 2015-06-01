@@ -457,13 +457,16 @@ public class BufferRaw extends POPBuffer {
 		if (value != null){
 			arrayLength = value.length;
 		}
+		
+		LogWriter.writeDebugInfo("STORE FLOAT "+arrayLength);
+		
 		this.putInt(arrayLength);
-		if(arrayLength>0)
+		if(arrayLength > 0)
 		{
-			this.resize(arrayLength*Float.SIZE/Byte.SIZE);
-			FloatBuffer floatBuffer=buffer.asFloatBuffer();
+			resize(arrayLength * Float.SIZE/Byte.SIZE);
+			FloatBuffer floatBuffer = buffer.asFloatBuffer();
 			floatBuffer.put(value);
-			this.position(this.position()+arrayLength*Float.SIZE/Byte.SIZE);
+			position(position() + arrayLength*Float.SIZE/Byte.SIZE);
 		}
 	}
 

@@ -72,6 +72,9 @@ public final class POPJavaAgent implements ClassFileTransformer{
     private static POPJavaAgent me;
     
     public static POPJavaAgent getInstance(){
+        if(me == null){
+            throw new UnsupportedOperationException("Java was not started with the -javaagent parameter");
+        }
         return me;
     }
     

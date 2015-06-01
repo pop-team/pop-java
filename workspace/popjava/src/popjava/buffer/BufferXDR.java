@@ -1,9 +1,9 @@
 package popjava.buffer;
 
-import popjava.base.*;
-import popjava.util.LogWriter;
+import java.nio.ByteOrder;
 
-import java.nio.*;
+import popjava.base.MessageHeader;
+import popjava.util.LogWriter;
 /**
  * This class is a XDR extension of the BufferRAW class
  */
@@ -52,11 +52,12 @@ public class BufferXDR extends BufferRaw {
         return value != 0;
 	    //throw new RuntimeException("Invalid Boolean encoding: "+value);
 	}
-
+	
 	/**
 	 * Transfirm an integer
 	 */
-	public int getTranslatedInteger(byte[] value) {		
+	@Override
+    public int getTranslatedInteger(byte[] value) {		
 		return value[0]<<24 | (value[1]&0xff)<<16 | (value[2]&0xff)<<8 | (value[3]&0xff);
 	}
 

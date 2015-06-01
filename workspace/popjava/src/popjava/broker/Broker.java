@@ -533,8 +533,8 @@ public final class Broker {
 			return false;
 		}
 		POPBuffer buffer = request.getBuffer();
-		POPBuffer responseBuffer = request.getCombox().getBufferFactory()
-				.createBuffer();
+		POPBuffer responseBuffer = request.getCombox().getBufferFactory().createBuffer();
+		
 		switch (request.getMethodId()) {
 		case MessageHeader.BIND_STATUS_CALL:
 			// BindStatus call
@@ -543,8 +543,7 @@ public final class Broker {
 				responseBuffer.setHeader(messageHeader);
 				responseBuffer.putInt(0);
 				responseBuffer.putString(POPSystem.getPlatform());
-				responseBuffer.putString(BufferFactoryFinder.getInstance()
-						.getSupportingBuffer());
+				responseBuffer.putString(BufferFactoryFinder.getInstance().getSupportingBuffer());
 
 				sendResponse(request.getCombox(), responseBuffer);
 			}

@@ -92,4 +92,18 @@ public class PopJava {
 	public static <T extends Object> T getThis(T object){
 	    return (T) ((POPObject) object).getThis(object.getClass());
 	}
+	
+	/**
+	 * Returns true if POP-Java is loaded and enabled
+	 * @return
+	 */
+	public static boolean isPOPJavaActive(){
+	    try {
+	        popjava.javaagent.POPJavaAgent.getInstance();
+	    } catch (Exception e) {
+	        return false;
+	    }
+	    
+	    return true;
+	}
 }

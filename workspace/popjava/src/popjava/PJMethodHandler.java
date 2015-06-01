@@ -280,8 +280,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @param argvs	
 	 * @return
 	 */
-	private Object invokeCustomMethod(Object self, Method m, Method proceed,
-			boolean[] canExcute, Object[] argvs) {
+	private Object invokeCustomMethod(Object self, Method m, Method proceed, boolean[] canExcute, Object[] argvs) {
 		canExcute[0] = false;
 		String methodName = m.getName();
 		if (argvs.length == 1 && (methodName.equals("serialize")) || (methodName.equals("deserialize"))) {
