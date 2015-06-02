@@ -1,6 +1,9 @@
 package junit.system;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -41,5 +44,10 @@ public class POPSystemTest {
         String test = Interface.getCodeFile(Interface.getAppcoreService(), "my test");
         
         assertTrue(test.contains("asdf"));
+    }
+    
+    @Test
+    public void testJarDetection(){
+        assertFalse(POPJavaConfiguration.isJar());
     }
 }
