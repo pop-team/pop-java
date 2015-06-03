@@ -145,7 +145,14 @@ public class POPJavaConfiguration {
 		CodeSource temp = POPSystem.class.getProtectionDomain().getCodeSource();
 		if(temp != null){
 		    
-		    File location = new File(temp.getLocation().toString());
+		    File location = null;
+            
+            try {
+                location = new File(temp.getLocation().toURI());
+            } catch(URISyntaxException e) {
+                location = new File(temp.getLocation().getPath());
+            }
+            
 			if(location.isFile() && location.getAbsolutePath().endsWith(".jar")){
 				popJar = location.getAbsolutePath();
 			}			
@@ -163,7 +170,7 @@ public class POPJavaConfiguration {
 					paths.add(path);
 				} catch (URISyntaxException e) {
 					e.printStackTrace();
-				}	            
+				}
 	        }
 			
 			List<String> pathList = new ArrayList<String>(paths);

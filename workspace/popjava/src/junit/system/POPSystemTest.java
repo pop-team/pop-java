@@ -37,6 +37,7 @@ public class POPSystemTest {
 			assertFalse("Class path can not start with a /", classpath.startsWith("/"));
 		}
 	}
+	
     @Test
     public void testWildcard(){
         POPSystem.registerCode("asdf", "*");
