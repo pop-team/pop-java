@@ -98,7 +98,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 			codePath = String.format(
 					POPJavaConfiguration.getBrokerCommand(),
 					POPJavaConfiguration.getPopJavaJar(),
-					POPJavaConfiguration.getPOPJavaCodePath()) + 
+					POPJavaConfiguration.getClassPath()) + 
 					javaClass.getProtectionDomain().getCodeSource().getLocation().getPath();
 			
 		}catch(Exception e){

@@ -139,6 +139,34 @@ public class POPJavaConfiguration {
 		return false;
 	}
 	
+	public static String getClassPath(){
+	    String popJar = "";
+	    
+	    URL [] urls = ((URLClassLoader)POPJavaAppService.class.getClassLoader()).getURLs();
+        
+        Set<String> paths = new HashSet<String>();
+        for(int i = 0; i < urls.length; i++){
+            URL url = urls[i];
+            try {
+                String path = new File(url.toURI()).getAbsolutePath();
+                paths.add(path);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        List<String> pathList = new ArrayList<String>(paths);
+        
+        for(int i = 0; i < pathList.size(); i++){
+            popJar += pathList.get(i);
+            if(i != pathList.size() - 1){
+                popJar += File.pathSeparatorChar;
+            }
+        }
+        
+        return popJar;
+	}
+	
 	public static String getPOPJavaCodePath(){
 		String popJar = "";
 		
@@ -160,61 +188,37 @@ public class POPJavaConfiguration {
 		
 		//This is used for debug environment where popjava is not in a jar file
 		if(popJar.isEmpty()){
-			URL [] urls = ((URLClassLoader)POPJavaAppService.class.getClassLoader()).getURLs();
-			
-			Set<String> paths = new HashSet<String>();
-			for(int i = 0; i < urls.length; i++){
-				URL url = urls[i];
-				try {
-					String path = new File(url.toURI()).getAbsolutePath();
-					paths.add(path);
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-	        }
-			
-			List<String> pathList = new ArrayList<String>(paths);
-			
-			for(int i = 0; i < pathList.size(); i++){
-			    popJar += pathList.get(i);
-			    if(i != pathList.size() - 1){
-			        popJar += File.pathSeparatorChar;
-			    }
-			}
+			popJar = getClassPath();
 		}
 		
 		return popJar;
 	}
 	
+	//TODO: check if this AND getPOPJavaCodePath() are really both needed
 	public static String getPopJavaJar(){
-		String popJar = "";
-		for(URL url: ((URLClassLoader)POPJavaAppService.class.getClassLoader()).getURLs()){
-			
-            boolean exists = false;
-            try{ //WIndows hack
-                exists = new File(url.toURI()).exists();
-            }catch(Exception e){
-                exists = new File(url.getPath()).exists();
+        String popJar = "";
+        
+        CodeSource temp = POPSystem.class.getProtectionDomain().getCodeSource();
+        if(temp != null){
+            
+            File location = null;
+            
+            try {
+                location = new File(temp.getLocation().toURI());
+            } catch(URISyntaxException e) {
+                location = new File(temp.getLocation().getPath());
             }
-            if(exists && url.getFile().endsWith(Popjavac.POP_JAVA_JAR_FILE)){
-            	popJar = new File(url.getPath()).getAbsolutePath();
-            }
+            
+            if(location.isFile() && location.getAbsolutePath().endsWith(".jar")){
+                popJar = location.getAbsolutePath();
+            }           
         }
-		
-		if(popJar.isEmpty()){
-			for(URL url: ((URLClassLoader)POPJavaAppService.class.getClassLoader()).getURLs()){
-				if(url.getPath().endsWith(File.separator)){
-					popJar = new File(url.getPath()).getAbsolutePath();
-					break;
-				}
-			}
-		}
-		
-		if(!popJar.endsWith(".jar")){
-		    popJar = "build/jar/"+Popjavac.POP_JAVA_JAR_FILE;
-		}
-		
-		return popJar;
-	}
+        
+        if(!popJar.endsWith(".jar")){
+            popJar = "build/jar/"+Popjavac.POP_JAVA_JAR_FILE;
+        }
+        
+        return popJar;
+    }
 
 }

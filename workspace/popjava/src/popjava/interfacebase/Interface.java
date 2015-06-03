@@ -519,9 +519,6 @@ public class Interface {
 		
 		AppService appCoreService = getAppcoreService();
 		
-		
-		
-		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
 			return codeFile;
@@ -562,13 +559,13 @@ public class Interface {
 	
 	private static String getPOPCodeFile(){
 	    
-		String popPath = POPJavaConfiguration.getPOPJavaCodePath();
+		String popPath = POPJavaConfiguration.getClassPath();
 		String popJar = POPJavaConfiguration.getPopJavaJar();
 		
 		return String.format(
 				POPJavaConfiguration.getBrokerCommand(),
 				popJar,
-				popPath)+popJar;
+				popPath);
 	}
 	
 	public static String getCodeFile(AppService manager, String objectName){
