@@ -100,7 +100,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 					String line = reader.readLine();
 					//If the current parameter is the classpath, modify it to fit local system
 					if(isJava && isClassPath){ 
-						if(isClasspathValid(line)){
+						if(!isClasspathValid(line)){
 							String temp = POPJavaConfiguration.getClassPath();
 							if(temp != null && !temp.isEmpty()){
 								line = temp;
