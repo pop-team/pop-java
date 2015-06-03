@@ -100,7 +100,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 					String line = reader.readLine();
 					//If the current parameter is the classpath, modify it to fit local system
 					if(isJava && isClassPath){ 
-						if(!line.contains(File.pathSeparator) && !new File(line).exists()){
+						if(isClasspathValid(line)){
 							String temp = POPJavaConfiguration.getClassPath();
 							if(temp != null && !temp.isEmpty()){
 								line = temp;
@@ -148,6 +148,19 @@ public class POPJavaDeamon implements Runnable, Closeable{
 				}
 			}
 		}
+	}
+
+	public static boolean isClasspathValid(String classPath){
+	    
+	    String [] parts = classPath.split(File.pathSeparator);
+	    
+	    for(String part: parts){
+	        if(new File(part).exists() || part.startsWith("http://")){
+	            return true;
+	        }
+	    }
+	    
+	    return false;
 	}
 	
 	public static void main(String ... args) throws IOException{
