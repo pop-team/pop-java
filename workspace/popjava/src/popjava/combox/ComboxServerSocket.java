@@ -13,7 +13,10 @@ import java.io.*;
  * This class is an implementation of the combox with the protocol socket for the server side.
  */
 public class ComboxServerSocket extends ComboxServer {
+    
 	public static final int BUFFER_LENGTH = 1024;
+    private final int RECEIVE_BUFFER_SIZE = 1024 * 8 * 500;
+    
 	protected ServerSocket serverSocket = null;
 	private ComboxAcceptSocket serverCombox = null;
 
@@ -45,7 +48,7 @@ public class ComboxServerSocket extends ComboxServer {
 	public void createServer() {
 		try {
 			serverSocket = new ServerSocket();
-			serverSocket.setReceiveBufferSize(1024*8*500);
+            serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
 			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));			
 			serverCombox = new ComboxAcceptSocket(broker, requestQueue,
 					serverSocket);

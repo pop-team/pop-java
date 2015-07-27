@@ -1,14 +1,22 @@
 package popjava.combox;
 
-import popjava.base.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+
+import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.*;
+import popjava.buffer.POPBuffer;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
-
-import java.net.*;
-import java.io.*;
 /**
  * This combox implement the protocol Socket
  */
@@ -62,7 +70,9 @@ public class ComboxSocket extends Combox {
 			try {
 				outputStream.close();
 				inputStream.close();
-				peerConnection.close();
+				if(peerConnection != null){
+				    peerConnection.close();
+				}
 			} catch (IOException e) {
 				LogWriter.writeExceptionLog(e);
 			}
@@ -119,13 +129,18 @@ public class ComboxSocket extends Combox {
 			byte[] temp = new byte[4];
 			
 			synchronized (inputStream) {
-				int read = inputStream.read(temp); //TODO: blocking right here
+			    int read = 0;
+			    while(read < temp.length){
+			        read += inputStream.read(temp, read, temp.length - read);
+			    }
+				
 				int messageLength = buffer.getTranslatedInteger(temp);
 				
 				if (messageLength <= 0) {
 					close();
 					return -1;
 				}
+				
 				result = 4;
 				buffer.putInt(messageLength);
 				messageLength = messageLength - 4;
@@ -177,8 +192,8 @@ public class ComboxSocket extends Combox {
 			
 			//System.out.println("Write "+length+" bytes to socket");			
 			synchronized (outputStream) {
-			outputStream.write(dataSend, 0, length);
-			outputStream.flush();
+    			outputStream.write(dataSend, 0, length);
+    			outputStream.flush();
 			}
 			
 			return length;

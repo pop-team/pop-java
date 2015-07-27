@@ -1,31 +1,34 @@
-//Import added by the POP-Java compiler
-import popjava.PopJava;
-import popjava.base.POPException;
-import popjava.base.POPObject;
-import popjava.base.Semantic;
-import popjava.serviceadapter.POPAppService;
-import popjava.system.POPSystem;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPParameter;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncMutex;
+import popjava.util.LogWriter;
 
-public class Integer extends POPObject  {
+@POPClass(classId = 1000, deconstructor = true)
+public class Integer {
 	private int value;
-	public Integer() {
-		Class<?> c = Integer.class;
-		setClassId(1000);
-		hasDestructor(true);
-		initializePOPObject(c);
-		addSemantic(c, "get", Semantic.Synchronous | Semantic.Concurrent);
-		addSemantic(c, "add", Semantic.Synchronous | Semantic.Mutex);
-		addSemantic(c, "set", Semantic.Asynchronous | Semantic.Sequence);
+	
+	public Integer(){
+	    LogWriter.writeDebugInfo("CREATED JAVA OBJECT");
 		value = 0;
 	}
-	public int get ( ) 	{
-		 return value;
+
+    @POPSyncMutex
+    public void add(Integer i){
+        LogWriter.writeDebugInfo("Integer.add old value"+value);
+        value += i.get();
+        LogWriter.writeDebugInfo("Integer.add new value"+value);
+    }
+
+	@POPSyncConc
+	public int get(){
+		return value;
 	}
-	public void add ( Integer i) 	throws POPException {
-		i=(Integer)PopJava.newActive(Integer.class, i.getAccessPoint());
-		 value += i.get();
+	
+	@POPAsyncSeq
+	public void set(int val){
+		value = val;
 	}
-	public void set ( int val ) 	{
-		 value = val;
-	}
-	}
+}

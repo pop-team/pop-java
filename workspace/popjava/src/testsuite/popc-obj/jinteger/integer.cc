@@ -4,8 +4,7 @@
 
 Integer2::Integer2()
 {
-	printf("Create remote object Integer on %s (od.search fixed)\n",
-		   (const char *)POPSystem::GetHost());
+	printf("Create remote object Integer on %s (od.search fixed)\n", POPSystem::GetHost().c_str());
 }
 
 Integer2::~Integer2()

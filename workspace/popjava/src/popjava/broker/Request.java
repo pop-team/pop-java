@@ -38,8 +38,7 @@ public class Request {
 	 * @param broker	Broker associated with this request
 	 * @param combox	Combox associated with this request
 	 */
-	public Request(int classId, int methodId, int semantics, Broker broker,
-			Combox combox) {
+	public Request(int classId, int methodId, int semantics, Broker broker, Combox combox) {
 		this.classId = classId;
 		this.methodId = methodId;
 		this.semantics = semantics;
@@ -56,8 +55,7 @@ public class Request {
 	 * @param broker	Broker associated with this request
 	 * @param combox	Combox associated with this request
 	 */
-	public void init(int classId, int methodId, int semantics, Broker broker,
-			Combox combox) {
+	public void init(int classId, int methodId, int semantics, Broker broker, Combox combox) {
 		this.classId = classId;
 		this.methodId = methodId;
 		this.semantics = semantics;

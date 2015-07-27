@@ -1,34 +1,30 @@
 package testsuite.popc_integer;
 
 
-import popjava.base.POPObject;
-import popjava.base.Semantic;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncMutex;
 
-public class Integer extends POPObject {
+@POPClass(classId = 1500, className = "Integer", deconstructor = true)
+public class Integer{
 	private int value=0;
 	
 	
 	public Integer() {
-		setClassId(1000);
-		setClassName("Integer");
-		Class<?> c = Integer.class;
-		hasDestructor(true);
-		initializePOPObject();
-		addSemantic(c, "get", Semantic.CONCURRENT | Semantic.SYNCHRONOUS);
-		addSemantic(c, "set", Semantic.SEQUENCE | Semantic.ASYNCHRONOUS);
-		addSemantic(c, "add", Semantic.MUTEX | Semantic.SYNCHRONOUS);
 	}
 	
-	
+	@POPSyncConc
 	public int get() {
 		return value;
 	}
 
-	
+	@POPAsyncSeq
 	public void set(int value) {
 		this.value=value;
 	}
 
+	@POPSyncMutex
 	public void add(Integer myInteger) {
 		this.value += myInteger.get();
 	}

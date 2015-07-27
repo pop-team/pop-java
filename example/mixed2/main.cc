@@ -19,15 +19,11 @@ int main(int argc, char **argv)
 		o1.Add(o2);
 		printf("o1=o1+o2; o1=%d\n", o1.Get());
 
-	} // Try
-
-	catch (POPException *e)
+	} catch (POPException &e)
 	{
-		printf("%s", "Exception occurs in application :");
-		e->Print();
-		delete e;
+		printf("Exception occurs in application : %s\n", e.what());
 		return -1;
-	} // catch
+	}
 
 	return 0;
-} //main
+}

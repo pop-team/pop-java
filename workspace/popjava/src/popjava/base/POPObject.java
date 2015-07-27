@@ -1,5 +1,16 @@
 package popjava.base;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.security.InvalidParameterException;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -10,20 +21,13 @@ import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
 import popjava.annotation.POPSyncSeq;
-import popjava.baseobject.*;
+import popjava.baseobject.ConnectionType;
+import popjava.baseobject.ObjectDescription;
+import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.security.InvalidParameterException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.lang.reflect.Modifier;
-
-import javassist.util.proxy.ProxyObject;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
  */
@@ -90,6 +94,7 @@ public class POPObject implements IPOPBase {
 			od.setJVMParamters(objectDescription.jvmParameters());
 			od.setConnectionType(objectDescription.connection());
 			od.setConnectionSecret(objectDescription.connectionSecret());
+			od.setEncoding(objectDescription.encoding().toString());
 		}
 	}
 	
@@ -180,6 +185,39 @@ public class POPObject implements IPOPBase {
 		}
 		
 		return false;
+	}
+	
+	private int methodId(Method method, int defaultID){
+	    int id = -1;
+	    
+	    if(method.isAnnotationPresent(POPSyncConc.class)){
+	        id = method.getAnnotation(POPSyncConc.class).id();
+        }
+        
+        if(method.isAnnotationPresent(POPSyncSeq.class)){
+            id =  method.getAnnotation(POPSyncSeq.class).id();
+        }
+        
+        if(method.isAnnotationPresent(POPSyncMutex.class)){
+            id =  method.getAnnotation(POPSyncMutex.class).id();
+        }
+        
+        if(method.isAnnotationPresent(POPAsyncConc.class)){
+            id =  method.getAnnotation(POPAsyncConc.class).id();
+        }
+        
+        if(method.isAnnotationPresent(POPAsyncSeq.class)){
+            id =  method.getAnnotation(POPAsyncSeq.class).id();
+        }
+        
+        if(method.isAnnotationPresent(POPAsyncMutex.class)){
+            id =  method.getAnnotation(POPAsyncMutex.class).id();
+        }
+        
+        if(id >= 0){
+            return id;
+        }
+	    return defaultID;
 	}
 	
 	private void loadMethodSemantics(){
@@ -533,19 +571,19 @@ public class POPObject implements IPOPBase {
 			Method[] allMethods = c.getDeclaredMethods();
 						
 			Arrays.sort(allMethods, new Comparator<Method>() {
-				public int compare(Method first, Method second) {
-					String firstSign = ClassUtil.getMethodSign((Method) first);
-					String secondSign = ClassUtil
-							.getMethodSign((Method) second);
+				@Override
+                public int compare(Method first, Method second) {
+					String firstSign = ClassUtil.getMethodSign(first);
+					String secondSign = ClassUtil.getMethodSign(second);
 					return firstSign.compareTo(secondSign);
 				}
 			});
 			
 			int index = startIndex;
 			for (Method m : allMethods) {
-				if (Modifier.isPublic(m.getModifiers()) &&
-						isMethodPOPAnnotated(m)) {
-					MethodInfo methodInfo = new MethodInfo(getClassId(), index);
+				if (Modifier.isPublic(m.getModifiers()) && isMethodPOPAnnotated(m)) {
+				    int methodId = methodId(m,index);
+					MethodInfo methodInfo = new MethodInfo(getClassId(), methodId);
 					
 					methodInfos.put(methodInfo, m);
 					index++;
@@ -567,11 +605,12 @@ public class POPObject implements IPOPBase {
 			Constructor<?>[] allConstructors = c.getDeclaredConstructors();
 
 			Arrays.sort(allConstructors, new Comparator<Constructor<?>>() {
-				public int compare(Constructor<?> first, Constructor<?> second) {
+				@Override
+                public int compare(Constructor<?> first, Constructor<?> second) {
 					String firstSign = ClassUtil
-							.getMethodSign((Constructor<?>) first);
+							.getMethodSign(first);
 					String secondSign = ClassUtil
-							.getMethodSign((Constructor<?>) second);
+							.getMethodSign(second);
 					return firstSign.compareTo(secondSign);
 				}
 			});
@@ -597,12 +636,11 @@ public class POPObject implements IPOPBase {
 	 * @param semanticId	Semantic applied to the method
 	 * @param paramTypes	Parameters of the method
 	 */
-	protected void defineMethod(Class<?>c,String methodName,int methodId,int semanticId,Class<?>...paramTypes)
+	protected void defineMethod(Class<?>c,String methodName, int methodId, int semanticId, Class<?>...paramTypes)
 	{
 		try {
 			Method m = c.getMethod(methodName, paramTypes);
-			MethodInfo methodInfo = new MethodInfo(getClassId(),
-					methodId);
+			MethodInfo methodInfo = new MethodInfo(getClassId(), methodId);
 			methodInfos.put(methodInfo, m);
 			
 			if (semantics.containsKey(methodInfo)) {
@@ -645,7 +683,8 @@ public class POPObject implements IPOPBase {
 	 * Deserialize the object from the buffer
 	 * @param buffer	The buffer to deserialize from
 	 */
-	public boolean deserialize(POPBuffer buffer) {
+	@Override
+    public boolean deserialize(POPBuffer buffer) {
 		return true;
 	}
 
@@ -653,7 +692,8 @@ public class POPObject implements IPOPBase {
 	 * Serialize the object into the buffer
 	 * @param buffer	The buffer to serialize in
 	 */
-	public boolean serialize(POPBuffer buffer) {
+	@Override
+    public boolean serialize(POPBuffer buffer) {
 		return true;
 	}
 
@@ -704,7 +744,8 @@ public class POPObject implements IPOPBase {
 	/**
 	 * Method called before the object destruction
 	 */
-	protected void finalize(){
+	@Override
+    protected void finalize(){
 		
 	}
 	
@@ -729,13 +770,17 @@ public class POPObject implements IPOPBase {
 		return (T)this;
 	}
 	
-	public <T extends POPObject> T getThis(Class<T> myClass){
+	public <T extends Object> T getThis(Class<T> myClass){
 		if(me == null){
 			me = PopJava.newActive(getClass(), getAccessPoint());
+			
+			//After establishing connection with self, artificially decrease connection by one
+			//This is to avoid the issue of never closing objects with reference to itself
 			if(me != null && Broker.getBroker() != null){
 				Broker.getBroker().onCloseConnection();
 			}
 		}
+		
 		return (T) me;
 	}
 }

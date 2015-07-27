@@ -2,7 +2,9 @@ package popjava.combox;
 
 
 import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.*;
+import popjava.buffer.BufferFactory;
+import popjava.buffer.BufferFactoryFinder;
+import popjava.buffer.POPBuffer;
 import popjava.util.Configuration;
 /**
  * This class is the base implementation for all Combox in the POP-Java library
@@ -29,8 +31,7 @@ public abstract class Combox {
 	public Combox(POPAccessPoint accesspoint, int timeout) {
 		accessPoint = accesspoint;
 		timeOut = timeout;
-		bufferFactory = BufferFactoryFinder.getInstance().findFactory(
-				Configuration.DEFAULT_ENCODING);
+		bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.DEFAULT_ENCODING);
 	}
 
 	/**

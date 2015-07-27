@@ -1,4 +1,6 @@
 package popjava.base;
+
+
 /**
  * Message header is include in all communication between Interface and Broker side.
  */
@@ -7,7 +9,7 @@ public class MessageHeader {
 	static public final int REQUEST = 0;
 	static public final int RESPONSE = 1;
 	static public final int EXCEPTION = 2;
-
+	
 	static public final int BIND_STATUS_CALL = 0;
 	static public final int ADD_REF_CALL = 1;
 	static public final int DEC_REF_CALL = 2;
@@ -143,15 +145,26 @@ public class MessageHeader {
 	/**
 	 * Format message header as a string value
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 		String info = String
 				.format(
-						"MessageHeaderInfo: RequestType=%d,ClassId=%d,MethodId=%d,Senmatics=%d,ErrorCode=%d",
-						this.getRequestType(), this.getClassId(), this
-								.getMethodId(), this.getSenmatics(), this
-								.getExceptionCode());
+						"MessageHeaderInfo: RequestType=%s,ClassId=%d,MethodId=%d,Sematics=%d,ErrorCode=%d",
+						getRequestTypeName(getRequestType()), getClassId(), getMethodId(), getSenmatics(), getExceptionCode());
 		return info;
 
 	}
 
+	private static String getRequestTypeName(int type){
+	    switch(type){
+	    case REQUEST:
+	        return "Request";
+	    case RESPONSE:
+	        return "Response";
+	    case EXCEPTION:
+	        return "Exception";
+	    }
+	    
+	    return "UNKOWN "+type;
+	}
 }

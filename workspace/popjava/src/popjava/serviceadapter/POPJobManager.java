@@ -9,7 +9,7 @@ import popjava.dataswaper.POPString;
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the JobMgr parallel object of POP-C++
  */
-@POPClass(className = "JobMgr")
+@POPClass(classId = 15, className = "JobMgr")
 public class POPJobManager extends POPJobService {
 
 	/**
@@ -159,7 +159,8 @@ public class POPJobManager extends POPJobService {
 	/**
 	 * Start the JobMgr service
 	 */
-	public void start() {
+	@Override
+    public void start() {
 
 	}
 

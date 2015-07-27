@@ -1,10 +1,27 @@
 package popjava.broker;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import javassist.NotFoundException;
+import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
-import popjava.combox.*;
-import popjava.system.POPSystem;
-import popjava.util.LogWriter;
-import popjava.util.Util;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPParameter;
 import popjava.base.MessageHeader;
@@ -16,21 +33,19 @@ import popjava.base.POPSystemErrorCode;
 import popjava.base.Semantic;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.POPBuffer;
+import popjava.buffer.BufferFactory;
 import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
-
-import java.io.File;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.*;
-
-import javassist.util.proxy.ProxyObject;
+import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
+import popjava.combox.ComboxFactory;
+import popjava.combox.ComboxFactoryFinder;
+import popjava.combox.ComboxServer;
+import popjava.combox.ComboxSocket;
+import popjava.javaagent.POPJavaAgent;
+import popjava.system.POPSystem;
+import popjava.util.LogWriter;
+import popjava.util.Util;
 
 /**
  * This class is the base class of all broker-side parallel object. The broker
@@ -104,32 +119,51 @@ public final class Broker {
 		}
 		
 		URLClassLoader urlClassLoader = null;
+		
 		if (codelocation != null && codelocation.length() > 0) {
-			URL[] urls = new URL[1];
-			if (codelocation.indexOf("://") < 0) {// file
-				File codeFile = new File(codelocation);
-				try {
-					LogWriter.writeDebugInfo("Local file " + codelocation);
-					urls[0] = codeFile.toURI().toURL();
-				} catch (MalformedURLException e) {
-					LogWriter.writeDebugInfo(this.getClass().getName()
-							+ ".MalformedURLException: " + e.getMessage());
+			URL url = null;
+			
+			if(codelocation.startsWith("http:")){
+				try{
+					URL website = new URL(codelocation);
+					ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+					
+					File tempJar = File.createTempFile(website.getFile(), ".jar");
+					
+					FileOutputStream fos = new FileOutputStream(tempJar);
+					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+					
+					fos.close();
+					
+					codelocation = tempJar.getAbsolutePath();
+					
+					tempJar.deleteOnExit();
+				}catch(MalformedURLException e){
+					e.printStackTrace();
 					System.exit(0);
-				}
-			} else {
-				try {
-					LogWriter.writeDebugInfo("Remote file " + codelocation);
-					urls[0] = new URL(codelocation);
-				} catch (MalformedURLException e) {
-					LogWriter.writeDebugInfo(this.getClass().getName()
-							+ ".MalformedURLException: " + e.getMessage());
+				} catch (IOException e) {
+					e.printStackTrace();
 					System.exit(0);
 				}
 			}
-
-			if (urls[0] != null) {
+			
+			try {
+				LogWriter.writeDebugInfo("Local file " + codelocation);
+				url = new File(codelocation).toURI().toURL();
+				POPJavaAgent.getInstance().addJar(codelocation);
+			} catch (MalformedURLException e) {
+				LogWriter.writeDebugInfo(this.getClass().getName()
+						+ ".MalformedURLException: " + e.getMessage());
+				System.exit(0);
+			} catch (NotFoundException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+			
+			if (url != null) {
 				LogWriter.writeDebugInfo("url construct");
-				urlClassLoader = new URLClassLoader(urls);
+				
+				urlClassLoader = new URLClassLoader(new URL[]{url});
 			}
 		}
 
@@ -138,10 +172,11 @@ public final class Broker {
 			targetClass = getPOPObjectClass(objectName, urlClassLoader);
 			popInfo = (POPObject) targetClass.getConstructor().newInstance();
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(this.getClass().getName()
-					+ ".Constructor Exception: " + e.getClass().getName()
-					+ ".Message:" + e.getMessage());
-			System.exit(0);
+			LogWriter.writeDebugInfo(getClass().getName()
+					+ " Constructor Exception: " + e.getClass().getName()
+					+ " Message:" + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
@@ -166,7 +201,8 @@ public final class Broker {
 			constructor = popInfo.getConstructorByInfo(info);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
-					popInfo.getClass().getName(), request.getMethodId(),
+					popInfo.getClass().getName(), 
+					request.getClassId(), request.getMethodId(),
 					e.getMessage());
 		}
 
@@ -184,7 +220,7 @@ public final class Broker {
 		if (exception == null && constructor != null) {
 			try {
 				popObject = (POPObject) constructor.newInstance(parameters);
-				POPClass annotation = (POPClass)popObject.getClass().getAnnotation(POPClass.class);
+				POPClass annotation = popObject.getClass().getAnnotation(POPClass.class);
 				if(annotation != null){
 					comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
 				}
@@ -287,12 +323,12 @@ public final class Broker {
 		Object[] parameters = null;
 		int index = 0;
 		try {
-			MethodInfo info = new MethodInfo(request.getClassId(),
-					request.getMethodId());
+			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 			method = popInfo.getMethodByInfo(info);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
-					popInfo.getClass().getName(), request.getMethodId(),
+					popInfo.getClass().getName(),
+					request.getClassId(), request.getMethodId(),
 					e.getMessage());
 		}
 		// Get parameter if found the method
@@ -342,8 +378,7 @@ public final class Broker {
 			if (request.isSynchronous()) {
 
 				MessageHeader messageHeader = new MessageHeader();
-				POPBuffer responseBuffer = request.getCombox().getBufferFactory()
-						.createBuffer();
+				POPBuffer responseBuffer = request.getCombox().getBufferFactory().createBuffer();
 				responseBuffer.setHeader(messageHeader);
 				
 				Annotation[][] annotations = method.getParameterAnnotations();
@@ -356,24 +391,22 @@ public final class Broker {
 							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
 							){
 						try {
-							responseBuffer.serializeReferenceObject(
-									parameterTypes[index], parameters[index]);
+							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
 						} catch (POPException e) {
-							LogWriter.writeDebugInfo("Execption serializing parameter "+parameterTypes[index].getName());
+							LogWriter.writeDebugInfo("Excecption serializing parameter "+parameterTypes[index].getName());
 							exception = new POPException(e.errorCode, e.errorMessage);
 							break;
 						}
 					}
 				}
 				if (exception == null) {
-					if (returnType != Void.class && returnType != void.class
-							&& returnType != Void.TYPE)
+					if (returnType != Void.class && returnType != void.class && returnType != Void.TYPE){
 						try {
-							responseBuffer.putValue(result, returnType);
+						    responseBuffer.putValue(result, returnType);
 						} catch (POPException e) {
-							exception = new POPException(e.errorCode,
-									e.errorMessage);
+							exception = e;
 						}
+					}
 				}
 				// Send response if success to put parameter to response buffer
 				if (exception == null) {
@@ -398,8 +431,7 @@ public final class Broker {
 		// or cannot put the output parameter,
 		// send it to the interface
 		if (exception != null) {
-			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException : "
-					+ exception.getMessage());
+			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException : " + exception.getMessage());
 			if (request.isSynchronous()){
 				sendException(request.getCombox(), exception);
 			}
@@ -501,8 +533,8 @@ public final class Broker {
 			return false;
 		}
 		POPBuffer buffer = request.getBuffer();
-		POPBuffer responseBuffer = request.getCombox().getBufferFactory()
-				.createBuffer();
+		POPBuffer responseBuffer = request.getCombox().getBufferFactory().createBuffer();
+		
 		switch (request.getMethodId()) {
 		case MessageHeader.BIND_STATUS_CALL:
 			// BindStatus call
@@ -511,8 +543,7 @@ public final class Broker {
 				responseBuffer.setHeader(messageHeader);
 				responseBuffer.putInt(0);
 				responseBuffer.putString(POPSystem.getPlatform());
-				responseBuffer.putString(BufferFactoryFinder.getInstance()
-						.getSupportingBuffer());
+				responseBuffer.putString(BufferFactoryFinder.getInstance().getSupportingBuffer());
 
 				sendResponse(request.getCombox(), responseBuffer);
 			}
@@ -551,9 +582,7 @@ public final class Broker {
 			// GetEncoding call...
 			String encoding = buffer.getString();
 			boolean foundEncoding = findEndcoding(encoding);
-			if (foundEncoding) {
-				request.setBuffer(encoding);
-			}
+			
 			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
 				responseBuffer.setHeader(messageHeader);
@@ -562,6 +591,13 @@ public final class Broker {
 				responseBuffer.putBoolean(foundEncoding);
 				sendResponse(request.getCombox(), responseBuffer);
 			}
+			
+			if (foundEncoding) {
+                request.setBuffer(encoding);
+                
+                BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(encoding);
+                request.getCombox().setBufferFactory(bufferFactory);
+            }
 		}
 			break;
 		case MessageHeader.KILL_ALL: {
@@ -688,6 +724,7 @@ public final class Broker {
 	 * @return true if the encoding is available
 	 */
 	protected boolean findEndcoding(String encoding) {
+	    //TODO: implement
 		return true;
 	}
 
@@ -739,8 +776,7 @@ public final class Broker {
 	 * @throws ClassNotFoundException
 	 *             thrown if the class is not found
 	 */
-	protected Class<?> getPOPObjectClass(String className,
-			URLClassLoader urlClassLoader) throws ClassNotFoundException {
+	protected Class<?> getPOPObjectClass(String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
 
 		if (urlClassLoader != null) {
 			Class<?> c = Class.forName(className, true, urlClassLoader);
@@ -759,6 +795,8 @@ public final class Broker {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] argvs) throws InterruptedException {
+	    POPSystem.setStarted();
+	    
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             
             @Override
@@ -787,8 +825,7 @@ public final class Broker {
 		if (actualObjectName != null && actualObjectName.length() > 0) {
 			objectName = actualObjectName;
 		}
-		String callbackString = Util.removeStringFromList(argvList,
-				CALLBACK_PREFIX);
+		String callbackString = Util.removeStringFromList(argvList, CALLBACK_PREFIX);
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}
@@ -803,7 +840,6 @@ public final class Broker {
 							accessPoint.toString()));
 					System.exit(1);
 				} else {
-
 					LogWriter.writeDebugInfo("Connected to callback socket");
 				}
 			}
@@ -853,6 +889,8 @@ public final class Broker {
 	 * @return true if the exception has been sent
 	 */
 	public boolean sendException(Combox combox, POPException exception) {
+	    exception.printStackTrace();
+	    
 		POPBuffer buffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(
 				POPSystemErrorCode.EXCEPTION_PAROC_STD);

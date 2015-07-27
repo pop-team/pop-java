@@ -1,7 +1,20 @@
 package popjava;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javassist.util.proxy.MethodHandler;
+import javassist.util.proxy.ProxyObject;
 import popjava.annotation.POPParameter;
-import popjava.base.*;
+import popjava.base.MessageHeader;
+import popjava.base.MethodInfo;
+import popjava.base.POPException;
+import popjava.base.POPObject;
+import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
@@ -9,14 +22,6 @@ import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
 import popjava.util.Util;
-import javassist.util.proxy.*;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is responsible to invoke methods on the parallel object
@@ -117,7 +122,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	}
 
 	/**
-	 * Invoke a method on an object
+	 * Invoke a method on a remote object
 	 * @param self		The object to call the method
 	 * @param m			The method to be called
 	 * @param proceed	The method to proceed the call
@@ -125,7 +130,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @return	Any object if the method has a return value
 	 * @throws	Throw any exception if the method throws any exception
 	 */
-	public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
+	@Override
+    public synchronized Object invoke(Object self, Method m, Method proceed, Object[] argvs)
 			throws Throwable {
 		
 		replacePOPObjectArguments(argvs);
@@ -147,7 +153,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		MethodInfo info = popObjectInfo.getMethodInfo(m);
 
 		m.setAccessible(true);
-		int methodSemantics = (Integer) popObjectInfo.getSemantic(info);
+		int methodSemantics = popObjectInfo.getSemantic(info);
 		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info
 				.getMethodId(), methodSemantics);
 		
@@ -174,8 +180,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			for (int index = 0; index < parameterTypes.length; index++) {
 				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)
 						&&
-						!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
-						){
+						!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 					responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
 				}
 			}
@@ -275,8 +280,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @param argvs	
 	 * @return
 	 */
-	private Object invokeCustomMethod(Object self, Method m, Method proceed,
-			boolean[] canExcute, Object[] argvs) {
+	private Object invokeCustomMethod(Object self, Method m, Method proceed, boolean[] canExcute, Object[] argvs) {
 		canExcute[0] = false;
 		String methodName = m.getName();
 		if (argvs.length == 1 && (methodName.equals("serialize")) || (methodName.equals("deserialize"))) {
@@ -319,7 +323,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	/**
 	 * Format a string of this object
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 		return getClass().getName() + ":" + popAccessPoint.toString();
 	}
 }

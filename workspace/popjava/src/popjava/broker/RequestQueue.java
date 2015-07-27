@@ -81,23 +81,18 @@ public class RequestQueue {
 		lock.lock();
 		try {
 			if(request.isConcurrent()){
-				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsConc.size());
 				while (requestsConc.size() + servingConcurrent.size() >= maxQueue){
 					canInsert.await();
 				}
 				
 				requestsConc.add(request);
 			}else if(request.isSequential()){
-				//System.out.println("Add request "+request.getMethodId()+ " "+requestsSeq.size());
-				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsSeq.size()+" "+maxQueue);
 				while (requestsSeq.size() >= maxQueue){
 					canInsert.await();
 				}
 				
 				requestsSeq.add(request);
-				//System.out.println("Added request "+request.getMethodId()+ " "+requestsSeq.size()+" "+request.hashCode());
 			}else if(request.isMutex()){
-				//LogWriter.writeDebugInfo("Add request "+request.getMethodId()+ " "+requestsMutex.size());
 				while (requestsMutex.size() >= maxQueue){
 					canInsert.await();
 				}

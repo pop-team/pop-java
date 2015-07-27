@@ -1,5 +1,0 @@
-import java.util.concurrent.Semaphore;
- 
-@POPClass
-public class A {
-}

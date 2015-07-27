@@ -3,22 +3,24 @@ package testsuite.barrier;
 import java.io.IOException;
 
 import popjava.PopJava;
-import popjava.base.POPException;
+import popjava.annotation.POPClass;
 import popjava.baseobject.POPAccessPoint;
-import popjava.system.POPSystem;
 
+@POPClass(isDistributable = false)
 public class MainBarrier {
+    
 	public static void main(String... argvs) throws IOException {
 		System.out.println("Barrier: Starting test...");
+		
 		int nbWorkers = 12;
 		if(argvs.length > 0) nbWorkers = Integer.parseInt(argvs[0]);
+		
 		try {
-			POPSystem.initialize(argvs);
-			Barrier b = (Barrier)PopJava.newActive(Barrier.class, new Integer(nbWorkers));
+			Barrier b = new Barrier(nbWorkers);
 			POPAccessPoint[] pa = new POPAccessPoint[nbWorkers];
 			for (int i = 0; i < nbWorkers; i++) {
-				Worker w = (Worker)PopJava.newActive(Worker.class);
-				pa[i] = w.getAccessPoint();
+				Worker w = new Worker();
+				pa[i] = PopJava.getAccessPoint(w);
 				w.setNo(i);
 				w.work(b);
 			}
@@ -33,12 +35,7 @@ public class MainBarrier {
 				}
 			}
 			System.out.println("Barrier test successful");
-			POPSystem.end();
-		} catch (POPException e) {
-			POPSystem.end();
-			System.out.println("Exception occured : " + e.errorMessage);
 		} catch (InterruptedException e) {
-			POPSystem.end();
 			e.printStackTrace();
 		}
 		

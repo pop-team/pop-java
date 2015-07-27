@@ -5,7 +5,6 @@ import popjava.dataswaper.POPString;
 
 public interface AppService {
 	
-
 	public void registerCode(String objname, String platform, String codefile);
 	
 	public int queryCode(String objname, String platform, POPString codefile);

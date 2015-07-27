@@ -7,6 +7,8 @@ import popjava.base.MessageHeader;
  */
 public class BufferPlugin extends POPBuffer {
 
+    
+    
 	@Override
 	public byte[] array() {
 		return null;

@@ -1,13 +1,13 @@
 package testsuite.jobmgr;
 
+import popjava.annotation.POPClass;
 import popjava.base.POPObject;
 
-public class ParClass extends POPObject {
+@POPClass
+public class ParClass{
 	
 	
 	public ParClass(){
-		Class<?> c = ParClass.class;
-		initializePOPObject();
 	}
 
 }

@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
 <project name="PopJava" default="make-release-folder" basedir=".">
 
+	    <property name="agent" value ="popjava.javaagent.POPJavaAgent"/>
+	
         <property name="build.dir" value ="build"/>
         <property name="temp.dir" value ="temp"/>
         <property name="classes.dir" value="${build.dir}/classes"/>
 	    <property name="objgenclasses.dir" value="${classes.dir}/objgen"/>
-        <property name="jar.dir"     value="${build.dir}/jar"/>      
+        <property name="jar.dir"     value="${build.dir}/jar"/>
         
         <property name="release.dir" value ="release"/>
         
@@ -17,10 +19,9 @@
         
         <property name="popjava.jar" value="popjava.jar"/>
         <property name="testsuite.jar" value="testsuite.jar"/>
-	    <property name="objmapgen.jar" value="popjobjectmapgen.jar"/>   
+	    <property name="obj.map" value="testsuite.jar.map"/> 
         
         <property name="popjava.src" value ="workspace/popjava/src/popjava"/>
-	   <property name="objmapgen.src" value ="workspace/ObjectMapGen/src/"/>
         <property name="testsuite.src" value ="workspace/popjava/src/testsuite"/>
         
         <property name="popjavac.dir" value ="popjavac"/>
@@ -49,20 +50,6 @@
           <compilerarg value="-Xlint:deprecation,unchecked"/>
         </javac>
 </target>
-	
-	
-<target name="make-objectmapgen" depends="jar-popjava" description="build the popjava library">
-        <mkdir dir="${objgenclasses.dir}"/>
-        <javac srcdir="${objmapgen.src}"
-                destdir="${objgenclasses.dir}"
-        	   classpath="${jar.dir}/${popjava.jar}"
-                debug="true" debuglevel="lines,vars,source"
-                target="7"
-                source="7"
-        >
-          <compilerarg value="-Xlint:deprecation,unchecked"/>
-        </javac>
-</target>
 
 <target name="make-testsuite-java" depends="jar-popjava" description="build the the popjava testsuite">
         <mkdir dir="${classes.dir}"/>
@@ -77,7 +64,7 @@
         </javac>
 </target>
 	
-<target name="make-testsuite-popc" depends="make-testsuite-java" unless="isWindows" description="build the the popjava testsuite">
+<target name="make-testsuite-popc" depends="" unless="isWindows" description="build the the popjava testsuite">
 	<exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
     <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
 </target>
@@ -86,37 +73,82 @@
         <mkdir dir="${jar.dir}"/>
         <jar destfile="${jar.dir}/${popjava.jar}" basedir="${classes.dir}" 
                 excludes="**/testsuite/**,**/objgen/**">
-                <zipgroupfileset dir="." includes="${javassist.jar}"/>
-                <zipgroupfileset dir="." includes="${sshj.jar}"/>
-                <zipgroupfileset dir="." includes="${log4j.jar}"/>
-        	 <service type="javax.annotation.processing.Processor" 
-        	    provider="popjava.annotation.processors.POPClassProcessor" /> 
-        </jar>
-</target>
-
-<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
-        <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
-                excludes="**/popjava/**,**/objgen/**">
+        	
+        	<manifest>
+                <attribute name="Premain-Class" value="${agent}" />
+                <attribute name="Can-Redefine-Classes" value="true" />
+                <attribute name="Can-Retransform-Classes" value="true" />
+                <attribute name="Can-Set-Native-Method-Prefix" value="true" />
+            </manifest>
+        	
+            <zipgroupfileset dir="." includes="${javassist.jar}"/>
+            <zipgroupfileset dir="." includes="${sshj.jar}"/>
+            <zipgroupfileset dir="." includes="${log4j.jar}"/>
+        	<service type="javax.annotation.processing.Processor" provider="popjava.annotation.processors.POPClassProcessor" /> 
         </jar>
 </target>
 	
-<target name="jar-objmapgen" depends="make-objectmapgen" description="create jar for the objectmapgen">
+<target name="jar-testsuite" depends="make-testsuite-java, make-testsuite-popc" description="create jar for the popjava testsuite">
         <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${objmapgen.jar}" basedir="${objgenclasses.dir}">
+        <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
+                excludes="**/popjava/**, **/objgen/**">
         </jar>
-</target>
-
-<target name="run-testsuite" depends="jar-testsuite, jar-popjava" description="Run the testsuite">
-	<java classname="testsuite.Testsuite" fork="true">
-		<classpath>
-			<pathelement location="${jar.dir}/${popjava.jar}"/>
-			<pathelement location="${jar.dir}/${testsuite.jar}"/>
+	
+	<java classname="popjava.scripts.Popjrun" fork="true" output="${jar.dir}/${obj.map}">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
          </classpath>
-	</java>
+		
+		 <arg value="--listlong"/>
+		 <arg value="${jar.dir}/${testsuite.jar}"/>
+    </java>
+</target>
+	
+	
+<target name="run-tests" depends="clean, jar-popjava, jar-testsuite" description="run the test apps">
+	
+	<!--<java classname="testsuite.pure.integer.TestInteger" fork="true">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+        	<pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+		
+		<jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
+    </java>
+	
+	<java classname="testsuite.pure.callback.CallBackMain" fork="true">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+            <pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+		
+        <jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
+		<arg value="-codeconf=${jar.dir}/${obj.map}"/>
+		
+    </java>-->
+	
+	<java classname="testsuite.pure.sync.SynchronizationTest" fork="true">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+            <pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+        
+        <jvmarg value="-javaagent:${jar.dir}/${popjava.jar}"/>
+        <arg value="-codeconf=${jar.dir}/${obj.map}"/>
+        
+    </java>
+ </target>
+	
+<target name="run-testsuite" depends="jar-testsuite, jar-popjava" description="Run the testsuite">
+    <java classname="testsuite.Testsuite" fork="true">
+        <classpath>
+            <pathelement location="${jar.dir}/${popjava.jar}"/>
+            <pathelement location="${jar.dir}/${testsuite.jar}"/>
+         </classpath>
+    </java>
 </target>
 
-<target name="make" depends="clean, jar-popjava, jar-testsuite, jar-objmapgen" description="Builds the whole sourcecode">
+<target name="make" depends="clean, jar-popjava, jar-testsuite" description="Builds the whole sourcecode">
 </target>
 
 <target name="make-release-folder" depends="make" description="Creates the directory that will be installed">
@@ -138,7 +170,6 @@
   <!-- Copy jars -->
   <copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
   <copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
-  <copy file="${jar.dir}/${objmapgen.jar}" todir="${release.dir}/JarFile"/>
   <copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
   
   
@@ -166,22 +197,16 @@
   
   
   <!-- Set filepremisions-->
-  <chmod dir="${release.dir}" perm="774" 
-       includes="**/*" type="file"/>
+  <chmod dir="${release.dir}" perm="774" includes="**/*" type="file"/>
        
-  <chmod dir="${release.dir}" perm="775" 
-  includes="**/*" type="dir"/>
+  <chmod dir="${release.dir}" perm="775" includes="**/*" type="dir"/>
 
-  <chmod dir="${release.dir}/bin" perm="775" 
-       includes="**/*"/>
+  <chmod dir="${release.dir}/bin" perm="775" includes="**/*"/>
        
   <chmod file="${release.dir}/launch_testsuite" perm="775"/>
        
   <chmod file="${release.dir}/logFolder" perm="777" type="both"/>
   <chmod file="${release.dir}/testsuite" perm="777" type="both"/>
-         
-  
-  
 </target>
 
 </project>

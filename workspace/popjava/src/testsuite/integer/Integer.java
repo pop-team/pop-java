@@ -1,11 +1,10 @@
 package testsuite.integer;
 
 import popjava.annotation.POPAsyncSeq;
-
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncMutex;
-import popjava.base.*;
+import popjava.base.POPObject;
 
 @POPClass
 public class Integer extends POPObject{

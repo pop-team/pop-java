@@ -118,6 +118,8 @@ then
 	echo "$PREFIX Copying files ..."
 	cp -r -p release/* $LOCATION
 	chown -R root:root $LOCATION
+	chmod +x $LOCATION/testsuite/popc-obj/integer/*.obj
+	chmod +x $LOCATION/testsuite/popc-obj/jinteger/*.obj
 
 ####################################################
 # STEP 6 : Generating XML files
@@ -131,7 +133,7 @@ then
 	echo "<item name='popj_location'>$LOCATION</item>" >> $CONFIG_FILE
 	echo "<item name='popj_plugin_location'>$LOCATION/plugin</item>" >> $CONFIG_FILE
 	echo "<item name='popc_appcoreservice_location'>$POPC/services/appservice</item>" >> $CONFIG_FILE
-	echo "<item name='popj_broker_command'>$JAVA_PROGRAM -cp %s popjava.broker.Broker -codelocation=</item>" >> $CONFIG_FILE
+	echo "<item name='popj_broker_command'>$JAVA_PROGRAM -javaagent:$LOCATION/JarFile/testsuite.jar -cp %s popjava.broker.Broker -codelocation=</item>" >> $CONFIG_FILE
 	echo "</POPJConfig>" >> $CONFIG_FILE
 	
 
@@ -140,7 +142,8 @@ then
 	#generating platform name for object map
 	HARDWARE=$(uname -m)
 	OS=$(uname)
-	PLATFORM="$HARDWARE-pc-$OS"
+	#PLATFORM="$HARDWARE-pc-$OS"
+	PLATFORM="*-*"
 	
 	OBJECT_MAP=$LOCATION/etc/defaultobjectmap.xml
 	echo "$PREFIX Generating object map file for the test suite"

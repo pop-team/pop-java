@@ -5,21 +5,11 @@
 
 package popjava.interfacebase;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+
 import popjava.PopJava;
-import popjava.codemanager.AppService;
-import popjava.codemanager.POPJavaAppService;
-import popjava.combox.*;
-import popjava.dataswaper.ObjectDescriptionInput;
-import popjava.dataswaper.POPString;
-import popjava.service.POPJavaDeamonConnector;
-import popjava.serviceadapter.POPAppService;
-import popjava.serviceadapter.POPJobManager;
-import popjava.serviceadapter.POPJobService;
-import popjava.system.*;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.SystemUtil;
-import popjava.util.Util;
 import popjava.annotation.POPObjectDescription;
 import popjava.base.BindStatus;
 import popjava.base.MessageHeader;
@@ -29,11 +19,27 @@ import popjava.base.Semantic;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
-import popjava.buffer.*;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.*;
+import popjava.buffer.BufferFactory;
+import popjava.buffer.BufferFactoryFinder;
+import popjava.buffer.BufferXDR;
+import popjava.buffer.POPBuffer;
+import popjava.codemanager.AppService;
+import popjava.codemanager.POPJavaAppService;
+import popjava.combox.Combox;
+import popjava.combox.ComboxAllocateSocket;
+import popjava.combox.ComboxFactoryFinder;
+import popjava.dataswaper.ObjectDescriptionInput;
+import popjava.dataswaper.POPString;
+import popjava.service.POPJavaDeamonConnector;
+import popjava.serviceadapter.POPAppService;
+import popjava.serviceadapter.POPJobManager;
+import popjava.serviceadapter.POPJobService;
+import popjava.system.POPJavaConfiguration;
+import popjava.system.POPSystem;
+import popjava.util.Configuration;
+import popjava.util.LogWriter;
+import popjava.util.SystemUtil;
+import popjava.util.Util;
 
 
 /**
@@ -165,81 +171,92 @@ public class Interface {
 				throw new POPException(-1, "Could not create "+objectName+" on "+od.getHostName());
 			}
 			
-			// ask the job manager to allocate the broker
-			String platforms = od.getPlatform();
-
-			if (platforms.length() <= 0) {
-				AppService appCoreService = null;
-				appCoreService = (AppService) PopJava.newActive(
-						POPAppService.class, POPSystem.appServiceAccessPoint);
-				POPString popStringPlatorm = new POPString();
-				appCoreService.getPlatform(objectName, popStringPlatorm);
-				platforms = popStringPlatorm.getValue();
-				if (platforms.length() <= 0) {
-					throw new POPException(
-							POPErrorCode.OBJECT_EXECUTABLE_NOTFOUND,
-							"OBJECT_EXECUTABLE_NOTFOUND");
-				}
-				od.setPlatform(platforms);
-				//appCoreService.exit();
-			}
-			// Global Resource management system --> Find a resource.
-			String jobUrl = od.getJobUrl();
-			POPAccessPoint jobContact = new POPAccessPoint();
-			if (jobUrl.length() > 0) {
-				jobContact.setAccessString(jobUrl);
-			} else {
-				jobContact = POPSystem.jobService;
-			}
-
-			if (jobContact.isEmpty()) {
-				jobContact.setAccessString(String.format("%s:%d", POPSystem
-						.getHostIP(), POPJobManager.DEFAULT_PORT));
-			}
-
-			POPJobService jobManager = null;
-			try{
-				if(Configuration.CONNECT_TO_POPCPP){
-					jobManager = (POPJobService) PopJava.newActive(POPJobService.class, jobContact);
-				}
-			}catch(Exception e){
-			}
+			boolean allocated = allocateThroughJobmanager(objectName, allocatedAccessPoint,
+                    remotejobscontact);
 			
-			if(jobManager == null){
-				LogWriter.writeDebugInfo("Could not contact jobmanager, running objects without od.url is not supported");
-				return false;
+			if(!allocated && od.getHostName().isEmpty()){
+			    LogWriter.printDebug("No url specified for "+objectName+", fallback to localhost");
+			    od.setHostname("localhost");
+			    tryLocal(objectName, popAccessPoint);
 			}
-			
-			ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
-			
-			int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
-					allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
-			jobManager.exit();
-			if (createdCode != 0) {
-				switch (createdCode) {
-					case POPErrorCode.POP_EXEC_FAIL:
-						throw new POPException(createdCode,
-							"OBJECT_EXECUTABLE_NOTFOUND");
-					case POPErrorCode.POP_JOBSERVICE_FAIL:
-						throw new POPException(createdCode, "NO_RESOURCE_MATCH "+objectName);
-					default:
-						throw new POPException(createdCode, "UNABLE_TO_CREATED_THE_PARALLEL_OBJECT");
-				}
-			}
-
-			for (int i = 0; i < allocatedAccessPoint.length; i++) {
-				if(allocatedAccessPoint[0].size() >= 1 && (
-						allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") || 
-						allocatedAccessPoint[0].get(0).getHost().equals("127.0.1.1"))){
-					allocatedAccessPoint[0].get(0).setHost(remotejobscontact[0].get(0).getHost());
-				}
-			}
-			popAccessPoint.setAccessString(allocatedAccessPoint[0].toString());
-
 		}
 		
 		return bind(popAccessPoint);
 	}
+
+    public boolean allocateThroughJobmanager(String objectName,
+            POPAccessPoint[] allocatedAccessPoint,
+            POPAccessPoint[] remotejobscontact) {
+        // ask the job manager to allocate the broker
+        String platforms = od.getPlatform();
+
+        if (platforms.length() <= 0) {
+        	AppService appCoreService = null;
+        	appCoreService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
+        	POPString popStringPlatorm = new POPString();
+        	appCoreService.getPlatform(objectName, popStringPlatorm);
+        	platforms = popStringPlatorm.getValue();
+        	if (platforms.length() <= 0) {
+        		throw new POPException(
+        				POPErrorCode.OBJECT_EXECUTABLE_NOTFOUND,
+        				"OBJECT_EXECUTABLE_NOTFOUND");
+        	}
+        	od.setPlatform(platforms);
+        	//appCoreService.exit();
+        }
+        // Global Resource management system --> Find a resource.
+        String jobUrl = od.getJobUrl();
+        POPAccessPoint jobContact = new POPAccessPoint();
+        if (jobUrl.length() > 0) {
+        	jobContact.setAccessString(jobUrl);
+        } else {
+        	jobContact = POPSystem.jobService;
+        }
+
+        if (jobContact.isEmpty()) {
+        	jobContact.setAccessString(String.format("socket://%s:%d", POPSystem
+        			.getHostIP(), POPJobManager.DEFAULT_PORT));
+        }
+
+        POPJobService jobManager = null;
+        try{
+        	if(Configuration.CONNECT_TO_POPCPP){
+        		jobManager = PopJava.newActive(POPJobService.class, jobContact);
+        	}
+        }catch(Exception e){
+        }
+        
+        if(jobManager == null){
+            return false;
+        }
+        
+        ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
+        
+        int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
+        		allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
+        jobManager.exit();
+        if (createdCode != 0) {
+        	switch (createdCode) {
+        		case POPErrorCode.POP_EXEC_FAIL:
+        			throw new POPException(createdCode,	"OBJECT_EXECUTABLE_NOTFOUND");
+        		case POPErrorCode.POP_JOBSERVICE_FAIL:
+        			throw new POPException(createdCode, "NO_RESOURCE_MATCH "+objectName);
+        		default:
+        			throw new POPException(createdCode, "UNABLE_TO_CREATED_THE_PARALLEL_OBJECT");
+        	}
+        }
+
+        for (int i = 0; i < allocatedAccessPoint.length; i++) {
+        	if(allocatedAccessPoint[0].size() >= 1 && (
+        			allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") || 
+        			allocatedAccessPoint[0].get(0).getHost().equals("127.0.1.1"))){
+        		allocatedAccessPoint[0].get(0).setHost(remotejobscontact[0].get(0).getHost());
+        	}
+        }
+        popAccessPoint.setAccessString(allocatedAccessPoint[0].toString());
+        
+        return true;
+    }
 
 	/**
 	 * Bind the interface with a parallel object (Broker-side)
@@ -250,8 +267,9 @@ public class Interface {
 	protected boolean bind(POPAccessPoint accesspoint) throws POPException {
 
 		if (accesspoint == null || accesspoint.isEmpty()){
-			POPException.throwAccessPointNotAvailableException();
+			POPException.throwAccessPointNotAvailableException(accesspoint);
 		}
+		
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 		
 		if (combox != null){
@@ -323,8 +341,7 @@ public class Interface {
 			POPException.throwComboxNotAvailableException();
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
-		MessageHeader messageHeader = new MessageHeader(0,
-				MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
+		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
 		popBuffer.putString(Configuration.SELECTED_ENCODING);
 
@@ -332,11 +349,11 @@ public class Interface {
 
 		boolean result = false;
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
+		
 		popResponse(responseBuffer);
 		result = responseBuffer.getBoolean();
 		if (result) {
-			BufferFactory bufferFactory = BufferFactoryFinder.getInstance()
-					.findFactory(Configuration.SELECTED_ENCODING);
+			BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.SELECTED_ENCODING);
 			combox.setBufferFactory(bufferFactory);
 			
 			//TODO: Check out why this was done
@@ -500,30 +517,7 @@ public class Interface {
 			return getPOPCodeFile();
 		}
 		
-		AppService appCoreService = null;
-		
-		if(!POPSystem.appServiceAccessPoint.isEmpty()){
-			if(Configuration.CONNECT_TO_POPCPP){
-				try{
-					appCoreService = (AppService) PopJava.newActive(
-							POPAppService.class, POPSystem.appServiceAccessPoint);
-					appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
-				}catch(Exception e){
-					appCoreService = null;
-				}
-			}
-			
-			if(appCoreService == null){
-				try{
-					appCoreService = (AppService) PopJava.newActive(
-							POPJavaAppService.class, POPSystem.appServiceAccessPoint);
-				}catch(POPException e2){
-					LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
-					//e2.printStackTrace();
-				}
-			}
-		}
-		
+		AppService appCoreService = getAppcoreService();
 		
 		if(appCoreService != null){
 			String codeFile = getCodeFile(appCoreService, objectName);
@@ -533,21 +527,66 @@ public class Interface {
 		return getPOPCodeFile();
 	}
 	
+	public static AppService getAppcoreService(){
+	    AppService appCoreService = null;
+	    if(!POPSystem.appServiceAccessPoint.isEmpty()){
+            if(Configuration.CONNECT_TO_POPCPP){
+                try{
+                    appCoreService = PopJava.newActive(
+                            POPAppService.class, POPSystem.appServiceAccessPoint);
+                    appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
+                }catch(Exception e){
+                	e.printStackTrace();
+                    appCoreService = null;
+                }
+            }
+            
+            if(appCoreService == null){
+                try{
+                    appCoreService = PopJava.newActive(
+                            POPJavaAppService.class, POPSystem.appServiceAccessPoint);
+                }catch(POPException e){
+                    LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
+                    e.printStackTrace();
+                }
+            }
+        }else{
+    		System.err.println("POPSystem.appServiceAccessPoint was empty");
+    	}
+	    
+	    return appCoreService;
+	}
+	
 	private static String getPOPCodeFile(){
-		String popPath = POPJavaConfiguration.getPOPJavaCodePath();
+	    
+		String popPath = POPJavaConfiguration.getClassPath();
 		String popJar = POPJavaConfiguration.getPopJavaJar();
 		
 		return String.format(
 				POPJavaConfiguration.getBrokerCommand(),
-				popPath)+popJar;
+				popJar,
+				popPath);
 	}
 	
-	private static String getCodeFile(AppService manager, String objectName){
+	public static String getCodeFile(AppService manager, String objectName){
+		if(manager == null){
+			throw new NullPointerException("AppService can not be null");
+		}
+	    
 		POPString popStringCodeFile = new POPString();
 		
 		manager.queryCode(objectName, POPSystem.getPlatform(), popStringCodeFile);
 		String codeFile = popStringCodeFile.getValue();
 		
+		//Get wildcard code first
+		if(codeFile == null || codeFile.isEmpty()){
+		    popStringCodeFile = new POPString();
+	        
+	        manager.queryCode("*", POPJavaAppService.ALL_PLATFORMS, popStringCodeFile);
+	        codeFile = popStringCodeFile.getValue();
+		}
+		
+		//Fall back to local popjava install path
 		if(codeFile == null || codeFile.isEmpty()){
 			POPJavaAppService appService = new POPJavaAppService();
 			codeFile = appService.getLocalJavaFileLocation(objectName);
@@ -724,7 +763,8 @@ public class Interface {
 	/**
 	 * Close everything
 	 */
-	protected void finalize() throws Throwable {
+	@Override
+    protected void finalize() throws Throwable {
 		this.decRef();
 		try {
 			close(); // close open files

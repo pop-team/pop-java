@@ -3,9 +3,10 @@
         Integer example
     </description>
     
+	<property environment="env"/>
     <property name="objectmap" value="objectmap.xml"/>
     <property name="source.folder" value=""/>
-    
+	
     <target name="clean" 
         description="clean the build folder" >
         
@@ -17,9 +18,16 @@
     
     <target name="build"
         description="compile the source " >
-        <exec executable="popjc">
-            <arg line="-n Integer.pjava TestInteger.pjava"/>
-        </exec>
+    	
+        <javac srcdir="."
+                        destdir="."
+                        classpath="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"
+                        debug="true" debuglevel="lines,vars,source"
+                        target="7"
+                        source="7" >
+          <compilerarg value="-Xlint:deprecation,unchecked"/>
+        </javac>
+    	
         <exec executable="popjrun" output = "${objectmap}">
             <arg line="--listlong Integer.class"/>
         </exec>

@@ -24,7 +24,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import popjava.PopJava;
-import popjava.base.*;
+import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
@@ -95,9 +95,14 @@ public class POPSystem {
 	static {
 		// Trick :(( I don't know why the system i386 doesn't work
 		String osName = System.getProperty("os.name");
-		// String osArchitect = System.getProperty("os.arch");
-		String osArchitect = "i686";
-		platform = String.format("%s-pc-%s", osArchitect, osName);
+		String osArchitect = System.getProperty("os.arch");
+		
+		if(osArchitect.contains("64")){
+		    osArchitect = "x86_64";
+		}
+		
+		platform = String.format("%s-%s", osArchitect, osName);
+		
 //		String popLocation = POPSystem.getPopLocation();
 //		POPJavaObjectExecuteCommand = String.format(
 //				"/usr/bin/java -cp %s popjava.broker.Broker -codelocation=",
@@ -177,7 +182,7 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint getDefaultAccessPoint() {
 		POPAccessPoint parrocAccessPoint = new POPAccessPoint();
-		parrocAccessPoint.setAccessString(String.format("%s://127.0.0.1:0",
+		parrocAccessPoint.setAccessString(String.format("socket://%s://127.0.0.1:0",
 				ComboxSocketFactory.PROTOCOL));
 		return parrocAccessPoint;
 	}
@@ -250,59 +255,90 @@ public class POPSystem {
 		
 		return args;
 	}
+	
+	private static boolean isStarted = false;
+	
+	public static void setStarted(){
+	    isStarted = true;
+	}
+	
+	public synchronized static boolean start(){
+	    if(isStarted){
+	        return true;
+	    }
+	    isStarted = true;
+	    
+	    jobService.setAccessString(jobservice);
+        if (appservicecode == null || appservicecode.length() == 0) {
+            appservicecode = POPJavaConfiguration.getPopAppCoreService();
+        }
+        
+        if ((jobservice == null || jobservice.length() == 0) && (appservicecontact == null || appservicecontact.length() == 0)){
+            return false;
+        }
+        
+        coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
+        
+        if(coreServiceManager != null){
+            appServiceAccessPoint = coreServiceManager.getAccessPoint();
+            
+            prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
+            prlt.start();
+        }
+        
+        if (codeconf == null || codeconf.length() == 0) {
+            codeconf = String.format("%s%setc%sdefaultobjectmap.xml",
+                    POPJavaConfiguration.getPopJavaLocation(),
+                    File.separator,
+                    File.separator);
+        }
+        
+        String popJavaObjectExecuteCommand = String.format(
+                POPJavaConfiguration.getBrokerCommand(),
+                POPJavaConfiguration.getPopJavaJar(),
+                getNeededClasspath());
+        
+        initialized = initCodeService(codeconf, popJavaObjectExecuteCommand, coreServiceManager);
+	    
+        return initialized;
+	}
+    
+    public static void registerCode(String file, String clazz){
+        start();
+        
+        String popJavaObjectExecuteCommand = String.format(
+                POPJavaConfiguration.getBrokerCommand(),
+                POPJavaConfiguration.getPopJavaJar(),
+                getNeededClasspath());
+        
+        if(coreServiceManager != null){
+            coreServiceManager.registerCode(clazz, POPJavaAppService.ALL_PLATFORMS, popJavaObjectExecuteCommand+file);
+        }
+    }    
 
+	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
+	private static String codeconf;
+	private static String appservicecode;
+	private static String proxy;
+	private static String appservicecontact;
+	
 	/**
 	 * Initialize the application scope services 
 	 * @param argvList	Any arguments to pass to the initialization
 	 * @return	true if the initialization is succeed
 	 * @throws POPException	thrown is any problems occurred during the initialization
 	 */
-	public static boolean initialize(List<String> argvList){
-		String popJavaObjectExecuteCommand = String.format(
-				POPJavaConfiguration.getBrokerCommand(),
-				getNeededClasspath());
+	private static void initialize(List<String> argvList){
+		String tempJobservice = Util.removeStringFromList(argvList, "-jobservice=");
 		
-		String jobservice = Util.removeStringFromList(argvList,
-				"-jobservice=");
-		if (jobservice == null || jobservice.length() == 0) {
-			jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
-		}
-		jobService.setAccessString(jobservice);
-		String appservicecode = Util.removeStringFromList(argvList,
-				"-appservicecode=");
-		
-		if (appservicecode == null || appservicecode.length() == 0) {
-			appservicecode = POPJavaConfiguration.getPopAppCoreService();
-		}
-		String proxy = Util.removeStringFromList(argvList, "-proxy=");
-		String appservicecontact = Util.removeStringFromList(argvList,
-				"-appservicecontact=");
-		if ((jobservice == null || jobservice.length() == 0)
-				&& (appservicecontact == null || appservicecontact.length() == 0)){
-			return false;
+		if (tempJobservice != null && tempJobservice.length() != 0) {
+			jobservice = tempJobservice;
 		}
 		
-		coreServiceManager = getCoreService(proxy, appservicecontact, appservicecode);
-		
-		if(coreServiceManager != null){
-			appServiceAccessPoint = coreServiceManager.getAccessPoint();
-			
-			prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
-			prlt.start();
-		}
-		
-		String codeconf = Util
-				.removeStringFromList(argvList, "-codeconf=");
-		
-		if (codeconf == null || codeconf.length() == 0) {
-			codeconf = String.format("%s%setc%sdefaultobjectmap.xml",
-					POPJavaConfiguration.getPopJavaLocation(),
-					File.separator,
-					File.separator);
-		}
-		
-		initialized = initCodeService(codeconf, popJavaObjectExecuteCommand, coreServiceManager);
-		return initialized;
+		codeconf = Util.removeStringFromList(argvList, "-codeconf=");		
+		appservicecode = Util.removeStringFromList(argvList, "-appservicecode=");
+		proxy = Util.removeStringFromList(argvList, "-proxy=");
+        appservicecontact = Util.removeStringFromList(argvList, "-appservicecontact=");
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){
@@ -316,6 +352,7 @@ public class POPSystem {
 			} else {
 				url = String.format("%s -proxy=%s", appservicecode, proxy);
 			}
+			
 			if(Configuration.CONNECT_TO_POPCPP && new File(appservicecode).exists()){
 				try{
 					return createAppCoreService(url);
@@ -327,7 +364,7 @@ public class POPSystem {
 			POPAccessPoint accessPoint = new POPAccessPoint();
 			accessPoint.setAccessString(appservicecontact);
 			try{
-				return (POPAppService) PopJava.newActive(
+				return PopJava.newActive(
 						POPAppService.class, accessPoint);
 			}catch(POPException e){
 			}
@@ -336,7 +373,7 @@ public class POPSystem {
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
 			LogWriter.writeDebugInfo("Create appservice in Java");
-			return (AppService) PopJava.newActive(POPJavaAppService.class);			
+			return PopJava.newActive(POPJavaAppService.class);			
 		}catch(POPException e){
 			e.printStackTrace();
 		}
@@ -447,8 +484,7 @@ public class POPSystem {
 		objectDescription.setHostname(POPSystem.getHostIP());
 		objectDescription.setCodeFile(codelocation);
 		
-		POPAppService appService = (POPAppService) PopJava.newActive(POPAppService.class,
-				objectDescription, randString, false, codelocation);
+		POPAppService appService = PopJava.newActive(POPAppService.class, objectDescription, randString, false, codelocation);
 				
 		return appService;
 	}

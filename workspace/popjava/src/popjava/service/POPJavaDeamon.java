@@ -2,6 +2,7 @@ package popjava.service;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,12 +24,14 @@ import popjava.util.SystemUtil;
  * @author Beat Wolf
  *
  */
-public class POPJavaDeamon {
+public class POPJavaDeamon implements Runnable, Closeable{
 
 	public static final String SUCCESS = "OK";
 	public static final int POP_JAVA_DEAMON_PORT = 43424;
 	private ServerSocket serverSocket;
 	private String password = "";
+	
+	private static final String BACKUP_JAR = "build/jar/popjava.jar";
 	
 	public POPJavaDeamon(String password){
 		this.password = password;
@@ -74,8 +77,6 @@ public class POPJavaDeamon {
 				
 				List<String> commands = new ArrayList<String>();
 				
-				
-				
 				System.out.println("Execute command: ");
 				
 				
@@ -99,13 +100,20 @@ public class POPJavaDeamon {
 					String line = reader.readLine();
 					//If the current parameter is the classpath, modify it to fit local system
 					if(isJava && isClassPath){ 
-						if(!line.contains(File.pathSeparator) &&
-								!new File(line).exists()){
-							String temp = POPJavaConfiguration.getPOPJavaCodePath();
+						if(!isClasspathValid(line)){
+							String temp = POPJavaConfiguration.getClassPath();
 							if(temp != null && !temp.isEmpty()){
 								line = temp;
 							}
 						}
+					}
+					
+					if(line.startsWith("-javaagent:")){
+						String popJavaJar = POPJavaConfiguration.getPOPJavaCodePath();
+						if(!POPJavaConfiguration.isJar()){
+							popJavaJar = BACKUP_JAR;
+						}
+						line = "-javaagent:"+popJavaJar;
 					}
 					
 					commands.add(line);
@@ -141,9 +149,22 @@ public class POPJavaDeamon {
 			}
 		}
 	}
+
+	public static boolean isClasspathValid(String classPath){
+	    
+	    String [] parts = classPath.split(File.pathSeparator);
+	    
+	    for(String part: parts){
+	        if(new File(part).exists() || part.startsWith("http://")){
+	            return true;
+	        }
+	    }
+	    
+	    return false;
+	}
 	
 	public static void main(String ... args) throws IOException{
-		POPJavaDeamon deamon = new POPJavaDeamon("");
+		POPJavaDeamon deamon = new POPJavaDeamon("test");
 		deamon.start();
 	}
 	
@@ -158,13 +179,19 @@ public class POPJavaDeamon {
 		
 		System.out.println("Started POP-Java deamon");
 		
-		while(!Thread.interrupted()){
-			Socket socket = serverSocket.accept();
-			System.out.println("Accepted connection");
-			executor.execute(new Acceptor(socket));
+		try{
+    		while(!Thread.currentThread().isInterrupted()){
+		        Socket socket = serverSocket.accept();
+	            System.out.println("Accepted connection");
+	            executor.execute(new Acceptor(socket));
+    		}
+		}catch(IOException e){
+        }
+		
+		if(serverSocket != null){
+		    serverSocket.close();
 		}
 		
-		serverSocket.close();
 		System.out.println("Closed POP-Java deamon");
 	}
 	
@@ -172,11 +199,22 @@ public class POPJavaDeamon {
 	 * Stops the POP-Java listener deamon
 	 * @throws IOException 
 	 */
-	public void close() throws IOException{
+	@Override
+    public synchronized void close() throws IOException{
 		serverSocket.close();
+		serverSocket = null;
 	}
 	
 	public static String getSaltedHash(String salt, String secret){
 		return ""+(secret + salt).hashCode();
 	}
+
+	@Override
+    public void run() {
+        try {
+            start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

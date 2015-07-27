@@ -1,9 +1,11 @@
 package popjava;
 
 import popjava.base.POPException;
+import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
+import popjava.system.POPSystem;
 
 /**
  * 
@@ -27,8 +29,13 @@ public class PopJava {
 	public static <T> T newActive(Class<T> targetClass,
 			ObjectDescription objectDescription, Object ... argvs)
 			throws POPException {
+	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newPOPObject(objectDescription, argvs);
+	}
+	
+	public static Object newActive(String targetClass, Object... argvs) throws POPException, ClassNotFoundException{
+	    return newActive(Class.forName(targetClass), argvs);
 	}
 	
 	/**
@@ -40,6 +47,7 @@ public class PopJava {
 	 */
 	public static <T> T newActive(Class<T> targetClass, Object... argvs)
 			throws POPException {
+	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newPOPObject(argvs);
 	}
@@ -53,6 +61,7 @@ public class PopJava {
 	 */
 	public static <T> T newActive(Class<T> targetClass,
 			POPAccessPoint accessPoint) throws POPException {
+	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.bindPOPObject(accessPoint);
 	}
@@ -66,7 +75,35 @@ public class PopJava {
 	 */
 	public static <T> T newActiveFromBuffer(Class<T> targetClass, POPBuffer buffer)
 			throws POPException {
+	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newActiveFromBuffer(buffer);
+	}
+	
+	public static POPAccessPoint getAccessPoint(Object object){
+	    if(object instanceof POPObject){
+	        POPObject temp = (POPObject) object;
+	        return temp.getAccessPoint();
+	    }
+	    
+	    throw new RuntimeException("Object was not of type "+POPObject.class.getName());
+	}
+	
+	public static <T extends Object> T getThis(T object){
+	    return (T) ((POPObject) object).getThis(object.getClass());
+	}
+	
+	/**
+	 * Returns true if POP-Java is loaded and enabled
+	 * @return
+	 */
+	public static boolean isPOPJavaActive(){
+	    try {
+	        popjava.javaagent.POPJavaAgent.getInstance();
+	    } catch (Exception e) {
+	        return false;
+	    }
+	    
+	    return true;
 	}
 }

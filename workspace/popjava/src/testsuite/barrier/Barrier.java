@@ -8,52 +8,46 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
 
-import popjava.base.*;
-
-public class Barrier extends POPObject {
+@POPClass
+public class Barrier{
 	
 	protected int counter;
 	protected final Lock lock = new ReentrantLock();
 	protected final Condition event = lock.newCondition();
 	
 	public Barrier(){
-		Class<?> c = Barrier.class;
-		initializePOPObject();
-		addSemantic(c, "activate", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
 		counter = 15;
 	}
 	
-	public Barrier(Integer n) throws IOException{
+	public Barrier(int n) throws IOException{
 		BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/barrier", true));
-		Class<?> c = Barrier.class;
-		initializePOPObject();
-		addSemantic(c, "activate", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
-		counter = n.intValue();
+		counter = n;
 		out.write("Barrier closed for "+counter+"\n");
 		out.close();
 		System.out.println("The barrier is closed for "+ counter+" workers");
 	}
 	
+	@POPSyncConc
 	public void activate() throws InterruptedException, IOException {
+	    //TODO: Find Bugs throws an error in this method. the lock is not always unlocked in all codepaths
 		lock.lock();
 		BufferedWriter out = new BufferedWriter(new FileWriter("/tmp/barrier", true));
 		counter--;
 		out.write("Counter = " + counter+ "\n");
 		
-		
 		if(counter == 0) {
 			out.write("Barrier open\n");
 			out.close();
 			event.signalAll();
-		}
-		else {
-			
+		} else {
 			out.write("Wait\n");
 			out.close();
-			event.await();
-			
+			event.await();//TODO: Should be in a loop
 		}
+		
 		lock.unlock();
 	}
 	

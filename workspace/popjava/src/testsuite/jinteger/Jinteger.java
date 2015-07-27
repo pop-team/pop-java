@@ -1,24 +1,23 @@
 package testsuite.jinteger;
 
-import popjava.base.POPObject;
-import popjava.base.Semantic;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
+import popjava.annotation.POPSyncConc;
 
-public class Jinteger extends POPObject {
+@POPClass(classId = 1001, deconstructor = true)
+public class Jinteger{
+    
 	private int data;
+	
 	public Jinteger(){
-		Class<?> c = Jinteger.class;
-		//setClassName("Jinteger");
-		setClassId(1001);
-		hasDestructor(true);
-		initializePOPObject();
-		addSemantic(c, "set", Semantic.ASYNCHRONOUS | Semantic.SEQUENCE);
-		addSemantic(c, "get", Semantic.SYNCHRONOUS | Semantic.CONCURRENT);
 	}
 	
+	@POPAsyncSeq
 	public void set(int value){
 		data = value;
 	}
 	
+	@POPSyncConc
 	public int get(){
 		return data;
 	}

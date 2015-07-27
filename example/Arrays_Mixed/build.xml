@@ -21,7 +21,7 @@
     <target name="build"
         description="compile the source " >
         <exec executable="popjc">
-            <arg line="-p additional-infos.xml CharTestMain.pjava PARObject.pjava"/>
+            <arg line="-p additional-infos.xml CharTestMain.java PARObject.java"/>
         </exec>
         
         <exec executable="popcc">

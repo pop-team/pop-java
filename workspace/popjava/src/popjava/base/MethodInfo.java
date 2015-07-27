@@ -40,24 +40,42 @@ public class MethodInfo {
 		return classId;
 	}
 
-	/**
-	 * Check if if the given object is equals to this MethodInfo
-	 * @param obj	The object to compare with
-	 * @return true is they are equal
-	 */
-	public boolean equals(Object obj) {
-		if (obj != null && obj.getClass().equals(MethodInfo.class)) {
-			MethodInfo info = (MethodInfo) obj;
-			if (info.getClassId() == classId && info.getMethodId() == methodId)
-				return true;
-		}
-		return false;
-	}
+	@Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + classId;
+        result = prime * result + methodId;
+        return result;
+    }
+
+
+    /**
+     * Check if if the given object is equals to this MethodInfo
+     * @param obj   The object to compare with
+     * @return true is they are equal
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MethodInfo other = (MethodInfo) obj;
+        if (classId != other.classId)
+            return false;
+        if (methodId != other.methodId)
+            return false;
+        return true;
+    }
 
 	/**
 	 * Format the MethodInfo as a string value
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 		return String.format("ClassId:%d.MethodId:%d", classId, methodId);
 	}
 }

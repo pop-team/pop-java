@@ -3,9 +3,11 @@
         Callback2 example
     </description>
     
+	<property environment="env"/>
     <property name="application.jar" value="callback.jar"/>
     <property name="objectmap" value="objmap.xml"/>
     <property name="source.folder" value="test"/>
+	<property name="class.folder" value="class"/>
     
     <target name="clean" 
         description="clean the build folder" >
@@ -16,12 +18,18 @@
             <fileset dir="${source.folder}" includes="*.class"/>
         </delete>
     </target>
-    
+	
     <target name="build"
         description="compile the source " >
-        <exec executable="popjc">
-            <arg line="-j -v -n ${application.jar} ${source.folder}/Toto.pjava ${source.folder}/Titi.pjava ${source.folder}/CallBackMain.pjava"/>
-        </exec>
+    	
+    	<javac srcdir="${source.folder}"
+	                destdir="${class.folder}"
+	                classpath="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"
+	    />
+    	
+    	<jar destfile="${application.jar}" basedir="${class.folder}">
+	    </jar>
+    	
         <exec executable="popjrun" output = "${objectmap}">
             <arg line="--listlong ${application.jar}"/>
         </exec>

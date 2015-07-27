@@ -1,7 +1,5 @@
 package testsuite.javatest;
 
-import popjava.system.POPSystem;
-
 public class JavaMaintest {
 
 	/**
@@ -164,8 +162,6 @@ public class JavaMaintest {
 			System.out.println("Java changes the String[] passes as arguments");
 		else
 			System.out.println("Java does not change String[]");
-
-		POPSystem.end();
 	}
 
 }
