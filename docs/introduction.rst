@@ -8,7 +8,7 @@ Introduction
 
 Programming large heterogeneous distributed environments such as GRID or P2P
 infrastructures is a challenging task. This statement remains true even if
-we consider researches that have focused on enabling these types of
+we consider research that has focused on enabling these types of
 infrastructures for scientific computing such as resource management and
 discovery :cite:`Foster97`, :cite:`Grimshaw99`, :cite:`Czajkowski98`, service
 architecture :cite:`Foster02`, security :cite:`Welch03` and data management
