@@ -9,6 +9,7 @@ import popjava.annotation.POPConfig;
 public class Integer {
    private int value;
    
+   @POPObjectDescription(url = "localhost")
    public Integer(){
        
    }

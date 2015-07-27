@@ -9,3 +9,9 @@ sudo pip install sphinxcontrib-bibtex
 
 pdflatex:
 sudo apt-get install texlive-latex-base
+
+Read the docs public url:
+http://pop-java.readthedocs.org/en/latest/
+
+Read the docs project url:
+https://readthedocs.org/projects/pop-java/
