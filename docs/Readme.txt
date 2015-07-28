@@ -15,3 +15,5 @@ http://pop-java.readthedocs.org/en/latest/
 
 Read the docs project url:
 https://readthedocs.org/projects/pop-java/
+
+Updating the master branch will update the online doc. This can also be done manually form the read the docs project url.
