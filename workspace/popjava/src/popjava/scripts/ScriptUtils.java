@@ -42,14 +42,21 @@ public class ScriptUtils {
 		return false;
 	}
 	
-	public static String getOption(List<String> parameters, String defaultValue, String ... options){
+	public static String getOption(List<String> parameters, String defaultValue, boolean isBoolean, String ... options){
         for(int i = 0; i < parameters.size(); i++){
         	for(String option: options){
         		if(parameters.get(i).equals(option)){
                     if(parameters.size() > i + 1){
+                        
+                        if(isBoolean){
+                            parameters.remove(i);
+                            return "true";
+                        }
+                        
                     	String value = parameters.get(i+1);
                     	parameters.remove(i);
                     	parameters.remove(i);
+                    	
                         return value;
                     }
                 }
@@ -86,7 +93,6 @@ public class ScriptUtils {
 			}
 			System.out.println();
 		}
-		
 		
 		try {
 			ProcessBuilder builder = new ProcessBuilder(arguments);

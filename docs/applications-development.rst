@@ -44,7 +44,6 @@ parallel classes. The declaration of a parallel class is the same as a standard
 Java class declaration, but it has to be annotated with the annotation 
 ``@POPClass``. The parallel class can extend another parallel class but not a
 sequential class.
-.. todo:: Explain how this applies to the Object base class of Java
 
 **Simple parallel class declaration**
 
@@ -67,11 +66,6 @@ sequential class.
 As Java allows only single inheritance, a parallel class can only inherit
 from **one** other parallel class. The Java language also imposes that the file
 including the parallel class has the same name than the parallel class.
-
-POP-Java imposes another restrictions. The parallel class must be declared and
-implemented in a file with ``.pjava`` extension. For example, the parallel
-class ``MyParallelClass`` declared before, must be in a file
-``MyParallelClass.pjava``.
 
 Parallel classes are very similar to standard Java classes. As POP-Java has
 some different behavior, some restrictions applied to the parallel classes:

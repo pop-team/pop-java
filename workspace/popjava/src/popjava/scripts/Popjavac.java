@@ -96,6 +96,10 @@ public class Popjavac {
 	}
 	
 	public static void main(String [] args){
+	    main2(new String[]{"-x", "/home/asraniel/workspace/POPJavaFuture/example/mixed1/Integer.java"});
+	}
+	
+	public static void main2(String [] args){
 		
 		for(String arg: args){
 			System.out.println(arg);
@@ -110,12 +114,12 @@ public class Popjavac {
 		
 		List<String> arguments = ScriptUtils.arrayToList(args);
 	
-		final String jar = ScriptUtils.getOption(arguments, "", "-j", "--jar");
-		final String popcInfo = ScriptUtils.getOption(arguments, "", "-p", "--popcpp");
+		final String jar = ScriptUtils.getOption(arguments, "", false, "-j", "--jar");
+		final String popcInfo = ScriptUtils.getOption(arguments, "", false, "-p", "--popcpp");
 		
-		String classPath = ScriptUtils.getOption(arguments, "", "-c", "--classpath");
+		String classPath = ScriptUtils.getOption(arguments, "", false, "-c", "--classpath");
 		
-		String generate = ScriptUtils.getOption(arguments, "", "-x", "--xmlpopcpp");
+		String generate = ScriptUtils.getOption(arguments, "", true, "-x", "--xmlpopcpp");
 		
 		verbose = ScriptUtils.removeOption(arguments, "-v", "--verbose");
 		onlyTranslate = ScriptUtils.removeOption(arguments, "-t", "--translate");
@@ -133,7 +137,7 @@ public class Popjavac {
 		
 		if(!generate.isEmpty()){
 			try{
-				generateXML(generate, arguments);
+				generateXML("additional-infos.xml", arguments);
 			}catch(Exception e){
 				e.printStackTrace();
 			}
