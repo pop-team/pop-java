@@ -111,7 +111,8 @@ classes. The following code snippet shows the parallel class implementation:
 .. _testintegerclass:
 .. code-block:: java
    :linenos:
-
+   import popjava.annotation.*;
+   
    @POPClass
    public class Integer {
        private int value;
@@ -150,9 +151,10 @@ parallel class. The following code snippet shows the code of the main class:
 .. _testintegermain:
 .. code-block:: java
    :linenos:
+   import popjava.annotation.*;
 
    @POPClass(isDistributable = false)
-   public TestInteger {
+   public class TestInteger {
        public static void main(String[] args){
            Integer i1 = new Integer();
            Integer i2 = new Integer();
