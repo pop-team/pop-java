@@ -11,8 +11,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 
-import javassist.util.proxy.ProxyFactory;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,6 +21,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javassist.util.proxy.ProxyFactory;
 import popjava.PopJava;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
@@ -50,13 +49,6 @@ public class POPSystem {
 	 * POP-Java location environement variable name
 	 */
 	public static final String POP_LOCATION_ENVIRONMENT_NAME = "POP_LOCATION";
-//	public static final String PopPluginLocationEnviromentName = "POP_PLUGIN_LOCATION";
-//	public static final String PopAppCoreServiceEnviromentName = "POP_APP_CORE_SERVICE_CONFIG";
-//	public static final String DefaultPopLocation = "/home/clementval/popj";
-//	public static final String DefaultPopPluginLocation = "/home/clementval/popj/plugin";
-//	public static final String DefaultPopAppCoreService = "/home/clementval/popc/services/appservice";
-//	public static String DefaultAppServiceCodeFile = "";
-	
 	/**
 	 * POP-Java Job service access point
 	 */
@@ -102,12 +94,6 @@ public class POPSystem {
 		}
 		
 		platform = String.format("%s-%s", osArchitect, osName);
-		
-//		String popLocation = POPSystem.getPopLocation();
-//		POPJavaObjectExecuteCommand = String.format(
-//				"/usr/bin/java -cp %s popjava.broker.Broker -codelocation=",
-//				popLocation);
-//		DefaultAppServiceCodeFile = POPSystem.getPopAppCoreService();
 	}
 
 	/**
@@ -504,6 +490,10 @@ public class POPSystem {
 			
 			prlt.setRunning(false);
 		}
+		
+		prlt = null;
+		appservicecode = null;
+		initialized = false;
 	}
 	
 	public static boolean isInitialized(){

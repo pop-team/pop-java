@@ -28,6 +28,8 @@
         <property name="javadoc.dir" value ="doc"/>
         <property name="etc.dir" value ="etc"/>
         <property name="plugins.dir" value ="plugin"/>
+		
+		<property environment="env"/>
 	
 	<condition property="isWindows">
         <os family="windows" />
@@ -146,6 +148,48 @@
             <pathelement location="${jar.dir}/${testsuite.jar}"/>
          </classpath>
     </java>
+</target>
+
+<target name="testsuite" description="Run the testsuite">
+	<echo message="##############################"/>
+	<echo message="#   POP-Java standard test   #"/>
+	<echo message="##############################"/>
+	<echo message=""/>
+	<echo message="Starting POP-Java test suite"/>
+	<echo message="########################################"/>
+	<echo message=""/>
+	<echo message="########################################"/>
+	<echo message="Launching passing arguments test 1 / 2"/>
+	<echo message="########################################"/>
+	
+    <java classname="testsuite.arg.MainArgTest" fork="true" resultproperty="test1">
+		<jvmarg value="-javaagent:${env.POPJAVA_LOCATION}/JarFile/popjava.jar" />
+        <classpath>
+            <pathelement location="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"/>
+            <pathelement location="${env.POPJAVA_LOCATION}/JarFile/testsuite.jar"/>
+         </classpath>
+    </java>
+	
+	<echo message=""/>
+	<echo message="########################################"/>
+	<echo message="Launching passing arguments test 2 / 2"/>
+	<echo message="########################################"/>
+	
+    <java classname="testsuite.multiobj.Mutliobj" fork="true" resultproperty="test2">
+		<jvmarg value="-javaagent:${env.POPJAVA_LOCATION}/JarFile/popjava.jar" />
+        <classpath>
+            <pathelement location="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"/>
+            <pathelement location="${env.POPJAVA_LOCATION}/JarFile/testsuite.jar"/>
+         </classpath>
+    </java>
+	
+	<echo message=""/>	
+	<echo message="########################################"/>
+	<echo message="#   POP-Java 1.0 Test Suite finished   #"/>
+	<echo message="########################################"/>
+	<echo message=""/>	
+	<echo message="Test 1 exit code: ${test1}"/>
+	<echo message="Test 2 exit code: ${test2}"/>
 </target>
 
 <target name="make" depends="clean, jar-popjava, jar-testsuite" description="Builds the whole sourcecode">

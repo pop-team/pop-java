@@ -64,28 +64,40 @@ echo "#   POP-Java standard test   #"
 echo "##############################"
 
 echo "Starting POP-Java test suite"
+echo "########################################"
 echo "Launching passing arguments test (test 1/$N_TEST)... "
+echo "########################################"
 echo "java -cp $CP testsuite.arg.MainArgTest"
 java -javaagent:$POP -cp $CP testsuite.arg.MainArgTest
 echo "Passing arguments test is finished ... "
 
+echo "########################################"
 echo "Launching multi parallel object test (test 2/$N_TEST)... "
+echo "########################################"
 java -javaagent:$POP -cp $CP testsuite.multiobj.Mutliobj
 echo "Multi parallel object test is finished... "
 
+echo "########################################"
 echo "Launching callback test (test 3/$N_TEST)... "
+echo "########################################"
 java -javaagent:$POP -cp $CP testsuite.callback.CallBackMain
 echo "Callback test is finished... "
 
+echo "########################################"
 echo "Launching barrier test (test 4/$N_TEST)... "
+echo "########################################"
 java -javaagent:$POP -cp $CP testsuite.barrier.MainBarrier
 echo "Barrier test is finished... "
 
+echo "########################################"
 echo "Launching integer test (test 5/$N_TEST)... "
+echo "########################################"
 java -javaagent:$POP -cp $CP testsuite.integer.TestInteger
 echo "Integer test is finished... "
 
+echo "########################################"
 echo "Launching Demo POP-Java test (test 6/$N_TEST)... "
+echo "########################################"
 java -javaagent:$POP -cp $CP testsuite.demo.DemoMain 4 127.0.0.1
 echo "Demo POP-Java test is finished... "
 echo ""
@@ -104,7 +116,9 @@ else
 	make
 	cd $OLDPWD
 fi
+echo "########################################"
 echo "Launching POP-C++ integer with POP-Java application test (test 1/$N_TEST)"
+echo "########################################"
 echo "java -javaagent:$POP -cp $CP testsuite.popc_integer.TestPopcInteger"
 java -javaagent:$POP -cp $CP testsuite.popc_integer.TestPopcInteger
 echo "POP-C++ integer with POP-Java application test is finishied ..."
@@ -117,7 +131,9 @@ else
 	make
 	cd $OLDPWD
 fi
+echo "########################################"
 echo "Launching Integer mix (POP-C++ and POP-Java) with POP-Java application test(test 2/$N_TEST)"
+echo "########################################"
 java -javaagent:$POP -cp $CP testsuite.jinteger.TestRef
 echo "Integer mix (POP-C++ and POP-Java) with POP-Java application test is finishied ..."
 

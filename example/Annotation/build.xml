@@ -5,7 +5,8 @@
     
     <property name="objectmap" value="objectmap.xml"/>
     <property name="source.folder" value=""/>
-	<property name="popjava.jar" value="/usr/local/popj/JarFile/popjava.jar"/>
+	<property environment="env"/>
+    <property name="popjava.jar" value="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"/>
 	
     <target name="clean" 
         description="clean the build folder" >

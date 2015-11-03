@@ -4,7 +4,7 @@
 Jinteger::Jinteger()
 {
 	printf("Create remote object Integer on %s (od.search fixed)\n",
-		   (const char *)POPSystem::GetHost());
+		   (const char *)POPSystem::GetHost().c_str());
 }
 
 Jinteger::~Jinteger()

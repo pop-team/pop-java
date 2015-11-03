@@ -28,11 +28,9 @@ int main(int argc, char **argv)
 
 	} // Try
 
-	catch (POPException *e)
+	catch (POPException &e)
 	{
-		printf("Exception occurs in application :\n");
-		e->Print();
-		delete e;
+		printf("Exception occurs in application : %s\n", e.what());
 		return -1;
 	} // catch
 
