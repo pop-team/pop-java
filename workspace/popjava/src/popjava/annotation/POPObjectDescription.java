@@ -31,4 +31,11 @@ public @interface POPObjectDescription {
 	String connectionSecret() default "";
 	
 	Encoding encoding() default Encoding.Default;
+	
+	/**
+	 * Method id of the constructor.
+	 * Only use this if you absolutely know what you are doing.
+	 * @return
+	 */
+	int id() default -1;
 }

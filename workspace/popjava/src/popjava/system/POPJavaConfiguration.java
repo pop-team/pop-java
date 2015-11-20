@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 import popjava.broker.Broker;
-import popjava.codemanager.POPJavaAppService;
 import popjava.scripts.Popjavac;
+import popjava.serviceadapter.POPAppService;
 
 public class POPJavaConfiguration {
 	
@@ -142,7 +142,7 @@ public class POPJavaConfiguration {
 	public static String getClassPath(){
 	    String popJar = "";
 	    
-	    URL [] urls = ((URLClassLoader)POPJavaAppService.class.getClassLoader()).getURLs();
+	    URL [] urls = ((URLClassLoader)POPAppService.class.getClassLoader()).getURLs();
         
         Set<String> paths = new HashSet<String>();
         for(int i = 0; i < urls.length; i++){

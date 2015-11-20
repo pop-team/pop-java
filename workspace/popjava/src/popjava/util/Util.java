@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import popjava.annotation.POPParameter;
+import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 
 /**
@@ -17,12 +18,6 @@ import popjava.system.POPSystem;
  */
 
 public final class Util {
-
-	/**
-	 * Default empty constructor
-	 */
-	private Util() {
-	}
 
 	/**
 	 * Check if the two contact string are the same
@@ -218,4 +213,24 @@ public final class Util {
 		
 		return OSType.UNIX;
 	}
+	
+	public String getLocalJavaFileLocation(String objname){
+		String codePath = null;
+		try{
+			ClassLoader classloader = getClass().getClassLoader();
+			Class<?> javaClass = classloader.loadClass(objname);
+						
+			codePath = String.format(
+					POPJavaConfiguration.getBrokerCommand(),
+					POPJavaConfiguration.getPopJavaJar(),
+					POPJavaConfiguration.getClassPath()) + 
+					javaClass.getProtectionDomain().getCodeSource().getLocation().getPath();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return codePath;
+	}
+
 }

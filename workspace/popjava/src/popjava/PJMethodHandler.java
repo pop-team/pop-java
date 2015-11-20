@@ -145,8 +145,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		}
 
 		Class<?> proceedClass = m.getDeclaringClass();
-		if (!POPObject.class.isAssignableFrom(proceedClass))
+		if (!POPObject.class.isAssignableFrom(proceedClass)){
 			return null;
+		}
 		Class<?> returnType = m.getReturnType();
 		// Invoke the method
 		result = new Object();

@@ -10,6 +10,8 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sun.org.apache.bcel.internal.generic.POP;
+
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
@@ -568,8 +570,8 @@ public class POPObject implements IPOPBase {
 	 */
 	protected void initializeMethodInfo(Class<?> c, int startIndex) {
 		if (!definedMethodId) {
-			Method[] allMethods = c.getDeclaredMethods();
-						
+			Method[] allMethods = c.getMethods();
+			
 			Arrays.sort(allMethods, new Comparator<Method>() {
 				@Override
                 public int compare(Method first, Method second) {
@@ -581,9 +583,15 @@ public class POPObject implements IPOPBase {
 			
 			int index = startIndex;
 			for (Method m : allMethods) {
-				if (Modifier.isPublic(m.getModifiers()) && isMethodPOPAnnotated(m)) {
+				POPClass popClassAnnotation = m.getDeclaringClass().getAnnotation(POPClass.class);
+				if (popClassAnnotation != null && Modifier.isPublic(m.getModifiers()) && isMethodPOPAnnotated(m)) {
 				    int methodId = methodId(m,index);
-					MethodInfo methodInfo = new MethodInfo(getClassId(), methodId);
+				    int id = popClassAnnotation.classId();
+				    
+				    if(id == -1){
+				    	id = getClassId();
+				    }
+					MethodInfo methodInfo = new MethodInfo(id, methodId);
 					
 					methodInfos.put(methodInfo, m);
 					index++;
@@ -617,7 +625,15 @@ public class POPObject implements IPOPBase {
 
 			for (Constructor<?> constructor : allConstructors) {
 				if (Modifier.isPublic(constructor.getModifiers())) {
-					MethodInfo info = new MethodInfo(getClassId(), index);
+					int id = -1;
+					if(constructor.isAnnotationPresent(POPObjectDescription.class)){
+				        id = constructor.getAnnotation(POPObjectDescription.class).id();
+			        }
+					if(id == -1){
+						id = index;
+					}
+					
+					MethodInfo info = new MethodInfo(getClassId(), id);
 					constructorInfos.put(info, constructor);
 					semantics.put(info, Semantic.CONSTRUCTOR
 							| Semantic.SYNCHRONOUS | Semantic.SEQUENCE);

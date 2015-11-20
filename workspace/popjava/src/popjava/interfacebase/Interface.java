@@ -484,7 +484,7 @@ public class Interface {
 		if (codeFile == null || codeFile.length() == 0) {
 			
 			codeFile = getRemoteCodeFile(objectName);
-			if (codeFile.length() == 0){
+			if (codeFile == null || codeFile.length() == 0){
 				return false;
 			}
 		}
@@ -513,7 +513,8 @@ public class Interface {
 	 */
 	private static String getRemoteCodeFile(String objectName){
 		if(objectName.equals(POPAppService.class.getName()) ||
-				objectName.equals(POPJavaAppService.class.getName())){
+				objectName.equals(POPJavaAppService.class.getName())
+				){
 			return getPOPCodeFile();
 		}
 		
@@ -532,11 +533,11 @@ public class Interface {
 	    if(!POPSystem.appServiceAccessPoint.isEmpty()){
             if(Configuration.CONNECT_TO_POPCPP){
                 try{
-                    appCoreService = PopJava.newActive(
-                            POPAppService.class, POPSystem.appServiceAccessPoint);
-                    appCoreService.getPOPCAppID(); //HACK: Test if using popc or popjava appservice
+                	POPAppService tempService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
+                	tempService.unregisterService("");
+                    appCoreService = tempService;
                 }catch(Exception e){
-                	e.printStackTrace();
+                	LogWriter.writeDebugInfo("Running app service is not from POP-C++, fall back to POP-Java");
                     appCoreService = null;
                 }
             }
@@ -544,10 +545,9 @@ public class Interface {
             if(appCoreService == null){
                 try{
                     appCoreService = PopJava.newActive(
-                            POPJavaAppService.class, POPSystem.appServiceAccessPoint);
+                    		POPJavaAppService.class, POPSystem.appServiceAccessPoint);
                 }catch(POPException e){
                     LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
-                    e.printStackTrace();
                 }
             }
         }else{
@@ -582,14 +582,14 @@ public class Interface {
 		if(codeFile == null || codeFile.isEmpty()){
 		    popStringCodeFile = new POPString();
 	        
-	        manager.queryCode("*", POPJavaAppService.ALL_PLATFORMS, popStringCodeFile);
+	        manager.queryCode("*", POPAppService.ALL_PLATFORMS, popStringCodeFile);
 	        codeFile = popStringCodeFile.getValue();
 		}
 		
 		//Fall back to local popjava install path
 		if(codeFile == null || codeFile.isEmpty()){
-			POPJavaAppService appService = new POPJavaAppService();
-			codeFile = appService.getLocalJavaFileLocation(objectName);
+			Util util = new Util();
+			codeFile = util.getLocalJavaFileLocation(objectName);
 		}
 		
 		return codeFile;

@@ -132,9 +132,8 @@ public class PJProxyFactory extends ProxyFactory {
 			((ProxyObject) result).setHandler(methodHandler);
 			return result;
 		} catch (Exception e) {
-			LogWriter.writeExceptionLog(e);
+			throw new POPException(0, e.getMessage());
 		}
-		return null;
 	}
 
 	/**

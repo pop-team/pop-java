@@ -1,36 +1,30 @@
 package popjava.serviceadapter;
 
 import popjava.annotation.POPClass;
-import popjava.base.Semantic;
+import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPSyncConc;
 import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.ObjectDescriptionInput;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the JobMgr parallel object of POP-C++
  */
-@POPClass(classId = 10, className = "JobCoreService")
+@POPClass(classId = 10, className = "JobCoreService", deconstructor = true)
 public class POPJobService extends POPServiceBase {
+	
 	/**
 	 * Default constructor of POPJobService.
 	 * Create a POP-C++ object JobCoreService
 	 */
+	@POPObjectDescription(id = 10)
 	public POPJobService() {
-		setClassId(10);
-		definedMethodId = true;
-		
-		Class<?> c = POPJobService.class;
-		defineConstructor(c, 10);
-		defineConstructor(c, 11, String.class);
-		//Define method with same MethodID as POP-C++ MethodID
-		defineMethod(c, "createObject", 12, Semantic.CONCURRENT | Semantic.SYNCHRONOUS, 
-				POPAccessPoint.class, String.class,	ObjectDescriptionInput.class, 
-				int.class, POPAccessPoint[].class, int.class, POPAccessPoint[].class);
 	}
 
 	/**
 	 * Constructor of POPAppService with parameters
 	 * @param challenge		challenge string to stop the parallel object
 	 */
+	@POPObjectDescription(id = 11)
 	public POPJobService(String challenge) {
 
 	}
@@ -44,6 +38,7 @@ public class POPJobService extends POPServiceBase {
 	 * @param objcontacts	Output arguments - contacts to the objects created
 	 * @return 0 if the object is created correctly
 	 */
+	@POPSyncConc(id = 12)
 	public int createObject(POPAccessPoint localservice, String objname,
 			ObjectDescriptionInput od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		return 0;

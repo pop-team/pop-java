@@ -15,6 +15,7 @@ import org.junit.Test;
 import popjava.PopJava;
 import popjava.base.MethodInfo;
 import popjava.codemanager.POPJavaAppService;
+import popjava.serviceadapter.POPAppService;
 import popjava.system.POPSystem;
 
 public class AnnotationsTest {
@@ -61,7 +62,7 @@ public class AnnotationsTest {
 
 	@Test
 	public void testMethodId() throws NoSuchMethodException{
-	    POPJavaAppService appservice = PopJava.newActive(POPJavaAppService.class);
+		POPJavaAppService appservice = PopJava.newActive(POPJavaAppService.class);
 	    
 	    int classId = appservice.getClassId();
 	    
@@ -102,6 +103,17 @@ public class AnnotationsTest {
         
         info = new MethodInfo(child.getClassId(), 22);
         method = child.getMethodByInfo(info);
+        assertNotNull(method);
+        
+	}
+	
+	@Test
+	public void testInheritedMethodIdBug() throws NoSuchMethodException{
+	    Child child = PopJava.newActive(Child.class);
+	    assertEquals(1235, child.getClassId());
+	    
+	    MethodInfo info = new MethodInfo(1234, 20);
+        Method method = child.getMethodByInfo(info);
         assertNotNull(method);
 	}
 }
