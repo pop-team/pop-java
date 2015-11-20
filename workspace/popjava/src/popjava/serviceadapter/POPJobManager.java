@@ -1,7 +1,11 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
-import popjava.base.Semantic;
+import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncSeq;
 import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.ObjectDescriptionInput;
 import popjava.dataswaper.POPString;
@@ -9,7 +13,7 @@ import popjava.dataswaper.POPString;
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the JobMgr parallel object of POP-C++
  */
-@POPClass(classId = 15, className = "JobMgr")
+@POPClass(classId = 15, className = "JobMgr", deconstructor = true)
 public class POPJobManager extends POPJobService {
 
 	/**
@@ -21,33 +25,12 @@ public class POPJobManager extends POPJobService {
 	 * Default constructor of POPJobManager.
 	 * Create a POP-C++ object JobMgr
 	 */
+	@POPObjectDescription(id = 10)
 	public POPJobManager() {
-		setClassId(15);
-		hasDestructor(true);
 		Class<?> c = POPJobManager.class;
-		this.definedMethodId = true;			
 		defineConstructor(c,10);
 		defineConstructor(c,11,String.class,String.class);
 		//defineConstructor(c,12,String.class,String.class,String.class);
-		
-		defineMethod(c, "registerNode",13, Semantic.CONCURRENT
-				| Semantic.ASYNCHRONOUS,String.class);
-		defineMethod(c, "query", 14,Semantic.SEQUENCE | Semantic.SYNCHRONOUS,POPString.class,POPString.class);
-		defineMethod(c, "createObject", 12,Semantic.CONCURRENT | Semantic.SYNCHRONOUS,
-				POPAccessPoint.class, POPString.class,	ObjectDescriptionInput.class, int.class, POPAccessPoint[].class, int.class, POPAccessPoint[].class);
-		defineMethod(c, "allocResource", 16,Semantic.CONCURRENT
-				| Semantic.SYNCHRONOUS,String.class, String.class,
-				ObjectDescriptionInput.class, int.class, float[].class,
-				POPAccessPoint[].class, int[].class, int[].class,
-				int[].class, int.class);
-		defineMethod(c, "cancelReservation", 18,Semantic.SEQUENCE
-				| Semantic.ASYNCHRONOUS,int[].class, int.class);
-
-		defineMethod(c, "execObj", 19,Semantic.CONCURRENT | Semantic.SYNCHRONOUS,POPString.class, int.class, int[].class,
-				String.class, POPAccessPoint[].class);
-		defineMethod(c, "dump", 20,Semantic.SEQUENCE | Semantic.ASYNCHRONOUS);
-		defineMethod(c, "start", 21,Semantic.SEQUENCE |Semantic.SYNCHRONOUS);
-		defineMethod(c, "selfRegister", 22,Semantic.ASYNCHRONOUS);
 
 	}
 
@@ -57,6 +40,7 @@ public class POPJobManager extends POPJobService {
 	 * @param challenge	Challenge string needed for the service stop
 	 * @param url		URL of the JobMgr service
 	 */
+	@POPObjectDescription(id = 11)
 	public POPJobManager(boolean daemon, String challenge, String url) {
 
 	}
@@ -68,6 +52,8 @@ public class POPJobManager extends POPJobService {
 	 * @param challenge	Challenge string needed for the service stop	
 	 * @param url		URL of the JobMgr service
 	 */
+
+	@POPObjectDescription(id = 12)
 	public POPJobManager(boolean daemon, String config, String challenge,
 			String url) {
 
@@ -77,6 +63,7 @@ public class POPJobManager extends POPJobService {
 	 * Register a other JobMgr as a neighbor
 	 * @param url	URL of the node to register
 	 */
+	@POPAsyncConc(id = 13)
 	public void registerNode(String url) {
 
 	}
@@ -87,6 +74,7 @@ public class POPJobManager extends POPJobService {
 	 * @param value	Output argument - Value of the configuration element
 	 * @return 0 if the configuration element is not found
 	 */
+	@POPSyncSeq(id = 14)
 	public int query(POPString type, POPString value) {
 		return 0;
 	}
@@ -100,6 +88,7 @@ public class POPJobManager extends POPJobService {
 	 * @param jobcontacts	Output arguments - contacts to the objects created
 	 * @return 0 if the object is created correctly
 	 */
+	@POPSyncConc(id = 12)
 	public int createObject(POPAccessPoint localservice, POPString objname,
 			ObjectDescriptionInput od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		return 0;
@@ -119,6 +108,7 @@ public class POPJobManager extends POPJobService {
 	 * @param tracesize		
 	 * @return	true if the runtime has allocated some resources for the parallel objects
 	 */
+	@POPSyncConc(id = 16)
 	public boolean allocResource(String localservice, String objname,
 			ObjectDescriptionInput od, int howmany, float[] fitness,
 			POPAccessPoint[] jobcontacts, int[] reserveIDs, int[] requestInfo,
@@ -131,6 +121,7 @@ public class POPJobManager extends POPJobService {
 	 * @param req		Reservation identifiers of the reservations to cancel
 	 * @param howmany	Number of reservations to cancel
 	 */
+	@POPAsyncSeq(id = 18)
 	public void cancelReservation(int[] req, int howmany) {
 
 	}
@@ -144,6 +135,7 @@ public class POPJobManager extends POPJobService {
 	 * @param objcontacts	Output arguments - contacts to the objects created
 	 * @return	0 if the execution hasn't failed
 	 */
+	@POPSyncConc(id = 19)
 	public int execObj(POPString objname, int howmany, int[] reserveIDs,
 			String localservice, POPAccessPoint[] objcontacts) {
 		return 0;
@@ -152,6 +144,7 @@ public class POPJobManager extends POPJobService {
 	/**
 	 * 
 	 */
+	@POPAsyncSeq(id = 20)
 	public void dump() {
 
 	}
@@ -160,6 +153,7 @@ public class POPJobManager extends POPJobService {
 	 * Start the JobMgr service
 	 */
 	@Override
+	@POPSyncSeq(id = 21)
     public void start() {
 
 	}
@@ -167,6 +161,7 @@ public class POPJobManager extends POPJobService {
 	/**
 	 * Register the local JobMgr service to its known neighbors
 	 */
+	@POPAsyncSeq(id = 22)
 	public void selfRegister() {
 
 	}

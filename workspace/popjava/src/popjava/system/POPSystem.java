@@ -298,7 +298,7 @@ public class POPSystem {
                 getNeededClasspath());
         
         if(coreServiceManager != null){
-            coreServiceManager.registerCode(clazz, POPJavaAppService.ALL_PLATFORMS, popJavaObjectExecuteCommand+file);
+            coreServiceManager.registerCode(clazz, POPAppService.ALL_PLATFORMS, popJavaObjectExecuteCommand+file);
         }
     }    
 
@@ -350,8 +350,7 @@ public class POPSystem {
 			POPAccessPoint accessPoint = new POPAccessPoint();
 			accessPoint.setAccessString(appservicecontact);
 			try{
-				return PopJava.newActive(
-						POPAppService.class, accessPoint);
+				return PopJava.newActive(POPAppService.class, accessPoint);
 			}catch(POPException e){
 			}
 		}
@@ -359,7 +358,7 @@ public class POPSystem {
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
 			LogWriter.writeDebugInfo("Create appservice in Java");
-			return PopJava.newActive(POPJavaAppService.class);			
+			return PopJava.newActive(POPJavaAppService.class);
 		}catch(POPException e){
 			e.printStackTrace();
 		}

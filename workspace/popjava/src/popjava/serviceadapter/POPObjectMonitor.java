@@ -14,7 +14,7 @@ public class POPObjectMonitor extends POPCodeManager {
 	 * Create a POP-C++ object JobMgr
 	 */
 	public POPObjectMonitor() {
-		setClassId(4);
+		//setClassId(4);
 		hasDestructor(true);
 		
 		Class<?> c = POPObjectMonitor.class;

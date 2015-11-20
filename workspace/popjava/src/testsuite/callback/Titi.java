@@ -6,7 +6,7 @@ import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
 
 @POPClass(classId = 1034)
-public class Titi{
+public class Titi extends POPObject{
 	private int identity;
 	
 	@POPObjectDescription(url = "localhost")

@@ -8,13 +8,12 @@ import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
 import popjava.dataswaper.POPString;
+import popjava.serviceadapter.POPAppService;
 import popjava.system.POPJavaConfiguration;
 import popjava.util.LogWriter;
 
 @POPClass(classId = 99923, deconstructor = false)
 public class POPJavaAppService extends POPObject implements AppService{
-	
-	public static final String ALL_PLATFORMS = "*-*";
 	
 	@POPObjectDescription(url = "localhost")
 	public POPJavaAppService() {
@@ -57,9 +56,9 @@ public class POPJavaAppService extends POPObject implements AppService{
 		
 		if(platf == null){
 		    //If the specified platform does not have the code, fall back to the platform agnostic code
-			if(!platform.equals(ALL_PLATFORMS)){
-			    if(registeredCode.containsKey(ALL_PLATFORMS)){
-			        storeCodeFile = registeredCode.get(ALL_PLATFORMS).get(objname);
+			if(!platform.equals(POPAppService.ALL_PLATFORMS)){
+			    if(registeredCode.containsKey(POPAppService.ALL_PLATFORMS)){
+			        storeCodeFile = registeredCode.get(POPAppService.ALL_PLATFORMS).get(objname);
 			    }
 			    
 			    if(storeCodeFile == null){

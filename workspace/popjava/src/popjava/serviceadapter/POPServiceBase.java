@@ -1,34 +1,28 @@
 package popjava.serviceadapter;
 
 import popjava.annotation.POPClass;
+import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
-import popjava.base.Semantic;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the paroc_service_base parallel object of POP-C++
  */
-@POPClass(classId = 0, className = "paroc_service_base")
+@POPClass(classId = 0, className = "paroc_service_base", deconstructor = true)
 public class POPServiceBase extends POPObject {
 	/**
 	 * Default constructor of POPCodeManager.
 	 * Create a POP-C++ object CodeMgr
 	 */
+	@POPObjectDescription(id = 10)
 	public POPServiceBase() {
-		setClassId(0);
-		definedMethodId = true;
-		
-		Class<?> c = POPServiceBase.class;
-		defineConstructor(c, 10);
-		defineConstructor(c, 11, String.class);
-		defineMethod(c, "start", 12, Semantic.SEQUENCE | Semantic.SYNCHRONOUS);
-		defineMethod(c, "start", 13, Semantic.SEQUENCE | Semantic.SYNCHRONOUS,String.class);
-		defineMethod(c, "stop", 14, Semantic.SEQUENCE | Semantic.SYNCHRONOUS,String.class);
 	}
 
 	/**
 	 * Constructor of POPServiceBase with parameters
 	 * @param challenge		challenge string to stop the parallel object
 	 */
+	@POPObjectDescription(id = 11)
 	public POPServiceBase(String challenge) {
 
 	}
@@ -36,6 +30,7 @@ public class POPServiceBase extends POPObject {
 	/**
 	 * Start the service
 	 */
+	@POPSyncSeq(id = 12)
 	public void start() {
 
 	}
@@ -44,6 +39,7 @@ public class POPServiceBase extends POPObject {
 	 * Start the service with a challenge string for the stop
 	 * @param challenge	Challenge string needed for the service stop
 	 */
+	@POPSyncSeq(id = 13)
 	public void start(String challenge) {
 
 	}
@@ -52,6 +48,7 @@ public class POPServiceBase extends POPObject {
 	 * Stop the service by giving a challenge string
 	 * @param challenge	Challenge string needed for the service stop
 	 */
+	@POPSyncSeq(id = 14)
 	public void stop(String challenge) {
 
 	}

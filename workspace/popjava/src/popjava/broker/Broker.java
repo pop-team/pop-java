@@ -366,7 +366,9 @@ public final class Broker {
 			}catch (Exception e) {
 				// Cannot execute, send error
 				LogWriter.writeExceptionLog(e);
-				LogWriter.writeDebugInfo("Cannot execute");
+				System.out.println(method.toGenericString());
+				System.out.println(request.getClassId()+" "+request.getMethodId());
+				LogWriter.writeDebugInfo("Cannot execute "+method.toGenericString());
 				exception = POPException.createReflectException(
 						method.getName(), e.getMessage());
 
