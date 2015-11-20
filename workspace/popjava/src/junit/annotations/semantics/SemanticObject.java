@@ -3,15 +3,16 @@ package junit.annotations.semantics;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPClass;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
 import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
 
+@POPClass
 public class SemanticObject extends POPObject{
 	
 	public SemanticObject(){
-		initializePOPObject();
 	}
 	
 	@POPSyncConc
