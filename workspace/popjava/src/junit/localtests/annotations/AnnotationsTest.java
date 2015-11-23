@@ -6,16 +6,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 
+import org.junit.Test;
+
 import junit.localtests.annotations.objects.Child;
 import junit.localtests.annotations.objects.Integer;
 import junit.localtests.annotations.objects.Parent;
-
-import org.junit.Test;
-
 import popjava.PopJava;
 import popjava.base.MethodInfo;
 import popjava.codemanager.POPJavaAppService;
-import popjava.serviceadapter.POPAppService;
 import popjava.system.POPSystem;
 
 public class AnnotationsTest {
@@ -116,4 +114,12 @@ public class AnnotationsTest {
         Method method = child.getMethodByInfo(info);
         assertNotNull(method);
 	}
+	
+	@Test
+    public void testParentClassCall() throws NoSuchMethodException{
+        Child child = PopJava.newActive(Child.class);
+        assertEquals(1235, child.getClassId());
+        
+        child.parentTest();
+    }
 }
