@@ -10,8 +10,6 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.sun.org.apache.bcel.internal.generic.POP;
-
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
@@ -479,8 +477,7 @@ public class POPObject implements IPOPBase {
 	 * @param constructor	Informations about the constrcutor
 	 * @return	The method found
 	 */
-	public MethodInfo getMethodInfo(Constructor<?> constructor) {
-
+	public MethodInfo getMethodInfo(Constructor<?> constructor) {	    
 		if (constructorInfos.containsValue(constructor)) {
 			Enumeration<MethodInfo> keys = constructorInfos.keys();
 			while (keys.hasMoreElements()) {

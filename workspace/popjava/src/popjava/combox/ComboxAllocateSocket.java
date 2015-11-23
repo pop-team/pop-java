@@ -6,7 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-import popjava.buffer.*;
+import popjava.buffer.POPBuffer;
 import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 
@@ -29,7 +29,9 @@ public class ComboxAllocateSocket {
 			serverSocket = new ServerSocket();
 			serverSocket.bind(sockAddr);
 			serverSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
 	}
 
 	/**
@@ -38,6 +40,7 @@ public class ComboxAllocateSocket {
 	public void startToAcceptOneConnection() {
 		try {
 			Socket peerConnection = serverSocket.accept();
+			System.out.println("Got connection");
 			combox = new ComboxSocket(peerConnection);
 		} catch (IOException e) {
 			LogWriter.writeExceptionLog(e);

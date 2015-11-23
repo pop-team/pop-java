@@ -128,7 +128,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 				System.out.println();
 				
 				//Execute command
-				if(isJava){					
+				if(isJava){
 					SystemUtil.runCmd(commands);
 					writer.write(SUCCESS+"\n");
 					writer.flush();

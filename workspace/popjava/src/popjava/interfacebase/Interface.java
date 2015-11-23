@@ -709,11 +709,10 @@ public class Interface {
 		
 		BufferXDR buffer = new BufferXDR();
 		int result = 0;
-		
+
 		if (allocateCombox.receive(buffer) > 0) {
 			int status = buffer.getInt();
 			String str = buffer.getString();
-			
 			if (status == 0){
 				objaccess.setAccessString(str);
 			}else{

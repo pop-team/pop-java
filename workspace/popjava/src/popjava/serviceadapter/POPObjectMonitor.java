@@ -1,7 +1,9 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
-import popjava.base.Semantic;
+import popjava.annotation.POPObjectDescription;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the ObjectMonitor parallel object of POP-C++
@@ -13,28 +15,15 @@ public class POPObjectMonitor extends POPCodeManager {
 	 * Default constructor of POPJobManager.
 	 * Create a POP-C++ object JobMgr
 	 */
+    @POPObjectDescription(id = 10)
 	public POPObjectMonitor() {
-		//setClassId(4);
-		hasDestructor(true);
-		
-		Class<?> c = POPObjectMonitor.class;
-		this.definedMethodId = true;
-		defineConstructor(c,10);
-		defineConstructor(c,11,String.class);
-		defineMethod(c, "killAll", 13,Semantic.CONCURRENT | Semantic.ASYNCHRONOUS);
-		defineMethod(c, "manageObject",14, Semantic.SEQUENCE
-				| Semantic.ASYNCHRONOUS,String.class);
-		defineMethod(c, "unManageObject", 15,Semantic.SEQUENCE
-				| Semantic.ASYNCHRONOUS,String.class);
-		
-		defineMethod(c, "checkObjects", 16,Semantic.CONCURRENT
-				| Semantic.ASYNCHRONOUS);
 	}
 
 	/**
 	 * Constructor of POPAppService with parameters
 	 * @param challenge		challenge string to stop the parallel object
 	 */
+    @POPObjectDescription(id = 11)
 	public POPObjectMonitor(String challenge) {
 
 	}
@@ -42,6 +31,7 @@ public class POPObjectMonitor extends POPCodeManager {
 	/**
 	 * Ask the ObjectMonitor service to kill all parallel object
 	 */
+	@POPAsyncConc(id = 13)
 	public void killAll() {
 
 	}
@@ -50,6 +40,7 @@ public class POPObjectMonitor extends POPCodeManager {
 	 * Ask the ObjectMinotr service to manage a new object
 	 * @param p	acces point to this object
 	 */
+	@POPAsyncSeq(id = 14)
 	public void manageObject(String p) {
 
 	}
@@ -58,6 +49,7 @@ public class POPObjectMonitor extends POPCodeManager {
 	 * Ask the ObjectMinotr service to stop the management of an object
 	 * @param p	acces point to this object
 	 */
+	@POPAsyncSeq(id = 15)
 	public void unManageObject(String p) {
 	}
 
@@ -65,6 +57,7 @@ public class POPObjectMonitor extends POPCodeManager {
 	 * Check how many parallel objects are currently alive
 	 * @return	Number of currently alive parallel objects
 	 */
+	@POPAsyncConc(id = 16)
 	public int checkObjects() {
 		return 0;
 	}
