@@ -486,7 +486,8 @@ public class POPObject implements IPOPBase {
 					return key;
 			}
 		}
-		return new MethodInfo(0, 0);
+		
+		throw new RuntimeException("Could not find constructor "+constructor.toString());
 	}
 
 	/**
