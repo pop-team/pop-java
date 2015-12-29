@@ -7,6 +7,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -15,8 +16,8 @@ import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
-import javax.tools.Diagnostic;
 import javax.lang.model.util.SimpleTypeVisitor6;
+import javax.tools.Diagnostic;
 
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -66,15 +67,19 @@ public class POPClassProcessor extends AbstractProcessor {
 	        return;
 	    }
 	    
+	    //Check if the POPClass defines a constructor with no arguments
 		if (!doesClassContainNoArgsConstructor(element)) {
 			messager.printMessage(Diagnostic.Kind.ERROR, "Class " + element + " needs a No-Args Constructor", element);
 		}
 		
+		//Check all public methods for conformity
 		for (Element subelement : element.getEnclosedElements()) {
-            if(subelement.getKind() == ElementKind.METHOD &&
-                    subelement.getModifiers().contains(Modifier.PUBLIC)){
+            if(subelement.getKind() == ElementKind.METHOD && subelement.getModifiers().contains(Modifier.PUBLIC)){
                 checkPublicMethodAnnotation(subelement);
                 //TODO: do a basic check if all parameters of the method can be serialized
+                /*if(!areParametersSerializable(subelement)){
+                    messager.printMessage(Diagnostic.Kind.ERROR, "Can not serialize all parameters of "+subelement, subelement);
+                }*/
             }
         }
 	}
@@ -118,6 +123,14 @@ public class POPClassProcessor extends AbstractProcessor {
         return data;
 	}
 	
+	public boolean areParametersSerializable(Element el){
+	    TypeMirror mirror = el.asType();
+        if (mirror.accept(SERIALIZABLE_ARGS_VISITOR, null)){
+            return true;
+        }
+        
+        return false;
+	}
 	
 	private boolean doesClassContainNoArgsConstructor(Element el) {
 		for (Element subelement : el.getEnclosedElements()) {
@@ -135,20 +148,42 @@ public class POPClassProcessor extends AbstractProcessor {
 
         return new SimpleTypeVisitor6<Boolean, Void>() {
 
+                @Override
                 public Boolean visitExecutable(ExecutableType t, Void v) {
                 	data.types = t.getReturnType();
                     return true;
                 }
         };
 	}
+	
+	private static final TypeVisitor<Boolean, Void> SERIALIZABLE_ARGS_VISITOR = new SimpleTypeVisitor6<Boolean, Void>() {
+        
+	    @Override
+        public Boolean visitExecutable(ExecutableType t, Void v) {
+            for(TypeMirror type: t.getParameterTypes()){
+                if(!type.getKind().isPrimitive()){
+                    return false;
+                }
+                
+                //Sadly it is not possible to get the class of the parameter due to the way annotation preprocessors work
+            }
+            return true;
+        }
+    };
 
 	private static final TypeVisitor<Boolean, Void> NO_ARGS_VISITOR = new SimpleTypeVisitor6<Boolean, Void>() {
-		public Boolean visitExecutable(ExecutableType t, Void v) {
+		@Override
+        public Boolean visitExecutable(ExecutableType t, Void v) {
 			return t.getParameterTypes().isEmpty();
 		}
 	};
 	
 	private class MethodReturnType{
 		private TypeMirror types;
+	}
+	
+	@Override
+    public SourceVersion getSupportedSourceVersion() {
+	    return SourceVersion.latestSupported();	    
 	}
 }

@@ -472,6 +472,8 @@ public abstract class POPBuffer extends Object {
 			}
 		} else if( c.isEnum()){
 			putString(((Enum) o).name());
+		}else{
+		    POPException.throwReflectSerializeException(c.getName(), "Can not serialize parameter "+c.getName());
 		}
 	}
 
