@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import popjava.annotation.POPParameter;
+import popjava.annotation.POPParameter.Direction;
 import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 
@@ -195,6 +196,19 @@ public final class Util {
 		
 		return false;
 	}
+	
+	public static boolean isParameterUseable(Annotation [] annotations){
+        for(Annotation annotation: annotations){
+            if(annotation.annotationType() == POPParameter.class){
+                POPParameter popParameter = (POPParameter) annotation;
+                if(popParameter.value() == Direction.IGNORE){
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
 	
 	public enum OSType{
 		UNIX,

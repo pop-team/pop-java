@@ -1,8 +1,11 @@
 package popjava.broker;
 
-import java.util.concurrent.*;
-import java.util.*;
-import java.util.concurrent.locks.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class represents the request queue used in the broker-side
@@ -74,10 +77,8 @@ public class RequestQueue {
 	 * @return true if the request is added correctly
 	 */
 	public boolean add(Request request) {
-		/*LogWriter.writeDebugInfo(hashCode()+" Add request, there are already "+size()+" requests");
-		LogWriter.writeDebugInfo(hashCode()+" DEBUG: "+requestsConc.size() +" "+ requestsSeq.size() +" "+ requestsMutex.size()+" "+
-				servingConcurrent.size());*/
-		
+		//LogWriter.writeDebugInfo(hashCode()+" Add request, there are already "+size()+" requests, "+request.getClassId()+" "+request.getMethodId());
+
 		lock.lock();
 		try {
 			if(request.isConcurrent()){
@@ -102,10 +103,13 @@ public class RequestQueue {
 			
 			canPeek();
 		} catch (InterruptedException e) {
-
+		    e.printStackTrace();
 		} finally {
 			lock.unlock();
 		}
+		
+		//LogWriter.writeDebugInfo(hashCode()+" Added request "+request.getClassId()+" "+request.getMethodId());
+		
 		return true;
 	}
 
@@ -121,19 +125,19 @@ public class RequestQueue {
 		lock.lock();
 
 		try {
-			//LogWriter.writeDebugInfo("Peek, queue contains "+size()+" requests "+System.currentTimeMillis());
+			//LogWriter.writeDebugInfo("Peek, queue contains "+size()+" requests "+hashCode());
 			if (availableRequest == null){
-				//LogWriter.writeDebugInfo("Search for new request "+System.currentTimeMillis());
+				//LogWriter.writeDebugInfo("Search for new request "+hashCode());
 				waitSuccess = canPeek.await(time, timeUnit);
 			} else {
 				waitSuccess = true;
 			}
 			
-			//LogWriter.writeDebugInfo("Got request? "+waitSuccess+" "+System.currentTimeMillis());
+			//LogWriter.writeDebugInfo("Got request? "+waitSuccess+" "+hashCode());
 			if (waitSuccess) {
 				request = availableRequest;
 				request.setStatus(Request.SERVING);
-				
+		        
 				serveRequest(request);
 				
 				availableRequest = null;
@@ -152,6 +156,7 @@ public class RequestQueue {
 	 * @param request
 	 */
 	private void serveRequest(Request request){
+	    
 		if(request.isMutex()){
 			servingMutex = request;
 		}else if(request.isSequential()){
@@ -265,6 +270,8 @@ public class RequestQueue {
 				//Dont serve mutex request if any concurrent request is running
 				for (int i = 0; i < servingConcurrent.size(); i++) {
 					Request currentRequest = servingConcurrent.get(i);
+					
+					//TODO: is the trailing isMutex check necessary? or even wrong?
 					if (currentRequest.getStatus() == Request.SERVING && currentRequest.isMutex()){
 						return false;
 					}

@@ -12,7 +12,8 @@ public @interface POPParameter {
 	enum Direction{
 		IN,
 		OUT,
-		INOUT
+		INOUT,
+		IGNORE
 	}
 	
 	Direction value();

@@ -93,7 +93,7 @@ public final class Broker {
 		@Override
 		public Thread newThread(Runnable arg0) {
 			Thread thread = Executors.defaultThreadFactory().newThread(arg0);
-			thread.setName("Concurrent request thread "+threadIndex++);
+			thread.setName("Concurrent request thread "+(threadIndex++));
 			return thread;
 		}
 	});
@@ -241,7 +241,8 @@ public final class Broker {
 
 				Annotation [][] annotations = constructor.getParameterAnnotations();
 				for (int index = 0; index < parameterTypes.length; index++) {
-					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN)
+					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
+					        Util.isParameterUseable(annotations[index])
 							&&
 							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 						try {
@@ -284,7 +285,8 @@ public final class Broker {
 		int index = 0;
 		// Get parameters
 		for (index = 0; index < parameterTypes.length; index++) {
-			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT)){
+			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) &&
+			        Util.isParameterUseable(annotations[index])){
 				try {
 					parameters[index] = requestBuffer
 							.getValue(parameterTypes[index]);
@@ -390,6 +392,7 @@ public final class Broker {
 					//If parameter is not a IN variable and
 					//The parameter is not a POPObject without any specified direction
 					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
+					        Util.isParameterUseable(annotations[index]) &&
 							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
 							){
 						try {
@@ -500,6 +503,9 @@ public final class Broker {
 		request.setBroker(this);
 		request.setStatus(Request.SERVING);
 		// Do not create new thread if method is mutex
+		
+		//LogWriter.writeDebugInfo("serveRequest start "+request.getClassId()+" "+request.getMethodId());
+		
 		if (request.isMutex()) {
 			invoke(request);
 		} else {
@@ -507,11 +513,15 @@ public final class Broker {
 				
 				@Override
 				public void run() {
+				    //LogWriter.writeDebugInfo("Start request "+request.getClassId()+" "+request.getMethodId());
+			        
 					try {
 						invoke(request);
 					} catch (InterruptedException e) {
 						LogWriter.writeExceptionLog(e);
 					}
+					
+					//LogWriter.writeDebugInfo("End request "+request.getClassId()+" "+request.getMethodId());
 				}
 			};
 			
@@ -521,6 +531,8 @@ public final class Broker {
 				threadPoolSequential.execute(popRequest);
 			}
 		}
+		
+		//LogWriter.writeDebugInfo("serveRequest end "+request.getClassId()+" "+request.getMethodId());
 	}
 
 	/**
