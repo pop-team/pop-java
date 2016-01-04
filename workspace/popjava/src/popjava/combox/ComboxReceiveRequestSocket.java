@@ -52,6 +52,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 					setStatus(EXIT);
 					break;
 				}
+				
 				// add request to fifo list
 				if (broker != null && !broker.popCall(popRequest)) {
 					requestQueue.add(popRequest);					
@@ -71,13 +72,14 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	 */
 	public boolean receiveRequest(Request request) {		
 		POPBuffer buffer = combox.getBufferFactory().createBuffer();
-		int receivedLength = combox.receive(buffer);
+		int receivedLength = combox.receive(buffer, -1);
 		if (receivedLength > 0) {
 			request.setBroker(broker);
 			MessageHeader messageHeader = buffer.extractHeader();
 			request.setClassId(messageHeader.getClassId());
 			request.setMethodId(messageHeader.getMethodId());
 			request.setSenmatics(messageHeader.getSenmatics());
+			request.setRequestID(messageHeader.getRequestID());
 			request.setBuffer(buffer);
 			request.setReceiveCombox(this);
 			request.setCombox(combox);

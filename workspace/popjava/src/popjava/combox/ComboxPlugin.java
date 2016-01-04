@@ -18,7 +18,7 @@ public class ComboxPlugin extends Combox {
 	}
 
 	@Override
-	public int receive(POPBuffer buffer) {
+	public int receive(POPBuffer buffer, int requestId) {
 		return 0;
 	}
 

@@ -57,7 +57,6 @@ public class ComboxSocket extends Combox {
 
 	@Override
 	public void close() {
-		
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
 				/*LogWriter.writeExceptionLog(new Exception("Close connection to "+peerConnection.getInetAddress()+
@@ -105,8 +104,8 @@ public class ComboxSocket extends Combox {
 				} else {
 					peerConnection = new Socket(host, port);
 				}
-				inputStream = peerConnection.getInputStream();
-				outputStream = peerConnection.getOutputStream();
+				inputStream = new BufferedInputStream(peerConnection.getInputStream());
+				outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 				available = true;
 			} catch (UnknownHostException e) {
 				available = false;
@@ -120,7 +119,7 @@ public class ComboxSocket extends Combox {
 	}
 	
 	@Override
-	public int receive(POPBuffer buffer) {
+	public int receive(POPBuffer buffer, int requestId) {
 		
 		int result = 0;
 		try {
@@ -128,36 +127,75 @@ public class ComboxSocket extends Combox {
 			// Receive message length
 			byte[] temp = new byte[4];
 			
-			synchronized (inputStream) {
-			    int read = 0;
-			    while(read < temp.length){
-			        read += inputStream.read(temp, read, temp.length - read);
-			    }
-				
-				int messageLength = buffer.getTranslatedInteger(temp);
-				
-				if (messageLength <= 0) {
-					close();
-					return -1;
-				}
-				
-				result = 4;
-				buffer.putInt(messageLength);
-				messageLength = messageLength - 4;
-				
-				int receivedLength = 0;
-				while (messageLength > 0) {
-					int count = messageLength < BUFFER_LENGTH ? messageLength : BUFFER_LENGTH;
-					receivedLength = inputStream.read(receivedBuffer, 0, count);
-					if (receivedLength > 0) {
-						messageLength -= receivedLength;
-						result += receivedLength;
-						buffer.put(receivedBuffer, 0, receivedLength);
-					} else {
-						break;
+			boolean gotPacket = false;
+			
+			do{
+				synchronized (inputStream) {
+					inputStream.mark(8);
+					
+				    int read = 0;
+				    //Get size
+				    while(read < temp.length){
+				    	int tempRead = inputStream.read(temp, read, temp.length - read);
+				    	if(tempRead < 0){
+					    	//System.out.println("PANIC 1 "+tempRead);
+				    		close();
+							return -1;
+				    	}
+				        read += tempRead;
+				    }
+					
+					int messageLength = buffer.getTranslatedInteger(temp);
+					
+					if (messageLength <= 0) {
+						//System.out.println("PANIC 3 "+messageLength);
+						close();
+						return -1;
+					}
+					
+					//Get requestID
+					read = 0;
+				    //Get size
+				    while(read < temp.length){
+				    	int tempRead = inputStream.read(temp, read, temp.length - read);
+				    	if(tempRead < 0){
+					    	//System.out.println("PANIC 2 "+tempRead);
+				    		close();
+							return -1;
+				    	}
+				        read += tempRead;
+				    }
+					
+					int requestIdPacket = buffer.getTranslatedInteger(temp);
+					
+					if(requestId == -1 || requestIdPacket == requestId){
+						gotPacket = true;
+						
+						result = 8;
+						buffer.putInt(messageLength);
+						messageLength = messageLength - 4;
+						
+						buffer.putInt(requestIdPacket);
+						messageLength = messageLength - 4;
+						
+						int receivedLength = 0;
+						while (messageLength > 0) {
+							int count = messageLength < BUFFER_LENGTH ? messageLength : BUFFER_LENGTH;
+							receivedLength = inputStream.read(receivedBuffer, 0, count);
+							if (receivedLength > 0) {
+								messageLength -= receivedLength;
+								result += receivedLength;
+								buffer.put(receivedBuffer, 0, receivedLength);
+							} else {
+								break;
+							}
+						}
+					}else{
+						//System.out.println("RESET "+requestIdPacket+" "+requestId);
+						inputStream.reset();
 					}
 				}
-			}
+			}while(!gotPacket);
 
 			int headerLength = MessageHeader.HEADER_LENGTH;
 			if (result < headerLength) {

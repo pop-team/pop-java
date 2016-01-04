@@ -315,10 +315,10 @@ public class Interface {
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.BIND_STATUS_CALL, Semantic.SYNCHRONOUS);
 		popBuffer.setHeader(messageHeader);
-		this.popDispatch(popBuffer);
+		popDispatch(popBuffer);
 		int errorcode = 0;
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-		this.popResponse(responseBuffer);
+		popResponse(responseBuffer, messageHeader.getRequestID());
 		errorcode = responseBuffer.getInt();
 
 		bindStatus.setCode(errorcode);
@@ -350,7 +350,7 @@ public class Interface {
 		boolean result = false;
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 		
-		popResponse(responseBuffer);
+		popResponse(responseBuffer, messageHeader.getRequestID());
 		result = responseBuffer.getBoolean();
 		if (result) {
 			BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.SELECTED_ENCODING);
@@ -373,7 +373,7 @@ public class Interface {
 		int result = 0;
 		try {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-			popResponse(responseBuffer);
+			popResponse(responseBuffer, messageHeader.getRequestID());
 			result = responseBuffer.getInt();
 		} catch (POPException e) {
 			return -1;
@@ -394,7 +394,7 @@ public class Interface {
 		int result = 0;
 		try {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-			popResponse(responseBuffer);
+			popResponse(responseBuffer, messageHeader.getRequestID());
 			result = responseBuffer.getInt();
 		} catch (POPException e) {
 			return -1;
@@ -419,7 +419,7 @@ public class Interface {
 		boolean result = false;
 		try {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-			popResponse(responseBuffer);
+			popResponse(responseBuffer, messageHeader.getRequestID());
 			result = responseBuffer.getBoolean();
 		} catch (POPException e) {
 			return false;
@@ -442,7 +442,7 @@ public class Interface {
 		this.popDispatch(popBuffer);
 		try {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-			popResponse(responseBuffer);
+			popResponse(responseBuffer, messageHeader.getRequestID());
 		} catch (POPException e) {
 			return;
 		}
@@ -739,9 +739,9 @@ public class Interface {
 	 * @return
 	 * @throws POPException
 	 */
-	protected int popResponse(POPBuffer buffer) throws POPException {
+	protected int popResponse(POPBuffer buffer, int requestId) throws POPException {
 		
-		if (combox.receive(buffer) > 0) {
+		if (combox.receive(buffer, requestId) > 0) {
 			
 			MessageHeader messageHeader = buffer.getHeader();
 			if (messageHeader.getRequestType() == MessageHeader.EXCEPTION) {

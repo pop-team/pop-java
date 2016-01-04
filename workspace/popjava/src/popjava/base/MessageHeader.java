@@ -17,13 +17,14 @@ public class MessageHeader {
 	static public final int KILL_ALL = 4;
 	static public final int OBJECT_ALIVE_CALL = 5;
 
-	static public final int HEADER_LENGTH = 20;
+	static public final int HEADER_LENGTH = 24;
 
 	protected int requestType;
 	protected int classId;
 	protected int methodId;
 	protected int semantics;
 	protected int exceptionCode;
+	protected int requestID; //ID of the request. Must be unique for all concurrent requests from same source to same target. 
 
 	/**
 	 * Initialize a new message header with parameters
@@ -140,6 +141,14 @@ public class MessageHeader {
 	 */
 	public void setExceptionCode(int exceptionCode) {
 		this.exceptionCode = exceptionCode;
+	}
+	
+	public void setRequestID(int requestID){
+		this.requestID = requestID;
+	}
+	
+	public int getRequestID(){
+		return requestID;
 	}
 
 	/**

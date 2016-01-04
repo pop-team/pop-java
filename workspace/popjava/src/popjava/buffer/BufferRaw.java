@@ -54,23 +54,27 @@ public class BufferRaw extends POPBuffer {
 		messageHeader = new MessageHeader();
 		
 		if (buffer.limit() >= MessageHeader.HEADER_LENGTH) {
-			int requestType = getInt(4);
+			int requestId = getInt(4);
+			messageHeader.setRequestID(requestId);
+			
+			int requestType = getInt(8);
 			messageHeader.setRequestType(requestType);
 			
 			switch (requestType) {
 			case MessageHeader.REQUEST:
-				messageHeader.setClassId(getInt(8));
-				messageHeader.setMethodId(getInt(12));
-				messageHeader.setSenmatics(getInt(16));
+				messageHeader.setClassId(getInt(12));
+				messageHeader.setMethodId(getInt(16));
+				messageHeader.setSenmatics(getInt(20));
 				break;
 			case MessageHeader.EXCEPTION:
-				messageHeader.setExceptionCode(getInt(8));
+				messageHeader.setExceptionCode(getInt(12));
 				break;
 			case MessageHeader.RESPONSE:
 				break;
 			default:
 				break;
 			}
+			
 			position(MessageHeader.HEADER_LENGTH);
 		}
 		return this.messageHeader;
@@ -608,21 +612,24 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public int packMessageHeader() {
 		int index = 0;
-		for (index = 0; index < 5; index++) {
+		for (index = 0; index < 6; index++) {
 			putInt(index * 4, 0); //0, 4, 8, 12
 		}
 		int type = messageHeader.getRequestType();
 		putInt(0, size());
 		
-		putInt(4, type);
+		putInt(4, messageHeader.getRequestID());
+		
+		putInt(8, type);
+		
 		switch (type) {
 			case MessageHeader.REQUEST:
-				putInt(8, messageHeader.getClassId());
-				putInt(12, messageHeader.getMethodId());
-				putInt(16, messageHeader.getSenmatics());
+				putInt(12, messageHeader.getClassId());
+				putInt(16, messageHeader.getMethodId());
+				putInt(20, messageHeader.getSenmatics());
 				break;
 			case MessageHeader.EXCEPTION:
-				putInt(8, messageHeader.getExceptionCode());
+				putInt(12, messageHeader.getExceptionCode());
 				break;
 			case MessageHeader.RESPONSE:
 				break;

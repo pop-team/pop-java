@@ -91,6 +91,7 @@ public class ParallelObject extends POPObject{
 	@POPSyncConc
 	public int ping(int sleep, int value) throws InterruptedException{
 	    Thread.sleep(sleep);
+	    System.out.println("ping "+sleep+" "+value);
 	    return value;
 	}
 }

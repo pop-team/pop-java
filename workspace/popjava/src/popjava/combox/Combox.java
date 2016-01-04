@@ -59,7 +59,7 @@ public abstract class Combox {
 	 * @param buffer	Buffer to receive
 	 * @return	Number of byte received
 	 */
-	public abstract int receive(POPBuffer buffer);
+	public abstract int receive(POPBuffer buffer, int requestId);
 
 	/**
 	 * Close the connection

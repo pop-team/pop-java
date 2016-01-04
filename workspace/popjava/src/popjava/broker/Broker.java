@@ -272,7 +272,7 @@ public final class Broker {
 		if (exception != null) {
 			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException:"
 					+ exception.getMessage());
-			sendException(request.getCombox(), exception);
+			sendException(request.getCombox(), exception, request.getRequestID());
 			System.exit(0);
 		}
 		return true;
@@ -382,6 +382,7 @@ public final class Broker {
 			if (request.isSynchronous()) {
 
 				MessageHeader messageHeader = new MessageHeader();
+				messageHeader.setRequestID(request.getRequestID());
 				POPBuffer responseBuffer = request.getCombox().getBufferFactory().createBuffer();
 				responseBuffer.setHeader(messageHeader);
 				
@@ -404,6 +405,7 @@ public final class Broker {
 						}
 					}
 				}
+				
 				if (exception == null) {
 					if (returnType != Void.class && returnType != void.class && returnType != Void.TYPE){
 						try {
@@ -438,7 +440,7 @@ public final class Broker {
 		if (exception != null) {
 			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException : " + exception.getMessage());
 			if (request.isSynchronous()){
-				sendException(request.getCombox(), exception);
+				sendException(request.getCombox(), exception, request.getRequestID());
 			}
 		}
 		if(request.isSequential()){
@@ -902,12 +904,14 @@ public final class Broker {
 	 *            Exception to send
 	 * @return true if the exception has been sent
 	 */
-	public boolean sendException(Combox combox, POPException exception) {
+	public boolean sendException(Combox combox, POPException exception, int requestId) {
 	    exception.printStackTrace();
 	    
 		POPBuffer buffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(
 				POPSystemErrorCode.EXCEPTION_PAROC_STD);
+		messageHeader.setRequestID(requestId);
+		
 		buffer.setHeader(messageHeader);
 		exception.serialize(buffer);
 		combox.send(buffer);

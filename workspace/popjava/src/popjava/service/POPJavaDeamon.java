@@ -201,8 +201,10 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	 */
 	@Override
     public synchronized void close() throws IOException{
-		serverSocket.close();
-		serverSocket = null;
+		if(serverSocket != null){
+			serverSocket.close();
+			serverSocket = null;
+		}
 	}
 	
 	public static String getSaltedHash(String salt, String secret){

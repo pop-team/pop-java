@@ -90,7 +90,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		popDispatch(popBuffer);
 		
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-		popResponse(responseBuffer);
+		popResponse(responseBuffer, messageHeader.getRequestID());
 		
 		for (int index = 0; index < parameterTypes.length; index++) {
 			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
@@ -159,6 +159,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		int methodSemantics = popObjectInfo.getSemantic(info);
 		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info
 				.getMethodId(), methodSemantics);
+		messageHeader.setRequestID((int)(Math.random() * 100000));
 		
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
@@ -178,12 +179,12 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		//In reality, only the popDispatch and popResponse call need to be synced together,
 		//But because the real solution is to add an ID to every call, the code here has
 		//not been refactored optimally
-		synchronized(this) {
+		//synchronized(this) {
     		popDispatch(popBuffer);
     		if ((methodSemantics & Semantic.SYNCHRONOUS) != 0) {
     			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
     			
-    		    popResponse(responseBuffer);
+    		    popResponse(responseBuffer, messageHeader.getRequestID());
     			
     			//Recover the data from the calling method. The called method can
     			//Modify the content of an array and it gets copied back in here
@@ -216,7 +217,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
     				}
     			}
     		}
-        }
+        //}
 		
 		
 		for (int index = 0; index < argvs.length; index++) {

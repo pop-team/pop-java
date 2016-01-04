@@ -47,7 +47,13 @@ public class TestConcurrency {
         }).start();
         
         for(int i = 0; i < 15; i++){
-            assertEquals(i, object.ping(0, i));
+        	if(i == 1){
+        		System.out.println("asdf");
+        	}
+        	int value = object.ping(0, i);
+        	
+        	System.out.println("Got "+value +" for "+i);
+            assertEquals(i, value);
         }
         
         POPSystem.end();

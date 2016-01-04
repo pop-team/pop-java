@@ -17,6 +17,8 @@ public class Request {
 	protected int classId;
 	protected int methodId;
 	protected int semantics;
+	protected int requestId;
+	
 	protected Broker broker;
 	protected POPBuffer buffer;
 	protected ComboxReceiveRequestSocket receivedCombox;
@@ -46,24 +48,7 @@ public class Request {
 		status = PENDING;
 		this.combox = combox;
 	}
-
-	/**
-	 * Initializes an empty request
-	 * @param classId	Class identifier for this request
-	 * @param methodId	Method identifier for this request
-	 * @param semantics	Semantics used for this methods
-	 * @param broker	Broker associated with this request
-	 * @param combox	Combox associated with this request
-	 */
-	public void init(int classId, int methodId, int semantics, Broker broker, Combox combox) {
-		this.classId = classId;
-		this.methodId = methodId;
-		this.semantics = semantics;
-		this.broker = broker;
-		status = PENDING;
-		this.combox = combox;
-	}
-
+	
 	/**
 	 * Get the class identifier of the current request
 	 * @return class identifier
@@ -94,6 +79,14 @@ public class Request {
 	 */
 	public void setMethodId(int methodId) {
 		this.methodId = methodId;
+	}
+	
+	public void setRequestID(int requestId){
+		this.requestId = requestId;
+	}
+	
+	public int getRequestID(){
+		return requestId;
 	}
 
 	/**

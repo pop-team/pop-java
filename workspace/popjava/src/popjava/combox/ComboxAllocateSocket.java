@@ -86,7 +86,7 @@ public class ComboxAllocateSocket {
 	 * @return	Number of byte read
 	 */
 	public int receive(POPBuffer buffer) {
-		return combox.receive(buffer);
+		return combox.receive(buffer, -1);
 	}
 	
 	public boolean isComboxConnected(){
