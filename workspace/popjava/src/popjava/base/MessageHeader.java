@@ -24,7 +24,7 @@ public class MessageHeader {
 	protected int methodId;
 	protected int semantics;
 	protected int exceptionCode;
-	protected int requestID; //ID of the request. Must be unique for all concurrent requests from same source to same target. 
+	protected int requestID = -1; //ID of the request. Must be unique for all concurrent requests from same source to same target. 
 
 	/**
 	 * Initialize a new message header with parameters

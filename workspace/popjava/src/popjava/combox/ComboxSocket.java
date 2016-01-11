@@ -168,7 +168,8 @@ public class ComboxSocket extends Combox {
 					
 					int requestIdPacket = buffer.getTranslatedInteger(temp);
 					
-					if(requestId == -1 || requestIdPacket == requestId){
+					//A requestID of -1 (client or server) indicates that the requestID should be ignored
+					if(requestId == -1 || requestIdPacket == -1 || requestIdPacket == requestId){
 						gotPacket = true;
 						
 						result = 8;
