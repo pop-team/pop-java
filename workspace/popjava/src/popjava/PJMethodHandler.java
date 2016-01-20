@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
@@ -34,6 +35,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	protected final int constructorSemanticId = 21;
 
 	protected POPObject popObjectInfo = null;
+	private AtomicInteger requestID = new AtomicInteger(1);
 
 	/**
 	 * Creates a new instance of PJComboxMethodHandler
@@ -159,7 +161,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		int methodSemantics = popObjectInfo.getSemantic(info);
 		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info
 				.getMethodId(), methodSemantics);
-		messageHeader.setRequestID((int)(Math.random() * 100000));
+		messageHeader.setRequestID(requestID.incrementAndGet());
 		
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
