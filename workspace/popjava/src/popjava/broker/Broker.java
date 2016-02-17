@@ -235,6 +235,7 @@ public final class Broker {
 			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
 				// Return the value to caller
 				MessageHeader messageHeader = new MessageHeader();
+				messageHeader.setRequestID(request.getRequestID());
 				POPBuffer responseBuffer = request.getCombox().getBufferFactory()
 						.createBuffer();
 				responseBuffer.setHeader(messageHeader);
@@ -557,11 +558,12 @@ public final class Broker {
 			// BindStatus call
 			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
+				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
 				responseBuffer.putInt(0);
 				responseBuffer.putString(POPSystem.getPlatform());
 				responseBuffer.putString(BufferFactoryFinder.getInstance().getSupportingBuffer());
-
+				
 				sendResponse(request.getCombox(), responseBuffer);
 			}
 			break;
@@ -574,6 +576,7 @@ public final class Broker {
 			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
 
 				MessageHeader messageHeader = new MessageHeader();
+				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
 				responseBuffer.putInt(ret);
 				sendResponse(request.getCombox(), responseBuffer);
@@ -589,6 +592,7 @@ public final class Broker {
 
 			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
+				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
 				responseBuffer.putInt(ret);
 				sendResponse(request.getCombox(), responseBuffer);
@@ -602,6 +606,7 @@ public final class Broker {
 			
 			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
+				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
 				// The trick :(( I haven't implemented to right XDR buffer
 				// I will try to fix this later :(
@@ -630,6 +635,7 @@ public final class Broker {
 				return false;
 			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
+				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
 				boolean isAlive = true;
 				responseBuffer.putBoolean(isAlive);

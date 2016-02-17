@@ -272,7 +272,7 @@ public class POPSystem {
             prlt.start();
         }
         
-        if (codeconf == null || codeconf.length() == 0) {
+        if (codeconf == null || codeconf.isEmpty()) {
             codeconf = String.format("%s%setc%sdefaultobjectmap.xml",
                     POPJavaConfiguration.getPopJavaLocation(),
                     File.separator,
@@ -317,7 +317,7 @@ public class POPSystem {
 	private static void initialize(List<String> argvList){
 		String tempJobservice = Util.removeStringFromList(argvList, "-jobservice=");
 		
-		if (tempJobservice != null && tempJobservice.length() != 0) {
+		if (tempJobservice != null && !tempJobservice.isEmpty()) {
 			jobservice = tempJobservice;
 		}
 		

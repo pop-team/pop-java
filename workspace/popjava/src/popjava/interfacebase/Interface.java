@@ -8,6 +8,7 @@ package popjava.interfacebase;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import popjava.PopJava;
 import popjava.annotation.POPObjectDescription;
@@ -53,6 +54,8 @@ public class Interface {
 	protected POPAccessPoint popAccessPoint = new POPAccessPoint();
 	protected ObjectDescription od = new ObjectDescription();
 
+	private AtomicInteger requestID = new AtomicInteger(10000);
+	
 	/**
 	 * Default Interface constructor
 	 */
@@ -190,7 +193,7 @@ public class Interface {
         // ask the job manager to allocate the broker
         String platforms = od.getPlatform();
 
-        if (platforms.length() <= 0) {
+        if (platforms.isEmpty()) {
         	AppService appCoreService = null;
         	appCoreService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
         	POPString popStringPlatorm = new POPString();
@@ -224,6 +227,7 @@ public class Interface {
         		jobManager = PopJava.newActive(POPJobService.class, jobContact);
         	}
         }catch(Exception e){
+        	e.printStackTrace();
         }
         
         if(jobManager == null){
@@ -314,6 +318,8 @@ public class Interface {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.BIND_STATUS_CALL, Semantic.SYNCHRONOUS);
+		messageHeader.setRequestID(requestID.incrementAndGet());
+		
 		popBuffer.setHeader(messageHeader);
 		popDispatch(popBuffer);
 		int errorcode = 0;
@@ -342,6 +348,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
+		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
 		popBuffer.putString(Configuration.SELECTED_ENCODING);
 
@@ -367,8 +374,9 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.ADD_REF_CALL, Semantic.SYNCHRONOUS);
+		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
-
+		
 		popDispatch(popBuffer);
 		int result = 0;
 		try {
@@ -388,6 +396,7 @@ public class Interface {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.DEC_REF_CALL, Semantic.SYNCHRONOUS);
+		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -413,6 +422,7 @@ public class Interface {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.OBJECT_ALIVE_CALL, Semantic.SYNCHRONOUS);
+		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -437,9 +447,10 @@ public class Interface {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.KILL_ALL, Semantic.SYNCHRONOUS);
+		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
 
-		this.popDispatch(popBuffer);
+		popDispatch(popBuffer);
 		try {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer, messageHeader.getRequestID());
@@ -713,6 +724,7 @@ public class Interface {
 		if (allocateCombox.receive(buffer) > 0) {
 			int status = buffer.getInt();
 			String str = buffer.getString();
+			
 			if (status == 0){
 				objaccess.setAccessString(str);
 			}else{

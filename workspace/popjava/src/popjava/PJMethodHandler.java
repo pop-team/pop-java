@@ -78,6 +78,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		MessageHeader messageHeader = new MessageHeader(
 				methodInfo.getClassId(), methodInfo.getMethodId(),
 				constructorSemanticId);
+		messageHeader.setRequestID(requestID.incrementAndGet());
+		
 		BufferFactory factory = combox.getBufferFactory();
 		POPBuffer popBuffer = factory.createBuffer();
 		popBuffer.setHeader(messageHeader);

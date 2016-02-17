@@ -230,6 +230,11 @@ public class ComboxSocket extends Combox {
 			final int length = buffer.size();
 			final byte[] dataSend = buffer.array();
 			
+			if(buffer.getHeader().getRequestID() == -1){
+				new Exception("Request id is -1").printStackTrace();
+			}
+			
+			
 			//System.out.println("Write "+length+" bytes to socket");			
 			synchronized (outputStream) {
     			outputStream.write(dataSend, 0, length);
