@@ -50,7 +50,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
      * should only be called by the static premain method in this class.
      * @param instrumentation
      */
-    private POPJavaAgent(final Instrumentation instrumentation){        
+    private POPJavaAgent(final Instrumentation instrumentation){
         //Create the default ClassPool, which is built from the CLASSPATH
         classPool = ClassPool.getDefault();
         
@@ -66,7 +66,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
         IGNORED.add("javax.");
         IGNORED.add("org.w3c.");
         IGNORED.add("org.xml.");
-        IGNORED.add("javax.");        
+        IGNORED.add("javax.");      
+        IGNORED.add("org.netbeans.");
     }
 
     private static POPJavaAgent me;
