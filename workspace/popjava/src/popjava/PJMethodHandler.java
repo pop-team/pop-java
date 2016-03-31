@@ -1,11 +1,14 @@
 package popjava;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javassist.util.proxy.MethodHandler;
@@ -21,6 +24,7 @@ import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 
@@ -37,12 +41,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	protected POPObject popObjectInfo = null;
 	private AtomicInteger requestID = new AtomicInteger(1);
 
-	/**
-	 * Creates a new instance of PJComboxMethodHandler
-	 */
-	public PJMethodHandler() {
-
-	}
+	private AtomicBoolean setup = new AtomicBoolean(false);
+	
 
 	/**
 	 * Associate an POPObject with this handler
@@ -52,6 +52,10 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		popObjectInfo = popObject;
 	}
 
+	public void setSetup(){
+		setup.set(true);
+	}
+	
 	/**
 	 * Construct a parallel object
 	 * @param targetClass	Class to be created
@@ -60,60 +64,76 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @throws POPException				Thrown if any problem occurred during the parallel object creation
 	 * @throws NoSuchMethodException	Thrown if the constructor is not found
 	 */
-	public boolean popConstructor(Class<?> targetClass, Object... argvs)
+	public void popConstructor(final Class<?> targetClass, final Object... argvs)
 			throws POPException, NoSuchMethodException {
-
 		replacePOPObjectArguments(argvs);
 		
-		Constructor<?> constructor = null;
-		Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
-		constructor = ClassUtil.getConstructor(targetClass, parameterTypes);
+		final Constructor<?> constructor = ClassUtil.getConstructor(targetClass, ClassUtil.getObjectTypes(argvs));
 		
-		parameterTypes = constructor.getParameterTypes();
-		// Repair the parameter type, for example MyConstructor(int value,
-		// String ... data)
-		allocate(popObjectInfo.getClassName());
-
-		MethodInfo methodInfo = popObjectInfo.getMethodInfo(constructor);
-		MessageHeader messageHeader = new MessageHeader(
-				methodInfo.getClassId(), methodInfo.getMethodId(),
-				constructorSemanticId);
-		messageHeader.setRequestID(requestID.incrementAndGet());
+		final Class<?>[] parameterTypes = constructor.getParameterTypes();
 		
-		BufferFactory factory = combox.getBufferFactory();
-		POPBuffer popBuffer = factory.createBuffer();
-		popBuffer.setHeader(messageHeader);
-		
-		Annotation [][] annotations = constructor.getParameterAnnotations();
-		for (int index = 0; index < argvs.length; index++) {
-			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) && 
-			        Util.isParameterUseable(annotations[index])){
-				popBuffer.putValue(argvs[index], parameterTypes[index]);
-			}
-		}
-		popDispatch(popBuffer);
-		
-		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-		popResponse(responseBuffer, messageHeader.getRequestID());
-		
-		for (int index = 0; index < parameterTypes.length; index++) {
-			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-			        Util.isParameterUseable(annotations[index])
-					&&
-					!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
-				responseBuffer.deserializeReferenceObject(parameterTypes[index],
-						argvs[index]);
-			}
+		final Runnable constructorRunnable = new Runnable() {
 			
-			if(argvs[index] instanceof POPObject){
-				POPObject object = (POPObject)argvs[index];
-				if(object.isTemporary()){
-					object.exit();
-				}
-			}
-		}
-		return true;
+			@Override
+			public void run() {
+				
+				// Repair the parameter type, for example MyConstructor(int value,
+				// String ... data)
+				try{
+					allocate(popObjectInfo.getClassName());
 
+					MethodInfo methodInfo = popObjectInfo.getMethodInfo(constructor);
+					MessageHeader messageHeader = new MessageHeader(
+							methodInfo.getClassId(), methodInfo.getMethodId(),
+							constructorSemanticId);
+					messageHeader.setRequestID(requestID.incrementAndGet());
+					
+					BufferFactory factory = combox.getBufferFactory();
+					POPBuffer popBuffer = factory.createBuffer();
+					popBuffer.setHeader(messageHeader);
+					
+					Annotation [][] annotations = constructor.getParameterAnnotations();
+					for (int index = 0; index < argvs.length; index++) {
+						if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) && 
+						        Util.isParameterUseable(annotations[index])){
+							popBuffer.putValue(argvs[index], parameterTypes[index]);
+						}
+					}
+					popDispatch(popBuffer);
+					
+					POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
+					popResponse(responseBuffer, messageHeader.getRequestID());
+					
+					for (int index = 0; index < parameterTypes.length; index++) {
+						if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
+						        Util.isParameterUseable(annotations[index])
+								&&
+								!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
+							responseBuffer.deserializeReferenceObject(parameterTypes[index],
+									argvs[index]);
+						}
+						
+						if(argvs[index] instanceof POPObject){
+							POPObject object = (POPObject)argvs[index];
+							if(object.isTemporary()){
+								object.exit();
+							}
+						}
+					}
+				}catch(POPException e){
+					e.printStackTrace();
+				}
+				
+				
+				setup.set(true);
+			}
+		};
+		
+		if(Configuration.ASYNC_CONSTRUCTOR){
+			new Thread(constructorRunnable	, "POPJava constructor").start();
+		}else{
+			constructorRunnable.run();
+		}
 	}
 
 	/**
@@ -124,6 +144,10 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 */
 	public boolean bindObject(POPAccessPoint accesspoint) throws POPException {
 		popAccessPoint.setAccessString(accesspoint.toString());
+
+		setup.set(true);
+		
+		
 		return bind(accesspoint);
 	}
 
@@ -139,6 +163,11 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	@Override
     public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
 			throws Throwable {
+		
+		//TODO: Busy waiting, bad, remove with lock?
+		while(!setup.get()){
+			Thread.sleep(50);
+		}
 		
 		replacePOPObjectArguments(argvs);
 		

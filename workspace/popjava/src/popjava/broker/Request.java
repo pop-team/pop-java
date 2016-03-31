@@ -189,7 +189,7 @@ public class Request {
 	 * Set associated buffer	
 	 * @param bufferType BufferType to be associate
 	 */
-	public void setBuffer(String bufferType) {
+	public void setBufferType(String bufferType) {
 		receivedCombox.setBuffer(bufferType);
 	}
 	

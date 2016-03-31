@@ -189,7 +189,6 @@ public final class Broker {
 	 * @return true id the constructor has been called correctly
 	 */
 	private boolean invokeConstructor(Request request) {
-		POPBuffer requestBuffer = request.getBuffer();
 		Class<?>[] parameterTypes = null;
 		Object[] parameters = null;
 		Constructor<?> constructor = null;
@@ -209,6 +208,8 @@ public final class Broker {
 		if (exception == null && constructor != null) {
 			parameterTypes = constructor.getParameterTypes();
 			try{
+				POPBuffer requestBuffer = request.getBuffer();
+				request.setBuffer(null); //This way the JVM can free the buffer memory
 				parameters = getParameters(requestBuffer, parameterTypes, constructor.getParameterAnnotations());
 			}catch(POPException e){
 				exception = e;
@@ -318,7 +319,6 @@ public final class Broker {
 			sequentialSemaphore.acquire();
 		}
 		Object result = new Object();
-		POPBuffer requestBuffer = request.getBuffer();
 		POPException exception = null;
 		Method method = null;
 		Class<?> returnType = null;
@@ -344,6 +344,9 @@ public final class Broker {
 			Annotation[][] annotations = method.getParameterAnnotations();
 			
 			try{
+
+				POPBuffer requestBuffer = request.getBuffer();
+				request.setBuffer(null);//This way the JVM can free the  buffer content
 				parameters = getParameters(requestBuffer, parameterTypes, annotations);
 			}catch(POPException e){
 				exception = e;
@@ -615,7 +618,7 @@ public final class Broker {
 			}
 			
 			if (foundEncoding) {
-                request.setBuffer(encoding);
+                request.setBufferType(encoding);
                 
                 BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(encoding);
                 request.getCombox().setBufferFactory(bufferFactory);

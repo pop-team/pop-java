@@ -31,7 +31,7 @@ public class DeamonTest {
 		POPSystem.end();
 	}
 	
-	private static POPJavaDeamon startDeamon(String password){
+	private static POPJavaDeamon startDeamon(String password) throws InterruptedException{
 		final POPJavaDeamon deamon = new POPJavaDeamon(password);
 		Thread thread = new Thread(new Runnable() {
 			
@@ -42,53 +42,56 @@ public class DeamonTest {
 				} catch (IOException e) {
 				}
 			}
-		});
+		}, "POPJava deamon");
 		thread.start();
-		
+				
 		return deamon;
 	}
 	
 	@Test
-	public void testSuccess() throws IOException{
+	public void testSuccess() throws IOException, InterruptedException{
 		POPSystem.initialize();
 		
 		POPJavaDeamon deamon = startDeamon("");
 		
 		TestClass test = PopJava.newActive(TestClass.class);
-		deamon.close();
 		int value = test.test();
+		deamon.close();
 		assertEquals(1234, value);
 		
 		POPSystem.end();
 	}
 	
 	@Test
-	public void testDynamicCreation() throws IOException{
+	public void testDynamicCreation() throws IOException, InterruptedException{
 		POPSystem.initialize();
 		POPJavaDeamon deamon = startDeamon("");
 		TestClass test = PopJava.newActive(TestClass.class, ConnectionType.DEAMON, "");
-		deamon.close();
 		int value = test.test();
-		assertEquals(1234, value);
+
+		deamon.close();
 		
+		assertEquals(1234, value);
+
 		POPSystem.end();
 	}
 	
 	@Test
-	public void testDynamicCreationPassword() throws IOException{
+	public void testDynamicCreationPassword() throws IOException, InterruptedException{
 		POPSystem.initialize();
 		String password = "12345";
 		POPJavaDeamon deamon = startDeamon(password);
 		TestClass test = PopJava.newActive(TestClass.class, ConnectionType.DEAMON, password);
-		deamon.close();
 		int value = test.test();
+		deamon.close();
+		
 		assertEquals(1234, value);
 		
 		POPSystem.end();
 	}
 	
 	@Test
-	public void testDynamicCreationPasswordMissmatch() throws IOException{
+	public void testDynamicCreationPasswordMissmatch() throws IOException, InterruptedException{
 		POPSystem.initialize();
 		String password = "12345";
 		POPJavaDeamon deamon = startDeamon(password);

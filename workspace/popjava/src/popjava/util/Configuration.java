@@ -19,6 +19,7 @@ public class Configuration {
 	public static final String SELECTED_ENCODING = "raw";
 	public static final String DEFAULT_PROTOCOL = "socket";
 
+	public static final boolean ASYNC_CONSTRUCTOR = true;
 	public static final boolean ACTIVATE_JMX = false;
 	public static boolean CONNECT_TO_POPCPP = false;//Util.getOSType().equals(OSType.UNIX);
 	public static final boolean REDIRECT_OUTPUT_TO_ROOT = true;

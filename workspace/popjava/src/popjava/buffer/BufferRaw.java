@@ -443,15 +443,16 @@ public class BufferRaw extends POPBuffer {
 	@Override
 	public void putDoubleArray(double[] value) {
 		int arrayLength = 0;
-		if (value != null)
+		if (value != null){
 			arrayLength = value.length;
-		this.putInt(arrayLength);
+		}
+		putInt(arrayLength);
 		if(arrayLength>0)
 		{
-			this.resize(arrayLength*Double.SIZE/Byte.SIZE);
+			resize(arrayLength*Double.SIZE/Byte.SIZE);
 			DoubleBuffer doubleBuffer=buffer.asDoubleBuffer();
 			doubleBuffer.put(value);
-			this.position(this.position()+arrayLength*Double.SIZE/Byte.SIZE);			
+			position(position()+arrayLength*Double.SIZE/Byte.SIZE);			
 		}
 	}
 
