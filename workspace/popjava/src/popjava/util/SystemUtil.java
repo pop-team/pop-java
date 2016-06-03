@@ -19,7 +19,9 @@ public class SystemUtil {
 
 	public static void endAllChildren(){
 		for(Process process: processes){
-			process.destroy();
+			if(process != null){
+				process.destroy();
+			}
 		}
 	}
 	
