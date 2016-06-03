@@ -406,6 +406,11 @@ public class BufferRaw extends POPBuffer {
 		int position = position() + moreCapacity;
 		if (position >= buffer.capacity()) {
 			int newCapacity = position * 2;
+			
+			if(position > Integer.MAX_VALUE / 2){
+				newCapacity = Integer.MAX_VALUE;
+			}
+			
 			resizeBuffer(newCapacity);
 		}
 	}
