@@ -49,7 +49,10 @@ public class LogWriter {
 			logFolder = DEFAULT_LOCATION;
 		}
 		
-		new File(logFolder).mkdirs(); //Create log folder if it does not exist yet
+		//Create log folder if it does not exist yet
+		if(!new File(logFolder).mkdirs()){//Fall back to tmp if all fails
+		    logFolder = System.getProperty("java.io.tmpdir");
+		}
 	}
 
 	/**

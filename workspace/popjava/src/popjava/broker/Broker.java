@@ -901,7 +901,7 @@ public final class Broker {
 		if (status == 0 && broker != null){
 			broker.treatRequests();
 		}
-		LogWriter.writeDebugInfo("End broker life");
+		LogWriter.writeDebugInfo("End broker life : "+objectName);
 		System.exit(0);
 	}
 
