@@ -1,15 +1,16 @@
 package popjava.combox;
 
-import popjava.base.*;
+import java.io.IOException;
+import java.net.Socket;
+
+import popjava.base.MessageHeader;
 import popjava.broker.Broker;
 import popjava.broker.Request;
 import popjava.broker.RequestQueue;
-import popjava.buffer.*;
+import popjava.buffer.BufferFactory;
+import popjava.buffer.BufferFactoryFinder;
+import popjava.buffer.POPBuffer;
 import popjava.util.LogWriter;
-
-import java.net.*;
-import java.util.Random;
-import java.io.*;
 
 /**
  * This class is responsible to receive the new request for the associated combox
@@ -24,7 +25,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	protected ComboxSocket combox;
 	protected RequestQueue requestQueue;
 	protected Broker broker;
-	protected int status = EXIT;  
+	protected int status = EXIT;
 	
 	/**
 	 * Crate a new instance of ComboxReceiveRequestSocket
@@ -43,7 +44,8 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	/**
 	 * Start the thread 
 	 */
-	public void run() {
+	@Override
+    public void run() {
 		setStatus(RUNNING);
 		while (getStatus() == RUNNING) {
 			Request popRequest = new Request();
@@ -92,8 +94,11 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	 * Close the current connection
 	 */
 	public void close() {
-		broker.onCloseConnection();
-		combox.close();
+	    if(combox != null){
+	        broker.onCloseConnection(hashCode() + " " +combox.peerConnection.getLocalPort()+" "+combox.peerConnection.getPort());
+	        combox.close();
+	        combox = null;
+	    }
 	}
 
 	/**
@@ -125,7 +130,8 @@ public class ComboxReceiveRequestSocket implements Runnable {
 	/**
 	 * Method called before destruction of the instance
 	 */
-	protected void finalize() throws Throwable {
+	@Override
+    protected void finalize() throws Throwable {
 		try {
 			close();
 		} finally {

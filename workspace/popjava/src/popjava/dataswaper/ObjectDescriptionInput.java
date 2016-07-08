@@ -3,7 +3,7 @@ package popjava.dataswaper;
 import java.util.Enumeration;
 
 import popjava.baseobject.ObjectDescription;
-import popjava.buffer.*;
+import popjava.buffer.POPBuffer;
 
 /**
  * Compatible implementation of the ObjectDescription POP-Java object for POP-C++
@@ -353,19 +353,7 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 		searchMaxReq = size;
 		searchWaitingtime = waittime;
 	}
-
-	/**
-	 * Method called before destruction
-	 */
-	@Override
-	protected void finalize() throws Throwable {
-		try {
-
-		} finally {
-			super.finalize();
-		}
-	}
-
+	
 	/**
 	 * Serialize the object description into the buffer
 	 */
@@ -437,7 +425,8 @@ public class ObjectDescriptionInput implements IPOPBaseInput {
 	/**
 	 * Format the object description as a string value
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 //		return "Power=" + power.toString() + "Memory=" + memory.toString()
 //				+ "Bandwidth=" + bandwidth.toString() + "WallTime="
 //				+ Float.toString(wallTime) + "encoding=" + encoding

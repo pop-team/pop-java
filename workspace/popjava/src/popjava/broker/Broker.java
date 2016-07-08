@@ -699,9 +699,9 @@ public final class Broker {
 	 * Decrement de connection counter and exit the broker if there is no more
 	 * connection
 	 */
-	public synchronized void onCloseConnection() {
+	public synchronized void onCloseConnection(String source) {
 		connectionCount--;
-		LogWriter.writeDebugInfo("Close connection, left "+connectionCount);
+		LogWriter.writeDebugInfo("Close connection, left "+connectionCount+" "+source);
 		if (connectionCount <= 0){
 			setState(Broker.EXIT);
 		}

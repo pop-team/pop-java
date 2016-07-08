@@ -3,7 +3,7 @@ package popjava.baseobject;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
-import popjava.buffer.*;
+import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
 /**
@@ -525,18 +525,6 @@ public class ObjectDescription implements IPOPBase {
 	}
 
 	/**
-	 * Method called before destruction
-	 */
-	@Override
-	protected void finalize() throws Throwable {
-		try {
-
-		} finally {
-			super.finalize();
-		}
-	}
-
-	/**
 	 * Deserialize the object description from the buffer
 	 */
 	@Override
@@ -678,7 +666,8 @@ public class ObjectDescription implements IPOPBase {
 	/**
 	 * Format the object description as a string value
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 //		return "Power=" + power.toString() + "Memory=" + od_memory.toString()
 //				+ "Bandwidth=" + od_bandwidth.toString() + "WallTime="
 //				+ Float.toString(wallTime) + "encoding=" + encoding
