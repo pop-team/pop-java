@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import popjava.PopJava;
 import popjava.base.POPException;
 import popjava.system.POPSystem;
@@ -41,6 +42,17 @@ public class ParameterTests {
         ParameterObject test = PopJava.newActive(ParameterObject.class);
         
         test.impossibleReturn();
+        
+        POPSystem.end();
+    }
+    
+    @Test
+    @Ignore //This is supposed to not work, can't instaniate an interface
+    public void testInterfaceParameter(){
+        POPSystem.initialize();
+        ParameterObject test = PopJava.newActive(ParameterObject.class);
+        
+        test.testInterfaceErrorParameter(test);
         
         POPSystem.end();
     }
