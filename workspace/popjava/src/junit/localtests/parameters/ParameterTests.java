@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import popjava.PopJava;
 import popjava.base.POPException;
 import popjava.system.POPSystem;
@@ -22,7 +23,32 @@ public class ParameterTests {
         assertEquals(10, test.simple(10));
         
         POPSystem.end();
+    }
+    
+    @Test
+    public void testString(){
+        POPSystem.initialize();
+        ParameterObject test = PopJava.newActive(ParameterObject.class);
         
+        test.setValue("asdf");
+        
+        assertEquals("asdf", test.getValue());
+        
+        POPSystem.end();
+    }
+    
+    @Test
+    @Ignore
+    //This does not work and should not work, but it should throw an exception
+    public void testStringUTF16(){
+        POPSystem.initialize();
+        ParameterObject test = PopJava.newActive(ParameterObject.class);
+        
+        test.setValue("a€𝄞d");
+        
+        assertEquals("a€𝄞d", test.getValue());
+        
+        POPSystem.end();
     }
     
     @Test(expected = POPException.class)
