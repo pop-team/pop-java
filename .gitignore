@@ -2,10 +2,22 @@
 /docs/_build
 /doxygen
 
-# OS X junk
+# OS junk
 .DS_Store
+.directory
 
 # Generated compiled python files
 *.pyc
 /bin
 /.apt_generated/
+
+#uds junk
+.uds_*
+
+#compiled stuff
+*.obj
+*.o
+
+#folders
+/release
+/build
