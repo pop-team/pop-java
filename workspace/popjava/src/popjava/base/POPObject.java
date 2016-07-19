@@ -753,16 +753,7 @@ public class POPObject implements IPOPBase {
 			System.out.println(info);
 		}
 	}
-	
-	
-	/**
-	 * Method called before the object destruction
-	 */
-	@Override
-    protected void finalize(){
 		
-	}
-	
 	/**
 	 * Return the reference of this object with a POP-C++ format
 	 * @return access point of the object as a formatted string
@@ -791,7 +782,7 @@ public class POPObject implements IPOPBase {
 			//After establishing connection with self, artificially decrease connection by one
 			//This is to avoid the issue of never closing objects with reference to itself
 			if(me != null && Broker.getBroker() != null){
-				Broker.getBroker().onCloseConnection();
+				Broker.getBroker().onCloseConnection("SelfReference");
 			}
 		}
 		

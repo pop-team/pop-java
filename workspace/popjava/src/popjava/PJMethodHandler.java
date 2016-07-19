@@ -1,13 +1,11 @@
 package popjava;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -207,50 +205,43 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			}
 		}
 		
-		//HACK: The pop model/protocol does not distinguish between responses of multiple method calls.
-		//This is why we sync here, to avoid mixing the answers of multiple method calls
-		//In reality, only the popDispatch and popResponse call need to be synced together,
-		//But because the real solution is to add an ID to every call, the code here has
-		//not been refactored optimally
-		//synchronized(this) {
-    		popDispatch(popBuffer);
-    		if ((methodSemantics & Semantic.SYNCHRONOUS) != 0) {
-    			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
-    			
-    		    popResponse(responseBuffer, messageHeader.getRequestID());
-    			
-    			//Recover the data from the calling method. The called method can
-    			//Modify the content of an array and it gets copied back in here
-    			for (int index = 0; index < parameterTypes.length; index++) {
-    				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-    				        Util.isParameterUseable(annotations[index])
-    						&&
-    						!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
-    					responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
-    				}
-    			}
-    			
-    			//Get the return value in case the called method has one
-    			if (returnType != Void.class && returnType != void.class){
-    				result = responseBuffer.getValue(returnType);
-    			}
-    			
-    		} else {
-    			//If the method is async and has a return type, return default value
-    			//This should never happen
-    			if (returnType != Void.class && returnType != void.class) {
-    				try {
-    					if (returnType.isPrimitive()) {
-    						result = ClassUtil.getDefaultPrimitiveValue(returnType);
-    					} else {
-    						result = null;
-    					}
-    				} catch (Exception e) {
-    					result = null;
-    				}
-    			}
-    		}
-        //}
+		popDispatch(popBuffer);
+		if ((methodSemantics & Semantic.SYNCHRONOUS) != 0) {
+			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
+			
+		    popResponse(responseBuffer, messageHeader.getRequestID());
+			
+			//Recover the data from the calling method. The called method can
+			//Modify the content of an array and it gets copied back in here
+			for (int index = 0; index < parameterTypes.length; index++) {
+				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
+				        Util.isParameterUseable(annotations[index])
+						&&
+						!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
+					responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
+				}
+			}
+			
+			//Get the return value in case the called method has one
+			if (returnType != Void.class && returnType != void.class){
+				result = responseBuffer.getValue(returnType);
+			}
+			
+		} else {
+			//If the method is async and has a return type, return default value
+			//This should never happen
+			if (returnType != Void.class && returnType != void.class) {
+				try {
+					if (returnType.isPrimitive()) {
+						result = ClassUtil.getDefaultPrimitiveValue(returnType);
+					} else {
+						result = null;
+					}
+				} catch (Exception e) {
+					result = null;
+				}
+			}
+		}
 		
 		
 		for (int index = 0; index < argvs.length; index++) {
