@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import popjava.PopJava;
@@ -12,6 +13,7 @@ import popjava.system.POPSystem;
 public class BigDataTests {
 
     @Test
+    @Ignore
     public void testBigIntArray(){
         POPSystem.initialize();
         BigDataObject test = PopJava.newActive(BigDataObject.class);
@@ -25,6 +27,7 @@ public class BigDataTests {
     }
     
     @Test
+    @Ignore
     public void testBigCharArray(){
         POPSystem.initialize();
         BigDataObject test = PopJava.newActive(BigDataObject.class);
@@ -40,6 +43,7 @@ public class BigDataTests {
     }
     
     @Test
+    @Ignore
     public void testBigByteArray(){
         POPSystem.initialize();
         BigDataObject test = PopJava.newActive(BigDataObject.class);
@@ -53,6 +57,7 @@ public class BigDataTests {
     }
     
     @Test
+    @Ignore
     public void testBigStringArray(){
         POPSystem.initialize();
         BigDataObject test = PopJava.newActive(BigDataObject.class);

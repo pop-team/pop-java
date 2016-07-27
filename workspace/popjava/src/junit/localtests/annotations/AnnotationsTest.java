@@ -8,7 +8,9 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
+import junit.localtests.annotations.objects.AbstractChild;
 import junit.localtests.annotations.objects.Child;
+import junit.localtests.annotations.objects.ConcreteChild;
 import junit.localtests.annotations.objects.Integer;
 import junit.localtests.annotations.objects.Parent;
 import popjava.PopJava;
@@ -135,4 +137,18 @@ public class AnnotationsTest {
         
         POPSystem.end();
     }
+	
+	@Test
+	public void testAbstractClass(){
+		POPSystem.initialize();
+		
+		AbstractChild child = PopJava.newActive(ConcreteChild.class);
+		
+		assertEquals("C", child.nonInheritedTest());
+		assertEquals("B", child.testNonAbstract());
+		assertEquals("My String2", child.getStuff2());
+		assertEquals("My String", child.getStuff());
+		
+		POPSystem.end();
+	}
 }
