@@ -3,8 +3,10 @@ package popjava.system;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -118,48 +120,66 @@ public class POPSystem {
 		}
 		return 127 * 256 * 256 * 256;
 	}
-
+	
+	private static String getInterfaceIP(NetworkInterface ni){
+		try {
+			if(ni != null && ni.isUp()){
+				Enumeration<InetAddress> enina = ni.getInetAddresses();
+				for(InterfaceAddress interfaceAddress: ni.getInterfaceAddresses()){
+					String address = interfaceAddress.getAddress().getHostAddress();
+					
+					if(!address.contains(":") && 
+							!address.equals("127.0.0.1") &&
+							!address.equals("127.0.1.1") &&
+							!address.isEmpty() &&
+							(Util.getOSType() == OSType.Windows || interfaceAddress.getAddress().isReachable(20))
+							){
+						return address;
+					}
+				}
+				
+			}
+		} catch (IOException e) {
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * Get the host of the local node
 	 * @return	Host name as a string value
 	 */
 	public static String getHostIP() {
-		String result = "";
+		String preferedInterface = System.getenv("POPJ_IFACE");
+		
+		if(preferedInterface != null){
+			try {
+				NetworkInterface ni = NetworkInterface.getByName(preferedInterface);
+				
+				String ip = getInterfaceIP(ni);
+				if(ip != null){
+					return ip;
+				}
+			} catch (SocketException e) {
+				LogWriter.writeExceptionLog(e);
+			}
+		}
+		
 		Enumeration<NetworkInterface> en;
 		try {
 			en = NetworkInterface.getNetworkInterfaces();
 			while(en.hasMoreElements()){
 				NetworkInterface ni = en.nextElement();
-				if(ni.isUp()){
-					Enumeration<InetAddress> enina = ni.getInetAddresses();
-					
-					while(enina.hasMoreElements()){
-						InetAddress ina = enina.nextElement();
-						
-						try {
-							String address = ina.getHostAddress();
-							if(!address.contains(":") && 
-									!address.equals("127.0.0.1") &&
-									!address.equals("127.0.1.1") &&
-									!address.isEmpty() &&
-									(Util.getOSType() == OSType.Windows || ina.isReachable(20))
-									){
-								return address;
-							}
-						} catch (IOException e) {
-						}
-					}
+				String ip = getInterfaceIP(ni);
+				if(ip != null){
+					return ip;
 				}
 				
 			}
 		} catch (SocketException e) {
 		}
 		
-		if(result.isEmpty()){
-			result = "127.0.0.1";
-		}
-		
-		return result;
+		return "127.0.0.1";
 	}
 
 	/**
@@ -168,8 +188,7 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint getDefaultAccessPoint() {
 		POPAccessPoint parrocAccessPoint = new POPAccessPoint();
-		parrocAccessPoint.setAccessString(String.format("socket://%s://127.0.0.1:0",
-				ComboxSocketFactory.PROTOCOL));
+		parrocAccessPoint.setAccessString(String.format("socket://%s://127.0.0.1:0", ComboxSocketFactory.PROTOCOL));
 		return parrocAccessPoint;
 	}
 

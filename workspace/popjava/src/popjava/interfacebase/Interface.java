@@ -656,8 +656,7 @@ public class Interface {
 		}
 		
 		ComboxAllocateSocket allocateCombox = new ComboxAllocateSocket();
-		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox
-				.getUrl());
+		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox.getUrl());
 		argvList.add(callbackString);
 		if (classname != null && classname.length() > 0) {
 			String objectString = String.format(Broker.OBJECT_NAME_PREFIX+"%s", classname);
