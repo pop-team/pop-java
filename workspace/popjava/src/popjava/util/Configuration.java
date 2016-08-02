@@ -1,7 +1,5 @@
 package popjava.util;
 
-import popjava.util.Util.OSType;
-
 /**
  * This class regroup some configuration values
  */

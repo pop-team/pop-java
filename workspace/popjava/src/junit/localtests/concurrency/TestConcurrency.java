@@ -29,6 +29,25 @@ public class TestConcurrency {
 	}
 	
 	@Test
+	public void testConcurrentSleep(){
+		POPSystem.initialize();
+		
+		ParallelObject object = PopJava.newActive(ParallelObject.class);
+		
+		long start = System.currentTimeMillis();
+		object.concSleep();
+		object.concSleep();
+		object.concSleep();
+		object.concSleep();
+		object.concSleepEnd(4);
+		
+		long time = System.currentTimeMillis() - start;
+		POPSystem.end();
+		
+		assertTrue(time < 3000);
+	}
+	
+	@Test
 	public void testThreadedConcurrency() throws InterruptedException{
 	    POPSystem.initialize();
         

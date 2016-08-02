@@ -18,7 +18,8 @@ public class SystemUtil {
 	private static List<Process> processes = new ArrayList<Process>();
 
 	public static void endAllChildren(){
-		for(Process process: processes){
+		for(int i = 0; i < processes.size(); i++){
+			Process process = processes.get(i);
 			if(process != null){
 				process.destroy();
 			}

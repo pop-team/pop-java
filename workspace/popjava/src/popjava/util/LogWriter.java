@@ -30,7 +30,7 @@ public class LogWriter {
 	/**
 	 * Prefix of the log file
 	 */
-	public static String prefix = "";
+	public static String prefix = "pop-java-";
 
 	static {
 		String pidTemp = ManagementFactory.getRuntimeMXBean()

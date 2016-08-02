@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import popjava.PopJava;
 import popjava.base.POPException;
 import popjava.system.POPSystem;

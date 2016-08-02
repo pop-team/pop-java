@@ -184,6 +184,21 @@ public class POPObject implements IPOPBase {
 			return true;
 		}
 		
+		try{
+			if(method.getDeclaringClass().getSuperclass() != null){
+				Method parentMethod = method.getDeclaringClass().getSuperclass().getMethod(method.getName(), method.getParameterTypes());
+				
+				if(parentMethod != null){
+					return isMethodPOPAnnotated(parentMethod);
+				}
+			}
+			
+			
+		}catch (NoSuchMethodException e) {
+			// TODO: handle exception
+		}
+		
+		
 		return false;
 	}
 	
@@ -455,6 +470,7 @@ public class POPObject implements IPOPBase {
 		MethodInfo methodInfo = new MethodInfo(0, 0);
 		String findingSign = ClassUtil.getMethodSign(method);
 		Class<?> findingClass = method.getDeclaringClass();
+		
 		if (methodInfos.containsValue(method)) {
 			Enumeration<MethodInfo> keys = methodInfos.keys();
 			while (keys.hasMoreElements()) {

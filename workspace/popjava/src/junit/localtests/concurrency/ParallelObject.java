@@ -59,6 +59,30 @@ public class ParallelObject extends POPObject{
 		sem.release();
 	}
 	
+	private Semaphore semSleep = new Semaphore(0);
+	
+	@POPAsyncConc
+	public void concSleep(){
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		semSleep.release();
+	}
+	
+	@POPSyncConc
+	public void concSleepEnd(int wait){
+		try{
+			for(int i = 0; i < wait; i++){
+				semSleep.acquire();
+			}
+		}catch (InterruptedException e) {
+			// TODO: handle exception
+		}
+		
+	}
+	
 	@POPAsyncConc
 	public void conc(){
 		System.out.println("Start conc");
