@@ -42,4 +42,4 @@ If you have kept the default options this should give you something like:
 
 RESOURCES
 ---------
-* The POP-Java wiki on GitHub `<https://github.com/pop-team/pop-java/wiki>`_
+* The user manual `<http://pop-java.readthedocs.io/en/latest/>`_
