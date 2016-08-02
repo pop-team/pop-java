@@ -9,3 +9,4 @@
 *.pyc
 /bin
 /.apt_generated/
+/.directory
