@@ -1,10 +1,12 @@
 package popjava;
 
+import javassist.util.proxy.ProxyObject;
 import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
+import popjava.interfacebase.Interface;
 import popjava.system.POPSystem;
 
 /**
@@ -91,6 +93,23 @@ public class PopJava {
 	
 	public static <T extends Object> T getThis(T object){
 	    return (T) ((POPObject) object).getThis(object.getClass());
+	}
+	
+	/**
+	 * Destroys a POP object.
+	 * @param object
+	 */
+	public static void destroy(Object object){
+		((POPObject)object).exit();
+	}
+	
+	/**
+	 * Disconnects the POP object without desroying the remove object.
+	 * The remote object will close if it has no connections left.
+	 * @param object
+	 */
+	public static void disconnect(Object object){
+		((PJMethodHandler)((ProxyObject)object).getHandler()).close();
 	}
 	
 	/**

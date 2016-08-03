@@ -83,10 +83,9 @@ public class XMLWorker {
 	 * @throws IOException
 	 */
 	protected Document load(String file) throws ParserConfigurationException, SAXException, IOException {
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory
-				.newInstance();
+		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-		Document doc = docBuilder.parse(file);
+		Document doc = docBuilder.parse(new File(file));
 		return doc;
 	}
 
