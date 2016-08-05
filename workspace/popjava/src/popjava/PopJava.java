@@ -109,7 +109,10 @@ public class PopJava {
 	 * @param object
 	 */
 	public static void disconnect(Object object){
-		((PJMethodHandler)((ProxyObject)object).getHandler()).close();
+		if(object instanceof ProxyObject){
+			((PJMethodHandler)((ProxyObject)object).getHandler()).decRef();
+			((PJMethodHandler)((ProxyObject)object).getHandler()).close();
+		}
 	}
 	
 	/**

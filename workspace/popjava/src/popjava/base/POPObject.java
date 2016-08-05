@@ -10,7 +10,9 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyObject;
+import popjava.PJMethodHandler;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -803,5 +805,12 @@ public class POPObject implements IPOPBase {
 		}
 		
 		return (T) me;
+	}
+	
+	@Override
+    protected void finalize() throws Throwable {
+		super.finalize();
+		
+		PopJava.disconnect(this);
 	}
 }
