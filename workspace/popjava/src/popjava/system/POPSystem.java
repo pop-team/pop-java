@@ -245,20 +245,14 @@ public class POPSystem {
 	 */
 	public static String[] initialize(String ... args){
 		ArrayList<String> argvList = new ArrayList<String>();
+		
 		for (String str : args){
 			argvList.add(str);
 		}
+		
 		initialize(argvList);
 		
-		if(args.length > 0 && args[0].startsWith("-codeconf=")){
-            String[] tmpArg = new String[args.length-1];
-            for (int i = 0; i < tmpArg.length; i++) {
-                tmpArg[i] = args[i+1];
-            }
-            args = tmpArg;
-        }
-		
-		return args;
+		return argvList.toArray(new String[0]);
 	}
 	
 	private static boolean isStarted = false;
