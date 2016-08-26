@@ -270,7 +270,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     CtClass clazz = e.getConstructor().getDeclaringClass();
                     
                     //Replace all calls to new for popjava objects with the correct instatiation
-                    if(isPOPClass(clazz)){
+                    if(isPOPClass(clazz) && isDistributable(clazz)){
                         String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+clazz.getName()+".class, $args);";
                         e.replace(newCall);
                     }
@@ -365,6 +365,26 @@ public final class POPJavaAgent implements ClassFileTransformer{
             final Object popClass = rawClass.getAnnotation(POPClass.class);
             if(popClass != null){
                 return true;
+            }else{
+                final CtClass superClass = rawClass.getSuperclass();
+                if(superClass != null){
+                    return isPOPClass(superClass);
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
+    }
+    
+    private boolean isDistributable(final CtClass rawClass){
+    	try {
+            final Object popClass = rawClass.getAnnotation(POPClass.class);
+            if(popClass != null){
+                return ((POPClass) popClass).isDistributable();
             }else{
                 final CtClass superClass = rawClass.getSuperclass();
                 if(superClass != null){
