@@ -11,6 +11,7 @@ import popjava.util.Configuration;
  * All other combox must inherit from this class
  */
 public abstract class Combox {
+	
 	protected int timeOut = 0;
 	protected POPAccessPoint accessPoint;
 	protected boolean available = false;

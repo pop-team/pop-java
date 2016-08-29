@@ -259,3 +259,10 @@ Here is what we should have as the application output::
 
 If the are any problems with the compilation or the launching of the
 application, please refer to the chapter :ref:`trouble`.
+
+Misc
+~~~~
+
+If you are running a POP-Java application on a computer with multiple network interfaces, make sure you specify the network interface to use.
+To specify the name of the network interface, set the ``POPJ_IFACE`` environment variable.
+If the specified name is not found, POP-Java will fall back to the same behaviour as if no network interface was specified as default.

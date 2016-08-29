@@ -23,7 +23,8 @@ public class POPSystemTest {
 		assertNotSame("127.0.0.1", ip);
 	}
 	
-
+	
+	
 	@Test
 	public void testClassId(){
 		POPAppService service = new POPAppService();
@@ -50,5 +51,22 @@ public class POPSystemTest {
     @Test
     public void testJarDetection(){
         assertFalse(POPJavaConfiguration.isJar());
+    }
+    
+    @Test
+    public void testParameterCleaning(){
+    	/*
+    	 * 
+		String tempJobservice = Util.removeStringFromList(argvList, "-jobservice=");
+		
+		if (tempJobservice != null && !tempJobservice.isEmpty()) {
+			jobservice = tempJobservice;
+		}
+		
+		codeconf = Util.removeStringFromList(argvList, "-codeconf=");		
+		appservicecode = Util.removeStringFromList(argvList, "-appservicecode=");
+		proxy = Util.removeStringFromList(argvList, "-proxy=");
+        appservicecontact = Util.removeStringFromList(argvList, "-appservicecontact=");
+    	 */
     }
 }

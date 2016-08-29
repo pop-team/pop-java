@@ -21,6 +21,7 @@ import popjava.util.LogWriter;
  * This combox implement the protocol Socket
  */
 public class ComboxSocket extends Combox {
+	
 	protected Socket peerConnection = null;
 	protected byte[] receivedBuffer;
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;

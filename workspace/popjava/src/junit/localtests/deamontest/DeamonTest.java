@@ -107,4 +107,24 @@ public class DeamonTest {
 		
 		POPSystem.end();
 	}
+	
+	@Test
+	public void testMultiObjectCreation() throws InterruptedException, IOException{
+		POPSystem.initialize();
+		String password = "12345";
+		POPJavaDeamon deamon = startDeamon(password);
+		
+		try{
+			
+			for(int i = 0; i < 5; i++){
+				TestClass test = PopJava.newActive(TestClass.class, ConnectionType.DEAMON, password);
+				test.test();
+			}	
+		}catch(Exception e){
+		}
+		
+		deamon.close();
+		
+		POPSystem.end();
+	}
 }

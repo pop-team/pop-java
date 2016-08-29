@@ -71,7 +71,7 @@ public class PJProxyFactory extends ProxyFactory {
 			try{
 				Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
 				Constructor<?> constructor = targetClass.getConstructor(parameterTypes);
-				popObject = (POPObject) constructor.newInstance(argvs);
+				popObject = (POPObject) targetClass.getConstructor().newInstance();
 				popObject.loadPOPAnnotations(constructor, argvs);
 			}catch(Exception e){
 				e.printStackTrace();

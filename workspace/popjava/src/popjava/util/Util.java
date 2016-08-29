@@ -68,8 +68,7 @@ public final class Util {
 	 * @param prefix	The prefix of the string to remove
 	 * @return	The entire string removed
 	 */
-	public static String removeStringFromList(List<String> list,
-			String prefix) {
+	public static String removeStringFromList(List<String> list, String prefix) {
 		String result = null;
 
 		int index = 0;

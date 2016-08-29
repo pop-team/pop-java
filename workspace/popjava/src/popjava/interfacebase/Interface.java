@@ -767,7 +767,10 @@ public class Interface {
 	 * Close the combox associated with this interface
 	 */
 	public void close() {
-		combox.close();
+		if(combox != null){
+			combox.close();
+		}
+		combox = null;
 	}
 
 	/**
@@ -775,7 +778,7 @@ public class Interface {
 	 */
 	@Override
     protected void finalize() throws Throwable {
-		this.decRef();
+		decRef();
 		try {
 			close(); // close open files
 		} finally {

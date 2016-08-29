@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,6 +42,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	private AtomicInteger requestID = new AtomicInteger(1);
 
 	private AtomicBoolean setup = new AtomicBoolean(false);
+	
+	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
 	
 
 	/**
@@ -196,7 +200,11 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		popBuffer.setHeader(messageHeader);
 		Class<?>[] parameterTypes = m.getParameterTypes();
 		
-		Annotation[][] annotations = m.getParameterAnnotations();
+		if(!methodAnnotationCache.containsKey(m)){
+			methodAnnotationCache.put(m, m.getParameterAnnotations());
+		}
+		
+		Annotation[][] annotations = methodAnnotationCache.get(m);
 		
 		for (int index = 0; index < argvs.length; index++) {
 			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) &&

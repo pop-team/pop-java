@@ -11,7 +11,7 @@ COMPILE POP-Java SOURCE CODE
   user@computer$ ant
 
 
-INSTALLING POP-C++
+INSTALLING POP-Java
 ------------------
 
 .. code::
@@ -26,7 +26,7 @@ The installation script will ask you several questions. Here they are:
 
 If unsure leave the answer blank to keep the default setting.
 
-STARTING POP-C++
+STARTING POP-Java
 ----------------
 
 **Do not forget to add these lines to your .bashrc file or equivalent :**
@@ -42,4 +42,4 @@ If you have kept the default options this should give you something like:
 
 RESOURCES
 ---------
-* The POP-Java wiki on GitHub `<https://github.com/pop-team/pop-java/wiki>`_
+* The user manual `<http://pop-java.readthedocs.io/en/latest/>`_
