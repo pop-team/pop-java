@@ -13,6 +13,8 @@ import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -74,6 +76,8 @@ public final class Broker {
 	protected POPObject popInfo = null;
 	protected int connectionCount = 0;
 	protected Semaphore sequentialSemaphore = new Semaphore(1, true);
+	
+	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
 	
 	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		
@@ -335,14 +339,19 @@ public final class Broker {
 					request.getClassId(), request.getMethodId(),
 					e.getMessage());
 		}
+		
+		if(!methodAnnotationCache.containsKey(method)){
+			methodAnnotationCache.put(method, method.getParameterAnnotations());
+		}
+		
+		Annotation[][] annotations = methodAnnotationCache.get(method);
+		
 		// Get parameter if found the method
 		if (exception == null && method != null) {
 
 			returnType = method.getReturnType();
 			parameterTypes = method.getParameterTypes();
-			
-			Annotation[][] annotations = method.getParameterAnnotations();
-			
+				
 			try{
 
 				POPBuffer requestBuffer = request.getBuffer();
@@ -390,8 +399,6 @@ public final class Broker {
 				messageHeader.setRequestID(request.getRequestID());
 				POPBuffer responseBuffer = request.getCombox().getBufferFactory().createBuffer();
 				responseBuffer.setHeader(messageHeader);
-				
-				Annotation[][] annotations = method.getParameterAnnotations();
 
 				//Put all parameters back in the response, if needed
 				for (index = 0; index < parameterTypes.length; index++) {
