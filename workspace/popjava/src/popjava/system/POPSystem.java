@@ -130,7 +130,7 @@ public class POPSystem {
 			en = NetworkInterface.getNetworkInterfaces();
 			while(en.hasMoreElements()){
 				NetworkInterface ni = en.nextElement();
-				if(ni.isUp()){
+				if(ni.isUp() && !ni.isLoopback()){
 					Enumeration<InetAddress> enina = ni.getInetAddresses();
 					
 					while(enina.hasMoreElements()){
@@ -144,7 +144,7 @@ public class POPSystem {
 									!address.isEmpty() &&
 									(Util.getOSType() == OSType.Windows || ina.isReachable(20))
 									){
-								return address;
+							    return address;
 							}
 						} catch (IOException e) {
 						}
