@@ -16,7 +16,7 @@ public class ConnectToTest {
 		ConnectToObject object = PopJava.newActive(ConnectToObject.class, "1234");
 		assertEquals("1234", object.getMessage());
 		
-		ConnectToObject object2 = PopJava.newActive(ConnectToObject.class, object.getAccessPoint().toString(), "3333");
+		ConnectToObject object2 = PopJava.newActive(ConnectToObject.class, PopJava.getAccessPoint(object).toString(), "3333");
 		
 		assertEquals("1234", object2.getMessage());
 
