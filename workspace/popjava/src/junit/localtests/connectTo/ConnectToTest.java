@@ -20,9 +20,7 @@ public class ConnectToTest {
 		
 		assertEquals("1234", object2.getMessage());
 
-		
-		POPSystem.end();
-		
+		POPSystem.end();		
 	}
 	
 }
