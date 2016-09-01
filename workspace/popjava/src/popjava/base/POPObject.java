@@ -134,7 +134,15 @@ public class POPObject implements IPOPBase {
 							od.setConnectionSecret((String)argvs[i]);
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
-									" was not of type String for Annotation CONNECTION_SECRET");
+									" was not of type String for Annotation CONNECTION_PWD");
+						}
+						break;
+					case ACCESS_POINT:
+						if(argvs[i]  instanceof String){
+							od.setRemoteAccessPoint((String)argvs[i]);
+						}else{
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
+									" was not of type String for Annotation ACCESS_POINT");
 						}
 						break;
 					}

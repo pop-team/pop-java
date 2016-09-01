@@ -4,10 +4,12 @@ import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPParameter;
+import popjava.annotation.POPParameter.Direction;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncSeq;
+import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.dataswaper.ObjectDescriptionInput;
 import popjava.dataswaper.POPString;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
@@ -90,7 +92,7 @@ public class POPJobManager extends POPJobService {
 	 */
 	@POPSyncConc(id = 12)
 	public int createObject(POPAccessPoint localservice, POPString objname,
-			ObjectDescriptionInput od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
+			@POPParameter(Direction.IN) ObjectDescription od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		return 0;
 	}
 
@@ -110,7 +112,7 @@ public class POPJobManager extends POPJobService {
 	 */
 	@POPSyncConc(id = 16)
 	public boolean allocResource(String localservice, String objname,
-			ObjectDescriptionInput od, int howmany, float[] fitness,
+			@POPParameter(Direction.IN) ObjectDescription od, int howmany, float[] fitness,
 			POPAccessPoint[] jobcontacts, int[] reserveIDs, int[] requestInfo,
 			int[] trace, int tracesize) {
 		return true;

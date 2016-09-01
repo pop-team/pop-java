@@ -29,7 +29,6 @@ import popjava.codemanager.POPJavaAppService;
 import popjava.combox.Combox;
 import popjava.combox.ComboxAllocateSocket;
 import popjava.combox.ComboxFactoryFinder;
-import popjava.dataswaper.ObjectDescriptionInput;
 import popjava.dataswaper.POPString;
 import popjava.service.POPJavaDeamonConnector;
 import popjava.serviceadapter.POPAppService;
@@ -234,7 +233,7 @@ public class Interface {
             return false;
         }
         
-        ObjectDescriptionInput constOd = new ObjectDescriptionInput(od);
+        ObjectDescription constOd = new ObjectDescription(od);
         
         int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
         		allocatedAccessPoint, remotejobscontact.length, remotejobscontact);

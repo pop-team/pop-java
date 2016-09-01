@@ -2,9 +2,11 @@ package popjava.serviceadapter;
 
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
+import popjava.annotation.POPParameter;
+import popjava.annotation.POPParameter.Direction;
 import popjava.annotation.POPSyncConc;
+import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.dataswaper.ObjectDescriptionInput;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the JobMgr parallel object of POP-C++
@@ -40,7 +42,7 @@ public class POPJobService extends POPServiceBase {
 	 */
 	@POPSyncConc(id = 12)
 	public int createObject(POPAccessPoint localservice, String objname,
-			ObjectDescriptionInput od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
+			@POPParameter(Direction.IN) ObjectDescription od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		return 0;
 	}
 

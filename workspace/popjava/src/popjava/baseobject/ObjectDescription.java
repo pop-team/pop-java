@@ -39,6 +39,8 @@ public class ObjectDescription implements IPOPBase {
 	protected String cwd;
 	protected String batch;
 	
+	protected String remoteAccessPoint = ""; //Used to connect to a remote object at object creation
+	
 	protected String jvmParamters;
 	protected ConnectionType connectionType = ConnectionType.ANY;
 	protected String connectionSecret;
@@ -71,7 +73,34 @@ public class ObjectDescription implements IPOPBase {
 		bandwidthReq = -1;
 		memoryMin = -1;
 		memoryReq = -1;
-
+	}
+	
+	public ObjectDescription(ObjectDescription od) {
+//		power = new ODElement();
+//		memory = new ODElement();
+//		bandwidth = new ODElement();
+//		power.set(od.getPower());
+//		memory.set(od.getMemory());
+//		bandwidth.set(od.getBandwidth());
+		powerMin = od.getPowerMin();
+		powerReq = od.getPowerReq();
+		memoryMin = od.getMemoryMin();
+		memoryReq = od.getMemoryReq();
+		bandwidthMin = od.getBandwidthMin();
+		bandwidthReq = od.getBandwidthReq();
+		wallTime = od.getWallTime();
+		encoding = od.getEncoding();
+		protocol = od.getProtocol();
+		platform = od.getPlatform();
+		hostName = od.getHostName();
+		jobUrl = od.getJobUrl();
+		codeFile = od.getCodeFile();
+		hostuser = od.getHostuser();
+		hostarch = od.getHostarch();
+		hostcore = od.getHostcore();
+		maxDepth = od.getSearchMaxDepth();
+		maxSize =  od.getSearchMaxSize();
+		waitTime = od.getSearchWaitTime();
 	}
 	
 	/**
@@ -508,6 +537,14 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	public void removeAllAttributes() {
 		attributes.clear();
+	}
+	
+	public void setRemoteAccessPoint(String accessPoint){
+		remoteAccessPoint = accessPoint;
+	}
+	
+	public String getRemoteAccessPoint(){
+		return remoteAccessPoint;
 	}
 
 	/**

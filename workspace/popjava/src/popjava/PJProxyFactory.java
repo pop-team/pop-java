@@ -8,6 +8,7 @@ import javassist.util.proxy.ProxyObject;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.base.POPObject;
+import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
@@ -62,8 +63,7 @@ public class PJProxyFactory extends ProxyFactory {
 	 * @return the instance of the object
 	 * @throws POPException
 	 */
-	public Object newPOPObject(ObjectDescription od, Object... argvs)
-			throws POPException {
+	public Object newPOPObject(ObjectDescription od, Object... argvs) throws POPException {
 		try {
 			POPObject popObject = null;
 			//Check if object has a default constructor
@@ -82,6 +82,13 @@ public class PJProxyFactory extends ProxyFactory {
 			
 			ObjectDescription originalOd = popObject.getOd();
 			originalOd.merge(od);
+			
+			if(originalOd.getRemoteAccessPoint() != null && !originalOd.getRemoteAccessPoint().isEmpty()){
+				POPAccessPoint accessPoint = new POPAccessPoint();
+				accessPoint.setAccessString(originalOd.getRemoteAccessPoint());
+				return bindPOPObject(accessPoint);
+			}
+			
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.setOd(originalOd);
 			methodHandler.popConstructor(targetClass, argvs);
