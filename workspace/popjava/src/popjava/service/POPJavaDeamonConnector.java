@@ -64,9 +64,9 @@ public class POPJavaDeamonConnector {
 		//Reopen the stream, this time crypted
 		reader = new BufferedReader(
 				new InputStreamReader(
-						new CipherInputStream(socket.getInputStream(), POPJavaDeamon.createKey(secret, false))));
+						new CipherInputStream(socket.getInputStream(), POPJavaDeamon.createKey(salt, secret, false))));
 		
-		Cipher outputCipher = POPJavaDeamon.createKey(secret, true);
+		Cipher outputCipher = POPJavaDeamon.createKey(salt, secret, true);
 		
 		CipherOutputStream outputCipherStream = new CipherOutputStream(socket.getOutputStream(), 
 				outputCipher);

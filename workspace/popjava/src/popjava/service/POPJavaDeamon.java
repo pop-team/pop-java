@@ -38,7 +38,6 @@ import popjava.util.SystemUtil;
  */
 public class POPJavaDeamon implements Runnable, Closeable{
 
-	public static byte[] IV_CRYPTO = new byte[] { (byte) 0x8E, 0x12, 0x39, (byte) 0x9C, 0x07, 0x72, 0x6F, 0x5A, (byte) 0x8E, 0x12, 0x39, (byte) 0x9C, 0x07, 0x72, 0x6F, 0x5A };
 	private static final String salt = "POPSALT";
 	
 	public static final String SUCCESS = "OK";
@@ -49,20 +48,31 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	private static final String BACKUP_JAR = "build/jar/popjava.jar";
 	public static final String ERROR_PWD = "ERROR PASS";
 	
+	private static byte [] getIV(final String salt, final int size){
+		final byte [] iv = new byte[size];
+		final Random rand = new Random(salt.hashCode());
+		
+		for(int i = 0; i < size; i++){
+			iv[i] = (byte)rand.nextFloat();
+		}
+		
+		return iv;
+	}
+	
 	/**
 	 * Mode has is Cipher.ENCRYPT_MODE o 
 	 * @param password
 	 * @param mode
 	 * @return
 	 */
-	public static Cipher createKey(String password, boolean encrypt){
+	public static Cipher createKey(String salt, String password, boolean encrypt){
 		try{
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
 			SecretKey tmp = factory.generateSecret(spec);
 			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 			
-			AlgorithmParameterSpec paramSpec = new IvParameterSpec(IV_CRYPTO);
+			AlgorithmParameterSpec paramSpec = new IvParameterSpec(getIV(salt, 16));
 
 			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			cipher.init(encrypt ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE, secret, paramSpec);
@@ -140,10 +150,10 @@ public class POPJavaDeamon implements Runnable, Closeable{
 				
 				writer = new BufferedWriter(
 						new OutputStreamWriter(
-								new CipherOutputStream(socket.getOutputStream(), createKey(password, true))));
+								new CipherOutputStream(socket.getOutputStream(), createKey(salt, password, true))));
 				reader = new BufferedReader(
 						new InputStreamReader(
-								new CipherInputStream(socket.getInputStream(), createKey(password, false))));
+								new CipherInputStream(socket.getInputStream(), createKey(salt, password, false))));
 				
 				int commandLength = Integer.parseInt(reader.readLine());
 								
