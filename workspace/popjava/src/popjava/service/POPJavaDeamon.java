@@ -9,11 +9,23 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import popjava.system.POPJavaConfiguration;
 import popjava.util.SystemUtil;
@@ -26,12 +38,41 @@ import popjava.util.SystemUtil;
  */
 public class POPJavaDeamon implements Runnable, Closeable{
 
+	public static byte[] IV_CRYPTO = new byte[] { (byte) 0x8E, 0x12, 0x39, (byte) 0x9C, 0x07, 0x72, 0x6F, 0x5A, (byte) 0x8E, 0x12, 0x39, (byte) 0x9C, 0x07, 0x72, 0x6F, 0x5A };
+	private static final String salt = "POPSALT";
+	
 	public static final String SUCCESS = "OK";
 	public static final int POP_JAVA_DEAMON_PORT = 43424;
 	private ServerSocket serverSocket;
 	private String password = "";
 	
 	private static final String BACKUP_JAR = "build/jar/popjava.jar";
+	public static final String ERROR_PWD = "ERROR PASS";
+	
+	/**
+	 * Mode has is Cipher.ENCRYPT_MODE o 
+	 * @param password
+	 * @param mode
+	 * @return
+	 */
+	public static Cipher createKey(String password, boolean encrypt){
+		try{
+			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
+			SecretKey tmp = factory.generateSecret(spec);
+			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
+			
+			AlgorithmParameterSpec paramSpec = new IvParameterSpec(IV_CRYPTO);
+
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			cipher.init(encrypt ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE, secret, paramSpec);
+			
+			return cipher;
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	public POPJavaDeamon(String password){
 		this.password = password;
@@ -66,8 +107,10 @@ public class POPJavaDeamon implements Runnable, Closeable{
 		public void run() {
 			
 			try {
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				BufferedWriter writer = new BufferedWriter(
+						new OutputStreamWriter(socket.getOutputStream()));
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(socket.getInputStream()));
 				
 				String salt = createSecret();
 				
@@ -75,24 +118,38 @@ public class POPJavaDeamon implements Runnable, Closeable{
 				writer.write(salt+"\n");
 				writer.flush();
 				
-				List<String> commands = new ArrayList<String>();
-				
 				System.out.println("Execute command: ");
-				
 				
 				String saltedHash = getSaltedHash(salt, password);
 				
 				//Read command to execute
 				String challengeAnswer = reader.readLine();
+				
 				if(!saltedHash.equals(challengeAnswer)){
 					System.err.println("The supplied secret was wrong : "+challengeAnswer+" should be "+saltedHash+" using password "+password);
-					writer.write("ERROR PASS\n");
+					writer.write(ERROR_PWD+"\n");
 					writer.close();
 					reader.close();
 					return;
+				}else{
+					writer.write("SUCCESS\n");
+					writer.flush();
 				}
 				
+				System.out.println("Correct login");
+				
+				writer = new BufferedWriter(
+						new OutputStreamWriter(
+								new CipherOutputStream(socket.getOutputStream(), createKey(password, true))));
+				reader = new BufferedReader(
+						new InputStreamReader(
+								new CipherInputStream(socket.getInputStream(), createKey(password, false))));
+				
 				int commandLength = Integer.parseInt(reader.readLine());
+								
+				List<String> commands = new ArrayList<String>();
+				
+				System.out.println("Get commands "+commandLength);
 				
 				boolean isJava = false;
 				boolean isClassPath = false;
@@ -124,19 +181,21 @@ public class POPJavaDeamon implements Runnable, Closeable{
 					}
 					
 					isClassPath = line.equals("-cp");
+					
+					
 				}
 				System.out.println();
-				
+				System.out.println("Launching object");
 				//Execute command
 				if(isJava){
 					SystemUtil.runCmd(commands);
 					writer.write(SUCCESS+"\n");
-					writer.flush();
 				}else{
 					writer.write("ERROR NOT JAVA\n");
-					writer.flush();
 				}
-				
+
+				System.out.println("Finished deamon stuff");
+				writer.close();
 				reader.close();
 			} catch (IOException e) {
 				e.printStackTrace();
