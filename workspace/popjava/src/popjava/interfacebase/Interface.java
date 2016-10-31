@@ -30,7 +30,7 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxAllocateSocket;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.dataswaper.POPString;
-import popjava.service.POPJavaDeamonConnector;
+import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;

@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import popjava.PopJava;
 import popjava.baseobject.ConnectionType;
-import popjava.service.POPJavaDeamon;
+import popjava.service.deamon.POPJavaDeamon;
 import popjava.system.POPSystem;
 
 public class DeamonTest {
