@@ -53,7 +53,8 @@ public class SystemUtil {
 				if (currentDirectory != null) {
 					//pb.directory(currentDirectory);
 				}
-				processes.add(pb.start());
+				Process process = pb.start();
+				processes.add(process);
 				LogWriter.writeDebugInfo("Started command after "+(System.currentTimeMillis() - startTime));
 				return 0;
 			} catch (IOException e) {

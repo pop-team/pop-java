@@ -28,10 +28,12 @@ import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
-import popjava.codemanager.POPJavaAppService;
 import popjava.combox.ComboxSocketFactory;
+import popjava.service.jobmanager.POPJavaAppService;
+import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
+import popjava.serviceadapter.POPJobService;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.SystemUtil;
@@ -55,6 +57,7 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint jobService = new POPAccessPoint();
 	private static AppService coreServiceManager;
+	private static POPJobService jobmanager;
 	
 	/**
 	 * POP-Java application service access point 
@@ -295,6 +298,10 @@ public class POPSystem {
                 POPJavaConfiguration.getBrokerCommand(),
                 POPJavaConfiguration.getPopJavaJar(),
                 getNeededClasspath());
+        
+        if(Configuration.START_JOBMANAGER){
+        	jobmanager = PopJava.newActive(POPJavaJobManager.class, "localhost:"+POPJobManager.DEFAULT_PORT);
+        }
         
         initialized = initCodeService(codeconf, popJavaObjectExecuteCommand, coreServiceManager);
 	    

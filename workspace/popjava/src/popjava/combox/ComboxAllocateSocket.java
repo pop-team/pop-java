@@ -42,6 +42,7 @@ public class ComboxAllocateSocket {
 			Socket peerConnection = serverSocket.accept();
 			combox = new ComboxSocket(peerConnection);
 		} catch (IOException e) {
+			e.printStackTrace();
 			LogWriter.writeExceptionLog(e);
 		}
 	}

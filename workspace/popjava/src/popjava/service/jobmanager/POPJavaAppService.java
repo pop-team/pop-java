@@ -1,4 +1,4 @@
-package popjava.codemanager;
+package popjava.service.jobmanager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +7,7 @@ import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
 import popjava.base.POPObject;
+import popjava.codemanager.AppService;
 import popjava.dataswaper.POPString;
 import popjava.serviceadapter.POPAppService;
 import popjava.system.POPJavaConfiguration;

@@ -19,4 +19,5 @@ public @interface POPClass {
 	boolean deconstructor() default false;
 	int maxRequestQueue() default RequestQueue.DEFAULT_REQUEST_QUEUE_SIZE;
 	boolean isDistributable() default true;
+	boolean useAsyncConstructor() default true;
 }

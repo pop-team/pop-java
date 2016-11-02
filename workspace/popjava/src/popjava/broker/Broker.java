@@ -197,7 +197,7 @@ public final class Broker {
 		Object[] parameters = null;
 		Constructor<?> constructor = null;
 		POPException exception = null;
-
+		
 		try {
 			MethodInfo info = new MethodInfo(request.getClassId(),
 					request.getMethodId());
@@ -695,7 +695,7 @@ public final class Broker {
 				Thread.sleep(100);
 			}
 		}
-		LogWriter.writeDebugInfo("Close broker");
+		LogWriter.writeDebugInfo("Close broker "+popInfo.getClassName());
 	}
 
 	/**
@@ -781,7 +781,7 @@ public final class Broker {
 		for (int i = 0; i < comboxCount; i++) {
 			ComboxFactory factory = finder.get(i);
 			String prefix = String.format("-%s_port=", factory.getComboxName());
-
+			
 			String port = Util.removeStringFromList(argvs, prefix);
 			int iPort = 0;
 			if (port != null && port.length() > 0) {
@@ -830,7 +830,7 @@ public final class Broker {
 	 *            arguments of the program
 	 * @throws InterruptedException 
 	 */
-	public static void main(String[] argvs) throws InterruptedException {
+	public static void main(String[] argvs) throws InterruptedException {		
 	    POPSystem.setStarted();
 	    
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {

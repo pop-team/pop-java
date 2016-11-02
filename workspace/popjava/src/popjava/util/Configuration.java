@@ -20,6 +20,9 @@ public class Configuration {
 	public static final boolean ASYNC_CONSTRUCTOR = true;
 	public static final boolean ACTIVATE_JMX = false;
 	public static boolean CONNECT_TO_POPCPP = false;//Util.getOSType().equals(OSType.UNIX);
+	
+	public static boolean START_JOBMANAGER = true && !CONNECT_TO_POPCPP;
+	
 	public static final boolean REDIRECT_OUTPUT_TO_ROOT = true;
 	public static final boolean USE_NATIVE_SSH_IF_POSSIBLE = true;
 	

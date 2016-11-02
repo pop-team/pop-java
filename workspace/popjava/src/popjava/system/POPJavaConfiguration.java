@@ -215,7 +215,7 @@ public class POPJavaConfiguration {
         }
         
         if(!popJar.endsWith(".jar")){
-            popJar = "build/jar/"+Popjavac.POP_JAVA_JAR_FILE;
+            popJar = new File("build/jar/"+Popjavac.POP_JAVA_JAR_FILE).getAbsolutePath();
         }
         
         return popJar;

@@ -15,7 +15,7 @@ import junit.localtests.annotations.objects.Integer;
 import junit.localtests.annotations.objects.Parent;
 import popjava.PopJava;
 import popjava.base.MethodInfo;
-import popjava.codemanager.POPJavaAppService;
+import popjava.service.jobmanager.POPJavaAppService;
 import popjava.system.POPSystem;
 
 public class AnnotationsTest {

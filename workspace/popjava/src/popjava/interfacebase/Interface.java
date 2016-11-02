@@ -25,12 +25,12 @@ import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
 import popjava.buffer.POPBuffer;
 import popjava.codemanager.AppService;
-import popjava.codemanager.POPJavaAppService;
 import popjava.combox.Combox;
 import popjava.combox.ComboxAllocateSocket;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
+import popjava.service.jobmanager.POPJavaAppService;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
@@ -166,7 +166,7 @@ public class Interface {
 		remotejobscontact[0] = remotjob;
 		
 		boolean canExecLocal = false;
-		canExecLocal = tryLocal(objectName, popAccessPoint);
+		canExecLocal = tryLocal(objectName, popAccessPoint, od);
 		
 		if (!canExecLocal) {
 			if(!od.getHostName().isEmpty()){
@@ -179,7 +179,7 @@ public class Interface {
 			if(!allocated && od.getHostName().isEmpty()){
 			    LogWriter.printDebug("No url specified for "+objectName+", fallback to localhost");
 			    od.setHostname("localhost");
-			    tryLocal(objectName, popAccessPoint);
+			    tryLocal(objectName, popAccessPoint, od);
 			}
 		}
 		
@@ -206,6 +206,7 @@ public class Interface {
         	od.setPlatform(platforms);
         	//appCoreService.exit();
         }
+        
         // Global Resource management system --> Find a resource.
         String jobUrl = od.getJobUrl();
         POPAccessPoint jobContact = new POPAccessPoint();
@@ -222,7 +223,7 @@ public class Interface {
 
         POPJobService jobManager = null;
         try{
-        	if(Configuration.CONNECT_TO_POPCPP){
+        	if(Configuration.CONNECT_TO_POPCPP || Configuration.START_JOBMANAGER){
         		jobManager = PopJava.newActive(POPJobService.class, jobContact);
         	}
         }catch(Exception e){
@@ -465,7 +466,7 @@ public class Interface {
 	 * @return true if the local execution succeed
 	 * @throws POPException thrown if any exception occurred during the creation process
 	 */
-	private boolean tryLocal(String objectName, POPAccessPoint accesspoint)
+	public static boolean tryLocal(String objectName, POPAccessPoint accesspoint, ObjectDescription od)
 			throws POPException {
 	//	String hostname = "";
 		String joburl ="";
@@ -479,7 +480,6 @@ public class Interface {
 		}
 
 		joburl = od.getHostName();
-		LogWriter.writeDebugInfo("Joburl "+joburl+" "+objectName);
 		/*if (joburl == null || joburl.length() == 0 || !Util.sameContact(joburl, POPSystem.getHost())){
 			return false;
 		}*/
@@ -487,6 +487,7 @@ public class Interface {
 		if(joburl == null || joburl.length() == 0){
 			return false;
 		}
+		LogWriter.writeDebugInfo("Joburl "+joburl+" "+objectName);
 
 		codeFile = od.getCodeFile();
 		
@@ -507,7 +508,8 @@ public class Interface {
 		}
 
 		int status = localExec(joburl, codeFile, objectName, rport,
-				POPSystem.jobService, POPSystem.appServiceAccessPoint, accesspoint);
+				POPSystem.jobService, POPSystem.appServiceAccessPoint, accesspoint,
+				od);
 		
 		if (status != 0) {
 			// Throw exception
@@ -616,9 +618,10 @@ public class Interface {
 	 * @param objaccess	Output arguments - Access point to the object
 	 * @return -1 if the local execution failed 
 	 */
-	private int localExec(String hostname, String codeFile,
+	private static int localExec(String hostname, String codeFile,
 			String classname, String rport, POPAccessPoint jobserv,
-			POPAccessPoint appserv, POPAccessPoint objaccess) {
+			POPAccessPoint appserv, POPAccessPoint objaccess,
+			ObjectDescription od) {
 		
 		boolean isLocal = Util.isLocal(hostname);
 		/*if (!isLocal) {
@@ -731,7 +734,9 @@ public class Interface {
 		} else {
 			result = -1;
 		}
+
 		allocateCombox.close();
+		
 		return result;
 	}
 

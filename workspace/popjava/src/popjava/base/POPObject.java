@@ -412,15 +412,17 @@ public class POPObject implements IPOPBase {
 	 */
 	public Method getMethodByInfo(MethodInfo info) throws NoSuchMethodException {
 		Method method = null;
-		Enumeration<MethodInfo> keys = methodInfos.keys();
-		while (keys.hasMoreElements()) {
-			MethodInfo key = keys.nextElement();
+		for(MethodInfo key : methodInfos.keySet()){
 			if (key.equals(info)) {
 				method = findSuperMethod(methodInfos.get(key));
 				break;
 			}
 		}
 		if (method == null){
+			for(MethodInfo key : methodInfos.keySet()){
+				System.out.println(key.getClassId()+" "+key.getMethodId()+" "+methodInfos.get(key).getName());
+			}
+			
 			throw new NoSuchMethodException();
 		}
 		

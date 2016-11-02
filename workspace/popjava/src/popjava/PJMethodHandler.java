@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
+import popjava.annotation.POPClass;
 import popjava.annotation.POPParameter;
 import popjava.base.MessageHeader;
 import popjava.base.MethodInfo;
@@ -131,7 +132,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			}
 		};
 		
-		if(Configuration.ASYNC_CONSTRUCTOR){
+		POPClass annotation = targetClass.getAnnotation(POPClass.class);
+		
+		if(Configuration.ASYNC_CONSTRUCTOR && (annotation == null || annotation.useAsyncConstructor())){
 			new Thread(constructorRunnable	, "POPJava constructor").start();
 		}else{
 			constructorRunnable.run();
@@ -165,7 +168,6 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	@Override
     public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
 			throws Throwable {
-		
 		//TODO: Busy waiting, bad, remove with lock?
 		while(!setup.get()){
 			Thread.sleep(50);
@@ -341,7 +343,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			}
 			return result;
 		} else if (methodName.equals("exit") && argvs.length == 0) {
-			LogWriter.writeDebugInfo("Close method handler through exit");
+			LogWriter.writeDebugInfo("Close method handler through exit: "+popObjectInfo.getClassName());
 			canExcute[0] = true;
 			invokeExit();
 		} else {
