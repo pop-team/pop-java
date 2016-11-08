@@ -20,6 +20,7 @@ public class SystemUtil {
 	public static void endAllChildren(){
 		for(int i = 0; i < processes.size(); i++){
 			Process process = processes.get(i);
+			
 			if(process != null){
 				process.destroy();
 			}

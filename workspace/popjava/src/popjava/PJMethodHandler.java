@@ -24,6 +24,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.interfacebase.Interface;
+import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -74,6 +75,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		final Constructor<?> constructor = ClassUtil.getConstructor(targetClass, ClassUtil.getObjectTypes(argvs));
 		
 		final Class<?>[] parameterTypes = constructor.getParameterTypes();
+		final Exception temp = new Exception();
 		
 		final Runnable constructorRunnable = new Runnable() {
 			
@@ -124,6 +126,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 						}
 					}
 				}catch(POPException e){
+					temp.printStackTrace();
 					e.printStackTrace();
 				}
 				
@@ -135,7 +138,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		POPClass annotation = targetClass.getAnnotation(POPClass.class);
 		
 		if(Configuration.ASYNC_CONSTRUCTOR && (annotation == null || annotation.useAsyncConstructor())){
-			new Thread(constructorRunnable	, "POPJava constructor").start();
+			POPSystem.startAsyncConstructor(constructorRunnable);
 		}else{
 			constructorRunnable.run();
 		}

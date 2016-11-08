@@ -2,6 +2,7 @@ package popjava.service.jobmanager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import popjava.PopJava;
 import popjava.annotation.POPClass;
@@ -13,10 +14,11 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.interfacebase.Interface;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPParameter;
+import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
 
 @POPClass(classId = 10, deconstructor = false, useAsyncConstructor = false)
-public class POPJavaJobManager extends POPJobService{
+public class POPJavaJobManager extends POPJobManager{
 	
 	private static class RemoteNodes{
 		private final String url;
@@ -49,7 +51,7 @@ public class POPJavaJobManager extends POPJobService{
 		if(remotes.size() == 0){
 			return "";
 		}
-		return remotes.get(0).getUrl();
+		return remotes.get((int)(Math.random() * remotes.size())).getUrl();
 	}
 	
 	public int createObject(POPAccessPoint localservice,

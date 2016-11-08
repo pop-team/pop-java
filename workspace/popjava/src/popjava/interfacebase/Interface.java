@@ -170,6 +170,9 @@ public class Interface {
 		
 		if (!canExecLocal) {
 			if(!od.getHostName().isEmpty()){
+				if(Thread.currentThread().isInterrupted()){
+					return false;
+				}
 				throw new POPException(-1, "Could not create "+objectName+" on "+od.getHostName());
 			}
 			
@@ -506,7 +509,7 @@ public class Interface {
 			rport = joburl.substring(index + 1);
 			joburl = joburl.substring(0, index);
 		}
-
+		
 		int status = localExec(joburl, codeFile, objectName, rport,
 				POPSystem.jobService, POPSystem.appServiceAccessPoint, accesspoint,
 				od);
@@ -515,6 +518,7 @@ public class Interface {
 			// Throw exception
 			LogWriter.writeDebugInfo("Could not create "+objectName+" on "+joburl);
 		}
+		
 		return (status == 0);
 	}
 	

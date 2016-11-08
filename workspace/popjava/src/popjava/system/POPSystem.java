@@ -11,6 +11,10 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -46,7 +50,8 @@ import popjava.util.Util.OSType;
 public class POPSystem {
 	private static POPRemoteLogThread prlt;
 	private static String platform = "linux";
-	private static boolean initialized = false;
+	private static volatile boolean initialized = false;
+	private static ExecutorService asyncConstructorExecutor = Executors.newFixedThreadPool(20);
 	
 	/**
 	 * POP-Java location environement variable name
@@ -495,6 +500,11 @@ public class POPSystem {
 	}
 	
 	public static void end(){
+		LogWriter.writeDebugInfo("Shutting down POP-Java");
+		waitForAsyncConstructors();
+		
+		asyncConstructorExecutor.shutdownNow();
+		
 		if(coreServiceManager != null){
 			coreServiceManager.exit();
 		}
@@ -517,6 +527,18 @@ public class POPSystem {
 	
 	public static boolean isInitialized(){
 		return initialized;
+	}
+	
+	public static void startAsyncConstructor(Runnable constructor){
+		asyncConstructorExecutor.execute(constructor);
+	}
+	
+	public static void waitForAsyncConstructors(){
+		try {
+			asyncConstructorExecutor.awaitTermination(1, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
