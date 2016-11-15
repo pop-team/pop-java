@@ -251,6 +251,7 @@ public class POPSystem {
 	 * @throws POPException thrown is any problems occurred during the initialization
 	 */
 	public static String[] initialize(String ... args){
+		asyncConstructorExecutor = Executors.newFixedThreadPool(20);
 		ArrayList<String> argvList = new ArrayList<String>();
 		
 		for (String str : args){
