@@ -35,4 +35,20 @@ public class Resource {
 		if(r.bandwidth > 0)
 			bandwidth -= bandwidth;
 	}
+
+	public int getId() {
+		return id;
+	}
+
+	public float getFlops() {
+		return flops;
+	}
+
+	public float getMemory() {
+		return memory;
+	}
+
+	public float getBandwidth() {
+		return bandwidth;
+	}
 }
