@@ -41,6 +41,9 @@ public class ObjectDescription implements IPOPBase {
 	
 	protected String remoteAccessPoint = ""; //Used to connect to a remote object at object creation
 	
+	// identify the network of interest
+	protected String network = "";
+	
 	protected String jvmParamters;
 	protected ConnectionType connectionType = ConnectionType.ANY;
 	protected String connectionSecret;
@@ -497,6 +500,22 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	public String getCodeFile() {
 		return codeFile;
+	}
+
+	/**
+	 * The network to use for this request
+	 * @return 
+	 */
+	public String getNetwork() {
+		return network;
+	}
+
+	/**
+	 * Specify network name to use
+	 * @param network 
+	 */
+	public void setNetwork(String network) {
+		this.network = network;
 	}
 
 	/**
