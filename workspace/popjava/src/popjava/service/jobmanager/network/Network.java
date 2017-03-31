@@ -1,16 +1,13 @@
 package popjava.service.jobmanager.network;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import static popjava.base.POPErrorCode.POP_NO_PROTOCOL;
-import popjava.base.POPException;
+import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.protocol.CreateObjectProtocolBase;
+import popjava.service.jobmanager.protocol.ProtocolFactory;
 
 /**
  *
@@ -19,28 +16,27 @@ import popjava.service.jobmanager.protocol.CreateObjectProtocolBase;
 public class Network {
 	private final String name;
 	private final CreateObjectProtocolBase protocol;
-	private final Set<Node> members;
+	private final Set<NetworkNode> members;
+	private final POPJavaJobManager jobManager;
+	private final String[] otherParams;
 
-	public Network(String name, CreateObjectProtocolBase protocol) {
+	public Network(String name, CreateObjectProtocolBase protocol, POPJavaJobManager jobManager, String... other) {
 		this.name = name;
 		this.protocol = protocol;
 		this.members = new HashSet<>();
+		this.jobManager = jobManager;
+		this.otherParams = other;
+		
+		setupProtocol();
+	}
+
+	private void setupProtocol() {
+		this.protocol.setNetwork(this);
+		this.protocol.setJobManager(jobManager);
 	}
 	
-	public Network(String name, String protocol) {
-		try {
-			if(!protocol.startsWith("popjava.service.jobmanager.protocol.CP"))
-				protocol = "popjava.service.jobmanager.protocol.CP" + protocol;
-			Class<CreateObjectProtocolBase> clazz = (Class<CreateObjectProtocolBase>) Class.forName(protocol);
-			Constructor<CreateObjectProtocolBase> constr = clazz.getConstructor(String.class /* TODO add parameters*/);
-			CreateObjectProtocolBase instance = constr.newInstance("" /* TODO add params */);
-			
-			this.name = name;
-			this.protocol = instance;
-			this.members = new HashSet<>();
-		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | ClassNotFoundException ex) {
-			throw new POPException(POP_NO_PROTOCOL, "We didn't find the class " + protocol);
-		}
+	public Network(String name, String protocol, POPJavaJobManager jobManager, String... other) {
+		this(name, ProtocolFactory.makeProtocol(protocol), jobManager, other);
 	}
 
 	public String getName() {
@@ -55,15 +51,32 @@ public class Network {
 		return members.size();
 	}
 
-	public Iterator<Node> iterator() {
-		return members.iterator();
+	/**
+	 * Get NetworkNode already casted to correct type
+	 * @param <T> The type we want the set of NetworkNode
+	 * @return An immutable set we can loop through
+	 */
+	public<T extends NetworkNode> Set<T> getMembers() {
+		return (Set<T>)Collections.unmodifiableSet(members);
 	}
 
-	public boolean add(Node e) {
-		return members.add(e);
+	/**
+	 * Add a NetworkNode to this network
+	 * @param e The node
+	 * @return true if the Node is added, false if not or not compatible
+	 */
+	public boolean add(NetworkNode e) {
+		if (protocol.isValidNode(e))
+			return members.add(e);
+		return false;
 	}
 
-	public boolean remove(Node o) {
+	/**
+	 * Remove a node from this Network
+	 * @param o The node
+	 * @return true if the Node is remove, false otherwise
+	 */
+	public boolean remove(NetworkNode o) {
 		return members.remove(o);
 	}
 
@@ -87,6 +100,12 @@ public class Network {
 		}
 		final Network other = (Network) obj;
 		if (!Objects.equals(this.name, other.name)) {
+			return false;
+		}
+		if (!Objects.equals(this.members, other.members)) {
+			return false;
+		}
+		if (!Objects.equals(this.jobManager, other.jobManager)) {
 			return false;
 		}
 		return true;

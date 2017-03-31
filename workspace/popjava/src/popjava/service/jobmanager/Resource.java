@@ -9,6 +9,20 @@ public class Resource {
 	protected float flops;
 	protected float memory;
 	protected float bandwidth;
+
+	public Resource() {
+	}
+	
+	public Resource(int id, float flops, float memory, float bandwidth) {
+		this.id = id;
+		this.flops = flops;
+		this.memory = memory;
+		this.bandwidth = bandwidth;
+	}
+	
+	public Resource(float flops, float memory, float bandwidth) {
+		this(-1, flops, memory, bandwidth);
+	}
 	
 	/**
 	 * Add another resource to this one, only positive values will be considered
@@ -50,5 +64,58 @@ public class Resource {
 
 	public float getBandwidth() {
 		return bandwidth;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setFlops(float flops) {
+		this.flops = flops;
+	}
+
+	public void setMemory(float memory) {
+		this.memory = memory;
+	}
+
+	public void setBandwidth(float bandwidth) {
+		this.bandwidth = bandwidth;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 5;
+		hash = 59 * hash + this.id;
+		hash = 59 * hash + Float.floatToIntBits(this.flops);
+		hash = 59 * hash + Float.floatToIntBits(this.memory);
+		hash = 59 * hash + Float.floatToIntBits(this.bandwidth);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Resource other = (Resource) obj;
+		if (this.id != other.id) {
+			return false;
+		}
+		if (Float.floatToIntBits(this.flops) != Float.floatToIntBits(other.flops)) {
+			return false;
+		}
+		if (Float.floatToIntBits(this.memory) != Float.floatToIntBits(other.memory)) {
+			return false;
+		}
+		if (Float.floatToIntBits(this.bandwidth) != Float.floatToIntBits(other.bandwidth)) {
+			return false;
+		}
+		return true;
 	}
 }

@@ -1,5 +1,13 @@
 package popjava.service.jobmanager;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
@@ -10,25 +18,226 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
+import popjava.base.POPException;
 import popjava.dataswaper.POPString;
+import popjava.service.jobmanager.network.Network;
+import popjava.service.jobmanager.network.NetworkNode;
+import popjava.service.jobmanager.network.NetworkNodeFactory;
 import popjava.serviceadapter.POPJobManager;
+import popjava.util.Configuration;
+import popjava.util.LogWriter;
 
 @POPClass(classId = 10, deconstructor = false, useAsyncConstructor = false)
 public class POPJavaJobManager extends POPJobManager{
 	
 	/** Currently used resources of a node */
-	private final Resource availble = new Resource();
+	protected final Resource availble = new Resource();
 	/** Total resources a job can have */
-	private final Resource limit = new Resource();
+	protected final Resource limit = new Resource();
+	
+	
+	/** Total number of requests received */
+	protected int requestCounter;
+	
+	/** Number of job alive */
+	protected Set<AppResource> jobs = new HashSet<>();
+	
+	/** Networks saved in this JobManager */
+	protected Map<String,Network> networks = new HashMap<>();
+	
+	/** Max number of jobs */
+	protected int maxJobs;
 
 	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
 	public POPJavaJobManager() {
-		// TODO call other constructor
-		
+		init(Configuration.DEFAULT_JM_CONFIG_FILE);
 	}
 	
-	public POPJavaJobManager(@POPConfig(Type.URL) String url) {
-		// init object, read config files
+	public POPJavaJobManager(@POPConfig(Type.URL) String url, String conf) {
+		init(conf);
+	}
+
+	/**
+	 * Read configuration file and setup system
+	 * Has some sane defaults
+	 * @param confFile Path to configuration file
+	 */
+	private void init(String confFile) {
+		File config = new File(confFile);
+		
+		// early exit
+		if (!config.exists()) {
+			LogWriter.writeDebugInfo("Open config file [" + confFile + "] fail");
+			POPException.throwObjectNoResource();
+		}
+		
+		// default num of jobs
+		maxJobs = 100;
+		
+		// set resource by default hoping for the best
+		availble.add(new Resource(300, 256, 100));
+		// no restrictions on default limit
+		limit.add(availble);
+		
+		// config file is read line by line, information is extracted as see fit
+		try (BufferedReader br = new BufferedReader(new FileReader(config))) {
+			String line;
+			String[] token;
+			while ((line = br.readLine()) != null) {
+				// split line for reading
+				token = line.trim().split("\\s+");
+				
+				// skip only key or empty lines
+				if (token.length < 2 )
+					continue;
+				// skip commented lines
+				if (token[0].startsWith("#"))
+					continue;
+				
+				// handle first token
+				switch (token[0]) {
+					// create network
+					// format: network <name> <protocol> [params...]
+					case "network": 
+						// not enough elements
+						if (token.length < 3) {
+							LogWriter.writeDebugInfo(String.format("Network %s not enough parameters supplied", token[1]));
+							continue;
+						}
+						
+						// check if exists
+						if (networks.containsKey(token[1])) {
+							LogWriter.writeDebugInfo(String.format("Network %s already exists", token[1]));
+							continue;
+						}
+						
+						// get extra information
+						String[] other = new String[ token.length - 3 ];
+						System.arraycopy(token, 3, other, 0, token.length - 3);
+						
+						// create network
+						Network network = new Network(token[1], token[2], this, other);
+						// add to map
+						networks.put(token[1], network);
+						break;
+						
+						
+						
+					// handle node in network
+					// format: node <network> <params...>
+					case "node":
+						// not enough elements
+						if (token.length < 3) {
+							LogWriter.writeDebugInfo(String.format("Node not enough parameters supplied: %s", line));
+							continue;
+						}
+						
+						// get network
+						network = networks.get(token[1]);
+						// no network
+						if (network == null) {
+							LogWriter.writeDebugInfo(String.format("Node, network %s not found", token[1]));
+							continue;
+						}
+						
+						// params for node, at least one
+						other = new String[ token.length - 2 ];
+						System.arraycopy(token, 2, other, 0, token.length - 2);
+						
+						// create the node for the network
+						NetworkNode node = NetworkNodeFactory.makeNode(network.getProtocol().getClass(), other);
+						// add it to the network
+						network.add(node);
+						break;
+						
+						
+						
+					// set available resources
+					// format: resource <ram|memory|bandwidth> <value>
+					case "resource":
+						if (token.length < 3) {
+							LogWriter.writeDebugInfo(String.format("Resource set fail, not enough parameters: %s", line));
+							continue;
+						}
+						
+						// type of set <ram|memory|bandwidth>
+						switch (token[1]) {
+							case "ram":
+								try {
+									availble.setMemory(Integer.parseInt(token[2]));
+								} catch (NumberFormatException e) {
+									LogWriter.writeDebugInfo(String.format("Resource set fail, ram value: %s", token[2]));
+								}
+								break;
+							case "memory":
+								try {
+									availble.setBandwidth(Integer.parseInt(token[2]));
+								} catch (NumberFormatException e) {
+									LogWriter.writeDebugInfo(String.format("Resource set fail, memory value: %s", token[2]));
+								}
+								break;
+							case "bandwidth":
+								try {
+									availble.setBandwidth(Integer.parseInt(token[2]));
+								} catch (NumberFormatException e) {
+									LogWriter.writeDebugInfo(String.format("Resource set fail, bandwidth value: %s", token[2]));
+								}
+								break;
+							default:
+								LogWriter.writeDebugInfo(String.format("Resource set fail, unknow resource: %s", token[1]));
+						}
+						break;
+						
+						
+						
+					// set jobs limit, resources and number
+					// format: job <limit|ram|memory|bandwidth> <value>
+					case "job":
+						if (token.length < 3) {
+							LogWriter.writeDebugInfo(String.format("Limit set fail, not enough parameters: %s", line));
+							continue;
+						}
+						// type of set <limit|ram|memory|bandwidth>
+						switch (token[1]) {
+							case "limit":
+								try {
+									maxJobs = Integer.parseInt(token[2]);
+								} catch (NumberFormatException e) {
+									LogWriter.writeDebugInfo(String.format("Limit set fail, limit value: %s", token[2]));
+								}
+								break;
+							case "ram":
+								try {
+									limit.setMemory(Integer.parseInt(token[2]));
+								} catch (NumberFormatException e) {
+									LogWriter.writeDebugInfo(String.format("Limit set fail, ram value: %s", token[2]));
+								}
+								break;
+							case "memory":
+								try {
+									limit.setBandwidth(Integer.parseInt(token[2]));
+								} catch (NumberFormatException e) {
+									LogWriter.writeDebugInfo(String.format("Limit set fail, memory value: %s", token[2]));
+								}
+								break;
+							case "bandwidth":
+								try {
+									limit.setBandwidth(Integer.parseInt(token[2]));
+								} catch (NumberFormatException e) {
+									LogWriter.writeDebugInfo(String.format("Limit set fail, bandwidth value: %s", token[2]));
+								}
+								break;
+							default:
+								LogWriter.writeDebugInfo(String.format("Limit set fail, unknow resource: %s", token[1]));
+						}
+						break;
+					default:
+						
+				}
+			}
+		} catch (IOException e) {
+			throw new POPException(0, e.getMessage());
+		}
 	}
 	
 	@Override
@@ -37,7 +246,6 @@ public class POPJavaJobManager extends POPJobManager{
 			@POPParameter(Direction.IN) ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts,
 			int howmany2, POPAccessPoint[] remotejobcontacts) {
-		
 		
 		return 0;
 	}

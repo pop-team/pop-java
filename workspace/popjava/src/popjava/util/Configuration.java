@@ -26,6 +26,8 @@ public class Configuration {
 	public static final boolean REDIRECT_OUTPUT_TO_ROOT = true;
 	public static final boolean USE_NATIVE_SSH_IF_POSSIBLE = true;
 	
+	public static final String DEFAULT_JM_CONFIG_FILE = "jobmgr.conf";
+	
 	/**
 	 * Default constructor
 	 */
