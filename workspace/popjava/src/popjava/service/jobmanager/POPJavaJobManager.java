@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import popjava.annotation.POPAsyncConc;
@@ -47,6 +49,9 @@ public class POPJavaJobManager extends POPJobManager{
 	
 	/** Max number of jobs */
 	protected int maxJobs;
+	
+	/** Node extra information, value as List if multiple are supplied */
+	protected Map<String, List<String>> nodeExtra = new HashMap<>();
 
 	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
 	public POPJavaJobManager() {
@@ -231,8 +236,19 @@ public class POPJavaJobManager extends POPJobManager{
 								LogWriter.writeDebugInfo(String.format("Limit set fail, unknow resource: %s", token[1]));
 						}
 						break;
-					default:
 						
+						
+					// any other value is store in a map for possible future use
+					default:
+						// get or create and add to map
+						List<String> val = nodeExtra.get(token[0]);
+						if (val == null) {
+							val = new ArrayList<>();
+							nodeExtra.put(token[0], val);
+						}
+						// add extra value
+						val.add(line.substring(token[0].length()));
+						break;
 				}
 			}
 		} catch (IOException e) {
