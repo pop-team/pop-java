@@ -62,4 +62,11 @@ public class NodeJobManager extends NetworkNode{
 		}
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		if (jobManagerAccessPoint == null)
+			return null;
+		return jobManagerAccessPoint.toString();
+	}
 }

@@ -93,4 +93,9 @@ public class NodeSSH extends NetworkNode {
 		}
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s:%d %s", host, port, daemon ? "daemon" : "");
+	}
 }
