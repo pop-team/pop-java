@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import static java.lang.Math.min;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ import popjava.util.LogWriter;
 public class POPJavaJobManager extends POPJobManager{
 	
 	/** Currently used resources of a node */
-	protected final Resource availble = new Resource();
+	protected final Resource available = new Resource();
 	/** Total resources a job can have */
 	protected final Resource limit = new Resource();
 	
@@ -89,9 +90,9 @@ public class POPJavaJobManager extends POPJobManager{
 		maxJobs = 100;
 		
 		// set resource by default hoping for the best
-		availble.add(new Resource(300, 256, 100));
+		available.add(new Resource(300, 256, 100));
 		// no restrictions on default limit
-		limit.add(availble);
+		limit.add(available);
 		
 		// config file is read line by line, information is extracted as see fit
 		try (BufferedReader br = new BufferedReader(new FileReader(config))) {
@@ -178,21 +179,21 @@ public class POPJavaJobManager extends POPJobManager{
 						switch (token[1]) {
 							case "ram":
 								try {
-									availble.setMemory(Integer.parseInt(token[2]));
+									available.setMemory(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("Resource set fail, ram value: %s", token[2]));
 								}
 								break;
 							case "memory":
 								try {
-									availble.setBandwidth(Integer.parseInt(token[2]));
+									available.setBandwidth(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("Resource set fail, memory value: %s", token[2]));
 								}
 								break;
 							case "bandwidth":
 								try {
-									availble.setBandwidth(Integer.parseInt(token[2]));
+									available.setBandwidth(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("Resource set fail, bandwidth value: %s", token[2]));
 								}
@@ -308,31 +309,96 @@ public class POPJavaJobManager extends POPJobManager{
 		
 		Resource weighted = new Resource();
 		float fitness = 1f;
+		float flops = 0;
+		//float walltime = 0;
+		float mem = 0;
+		float bandwidth = 0;
+
+		try {
+			mutex.lock();
 		
-		// if we have an od
-		if (!od.isEmpty()) {
-			// TODO fill fitness calculation
+			// if we have an od
+			if (!od.isEmpty()) {
+				float require, min;
+
+				// power
+				require = od.getPowerReq();
+				min = od.getPowerMin();
+				if (require > 0) {
+					if (min < 0) {
+						min = require;
+					}
+
+					if (require > available.getFlops() || require > limit.getFlops()) {
+						flops = min(available.getFlops(), limit.getFlops());
+						fitness = flops / require;
+					} else {
+						flops = require;
+						fitness = min(available.getFlops(), limit.getFlops()) / require;
+					}
+					if (fitness < iofitness.getValue()) {
+						return 0;
+					}
+				}
+
+				// memory
+				require = od.getMemoryReq();
+				min = od.getMemoryMin();
+				if (require > 0) {
+					LogWriter.writeDebugInfo(String.format("Require memory %f, at least: %f (available: %f)", require, min, available.getMemory()));
+					if (min < 0) {
+						min = require;
+					}
+					if (min > available.getMemory()) {
+						LogWriter.writeDebugInfo("[JM] Local Match Failed (reason: memory)");
+						return 0;
+					}
+					float fitness1;
+					if (require > available.getMemory()) {
+						mem = available.getMemory();
+						fitness1 = mem / require;
+					} else {
+						mem = require;
+						fitness1 = mem / available.getMemory();
+					}
+					if (fitness1 < fitness) {
+						if (fitness1 < iofitness.getValue()) {
+							return 0;
+						}
+						fitness = fitness1;
+					}
+				}
+
+				
+				// TODO? walltime; 
+				// TODO bandwidth; not in POPC
+				
+				weighted = new Resource(flops, mem, bandwidth);
+			}
+
+			// output fitness
+			iofitness.setValue(fitness);
+
+			// new app resource
+			AppResource app = new AppResource();
+			app.setId(requestCounter.incrementAndGet());
+			app.add(weighted);
+			// TODO walltime?
+			app.setAppId(popAppId);
+			app.setReqId(reqID);
+			// reservation time
+			app.setAccessTime(System.currentTimeMillis());
+
+			// add job
+			jobs.put(app.getId(), app);
+			// remove available resources
+			available.subtract(app);
+
+
+			return app.getId();
+		} finally {
+			mutex.unlock();
 		}
-		
-		// output fitness
-		iofitness.setValue(fitness);
-		
-		// new app resource
-		AppResource app = new AppResource();
-		app.setId(requestCounter.incrementAndGet());
-		app.add(weighted);
-		// TODO walltime?
-		app.setAppId(popAppId);
-		app.setReqId(reqID);
-		// reservation time
-		app.setAccessTime(System.currentTimeMillis());
-		
-		// add job
-		jobs.put(app.getId(), app);
-		// remove available resources
-		availble.subtract(app);
-		
-		return app.getId();
 	}
 	
 	/**
@@ -353,7 +419,7 @@ public class POPJavaJobManager extends POPJobManager{
 				continue;
 			
 			// free JM resource
-			availble.add(resource);
+			available.add(resource);
 		}
 	}
 
@@ -410,7 +476,7 @@ public class POPJavaJobManager extends POPJobManager{
 				return true;
 			case "power_available":
 				update();
-				value.setValue(String.valueOf(availble.getFlops()));
+				value.setValue(String.valueOf(available.getFlops()));
 				return true;
 		}
 		
