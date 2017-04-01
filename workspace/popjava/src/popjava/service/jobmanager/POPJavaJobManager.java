@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
@@ -23,6 +25,7 @@ import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
+import popjava.dataswaper.POPFloat;
 import popjava.dataswaper.POPString;
 import popjava.service.jobmanager.network.Network;
 import popjava.service.jobmanager.network.NetworkNode;
@@ -42,7 +45,7 @@ public class POPJavaJobManager extends POPJobManager{
 	
 	
 	/** Total number of requests received */
-	protected int requestCounter;
+	protected AtomicInteger requestCounter;
 	
 	/** Number of job alive, mapped by {@link AppResource#id} */
 	protected Map<Integer,AppResource> jobs = new HashMap<>();
@@ -55,6 +58,9 @@ public class POPJavaJobManager extends POPJobManager{
 	
 	/** Node extra information, value as List if multiple are supplied */
 	protected Map<String, List<String>> nodeExtra = new HashMap<>();
+	
+	/** Mutex for some operations */
+	protected ReentrantLock mutex = new ReentrantLock(true);
 
 	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
 	public POPJavaJobManager() {
@@ -288,18 +294,45 @@ public class POPJavaJobManager extends POPJobManager{
 	}
 
 	/**
-	 * NOTE: not in parent class
+	 * NOTE: not in parent class, same signature as POPC w/ POPFloat for float transfer
 	 * Add a resource reservation
-	 * @param od
-	 * @param fitness
+	 * @param od The request OD
+	 * @param iofitness 
 	 * @param popAppId
 	 * @param reqID
 	 * @return the reservation ID for this request used in the other methods
 	 */
 	@POPSyncConc(id = 16)
-	public int reserve(@POPParameter(Direction.IN) POPObjectDescription od, float fitness, String popAppId, String reqID) {
-	
-		return 0;
+	public int reserve(@POPParameter(Direction.IN) ObjectDescription od, @POPParameter(Direction.OUT) POPFloat iofitness, String popAppId, String reqID) {
+		update();
+		
+		Resource weighted = new Resource();
+		float fitness = 1f;
+		
+		// if we have an od
+		if (!od.isEmpty()) {
+			// TODO fill fitness calculation
+		}
+		
+		// output fitness
+		iofitness.setValue(fitness);
+		
+		// new app resource
+		AppResource app = new AppResource();
+		app.setId(requestCounter.incrementAndGet());
+		app.add(weighted);
+		// TODO walltime?
+		app.setAppId(popAppId);
+		app.setReqId(reqID);
+		// reservation time
+		app.setAccessTime(System.currentTimeMillis());
+		
+		// add job
+		jobs.put(app.getId(), app);
+		// remove available resources
+		availble.subtract(app);
+		
+		return app.getId();
 	}
 	
 	/**
