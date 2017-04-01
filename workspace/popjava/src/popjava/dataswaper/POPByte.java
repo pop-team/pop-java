@@ -34,6 +34,14 @@ public class POPByte implements IPOPBase {
 	{
 		this.value=value;
 	}
+	
+	/**
+	 * Set the byte value of this object, from an int
+	 * @param value	new byte value from int
+	 */
+	public void setValue(int value) {
+		this.value=(byte)value;
+	}
 
 	/**
 	 * Get the current value of this object

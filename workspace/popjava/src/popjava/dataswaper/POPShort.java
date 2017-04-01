@@ -36,6 +36,14 @@ public class POPShort implements IPOPBase {
 	}
 
 	/**
+	 * Set the short value of this object, from an int
+	 * @param value	new short value from int
+	 */
+	public void setValue(int value) {
+		this.value=(short)value;
+	}
+
+	/**
 	 * Get the current value of this object
 	 * @return	current short value
 	 */
