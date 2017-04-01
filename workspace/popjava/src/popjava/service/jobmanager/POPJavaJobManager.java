@@ -44,8 +44,8 @@ public class POPJavaJobManager extends POPJobManager{
 	/** Total number of requests received */
 	protected int requestCounter;
 	
-	/** Number of job alive */
-	protected Set<AppResource> jobs = new HashSet<>();
+	/** Number of job alive, mapped by {@link AppResource#id} */
+	protected Map<Integer,AppResource> jobs = new HashMap<>();
 	
 	/** Networks saved in this JobManager */
 	protected Map<String,Network> networks = new HashMap<>();
@@ -297,14 +297,31 @@ public class POPJavaJobManager extends POPJobManager{
 	 * @return the reservation ID for this request used in the other methods
 	 */
 	@POPSyncConc(id = 16)
-	public int reserve(@POPParameter(Direction.IN) POPObjectDescription od, @POPParameter(Direction.INOUT) float fitness, String popAppId, String reqID) {
+	public int reserve(@POPParameter(Direction.IN) POPObjectDescription od, float fitness, String popAppId, String reqID) {
 	
 		return 0;
 	}
 	
+	/**
+	 * NOTE: same as POPC signature
+	 * @param req An array of {@link AppResource#id}
+	 * @param howmany Redundant for Java, number of element in array
+	 */
 	@Override
-	public void cancelReservation(int[] req, int howmany) {
-		super.cancelReservation(req, howmany);
+	public void cancelReservation(@POPParameter(Direction.IN) int[] req, int howmany) {
+		// remove from job map and free resources
+		AppResource resource;
+		for (int reqId : req) {
+			// remove resource from queue
+			resource = jobs.remove(reqId);
+			
+			// skip next step if resource is not in job queue
+			if (resource == null)
+				continue;
+			
+			// free JM resource
+			availble.add(resource);
+		}
 	}
 
 	@Override
@@ -338,7 +355,7 @@ public class POPJavaJobManager extends POPJobManager{
 			case "joblist":
 				update();
 				// clone for report
-				Set<AppResource> apps = new HashSet<>(jobs);
+				Set<AppResource> apps = new HashSet<>(jobs.values());
 				StringBuilder sb = new StringBuilder();
 				for (AppResource app : apps) {
 					if (app.getContact().isEmpty() || app.getAppService().isEmpty())
