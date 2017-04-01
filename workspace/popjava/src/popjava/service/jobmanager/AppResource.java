@@ -8,11 +8,20 @@ import popjava.baseobject.POPAccessPoint;
  * @author Davide Mazzoleni
  */
 public class AppResource extends Resource {
+	protected int id;
 	protected String appId;
 	protected String reqId;
-	protected long startTime; // NOTE may be not needed, used to recheck object liveness
+	protected long accessTime;
 	protected POPAccessPoint contact;
 	protected POPAccessPoint appService;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	public String getAppId() {
 		return appId;
@@ -30,12 +39,12 @@ public class AppResource extends Resource {
 		this.reqId = reqId;
 	}
 
-	public long getStartTime() {
-		return startTime;
+	public long getAccessTime() {
+		return accessTime;
 	}
 
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
+	public void setAccessTime(long accessTime) {
+		this.accessTime = accessTime;
 	}
 
 	public POPAccessPoint getContact() {
@@ -57,11 +66,11 @@ public class AppResource extends Resource {
 	@Override
 	public int hashCode() {
 		int hash = 5;
-		hash = 53 * hash + Objects.hashCode(this.appId);
-		hash = 53 * hash + Objects.hashCode(this.reqId);
-		hash = 53 * hash + (int) (this.startTime ^ (this.startTime >>> 32));
-		hash = 53 * hash + Objects.hashCode(this.contact);
-		hash = 53 * hash + Objects.hashCode(this.appService);
+		hash = 41 * hash + this.id;
+		hash = 41 * hash + Objects.hashCode(this.appId);
+		hash = 41 * hash + Objects.hashCode(this.reqId);
+		hash = 41 * hash + Objects.hashCode(this.contact);
+		hash = 41 * hash + Objects.hashCode(this.appService);
 		return hash;
 	}
 
@@ -77,7 +86,7 @@ public class AppResource extends Resource {
 			return false;
 		}
 		final AppResource other = (AppResource) obj;
-		if (this.startTime != other.startTime) {
+		if (this.id != other.id) {
 			return false;
 		}
 		if (!Objects.equals(this.appId, other.appId)) {

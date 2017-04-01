@@ -5,7 +5,6 @@ package popjava.service.jobmanager;
  * @author Davide Mazzoleni
  */
 public class Resource {
-	protected int id;
 	protected float flops;
 	protected float memory;
 	protected float bandwidth;
@@ -13,15 +12,10 @@ public class Resource {
 	public Resource() {
 	}
 	
-	public Resource(int id, float flops, float memory, float bandwidth) {
-		this.id = id;
+	public Resource(float flops, float memory, float bandwidth) {
 		this.flops = flops;
 		this.memory = memory;
 		this.bandwidth = bandwidth;
-	}
-	
-	public Resource(float flops, float memory, float bandwidth) {
-		this(-1, flops, memory, bandwidth);
 	}
 	
 	/**
@@ -50,10 +44,6 @@ public class Resource {
 			bandwidth -= bandwidth;
 	}
 
-	public int getId() {
-		return id;
-	}
-
 	public float getFlops() {
 		return flops;
 	}
@@ -64,10 +54,6 @@ public class Resource {
 
 	public float getBandwidth() {
 		return bandwidth;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	public void setFlops(float flops) {
@@ -85,7 +71,6 @@ public class Resource {
 	@Override
 	public int hashCode() {
 		int hash = 5;
-		hash = 59 * hash + this.id;
 		hash = 59 * hash + Float.floatToIntBits(this.flops);
 		hash = 59 * hash + Float.floatToIntBits(this.memory);
 		hash = 59 * hash + Float.floatToIntBits(this.bandwidth);
@@ -104,9 +89,6 @@ public class Resource {
 			return false;
 		}
 		final Resource other = (Resource) obj;
-		if (this.id != other.id) {
-			return false;
-		}
 		if (Float.floatToIntBits(this.flops) != Float.floatToIntBits(other.flops)) {
 			return false;
 		}
