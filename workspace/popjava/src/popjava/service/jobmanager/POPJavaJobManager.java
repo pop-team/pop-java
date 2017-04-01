@@ -28,6 +28,7 @@ import popjava.service.jobmanager.network.Network;
 import popjava.service.jobmanager.network.NetworkNode;
 import popjava.service.jobmanager.protocol.ProtocolFactory;
 import popjava.serviceadapter.POPJobManager;
+import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
@@ -313,9 +314,62 @@ public class POPJavaJobManager extends POPJobManager{
 		super.start();
 	}
 
-	@Override
-	public int query(POPString type, POPString value) {
-		return super.query(type, value);
+	/**
+	 * Query something and return a formatted string
+	 * @param type What to query
+	 * @param value A formatted String with some data in it
+	 * @return true if the query is successful, false otherwise
+	 */
+	public boolean query(String type, @POPParameter(Direction.INOUT) POPString value) {
+		switch (type) {
+			case "platform":
+				value.setValue(POPSystem.getPlatform());
+				return true;
+			case "host":
+				value.setValue(POPSystem.getHostIP());
+				return true;
+			case "jobs":
+				update(); 
+				value.setValue(String.format("%d/%d", jobs.size(), maxJobs));
+				return true;
+			case "joblist":
+				update();
+				// clone for report
+				Set<AppResource> apps = new HashSet<>(jobs);
+				StringBuilder sb = new StringBuilder();
+				for (AppResource app : apps) {
+					if (app.getContact().isEmpty() || app.getAppService().isEmpty())
+						continue;
+					sb.append(String.format("APP=%s/JOB=%s\n", app.getAppService().toString(), app.getContact().toString()));
+				}
+				value.setValue(sb.toString());
+				return true;
+			case "pausejobs":
+				// XXX: Not implemented
+				return false;
+			case "neighbors":
+				// XXX: Not implemented
+				return false;
+			case "networks":
+				sb = new StringBuilder();
+				networks.forEach((k,v) -> sb.append(String.format("%s=%s\n", k, v.getProtocol().getClass())));
+				value.setValue(sb.toString());
+				return true;
+			case "power_available":
+				update();
+				value.setValue(String.valueOf(availble.getFlops()));
+				return true;
+		}
+		
+		// other cases
+		List<String> vals = nodeExtra.get(type);
+		if (vals == null)
+			return false;
+		// we can have a list of it
+		StringBuilder sb = new StringBuilder();
+		vals.forEach((s) -> sb.append(s + "\n"));
+		value.setValue(sb.toString().trim());
+		return true;
 	}
 
 	@Override
@@ -419,5 +473,9 @@ public class POPJavaJobManager extends POPJobManager{
 	@POPAsyncConc
 	public void unregisterNode(@POPParameter(Direction.IN) POPAccessPoint url) {
 		// TODO remove from default 
+	}
+
+	private void update() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 }
