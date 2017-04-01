@@ -2,7 +2,6 @@ package popjava.service.jobmanager.network;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 import popjava.service.jobmanager.POPJavaJobManager;
@@ -35,6 +34,16 @@ public class Network {
 		this.protocol.setJobManager(jobManager);
 	}
 	
+	/**
+	 * Create a network node for this network by supplying the right parameters
+	 * If the parameters are wrong the node won't be able to be added to the network
+	 * @param params
+	 * @return 
+	 */
+	public NetworkNode makeNode(String... params) {
+		return NetworkNodeFactory.makeNode(protocol.getClass(), params);
+	}
+	
 	public Network(String name, String protocol, POPJavaJobManager jobManager, String... other) {
 		this(name, ProtocolFactory.makeProtocol(protocol), jobManager, other);
 	}
@@ -56,6 +65,7 @@ public class Network {
 	 * @param <T> The type we want the set of NetworkNode
 	 * @return An immutable set we can loop through
 	 */
+	@SuppressWarnings("unchecked")
 	public<T extends NetworkNode> Set<T> getMembers() {
 		return (Set<T>)Collections.unmodifiableSet(members);
 	}

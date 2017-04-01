@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,11 +21,11 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
+import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.dataswaper.POPString;
 import popjava.service.jobmanager.network.Network;
 import popjava.service.jobmanager.network.NetworkNode;
-import popjava.service.jobmanager.network.NetworkNodeFactory;
 import popjava.serviceadapter.POPJobManager;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -150,7 +151,7 @@ public class POPJavaJobManager extends POPJobManager{
 						System.arraycopy(token, 2, other, 0, token.length - 2);
 						
 						// create the node for the network
-						NetworkNode node = NetworkNodeFactory.makeNode(network.getProtocol().getClass(), other);
+						NetworkNode node = network.makeNode(other);
 						// add it to the network
 						network.add(node);
 						break;
@@ -263,7 +264,17 @@ public class POPJavaJobManager extends POPJobManager{
 			int howmany, POPAccessPoint[] objcontacts,
 			int howmany2, POPAccessPoint[] remotejobcontacts) {
 		
-		return 0;
+		// get network from od
+		String networkString = od.getNetwork();
+		// get real network
+		Network network = networks.get(networkString);
+		
+		// throw exception if no network is found
+		if (network == null)
+			throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
+		
+		// call the protocol specific createObject
+		return network.getProtocol().createObject(localservice, objname, od, howmany, objcontacts, howmany2, remotejobcontacts);
 	}
 
 	@Override
@@ -273,7 +284,7 @@ public class POPJavaJobManager extends POPJobManager{
 
 	/**
 	 * NOTE: not in parent class
-	 * 
+	 * Add a resource reservation
 	 * @param od
 	 * @param fitness
 	 * @param popAppId
@@ -310,18 +321,59 @@ public class POPJavaJobManager extends POPJobManager{
 	public void selfRegister() {
 		super.selfRegister();
 	}
+	
+	/**
+	 * Register node to a network by supplying an array of string matching the format in the configuration file
+	 * @param networkName The name of an existing network in this JM
+	 * @param params An array of String that will be processed by {@link Network#makeNode(java.lang.String...)}
+	 */
+	@POPAsyncConc
+	public void registerNode(String networkName, String... params) {
+		// get network
+		Network network = networks.get(networkName);
+		if (network == null) {
+			LogWriter.writeDebugInfo(String.format("Node %s not registered, network not found", Arrays.toString(params)));
+			return;
+		}
+		
+		network.add(network.makeNode(params));
+	}
+	
+	/**
+	 * Remove a node from a network
+	 * @see #registerNode(java.lang.String, java.lang.String...) 
+	 * @param networkName The name of an existing network in this JM
+	 * @param params An array of String that will be processed by {@link Network#makeNode(java.lang.String...)}
+	 */
+	@POPAsyncConc
+	public void unregisterNode(String networkName, String... params) {
+		// get network
+		Network network = networks.get(networkName);
+		if (network == null) {
+			LogWriter.writeDebugInfo(String.format("Node %s not registered, network not found", Arrays.toString(params)));
+			return;
+		}
+		
+		network.remove(network.makeNode(params));
+	}
 
+	/**
+	 * XXX: Not compatible with Network base JM
+	 * @param url 
+	 */
 	@Override
 	public void registerNode(String url) {
 		super.registerNode(url);
+		// TODO default network?
 	}
 
 	/**
 	 * NOTE: not in parent class
+	 * XXX: Not compatible with Network base JM
 	 * @param url 
 	 */
 	@POPAsyncConc
-	public void unregisterNode (@POPParameter(Direction.IN) POPAccessPoint url) {
-		
+	public void unregisterNode(@POPParameter(Direction.IN) POPAccessPoint url) {
+		// TODO remove from default 
 	}
 }
