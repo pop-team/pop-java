@@ -26,6 +26,7 @@ import popjava.base.POPException;
 import popjava.dataswaper.POPString;
 import popjava.service.jobmanager.network.Network;
 import popjava.service.jobmanager.network.NetworkNode;
+import popjava.service.jobmanager.protocol.ProtocolFactory;
 import popjava.serviceadapter.POPJobManager;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -323,11 +324,52 @@ public class POPJavaJobManager extends POPJobManager{
 	}
 	
 	/**
-	 * Register node to a network by supplying an array of string matching the format in the configuration file
-	 * @param networkName The name of an existing network in this JM
-	 * @param params An array of String that will be processed by {@link Network#makeNode(java.lang.String...)}
+	 * Create a new network
+	 * @param name A unique name of the network
+	 * @param protocol The protocol to use
+	 * @param params An array of String that will be processed to {@link ProtocolFactory#makeProtocol(java.lang.String)}
+	 * @return true if created or already exists, false if already exists but use a different protocol
+	 */
+	@POPSyncConc
+	public boolean createNetwork(String name, String protocol, String... params) {
+		// check if exists already
+		Network network = networks.get(name);
+		// create the new network; NOTE with do this here to avoid creating a protocol just for comparison
+		Network newNetwork = new Network(name, protocol, this, params);
+		
+		// check existence
+		if (network != null) {
+			// also check if it's the same protocol
+			return network.getProtocol().getClass() == newNetwork.getProtocol().getClass();
+		}
+		
+		// add new network
+		LogWriter.writeDebugInfo(String.format("Network %s added", name));
+		networks.put(name, newNetwork);
+		return true;
+	}
+	
+	/**
+	 * Remove a network
+	 * @param name The unique name of the network
 	 */
 	@POPAsyncConc
+	public void removeNetwork(String name) {
+		if (!networks.containsKey(name)) {
+			LogWriter.writeDebugInfo(String.format("Network %s not removed, not found", name));
+			return;
+		}
+		LogWriter.writeDebugInfo(String.format("Network %s removed", name));
+		networks.remove(name);
+	}
+	
+	
+	/**
+	 * Register node to a network by supplying an array of string matching the format in the configuration file
+	 * @param networkName The name of an existing network in this JM
+	 * @param params An array of String that will be processed to {@link Network#makeNode(java.lang.String...)}
+	 */
+	@POPSyncConc
 	public void registerNode(String networkName, String... params) {
 		// get network
 		Network network = networks.get(networkName);
@@ -336,6 +378,7 @@ public class POPJavaJobManager extends POPJobManager{
 			return;
 		}
 		
+		LogWriter.writeDebugInfo(String.format("Node %s added", Arrays.toString(params)));
 		network.add(network.makeNode(params));
 	}
 	
@@ -343,17 +386,18 @@ public class POPJavaJobManager extends POPJobManager{
 	 * Remove a node from a network
 	 * @see #registerNode(java.lang.String, java.lang.String...) 
 	 * @param networkName The name of an existing network in this JM
-	 * @param params An array of String that will be processed by {@link Network#makeNode(java.lang.String...)}
+	 * @param params An array of String that will be processed to {@link Network#makeNode(java.lang.String...)}
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String networkName, String... params) {
 		// get network
 		Network network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("Node %s not registered, network not found", Arrays.toString(params)));
+			LogWriter.writeDebugInfo(String.format("Node %s not removed, network not found", Arrays.toString(params)));
 			return;
 		}
 		
+		LogWriter.writeDebugInfo(String.format("Node %s removed", Arrays.toString(params)));
 		network.remove(network.makeNode(params));
 	}
 
