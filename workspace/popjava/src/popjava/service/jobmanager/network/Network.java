@@ -1,9 +1,9 @@
 package popjava.service.jobmanager.network;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.protocol.CreateObjectProtocolBase;
 import popjava.service.jobmanager.protocol.ProtocolFactory;
@@ -15,14 +15,14 @@ import popjava.service.jobmanager.protocol.ProtocolFactory;
 public class Network {
 	private final String name;
 	private final CreateObjectProtocolBase protocol;
-	private final Set<NetworkNode> members;
+	private final List<NetworkNode> members;
 	private final POPJavaJobManager jobManager;
 	private final String[] otherParams;
 
 	public Network(String name, CreateObjectProtocolBase protocol, POPJavaJobManager jobManager, String... other) {
 		this.name = name;
 		this.protocol = protocol;
-		this.members = new HashSet<>();
+		this.members = new ArrayList<>();
 		this.jobManager = jobManager;
 		this.otherParams = other;
 		
@@ -66,8 +66,8 @@ public class Network {
 	 * @return An immutable set we can loop through
 	 */
 	@SuppressWarnings("unchecked")
-	public<T extends NetworkNode> Set<T> getMembers() {
-		return (Set<T>)Collections.unmodifiableSet(members);
+	public<T extends NetworkNode> List<T> getMembers() {
+		return (List<T>)Collections.unmodifiableList(members);
 	}
 
 	/**

@@ -265,6 +265,9 @@ public class POPJavaJobManager extends POPJobManager{
 			@POPParameter(Direction.IN) ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts,
 			int howmany2, POPAccessPoint[] remotejobcontacts) {
+		if(howmany <= 0){
+			return 0;
+		}
 		
 		// get network from od
 		String networkString = od.getNetwork();

@@ -692,15 +692,23 @@ public class Interface {
 		if(isLocal){
 			ret = SystemUtil.runCmd(argvList);
 		}else{
+			String potentialPort = od.getValue("port");
 			switch(od.getConnectionType()){
 			case ANY:
 			case SSH:
+				// add port to host if specified
+				if (!potentialPort.equals(""))
+					hostname += ":" + potentialPort;
 				ret = SystemUtil.runRemoteCmd(hostname, argvList);
 				break;
 			case DEAMON:
 				POPJavaDeamonConnector connector;
 				try {
-					connector = new POPJavaDeamonConnector(hostname);
+					// if manually specified port
+					if (potentialPort.equals(""))
+						connector = new POPJavaDeamonConnector(hostname);
+					else
+						connector = new POPJavaDeamonConnector(hostname, Integer.parseInt(potentialPort));
 					if(connector.sendCommand(od.getConnectionSecret(), argvList)){
 						ret = 0;
 					}

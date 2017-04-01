@@ -3,22 +3,27 @@ package popjava.service.jobmanager.network;
 import java.util.Objects;
 
 /**
- *
+ * A SSH node for direct IP connections
+ * XXX: port is not used ATM it will always default to port 22
  * @author Davide Mazzoleni
  */
 public class NodeSSH extends NetworkNode {
-
+	
 	private String host;
 	private int port;
+	private boolean daemon;
 	private boolean initialized = true;
 	
 	NodeSSH(String[] params) {
-		// single string, can be <host>:<port> or <ip>
-		if (params.length == 1) {
+		if (params.length == 2 && params[1].equals("deamon"))
+			daemon = true;
+		
+		// single string, can be <host>[:<port>] [deamon]
+		if (params.length <= 2) {
 			String[] ip = params[0].split(":");
 			
 			// simple ip or host
-			if (ip.length == 0) {
+			if (ip.length == 1) {
 				host = ip[0];
 				port = 22;
 			} 
@@ -31,17 +36,6 @@ public class NodeSSH extends NetworkNode {
 					// fallback to 22
 					port = 22;
 				}
-			}
-		}
-		
-		// two strings <ip> <port>
-		else if (params.length == 2) {
-			host = params[0];
-			try {
-				port = Integer.parseInt(params[1]);
-			} catch (NumberFormatException e) {
-				// fallback to 22
-				port = 22;
 			}
 		}
 		
@@ -58,16 +52,21 @@ public class NodeSSH extends NetworkNode {
 	public int getPort() {
 		return port;
 	}
-
+	
 	public boolean isInitialized() {
 		return initialized;
+	}
+
+	public boolean isDaemon() {
+		return daemon;
 	}
 
 	@Override
 	public int hashCode() {
 		int hash = 7;
-		hash = 37 * hash + Objects.hashCode(this.host);
-		hash = 37 * hash + this.port;
+		hash = 59 * hash + Objects.hashCode(this.host);
+		hash = 59 * hash + this.port;
+		hash = 59 * hash + (this.daemon ? 1 : 0);
 		return hash;
 	}
 
@@ -84,6 +83,9 @@ public class NodeSSH extends NetworkNode {
 		}
 		final NodeSSH other = (NodeSSH) obj;
 		if (this.port != other.port) {
+			return false;
+		}
+		if (this.daemon != other.daemon) {
 			return false;
 		}
 		if (!Objects.equals(this.host, other.host)) {
