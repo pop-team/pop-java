@@ -24,21 +24,14 @@ public class NodeSSH extends NetworkNode {
 		// single string, can be <host>[:<port>] [<deamon> <secret>]
 		if (params.length <= 3) {
 			String[] ip = params[0].split(":");
+			host = ip[0];
+			port = 22;
 			
 			// simple ip or host
-			if (ip.length == 1) {
-				host = ip[0];
-				port = 22;
-			} 
-			// port specified
-			else {
-				host = ip[0];
+			if (ip.length > 1) {
 				try {
 					port = Integer.parseInt(ip[1]);
-				} catch (NumberFormatException e) {
-					// fallback to 22
-					port = 22;
-				}
+				} catch (NumberFormatException e) {	}
 			}
 		}
 		
@@ -74,6 +67,7 @@ public class NodeSSH extends NetworkNode {
 		hash = 59 * hash + Objects.hashCode(this.host);
 		hash = 59 * hash + this.port;
 		hash = 59 * hash + (this.daemon ? 1 : 0);
+		hash = 59 * hash + Objects.hashCode(this.daemonSecret);
 		return hash;
 	}
 
@@ -98,11 +92,16 @@ public class NodeSSH extends NetworkNode {
 		if (!Objects.equals(this.host, other.host)) {
 			return false;
 		}
+		if (!Objects.equals(this.daemonSecret, other.daemonSecret)) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s:%d %s", host, port, daemon ? "daemon" : "");
+		return String.format("%s:%d %s %s", host, port, 
+				daemon ? "daemon" : "", 
+				daemonSecret == null ? "" : daemonSecret);
 	}
 }
