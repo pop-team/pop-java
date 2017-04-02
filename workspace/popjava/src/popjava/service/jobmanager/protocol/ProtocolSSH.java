@@ -15,7 +15,6 @@ import popjava.service.jobmanager.network.NodeSSH;
 public class ProtocolSSH extends CreateObjectProtocolBase {
 	
 	@Override
-	@SuppressWarnings("empty-statement")
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// node in network
