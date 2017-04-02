@@ -3,7 +3,6 @@ package popjava.service.jobmanager;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import static java.lang.Math.min;
@@ -27,7 +26,6 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncSeq;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.dataswaper.POPFloat;
@@ -504,6 +502,9 @@ public class POPJavaJobManager extends POPJobService {
 		}
 	}
 
+	/**
+	 * Dump of JobManager information
+	 */
 	@POPAsyncSeq
 	public void dump() {
 		File dumpFile;
@@ -511,8 +512,7 @@ public class POPJavaJobManager extends POPJobService {
 		
 		// look for new dump file
 		do {
-			String f = String.format("%s/dump/JobMgr.%d"
-				, System.getenv("POPJAVA_LOCATION"), idx++);
+			String f = String.format("%s/dump/JobMgr.%d", System.getenv("POPJAVA_LOCATION"), idx++);
 			dumpFile = new File(f);
 		} while (dumpFile.exists());
 		// see if we can write there
@@ -545,7 +545,7 @@ public class POPJavaJobManager extends POPJobService {
 				out.println(String.format("%s=%s", k, v));
 			});
 		} catch (IOException e) {
-			
+			LogWriter.writeDebugInfo("IO Error while dumping JobManager");
 		}
 	}
 
