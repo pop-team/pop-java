@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPConfig.Type;
@@ -32,12 +33,13 @@ import popjava.service.jobmanager.network.Network;
 import popjava.service.jobmanager.network.NetworkNode;
 import popjava.service.jobmanager.protocol.ProtocolFactory;
 import popjava.serviceadapter.POPJobManager;
+import popjava.serviceadapter.POPJobService;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
-@POPClass(classId = 10, deconstructor = false, useAsyncConstructor = false)
-public class POPJavaJobManager extends POPJobManager{
+@POPClass
+public class POPJavaJobManager extends POPJobService {
 	
 	/** Currently used resources of a node */
 	protected final Resource available = new Resource();
@@ -65,13 +67,17 @@ public class POPJavaJobManager extends POPJobManager{
 
 	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
 	public POPJavaJobManager() {
+		//init(Configuration.DEFAULT_JM_CONFIG_FILE);
+	}
+	
+	public POPJavaJobManager(@POPConfig(Type.URL) String url) {
 		init(Configuration.DEFAULT_JM_CONFIG_FILE);
 	}
 	
 	public POPJavaJobManager(@POPConfig(Type.URL) String url, String conf) {
 		init(conf);
 	}
-
+	
 	/**
 	 * Read configuration file and setup system
 	 * Has some sane defaults
@@ -177,11 +183,11 @@ public class POPJavaJobManager extends POPJobManager{
 						
 						// type of set <ram|memory|bandwidth>
 						switch (token[1]) {
-							case "ram":
+							case "power":
 								try {
-									available.setMemory(Integer.parseInt(token[2]));
+									available.setFlops(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("Resource set fail, ram value: %s", token[2]));
+									LogWriter.writeDebugInfo(String.format("Resource set fail, power value: %s", token[2]));
 								}
 								break;
 							case "memory":
@@ -271,7 +277,7 @@ public class POPJavaJobManager extends POPJobManager{
 			String objname,
 			@POPParameter(Direction.IN) ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts,
-			int howmany2, POPAccessPoint[] remotejobcontacts) {
+			int howmany2, POPAccessPoint[] remotejobcontacts) {		
 		if(howmany <= 0){
 			return 0;
 		}
@@ -289,9 +295,21 @@ public class POPJavaJobManager extends POPJobManager{
 		return network.getProtocol().createObject(localservice, objname, od, howmany, objcontacts, howmany2, remotejobcontacts);
 	}
 
-	@Override
-	public int execObj(POPString objname, int howmany, int[] reserveIDs, String localservice, POPAccessPoint[] objcontacts) {
-		return super.execObj(objname, howmany, reserveIDs, localservice, objcontacts);
+	/**
+	 * 
+	 * @param objname
+	 * @param howmany
+	 * @param reserveIDs
+	 * @param localservice
+	 * @param objcontacts
+	 * @return 
+	 */
+	@POPSyncConc
+	public int execObj(POPString objname, int howmany, int[] reserveID, String localservice, POPAccessPoint[] objcontacts) {
+		// check reservation
+		
+		
+		return 0;
 	}
 
 	/**
@@ -406,7 +424,7 @@ public class POPJavaJobManager extends POPJobManager{
 	 * @param req An array of {@link AppResource#id}
 	 * @param howmany Redundant for Java, number of element in array
 	 */
-	@Override
+	@POPAsyncSeq
 	public void cancelReservation(@POPParameter(Direction.IN) int[] req, int howmany) {
 		// remove from job map and free resources
 		AppResource resource;
@@ -423,9 +441,9 @@ public class POPJavaJobManager extends POPJobManager{
 		}
 	}
 
-	@Override
+	@POPAsyncSeq
 	public void dump() {
-		super.dump();
+		
 	}
 
 	@Override
@@ -472,7 +490,7 @@ public class POPJavaJobManager extends POPJobManager{
 			case "networks":
 				sb = new StringBuilder();
 				networks.forEach((k,v) -> sb.append(String.format("%s=%s\n", k, v.getProtocol().getClass())));
-				value.setValue(sb.toString());
+				value.setValue(sb.toString().trim());
 				return true;
 			case "power_available":
 				update();
@@ -491,9 +509,9 @@ public class POPJavaJobManager extends POPJobManager{
 		return true;
 	}
 
-	@Override
+	@POPAsyncSeq
 	public void selfRegister() {
-		super.selfRegister();
+		
 	}
 	
 	/**
@@ -578,9 +596,8 @@ public class POPJavaJobManager extends POPJobManager{
 	 * XXX: Not compatible with Network base JM
 	 * @param url 
 	 */
-	@Override
+	@POPSyncConc
 	public void registerNode(String url) {
-		super.registerNode(url);
 		// TODO default network?
 	}
 
@@ -595,6 +612,5 @@ public class POPJavaJobManager extends POPJobManager{
 	}
 
 	private void update() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 	}
 }

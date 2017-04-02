@@ -16,7 +16,8 @@ public class ProtocolSSH extends CreateObjectProtocolBase {
 	
 	@Override
 	@SuppressWarnings("empty-statement")
-	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
+	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
+			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// node in network
 		List<NodeSSH> nodes = network.getMembers();
 		// get a random node
@@ -26,6 +27,7 @@ public class ProtocolSSH extends CreateObjectProtocolBase {
 		od.setHostname(node.getHost());
 		od.setValue("port", node.getPort() + "");
 		od.setConnectionType(ConnectionType.SSH);
+		od.setConnectionSecret(node.getDaemonSecret());
 		// use daemon if necessary
 		if (node.isDaemon())
 			od.setConnectionType(ConnectionType.DEAMON);

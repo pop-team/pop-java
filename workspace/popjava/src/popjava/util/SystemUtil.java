@@ -125,4 +125,16 @@ public class SystemUtil {
 		
 		return runRemoteCmdSSHJ(url, command);
 	}
+	
+	public static int runRemoteCmd(String url, String port, List<String> command){
+		if(Configuration.USE_NATIVE_SSH_IF_POSSIBLE && commandExists("ssh")){
+			command.add(0, url);
+			command.add(0, "-p " + port);
+			command.add(0, "ssh");
+			
+			return runCmd(command);
+		}
+		
+		return runRemoteCmdSSHJ(url, command);
+	}
 }

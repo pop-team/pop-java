@@ -12,14 +12,17 @@ public class NodeSSH extends NetworkNode {
 	private String host;
 	private int port;
 	private boolean daemon;
+	private String daemonSecret;
 	private boolean initialized = true;
 	
 	NodeSSH(String[] params) {
-		if (params.length == 2 && params[1].equals("deamon"))
+		if (params.length == 3 && params[1].equals("daemon")) {
 			daemon = true;
+			daemonSecret = params[2];
+		}
 		
-		// single string, can be <host>[:<port>] [deamon]
-		if (params.length <= 2) {
+		// single string, can be <host>[:<port>] [<deamon> <secret>]
+		if (params.length <= 3) {
 			String[] ip = params[0].split(":");
 			
 			// simple ip or host
@@ -59,6 +62,10 @@ public class NodeSSH extends NetworkNode {
 
 	public boolean isDaemon() {
 		return daemon;
+	}
+
+	public String getDaemonSecret() {
+		return daemonSecret;
 	}
 
 	@Override
