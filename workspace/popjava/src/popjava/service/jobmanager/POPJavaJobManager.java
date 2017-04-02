@@ -29,6 +29,7 @@ import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.dataswaper.POPFloat;
 import popjava.dataswaper.POPString;
+import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.network.Network;
 import popjava.service.jobmanager.network.NetworkNode;
 import popjava.service.jobmanager.protocol.ProtocolFactory;
@@ -296,20 +297,79 @@ public class POPJavaJobManager extends POPJobService {
 	}
 
 	/**
-	 * 
-	 * @param objname
-	 * @param howmany
-	 * @param reserveIDs
-	 * @param localservice
-	 * @param objcontacts
+	 * Execute an object locally
+	 * @param objname The object to execute
+	 * @param howmany How many object will be executed
+	 * @param reserveIDs IDs received from {@link #reserve(popjava.baseobject.ObjectDescription, popjava.dataswaper.POPFloat, java.lang.String, java.lang.String)}
+	 * @param localservice Application AppService
+	 * @param objcontacts Where to answer when the object is created
 	 * @return 
 	 */
 	@POPSyncConc
-	public int execObj(POPString objname, int howmany, int[] reserveID, String localservice, POPAccessPoint[] objcontacts) {
-		// check reservation
+	public int execObj(@POPParameter(Direction.IN) POPString objname, int howmany, int[] reserveIDs, 
+			String localservice, POPAccessPoint[] objcontacts) {
+		if (howmany < 0)
+			return 1;
+		// get verified reservations
+		List<AppResource> reservations = verifyReservation(reserveIDs);		
+		// cancel reservations if something fail
+		if (reservations == null) {
+			cancelReservation(reserveIDs, howmany);
+			return -1;
+		}
 		
-		
-		return 0;
+		boolean status = true;
+		try {
+			// execute objects locally via Interface
+			for (int i = 0; i < howmany; i++) {
+				AppResource res = reservations.get(i);
+				res.setAppService(new POPAccessPoint(localservice));
+				// create request od and add the reservation params
+				ObjectDescription od = new ObjectDescription();
+				res.addTo(od);
+				
+				// force od to localhost
+				od.setHostname("localhost");
+				
+				// execute locally, and save status
+				status |= Interface.tryLocal(objname.getValue(), objcontacts[i], od);
+				// set contact in resource
+				res.setContact(objcontacts[i]);
+				res.setAccessTime(System.currentTimeMillis());
+			}
+		} 
+		// if any problem occour, cancel reservation
+		catch (Throwable e) {
+			status = false;
+			cancelReservation(reserveIDs, howmany);
+		}
+		return status ? 0 : -1;
+	}
+	
+	/**
+	 * Return the list of AppResource associated with the Resource IDs
+	 * @param ids A list of jobs ids
+	 * @return The list of resource, null if some resources are invalid
+	 */
+	private List<AppResource> verifyReservation(int[] ids) {
+		List<AppResource> reservations = new ArrayList<>();
+		boolean ret = true;
+		for (int i = 0; i < ids.length; i++) {
+			int id = ids[i];
+			// check reservation
+			AppResource app = jobs.get(id);
+			// no resource in jobs list
+			if (app == null)
+				return null;
+			// resource already in use
+			if (app.isUsed())
+				return null;
+			// no problem with the reservation
+			app.setAccessTime(System.currentTimeMillis());
+			app.setUsed(true);
+			reservations.add(app);
+		}
+		return reservations;
 	}
 
 	/**

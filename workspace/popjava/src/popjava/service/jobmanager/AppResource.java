@@ -14,6 +14,7 @@ public class AppResource extends Resource {
 	protected long accessTime;
 	protected POPAccessPoint contact;
 	protected POPAccessPoint appService;
+	protected boolean used;
 
 	public int getId() {
 		return id;
@@ -61,6 +62,14 @@ public class AppResource extends Resource {
 
 	public void setAppService(POPAccessPoint appService) {
 		this.appService = appService;
+	}
+
+	public boolean isUsed() {
+		return used;
+	}
+
+	public void setUsed(boolean used) {
+		this.used = used;
 	}
 
 	@Override

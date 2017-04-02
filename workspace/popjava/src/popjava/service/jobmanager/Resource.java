@@ -1,5 +1,7 @@
 package popjava.service.jobmanager;
 
+import popjava.baseobject.ObjectDescription;
+
 /**
  * This is a generic resource for the Job Manager
  * @author Davide Mazzoleni
@@ -29,6 +31,16 @@ public class Resource {
 			memory += r.memory;
 		if(r.bandwidth > 0)
 			bandwidth += bandwidth;
+	}
+	
+	/**
+	 * Set this resource in the OD
+	 * @param od A initialized OD
+	 */
+	public void addTo(ObjectDescription od) {
+		od.setBandwidth(bandwidth, bandwidth);
+		od.setPower(flops, flops);
+		od.setMemory(memory, memory);
 	}
 	
 	/**
