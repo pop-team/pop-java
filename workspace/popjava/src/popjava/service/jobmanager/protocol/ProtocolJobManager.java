@@ -8,6 +8,7 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.POPFloat;
 import popjava.dataswaper.POPString;
+import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.NetworkNode;
@@ -85,6 +86,7 @@ public class ProtocolJobManager extends CreateObjectProtocolBase {
 		}
 		
 		// execute objects
+		int started = 0;
 		for (int i = 0; i < howmany; i++) {
 			if (!chosenRemoteJobM[i].isEmpty()) {
 				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[i]);
@@ -94,20 +96,40 @@ public class ProtocolJobManager extends CreateObjectProtocolBase {
 					int[] localRIDs = { resIDs[i] };
 					POPAccessPoint[] localObjContact = { objcontacts[i] };
 					int status = jm.execObj(pobjname, howmany, localRIDs, localservice.toString(), localObjContact);
+					started++;
 					// failed, free resources
 					if (status != 0) {
+						started--;
 						LogWriter.writeDebugInfo("[JM] execution failed");
 						jm.cancelReservation(localRIDs, 1);
+						return POPErrorCode.OBJECT_NO_RESOURCE;
 					}
 				}
 				// cancel remote registration
 				catch (Exception e) {
 					jm.cancelReservation(new int[] { resIDs[i] }, 1);
+					return POPErrorCode.POP_JOBSERVICE_FAIL;
 				}
 			}
 		}
 		
-		return 0;
+		LogWriter.writeDebugInfo(String.format("Object count=%d, require=%d\n", started, howmany));
+		// created all objects
+		if (started >= howmany)
+			return 0;
+		
+		// failed to start all objects, kill already started objects
+		for (int i = 0; i < started; i++) {
+			try {
+				Interface obj = new Interface(objcontacts[i]);
+				obj.kill();
+				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[i]);
+			} catch (POPException e) {
+				LogWriter.writeDebugInfo(String.format("Exception while killing objects: %s", e.getMessage()));
+			}
+		}
+		
+		return POPErrorCode.POP_EXEC_FAIL;
 	}
 
 	@Override
