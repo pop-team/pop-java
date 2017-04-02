@@ -13,6 +13,7 @@ public class Configuration {
 	public static final int RESERVE_TIMEOUT = 60000;
 	public static final int ALLOC_TIMEOUT = 30000;
 	public static final int CONNECTION_TIMEOUT = 30000;
+	public static final int UPDATE_MIN_INTERVAL = 10000;
 	public static final String DEFAULT_ENCODING = "xdr";
 	public static final String SELECTED_ENCODING = "raw";
 	public static final String DEFAULT_PROTOCOL = "socket";

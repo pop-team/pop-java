@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,7 +67,7 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/** Mutex for some operations */
 	protected ReentrantLock mutex = new ReentrantLock(true);
-
+	
 	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
 	public POPJavaJobManager() {
 		//init(Configuration.DEFAULT_JM_CONFIG_FILE);
@@ -377,14 +378,17 @@ public class POPJavaJobManager extends POPJobService {
 	 * NOTE: not in parent class, same signature as POPC w/ POPFloat for float transfer
 	 * Add a resource reservation
 	 * @param od The request OD
-	 * @param iofitness 
-	 * @param popAppId
+	 * @param iofitness [output] The fitness, compatibility of the request with this node
+	 * @param popAppId 
 	 * @param reqID
 	 * @return the reservation ID for this request used in the other methods
 	 */
 	@POPSyncConc(id = 16)
 	public int reserve(@POPParameter(Direction.IN) ObjectDescription od, @POPParameter(Direction.OUT) POPFloat iofitness, String popAppId, String reqID) {
 		update();
+		
+		if (jobs.size() >= maxJobs)
+			return 0;
 		
 		Resource weighted = new Resource();
 		float fitness = 1f;
@@ -724,6 +728,38 @@ public class POPJavaJobManager extends POPJobService {
 		// TODO remove from default 
 	}
 
+	/**
+	 * Check and remove finished or timed out resources.
+	 * NOTE: With a lot of job this method need jobs.size connections to be made before continuing
+	 */
 	private void update() {
+		try {
+			mutex.lock();
+			for (Iterator<AppResource> iterator = jobs.values().iterator(); iterator.hasNext();) {
+				AppResource job = iterator.next();
+				// job not started after timeout
+				if (!job.isUsed()) {
+					if (job.getAccessTime() + Configuration.RESERVE_TIMEOUT > System.currentTimeMillis()) {
+						// manually remove from iterator
+						available.add(job);
+						iterator.remove();
+					}
+				}
+				// dead objects check with min UPDATE_MIN_INTERVAL time between them
+				else if (job.getAccessTime() + Configuration.UPDATE_MIN_INTERVAL > System.currentTimeMillis()) {
+					job.setAccessTime(System.currentTimeMillis() + Configuration.UPDATE_MIN_INTERVAL);
+					try {
+						// connection to object ok
+						new Interface(job.getContact());
+					} catch (POPException e) {
+						// manually remove from iterator
+						available.add(job);
+						iterator.remove();
+					}
+				}
+			}
+		} finally {
+			mutex.unlock();
+		}
 	}
 }
