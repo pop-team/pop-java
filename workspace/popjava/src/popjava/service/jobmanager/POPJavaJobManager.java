@@ -3,7 +3,9 @@ package popjava.service.jobmanager;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import static java.lang.Math.min;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +27,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncSeq;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.dataswaper.POPFloat;
@@ -503,13 +506,63 @@ public class POPJavaJobManager extends POPJobService {
 
 	@POPAsyncSeq
 	public void dump() {
+		File dumpFile;
+		int idx = 0;
 		
+		// look for new dump file
+		do {
+			String f = String.format("%s/dump/JobMgr.%d"
+				, System.getenv("POPJAVA_LOCATION"), idx++);
+			dumpFile = new File(f);
+		} while (dumpFile.exists());
+		// see if we can write there
+		if (!dumpFile.canWrite())
+			dumpFile = new File("JobMgr." + idx);
+		if (!dumpFile.canWrite()) {
+			LogWriter.writeDebugInfo("No writable dump location found");
+			return;
+		}
+		
+		// write to file
+		try (PrintStream out = new PrintStream(dumpFile)){
+			out.println("[networks]");
+			networks.forEach((k,net) -> {
+				out.println(String.format("[%s]", net.getName()));
+				out.println(String.format("protocol=%s", net.getProtocol()));
+				out.println(String.format("members=", net.getMembers().size()));
+				out.println(String.format("[%s.nodes]", net.getName()));
+				net.getMembers().forEach((node) -> {
+					out.print(String.format("node=%s", node.toString()));
+				});
+			});
+			out.println("[config]");
+			out.println(String.format("power=%f", available.getFlops()));
+			out.println(String.format("memory=%f", available.getMemory()));
+			out.println(String.format("bandwidth=%f", available.getBandwidth()));
+			out.println(String.format("maxjobs=%d", maxJobs));
+			out.println("[extra]");
+			nodeExtra.forEach((k,v) -> {
+				out.println(String.format("%s=%s", k, v));
+			});
+		} catch (IOException e) {
+			
+		}
 	}
 
+	/**
+	 * Start object and parallel thread check for resources death
+	 */
 	@Override
 	public void start() {
 		super.start();
+		// TODO start parallel thread (method)
 	}
+	
+	@POPAsyncConc
+	protected void checkJobsLiviness() {
+		
+	}
+	
 
 	/**
 	 * Query something and return a formatted string
