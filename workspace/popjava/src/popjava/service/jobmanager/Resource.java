@@ -1,12 +1,14 @@
 package popjava.service.jobmanager;
 
 import popjava.baseobject.ObjectDescription;
+import popjava.buffer.POPBuffer;
+import popjava.dataswaper.IPOPBase;
 
 /**
  * This is a generic resource for the Job Manager
  * @author Davide Mazzoleni
  */
-public class Resource {
+public class Resource implements IPOPBase {
 	protected float flops;
 	protected float memory;
 	protected float bandwidth;
@@ -18,6 +20,10 @@ public class Resource {
 		this.flops = flops;
 		this.memory = memory;
 		this.bandwidth = bandwidth;
+	}
+
+	Resource(Resource r) {
+		this(r.flops, r.memory, r.bandwidth);
 	}
 	
 	/**
@@ -42,7 +48,7 @@ public class Resource {
 		od.setPower(flops, flops);
 		od.setMemory(memory, memory);
 	}
-	
+
 	/**
 	 * Subtract another resource to this one, only positive values will be considered
 	 * @param r Another resource
@@ -110,6 +116,22 @@ public class Resource {
 		if (Float.floatToIntBits(this.bandwidth) != Float.floatToIntBits(other.bandwidth)) {
 			return false;
 		}
+		return true;
+	}
+
+	@Override
+	public boolean serialize(POPBuffer buffer) {
+		buffer.putFloat(flops);
+		buffer.putFloat(memory);
+		buffer.putFloat(bandwidth);
+		return true;
+	}
+
+	@Override
+	public boolean deserialize(POPBuffer buffer) {
+		flops = buffer.getFloat();
+		memory = buffer.getFloat();
+		bandwidth = buffer.getFloat();
 		return true;
 	}
 }

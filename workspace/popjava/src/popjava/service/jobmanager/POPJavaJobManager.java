@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import popjava.annotation.POPAsyncConc;
@@ -35,6 +36,9 @@ import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.network.Network;
 import popjava.service.jobmanager.network.NetworkNode;
 import popjava.service.jobmanager.protocol.ProtocolFactory;
+import popjava.service.jobmanager.search.NodeRequest;
+import popjava.service.jobmanager.search.NodeResponse;
+import popjava.service.jobmanager.search.NodeWayback;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPSystem;
@@ -67,6 +71,9 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/** Mutex for some operations */
 	protected ReentrantLock mutex = new ReentrantLock(true);
+	
+	/** JobManager unique ID */
+	protected String nodeId = UUID.randomUUID().toString();
 	
 	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
 	public POPJavaJobManager() {
@@ -761,5 +768,49 @@ public class POPJavaJobManager extends POPJobService {
 		} finally {
 			mutex.unlock();
 		}
+	}
+
+	/**
+	 * A copy of the current available resources
+	 * @return A copy Resource object
+	 */
+	@POPSyncConc
+	public Resource getAvailableResources() {
+		return new Resource(available);
+	}
+	
+	/**
+	 * Unique ID for this node execution
+	 * @return the UUID of the node
+	 */
+	@POPSyncConc
+	public String getNodeId() {
+		return nodeId;
+	}
+	
+	
+	
+	
+	/////
+	//		Search Node Methods
+	////
+	
+	public List<POPAccessPoint> launchDiscovery(@POPParameter(Direction.INOUT) NodeRequest request, int timeout) {
+		
+		return null;
+	}
+	
+	public void askResourcesDiscovery(@POPParameter(Direction.INOUT) NodeRequest request, 
+			@POPParameter(Direction.IN) POPAccessPoint jobManager, @POPParameter(Direction.IN) POPAccessPoint sender) {
+		
+	}
+	
+	public void callbackResult(@POPParameter(Direction.IN) NodeResponse response) {
+		
+	}
+	
+	public void rerouteResponse(@POPParameter(Direction.IN) NodeResponse response, 
+			@POPParameter(Direction.IN) NodeWayback wayback) {
+		
 	}
 }
