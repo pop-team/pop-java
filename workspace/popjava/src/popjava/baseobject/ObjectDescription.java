@@ -104,6 +104,8 @@ public class ObjectDescription implements IPOPBase {
 		maxDepth = od.getSearchMaxDepth();
 		maxSize =  od.getSearchMaxSize();
 		waitTime = od.getSearchWaitTime();
+		
+		network = od.getNetwork();
 	}
 	
 	/**
@@ -636,6 +638,7 @@ public class ObjectDescription implements IPOPBase {
 			String value = buffer.getString();
 			setValue(key, value);
 		}
+		this.setNetwork(buffer.getString());
 		return true;
 	}
 
@@ -677,6 +680,7 @@ public class ObjectDescription implements IPOPBase {
 			buffer.putString(key);
 			buffer.putString(attributes.get(key));
 		}
+		buffer.putString(network);
 		return true;
 	}
 
