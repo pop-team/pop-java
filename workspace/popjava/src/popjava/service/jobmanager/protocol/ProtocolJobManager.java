@@ -95,7 +95,9 @@ public class ProtocolJobManager extends CreateObjectProtocolBase {
 					POPString pobjname = new POPString(objname);
 					int[] localRIDs = { resIDs[i] };
 					POPAccessPoint[] localObjContact = { objcontacts[i] };
-					int status = jm.execObj(pobjname, howmany, localRIDs, localservice.toString(), localObjContact);
+					int status = jm.execObj(pobjname, 1, localRIDs, localservice.toString(), localObjContact);
+					// forse set return
+					objcontacts[i] = localObjContact[0];
 					started++;
 					// failed, free resources
 					if (status != 0) {
@@ -113,7 +115,7 @@ public class ProtocolJobManager extends CreateObjectProtocolBase {
 			}
 		}
 		
-		LogWriter.writeDebugInfo(String.format("Object count=%d, require=%d\n", started, howmany));
+		LogWriter.writeDebugInfo(String.format("Object count=%d, require=%d", started, howmany));
 		// created all objects
 		if (started >= howmany)
 			return 0;
