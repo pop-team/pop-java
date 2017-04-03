@@ -45,7 +45,7 @@ import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
-@POPClass
+@POPClass(useAsyncConstructor = false)
 public class POPJavaJobManager extends POPJobService {
 	
 	/** Currently used resources of a node */
@@ -55,7 +55,7 @@ public class POPJavaJobManager extends POPJobService {
 	
 	
 	/** Total number of requests received */
-	protected AtomicInteger requestCounter;
+	protected AtomicInteger requestCounter = new AtomicInteger(1 + (int) (Math.random() * Integer.MAX_VALUE));
 	
 	/** Number of job alive, mapped by {@link AppResource#id} */
 	protected Map<Integer,AppResource> jobs = new HashMap<>();
@@ -77,7 +77,7 @@ public class POPJavaJobManager extends POPJobService {
 	
 	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
 	public POPJavaJobManager() {
-		//init(Configuration.DEFAULT_JM_CONFIG_FILE);
+		init(Configuration.DEFAULT_JM_CONFIG_FILE);
 	}
 	
 	public POPJavaJobManager(@POPConfig(Type.URL) String url) {
@@ -391,7 +391,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return the reservation ID for this request used in the other methods
 	 */
 	@POPSyncConc(id = 16)
-	public int reserve(@POPParameter(Direction.IN) ObjectDescription od, @POPParameter(Direction.OUT) POPFloat iofitness, String popAppId, String reqID) {
+	public int reserve(@POPParameter(Direction.IN) ObjectDescription od, @POPParameter(Direction.INOUT) POPFloat iofitness, String popAppId, String reqID) {
 		update();
 		
 		if (jobs.size() >= maxJobs)
@@ -796,8 +796,9 @@ public class POPJavaJobManager extends POPJobService {
 	////
 	
 	public List<POPAccessPoint> launchDiscovery(@POPParameter(Direction.INOUT) NodeRequest request, int timeout) {
-		
-		return null;
+		return new ArrayList<POPAccessPoint>() {{ 
+			add(new POPAccessPoint("socket://127.0.0.1:2712"));
+		}};
 	}
 	
 	public void askResourcesDiscovery(@POPParameter(Direction.INOUT) NodeRequest request, 
