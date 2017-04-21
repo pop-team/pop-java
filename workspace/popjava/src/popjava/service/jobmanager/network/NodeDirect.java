@@ -7,7 +7,7 @@ import java.util.Objects;
  * XXX: port is not used ATM it will always default to port 22
  * @author Davide Mazzoleni
  */
-public class NodeSSH extends NetworkNode {
+public class NodeDirect extends POPNetworkNode {
 	
 	private String host;
 	private int port;
@@ -15,7 +15,7 @@ public class NodeSSH extends NetworkNode {
 	private String daemonSecret;
 	private boolean initialized = true;
 	
-	NodeSSH(String[] params) {
+	NodeDirect(String[] params) {
 		if (params.length == 3 && params[1].equals("daemon")) {
 			daemon = true;
 			daemonSecret = params[2];
@@ -82,7 +82,7 @@ public class NodeSSH extends NetworkNode {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final NodeSSH other = (NodeSSH) obj;
+		final NodeDirect other = (NodeDirect) obj;
 		if (this.port != other.port) {
 			return false;
 		}

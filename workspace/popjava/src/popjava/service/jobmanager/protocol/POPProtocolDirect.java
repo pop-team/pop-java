@@ -5,22 +5,22 @@ import popjava.baseobject.ConnectionType;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.interfacebase.Interface;
-import popjava.service.jobmanager.network.NetworkNode;
-import popjava.service.jobmanager.network.NodeSSH;
+import popjava.service.jobmanager.network.POPNetworkNode;
+import popjava.service.jobmanager.network.NodeDirect;
 
 /**
  *
  * @author Davide Mazzoleni
  */
-public class ProtocolSSH extends CreateObjectProtocolBase {
+public class POPProtocolDirect extends POPProtocolBase {
 	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// node in network
-		List<NodeSSH> nodes = network.getMembers();
+		List<NodeDirect> nodes = network.getMembers();
 		// get a random node
-		NodeSSH node = nodes.get( (int) (Math.random() * nodes.size()) );
+		NodeDirect node = nodes.get( (int) (Math.random() * nodes.size()) );
 		
 		// set od hostname to connect directly
 		od.setHostname(node.getHost());
@@ -39,8 +39,8 @@ public class ProtocolSSH extends CreateObjectProtocolBase {
 	}
 
 	@Override
-	public boolean isValidNode(NetworkNode node) {
-		return node instanceof NodeSSH && ((NodeSSH)node).isInitialized();
+	public boolean isValidNode(POPNetworkNode node) {
+		return node instanceof NodeDirect && ((NodeDirect)node).isInitialized();
 	}
 	
 }

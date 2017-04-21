@@ -7,7 +7,7 @@ import popjava.baseobject.POPAccessPoint;
  * A JobManager node
  * @author Davide Mazzoleni
  */
-public class NodeJobManager extends NetworkNode{
+public class NodeJobManager extends POPNetworkNode{
 
 	private final POPAccessPoint jobManagerAccessPoint;
 	private boolean initialized = true;

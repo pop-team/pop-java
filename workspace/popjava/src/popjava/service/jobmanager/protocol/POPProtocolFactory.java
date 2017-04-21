@@ -6,12 +6,12 @@ package popjava.service.jobmanager.protocol;
  * @see popjava.service.jobmanager.POPJavaJobManager
  * @author Davide Mazzoleni
  */
-public class ProtocolFactory {
-	public static CreateObjectProtocolBase makeProtocol(String name) {
+public class POPProtocolFactory {
+	public static POPProtocolBase makeProtocol(String name) {
 		switch (name.toLowerCase()) {
 			// network and job manager are passed manually afterwards
-			case "jobmanager": return new ProtocolJobManager();
-			case "ssh": return new ProtocolSSH();
+			case "jobmanager": return new POPProtocolJobManager();
+			case "ssh": return new POPProtocolDirect();
 			default: // TODO look for other classes or factory with reflection
 				return null;
 		}

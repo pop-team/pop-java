@@ -3,16 +3,16 @@ package popjava.service.jobmanager.protocol;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.network.Network;
-import popjava.service.jobmanager.network.NetworkNode;
+import popjava.service.jobmanager.network.POPNetwork;
+import popjava.service.jobmanager.network.POPNetworkNode;
 
 /**
  *
  * @author Davide Mazzoleni
  */
-public abstract class CreateObjectProtocolBase {
+public abstract class POPProtocolBase {
 	
-	protected Network network;
+	protected POPNetwork network;
 	protected POPJavaJobManager jobManager;
 	
 	/**
@@ -38,13 +38,13 @@ public abstract class CreateObjectProtocolBase {
 	 * @param node The node to check
 	 * @return true if it can be handle, false otherwise
 	 */
-	public abstract boolean isValidNode(NetworkNode node);
+	public abstract boolean isValidNode(POPNetworkNode node);
 	
 	/**
 	 * Set this protocol network of influence, will be used by its children
 	 * @param network 
 	 */
-	public void setNetwork(Network network) {
+	public void setNetwork(POPNetwork network) {
 		this.network = network;
 	}
 

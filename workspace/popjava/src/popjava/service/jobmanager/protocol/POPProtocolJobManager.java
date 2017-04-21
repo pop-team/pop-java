@@ -11,7 +11,7 @@ import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
-import popjava.service.jobmanager.network.NetworkNode;
+import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.search.NodeRequest;
 import popjava.util.Configuration;
@@ -21,7 +21,7 @@ import popjava.util.LogWriter;
  *
  * @author Davide Mazzoleni
  */
-public class ProtocolJobManager extends CreateObjectProtocolBase {
+public class POPProtocolJobManager extends POPProtocolBase {
 	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
@@ -135,7 +135,7 @@ public class ProtocolJobManager extends CreateObjectProtocolBase {
 	}
 
 	@Override
-	public boolean isValidNode(NetworkNode node) {
+	public boolean isValidNode(POPNetworkNode node) {
 		return node instanceof NodeJobManager && ((NodeJobManager)node).isInitialized();
 	}
 

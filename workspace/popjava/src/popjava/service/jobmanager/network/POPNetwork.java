@@ -5,21 +5,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.protocol.CreateObjectProtocolBase;
-import popjava.service.jobmanager.protocol.ProtocolFactory;
+import popjava.service.jobmanager.protocol.POPProtocolBase;
+import popjava.service.jobmanager.protocol.POPProtocolFactory;
 
 /**
  *
  * @author Davide Mazzoleni
  */
-public class Network {
+public class POPNetwork {
 	private final String name;
-	private final CreateObjectProtocolBase protocol;
-	private final List<NetworkNode> members;
+	private final POPProtocolBase protocol;
+	private final List<POPNetworkNode> members;
 	private final POPJavaJobManager jobManager;
 	private final String[] otherParams;
 
-	public Network(String name, CreateObjectProtocolBase protocol, POPJavaJobManager jobManager, String... other) {
+	public POPNetwork(String name, POPProtocolBase protocol, POPJavaJobManager jobManager, String... other) {
 		this.name = name;
 		this.protocol = protocol;
 		this.members = new ArrayList<>();
@@ -40,19 +40,19 @@ public class Network {
 	 * @param params
 	 * @return 
 	 */
-	public NetworkNode makeNode(String... params) {
-		return NetworkNodeFactory.makeNode(protocol.getClass(), params);
+	public POPNetworkNode makeNode(String... params) {
+		return POPNetworkNodeFactory.makeNode(protocol.getClass(), params);
 	}
 	
-	public Network(String name, String protocol, POPJavaJobManager jobManager, String... other) {
-		this(name, ProtocolFactory.makeProtocol(protocol), jobManager, other);
+	public POPNetwork(String name, String protocol, POPJavaJobManager jobManager, String... other) {
+		this(name, POPProtocolFactory.makeProtocol(protocol), jobManager, other);
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public CreateObjectProtocolBase getProtocol() {
+	public POPProtocolBase getProtocol() {
 		return protocol;
 	}
 
@@ -66,7 +66,7 @@ public class Network {
 	 * @return An immutable set we can loop through
 	 */
 	@SuppressWarnings("unchecked")
-	public<T extends NetworkNode> List<T> getMembers() {
+	public<T extends POPNetworkNode> List<T> getMembers() {
 		return (List<T>)Collections.unmodifiableList(members);
 	}
 
@@ -75,7 +75,7 @@ public class Network {
 	 * @param e The node
 	 * @return true if the Node is added, false if not or not compatible
 	 */
-	public boolean add(NetworkNode e) {
+	public boolean add(POPNetworkNode e) {
 		if (protocol.isValidNode(e))
 			return members.add(e);
 		return false;
@@ -86,7 +86,7 @@ public class Network {
 	 * @param o The node
 	 * @return true if the Node is remove, false otherwise
 	 */
-	public boolean remove(NetworkNode o) {
+	public boolean remove(POPNetworkNode o) {
 		return members.remove(o);
 	}
 
@@ -108,7 +108,7 @@ public class Network {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Network other = (Network) obj;
+		final POPNetwork other = (POPNetwork) obj;
 		if (!Objects.equals(this.name, other.name)) {
 			return false;
 		}
