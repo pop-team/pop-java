@@ -14,9 +14,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
@@ -33,17 +35,21 @@ import popjava.base.POPException;
 import popjava.dataswaper.POPFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
+import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.network.POPNetwork;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.protocol.POPProtocolFactory;
-import popjava.service.jobmanager.search.NodeRequest;
-import popjava.service.jobmanager.search.NodeResponse;
-import popjava.service.jobmanager.search.NodeWayback;
+import popjava.service.jobmanager.search.SNExploration;
+import popjava.service.jobmanager.search.SNNodesInfo;
+import popjava.service.jobmanager.search.SNRequest;
+import popjava.service.jobmanager.search.SNResponse;
+import popjava.service.jobmanager.search.SNWayback;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.Util;
 
 @POPClass(useAsyncConstructor = false)
 public class POPJavaJobManager extends POPJobService {
@@ -73,7 +79,7 @@ public class POPJavaJobManager extends POPJobService {
 	protected ReentrantLock mutex = new ReentrantLock(true);
 	
 	/** JobManager unique ID */
-	protected String nodeId = UUID.randomUUID().toString();
+	protected String nodeId = Util.generateUUID();
 	
 	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
 	public POPJavaJobManager() {
@@ -476,6 +482,7 @@ public class POPJavaJobManager extends POPJobService {
 			// TODO walltime?
 			app.setAppId(popAppId);
 			app.setReqId(reqID);
+			app.setNetwork(od.getNetwork());
 			// reservation time
 			app.setAccessTime(System.currentTimeMillis());
 
@@ -788,30 +795,257 @@ public class POPJavaJobManager extends POPJobService {
 		return nodeId;
 	}
 	
-	
+	/**
+	 * Propagate application end at the end of an application
+	 * NOTE May not the necessary or useful, POP-Java already kill unused objects
+	 * @param popAppId
+	 * @param initiator 
+	 */
+	@POPAsyncConc
+	public void applicationEnd(int popAppId, boolean initiator) {
+		AppResource res = jobs.get(popAppId);
+		if (initiator && res != null) {
+			SNRequest r = new SNRequest(Util.generateUUID(), null, null, res.getNetwork());
+			r.setAsEndRequest();
+			r.setPOPAppId(popAppId);
+			
+			launchDiscovery(r, 1);
+		}
+		
+		// remove job and gain resources bask
+		Resource r = jobs.remove(popAppId);
+		if (r != null)
+			available.add(r);
+	}
 	
 	
 	/////
-	//		Search Node Methods
+	//		Search Node
 	////
 	
-	public List<POPAccessPoint> launchDiscovery(@POPParameter(Direction.INOUT) NodeRequest request, int timeout) {
-		return new ArrayList<POPAccessPoint>() {{ 
-			add(new POPAccessPoint("socket://127.0.0.1:2712"));
-		}};
+	/** UID of requests to SN  */
+	private final LinkedBlockingDeque<String> SNKnownRequests = new LinkedBlockingDeque<>(Configuration.MAXREQTOSAVE);
+	private final Map<String, SNNodesInfo> SNActualRequets = new HashMap<>();
+	private final Map<String, Semaphore> SNRequestSemaphore = new HashMap<>();
+	
+	@POPSyncConc
+	public SNNodesInfo launchDiscovery(@POPParameter(Direction.IN) SNRequest request, int timeout) {
+		try {
+			LogWriter.writeDebugInfo("[PSN] starting research");
+			
+			// add itself to the nodes visited
+			request.getExplorationList().add(getAccessPoint());
+			
+			if (request.isEndRequest()) {
+				timeout = 1;
+			}
+			else {
+				LogWriter.writeDebugInfo(String.format("[PSN] LDISCOVERY;TIMEOUT;%d", timeout));
+			}
+			
+			// create and add request to local map
+			SNNodesInfo infos = new SNNodesInfo();
+			SNActualRequets.put(request.getUID(), infos);
+			
+			// start reasearch until timeout is reached
+			if (timeout > 0) {
+				POPAccessPoint sender = new POPAccessPoint();
+				askResourcesDiscovery(request, getAccessPoint(), sender);
+				Thread.sleep(timeout);
+			}
+			
+			// not timeout was set, accept first result
+			else {
+				// semaphore to wait until resource is discovered
+				Semaphore reqsem = new Semaphore(0);
+				// add it to the map for later async unlocking
+				SNRequestSemaphore.put(request.getUID(), reqsem);
+				
+				// start research
+				POPAccessPoint sender = new POPAccessPoint();
+				askResourcesDiscovery(request, getAccessPoint(), sender);
+				
+				// start an automatic unlock to avoid an infinite thread waiting
+				new Thread(() -> { 
+					try {
+						Thread.sleep(Configuration.UNLOCK_TIMEOUT);
+						unlockDiscovery(request.getUID());
+					} catch(InterruptedException e) {}
+				}).start();
+				
+				// wait to semaphore to let us through
+				reqsem.acquireUninterruptibly();
+				
+				// results acquired, remove semaphore from map
+				SNRequestSemaphore.remove(request.getUID());
+			}
+			
+			// get (again) the SN infos
+			SNNodesInfo results = SNActualRequets.get(request.getUID());
+			// remove request from map
+			SNActualRequets.remove(request.getUID());
+			
+			return results;
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in launchDiscovery: %s", e.getMessage()));
+			return new SNNodesInfo();
+		}
 	}
 	
-	public void askResourcesDiscovery(@POPParameter(Direction.INOUT) NodeRequest request, 
-			@POPParameter(Direction.IN) POPAccessPoint jobManager, @POPParameter(Direction.IN) POPAccessPoint sender) {
-		
+	@POPAsyncSeq
+	public void askResourcesDiscovery(@POPParameter(Direction.IN) SNRequest request, 
+			@POPParameter(Direction.IN) POPAccessPoint originJobManager, @POPParameter(Direction.IN) POPAccessPoint sender) {
+		try {
+			// previous hops visited
+			SNExploration explorationList = request.getExplorationList();
+			// get request network
+			POPNetwork network = networks.get(request.getNetworkName());
+
+			// do nothing if we don't have the network
+			if (network == null)
+				return;
+
+			// decrease the hop we can still do
+			if (request.getRemainingHops() != Configuration.UNLIMITED_HOPS)
+				request.decreaseHopLimit();
+			
+			// add all network neighbors to explorations list
+			for (POPNetworkNode node : network.getMembers()) {
+				// only JM items and children
+				if (node instanceof NodeJobManager) {
+					NodeJobManager jmNode = (NodeJobManager) node;
+					// add to exploration list
+					explorationList.add(jmNode.getJobManagerAccessPoint());
+				}
+			}
+			
+			// used to kill the application from all JMs
+			if (request.isEndRequest()) {
+				// check if we can continue discovering
+				if (request.getRemainingHops() >= 0 || request.getRemainingHops() == Configuration.UNLIMITED_HOPS) {
+					// propagate to all neighbors
+					for (POPNetworkNode node : network.getMembers()) {
+						// only JM items and children
+						if (node instanceof NodeJobManager) {
+							NodeJobManager jmNode = (NodeJobManager) node;
+
+							// contact if it has not been contacted before by someone else
+							if (!explorationList.contains(jmNode.getJobManagerAccessPoint())) {
+								// send request to other JM
+								POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jmNode.getJobManagerAccessPoint());
+								jm.askResourcesDiscovery(request, originJobManager, getAccessPoint());
+							}
+						}
+					}
+				}
+				
+				// and application locally
+				applicationEnd(request.getPOPAppId(), false);
+				return;
+			}
+			
+			// true research start here
+			
+			// check if request was already parsed once
+			// TODO ?? POPC also remove the current node from the sender since it's already reachable.
+			//         This may not a good solution in our case with multiple networks.
+			if (SNKnownRequests.contains(request.getUID()))
+				return;
+			// add it if not, at the beginning to find it more easily 
+			SNKnownRequests.push(request.getUID());
+
+			// remove older elements
+			if (SNKnownRequests.size() > Configuration.MAXREQTOSAVE) {
+				SNKnownRequests.pollLast();
+			}
+
+			// check local available resources to see if we can handle the request to the requester
+			if (available.canHandle(request.getResourceNeeded()) ||
+					available.canHandle(request.getMinResourceNeeded())) {
+				// build response and give it back to the original sender
+				SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(nodeId, getAccessPoint(), POPSystem.getPlatform(), available);
+				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), originJobManager, nodeinfo);
+
+				// route response to the original JM
+				rerouteResponse(response, request.getWayback());
+			}
+			
+			// propagate in the network if we still can
+			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == Configuration.UNLIMITED_HOPS) {
+				// add current node do wayback
+				request.getWayback().push(getAccessPoint());
+				// request to all members of the network
+				for (POPNetworkNode node : network.getMembers()) {
+					if (node instanceof NodeJobManager) {
+						NodeJobManager jmNode = (NodeJobManager) node;
+						// contact if it's a new node
+						if (!explorationList.contains(jmNode.getJobManagerAccessPoint())) {
+							// send request to other JM
+							POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jmNode.getJobManagerAccessPoint());
+							jm.askResourcesDiscovery(request, originJobManager, getAccessPoint());
+						}
+
+					}
+				}
+			}
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage()));
+		}
 	}
 	
-	public void callbackResult(@POPParameter(Direction.IN) NodeResponse response) {
-		
+	@POPAsyncConc
+	public void callbackResult(@POPParameter(Direction.IN) SNResponse response) {
+		try {
+			// the result node is stored in the SNNodes
+			SNNodesInfo.Node result = response.getResultNode();
+			SNNodesInfo nodes = SNActualRequets.get(response.getUID());
+			if (nodes == null)
+				return;
+			// add the node
+			nodes.add(result);
+			
+			// we unlock the senaphore if it was set
+			unlockDiscovery(response.getUID());
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in callbackResult: %s", e.getMessage()));
+		}
 	}
 	
-	public void rerouteResponse(@POPParameter(Direction.IN) NodeResponse response, 
-			@POPParameter(Direction.IN) NodeWayback wayback) {
-		
+	@POPAsyncConc
+	public void rerouteResponse(@POPParameter(Direction.IN) SNResponse response, 
+			@POPParameter(Direction.IN) SNWayback wayback) {
+		try {
+			// we want the call in the network to be between neighbors only
+			// so we go back on the way we came with the response for the source
+			if (!wayback.isLastNode()) {
+				LogWriter.writeDebugInfo(String.format("[PSN] REROUTE;%s;DEST;%s", response.getUID(), wayback.toString()));
+				// get next node to contact
+				System.out.println("---------" + response.getResultNode().getJobManager());
+				POPAccessPoint jm = wayback.pop();
+				POPJavaJobManager njm = PopJava.newActive(POPJavaJobManager.class, wayback.pop());
+				// route request through it
+				njm.rerouteResponse(response, wayback);
+			}
+			// is the last node, give the answer to the original JM who launched the request
+			else {
+				LogWriter.writeDebugInfo(String.format("[PSN] REROUTE_FINAL;%s;DEST;%s", response.getUID(), wayback.toString()));
+				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, response.getOriginJM());
+				jm.callbackResult(response);
+			}
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in rerouteResponse: %s", e.getMessage()));
+			e.printStackTrace();
+		}
+	}
+	
+	@POPAsyncConc
+	public void unlockDiscovery(String requid) {
+		// get and remove the semaphore
+		Semaphore sem = SNRequestSemaphore.remove(requid);
+		// release if the semaphore was set
+		if (sem != null) {
+			sem.release();
+			LogWriter.writeDebugInfo(String.format("[PSN] UNLOCK SEMAPHORE %s", requid));
+		}
 	}
 }

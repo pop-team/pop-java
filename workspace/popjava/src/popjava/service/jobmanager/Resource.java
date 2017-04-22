@@ -86,6 +86,14 @@ public class Resource implements IPOPBase {
 		this.bandwidth = bandwidth;
 	}
 
+	boolean canHandle(Resource resource) {
+		boolean canHandle = true;
+		canHandle &= flops >= resource.flops;
+		canHandle &= memory >= resource.memory;
+		canHandle &= bandwidth >= resource.bandwidth;		
+		return canHandle;
+	}
+
 	@Override
 	public int hashCode() {
 		int hash = 5;

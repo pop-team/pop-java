@@ -1,6 +1,5 @@
 package popjava.service.jobmanager.protocol;
 
-import java.util.List;
 import popjava.PopJava;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
@@ -13,9 +12,11 @@ import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.network.NodeJobManager;
-import popjava.service.jobmanager.search.NodeRequest;
+import popjava.service.jobmanager.search.SNNodesInfo;
+import popjava.service.jobmanager.search.SNRequest;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.Util;
 
 /**
  *
@@ -30,27 +31,38 @@ public class POPProtocolJobManager extends POPProtocolBase {
 		Resource currAva = jobManager.getAvailableResources();
 		// od request
 		Resource resourceReq = new Resource(od.getPowerReq(), od.getMemoryReq(), od.getBandwidthReq());
+		Resource resourceMin = new Resource(od.getPowerMin(), od.getMemoryMin(), od.getBandwidthMin());
 		currAva.subtract(resourceReq);
 		
 		// check if we have enough resources locally
-		if (currAva.getFlops() > 0 && currAva.getMemory() > 0 && currAva.getBandwidth() > 0) {
+		/*if (currAva.getFlops() > 0 && currAva.getMemory() > 0 && currAva.getBandwidth() > 0) {
 			POPFloat fitness = new POPFloat();
 			int[] resIDs = new int[howmany];
 			for (int i = 0; i < howmany; i++)
 				resIDs[i] = jobManager.reserve(od, fitness, "", "");
 			POPString pobjname = new POPString(objname);
 			return jobManager.execObj(pobjname, howmany, resIDs, localservice.toString(), objcontacts);
-		}
+		}*/
 		
 		// use search node to find a suitable node
-		NodeRequest request = new NodeRequest();
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName());
 		// setup request
-		// TODO setup request
-
+		// distance between nodes
+		if (od.getSearchMaxDepth() > 0)
+			request.setHopLimit(od.getSearchMaxDepth());
+		// size? not implemented
+		if (od.getSearchMaxSize() > 0)
+			;
+		int timeout = Configuration.SEARCH_TIMEOUT;
+		if (od.getSearchWaitTime() >= 0)
+			timeout = od.getSearchWaitTime();
+		if (!od.getPlatform().isEmpty())
+			request.setOS(od.getPlatform());
 		String appId = "", reqId = "";
 
 		// send request
-		List<POPAccessPoint> remoteJobM = jobManager.launchDiscovery(request, Configuration.ALLOC_TIMEOUT);
+		timeout = 0;
+		SNNodesInfo remoteJobM = jobManager.launchDiscovery(request, timeout);
 		POPAccessPoint[] chosenRemoteJobM = new POPAccessPoint[howmany];
 		if (remoteJobM.isEmpty()) {
 			throw new POPException(POPErrorCode.ALLOCATION_EXCEPTION, objname);
@@ -60,7 +72,7 @@ public class POPProtocolJobManager extends POPProtocolBase {
 		// make requests
 		for (int jobIdx = 0, jmIdx = 0, failed = 0; jobIdx < howmany; jobIdx++, jmIdx = (jmIdx + 1) % remoteJobM.size()) {
 			// connect to remote JM
-			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, remoteJobM.get(jmIdx));
+			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, remoteJobM.get(jmIdx).getJobManager());
 			POPFloat fitness = new POPFloat();
 			resIDs[jobIdx] = jm.reserve(od, fitness, appId, reqId);
 
