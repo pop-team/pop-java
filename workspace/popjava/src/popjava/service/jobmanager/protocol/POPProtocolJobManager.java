@@ -61,7 +61,6 @@ public class POPProtocolJobManager extends POPProtocolBase {
 		String appId = "", reqId = "";
 
 		// send request
-		timeout = 0;
 		SNNodesInfo remoteJobM = jobManager.launchDiscovery(request, timeout);
 		POPAccessPoint[] chosenRemoteJobM = new POPAccessPoint[howmany];
 		if (remoteJobM.isEmpty()) {
