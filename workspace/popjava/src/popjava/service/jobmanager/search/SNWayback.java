@@ -41,4 +41,11 @@ public class SNWayback implements IPOPBase {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (POPAccessPoint e : stack)
+			sb.append(e.toString()).append(" ");
+		return sb.toString();
+	}
 }

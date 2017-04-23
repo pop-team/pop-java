@@ -35,14 +35,15 @@ public class POPProtocolJobManager extends POPProtocolBase {
 		currAva.subtract(resourceReq);
 		
 		// check if we have enough resources locally
-		if (currAva.getFlops() > 0 && currAva.getMemory() > 0 && currAva.getBandwidth() > 0) {
+		// NOTE could be kept if we doun't want to pass through the SN, it's faster too
+		/*if (currAva.getFlops() > 0 && currAva.getMemory() > 0 && currAva.getBandwidth() > 0) {
 			POPFloat fitness = new POPFloat();
 			int[] resIDs = new int[howmany];
 			for (int i = 0; i < howmany; i++)
 				resIDs[i] = jobManager.reserve(od, fitness, "", "");
 			POPString pobjname = new POPString(objname);
 			return jobManager.execObj(pobjname, howmany, resIDs, localservice.toString(), objcontacts);
-		}
+		}*/
 		
 		// use search node to find a suitable node
 		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName());

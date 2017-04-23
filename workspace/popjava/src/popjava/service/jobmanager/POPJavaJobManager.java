@@ -850,7 +850,7 @@ public class POPJavaJobManager extends POPJobService {
 			// start reasearch until timeout is reached
 			if (timeout > 0) {
 				POPAccessPoint sender = new POPAccessPoint();
-				askResourcesDiscovery(request, getAccessPoint(), sender);
+				askResourcesDiscovery(request, sender);
 				Thread.sleep(timeout);
 			}
 			
@@ -863,7 +863,7 @@ public class POPJavaJobManager extends POPJobService {
 				
 				// start research
 				POPAccessPoint sender = new POPAccessPoint();
-				askResourcesDiscovery(request, getAccessPoint(), sender);
+				askResourcesDiscovery(request, sender);
 				
 				// start an automatic unlock to avoid an infinite thread waiting
 				new Thread(() -> { 
@@ -893,11 +893,12 @@ public class POPJavaJobManager extends POPJobService {
 	}
 	
 	@POPAsyncSeq
-	public void askResourcesDiscovery(@POPParameter(Direction.IN) SNRequest request, 
-			@POPParameter(Direction.IN) POPAccessPoint originJobManager, @POPParameter(Direction.IN) POPAccessPoint sender) {
+	public void askResourcesDiscovery(@POPParameter(Direction.IN) SNRequest request,
+			@POPParameter(Direction.IN) POPAccessPoint sender) {
 		try {
 			// previous hops visited
 			SNExploration explorationList = request.getExplorationList();
+			SNExploration oldExplorationList = new SNExploration(request.getExplorationList());
 			// get request network
 			POPNetwork network = networks.get(request.getNetworkName());
 
@@ -930,10 +931,10 @@ public class POPJavaJobManager extends POPJobService {
 							NodeJobManager jmNode = (NodeJobManager) node;
 
 							// contact if it has not been contacted before by someone else
-							if (!explorationList.contains(jmNode.getJobManagerAccessPoint())) {
+							if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 								// send request to other JM
 								POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jmNode.getJobManagerAccessPoint());
-								jm.askResourcesDiscovery(request, originJobManager, getAccessPoint());
+								jm.askResourcesDiscovery(request, getAccessPoint());
 							}
 						}
 					}
@@ -964,7 +965,7 @@ public class POPJavaJobManager extends POPJobService {
 					available.canHandle(request.getMinResourceNeeded())) {
 				// build response and give it back to the original sender
 				SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(nodeId, getAccessPoint(), POPSystem.getPlatform(), available);
-				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), originJobManager, nodeinfo);
+				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
 
 				// route response to the original JM
 				rerouteResponse(response, request.getWayback());
@@ -979,10 +980,10 @@ public class POPJavaJobManager extends POPJobService {
 					if (node instanceof NodeJobManager) {
 						NodeJobManager jmNode = (NodeJobManager) node;
 						// contact if it's a new node
-						if (!explorationList.contains(jmNode.getJobManagerAccessPoint())) {
+						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 							// send request to other JM
 							POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jmNode.getJobManagerAccessPoint());
-							jm.askResourcesDiscovery(request, originJobManager, getAccessPoint());
+							jm.askResourcesDiscovery(request, getAccessPoint());
 						}
 
 					}
@@ -1020,17 +1021,15 @@ public class POPJavaJobManager extends POPJobService {
 			if (!wayback.isLastNode()) {
 				LogWriter.writeDebugInfo(String.format("[PSN] REROUTE;%s;DEST;%s", response.getUID(), wayback.toString()));
 				// get next node to contact
-				System.out.println("---------" + response.getResultNode().getJobManager());
 				POPAccessPoint jm = wayback.pop();
-				POPJavaJobManager njm = PopJava.newActive(POPJavaJobManager.class, wayback.pop());
+				POPJavaJobManager njm = PopJava.newActive(POPJavaJobManager.class, jm);
 				// route request through it
 				njm.rerouteResponse(response, wayback);
 			}
 			// is the last node, give the answer to the original JM who launched the request
 			else {
-				LogWriter.writeDebugInfo(String.format("[PSN] REROUTE_FINAL;%s;DEST;%s", response.getUID(), wayback.toString()));
-				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, response.getOriginJM());
-				jm.callbackResult(response);
+				LogWriter.writeDebugInfo(String.format("[PSN] REROUTE_ORIGIN;%s;", response.getUID()));
+				callbackResult(response);
 			}
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in rerouteResponse: %s", e.getMessage()));

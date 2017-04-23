@@ -1,6 +1,5 @@
 package popjava.service.jobmanager.search;
 
-import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
@@ -12,25 +11,19 @@ public class SNResponse implements IPOPBase {
 	
 	private String uid;
 	private SNExploration explorationList;
-	private POPAccessPoint originJobManager;
 	private SNNodesInfo.Node nodeinfo;
 
 	public SNResponse() {
 	}
 
-	public SNResponse(String uid, SNExploration explorationList, POPAccessPoint originJobManager, SNNodesInfo.Node nodeinfo) {
+	public SNResponse(String uid, SNExploration explorationList, SNNodesInfo.Node nodeinfo) {
 		this.uid = uid;
 		this.explorationList = explorationList;
-		this.originJobManager = originJobManager;
 		this.nodeinfo = nodeinfo;
 	}
 
 	public String getUID() {
 		return uid;
-	}
-	
-	public POPAccessPoint getOriginJM() {
-		return originJobManager;
 	}
 
 	public SNNodesInfo.Node getResultNode() {
@@ -41,7 +34,6 @@ public class SNResponse implements IPOPBase {
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putString(uid);
 		buffer.putValue(explorationList, SNExploration.class);
-		buffer.putValue(originJobManager, POPAccessPoint.class);
 		buffer.putValue(nodeinfo, SNNodesInfo.Node.class);
 		return true;
 	}
@@ -50,7 +42,6 @@ public class SNResponse implements IPOPBase {
 	public boolean deserialize(POPBuffer buffer) {
 		uid = buffer.getString();
 		explorationList = (SNExploration) buffer.getValue(SNExploration.class);
-		originJobManager = (POPAccessPoint) buffer.getValue(POPAccessPoint.class);
 		nodeinfo = (SNNodesInfo.Node) buffer.getValue(SNNodesInfo.Node.class);
 		return true;
 	}

@@ -14,6 +14,14 @@ import popjava.dataswaper.IPOPBase;
 public class SNExploration implements IPOPBase {
 	private final Set<POPAccessPoint> visited = new HashSet<>();
 
+	public SNExploration() {
+	}
+
+	public SNExploration(SNExploration explorationList) {
+		for (POPAccessPoint e : explorationList.visited)
+			add(e);
+	}
+
 	public boolean contains(POPAccessPoint o) {
 		return visited.contains(o);
 	}
