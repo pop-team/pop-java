@@ -12,7 +12,7 @@ import popjava.service.jobmanager.network.NodeDirect;
  *
  * @author Davide Mazzoleni
  */
-public class POPProtocolDirect extends POPProtocolBase {
+public class POPConnectorDirect extends POPConnectorBase {
 	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 

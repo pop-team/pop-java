@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.protocol.POPProtocolBase;
-import popjava.service.jobmanager.protocol.POPProtocolFactory;
+import popjava.service.jobmanager.protocol.POPConnectorBase;
+import popjava.service.jobmanager.protocol.POPConnectorFactory;
 
 /**
  *
@@ -14,12 +14,12 @@ import popjava.service.jobmanager.protocol.POPProtocolFactory;
  */
 public class POPNetwork {
 	private final String name;
-	private final POPProtocolBase protocol;
+	private final POPConnectorBase protocol;
 	private final List<POPNetworkNode> members;
 	private final POPJavaJobManager jobManager;
 	private final String[] otherParams;
 
-	public POPNetwork(String name, POPProtocolBase protocol, POPJavaJobManager jobManager, String... other) {
+	public POPNetwork(String name, POPConnectorBase protocol, POPJavaJobManager jobManager, String... other) {
 		this.name = name;
 		this.protocol = protocol;
 		this.members = new ArrayList<>();
@@ -45,14 +45,14 @@ public class POPNetwork {
 	}
 	
 	public POPNetwork(String name, String protocol, POPJavaJobManager jobManager, String... other) {
-		this(name, POPProtocolFactory.makeProtocol(protocol), jobManager, other);
+		this(name, POPConnectorFactory.makeProtocol(protocol), jobManager, other);
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public POPProtocolBase getProtocol() {
+	public POPConnectorBase getProtocol() {
 		return protocol;
 	}
 

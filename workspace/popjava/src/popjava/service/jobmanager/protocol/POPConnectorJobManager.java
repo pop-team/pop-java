@@ -22,7 +22,7 @@ import popjava.util.Util;
  *
  * @author Davide Mazzoleni
  */
-public class POPProtocolJobManager extends POPProtocolBase {
+public class POPConnectorJobManager extends POPConnectorBase {
 	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 

@@ -38,7 +38,7 @@ import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.network.POPNetwork;
 import popjava.service.jobmanager.network.POPNetworkNode;
-import popjava.service.jobmanager.protocol.POPProtocolFactory;
+import popjava.service.jobmanager.protocol.POPConnectorFactory;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
@@ -649,7 +649,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * Create a new network
 	 * @param name A unique name of the network
 	 * @param protocol The protocol to use
-	 * @param params An array of String that will be processed to {@link POPProtocolFactory#makeProtocol(java.lang.String)}
+	 * @param params An array of String that will be processed to {@link POPConnectorFactory#makeProtocol(java.lang.String)}
 	 * @return true if created or already exists, false if already exists but use a different protocol
 	 */
 	@POPSyncConc

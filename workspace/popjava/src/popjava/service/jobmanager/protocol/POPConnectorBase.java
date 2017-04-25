@@ -10,7 +10,7 @@ import popjava.service.jobmanager.network.POPNetworkNode;
  *
  * @author Davide Mazzoleni
  */
-public abstract class POPProtocolBase {
+public abstract class POPConnectorBase {
 	
 	protected POPNetwork network;
 	protected POPJavaJobManager jobManager;
