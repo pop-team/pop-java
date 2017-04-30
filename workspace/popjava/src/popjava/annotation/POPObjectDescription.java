@@ -6,6 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import popjava.baseobject.ConnectionType;
+import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.service.jobmanager.protocol.POPConnectorJobManager;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
@@ -32,7 +34,19 @@ public @interface POPObjectDescription {
 	
 	Encoding encoding() default Encoding.Default;
 	
-	String network() default "";
+	/**
+	 * A network available on this machine
+	 * @return 
+	 */
+	String network() default POPJavaJobManager.DEFAULT_NETWORK;
+	
+	/**
+	 * An available connector present in a network
+	 *  jobmanager: contact remote machine via the jobmanager
+	 *  direct: connect directly (ex SSH) to the remote machine
+	 * @return 
+	 */
+	String connector() default POPConnectorJobManager.IDENTITY;
 	
 	/**
 	 * Method id of the constructor.
