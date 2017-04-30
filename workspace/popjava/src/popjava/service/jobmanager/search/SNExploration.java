@@ -1,7 +1,6 @@
 package popjava.service.jobmanager.search;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
@@ -12,7 +11,9 @@ import popjava.dataswaper.IPOPBase;
  * @author Davide Mazzoleni
  */
 public class SNExploration implements IPOPBase {
-	private final Set<POPAccessPoint> visited = new HashSet<>();
+	private static final int MAX_QUEUE_SIZE = 500;
+	
+	private final LinkedList<POPAccessPoint> visited = new LinkedList<>();
 
 	public SNExploration() {
 	}
@@ -31,6 +32,8 @@ public class SNExploration implements IPOPBase {
 	}
 
 	public boolean add(POPAccessPoint e) {
+		if (visited.size() >= MAX_QUEUE_SIZE)
+			visited.pop();
 		return visited.add(e);
 	}
 
