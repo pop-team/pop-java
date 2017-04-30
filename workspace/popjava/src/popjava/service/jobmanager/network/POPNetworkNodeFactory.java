@@ -1,28 +1,25 @@
 package popjava.service.jobmanager.network;
 
-import popjava.service.jobmanager.protocol.POPConnectorBase;
+import java.util.List;
 import popjava.service.jobmanager.protocol.POPConnectorJobManager;
 import popjava.service.jobmanager.protocol.POPConnectorDirect;
+import popjava.util.Util;
 
 /**
  *
  * @author Davide Mazzoleni
  */
 public class POPNetworkNodeFactory {
-	public static POPNetworkNode makeNode(Class<? extends POPConnectorBase> aClass, String[] other) {
-		// for JobManager 
-		if (aClass == POPConnectorJobManager.class) {
-			return new NodeJobManager(other);
-		}
+	public static POPNetworkNode makeNode(List<String> other) {
+		String connector = Util.removeStringFromList(other, "connector=");
+		// use job manager if nothing is specified
+		if (connector == null)
+			connector = POPConnectorJobManager.IDENTITY;
 		
-		// for direct IP connect
-		else if (aClass == POPConnectorDirect.class) {
-			return new NodeDirect(other);
-		}
-		
-		else {
-			// TODO reflection node creation
-			return null;
+		switch (connector.toLowerCase()) {
+			case POPConnectorJobManager.IDENTITY: return new NodeJobManager(other);
+			case POPConnectorDirect.IDENTITY: return new NodeDirect(other);
+			default: return null;
 		}
 	}
 }

@@ -24,6 +24,8 @@ import popjava.util.Util;
  */
 public class POPConnectorJobManager extends POPConnectorBase {
 	
+	public static final String IDENTITY = "jobmanager";
+	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {

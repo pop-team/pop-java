@@ -1,6 +1,10 @@
 package popjava.service.jobmanager.network;
 
+import java.util.List;
 import java.util.Objects;
+import popjava.service.deamon.POPJavaDeamon;
+import popjava.service.jobmanager.protocol.POPConnectorDirect;
+import popjava.util.Util;
 
 /**
  * A SSH node for direct IP connections
@@ -15,29 +19,35 @@ public class NodeDirect extends POPNetworkNode {
 	private String daemonSecret;
 	private boolean initialized = true;
 	
-	NodeDirect(String[] params) {
-		if (params.length == 3 && params[1].equals("daemon")) {
-			daemon = true;
-			daemonSecret = params[2];
-		}
+	NodeDirect(List<String> params) {
+		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
 		
-		// single string, can be <host>[:<port>] [<deamon> <secret>]
-		if (params.length <= 3) {
-			String[] ip = params[0].split(":");
-			host = ip[0];
-			port = 22;
-			
-			// simple ip or host
-			if (ip.length > 1) {
-				try {
-					port = Integer.parseInt(ip[1]);
-				} catch (NumberFormatException e) {	}
-			}
-		}
+		// get potential params
+		String host = Util.removeStringFromList(params, "host=");
+		String portString = Util.removeStringFromList(params, "port=");
+		String protocol = Util.removeStringFromList(params, "protocol=");
+		String secret = Util.removeStringFromList(params, "secret=");
 		
-		else {
-			// fail
+		// stop if we have no host
+		if (host == null) {
 			initialized = false;
+			return;
+		}
+		
+		// set parameters
+		this.host = host;
+		this.daemon = protocol != null && protocol.equals("daemon");
+		this.daemonSecret = secret;
+		// by default 22 if ssh, 43424 if daemon
+		this.port = !this.daemon ? 22 : POPJavaDeamon.POP_JAVA_DEAMON_PORT;
+		// port need to be parsed
+		if (portString != null) {
+			try {
+				port = Integer.parseInt(portString);
+			} catch(NumberFormatException e) {
+				// we assume the initialization failed in this case
+				initialized = false;
+			}
 		}
 	}
 
@@ -100,8 +110,8 @@ public class NodeDirect extends POPNetworkNode {
 
 	@Override
 	public String toString() {
-		return String.format("%s:%d %s %s", host, port, 
-				daemon ? "daemon" : "", 
-				daemonSecret == null ? "" : daemonSecret);
+		return String.format("connector=%s host=%s port=%d protocol=%s %s", connectorName, host, port, 
+				daemon ? "daemon" : "ssh", 
+				daemonSecret == null ? "" : "secret=" + daemonSecret).trim();
 	}
 }

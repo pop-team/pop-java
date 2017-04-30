@@ -14,11 +14,13 @@ import popjava.service.jobmanager.network.NodeDirect;
  */
 public class POPConnectorDirect extends POPConnectorBase {
 	
+	public static final String IDENTITY = "direct";
+	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// node in network
-		List<NodeDirect> nodes = network.getMembers();
+		List<NodeDirect> nodes = network.getMembers(this.getClass());
 		// get a random node
 		NodeDirect node = nodes.get( (int) (Math.random() * nodes.size()) );
 		

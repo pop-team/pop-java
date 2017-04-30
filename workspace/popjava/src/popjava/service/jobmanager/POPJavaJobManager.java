@@ -38,7 +38,10 @@ import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.network.POPNetwork;
 import popjava.service.jobmanager.network.POPNetworkNode;
+import popjava.service.jobmanager.network.POPNetworkNodeFactory;
+import popjava.service.jobmanager.protocol.POPConnectorBase;
 import popjava.service.jobmanager.protocol.POPConnectorFactory;
+import popjava.service.jobmanager.protocol.POPConnectorJobManager;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
@@ -53,6 +56,9 @@ import popjava.util.Util;
 
 @POPClass(useAsyncConstructor = false)
 public class POPJavaJobManager extends POPJobService {
+	
+	/** Default network name */
+	public static final String DEFAULT_NETWORK = "default";
 	
 	/** Currently used resources of a node */
 	protected final Resource available = new Resource();
@@ -137,7 +143,7 @@ public class POPJavaJobManager extends POPJobService {
 					// format: network <name> <protocol> [params...]
 					case "network": 
 						// not enough elements
-						if (token.length < 3) {
+						if (token.length < 2) {
 							LogWriter.writeDebugInfo(String.format("Network %s not enough parameters supplied", token[1]));
 							continue;
 						}
@@ -148,12 +154,12 @@ public class POPJavaJobManager extends POPJobService {
 							continue;
 						}
 						
-						// get extra information
-						String[] other = new String[ token.length - 3 ];
-						System.arraycopy(token, 3, other, 0, token.length - 3);
+						// get extra information, if any
+						String[] other = new String[ token.length - 2 ];
+						System.arraycopy(token, 2, other, 0, token.length - 2);
 						
 						// create network
-						POPNetwork network = new POPNetwork(token[1], token[2], this, other);
+						POPNetwork network = new POPNetwork(token[1], this, other);
 						// add to map
 						networks.put(token[1], network);
 						break;
@@ -169,20 +175,26 @@ public class POPJavaJobManager extends POPJobService {
 							continue;
 						}
 						
+						// params for node, at least one
+						other = new String[ token.length - 1 ];
+						System.arraycopy(token, 1, other, 0, token.length - 1);
+						List<String> params = new ArrayList<>(Arrays.asList(other));
+						
+						// get specified network or use default
+						String networkString = Util.removeStringFromList(params, "network=");
+						if (networkString == null)
+							networkString = DEFAULT_NETWORK;
+						
 						// get network
-						network = networks.get(token[1]);
+						network = networks.get(networkString);
 						// no network
 						if (network == null) {
 							LogWriter.writeDebugInfo(String.format("Node, network %s not found", token[1]));
 							continue;
 						}
 						
-						// params for node, at least one
-						other = new String[ token.length - 2 ];
-						System.arraycopy(token, 2, other, 0, token.length - 2);
-						
 						// create the node for the network
-						POPNetworkNode node = network.makeNode(other);
+						POPNetworkNode node = POPNetworkNodeFactory.makeNode(params);
 						// add it to the network
 						network.add(node);
 						break;
@@ -307,8 +319,15 @@ public class POPJavaJobManager extends POPJobService {
 		if (network == null)
 			throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
 		
+		// get the job manager connector specified in the od
+		Class connectorClass = POPConnectorFactory.getConnectorClass(od.getConnector());
+		POPConnectorBase connectorImpl = network.getConnector(connectorClass);
+		
+		if (connectorImpl == null)
+			throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
+		
 		// call the protocol specific createObject
-		return network.getProtocol().createObject(localservice, objname, od, howmany, objcontacts, howmany2, remotejobcontacts);
+		return connectorImpl.createObject(localservice, objname, od, howmany, objcontacts, howmany2, remotejobcontacts);
 	}
 
 	/**
@@ -545,13 +564,14 @@ public class POPJavaJobManager extends POPJobService {
 		try (PrintStream out = new PrintStream(dumpFile)){
 			out.println("[networks]");
 			networks.forEach((k,net) -> {
+				POPConnectorBase[] connectors = net.getConnectors();
 				out.println(String.format("[%s]", net.getName()));
-				out.println(String.format("protocol=%s", net.getProtocol()));
-				out.println(String.format("members=", net.getMembers().size()));
+				out.println(String.format("connectors=%s", Arrays.toString(connectors)));
+				out.println(String.format("members=", net.size()));
 				out.println(String.format("[%s.nodes]", net.getName()));
-				net.getMembers().forEach((node) -> {
+				for (POPConnectorBase node : connectors) {
 					out.print(String.format("node=%s", node.toString()));
-				});
+				};
 			});
 			out.println("[config]");
 			out.println(String.format("power=%f", available.getFlops()));
@@ -620,7 +640,7 @@ public class POPJavaJobManager extends POPJobService {
 				return false;
 			case "networks":
 				sb = new StringBuilder();
-				networks.forEach((k,v) -> sb.append(String.format("%s=%s\n", k, v.getProtocol().getClass())));
+				networks.forEach((k,v) -> sb.append(String.format("%s=%s\n", k, v.size())));
 				value.setValue(sb.toString().trim());
 				return true;
 			case "power_available":
@@ -648,22 +668,20 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Create a new network
 	 * @param name A unique name of the network
-	 * @param protocol The protocol to use
 	 * @param params An array of String that will be processed to {@link POPConnectorFactory#makeProtocol(java.lang.String)}
 	 * @return true if created or already exists, false if already exists but use a different protocol
 	 */
 	@POPSyncConc
-	public boolean createNetwork(String name, String protocol, String... params) {
+	public boolean createNetwork(String name, String... params) {
 		// check if exists already
 		POPNetwork network = networks.get(name);
-		// create the new network; NOTE with do this here to avoid creating a protocol just for comparison
-		POPNetwork newNetwork = new POPNetwork(name, protocol, this, params);
+		if (network != null)
+			return true;
 		
-		// check existence
-		if (network != null) {
-			// also check if it's the same protocol
-			return network.getProtocol().getClass() == newNetwork.getProtocol().getClass();
-		}
+		// create the new network
+		POPNetwork newNetwork = new POPNetwork(name, this, params);
+		
+		// TODO write to jobMngr file
 		
 		// add new network
 		LogWriter.writeDebugInfo(String.format("Network %s added", name));
@@ -681,6 +699,9 @@ public class POPJavaJobManager extends POPJobService {
 			LogWriter.writeDebugInfo(String.format("Network %s not removed, not found", name));
 			return;
 		}
+		
+		// TODO write to jobMngr file
+		
 		LogWriter.writeDebugInfo(String.format("Network %s removed", name));
 		networks.remove(name);
 	}
@@ -701,7 +722,7 @@ public class POPJavaJobManager extends POPJobService {
 		}
 		
 		LogWriter.writeDebugInfo(String.format("Node %s added", Arrays.toString(params)));
-		network.add(network.makeNode(params));
+		network.add(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
 	}
 	
 	/**
@@ -720,7 +741,7 @@ public class POPJavaJobManager extends POPJobService {
 		}
 		
 		LogWriter.writeDebugInfo(String.format("Node %s removed", Arrays.toString(params)));
-		network.remove(network.makeNode(params));
+		network.remove(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
 	}
 
 	/**
@@ -728,8 +749,8 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param url 
 	 */
 	@POPSyncConc
-	public void registerNode(String url) {
-		// TODO default network?
+	public void registerNode(String... params) {
+		registerNode(DEFAULT_NETWORK, params);
 	}
 
 	/**
@@ -738,8 +759,8 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param url 
 	 */
 	@POPAsyncConc
-	public void unregisterNode(@POPParameter(Direction.IN) POPAccessPoint url) {
-		// TODO remove from default 
+	public void unregisterNode(String... params) {
+		unregisterNode(DEFAULT_NETWORK, params);
 	}
 
 	/**
@@ -911,7 +932,7 @@ public class POPJavaJobManager extends POPJobService {
 				request.decreaseHopLimit();
 			
 			// add all network neighbors to explorations list
-			for (POPNetworkNode node : network.getMembers()) {
+			for (POPNetworkNode node : network.getMembers(POPConnectorJobManager.class)) {
 				// only JM items and children
 				if (node instanceof NodeJobManager) {
 					NodeJobManager jmNode = (NodeJobManager) node;
@@ -925,7 +946,7 @@ public class POPJavaJobManager extends POPJobService {
 				// check if we can continue discovering
 				if (request.getRemainingHops() >= 0 || request.getRemainingHops() == Configuration.UNLIMITED_HOPS) {
 					// propagate to all neighbors
-					for (POPNetworkNode node : network.getMembers()) {
+					for (POPNetworkNode node : network.getMembers(POPConnectorJobManager.class)) {
 						// only JM items and children
 						if (node instanceof NodeJobManager) {
 							NodeJobManager jmNode = (NodeJobManager) node;
@@ -976,7 +997,7 @@ public class POPJavaJobManager extends POPJobService {
 				// add current node do wayback
 				request.getWayback().push(getAccessPoint());
 				// request to all members of the network
-				for (POPNetworkNode node : network.getMembers()) {
+				for (POPNetworkNode node : network.getMembers(POPConnectorJobManager.class)) {
 					if (node instanceof NodeJobManager) {
 						NodeJobManager jmNode = (NodeJobManager) node;
 						// contact if it's a new node
