@@ -80,6 +80,20 @@ public @interface POPObjectDescription {
 	float minBandwidth() default -1;
 	
 	/**
+	 * How many hops can we go after ours
+	 * @return 
+	 */
+	int searchDepth() default -1;
+	
+	/**
+	 * How much time elapse between the start and end of a research in the grid
+	 * if 0 the first node found is used
+	 * any other value > 0 (ms) will be a forced wait
+	 * @return 
+	 */
+	int searchTime() default 0;
+	
+	/**
 	 * Method id of the constructor.
 	 * Only use this if you absolutely know what you are doing.
 	 * @return

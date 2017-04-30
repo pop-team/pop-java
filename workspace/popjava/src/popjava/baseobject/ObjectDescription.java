@@ -69,7 +69,7 @@ public class ObjectDescription implements IPOPBase {
 		codeFile = "";
 		cwd ="";
 		batch = "";
-		waitTime=-1;
+		waitTime=0;
 		hostarch = "";
 		hostcore = "";
 		hostuser = "";
@@ -80,8 +80,8 @@ public class ObjectDescription implements IPOPBase {
 		memoryMin = -1;
 		memoryReq = -1;
 		
-		setValue(NETWORK_KEY, POPJavaJobManager.DEFAULT_NETWORK);
-		setValue(CONNECTOR_KEY, POPConnectorJobManager.IDENTITY);
+		setNetwork(POPJavaJobManager.DEFAULT_NETWORK);
+		setConnector(POPConnectorJobManager.IDENTITY);
 	}
 	
 	public ObjectDescription(ObjectDescription od) {
@@ -111,8 +111,8 @@ public class ObjectDescription implements IPOPBase {
 		maxSize =  od.getSearchMaxSize();
 		waitTime = od.getSearchWaitTime();
 		
-		setValue(NETWORK_KEY, od.getNetwork());
-		setValue(CONNECTOR_KEY, od.getConnector());
+		setNetwork(od.getNetwork());
+		setConnector(od.getConnector());
 	}
 	
 	/**
