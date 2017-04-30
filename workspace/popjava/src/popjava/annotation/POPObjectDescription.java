@@ -91,7 +91,7 @@ public @interface POPObjectDescription {
 	 * any other value > 0 (ms) will be a forced wait
 	 * @return 
 	 */
-	int searchTime() default 0;
+	int searchTime() default -1;
 	
 	/**
 	 * Method id of the constructor.

@@ -69,7 +69,7 @@ public class ObjectDescription implements IPOPBase {
 		codeFile = "";
 		cwd ="";
 		batch = "";
-		waitTime=0;
+		waitTime=-1;
 		hostarch = "";
 		hostcore = "";
 		hostuser = "";

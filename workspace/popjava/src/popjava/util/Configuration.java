@@ -15,7 +15,7 @@ public class Configuration {
 	public static final int CONNECTION_TIMEOUT = 30000;
 	public static final int UPDATE_MIN_INTERVAL = 10000;
 	public static final int UNLOCK_TIMEOUT = 10000;
-	public static final int SEARCH_TIMEOUT = 1000;
+	public static final int SEARCH_TIMEOUT = 0;
 	public static final int UNLIMITED_HOPS = Integer.MAX_VALUE;
 	public static final int MAXREQTOSAVE = 300;
 	public static final String DEFAULT_ENCODING = "xdr";
