@@ -610,12 +610,12 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
-		float tmpPowerMin = buffer.getFloat();
 		float tmpPowerReq = buffer.getFloat();
-		float tmpMemoryMin = buffer.getFloat();
+		float tmpPowerMin = buffer.getFloat();
 		float tmpMemoryReq = buffer.getFloat();
-		float tmpBandwidthMin = buffer.getFloat();
+		float tmpMemoryMin = buffer.getFloat();
 		float tmpBandwidthReq = buffer.getFloat();
+		float tmpBandwidthMin = buffer.getFloat();
 //		ODElement power = ODElement.deserialize(buffer);
 //		ODElement memory = ODElement.deserialize(buffer);
 //		ODElement bandwidth = ODElement.deserialize(buffer);
