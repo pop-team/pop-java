@@ -99,6 +99,9 @@ public class POPObject implements IPOPBase {
 			od.setEncoding(objectDescription.encoding().toString());
 			od.setNetwork(objectDescription.network());
 			od.setConnector(objectDescription.connector());
+			od.setPower(objectDescription.power(), objectDescription.minPower());
+			od.setMemory(objectDescription.memory(), objectDescription.minMemory());
+			od.setBandwidth(objectDescription.bandwidth(), objectDescription.minBandwidth());
 		}
 	}
 	

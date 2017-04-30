@@ -49,6 +49,37 @@ public @interface POPObjectDescription {
 	String connector() default POPConnectorJobManager.IDENTITY;
 	
 	/**
+	 * Power requested
+	 * @return 
+	 */
+	float power() default -1;
+	/**
+	 * Minimum power necessary
+	 * @return 
+	 */
+	float minPower() default -1;
+	/**
+	 * Memory requested
+	 * @return 
+	 */
+	float memory() default -1;
+	/**
+	 * Minimum memory necessary
+	 * @return 
+	 */
+	float minMemory() default -1;
+	/**
+	 * Bandwidth requested
+	 * @return 
+	 */
+	float bandwidth() default -1;
+	/**
+	 * Minimum bandwidth necessary
+	 * @return 
+	 */
+	float minBandwidth() default -1;
+	
+	/**
 	 * Method id of the constructor.
 	 * Only use this if you absolutely know what you are doing.
 	 * @return
