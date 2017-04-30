@@ -75,6 +75,9 @@ public class ComboxSocket extends Combox {
 				}
 			} catch (IOException e) {
 				//LogWriter.writeExceptionLog(e);
+				LogWriter.writeDebugInfo(String.format("!! Exception in %s, while closing a connection. "
+						+ "Message %s (called by finalize). This should be investigate one day. Supressed manually.", 
+						getClass().getName(), e.getMessage()));
 			}
 		}
 	}
