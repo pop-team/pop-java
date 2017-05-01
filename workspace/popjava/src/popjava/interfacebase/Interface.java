@@ -208,7 +208,7 @@ public class Interface {
         				"OBJECT_EXECUTABLE_NOTFOUND");
         	}
         	od.setPlatform(platforms);
-        	//appCoreService.exit();
+        	appCoreService.exit();
         }
         
         // Global Resource management system --> Find a resource.
@@ -247,7 +247,7 @@ public class Interface {
 		
         int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, od, allocatedAccessPoint.length, 
         		allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
-        //jobManager.exit();
+        jobManager.exit();
         if (createdCode != 0) {
         	switch (createdCode) {
         		case POPErrorCode.POP_EXEC_FAIL:

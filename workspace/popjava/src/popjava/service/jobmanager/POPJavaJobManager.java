@@ -590,10 +590,17 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Start object and parallel thread check for resources death
 	 */
+	@POPSyncConc
 	@Override
 	public void start() {
-		super.start();
-		// TODO start parallel thread (method)
+		while (true) {
+			try {
+				update();
+				Thread.sleep(Configuration.UPDATE_MIN_INTERVAL);
+			} catch (InterruptedException e) {
+				
+			}
+		}
 	}
 	
 	@POPAsyncConc
@@ -785,8 +792,9 @@ public class POPJavaJobManager extends POPJobService {
 					job.setAccessTime(System.currentTimeMillis() + Configuration.UPDATE_MIN_INTERVAL);
 					try {
 						// connection to object ok
-						new Interface(job.getContact());
-					} catch (POPException e) {
+						Interface obj = new Interface(job.getContact());
+						obj.close();
+					} catch (Exception e) {
 						// manually remove from iterator
 						available.add(job);
 						iterator.remove();
