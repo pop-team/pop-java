@@ -5,8 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.protocol.POPConnectorJobManager;
+import popjava.util.Configuration;
 
 /**
  * This class represents the object description for a parallel object. The object description is the resource requirements for a specific parallel object.
@@ -80,8 +79,8 @@ public class ObjectDescription implements IPOPBase {
 		memoryMin = -1;
 		memoryReq = -1;
 		
-		setNetwork(POPJavaJobManager.DEFAULT_NETWORK);
-		setConnector(POPConnectorJobManager.IDENTITY);
+		setNetwork("");
+		setConnector(Configuration.DEFAULT_JOBMANAGER_CONNECTOR);
 	}
 	
 	public ObjectDescription(ObjectDescription od) {

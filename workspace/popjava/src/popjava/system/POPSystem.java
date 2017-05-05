@@ -305,7 +305,7 @@ public class POPSystem {
                 POPJavaConfiguration.getPopJavaJar(),
                 getNeededClasspath());
         
-        if(Configuration.START_JOBMANAGER){
+        if(Configuration.CONNECT_TO_JAVA_JOBMANAGER){
         	//jobmanager = PopJava.newActive(POPJavaJobManager.class, new POPAccessPoint("localhost:"+POPJobManager.DEFAULT_PORT));
         }
         

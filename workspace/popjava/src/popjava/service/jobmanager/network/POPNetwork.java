@@ -67,6 +67,7 @@ public class POPNetwork {
 	 * @param e The node
 	 * @return true if the Node is added, false if not or not compatible
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean add(POPNetworkNode e) {
 		// connector
 		POPConnectorBase c = connectors.get(e.getConnectorClass());

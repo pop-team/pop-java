@@ -233,7 +233,7 @@ public class Interface {
         	//}
 			if (Configuration.CONNECT_TO_POPCPP)
         		jobManager = PopJava.newActive(POPJobManager.class, jobContact);
-			else if (Configuration.START_JOBMANAGER)
+			else if (Configuration.CONNECT_TO_JAVA_JOBMANAGER)
         		jobManager = PopJava.newActive(POPJavaJobManager.class, jobContact);
 			else
         		jobManager = PopJava.newActive(POPJobService.class, jobContact);

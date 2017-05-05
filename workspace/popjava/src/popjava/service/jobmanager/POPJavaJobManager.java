@@ -54,11 +54,8 @@ import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 
-@POPClass(useAsyncConstructor = false)
+@POPClass(useAsyncConstructor = false, deconstructor = true)
 public class POPJavaJobManager extends POPJobService {
-	
-	/** Default network name */
-	public static final String DEFAULT_NETWORK = "default";
 	
 	/** Currently used resources of a node */
 	protected final Resource available = new Resource();
@@ -75,6 +72,12 @@ public class POPJavaJobManager extends POPJobService {
 	/** Networks saved in this JobManager */
 	protected Map<String,POPNetwork> networks = new HashMap<>();
 	
+	/** Default network */
+	protected POPNetwork defaultNetwork = null;
+	
+	/** Last network added */
+	protected String lastNetwork = null;
+	
 	/** Max number of jobs */
 	protected int maxJobs;
 	
@@ -87,9 +90,11 @@ public class POPJavaJobManager extends POPJobService {
 	/** JobManager unique ID */
 	protected String nodeId = Util.generateUUID();
 	
-	@POPObjectDescription(url = "localhost:" + POPJobManager.DEFAULT_PORT)
+	/**
+	 * Do not call this directly, way too many methods to this so no init was added.
+	 */
 	public POPJavaJobManager() {
-		init(Configuration.DEFAULT_JM_CONFIG_FILE);
+		//init(Configuration.DEFAULT_JM_CONFIG_FILE);
 	}
 	
 	public POPJavaJobManager(@POPConfig(Type.URL) String url) {
@@ -110,7 +115,7 @@ public class POPJavaJobManager extends POPJobService {
 		
 		// early exit
 		if (!config.exists()) {
-			LogWriter.writeDebugInfo("Open config file [" + confFile + "] fail");
+			LogWriter.writeDebugInfo("[JM] Open config file [" + confFile + "] fail");
 			POPException.throwObjectNoResource();
 		}
 		
@@ -142,15 +147,16 @@ public class POPJavaJobManager extends POPJobService {
 					// create network
 					// format: network <name> <protocol> [params...]
 					case "network": 
+						String networkName = token[1];
 						// not enough elements
 						if (token.length < 2) {
-							LogWriter.writeDebugInfo(String.format("Network %s not enough parameters supplied", token[1]));
+							LogWriter.writeDebugInfo(String.format("[JM] Network %s not enough parameters supplied", networkName));
 							continue;
 						}
 						
 						// check if exists
-						if (networks.containsKey(token[1])) {
-							LogWriter.writeDebugInfo(String.format("Network %s already exists", token[1]));
+						if (networks.containsKey(networkName)) {
+							LogWriter.writeDebugInfo(String.format("[JM] Network %s already exists", networkName));
 							continue;
 						}
 						
@@ -159,9 +165,21 @@ public class POPJavaJobManager extends POPJobService {
 						System.arraycopy(token, 2, other, 0, token.length - 2);
 						
 						// create network
-						POPNetwork network = new POPNetwork(token[1], this, other);
+						POPNetwork network = new POPNetwork(networkName, this, other);
+						
+						// put as last added network
+						if (!networkName.equals(lastNetwork))
+							lastNetwork = networkName;
+						
+						// set as default network the first network
+						// or change it if other tell us it's the default network
+						if (defaultNetwork == null || Arrays.asList(other).contains("default")) {
+							defaultNetwork = network;
+						}
+						
 						// add to map
-						networks.put(token[1], network);
+						LogWriter.writeDebugInfo(String.format("[JM] Network %s created", networkName));
+						networks.put(networkName, network);
 						break;
 						
 						
@@ -170,8 +188,8 @@ public class POPJavaJobManager extends POPJobService {
 					// format: node <network> <params...>
 					case "node":
 						// not enough elements
-						if (token.length < 3) {
-							LogWriter.writeDebugInfo(String.format("Node not enough parameters supplied: %s", line));
+						if (token.length < 2) {
+							LogWriter.writeDebugInfo(String.format("[JM] Node not enough parameters supplied: %s", line));
 							continue;
 						}
 						
@@ -183,19 +201,23 @@ public class POPJavaJobManager extends POPJobService {
 						// get specified network or use default
 						String networkString = Util.removeStringFromList(params, "network=");
 						if (networkString == null)
-							networkString = DEFAULT_NETWORK;
+							networkString = lastNetwork;
+						// check again and throw error if no network was previously set
+						if (networkString == null)
+							throw new RuntimeException(String.format("[JM Config] Setting up `node' before any network. %s", Arrays.toString(token)));
 						
 						// get network
 						network = networks.get(networkString);
 						// no network
 						if (network == null) {
-							LogWriter.writeDebugInfo(String.format("Node, network %s not found", token[1]));
+							LogWriter.writeDebugInfo(String.format("[JM] Node, network %s not found", token[1]));
 							continue;
 						}
 						
 						// create the node for the network
 						POPNetworkNode node = POPNetworkNodeFactory.makeNode(params);
 						// add it to the network
+						LogWriter.writeDebugInfo(String.format("[JM] Node [%s] added to %s", node.toString(), networkString));
 						network.add(node);
 						break;
 						
@@ -205,7 +227,7 @@ public class POPJavaJobManager extends POPJobService {
 					// format: resource <ram|memory|bandwidth> <value>
 					case "resource":
 						if (token.length < 3) {
-							LogWriter.writeDebugInfo(String.format("Resource set fail, not enough parameters: %s", line));
+							LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, not enough parameters: %s", line));
 							continue;
 						}
 						
@@ -215,25 +237,25 @@ public class POPJavaJobManager extends POPJobService {
 								try {
 									available.setFlops(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("Resource set fail, power value: %s", token[2]));
+									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, power value: %s", token[2]));
 								}
 								break;
 							case "memory":
 								try {
 									available.setBandwidth(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("Resource set fail, memory value: %s", token[2]));
+									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, memory value: %s", token[2]));
 								}
 								break;
 							case "bandwidth":
 								try {
 									available.setBandwidth(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("Resource set fail, bandwidth value: %s", token[2]));
+									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, bandwidth value: %s", token[2]));
 								}
 								break;
 							default:
-								LogWriter.writeDebugInfo(String.format("Resource set fail, unknow resource: %s", token[1]));
+								LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, unknow resource: %s", token[1]));
 						}
 						break;
 						
@@ -243,7 +265,7 @@ public class POPJavaJobManager extends POPJobService {
 					// format: job <limit|ram|memory|bandwidth> <value>
 					case "job":
 						if (token.length < 3) {
-							LogWriter.writeDebugInfo(String.format("Limit set fail, not enough parameters: %s", line));
+							LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, not enough parameters: %s", line));
 							continue;
 						}
 						// type of set <limit|ram|memory|bandwidth>
@@ -252,32 +274,32 @@ public class POPJavaJobManager extends POPJobService {
 								try {
 									maxJobs = Integer.parseInt(token[2]);
 								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("Limit set fail, limit value: %s", token[2]));
+									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, limit value: %s", token[2]));
 								}
 								break;
 							case "ram":
 								try {
 									limit.setMemory(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("Limit set fail, ram value: %s", token[2]));
+									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, ram value: %s", token[2]));
 								}
 								break;
 							case "memory":
 								try {
 									limit.setBandwidth(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("Limit set fail, memory value: %s", token[2]));
+									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, memory value: %s", token[2]));
 								}
 								break;
 							case "bandwidth":
 								try {
 									limit.setBandwidth(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("Limit set fail, bandwidth value: %s", token[2]));
+									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, bandwidth value: %s", token[2]));
 								}
 								break;
 							default:
-								LogWriter.writeDebugInfo(String.format("Limit set fail, unknow resource: %s", token[1]));
+								LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, unknow resource: %s", token[1]));
 						}
 						break;
 						
@@ -460,7 +482,7 @@ public class POPJavaJobManager extends POPJobService {
 				require = od.getMemoryReq();
 				min = od.getMemoryMin();
 				if (require > 0) {
-					LogWriter.writeDebugInfo(String.format("Require memory %f, at least: %f (available: %f)", require, min, available.getMemory()));
+					LogWriter.writeDebugInfo(String.format("[JM] Require memory %f, at least: %f (available: %f)", require, min, available.getMemory()));
 					if (min < 0) {
 						min = require;
 					}
@@ -510,7 +532,7 @@ public class POPJavaJobManager extends POPJobService {
 			// remove available resources
 			available.subtract(app);
 
-
+			LogWriter.writeDebugInfo(String.format("[JM] Reserved [%s] resources", app));
 			return app.getId();
 		} finally {
 			mutex.unlock();
@@ -526,16 +548,22 @@ public class POPJavaJobManager extends POPJobService {
 	public void cancelReservation(@POPParameter(Direction.IN) int[] req, int howmany) {
 		// remove from job map and free resources
 		AppResource resource;
-		for (int reqId : req) {
-			// remove resource from queue
-			resource = jobs.remove(reqId);
-			
-			// skip next step if resource is not in job queue
-			if (resource == null)
-				continue;
-			
-			// free JM resource
-			available.add(resource);
+		try {
+			mutex.lock();
+			for (int reqId : req) {
+				// remove resource from queue
+				resource = jobs.remove(reqId);
+
+				// skip next step if resource is not in job queue
+				if (resource == null)
+					continue;
+
+				// free JM resource
+				available.add(resource);
+				LogWriter.writeDebugInfo(String.format("[JM] Free up [%s] resources (cancellation).", resource));
+			}
+		} finally {
+			mutex.unlock();
 		}
 	}
 
@@ -556,7 +584,7 @@ public class POPJavaJobManager extends POPJobService {
 		if (!dumpFile.canWrite())
 			dumpFile = new File("JobMgr." + idx);
 		if (!dumpFile.canWrite()) {
-			LogWriter.writeDebugInfo("No writable dump location found");
+			LogWriter.writeDebugInfo("[JM] No writable dump location found");
 			return;
 		}
 		
@@ -583,12 +611,14 @@ public class POPJavaJobManager extends POPJobService {
 				out.println(String.format("%s=%s", k, v));
 			});
 		} catch (IOException e) {
-			LogWriter.writeDebugInfo("IO Error while dumping JobManager");
+			LogWriter.writeDebugInfo("[JM] IO Error while dumping JobManager");
 		}
 	}
 
 	/**
 	 * Start object and parallel thread check for resources death
+	 * TODO: make private
+	 * TODO: find another method to call update like a signal from the Broker (should trigger after death)
 	 */
 	@POPSyncConc
 	@Override
@@ -597,9 +627,7 @@ public class POPJavaJobManager extends POPJobService {
 			try {
 				update();
 				Thread.sleep(Configuration.UPDATE_MIN_INTERVAL);
-			} catch (InterruptedException e) {
-				
-			}
+			} catch (InterruptedException e) {}
 		}
 	}
 	
@@ -691,7 +719,7 @@ public class POPJavaJobManager extends POPJobService {
 		// TODO write to jobMngr file
 		
 		// add new network
-		LogWriter.writeDebugInfo(String.format("Network %s added", name));
+		LogWriter.writeDebugInfo(String.format("[JM] Network %s added", name));
 		networks.put(name, newNetwork);
 		return true;
 	}
@@ -703,13 +731,13 @@ public class POPJavaJobManager extends POPJobService {
 	@POPAsyncConc
 	public void removeNetwork(String name) {
 		if (!networks.containsKey(name)) {
-			LogWriter.writeDebugInfo(String.format("Network %s not removed, not found", name));
+			LogWriter.writeDebugInfo(String.format("[JM] Network %s not removed, not found", name));
 			return;
 		}
 		
 		// TODO write to jobMngr file
 		
-		LogWriter.writeDebugInfo(String.format("Network %s removed", name));
+		LogWriter.writeDebugInfo(String.format("[JM] Network %s removed", name));
 		networks.remove(name);
 	}
 	
@@ -724,11 +752,11 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("Node %s not registered, network not found", Arrays.toString(params)));
+			LogWriter.writeDebugInfo(String.format("[JM] Node %s not registered, network not found", Arrays.toString(params)));
 			return;
 		}
 		
-		LogWriter.writeDebugInfo(String.format("Node %s added", Arrays.toString(params)));
+		LogWriter.writeDebugInfo(String.format("[JM] Node %s added", Arrays.toString(params)));
 		network.add(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
 	}
 	
@@ -743,11 +771,11 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("Node %s not removed, network not found", Arrays.toString(params)));
+			LogWriter.writeDebugInfo(String.format("[JM] Node %s not removed, network not found", Arrays.toString(params)));
 			return;
 		}
 		
-		LogWriter.writeDebugInfo(String.format("Node %s removed", Arrays.toString(params)));
+		LogWriter.writeDebugInfo(String.format("[JM] Node %s removed", Arrays.toString(params)));
 		network.remove(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
 	}
 
@@ -757,7 +785,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPSyncConc
 	public void registerNode(String... params) {
-		registerNode(DEFAULT_NETWORK, params);
+		registerNode(defaultNetwork.getName(), params);
 	}
 
 	/**
@@ -767,14 +795,20 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String... params) {
-		unregisterNode(DEFAULT_NETWORK, params);
+		unregisterNode(defaultNetwork.getName(), params);
 	}
 
 	/**
 	 * Check and remove finished or timed out resources.
 	 * NOTE: With a lot of job this method need jobs.size connections to be made before continuing
 	 */
-	private void update() {
+	long nextUpdate = 0;
+	@POPAsyncConc
+	protected void update() {
+		// don't update if too close to last one
+		if (System.currentTimeMillis() < nextUpdate)
+			return;
+		
 		try {
 			mutex.lock();
 			for (Iterator<AppResource> iterator = jobs.values().iterator(); iterator.hasNext();) {
@@ -785,10 +819,11 @@ public class POPJavaJobManager extends POPJobService {
 						// manually remove from iterator
 						available.add(job);
 						iterator.remove();
+						LogWriter.writeDebugInfo(String.format("[JM] Free up [%s] resources (unused).", job));
 					}
 				}
 				// dead objects check with min UPDATE_MIN_INTERVAL time between them
-				else if (job.getAccessTime() + Configuration.UPDATE_MIN_INTERVAL > System.currentTimeMillis()) {
+				else if (job.getAccessTime() < System.currentTimeMillis()) {
 					job.setAccessTime(System.currentTimeMillis() + Configuration.UPDATE_MIN_INTERVAL);
 					try {
 						// connection to object ok
@@ -798,10 +833,13 @@ public class POPJavaJobManager extends POPJobService {
 						// manually remove from iterator
 						available.add(job);
 						iterator.remove();
+						LogWriter.writeDebugInfo(String.format("[JM] Free up [%s] resources (dead object).", job));
 					}
 				}
 			}
 		} finally {
+			// set next update
+			nextUpdate = System.currentTimeMillis() + Configuration.UPDATE_MIN_INTERVAL;
 			mutex.unlock();
 		}
 	}

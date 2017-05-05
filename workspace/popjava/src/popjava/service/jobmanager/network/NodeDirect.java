@@ -19,6 +19,7 @@ public class NodeDirect extends POPNetworkNode {
 	private String daemonSecret;
 	private boolean initialized = true;
 	
+	@SuppressWarnings("unchecked")
 	NodeDirect(List<String> params) {
 		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
 		
@@ -110,7 +111,7 @@ public class NodeDirect extends POPNetworkNode {
 
 	@Override
 	public String toString() {
-		return String.format("connector=%s host=%s port=%d protocol=%s %s", connectorName, host, port, 
+		return String.format("host=%s port=%d connector=%s protocol=%s %s", host, port, connectorName, 
 				daemon ? "daemon" : "ssh", 
 				daemonSecret == null ? "" : "secret=" + daemonSecret).trim();
 	}

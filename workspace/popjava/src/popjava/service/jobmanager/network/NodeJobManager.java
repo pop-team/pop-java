@@ -5,6 +5,7 @@ import java.util.Objects;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.protocol.POPConnectorJobManager;
+import popjava.serviceadapter.POPJobManager;
 import popjava.util.Util;
 
 /**
@@ -22,13 +23,13 @@ public class NodeJobManager extends POPNetworkNode{
 	 *  case <access point>
 	 * @param params A 1 or 3 elements String array
 	 */
+	@SuppressWarnings("unchecked")
 	NodeJobManager(List<String> params) {
 		super(POPConnectorJobManager.IDENTITY, POPConnectorJobManager.class);
 		
 		// get potential params
 		String host = Util.removeStringFromList(params, "host=");
 		String portString = Util.removeStringFromList(params, "port=");
-		String protocol = Util.removeStringFromList(params, "protocol=");
 		
 		// stop if we have no host
 		if (host == null) {
@@ -37,8 +38,7 @@ public class NodeJobManager extends POPNetworkNode{
 		}
 		
 		// some sane defaults
-		protocol = protocol == null ? AccessPoint.SOCKET_PROTOCOL : protocol;
-		int port = 2711;
+		int port = POPJobManager.DEFAULT_PORT;
 		if (portString != null) {
 			try {
 				port = Integer.parseInt(portString);
@@ -49,7 +49,7 @@ public class NodeJobManager extends POPNetworkNode{
 		}
 		
 		// set access point
-		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
+		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", AccessPoint.SOCKET_PROTOCOL, host, port));
 	}
 
 	public POPAccessPoint getJobManagerAccessPoint() {
@@ -88,6 +88,6 @@ public class NodeJobManager extends POPNetworkNode{
 	@Override
 	public String toString() {
 		String[] vals = jobManagerAccessPoint.toString().split("(://)|:");
-		return String.format("connector=%s host=%s port=%s protocol=%s", connectorName, vals[1], vals[2], vals[0]);
+		return String.format("host=%s port=%s connector=%s", vals[1], vals[2], connectorName);
 	}
 }

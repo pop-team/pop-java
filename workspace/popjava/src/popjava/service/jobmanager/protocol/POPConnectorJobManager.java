@@ -66,7 +66,7 @@ public class POPConnectorJobManager extends POPConnectorBase {
 		SNNodesInfo remoteJobM = jobManager.launchDiscovery(request, timeout);
 		POPAccessPoint[] chosenRemoteJobM = new POPAccessPoint[howmany];
 		if (remoteJobM.isEmpty()) {
-			throw new POPException(POPErrorCode.ALLOCATION_EXCEPTION, objname);
+			POPException.throwNullObjectNotAllowException();
 		}
 
 		int[] resIDs = new int[howmany];

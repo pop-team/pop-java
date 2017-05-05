@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import popjava.baseobject.ConnectionType;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.protocol.POPConnectorJobManager;
+import popjava.util.Configuration;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
@@ -38,7 +37,7 @@ public @interface POPObjectDescription {
 	 * A network available on this machine
 	 * @return 
 	 */
-	String network() default POPJavaJobManager.DEFAULT_NETWORK;
+	String network() default "";
 	
 	/**
 	 * An available connector present in a network
@@ -46,7 +45,7 @@ public @interface POPObjectDescription {
 	 *  direct: connect directly (ex SSH) to the remote machine
 	 * @return 
 	 */
-	String connector() default POPConnectorJobManager.IDENTITY;
+	String connector() default Configuration.DEFAULT_JOBMANAGER_CONNECTOR;
 	
 	/**
 	 * Power requested
