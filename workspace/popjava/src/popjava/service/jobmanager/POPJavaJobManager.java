@@ -101,7 +101,7 @@ public class POPJavaJobManager extends POPJobService {
 		init(Configuration.DEFAULT_JM_CONFIG_FILE);
 	}
 	
-	@POPObjectDescription(jvmParameters = "-XX:+UseG1GC -XX:+PrintGCDetails -XX:+PrintPromotionFailure -XX:PrintFLSStatistics=1")
+	@POPObjectDescription(jvmParameters = "-XX:MaxPermSize 300m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url, String conf) {
 		init(conf);
 	}
