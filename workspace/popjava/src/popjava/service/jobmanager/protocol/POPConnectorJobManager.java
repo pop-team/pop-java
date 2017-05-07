@@ -63,17 +63,17 @@ public class POPConnectorJobManager extends POPConnectorBase {
 		String appId = "", reqId = "";
 
 		// send request
-		SNNodesInfo remoteJobM = jobManager.launchDiscovery(request, timeout);
+		SNNodesInfo remoteJobMngs = jobManager.launchDiscovery(request, timeout);
 		POPAccessPoint[] chosenRemoteJobM = new POPAccessPoint[howmany];
-		if (remoteJobM.isEmpty()) {
-			POPException.throwNullObjectNotAllowException();
+		if (remoteJobMngs.isEmpty()) {
+			throw new POPException(POPErrorCode.ALLOCATION_EXCEPTION, "No answer from the network while looking for resource " + resourceReq);
 		}
 
 		int[] resIDs = new int[howmany];
 		// make requests
-		for (int jobIdx = 0, jmIdx = 0, failed = 0; jobIdx < howmany; jobIdx++, jmIdx = (jmIdx + 1) % remoteJobM.size()) {
+		for (int jobIdx = 0, jmIdx = 0, failed = 0; jobIdx < howmany; jobIdx++, jmIdx = (jmIdx + 1) % remoteJobMngs.size()) {
 			// connect to remote JM
-			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, remoteJobM.get(jmIdx).getJobManager());
+			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, remoteJobMngs.get(jmIdx).getJobManager());
 			POPFloat fitness = new POPFloat();
 			resIDs[jobIdx] = jm.reserve(od, fitness, appId, reqId);
 
@@ -83,11 +83,14 @@ public class POPConnectorJobManager extends POPConnectorBase {
 				// failed creation
 				failed++;
 				jobIdx--;
-				if (failed == remoteJobM.size()) {
+				
+				jm.exit();
+				if (failed == remoteJobMngs.size()) {
 					// cancel previous registrations on remote jms
 					for (int k = 0; k < jobIdx; k++) {
 						jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[k]);
 						jm.cancelReservation(new int[] { resIDs[k] }, 1);
+						jm.exit();
 					}
 					return 1;
 				}
@@ -95,6 +98,7 @@ public class POPConnectorJobManager extends POPConnectorBase {
 			// successful reservation
 			else {
 				chosenRemoteJobM[jobIdx] = jm.getAccessPoint();
+				jm.exit();
 			}
 		}
 		
@@ -119,10 +123,12 @@ public class POPConnectorJobManager extends POPConnectorBase {
 						jm.cancelReservation(localRIDs, 1);
 						return POPErrorCode.OBJECT_NO_RESOURCE;
 					}
+					jm.exit();
 				}
 				// cancel remote registration
 				catch (Exception e) {
 					jm.cancelReservation(new int[] { resIDs[i] }, 1);
+					jm.exit();
 					return POPErrorCode.POP_JOBSERVICE_FAIL;
 				}
 			}
@@ -139,6 +145,7 @@ public class POPConnectorJobManager extends POPConnectorBase {
 				Interface obj = new Interface(objcontacts[i]);
 				obj.kill();
 				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[i]);
+				jm.exit();
 			} catch (POPException e) {
 				LogWriter.writeDebugInfo(String.format("Exception while killing objects: %s", e.getMessage()));
 			}

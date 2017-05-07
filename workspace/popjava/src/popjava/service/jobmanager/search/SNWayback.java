@@ -13,6 +13,13 @@ public class SNWayback implements IPOPBase {
 	
 	private final LinkedList<POPAccessPoint> stack = new LinkedList<>();
 
+	public SNWayback() {
+	}
+	
+	public SNWayback(SNWayback wayback) {
+		stack.addAll(wayback.stack);
+	}
+
 	public boolean isLastNode() {
 		return stack.isEmpty();
 	}
@@ -28,7 +35,9 @@ public class SNWayback implements IPOPBase {
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putInt(stack.size());
-		stack.forEach((e) -> buffer.putValue(e, POPAccessPoint.class));
+		for (POPAccessPoint p : stack) {
+			p.serialize(buffer);
+		}
 		return true;
 	}
 
@@ -36,7 +45,7 @@ public class SNWayback implements IPOPBase {
 	public boolean deserialize(POPBuffer buffer) {
 		int size = buffer.getInt();
 		for (int i = 0; i < size; i++) {
-			stack.push((POPAccessPoint) buffer.getValue(POPAccessPoint.class));
+			stack.add((POPAccessPoint) buffer.getValue(POPAccessPoint.class));
 		}
 		return true;
 	}

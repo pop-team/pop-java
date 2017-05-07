@@ -54,7 +54,7 @@ import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 
-@POPClass(useAsyncConstructor = false, deconstructor = true)
+@POPClass
 public class POPJavaJobManager extends POPJobService {
 	
 	/** Currently used resources of a node */
@@ -101,6 +101,7 @@ public class POPJavaJobManager extends POPJobService {
 		init(Configuration.DEFAULT_JM_CONFIG_FILE);
 	}
 	
+	@POPObjectDescription(jvmParameters = "-XX:+UseG1GC -XX:+PrintGCDetails -XX:+PrintPromotionFailure -XX:PrintFLSStatistics=1")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url, String conf) {
 		init(conf);
 	}
@@ -327,29 +328,37 @@ public class POPJavaJobManager extends POPJobService {
 			String objname,
 			@POPParameter(Direction.IN) ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts,
-			int howmany2, POPAccessPoint[] remotejobcontacts) {		
-		if(howmany <= 0){
-			return 0;
+			int howmany2, POPAccessPoint[] remotejobcontacts) {	
+		try {
+			if(howmany <= 0){
+				return 0;
+			}
+
+			// get network from od
+			String networkString = od.getNetwork();
+			// use default if not set
+			if (networkString.isEmpty())
+				networkString = defaultNetwork.getName();
+			// get real network
+			POPNetwork network = networks.get(networkString);
+
+			// throw exception if no network is found
+			if (network == null)
+				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
+
+			// get the job manager connector specified in the od
+			Class connectorClass = POPConnectorFactory.getConnectorClass(od.getConnector());
+			POPConnectorBase connectorImpl = network.getConnector(connectorClass);
+
+			if (connectorImpl == null)
+				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
+
+			// call the protocol specific createObject
+			return connectorImpl.createObject(localservice, objname, od, howmany, objcontacts, howmany2, remotejobcontacts);
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo(String.format("[JM] Exception caught in createObject: %s", e.getMessage()));
+			throw e;
 		}
-		
-		// get network from od
-		String networkString = od.getNetwork();
-		// get real network
-		POPNetwork network = networks.get(networkString);
-		
-		// throw exception if no network is found
-		if (network == null)
-			throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
-		
-		// get the job manager connector specified in the od
-		Class connectorClass = POPConnectorFactory.getConnectorClass(od.getConnector());
-		POPConnectorBase connectorImpl = network.getConnector(connectorClass);
-		
-		if (connectorImpl == null)
-			throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
-		
-		// call the protocol specific createObject
-		return connectorImpl.createObject(localservice, objname, od, howmany, objcontacts, howmany2, remotejobcontacts);
 	}
 
 	/**
@@ -364,42 +373,47 @@ public class POPJavaJobManager extends POPJobService {
 	@POPSyncConc
 	public int execObj(@POPParameter(Direction.IN) POPString objname, int howmany, int[] reserveIDs, 
 			String localservice, POPAccessPoint[] objcontacts) {
-		if (howmany < 0)
-			return 1;
-		// get verified reservations
-		List<AppResource> reservations = verifyReservation(reserveIDs);		
-		// cancel reservations if something fail
-		if (reservations == null) {
-			cancelReservation(reserveIDs, howmany);
-			return -1;
-		}
-		
-		boolean status = true;
 		try {
-			// execute objects locally via Interface
-			for (int i = 0; i < howmany; i++) {
-				AppResource res = reservations.get(i);
-				res.setAppService(new POPAccessPoint(localservice));
-				// create request od and add the reservation params
-				ObjectDescription od = new ObjectDescription();
-				res.addTo(od);
-				
-				// force od to localhost
-				od.setHostname("localhost");
-				
-				// execute locally, and save status
-				status |= Interface.tryLocal(objname.getValue(), objcontacts[i], od);
-				// set contact in resource
-				res.setContact(objcontacts[i]);
-				res.setAccessTime(System.currentTimeMillis());
+			if (howmany < 0)
+				return 1;
+			// get verified reservations
+			List<AppResource> reservations = verifyReservation(reserveIDs);		
+			// cancel reservations if something fail
+			if (reservations == null) {
+				cancelReservation(reserveIDs, howmany);
+				return -1;
 			}
-		} 
-		// if any problem occour, cancel reservation
-		catch (Throwable e) {
-			status = false;
-			cancelReservation(reserveIDs, howmany);
+
+			boolean status = true;
+			try {
+				// execute objects locally via Interface
+				for (int i = 0; i < howmany; i++) {
+					AppResource res = reservations.get(i);
+					res.setAppService(new POPAccessPoint(localservice));
+					// create request od and add the reservation params
+					ObjectDescription od = new ObjectDescription();
+					res.addTo(od);
+
+					// force od to localhost
+					od.setHostname("localhost");
+
+					// execute locally, and save status
+					status |= Interface.tryLocal(objname.getValue(), objcontacts[i], od);
+					// set contact in resource
+					res.setContact(objcontacts[i]);
+					res.setAccessTime(System.currentTimeMillis());
+				}
+			} 
+			// if any problem occour, cancel reservation
+			catch (Throwable e) {
+				status = false;
+				cancelReservation(reserveIDs, howmany);
+			}
+			return status ? 0 : -1;
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo(String.format("[JM] Exception caught in createObject: %s", e.getMessage()));
+			throw e;
 		}
-		return status ? 0 : -1;
 	}
 	
 	/**
@@ -439,7 +453,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPSyncConc(id = 16)
 	public int reserve(@POPParameter(Direction.IN) ObjectDescription od, @POPParameter(Direction.INOUT) POPFloat iofitness, String popAppId, String reqID) {
-		update();
+		//update();
 		
 		if (jobs.size() >= maxJobs)
 			return 0;
@@ -562,7 +576,10 @@ public class POPJavaJobManager extends POPJobService {
 				available.add(resource);
 				LogWriter.writeDebugInfo(String.format("[JM] Free up [%s] resources (cancellation).", resource));
 			}
-		} finally {
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo(String.format("[JM] Exception caught in cancelReservation: %s", e.getMessage()));
+		}
+		finally {
 			mutex.unlock();
 		}
 	}
@@ -627,7 +644,9 @@ public class POPJavaJobManager extends POPJobService {
 			try {
 				update();
 				Thread.sleep(Configuration.UPDATE_MIN_INTERVAL);
-			} catch (InterruptedException e) {}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -699,7 +718,7 @@ public class POPJavaJobManager extends POPJobService {
 	public void selfRegister() {
 		
 	}
-	
+	 
 	/**
 	 * Create a new network
 	 * @param name A unique name of the network
@@ -708,20 +727,25 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPSyncConc
 	public boolean createNetwork(String name, String... params) {
-		// check if exists already
-		POPNetwork network = networks.get(name);
-		if (network != null)
+		try {
+			// check if exists already
+			POPNetwork network = networks.get(name);
+			if (network != null)
+				return true;
+
+			// create the new network
+			POPNetwork newNetwork = new POPNetwork(name, this, params);
+
+			// TODO write to jobMngr file
+
+			// add new network
+			LogWriter.writeDebugInfo(String.format("[JM] Network %s added", name));
+			networks.put(name, newNetwork);
 			return true;
-		
-		// create the new network
-		POPNetwork newNetwork = new POPNetwork(name, this, params);
-		
-		// TODO write to jobMngr file
-		
-		// add new network
-		LogWriter.writeDebugInfo(String.format("[JM] Network %s added", name));
-		networks.put(name, newNetwork);
-		return true;
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo(String.format("[JM] Exception caught in createNetwork: %s", e.getMessage()));
+			return false;
+		}
 	}
 	
 	/**
@@ -804,7 +828,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	long nextUpdate = 0;
 	@POPAsyncConc
-	protected void update() {
+	public void update() {
 		// don't update if too close to last one
 		if (System.currentTimeMillis() < nextUpdate)
 			return;
@@ -1002,6 +1026,7 @@ public class POPJavaJobManager extends POPJobService {
 								// send request to other JM
 								POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jmNode.getJobManagerAccessPoint());
 								jm.askResourcesDiscovery(request, getAccessPoint());
+								jm.exit();
 							}
 						}
 					}
@@ -1035,7 +1060,7 @@ public class POPJavaJobManager extends POPJobService {
 				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
 
 				// route response to the original JM
-				rerouteResponse(response, request.getWayback());
+				rerouteResponse(response, new SNWayback(request.getWayback()));
 			}
 			
 			// propagate in the network if we still can
@@ -1051,6 +1076,7 @@ public class POPJavaJobManager extends POPJobService {
 							// send request to other JM
 							POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jmNode.getJobManagerAccessPoint());
 							jm.askResourcesDiscovery(request, getAccessPoint());
+							jm.exit();
 						}
 
 					}
@@ -1092,6 +1118,7 @@ public class POPJavaJobManager extends POPJobService {
 				POPJavaJobManager njm = PopJava.newActive(POPJavaJobManager.class, jm);
 				// route request through it
 				njm.rerouteResponse(response, wayback);
+				njm.exit();
 			}
 			// is the last node, give the answer to the original JM who launched the request
 			else {
