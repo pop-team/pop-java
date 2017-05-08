@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
+import popjava.util.Configuration;
 
 /**
  * Exploration list on the network in the grid.
@@ -11,8 +12,6 @@ import popjava.dataswaper.IPOPBase;
  * @author Davide Mazzoleni
  */
 public class SNExploration implements IPOPBase {
-	private static final int MAX_QUEUE_SIZE = 500;
-	
 	private final LinkedList<POPAccessPoint> visited = new LinkedList<>();
 
 	public SNExploration() {
@@ -32,8 +31,9 @@ public class SNExploration implements IPOPBase {
 	}
 
 	public boolean add(POPAccessPoint e) {
-		if (visited.size() >= MAX_QUEUE_SIZE)
+		if (visited.size() >= Configuration.EXPLORATION_MAX_SIZE) {
 			visited.pop();
+		}
 		return visited.add(e);
 	}
 

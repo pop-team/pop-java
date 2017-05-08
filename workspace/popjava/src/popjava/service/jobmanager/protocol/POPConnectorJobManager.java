@@ -50,16 +50,20 @@ public class POPConnectorJobManager extends POPConnectorBase {
 		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName());
 		// setup request
 		// distance between nodes
-		if (od.getSearchMaxDepth() > 0)
+		if (od.getSearchMaxDepth() > 0) {
 			request.setHopLimit(od.getSearchMaxDepth());
+		}
 		// size? not implemented
-		if (od.getSearchMaxSize() > 0)
+		if (od.getSearchMaxSize() > 0) {
 			;
+		}
 		int timeout = Configuration.SEARCH_TIMEOUT;
-		if (od.getSearchWaitTime() >= 0)
+		if (od.getSearchWaitTime() >= 0) {
 			timeout = od.getSearchWaitTime();
-		if (!od.getPlatform().isEmpty())
+		}
+		if (!od.getPlatform().isEmpty()) {
 			request.setOS(od.getPlatform());
+		}
 		String appId = "", reqId = "";
 
 		// send request
@@ -136,8 +140,9 @@ public class POPConnectorJobManager extends POPConnectorBase {
 		
 		LogWriter.writeDebugInfo(String.format("Object count=%d, require=%d", started, howmany));
 		// created all objects
-		if (started >= howmany)
+		if (started >= howmany) {
 			return 0;
+		}
 		
 		// failed to start all objects, kill already started objects
 		for (int i = 0; i < started; i++) {

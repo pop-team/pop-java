@@ -12,7 +12,7 @@ import popjava.util.Util;
  * A JobManager node
  * @author Davide Mazzoleni
  */
-public class NodeJobManager extends POPNetworkNode{
+public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 
 	private POPAccessPoint jobManagerAccessPoint;
 	private boolean initialized = true;
@@ -23,7 +23,6 @@ public class NodeJobManager extends POPNetworkNode{
 	 *  case <access point>
 	 * @param params A 1 or 3 elements String array
 	 */
-	@SuppressWarnings("unchecked")
 	NodeJobManager(List<String> params) {
 		super(POPConnectorJobManager.IDENTITY, POPConnectorJobManager.class);
 		

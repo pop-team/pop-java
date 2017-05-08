@@ -30,8 +30,9 @@ public class POPConnectorDirect extends POPConnectorBase {
 		od.setConnectionType(ConnectionType.SSH);
 		od.setConnectionSecret(node.getDaemonSecret());
 		// use daemon if necessary
-		if (node.isDaemon())
+		if (node.isDaemon()) {
 			od.setConnectionType(ConnectionType.DEAMON);
+		}
 		
 		// do n times on the same node
 		for(int i = 0; i < howmany; i++){
