@@ -31,6 +31,7 @@ import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
+import popjava.combox.ssl.DoubleX509TrustManager;
 import popjava.dataswaper.POPFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
