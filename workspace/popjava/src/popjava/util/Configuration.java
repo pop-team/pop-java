@@ -1,5 +1,7 @@
 package popjava.util;
 
+import popjava.combox.ComboxSocketFactory;
+import popjava.combox.ssl.ComboxSecureSocketFactory;
 import popjava.service.jobmanager.protocol.POPConnectorJobManager;
 
 /**
@@ -25,7 +27,7 @@ public class Configuration {
 	
 	public static final String DEFAULT_ENCODING = "xdr";
 	public static final String SELECTED_ENCODING = "raw";
-	public static final String DEFAULT_PROTOCOL = "ssl";
+	public static final String DEFAULT_PROTOCOL = ComboxSocketFactory.PROTOCOL;
 
 	public static final boolean ASYNC_CONSTRUCTOR = true;
 	public static final boolean ACTIVATE_JMX = false;

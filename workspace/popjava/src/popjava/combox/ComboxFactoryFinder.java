@@ -46,7 +46,7 @@ public class ComboxFactoryFinder {
 		ComboxSocketFactory comboxSocketFactory = new ComboxSocketFactory();
 		ComboxSecureSocketFactory comboxSecureSocketFactory = new ComboxSecureSocketFactory();
 		
-		//comboxFactoryList.put(comboxSocketFactory.getComboxName(), comboxSocketFactory);
+		comboxFactoryList.put(comboxSocketFactory.getComboxName(), comboxSocketFactory);
 		comboxFactoryList.put(comboxSecureSocketFactory.getComboxName(), comboxSecureSocketFactory);
 		
 		String pluginLocation = POPJavaConfiguration.getPopPluginLocation();
