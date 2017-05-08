@@ -11,7 +11,7 @@ import popjava.util.Util;
  * XXX: port is not used ATM it will always default to port 22
  * @author Davide Mazzoleni
  */
-public class NodeDirect extends POPNetworkNode {
+public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	
 	private String host;
 	private int port;
@@ -19,7 +19,6 @@ public class NodeDirect extends POPNetworkNode {
 	private String daemonSecret;
 	private boolean initialized = true;
 	
-	@SuppressWarnings("unchecked")
 	NodeDirect(List<String> params) {
 		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
 		

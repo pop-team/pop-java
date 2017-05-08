@@ -24,6 +24,7 @@ public class Configuration {
 	public static final int UNLIMITED_HOPS = Integer.MAX_VALUE;
 	public static final int MAXREQTOSAVE = 300;
 	public static final String DEFAULT_JOBMANAGER_CONNECTOR = POPConnectorJobManager.IDENTITY;
+	public static int EXPLORATION_MAX_SIZE = 300;
 	
 	public static final String DEFAULT_ENCODING = "xdr";
 	public static final String SELECTED_ENCODING = "raw";
