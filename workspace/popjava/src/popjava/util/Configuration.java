@@ -25,7 +25,7 @@ public class Configuration {
 	
 	public static final String DEFAULT_ENCODING = "xdr";
 	public static final String SELECTED_ENCODING = "raw";
-	public static final String DEFAULT_PROTOCOL = "socket";
+	public static final String DEFAULT_PROTOCOL = "ssl";
 
 	public static final boolean ASYNC_CONSTRUCTOR = true;
 	public static final boolean ACTIVATE_JMX = false;
@@ -38,6 +38,15 @@ public class Configuration {
 	
 	public static final String DEFAULT_JM_CONFIG_FILE = 
 		System.getenv("POPJAVA_LOCATION") == null ? "jobmgr.conf" : System.getenv("POPJAVA_LOCATION") + "/etc/jobmgr.conf";
+	
+	public static final String TRUST_STORE = "truststore.jks";
+	public static final String TRUST_STORE_PWD = "trustpass";
+	public static final String TRUST_STORE_PK_PWD = "trustpass";
+	public static final String PUBLIC_CERTIFICATE = "local_certificate.cer";
+	public static final String TRUST_TEMP_STORE = "temp_truststore.jks";
+	public static final String TRUST_TEMP_STORE_PWD = "trustpass";	
+	
+	public static final String SSL_PROTOCOL = "TLSv1.2";
 	
 	/**
 	 * Default constructor

@@ -1,19 +1,26 @@
-package popjava.combox;
+package popjava.combox.ssl;
 
+import java.io.FileInputStream;
+import popjava.combox.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
+import java.security.KeyStore;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.TrustManager;
 
 import popjava.buffer.POPBuffer;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 /**
  * This class is responsible to send an receive message on the server combox socket
  */
-public class ComboxAllocateSocket extends ComboxAllocate  {
+public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	
 	private static final int SOCKET_TIMEOUT_MS = 30000;
 	
@@ -23,13 +30,25 @@ public class ComboxAllocateSocket extends ComboxAllocate  {
 	/**
 	 * Create a new instance of the ComboxAllocateSocket
 	 */
-	public ComboxAllocateSocket() {		
+	public ComboxAllocateSecureSocket() {		
 		try {
+			// server only, read private key
+			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
+			
+			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+			keyManagerFactory.init(keyStore, Configuration.TRUST_STORE_PK_PWD.toCharArray());
+			
+			SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
+			sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
+			
+			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
+			
 			InetSocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);
-			serverSocket = new ServerSocket();
+			serverSocket = factory.createServerSocket();
 			serverSocket.bind(sockAddr);
 			serverSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
-		} catch (IOException e) {
+		} catch (Exception e) {
 		    e.printStackTrace();
 		}
 	}
@@ -54,7 +73,7 @@ public class ComboxAllocateSocket extends ComboxAllocate  {
 	 */
 	@Override
 	public String getUrl() {
-		return String.format("%s://%s:%d", ComboxSocketFactory.PROTOCOL,
+		return String.format("%s://%s:%d", ComboxSecureSocketFactory.PROTOCOL,
 				serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
 	}
 

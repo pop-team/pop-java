@@ -20,8 +20,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import popjava.combox.ssl.ComboxSecureSocketFactory;
 import popjava.system.POPJavaConfiguration;
 import popjava.system.XMLWorker;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 /**
@@ -42,8 +44,11 @@ public class ComboxFactoryFinder {
 	protected ComboxFactoryFinder() {
 		// Load default combox factory
 		ComboxSocketFactory comboxSocketFactory = new ComboxSocketFactory();
-		comboxFactoryList.put(comboxSocketFactory.getComboxName(),
-				comboxSocketFactory);
+		ComboxSecureSocketFactory comboxSecureSocketFactory = new ComboxSecureSocketFactory();
+		
+		//comboxFactoryList.put(comboxSocketFactory.getComboxName(), comboxSocketFactory);
+		comboxFactoryList.put(comboxSecureSocketFactory.getComboxName(), comboxSecureSocketFactory);
+		
 		String pluginLocation = POPJavaConfiguration.getPopPluginLocation();
 		if (pluginLocation.length() > 0) {
 			loadComboxMap(pluginLocation);
@@ -131,6 +136,8 @@ public class ComboxFactoryFinder {
 	 * @return	The combox factory or null if not found
 	 */
 	public ComboxFactory findFactory(String factoryName) {
+		if (factoryName == null || factoryName.isEmpty())
+			factoryName = Configuration.DEFAULT_PROTOCOL;
 		factoryName = factoryName.toLowerCase();
 		if (comboxFactoryList.containsKey(factoryName)) {
 			return comboxFactoryList.get(factoryName);

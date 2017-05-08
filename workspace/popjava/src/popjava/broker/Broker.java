@@ -43,7 +43,6 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.combox.ComboxServer;
-import popjava.combox.ComboxSocket;
 import popjava.javaagent.POPJavaAgent;
 import popjava.system.POPSystem;
 import popjava.util.LogWriter;
@@ -69,7 +68,7 @@ public final class Broker {
 	static public final String APPSERVICE_PREFIX = "-appservice=";
 
 	protected int state;
-	protected ComboxServer comboxServer;
+	protected ComboxServer[] comboxServers;
 	protected POPBuffer buffer;
 	protected static POPAccessPoint accessPoint = new POPAccessPoint();
 	protected POPObject popObject = null;
@@ -227,7 +226,9 @@ public final class Broker {
 				popObject = (POPObject) constructor.newInstance(parameters);
 				POPClass annotation = popObject.getClass().getAnnotation(POPClass.class);
 				if(annotation != null){
-					comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
+					for (ComboxServer comboxServer : comboxServers) {
+						comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
+					}
 				}
 				
 			} catch (Exception e) {
@@ -506,7 +507,9 @@ public final class Broker {
 	 *            Request to be removed
 	 */
 	public void clearResourceAfterInvoke(Request request) {
-		comboxServer.getRequestQueue().remove(request);
+		for (ComboxServer comboxServer : comboxServers) {
+			comboxServer.getRequestQueue().remove(request);
+		}
 	}
 
 	/**
@@ -686,13 +689,15 @@ public final class Broker {
 	public void treatRequests() throws InterruptedException { 
 		setState(Broker.RUNNING);
 		while (getState() == Broker.RUNNING) {
-			Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
-					TimeUnit.MILLISECONDS);
-			
-			if (request != null) {
-				serveRequest(request);
-			}else {
-				Thread.sleep(100);
+			for (ComboxServer comboxServer : comboxServers) {
+				Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
+						TimeUnit.MILLISECONDS);
+
+				if (request != null) {
+					serveRequest(request);
+				}else {
+					Thread.sleep(100);
+				}
 			}
 		}
 		LogWriter.writeDebugInfo("Close broker "+popInfo.getClassName());
@@ -778,6 +783,7 @@ public final class Broker {
 		buffer = new BufferXDR();
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 		int comboxCount = finder.getFactoryCount();
+		comboxServers = new ComboxServer[comboxCount];
 		for (int i = 0; i < comboxCount; i++) {
 			ComboxFactory factory = finder.get(i);
 			String prefix = String.format("-%s_port=", factory.getComboxName());
@@ -795,7 +801,7 @@ public final class Broker {
 			AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
 			accessPoint.addAccessPoint(ap);
 			
-			comboxServer = factory.createServerCombox(ap, buffer, this);
+			comboxServers[i] = factory.createServerCombox(ap, buffer, this);
 			
 		}
 		return true;
@@ -865,18 +871,26 @@ public final class Broker {
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}
-		ComboxSocket callback = null;
+		Combox callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
 			POPAccessPoint accessPoint = new POPAccessPoint(callbackString);
 			if (accessPoint.size() > 0) {
-				callback = new ComboxSocket(accessPoint, 0);
+				// use factory to determine which combox to use
+				ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+				// get protocol from accessPoint
+				String protocol = accessPoint.toString().split("://")[0];
+				ComboxFactory factory = finder.findFactory(protocol);
+				
+				// create callback
+				callback = factory.createClientCombox(accessPoint, 0);
+				
 				if (!callback.connect()) {
 					LogWriter.writeDebugInfo(String.format(
 							"-Error: fail to connect to callback:%s",
 							accessPoint.toString()));
 					System.exit(1);
 				} else {
-					LogWriter.writeDebugInfo("Connected to callback socket");
+						LogWriter.writeDebugInfo("Connected to callback socket");
 				}
 			}
 

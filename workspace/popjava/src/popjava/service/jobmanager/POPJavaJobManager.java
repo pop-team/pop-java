@@ -1057,6 +1057,11 @@ public class POPJavaJobManager extends POPJobService {
 				// build response and give it back to the original sender
 				SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(nodeId, getAccessPoint(), POPSystem.getPlatform(), available);
 				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
+
+				// if we want to answer we save the certificate if there is any
+				if (request.getPublicCertificate().length > 0) {
+					DoubleX509TrustManager.addCertToTempStore(request.getPublicCertificate(), Configuration.TRUST_TEMP_STORE, Configuration.TRUST_TEMP_STORE_PWD);
+				}
 				
 				// route response to the original JM
 				rerouteResponse(response, new SNWayback(request.getWayback()));

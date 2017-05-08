@@ -41,4 +41,9 @@ public class ComboxSocketFactory extends ComboxFactory {
 		return new ComboxServerSocket(accessPoint, timeout, buffer, broker);
 	}
 
+	@Override
+	public ComboxAllocate createAllocateCombox() {
+		return new ComboxAllocateSocket();
+	}
+
 }

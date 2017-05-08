@@ -34,6 +34,14 @@ public @interface POPObjectDescription {
 	Encoding encoding() default Encoding.Default;
 	
 	/**
+	 * Set the protocol for this connection.
+	 * socket : unencrypted (default)
+	 * ssl: encrypted (experimental)
+	 * @return 
+	 */
+	String protocol() default "";
+	
+	/**
 	 * A network available on this machine
 	 * @return 
 	 */

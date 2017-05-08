@@ -1,9 +1,14 @@
 package popjava.service.jobmanager.search;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.Resource;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
+import popjava.util.LogWriter;
 
 /**
  * A request for the Search Node, is also used to handle application death.
@@ -24,6 +29,8 @@ public class SNRequest implements IPOPBase {
 	private boolean endRequest = false;
 	private int hops = Integer.MAX_VALUE;
 	private int popAppId;
+	
+	private byte[] publicCertificate = new byte[0];
 
 	public SNRequest() {
 	}
@@ -36,6 +43,15 @@ public class SNRequest implements IPOPBase {
 		this.explorationNodes = new SNExploration();
 		this.wayback = new SNWayback();
 		this.network = network;
+		
+		File cert = new File(Configuration.PUBLIC_CERTIFICATE);
+		if (cert.exists()) {
+			try {
+				publicCertificate = Files.readAllBytes(cert.toPath());
+			} catch (IOException e) {
+				LogWriter.writeDebugInfo("[SN] Could not extract certificate bytes");
+			}
+		}
 	}
 	
 	public boolean isEndRequest() {
@@ -93,6 +109,10 @@ public class SNRequest implements IPOPBase {
 	public void setOS(String platform) {
 		this.os = platform;
 	}
+
+	public byte[] getPublicCertificate() {
+		return publicCertificate;
+	}
 	
 	@Override
 	public boolean serialize(POPBuffer buffer) {
@@ -106,6 +126,7 @@ public class SNRequest implements IPOPBase {
 		buffer.putBoolean(endRequest);
 		buffer.putInt(hops);
 		buffer.putInt(popAppId);
+		buffer.putByteArray(publicCertificate);
 		return true;
 	}
 
@@ -121,6 +142,8 @@ public class SNRequest implements IPOPBase {
 		endRequest = buffer.getBoolean();
 		hops = buffer.getInt();
 		popAppId = buffer.getInt();
+		int buffSize = buffer.getInt();
+		publicCertificate = buffer.getByteArray(buffSize);
 		return true;
 	}
 	

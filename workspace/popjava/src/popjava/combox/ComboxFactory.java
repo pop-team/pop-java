@@ -48,6 +48,12 @@ public abstract class ComboxFactory {
 			int timeout, POPBuffer buffer, Broker broker);
 
 	/**
+	 * Create and allocation combox when instantiating a new remote object
+	 * @return 
+	 */
+	public abstract ComboxAllocate createAllocateCombox();
+	
+	/**
 	 * Get the combox name
 	 * @return name of the combox
 	 */

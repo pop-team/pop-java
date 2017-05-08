@@ -54,7 +54,7 @@ public class ComboxReceiveRequestSocket implements Runnable {
 					setStatus(EXIT);
 					break;
 				}
-				
+		
 				// add request to fifo list
 				if (broker != null && !broker.popCall(popRequest)) {
 					requestQueue.add(popRequest);					

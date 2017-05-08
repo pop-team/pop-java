@@ -26,8 +26,13 @@ import popjava.buffer.BufferXDR;
 import popjava.buffer.POPBuffer;
 import popjava.codemanager.AppService;
 import popjava.combox.Combox;
+import popjava.combox.ComboxAllocate;
 import popjava.combox.ComboxAllocateSocket;
+import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
+import popjava.combox.ComboxSocketFactory;
+import popjava.combox.ssl.ComboxAllocateSecureSocket;
+import popjava.combox.ssl.ComboxSecureSocketFactory;
 import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.service.jobmanager.POPJavaAppService;
@@ -288,7 +293,7 @@ public class Interface {
 		if (combox != null){
 			combox.close();
 		}
-		combox = finder.findFactory(Configuration.DEFAULT_PROTOCOL)
+		combox = finder.findFactory(od.getProtocol())
 				.createClientCombox(accesspoint);
 		
 		if (combox.connect(accesspoint, Configuration.CONNECTION_TIMEOUT)) {
@@ -667,7 +672,11 @@ public class Interface {
 			}
 		}
 		
-		ComboxAllocateSocket allocateCombox = new ComboxAllocateSocket();
+		String protocol = od.getProtocol();
+		ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
+		System.out.println("factory: " + factory.getComboxName());
+		ComboxAllocate allocateCombox = factory.createAllocateCombox();
+		
 		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox.getUrl());
 		argvList.add(callbackString);
 		if (classname != null && classname.length() > 0) {
