@@ -27,11 +27,11 @@ import popjava.annotation.POPConfig.Type;
 import popjava.annotation.POPParameter.Direction;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
+import popjava.combox.ssl.DoubleX509TrustManager;
 import popjava.dataswaper.POPFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
@@ -123,7 +123,7 @@ public class POPJavaJobManager extends POPJobService {
 		maxJobs = 100;
 		
 		// set resource by default hoping for the best
-		available.add(new Resource(300, 256, 100));
+		available.add(new Resource(30000, 8192, 1e6f));
 		// no restrictions on default limit
 		limit.add(available);
 		
@@ -277,16 +277,16 @@ public class POPJavaJobManager extends POPJobService {
 									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, limit value: %s", token[2]));
 								}
 								break;
-							case "ram":
+							case "power":
 								try {
-									limit.setMemory(Integer.parseInt(token[2]));
+									limit.setFlops(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, ram value: %s", token[2]));
 								}
 								break;
 							case "memory":
 								try {
-									limit.setBandwidth(Integer.parseInt(token[2]));
+									limit.setMemory(Integer.parseInt(token[2]));
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, memory value: %s", token[2]));
 								}
@@ -1057,7 +1057,7 @@ public class POPJavaJobManager extends POPJobService {
 				// build response and give it back to the original sender
 				SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(nodeId, getAccessPoint(), POPSystem.getPlatform(), available);
 				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
-
+				
 				// route response to the original JM
 				rerouteResponse(response, new SNWayback(request.getWayback()));
 			}
