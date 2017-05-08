@@ -674,7 +674,6 @@ public class Interface {
 		
 		String protocol = od.getProtocol();
 		ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
-		System.out.println("factory: " + factory.getComboxName());
 		ComboxAllocate allocateCombox = factory.createAllocateCombox();
 		
 		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox.getUrl());
