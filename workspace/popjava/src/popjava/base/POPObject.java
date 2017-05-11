@@ -611,7 +611,7 @@ public class POPObject implements IPOPBase {
 			for (Method m : allMethods) {
 				POPClass popClassAnnotation = m.getDeclaringClass().getAnnotation(POPClass.class);
 				if (popClassAnnotation != null && Modifier.isPublic(m.getModifiers()) && isMethodPOPAnnotated(m)) {
-				    int methodId = methodId(m,index);
+				    int methodId = methodId(m, index);
 				    int id = popClassAnnotation.classId();
 				    
 				    if(id == -1){
