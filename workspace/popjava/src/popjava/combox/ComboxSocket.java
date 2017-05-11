@@ -74,7 +74,7 @@ public class ComboxSocket extends Combox {
 				    peerConnection.close();
 				}
 			} catch (IOException e) {
-				LogWriter.writeExceptionLog(e);
+				//LogWriter.writeExceptionLog(e);
 			}
 		}
 	}

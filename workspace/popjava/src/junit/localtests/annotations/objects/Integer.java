@@ -60,4 +60,8 @@ public class Integer extends POPObject{
    public boolean arrayChanger3(@POPParameter(Direction.OUT) int [] array){
 		return array == null;
    }
+   
+   public Integer fail(){
+       return this;
+   }
 }

@@ -497,6 +497,7 @@ public class POPObject implements IPOPBase {
 				}
 			}
 		}
+		
 		return methodInfo;
 	}
 

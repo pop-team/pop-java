@@ -17,6 +17,7 @@ import popjava.annotation.POPClass;
 import popjava.annotation.POPParameter;
 import popjava.base.MessageHeader;
 import popjava.base.MethodInfo;
+import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
@@ -194,6 +195,10 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		// Invoke the method
 		result = new Object();
 		MethodInfo info = popObjectInfo.getMethodInfo(m);
+		
+		if(info.getClassId() == 0 && info.getMethodId() == 0){
+		    throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "The methods "+m.getName()+" has no POP annotation");
+		}
 
 		m.setAccessible(true);
 		int methodSemantics = popObjectInfo.getSemantic(info);
