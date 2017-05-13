@@ -34,11 +34,22 @@ public class DoubleX509TrustManager implements X509TrustManager {
 	
 	private X509TrustManager trustManager;
 	
-	public DoubleX509TrustManager() throws Exception {
+	private static DoubleX509TrustManager instance;
+	static {
+		try {
+			instance = new DoubleX509TrustManager();
+		} catch(Exception e) {}
+	}
+	
+	private DoubleX509TrustManager() throws Exception {
 		this.trustStorePath = Configuration.TRUST_STORE;
 		this.trustStorePass = Configuration.TRUST_STORE_PWD;
 		this.tempTrustStorePath = Configuration.TRUST_TEMP_STORE_DIR;
 		reloadTrustManager();
+	}
+
+	public static DoubleX509TrustManager getInstance() {
+		return instance;
 	}
 
 	@Override
@@ -101,7 +112,7 @@ public class DoubleX509TrustManager implements X509TrustManager {
 		throw new NoSuchAlgorithmException("No X509TrustManager in TrustManagerFactory");
 	}
 
-	public static void addCertToTempStore(byte[] certificate) {
+	public void addCertToTempStore(byte[] certificate) {
 		try {
 			// certificate saving path
 			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, Arrays.hashCode(certificate) + ".cer");
@@ -111,6 +122,7 @@ public class DoubleX509TrustManager implements X509TrustManager {
 			}
 			// write it
 			Files.write(path, certificate);
+			reloadTrustManager();
 		} catch (Exception ex) {
 			
 		}
