@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
-import popjava.service.jobmanager.protocol.POPConnectorJobManager;
+import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.serviceadapter.POPJobManager;
 import popjava.util.Util;
 

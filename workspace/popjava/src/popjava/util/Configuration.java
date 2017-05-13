@@ -1,6 +1,6 @@
 package popjava.util;
 
-import popjava.service.jobmanager.protocol.POPConnectorJobManager;
+import popjava.service.jobmanager.connector.POPConnectorJobManager;
 
 /**
  * This class regroup some configuration values

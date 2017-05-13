@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.protocol.POPConnectorBase;
-import popjava.service.jobmanager.protocol.POPConnectorFactory;
+import popjava.service.jobmanager.connector.POPConnectorBase;
+import popjava.service.jobmanager.connector.POPConnectorFactory;
 
 /**
  *
