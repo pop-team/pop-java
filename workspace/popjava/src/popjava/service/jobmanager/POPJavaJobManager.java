@@ -1173,6 +1173,11 @@ public class POPJavaJobManager extends POPJobService {
 			// add the node
 			nodes.add(result);
 			
+			// save responder certificate
+			if (response.getPublicCertificate().length > 0) {
+				DoubleX509TrustManager.addCertToTempStore(response.getPublicCertificate());
+			}
+			
 			// we unlock the senaphore if it was set
 			unlockDiscovery(response.getUID());
 		} catch (Exception e) {
