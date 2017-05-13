@@ -58,6 +58,7 @@ public class ComboxSocket extends Combox {
 
 	@Override
 	public void close() {
+		receivedBuffer = null;
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
 				/*LogWriter.writeExceptionLog(new Exception("Close connection to "+peerConnection.getInetAddress()+

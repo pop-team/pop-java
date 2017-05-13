@@ -5,7 +5,7 @@ import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.dataswaper.POPFloat;
+import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.POPJavaJobManager;
@@ -78,7 +78,7 @@ public class POPConnectorJobManager extends POPConnectorBase {
 		for (int jobIdx = 0, jmIdx = 0, failed = 0; jobIdx < howmany; jobIdx++, jmIdx = (jmIdx + 1) % remoteJobMngs.size()) {
 			// connect to remote JM
 			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, remoteJobMngs.get(jmIdx).getJobManager());
-			POPFloat fitness = new POPFloat();
+			POPMutableFloat fitness = new POPMutableFloat();
 			resIDs[jobIdx] = jm.reserve(od, fitness, appId, reqId);
 
 			// failed requests
