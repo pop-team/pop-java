@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
-import popjava.service.jobmanager.protocol.POPConnectorJobManager;
+import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.serviceadapter.POPJobManager;
 import popjava.util.Util;
 
@@ -15,6 +15,8 @@ import popjava.util.Util;
 public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 
 	private POPAccessPoint jobManagerAccessPoint;
+	private final String host;
+	private int port;
 	private boolean initialized = true;
 	
 	/**
@@ -27,7 +29,7 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 		super(POPConnectorJobManager.IDENTITY, POPConnectorJobManager.class);
 		
 		// get potential params
-		String host = Util.removeStringFromList(params, "host=");
+		host = Util.removeStringFromList(params, "host=");
 		String portString = Util.removeStringFromList(params, "port=");
 		
 		// stop if we have no host
@@ -37,7 +39,7 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 		}
 		
 		// some sane defaults
-		int port = POPJobManager.DEFAULT_PORT;
+		port = POPJobManager.DEFAULT_PORT;
 		if (portString != null) {
 			try {
 				port = Integer.parseInt(portString);
@@ -61,8 +63,9 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 
 	@Override
 	public int hashCode() {
-		int hash = 3;
-		hash = 29 * hash + Objects.hashCode(this.jobManagerAccessPoint);
+		int hash = 5;
+		hash = 97 * hash + Objects.hashCode(this.host);
+		hash = 97 * hash + this.port;
 		return hash;
 	}
 
@@ -78,15 +81,18 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 			return false;
 		}
 		final NodeJobManager other = (NodeJobManager) obj;
-		if (!Objects.equals(this.jobManagerAccessPoint, other.jobManagerAccessPoint)) {
+		if (this.port != other.port) {
+			return false;
+		}
+		if (!Objects.equals(this.host, other.host)) {
 			return false;
 		}
 		return true;
 	}
 
+
 	@Override
 	public String toString() {
-		String[] vals = jobManagerAccessPoint.toString().split("(://)|:");
-		return String.format("host=%s port=%s connector=%s", vals[1], vals[2], connectorName);
+		return String.format("host=%s port=%s connector=%s", host, port, connectorName);
 	}
 }

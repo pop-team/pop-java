@@ -3,7 +3,7 @@ package popjava.service.jobmanager.network;
 import java.util.List;
 import java.util.Objects;
 import popjava.service.deamon.POPJavaDeamon;
-import popjava.service.jobmanager.protocol.POPConnectorDirect;
+import popjava.service.jobmanager.connector.POPConnectorDirect;
 import popjava.util.Util;
 
 /**

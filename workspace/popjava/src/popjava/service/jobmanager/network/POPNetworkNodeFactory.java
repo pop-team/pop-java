@@ -1,8 +1,8 @@
 package popjava.service.jobmanager.network;
 
 import java.util.List;
-import popjava.service.jobmanager.protocol.POPConnectorJobManager;
-import popjava.service.jobmanager.protocol.POPConnectorDirect;
+import popjava.service.jobmanager.connector.POPConnectorJobManager;
+import popjava.service.jobmanager.connector.POPConnectorDirect;
 import popjava.util.Configuration;
 import popjava.util.Util;
 

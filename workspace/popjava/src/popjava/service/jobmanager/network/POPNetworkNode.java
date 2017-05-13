@@ -1,6 +1,6 @@
 package popjava.service.jobmanager.network;
 
-import popjava.service.jobmanager.protocol.POPConnectorBase;
+import popjava.service.jobmanager.connector.POPConnectorBase;
 
 /**
  * 

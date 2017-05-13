@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.protocol;
+package popjava.service.jobmanager.connector;
 
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;

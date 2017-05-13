@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.protocol;
+package popjava.service.jobmanager.connector;
 
 import popjava.PopJava;
 import popjava.base.POPErrorCode;
