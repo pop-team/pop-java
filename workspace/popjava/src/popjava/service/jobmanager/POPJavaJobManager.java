@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import static java.lang.Math.min;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -638,11 +639,12 @@ public class POPJavaJobManager extends POPJobService {
 	 * TODO: make private
 	 * TODO: find another method to call update like a signal from the Broker (should trigger after death)
 	 */
-	@POPSyncConc
+	@POPAsyncConc
 	@Override
 	public void start() {
 		while (true) {
 			try {
+				selfRegister();
 				update();
 				Thread.sleep(Configuration.UPDATE_MIN_INTERVAL);
 			} catch (Exception e) {
@@ -651,12 +653,6 @@ public class POPJavaJobManager extends POPJobService {
 		}
 	}
 	
-	@POPAsyncConc
-	protected void checkJobsLiviness() {
-		
-	}
-	
-
 	/**
 	 * Query something and return a formatted string
 	 * @param type What to query
@@ -715,9 +711,58 @@ public class POPJavaJobManager extends POPJobService {
 		return true;
 	}
 
-	@POPAsyncSeq
-	public void selfRegister() {
+	private long nextSelfRegister = 0;
+	/**
+	 * 
+	 */
+	@POPAsyncConc
+	protected void selfRegister() {
+		// don't register if too close to last one
+		if (System.currentTimeMillis() < nextSelfRegister)
+			return;
 		
+		try {
+			// for all members of each network
+			Collection<POPNetwork> nets = networks.values();
+			for (POPNetwork net : nets) {
+				// all connectors in network
+				POPConnectorBase[] connectors = net.getConnectors();
+
+				for (POPConnectorBase connector : connectors) {
+					// all nodes
+					List<POPNetworkNode> nodes = net.getMembers(connector.getClass());	
+
+					for (POPNetworkNode node : nodes) {
+						// only contact JM types of nodes
+						if (node instanceof NodeJobManager) {
+							// connect to remove jm
+							NodeJobManager jmn = (NodeJobManager) node;
+							registerRemoteAsync(net.getName(), jmn);
+						}
+					}
+				}
+			}
+		} finally {
+			nextSelfRegister = System.currentTimeMillis() + Configuration.SELF_REGISTER_INTERVAL;
+		}
+	}
+	
+	/**
+	 * Register to remote network and locally
+	 * @param network
+	 * @param node 
+	 */
+	@POPAsyncConc
+	private void registerRemoteAsync(String network, NodeJobManager node) {
+		try {
+			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, node.getJobManagerAccessPoint());
+			String[] params = node.toString().split(" ");
+			jm.registerNode(network, params);
+			jm.exit();
+			// TODO confirm local?
+		} catch(POPException e) {
+			// TODO remove from local?
+		}
 	}
 	 
 	/**
@@ -777,11 +822,11 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("[JM] Node %s not registered, network not found", Arrays.toString(params)));
+			LogWriter.writeDebugInfo(String.format("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network));
 			return;
 		}
 		
-		LogWriter.writeDebugInfo(String.format("[JM] Node %s added", Arrays.toString(params)));
+		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), network));
 		network.add(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
 	}
 	
@@ -827,7 +872,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * Check and remove finished or timed out resources.
 	 * NOTE: With a lot of job this method need jobs.size connections to be made before continuing
 	 */
-	long nextUpdate = 0;
+	private long nextUpdate = 0;
 	@POPAsyncConc
 	public void update() {
 		// don't update if too close to last one
@@ -908,6 +953,29 @@ public class POPJavaJobManager extends POPJobService {
 		Resource r = jobs.remove(popAppId);
 		if (r != null)
 			available.add(r);
+	}
+	
+	
+	////
+	// Utility
+	////
+	private final Semaphore stayAlive = new Semaphore(0);
+	/**
+	 * Blocking method until death of this object.
+	 */
+	@POPSyncConc
+	public void stayAlive() {
+		stayAlive.acquireUninterruptibly();
+	}
+
+	/**
+	 * Release waiting processes
+	 * @throws Throwable 
+	 */
+	@Override
+	protected void finalize() throws Throwable {
+		stayAlive.release(Integer.MAX_VALUE);
+		super.finalize();
 	}
 	
 	

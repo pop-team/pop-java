@@ -59,7 +59,7 @@ public class POPNetwork {
 		List<POPNetworkNode> nodes = members.get(connector);
 		if (nodes == null)
 			return new ArrayList<>();
-		return (List<T>)Collections.unmodifiableList(nodes);
+		return (List<T>) new ArrayList(nodes);
 	}
 
 	/**
@@ -83,6 +83,8 @@ public class POPNetwork {
 			m = new ArrayList<>();
 			members.put(e.getConnectorClass(), m);
 		}
+		if (m.contains(e))
+			return true;
 		if (c.isValidNode(e))
 			return m.add(e);
 		return false;
