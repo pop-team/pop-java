@@ -1131,7 +1131,7 @@ public class POPJavaJobManager extends POPJobService {
 
 				// if we want to answer we save the certificate if there is any
 				if (request.getPublicCertificate().length > 0) {
-					DoubleX509TrustManager.addCertToTempStore(request.getPublicCertificate(), Configuration.TRUST_TEMP_STORE, Configuration.TRUST_TEMP_STORE_PWD);
+					DoubleX509TrustManager.addCertToTempStore(request.getPublicCertificate());
 				}
 				
 				// route response to the original JM

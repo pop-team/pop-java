@@ -46,9 +46,8 @@ public class Configuration {
 	public static final String TRUST_STORE = "truststore.jks";
 	public static final String TRUST_STORE_PWD = "trustpass";
 	public static final String TRUST_STORE_PK_PWD = "trustpass";
-	public static final String PUBLIC_CERTIFICATE = "local_certificate.cer";
-	public static final String TRUST_TEMP_STORE = "temp_truststore.jks";
-	public static final String TRUST_TEMP_STORE_PWD = "trustpass";	
+	public static final String PUBLIC_CERTIFICATE = "local_certificate.cer"; // RFC format
+	public static final String TRUST_TEMP_STORE_DIR = "_temp_certificates";
 	
 	public static final String SSL_PROTOCOL = "TLSv1.2";
 	

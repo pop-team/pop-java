@@ -11,9 +11,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
@@ -21,7 +19,6 @@ import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
-import static popjava.combox.ComboxSocket.BUFFER_LENGTH;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 /**
@@ -91,10 +88,7 @@ public class ComboxSecureSocket extends Combox {
 		try {
 			// init SSLContext to create SSLSockets
 			// https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
-			TrustManager[] trustManagers = new TrustManager[]{
-				new DoubleX509TrustManager(Configuration.TRUST_STORE, Configuration.TRUST_STORE_PWD,
-					Configuration.TRUST_TEMP_STORE, Configuration.TRUST_TEMP_STORE_PWD)
-			};
+			TrustManager[] trustManagers = new TrustManager[]{ new DoubleX509TrustManager() };
 			SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
 			sslContext.init(null, trustManagers, null);
 
