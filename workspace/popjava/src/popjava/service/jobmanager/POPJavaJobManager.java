@@ -24,6 +24,7 @@ import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPConfig.Type;
+import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPParameter.Direction;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
@@ -31,7 +32,7 @@ import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
-import popjava.dataswaper.POPFloat;
+import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.network.NodeJobManager;
@@ -46,7 +47,6 @@ import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
 import popjava.service.jobmanager.search.SNResponse;
 import popjava.service.jobmanager.search.SNWayback;
-import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
@@ -96,10 +96,13 @@ public class POPJavaJobManager extends POPJobService {
 		//init(Configuration.DEFAULT_JM_CONFIG_FILE);
 	}
 	
+	// may also want to use  -XX:MaxHeapFreeRatio=?? -XX:MinHeapFreeRatio=??  if fine tuned
+	@POPObjectDescription(jvmParameters = "-Xmx512m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url) {
 		init(Configuration.DEFAULT_JM_CONFIG_FILE);
 	}
 	
+	@POPObjectDescription(jvmParameters = "-Xmx512m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url, String conf) {
 		init(conf);
 	}
@@ -450,7 +453,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return the reservation ID for this request used in the other methods
 	 */
 	@POPSyncConc(id = 16)
-	public int reserve(@POPParameter(Direction.IN) ObjectDescription od, @POPParameter(Direction.INOUT) POPFloat iofitness, String popAppId, String reqID) {
+	public int reserve(@POPParameter(Direction.IN) ObjectDescription od, @POPParameter(Direction.INOUT) POPMutableFloat iofitness, String popAppId, String reqID) {
 		//update();
 		
 		if (jobs.size() >= maxJobs)
