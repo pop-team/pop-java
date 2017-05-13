@@ -10,7 +10,6 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.TrustManager;
 
 import popjava.buffer.POPBuffer;
 import popjava.system.POPSystem;

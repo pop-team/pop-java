@@ -226,8 +226,9 @@ public class Interface {
         }
 
         if (jobContact.isEmpty()) {
-        	jobContact.setAccessString(String.format("socket://%s:%d", POPSystem
-        			.getHostIP(), POPJobManager.DEFAULT_PORT));
+			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+			jobContact.setAccessString(String.format("%s://%s:%d", 
+				finder.get(0).getComboxName(), POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
         }
 
         POPJobService jobManager = null;
@@ -692,8 +693,11 @@ public class Interface {
 		}
 
 		if (rport != null && rport.length() > 0) {
-			String portString = String.format("-socket_port=%s", rport);
-			argvList.add(portString);
+			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+			for (int i = 0; i < finder.getFactoryCount(); i++) {
+				String portString = String.format("-%s_port=%s", finder.get(i).getComboxName(), rport);
+				argvList.add(portString);
+			}
 		}
 		
 		int ret = -1;
