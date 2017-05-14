@@ -6,6 +6,7 @@ import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.serviceadapter.POPJobManager;
+import popjava.util.Configuration;
 import popjava.util.Util;
 
 /**
@@ -50,7 +51,7 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 		}
 		
 		// set access point
-		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", AccessPoint.SOCKET_PROTOCOL, host, port));
+		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", Configuration.DEFAULT_PROTOCOL, host, port));
 	}
 
 	public POPAccessPoint getJobManagerAccessPoint() {

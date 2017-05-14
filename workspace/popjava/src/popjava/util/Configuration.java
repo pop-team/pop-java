@@ -12,14 +12,14 @@ public class Configuration {
 	/**
 	 * Creates a new instance of POPConfiguration
 	 */
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final boolean DEBUG_COMBOBOX = false;
 	public static final int RESERVE_TIMEOUT = 60000;
 	public static final int ALLOC_TIMEOUT = 30000;
 	public static final int CONNECTION_TIMEOUT = 30000;
 	
 	public static final int UPDATE_MIN_INTERVAL = 10000;
-	public static final int SELF_REGISTER_INTERVAL = 43200;
+	public static final int SELF_REGISTER_INTERVAL = 43200000;
 	public static final int UNLOCK_TIMEOUT = 10000;
 	public static final int SEARCH_TIMEOUT = 0;
 	public static final int UNLIMITED_HOPS = Integer.MAX_VALUE;
