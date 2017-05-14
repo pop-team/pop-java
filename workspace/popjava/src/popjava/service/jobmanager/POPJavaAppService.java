@@ -54,7 +54,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	public int queryCode(String objname, String platform, POPString codefile) {
 		Map<String, String> platf = registeredCode.get(platform);
 		String storeCodeFile = null;
-		
+
 		if(platf == null){
 		    //If the specified platform does not have the code, fall back to the platform agnostic code
 			if(!platform.equals(POPAppService.ALL_PLATFORMS)){

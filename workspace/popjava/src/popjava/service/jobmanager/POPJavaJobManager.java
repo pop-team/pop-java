@@ -33,6 +33,7 @@ import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
+import popjava.codemanager.AppService;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
 import popjava.combox.ssl.DoubleX509TrustManager;
@@ -399,6 +400,13 @@ public class POPJavaJobManager extends POPJobService {
 
 					// force od to localhost
 					od.setHostname("localhost");
+					
+					// code file
+					POPString codeFile = new POPString();
+					AppService service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
+					service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
+					service.exit();
+					od.setCodeFile(codeFile.getValue());
 
 					// execute locally, and save status
 					status |= Interface.tryLocal(objname.getValue(), objcontacts[i], od);
