@@ -410,6 +410,12 @@ public class POPSystem {
 			return false;
 		}
 		
+		// check if file exists, if we do this we won't abord uselessly
+		if (!new File(fileconf).exists()) {
+			LogWriter.printDebug("Could not open "+fileconf);
+			return false;
+		}
+		
 		if(!xw.isValid(fileconf, POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd")){
 			throw new POPException(0, "Object map not valid");
 		}
@@ -460,6 +466,7 @@ public class POPSystem {
 						}
 						childNode = childNode.getNextSibling();
 					}
+					System.out.format("adding %s %s %s\n", objectname, platform, codefile);
 					appCoreService.registerCode(objectname, platform, codefile);
 				}
 			}
