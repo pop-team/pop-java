@@ -35,14 +35,10 @@ public class DoubleX509TrustManager implements X509TrustManager {
 	
 	private X509TrustManager trustManager;
 	
-	// keep track and update when needed
-	private static final List<DoubleX509TrustManager> instances = new ArrayList<>();
-	
 	public DoubleX509TrustManager() throws Exception {
 		this.trustStorePath = Configuration.TRUST_STORE;
 		this.trustStorePass = Configuration.TRUST_STORE_PWD;
 		this.tempTrustStorePath = Configuration.TRUST_TEMP_STORE_DIR;
-		instances.add(this);
 		reloadTrustManager();
 	}
 
@@ -116,9 +112,6 @@ public class DoubleX509TrustManager implements X509TrustManager {
 			}
 			// write it
 			Files.write(path, certificate);
-			for (DoubleX509TrustManager instance : instances) {
-				instance.reloadTrustManager();
-			}
 		} catch (Exception ex) {
 			
 		}
