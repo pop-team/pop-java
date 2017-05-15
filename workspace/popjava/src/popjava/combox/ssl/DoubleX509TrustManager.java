@@ -12,8 +12,9 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.List;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -34,22 +35,15 @@ public class DoubleX509TrustManager implements X509TrustManager {
 	
 	private X509TrustManager trustManager;
 	
-	private static DoubleX509TrustManager instance;
-	static {
-		try {
-			instance = new DoubleX509TrustManager();
-		} catch(Exception e) {}
-	}
+	// keep track and update when needed
+	private static final List<DoubleX509TrustManager> instances = new ArrayList<>();
 	
-	private DoubleX509TrustManager() throws Exception {
+	public DoubleX509TrustManager() throws Exception {
 		this.trustStorePath = Configuration.TRUST_STORE;
 		this.trustStorePass = Configuration.TRUST_STORE_PWD;
 		this.tempTrustStorePath = Configuration.TRUST_TEMP_STORE_DIR;
+		instances.add(this);
 		reloadTrustManager();
-	}
-
-	public static DoubleX509TrustManager getInstance() {
-		return instance;
 	}
 
 	@Override
@@ -112,7 +106,7 @@ public class DoubleX509TrustManager implements X509TrustManager {
 		throw new NoSuchAlgorithmException("No X509TrustManager in TrustManagerFactory");
 	}
 
-	public void addCertToTempStore(byte[] certificate) {
+	public static void addCertToTempStore(byte[] certificate) {
 		try {
 			// certificate saving path
 			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, Arrays.hashCode(certificate) + ".cer");
@@ -122,7 +116,9 @@ public class DoubleX509TrustManager implements X509TrustManager {
 			}
 			// write it
 			Files.write(path, certificate);
-			reloadTrustManager();
+			for (DoubleX509TrustManager instance : instances) {
+				instance.reloadTrustManager();
+			}
 		} catch (Exception ex) {
 			
 		}

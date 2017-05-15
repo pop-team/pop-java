@@ -1139,7 +1139,7 @@ public class POPJavaJobManager extends POPJobService {
 
 				// if we want to answer we save the certificate if there is any
 				if (request.getPublicCertificate().length > 0) {
-					DoubleX509TrustManager.getInstance().addCertToTempStore(request.getPublicCertificate());
+					DoubleX509TrustManager.addCertToTempStore(request.getPublicCertificate());
 				}
 				
 				// route response to the original JM
@@ -1183,7 +1183,7 @@ public class POPJavaJobManager extends POPJobService {
 			
 			// save responder certificate
 			if (response.getPublicCertificate().length > 0) {
-				DoubleX509TrustManager.getInstance().addCertToTempStore(response.getPublicCertificate());
+				DoubleX509TrustManager.addCertToTempStore(response.getPublicCertificate());
 			}
 			
 			// we unlock the senaphore if it was set

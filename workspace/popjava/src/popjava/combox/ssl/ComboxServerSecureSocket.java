@@ -56,7 +56,6 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	 */
 	public void createServer() {
 		try {
-			LogWriter.writeDebugInfo("[SSL Combox] init server");
 			// server only, read private key
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
@@ -72,14 +71,12 @@ public class ComboxServerSecureSocket extends ComboxServer {
 			sslContext.getSupportedSSLParameters();
 			
 			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
-			LogWriter.writeDebugInfo("[SSL Combox] creating server");
 			serverSocket = factory.createServerSocket();
 			
 			serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
 			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));
 			serverCombox = new ComboxAcceptSocket(broker, requestQueue, serverSocket);
 			serverCombox.setStatus(RUNNING);
-			LogWriter.writeDebugInfo("[SSL Combox] starting thread");
 			Thread thread = new Thread(serverCombox, "Server combox acception thread");
 			thread.start();
 			accessPoint.setProtocol(ComboxSecureSocketFactory.PROTOCOL);

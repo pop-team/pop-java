@@ -88,7 +88,7 @@ public class ComboxSecureSocket extends Combox {
 		try {
 			// init SSLContext to create SSLSockets
 			// https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
-			TrustManager[] trustManagers = new TrustManager[]{ DoubleX509TrustManager.getInstance() };
+			TrustManager[] trustManagers = new TrustManager[]{ new DoubleX509TrustManager() };
 			SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
 			sslContext.init(null, trustManagers, null);
 
