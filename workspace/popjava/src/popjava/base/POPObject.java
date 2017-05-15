@@ -10,9 +10,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyObject;
-import popjava.PJMethodHandler;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -49,7 +47,9 @@ public class POPObject implements IPOPBase {
 
 	private boolean temporary = false;
 	
-	private POPObject me = null;
+	private POPObject me = null; //This cache
+    
+    private Broker broker = null;
 	
 	/**
 	 * Creates a new instance of POPObject
@@ -352,7 +352,7 @@ public class POPObject implements IPOPBase {
 	 * @return	POPAccessPoint object containing all access points to the parallel object
 	 */
 	public POPAccessPoint getAccessPoint() {
-		return Broker.getAccessPoint();
+		return broker.getAccessPoint();
 	}
 
 	/**
@@ -804,14 +804,18 @@ public class POPObject implements IPOPBase {
 		return (T)this;
 	}
 	
+	public void setBroker(Broker broker){
+	    this.broker = broker;
+	}
+	
 	public <T extends Object> T getThis(Class<T> myClass){
 		if(me == null){
 			me = PopJava.newActive(getClass(), getAccessPoint());
 			
 			//After establishing connection with self, artificially decrease connection by one
 			//This is to avoid the issue of never closing objects with reference to itself
-			if(me != null && Broker.getBroker() != null){
-				Broker.getBroker().onCloseConnection("SelfReference");
+			if(me != null && broker != null){
+			    broker.onCloseConnection("SelfReference");
 			}
 		}
 		
