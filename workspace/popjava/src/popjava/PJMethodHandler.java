@@ -132,7 +132,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				}
 				
 				
-				setup.set(true);
+				setSetup();
 			}
 		};
 		

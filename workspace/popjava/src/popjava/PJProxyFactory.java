@@ -11,6 +11,7 @@ import popjava.base.POPObject;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
+import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
@@ -83,20 +84,26 @@ public class PJProxyFactory extends ProxyFactory {
 			ObjectDescription originalOd = popObject.getOd();
 			originalOd.merge(od);
 			
-			if(originalOd.getRemoteAccessPoint() != null && !originalOd.getRemoteAccessPoint().isEmpty()){
-				POPAccessPoint accessPoint = new POPAccessPoint();
-				accessPoint.setAccessString(originalOd.getRemoteAccessPoint());
-				return bindPOPObject(accessPoint);
+			if(originalOd.useLocalJVM()){
+				Broker broker = new Broker(popObject);
+				return popObject; 
+			}else{
+				if(originalOd.getRemoteAccessPoint() != null && !originalOd.getRemoteAccessPoint().isEmpty()){
+					POPAccessPoint accessPoint = new POPAccessPoint();
+					accessPoint.setAccessString(originalOd.getRemoteAccessPoint());
+					return bindPOPObject(accessPoint);
+				}
+				
+				PJMethodHandler methodHandler = new PJMethodHandler(popObject);
+				methodHandler.setOd(originalOd);
+				methodHandler.popConstructor(targetClass, argvs);
+				this.setHandler(methodHandler);
+				Class<?> c = this.createClass();
+				Object result = c.newInstance();
+				((ProxyObject) result).setHandler(methodHandler);
+								
+				return result;
 			}
-			
-			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
-			methodHandler.setOd(originalOd);
-			methodHandler.popConstructor(targetClass, argvs);
-			this.setHandler(methodHandler);
-			Class<?> c = this.createClass();
-			Object result = c.newInstance();
-			((ProxyObject) result).setHandler(methodHandler);
-			return result;
 		} catch(POPException e){
 		    throw e;
 		} catch (Exception e) {

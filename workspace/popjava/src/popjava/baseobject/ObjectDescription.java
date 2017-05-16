@@ -44,6 +44,8 @@ public class ObjectDescription implements IPOPBase {
 	protected String jvmParamters;
 	protected ConnectionType connectionType = ConnectionType.ANY;
 	protected String connectionSecret;
+	
+	protected boolean useLocalJVM = false;
 
 	private ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<String, String>();
 
@@ -101,6 +103,15 @@ public class ObjectDescription implements IPOPBase {
 		maxDepth = od.getSearchMaxDepth();
 		maxSize =  od.getSearchMaxSize();
 		waitTime = od.getSearchWaitTime();
+		useLocalJVM = od.useLocalJVM();
+	}
+	
+	public boolean useLocalJVM(){
+		return useLocalJVM;
+	}
+	
+	public void setUseLocalJVM(boolean localJVM){
+		this.useLocalJVM = localJVM;
 	}
 	
 	/**

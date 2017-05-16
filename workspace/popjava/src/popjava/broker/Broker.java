@@ -14,12 +14,15 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
 import javassist.NotFoundException;
 import javassist.util.proxy.ProxyObject;
@@ -105,6 +108,14 @@ public final class Broker {
 		}
 	});
 			//Executors.newCachedThreadPool());//
+	
+	public Broker(POPObject object){
+		this.popObject = object;
+		
+		initialize(java.util.Collections.EMPTY_LIST);
+		
+		popObject.setBroker(this);
+	}
 	
 	/**
 	 * Creates a new instance of POPBroker
@@ -766,7 +777,7 @@ public final class Broker {
 	 *            Arguments
 	 * @return true if the initialization process succeed
 	 */
-	public boolean initialize(ArrayList<String> argvs) {
+	public boolean initialize(List<String> argvs) {
 		accessPoint = new POPAccessPoint();
 		
 		buffer = new BufferXDR();
@@ -792,6 +803,7 @@ public final class Broker {
 			comboxServer = factory.createServerCombox(ap, buffer, this);
 			
 		}
+		
 		return true;
 	}
 
@@ -859,6 +871,7 @@ public final class Broker {
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}
+		
 		ComboxSocket callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
 			POPAccessPoint accessPoint = new POPAccessPoint(callbackString);
@@ -886,6 +899,7 @@ public final class Broker {
 		}catch(Exception e){
 			LogWriter.writeExceptionLog(e);
 		}
+		
 		int status = 0;
 		if (broker == null || !broker.initialize(argvList)) {
 			status = 1;

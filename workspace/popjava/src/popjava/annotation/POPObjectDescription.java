@@ -32,6 +32,8 @@ public @interface POPObjectDescription {
 	
 	Encoding encoding() default Encoding.Default;
 	
+	boolean localJVM() default false;
+	
 	/**
 	 * Method id of the constructor.
 	 * Only use this if you absolutely know what you are doing.
