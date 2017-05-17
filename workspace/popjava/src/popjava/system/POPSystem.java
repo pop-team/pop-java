@@ -466,7 +466,6 @@ public class POPSystem {
 						}
 						childNode = childNode.getNextSibling();
 					}
-					System.out.format("adding %s %s %s\n", objectname, platform, codefile);
 					appCoreService.registerCode(objectname, platform, codefile);
 				}
 			}
