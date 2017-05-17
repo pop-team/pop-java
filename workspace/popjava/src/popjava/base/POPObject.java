@@ -10,6 +10,8 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
@@ -144,6 +146,14 @@ public class POPObject implements IPOPBase {
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type String for Annotation ACCESS_POINT");
+						}
+						break;
+					case LOCAL_JVM:
+						if(argvs[i]  instanceof Boolean){
+							od.setUseLocalJVM((Boolean)argvs[i]);
+						}else{
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
+									" was not of type Boolean for Annotation LOCAL_JVM");
 						}
 						break;
 					}

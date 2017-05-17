@@ -122,4 +122,14 @@ public class JVMObjectTest {
 		
 		assertNotSame(local1.getReference().getValue(), local2.getReference().getValue());
 	}
+	
+	@Test(expected = Exception.class)
+	public void testLocalURLAnnotationFail(){
+		LocalObject local1 = PopJava.newActive(LocalObject.class, "144.33.11.33", true);
+	}
+
+	@Test
+	public void testLocalURLAnnotationLocal(){
+		LocalObject local1 = PopJava.newActive(LocalObject.class, "localhost", true);
+	}
 }

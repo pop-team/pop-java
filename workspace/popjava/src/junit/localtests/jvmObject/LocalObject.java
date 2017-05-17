@@ -23,6 +23,10 @@ public class LocalObject extends POPObject{
 		value = (int)(Math.random() * 10000);
 	}
 	
+	public LocalObject(@POPConfig(Type.URL)String url, @POPConfig(Type.LOCAL_JVM) boolean useLocalVM){
+		value = (int)(Math.random() * 10000);
+	}
+	
 	@POPSyncSeq
 	public int getValue(){
 		return value;

@@ -16,6 +16,7 @@ import popjava.buffer.POPBuffer;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
+import popjava.util.Util;
 
 /**
  * POP-Java Proxy Factory : this class provide methods to create a proxy factory for a specified class. This class uses the Javassit library.
@@ -85,6 +86,12 @@ public class PJProxyFactory extends ProxyFactory {
 			originalOd.merge(od);
 			
 			if(originalOd.useLocalJVM()){
+				if(originalOd.getHostName() != null && !originalOd.getHostName().isEmpty()){
+					if(!Util.isLocal(originalOd.getHostName())){
+						throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "Object can't define URL and run in local JVM");
+					}
+				}
+				
 				Broker broker = new Broker(popObject);
 				return popObject; 
 			}else{
