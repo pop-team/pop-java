@@ -22,8 +22,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
-
 import javassist.NotFoundException;
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
