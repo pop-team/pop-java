@@ -125,11 +125,24 @@ public class JVMObjectTest {
 	
 	@Test(expected = Exception.class)
 	public void testLocalURLAnnotationFail(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, "144.33.11.33", true);
+		LocalObject local1 = PopJava.newActive(LocalObject.class, true, "144.33.11.33");
 	}
 
 	@Test
 	public void testLocalURLAnnotationLocal(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, "localhost", true);
+		LocalObject local1 = PopJava.newActive(LocalObject.class, true, "localhost");
+		
+		assertNotNull(local1);
+	}
+	
+	@Test
+	public void testNullParameterConstructor(){
+		LocalObject local1 = PopJava.newActive(LocalObject.class, true, null);
+		assertNull(local1);
+	}
+	
+	@Test
+	public void testNullParameterConstructor2(){
+		LocalObject local1 = PopJava.newActive(LocalObject.class, true, "", null);
 	}
 }

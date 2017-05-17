@@ -58,6 +58,34 @@ public class PJProxyFactory extends ProxyFactory {
 		return newPOPObject(objectDescription, argvs);
 	}
 
+	private static Constructor<?> findMatchingConstructor(Class<?> targetClass, Class<?>[] parameterTypes){
+		Constructor<?> constructor = null;
+		
+		for(Constructor<?> candidate : targetClass.getConstructors()){
+			if(candidate.getParameterTypes().length == parameterTypes.length){
+				boolean matches = true;
+				
+				for(int i = 0; i < parameterTypes.length; i++){
+					if(!candidate.getParameterTypes()[i].isAssignableFrom(parameterTypes[i])){
+						matches = false;
+					}
+				}
+				
+				if(matches){
+					if(constructor != null){
+						constructor = candidate;
+					}else{
+						constructor = null; //Found two matching constructors
+						//TODO: Throw exception
+						break;
+					}
+				}
+			}
+		}
+		
+		return constructor;
+	}
+	
 	/**
 	 * Create a new object from specific class and object description.
 	 * @param od : Object description with the resource requirements
@@ -70,17 +98,16 @@ public class PJProxyFactory extends ProxyFactory {
 			POPObject popObject = null;
 			//Check if object has a default constructor
 			
+			Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
+			Constructor<?> constructor;
 			try{
-				Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
-				Constructor<?> constructor = targetClass.getConstructor(parameterTypes);
-				popObject = (POPObject) targetClass.getConstructor().newInstance();
-				popObject.loadPOPAnnotations(constructor, argvs);
-			}catch(Exception e){
-				e.printStackTrace();
-				Constructor<?> constructor = targetClass.getConstructor();
-				popObject = (POPObject) constructor.newInstance();
-				popObject.loadPOPAnnotations(constructor);
+				constructor = targetClass.getConstructor(parameterTypes);
+			}catch (NoSuchMethodException e) {
+				constructor = findMatchingConstructor(targetClass, parameterTypes);
 			}
+			 
+			popObject = (POPObject) targetClass.getConstructor().newInstance();
+			popObject.loadPOPAnnotations(constructor, argvs);
 			
 			ObjectDescription originalOd = popObject.getOd();
 			originalOd.merge(od);

@@ -14,23 +14,25 @@ public class ClassUtil {
 		for (int index = 0; index < objects.length; index++) {
 			if (objects[index] == null){
 				parameterTypes[index] = Object.class;
-			}
-			parameterTypes[index] = objects[index].getClass();
-			if(ProxyObject.class.isAssignableFrom(parameterTypes[index])){
-				parameterTypes[index] = parameterTypes[index].getSuperclass();
+			}else{
+				parameterTypes[index] = objects[index].getClass();
+				if(ProxyObject.class.isAssignableFrom(parameterTypes[index])){
+					parameterTypes[index] = parameterTypes[index].getSuperclass();
+				}
+				
+				if(objects[index].getClass().equals(Integer.class)){
+					parameterTypes[index] = Integer.TYPE;
+				}else if(objects[index].getClass().equals(Double.class)){
+					parameterTypes[index] = Double.TYPE;
+				}else if(objects[index].getClass().equals(Long.class)){
+					parameterTypes[index] = Long.TYPE;
+				}else if(objects[index].getClass().equals(Short.class)){
+					parameterTypes[index] = Short.TYPE;
+				}else if(objects[index].getClass().equals(Boolean.class)){
+					parameterTypes[index] = Boolean.TYPE;
+				}
 			}
 			
-			if(objects[index].getClass().equals(Integer.class)){
-				parameterTypes[index] = Integer.TYPE;
-			}else if(objects[index].getClass().equals(Double.class)){
-				parameterTypes[index] = Double.TYPE;
-			}else if(objects[index].getClass().equals(Long.class)){
-				parameterTypes[index] = Long.TYPE;
-			}else if(objects[index].getClass().equals(Short.class)){
-				parameterTypes[index] = Short.TYPE;
-			}else if(objects[index].getClass().equals(Boolean.class)){
-				parameterTypes[index] = Boolean.TYPE;
-			}
 		}
 		
 		return parameterTypes;

@@ -111,7 +111,7 @@ public class POPObject implements IPOPBase {
 					POPConfig config = (POPConfig)annotations[i][loop];
 					 
 					if(argvs[i] == null){
-						throw new InvalidParameterException("Annotated paramater "+i+" for "+getClassName()+" was is null");
+						throw new InvalidParameterException("Annotated paramater "+i+" for "+getClassName()+" is null");
 					}
 					
 					switch(config.value()){
