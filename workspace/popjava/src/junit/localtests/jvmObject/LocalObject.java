@@ -1,5 +1,6 @@
 package junit.localtests.jvmObject;
 
+import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPObjectDescription;
@@ -40,5 +41,10 @@ public class LocalObject extends POPObject{
 	@POPSyncSeq
 	public LocalObject getReference(){
 		return reference;
+	}
+
+	@POPSyncSeq
+	public void createReference(String url){
+		reference = PopJava.newActive(LocalObject.class, url);
 	}
 }

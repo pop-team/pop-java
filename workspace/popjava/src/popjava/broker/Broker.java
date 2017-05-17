@@ -115,6 +115,19 @@ public final class Broker {
 		initialize(java.util.Collections.EMPTY_LIST);
 		
 		popObject.setBroker(this);
+		popInfo = object;
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					treatRequests();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}, "Broker thread").start();
 	}
 	
 	/**
@@ -778,6 +791,7 @@ public final class Broker {
 	 * @return true if the initialization process succeed
 	 */
 	public boolean initialize(List<String> argvs) {
+		
 		accessPoint = new POPAccessPoint();
 		
 		buffer = new BufferXDR();
@@ -919,6 +933,7 @@ public final class Broker {
 		if (status == 0 && broker != null){
 			broker.treatRequests();
 		}
+		
 		LogWriter.writeDebugInfo("End broker life : "+objectName);
 		System.exit(0);
 	}

@@ -2,6 +2,9 @@ package junit.localtests.jvmObject;
 
 import static org.junit.Assert.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +46,6 @@ public class JVMObjectTest {
 		assertNotSame(obj.value, obj.getValue());
 	}
 	
-	
 	@Test
 	public void testReferences(){
 		LocalObject local = PopJava.newActive(LocalObject.class);
@@ -52,12 +54,72 @@ public class JVMObjectTest {
 		POPAccessPoint localAP = PopJava.getAccessPoint(local);
 		POPAccessPoint remoteAP = PopJava.getAccessPoint(remote);
 		
-		System.out.println("Local : "+localAP);
-		System.out.println("Remote : "+remoteAP);
-		
 		remote.setReference(local);
 		
 		assertEquals(local.value, remote.getRefernceValue());
 		assertEquals(local.value, remote.getReference().getValue());
+	}
+	
+	@Test
+	public void testReferences2(){
+		LocalObject local = PopJava.newActive(LocalObject.class);
+		LocalObject remote = PopJava.newActive(LocalObject.class, "localhost");
+
+		POPAccessPoint localAP = PopJava.getAccessPoint(local);
+		POPAccessPoint remoteAP = PopJava.getAccessPoint(remote);
+		
+		local.setReference(remote);
+		
+		assertEquals(remote.getValue(), local.getRefernceValue());
+		assertEquals(remote.getValue(), local.getReference().getValue());
+	}
+	
+	@Test
+	public void testMultipleLocalObjects(){
+		LocalObject [] objs = new LocalObject[10];
+		LocalObject remote = PopJava.newActive(LocalObject.class, "localhost");
+		
+		Set<String> accessPoints = new HashSet<String>();
+		
+		for(int i = 0; i < objs.length; i++){
+			objs[i] = PopJava.newActive(LocalObject.class);
+			objs[i].setReference(remote);
+		}
+		
+		for(int i = 0; i < objs.length; i++){
+			POPAccessPoint ap = PopJava.getAccessPoint(objs[i]);
+			accessPoints.add(ap.toString());
+		}
+		
+		assertEquals(objs.length, accessPoints.size());		
+		
+		for(int i = 0; i < objs.length; i++){
+			assertEquals(objs[i].value, objs[i].getValue());
+
+			assertEquals(remote.getValue(), objs[i].getRefernceValue());
+			assertEquals(remote.getValue(), objs[i].getReference().getValue());
+		}
+		
+		for(int i = 0; i < objs.length; i++){
+			remote.setReference(objs[i]);
+			
+			assertEquals(objs[i].value, remote.getRefernceValue());
+			assertEquals(objs[i].value, remote.getReference().getValue());
+		}
+	}
+	
+	@Test
+	public void testChainedObjectCreation(){
+		LocalObject local1 = PopJava.newActive(LocalObject.class);
+		LocalObject local2 = PopJava.newActive(LocalObject.class);
+		
+		local1.createReference("localhost");
+		LocalObject remote1 = local1.getReference();
+		
+
+		local2.createReference("localhost");
+		LocalObject remote2 = local1.getReference();
+		
+		assertNotSame(local1.getReference().getValue(), local2.getReference().getValue());
 	}
 }
