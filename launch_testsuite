@@ -14,29 +14,29 @@ echo "#   POP-Java 1.0 Test Suite started    #"
 echo "########################################"
 
 #check if POP-C++ installed
-if [ -a $POPC_LOCATION/sbin/SXXpopc ]
-then
-	echo "POP-C++ detected under $POPC_LOCATION"
-else 
-	if [ -a /usr/local/popc/sbin/SXXpopc ]
-	then
-		echo "POP-C++ detected under /user/local/popc"
-	else
-		echo "POP-C++ not detected. Test aborted !"
-		exit
-	fi
-fi
+#if [ -a $POPC_LOCATION/sbin/SXXpopc ]
+#then
+#	echo "POP-C++ detected under $POPC_LOCATION"
+#else 
+#	if [ -a /usr/local/popc/sbin/SXXpopc ]
+#	then
+#		echo "POP-C++ detected under /user/local/popc"
+#	else
+#		echo "POP-C++ not detected. Test aborted !"
+#		exit
+#	fi
+#fi
 
 
 #check if POP-C++ runtime is running
-JOBMGR_COUNT=$(ps -ef | grep -v grep | grep -cw JobMgr)
-if [ $JOBMGR_COUNT -eq 0 ]
-then
-	echo "POP-C++ was not running. Starting POP-C++ runtime global services ..."
-	SXXpopc start
-	JOBMGR_STARTED=1
-	echo "POP-C++ started"
-fi
+#JOBMGR_COUNT=$(ps -ef | grep -v grep | grep -cw JobMgr)
+#if [ $JOBMGR_COUNT -eq 0 ]
+#then
+#	echo "POP-C++ was not running. Starting POP-C++ runtime global services ..."
+#	SXXpopc start
+#	JOBMGR_STARTED=1
+#	echo "POP-C++ started"
+#fi
 
 
 DEFAULT_LOCATION=/usr/local/popj
@@ -56,6 +56,16 @@ fi
 
 CP=$LOCATION/JarFile/popjava.jar:$LOCATION/JarFile/testsuite.jar
 POP=$LOCATION/JarFile/popjava.jar
+
+# Check if a Job Manager is running
+JM=`ps aux | grep -e 'jobmgr' -e 'PopjServices' | wc -l`
+if [ "$JM" -eq "1" ]
+then
+    echo "No Job Manager is running."
+    echo "Starting the POP-Java one."
+    java -javaagent:$POP -cp $POP popjava.scripts.PopjServices $LOCATION/etc/jobmgr.conf &
+    sleep 15
+fi
 
 N_TEST=6
 
@@ -141,10 +151,10 @@ echo "########################################"
 echo "#   POP-Java 1.0 Test Suite finished   #"
 echo "########################################"
 
-if [ $JOBMGR_STARTED ]
-then
-	SXXpopc stop
-fi
-
-$POPJAVA_LOCATION/bin/popjrun --killall
+#if [ $JOBMGR_STARTED ]
+#then
+#	SXXpopc stop
+#fi
+#
+#$POPJAVA_LOCATION/bin/popjrun --killall
 
