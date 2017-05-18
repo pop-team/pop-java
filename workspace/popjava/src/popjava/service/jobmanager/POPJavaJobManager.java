@@ -50,6 +50,7 @@ import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
 import popjava.service.jobmanager.search.SNResponse;
 import popjava.service.jobmanager.search.SNWayback;
+import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
@@ -403,9 +404,16 @@ public class POPJavaJobManager extends POPJobService {
 					
 					// code file
 					POPString codeFile = new POPString();
-					AppService service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
-					service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
-					service.exit();
+					AppService service;
+					try {
+						service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
+						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
+						service.exit();
+					} catch (POPException e) {
+						service = PopJava.newActive(POPAppService.class, res.getAppService());
+						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
+						service.exit();
+					}
 					od.setCodeFile(codeFile.getValue());
 
 					// execute locally, and save status

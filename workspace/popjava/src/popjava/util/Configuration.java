@@ -1,5 +1,6 @@
 package popjava.util;
 
+import popjava.baseobject.AccessPoint;
 import popjava.combox.ComboxSocketFactory;
 import popjava.combox.ssl.ComboxSecureSocketFactory;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
@@ -29,7 +30,7 @@ public class Configuration {
 	
 	public static final String DEFAULT_ENCODING = "xdr";
 	public static final String SELECTED_ENCODING = "raw";
-	public static final String DEFAULT_PROTOCOL = ComboxSecureSocketFactory.PROTOCOL;
+	public static final String DEFAULT_PROTOCOL = AccessPoint.SSL_PROTOCOL;
 
 	public static final boolean ASYNC_CONSTRUCTOR = true;
 	public static final boolean ACTIVATE_JMX = false;
@@ -44,6 +45,7 @@ public class Configuration {
 	
 	public static final String TRUST_STORE = "truststore.jks";
 	public static final String TRUST_STORE_PWD = "trustpass";
+	public static final String TRUST_STORE_PK_ALIAS = "truststore";
 	public static final String TRUST_STORE_PK_PWD = "trustpass";
 	public static final String PUBLIC_CERTIFICATE = "local_certificate.cer"; // RFC format
 	public static final String TRUST_TEMP_STORE_DIR = "_temp_certificates";

@@ -1,6 +1,7 @@
 package popjava.util;
 
 import java.lang.annotation.Annotation;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -20,6 +21,8 @@ import popjava.system.POPSystem;
  */
 
 public final class Util {
+	
+	private static final Random RANDOM = new SecureRandom();
 
 	/**
 	 * Check if the two contact string are the same
@@ -119,18 +122,13 @@ public final class Util {
 	 * @return	The generated string
 	 */
 	public static String generateRandomString(int length) {
-		String result = "";
-		Random random = new Random((new Date()).getTime());
+		StringBuilder result = new StringBuilder(length);
 		for (int i = 0; i < length; i++) {
-			int randomInt = random.nextInt();
-			if (randomInt < 0){
-				randomInt = -randomInt;
-			}
+			int randomInt = RANDOM.nextInt() & 0x7FFFFFFF; // positive int
 			randomInt = (int) (((float) randomInt / Integer.MAX_VALUE) * 24 + 'A');
-			result += Character.toString((char) randomInt);
+			result.append((char) randomInt);
 		}
-		return result;
-
+		return result.toString();
 	}
 	
 	/**
