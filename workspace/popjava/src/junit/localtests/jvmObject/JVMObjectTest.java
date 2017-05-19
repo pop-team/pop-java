@@ -12,6 +12,7 @@ import org.junit.Test;
 import popjava.PopJava;
 import popjava.baseobject.POPAccessPoint;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 
 /**
  * Special test for the functionality to create a POPJava object in the same VM as the creator. 
@@ -153,6 +154,17 @@ public class JVMObjectTest {
 		assertNotNull(remote2);
 		
 		assertEquals(remote1.getValue(), remote2.getValue());
+	}
+	
+	@Test
+	public void multipleConnections(){
+		Configuration.DEBUG = true;
+		LocalObject local1 = PopJava.newActive(LocalObject.class, new Double(1));
+		
+		LocalObject remote = PopJava.newActive(LocalObject.class, PopJava.getThis(local1).getAccessPoint());
+		LocalObject remote2 = PopJava.newActive(LocalObject.class, PopJava.getThis(local1).getAccessPoint());
+		
+		assertEquals(remote.getValue(), remote2.getValue());
 	}
 	
 	@Test(expected = Exception.class)

@@ -109,6 +109,7 @@ public final class Broker {
 	
 	public Broker(POPObject object){
 		this.popObject = object;
+		connectionCount++;
 		
 		initialize(java.util.Collections.EMPTY_LIST);
 		

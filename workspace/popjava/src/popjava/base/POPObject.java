@@ -749,6 +749,8 @@ public class POPObject implements IPOPBase {
 	@Override
     public boolean serialize(POPBuffer buffer) {
 		if(od.useLocalJVM() && broker != null){
+			//broker.onNewConnection();
+			
 			od.serialize(buffer);
 			broker.getAccessPoint().serialize(buffer);
 			buffer.putInt(1);//TODO: Find out what this number does
