@@ -49,7 +49,9 @@ import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
 import popjava.service.jobmanager.search.SNResponse;
 import popjava.service.jobmanager.search.SNWayback;
+import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
+import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -402,10 +404,30 @@ public class POPJavaJobManager extends POPJobService {
 					
 					// code file
 					POPString codeFile = new POPString();
-					AppService service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
-					service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
-					service.exit();
-					od.setCodeFile(codeFile.getValue());
+					AppService service;
+					try {
+						service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
+						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
+						service.exit();
+					} catch (POPException e) {
+						service = PopJava.newActive(POPAppService.class, res.getAppService());
+						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
+						service.exit();
+					}
+					
+					// modify popjava location with local ones
+					String[] args = codeFile.getValue().split(" ");
+					String jarLocation = POPJavaConfiguration.getPopJavaJar();
+					for (int j = 0; j < args.length; j++) {
+						if(args[j].startsWith("-javaagent:")) {
+							args[j] = "-javaagent:" + jarLocation;
+						}
+						else if(args[j].equals("-cp")) {
+							args[j + 1] = jarLocation;
+						}
+					}
+					
+					od.setCodeFile(String.join(" ", args));
 
 					// execute locally, and save status
 					status |= Interface.tryLocal(objname.getValue(), objcontacts[i], od);
