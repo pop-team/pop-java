@@ -58,6 +58,14 @@ public class PJProxyFactory extends ProxyFactory {
 		return newPOPObject(objectDescription, argvs);
 	}
 
+	/**
+	 * All this is because getConstructor does not support Object.class as a parameter type.
+	 * Object.class is used by us for null parameters
+	 * 
+	 * @param targetClass
+	 * @param parameterTypes
+	 * @return
+	 */
 	private static Constructor<?> findMatchingConstructor(Class<?> targetClass, Class<?>[] parameterTypes){
 		Constructor<?> constructor = null;
 		
@@ -66,13 +74,16 @@ public class PJProxyFactory extends ProxyFactory {
 				boolean matches = true;
 				
 				for(int i = 0; i < parameterTypes.length; i++){
-					if(!candidate.getParameterTypes()[i].isAssignableFrom(parameterTypes[i])){
+					if(!parameterTypes[i].isAssignableFrom(candidate.getParameterTypes()[i]) &&
+							!candidate.getParameterTypes()[i].isAssignableFrom(parameterTypes[i]) &&
+							!ClassUtil.isAssignableFrom(parameterTypes[i], candidate.getParameterTypes()[i])
+							){
 						matches = false;
 					}
 				}
 				
 				if(matches){
-					if(constructor != null){
+					if(constructor == null){
 						constructor = candidate;
 					}else{
 						constructor = null; //Found two matching constructors
@@ -100,10 +111,15 @@ public class PJProxyFactory extends ProxyFactory {
 			
 			Class<?>[] parameterTypes = ClassUtil.getObjectTypes(argvs);
 			Constructor<?> constructor;
+			
 			try{
 				constructor = targetClass.getConstructor(parameterTypes);
 			}catch (NoSuchMethodException e) {
 				constructor = findMatchingConstructor(targetClass, parameterTypes);
+			}
+			
+			if(constructor == null){
+				System.out.println("No constructor found");
 			}
 			 
 			popObject = (POPObject) targetClass.getConstructor().newInstance();
@@ -118,6 +134,8 @@ public class PJProxyFactory extends ProxyFactory {
 						throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "Object can't define URL and run in local JVM");
 					}
 				}
+				
+				popObject = (POPObject)constructor.newInstance(argvs);
 				
 				Broker broker = new Broker(popObject);
 				return popObject; 

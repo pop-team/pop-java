@@ -33,9 +33,10 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testLocalCreation(){
-		LocalObject obj = PopJava.newActive(LocalObject.class);
+		LocalObject obj = PopJava.newActive(LocalObject.class, new Double(1));
 		
 		assertEquals(obj.value, obj.getValue());
+		assertNotSame(-1, obj.value);
 	}
 	
 
@@ -43,14 +44,19 @@ public class JVMObjectTest {
 	public void testRemoteCreation(){
 		LocalObject obj = PopJava.newActive(LocalObject.class, "localhost");
 		
+		assertEquals(-1, obj.value);
 		assertNotSame(obj.value, obj.getValue());
+		assertNotSame(-1, obj.getValue());
 	}
 	
 	@Test
 	public void testReferences(){
-		LocalObject local = PopJava.newActive(LocalObject.class);
+		LocalObject local = PopJava.newActive(LocalObject.class, 3.0);
 		LocalObject remote = PopJava.newActive(LocalObject.class, "localhost");
 
+		assertNotSame(-1, local.value);
+		assertEquals(-1, remote.value);
+		
 		POPAccessPoint localAP = PopJava.getAccessPoint(local);
 		POPAccessPoint remoteAP = PopJava.getAccessPoint(remote);
 		
@@ -62,7 +68,7 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testReferences2(){
-		LocalObject local = PopJava.newActive(LocalObject.class);
+		LocalObject local = PopJava.newActive(LocalObject.class, new Double(1));
 		LocalObject remote = PopJava.newActive(LocalObject.class, "localhost");
 
 		POPAccessPoint localAP = PopJava.getAccessPoint(local);
@@ -82,7 +88,7 @@ public class JVMObjectTest {
 		Set<String> accessPoints = new HashSet<String>();
 		
 		for(int i = 0; i < objs.length; i++){
-			objs[i] = PopJava.newActive(LocalObject.class);
+			objs[i] = PopJava.newActive(LocalObject.class, new Double(1));
 			objs[i].setReference(remote);
 		}
 		
@@ -110,17 +116,27 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testChainedObjectCreation(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class);
-		LocalObject local2 = PopJava.newActive(LocalObject.class);
+		LocalObject local1 = PopJava.newActive(LocalObject.class, new Double(1));
+		LocalObject local2 = PopJava.newActive(LocalObject.class, new Double(1));
 		
-		local1.createReference("localhost");
+		local1.createReference("localhost", true);
 		LocalObject remote1 = local1.getReference();
 		
 
-		local2.createReference("localhost");
+		local2.createReference("localhost", false);
 		LocalObject remote2 = local1.getReference();
 		
+		assertNotNull(remote1);
+		assertNotNull(remote2);
+		
+		assertNotNull(local1.getReference());
+		assertNotNull(local2.getReference());
+		
 		assertNotSame(local1.getReference().getValue(), local2.getReference().getValue());
+		
+		local1.getReference().createReference("localhost", true);
+		
+		assertNotSame(local1.getReference().getValue(), remote1.getReference().getValue());
 	}
 	
 	@Test(expected = Exception.class)
