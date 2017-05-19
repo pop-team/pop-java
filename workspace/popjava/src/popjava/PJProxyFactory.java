@@ -136,6 +136,7 @@ public class PJProxyFactory extends ProxyFactory {
 				}
 				
 				popObject = (POPObject)constructor.newInstance(argvs);
+				popObject.loadPOPAnnotations(constructor, argvs);
 				
 				Broker broker = new Broker(popObject);
 				return popObject; 

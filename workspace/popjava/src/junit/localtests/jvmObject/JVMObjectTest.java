@@ -139,6 +139,22 @@ public class JVMObjectTest {
 		assertNotSame(local1.getReference().getValue(), remote1.getReference().getValue());
 	}
 	
+	@Test
+	public void testChainedObjectCreation2(){
+		LocalObject local1 = PopJava.newActive(LocalObject.class, new Double(1));
+		
+		LocalObject remote = PopJava.newActive(LocalObject.class, PopJava.getThis(local1).getAccessPoint());
+		
+		local1.createReference("localhost", true);
+		LocalObject remote1 = local1.getReference();
+		LocalObject remote2 = remote.getReference();
+		
+		assertNotNull(remote1);
+		assertNotNull(remote2);
+		
+		assertEquals(remote1.getValue(), remote2.getValue());
+	}
+	
 	@Test(expected = Exception.class)
 	public void testLocalURLAnnotationFail(){
 		LocalObject local1 = PopJava.newActive(LocalObject.class, true, "144.33.11.33");
