@@ -52,6 +52,7 @@ import popjava.service.jobmanager.search.SNResponse;
 import popjava.service.jobmanager.search.SNWayback;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
+import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -414,7 +415,20 @@ public class POPJavaJobManager extends POPJobService {
 						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
 						service.exit();
 					}
-					od.setCodeFile(codeFile.getValue());
+					
+					// modify popjava location with local ones
+					String[] args = codeFile.getValue().split(" ");
+					String jarLocation = POPJavaConfiguration.getPopJavaJar();
+					for (int j = 0; j < args.length; j++) {
+						if(args[j].startsWith("-javaagent:")) {
+							args[j] = "-javaagent:" + jarLocation;
+						}
+						else if(args[j].equals("-cp")) {
+							args[j + 1] = jarLocation;
+						}
+					}
+					
+					od.setCodeFile(String.join(" ", args));
 
 					// execute locally, and save status
 					status |= Interface.tryLocal(objname.getValue(), objcontacts[i], od);
