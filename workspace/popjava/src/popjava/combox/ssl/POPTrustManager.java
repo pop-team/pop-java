@@ -85,7 +85,7 @@ public class POPTrustManager implements X509TrustManager {
 			certFactory = CertificateFactory.getInstance("X.509");
 			publicCertificate = certFactory.generateCertificate(new FileInputStream(Configuration.PUBLIC_CERTIFICATE));
 			watcher = new WatchDirectory(tempTrustStorePath, new WatcherMethods());
-			Thread dirWatcher = new Thread(watcher);
+			Thread dirWatcher = new Thread(watcher, "TrustStore temporary folder watcher");
 			dirWatcher.setDaemon(true);
 			dirWatcher.start();
 			reloadTrustManager();
