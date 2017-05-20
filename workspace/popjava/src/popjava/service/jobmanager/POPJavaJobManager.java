@@ -36,7 +36,7 @@ import popjava.base.POPException;
 import popjava.codemanager.AppService;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
-import popjava.combox.ssl.DoubleX509TrustManager;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.network.POPNetwork;
@@ -1161,7 +1161,7 @@ public class POPJavaJobManager extends POPJobService {
 
 				// if we want to answer we save the certificate if there is any
 				if (request.getPublicCertificate().length > 0) {
-					DoubleX509TrustManager.addCertToTempStore(request.getPublicCertificate());
+					POPTrustManager.addCertToTempStore(request.getPublicCertificate());
 				}
 				
 				// route response to the original JM
@@ -1205,7 +1205,7 @@ public class POPJavaJobManager extends POPJobService {
 			
 			// save responder certificate
 			if (response.getPublicCertificate().length > 0) {
-				DoubleX509TrustManager.addCertToTempStore(response.getPublicCertificate());
+				POPTrustManager.addCertToTempStore(response.getPublicCertificate());
 			}
 			
 			// we unlock the senaphore if it was set

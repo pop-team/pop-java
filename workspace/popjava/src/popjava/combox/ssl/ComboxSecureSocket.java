@@ -101,7 +101,7 @@ public class ComboxSecureSocket extends Combox {
 		try {
 			// init SSLContext to create SSLSockets
 			// https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
-			TrustManager[] trustManagers = new TrustManager[]{ new DoubleX509TrustManager() };
+			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 			SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
 			sslContext.init(null, trustManagers, null);
 
@@ -305,8 +305,10 @@ public class ComboxSecureSocket extends Combox {
 
 			// send answer
 			byte[] size = ByteBuffer.allocate(4).putInt(answer.length).array();
+			byte[] certHash = ByteBuffer.allocate(4).putInt(POPTrustManager.getLocalPublicCertificate().hashCode()).array();
 			outputStream.write(size);
 			outputStream.write(answer);
+			outputStream.write(certHash);
 			outputStream.flush();
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -317,7 +319,7 @@ public class ComboxSecureSocket extends Combox {
 	
 	private boolean serverHandshake() {
 		try {
-			DoubleX509TrustManager tm = new DoubleX509TrustManager();
+			POPTrustManager tm = POPTrustManager.getInstance();
 			// server client challange
 			String challange = Util.generateRandomString(HANDSHAKE_CHALLANGE_SIZE);
 			LogWriter.writeDebugInfo(String.format("Creating challange: %s...", challange.substring(0, 10)));
@@ -334,20 +336,16 @@ public class ComboxSecureSocket extends Combox {
 			int size = ByteBuffer.wrap(sizeBytes).asIntBuffer().get();
 			byte[] answerBytes = new byte[size];
 			inputStream.read(answerBytes);
+			byte[] certHash = new byte[4];
+			inputStream.read(certHash);
+			int hash = ByteBuffer.wrap(certHash).asIntBuffer().get();
 
 			LogWriter.writeDebugInfo("Answer received, checking signature");
 			
 			Signature signer = Signature.getInstance("SHA256withRSA");
-			boolean signatureStatus = false;
-			// TODO find a better way to check certificates
-			for (Certificate c : tm.getAcceptedIssuers()) {
-				signer.initVerify(c);
-				signer.update(challange.getBytes());
-				signatureStatus = signer.verify(answerBytes);
-				if (signatureStatus) {
-					break;
-				}
-			}
+			signer.initVerify(POPTrustManager.getCertificate(hash));
+			signer.update(challange.getBytes());
+			boolean signatureStatus = signer.verify(answerBytes);
 
 			// can't verify, kill
 			if (!signatureStatus) {
