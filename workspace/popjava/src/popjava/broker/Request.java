@@ -21,7 +21,7 @@ public class Request {
 	
 	protected Broker broker;
 	protected POPBuffer buffer;
-	protected ComboxReceiveRequestSocket receivedCombox;
+	protected ComboxReceiveRequest receivedCombox;
 	protected Combox combox;	
 	protected int status;
 
@@ -157,7 +157,7 @@ public class Request {
 	 * Get the combox which received the request
 	 * @return combox which received the request
 	 */
-	public ComboxReceiveRequestSocket getReceiveCombox() {
+	public ComboxReceiveRequest getReceiveCombox() {
 		return receivedCombox;
 	}
 
@@ -165,7 +165,7 @@ public class Request {
 	 * Get the combox which received the request
 	 * @param combox Combox which received the request
 	 */
-	public void setReceiveCombox(ComboxReceiveRequestSocket combox) {
+	public void setReceiveCombox(ComboxReceiveRequest combox) {
 		receivedCombox = combox;
 	}
 

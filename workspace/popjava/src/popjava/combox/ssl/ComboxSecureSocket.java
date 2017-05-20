@@ -1,8 +1,8 @@
 package popjava.combox.ssl;
 
-import popjava.combox.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,7 +11,15 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.cert.Certificate;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
@@ -19,8 +27,10 @@ import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.Util;
 /**
  * This combox implement the protocol ssl
  */
@@ -32,6 +42,8 @@ public class ComboxSecureSocket extends Combox {
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
 	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024; //8MB
+	
+	private final int HANDSHAKE_CHALLANGE_SIZE = 256;
 
 	/**
 	 * Create a new combox on the given socket
@@ -43,6 +55,7 @@ public class ComboxSecureSocket extends Combox {
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
 		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
+		serverHandshake();
 	}
 
 	
@@ -119,6 +132,9 @@ public class ComboxSecureSocket extends Combox {
 					}
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
+					
+					clientHandhsake();
+					
 					available = true;
 				} catch (UnknownHostException e) {
 					available = false;
@@ -261,5 +277,87 @@ public class ComboxSecureSocket extends Combox {
 			return -1;
 		}
 	}
+	
+	private boolean clientHandhsake() {
+		try {
+			LogWriter.writeDebugInfo("Client waiting for challange");
+			// receive challange
+			byte[] challangeBytes = new byte[HANDSHAKE_CHALLANGE_SIZE];
+			inputStream.read(challangeBytes);
+			LogWriter.writeDebugInfo(String.format("Challange is: %s...", new String(challangeBytes, 0, 10)));
 
+			// load private key
+			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
+			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+			keyManagerFactory.init(keyStore, Configuration.TRUST_STORE_PK_PWD.toCharArray());
+			// private key
+			PrivateKey pk = (PrivateKey) keyStore.getKey(Configuration.TRUST_STORE_PK_ALIAS, Configuration.TRUST_STORE_PK_PWD.toCharArray());
+			Certificate ppk = keyStore.getCertificate(Configuration.TRUST_STORE_PK_ALIAS);
+
+			// sign challange
+			Signature signer = Signature.getInstance("SHA256withRSA");
+			signer.initSign(pk);
+			signer.update(challangeBytes);
+			byte[] answer = signer.sign();
+			
+			LogWriter.writeDebugInfo("Challange signed, sending answer");
+
+			// send answer
+			byte[] size = ByteBuffer.allocate(4).putInt(answer.length).array();
+			outputStream.write(size);
+			outputStream.write(answer);
+			outputStream.flush();
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean serverHandshake() {
+		try {
+			DoubleX509TrustManager tm = new DoubleX509TrustManager();
+			// server client challange
+			String challange = Util.generateRandomString(HANDSHAKE_CHALLANGE_SIZE);
+			LogWriter.writeDebugInfo(String.format("Creating challange: %s...", challange.substring(0, 10)));
+
+			// send challange
+			outputStream.write(challange.getBytes(Charset.defaultCharset()));
+			outputStream.flush();
+			
+			LogWriter.writeDebugInfo("Server waiting for answer");
+			
+			// receive answer
+			byte[] sizeBytes = new byte[4];
+			inputStream.read(sizeBytes);
+			int size = ByteBuffer.wrap(sizeBytes).asIntBuffer().get();
+			byte[] answerBytes = new byte[size];
+			inputStream.read(answerBytes);
+
+			LogWriter.writeDebugInfo("Answer received, checking signature");
+			
+			Signature signer = Signature.getInstance("SHA256withRSA");
+			boolean signatureStatus = false;
+			// TODO find a better way to check certificates
+			for (Certificate c : tm.getAcceptedIssuers()) {
+				signer.initVerify(c);
+				signer.update(challange.getBytes());
+				signatureStatus = signer.verify(answerBytes);
+				if (signatureStatus) {
+					break;
+				}
+			}
+
+			// can't verify, kill
+			if (!signatureStatus) {
+				throw new SSLHandshakeException("Nodes can't trust each other, signatures missmatch.");
+			}
+		} catch(Exception e) {
+			LogWriter.writeDebugInfo("Challange failed: " + e.getMessage());
+			return false;
+		}
+		LogWriter.writeDebugInfo("Challange answered successfully");
+		return true;
+	}
 }

@@ -1,17 +1,16 @@
 package popjava.combox.ssl;
 
 import java.io.FileInputStream;
-import popjava.combox.*;
 import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
 import popjava.util.Configuration;
 import java.net.*;
 import java.security.KeyStore;
-import java.util.Arrays;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
+import popjava.combox.ComboxServer;
 import popjava.util.LogWriter;
 
 /**
@@ -25,7 +24,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	protected ServerSocket serverSocket = null;
 
 	// we use the simple socker implementation of this since it beahve the same way
-	private ComboxAcceptSocket serverCombox = null;
+	private ComboxAcceptSecureSocket serverCombox = null;
 
 	/**
 	 * Default constructor. Create a new instance of a socket combox
@@ -75,7 +74,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 			
 			serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
 			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));
-			serverCombox = new ComboxAcceptSocket(broker, requestQueue, serverSocket);
+			serverCombox = new ComboxAcceptSecureSocket(broker, requestQueue, serverSocket);
 			serverCombox.setStatus(RUNNING);
 			Thread thread = new Thread(serverCombox, "Server combox acception thread");
 			thread.start();

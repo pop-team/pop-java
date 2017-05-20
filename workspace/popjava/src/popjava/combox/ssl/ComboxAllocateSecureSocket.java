@@ -1,7 +1,6 @@
 package popjava.combox.ssl;
 
 import java.io.FileInputStream;
-import popjava.combox.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -12,6 +11,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
 import popjava.buffer.POPBuffer;
+import popjava.combox.ComboxAllocate;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -24,7 +24,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	private static final int SOCKET_TIMEOUT_MS = 30000;
 	
 	protected ServerSocket serverSocket = null;	
-	private ComboxSocket combox = null;
+	private ComboxSecureSocket combox = null;
 	
 	/**
 	 * Create a new instance of the ComboxAllocateSocket
@@ -59,7 +59,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	public void startToAcceptOneConnection() {
 		try {
 			Socket peerConnection = serverSocket.accept();
-			combox = new ComboxSocket(peerConnection);
+			combox = new ComboxSecureSocket(peerConnection);
 		} catch (IOException e) {
 			e.printStackTrace();
 			LogWriter.writeExceptionLog(e);
