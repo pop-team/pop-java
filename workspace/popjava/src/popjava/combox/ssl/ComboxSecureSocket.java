@@ -24,6 +24,8 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
 import popjava.base.MessageHeader;
+import popjava.base.POPErrorCode;
+import popjava.base.POPException;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
@@ -55,7 +57,12 @@ public class ComboxSecureSocket extends Combox {
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
 		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
-		serverHandshake();
+		boolean status = serverHandshake();
+		
+		// kill connection if handshake fail
+		if (!status) {
+			throw new POPException(POPErrorCode.USER_DEFINE_ERROR + 30, "Handshake failed, unknow client.");
+		}
 	}
 
 	

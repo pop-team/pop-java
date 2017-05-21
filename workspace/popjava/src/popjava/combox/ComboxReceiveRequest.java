@@ -1,7 +1,6 @@
 package popjava.combox;
 
 import java.io.IOException;
-import java.net.Socket;
 
 import popjava.base.MessageHeader;
 import popjava.broker.Broker;
