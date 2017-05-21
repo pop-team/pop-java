@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -167,23 +168,20 @@ public class POPTrustManager implements X509TrustManager {
 
 	public static void addCertToTempStore(byte[] certificate) {
 		try {
-			// save temporary certificate
-			File tmpCert = File.createTempFile("popcert", ".cer");
-			Files.write(tmpCert.toPath(), certificate);
-			
 			// load it
-			Certificate cert = instance.certFactory.generateCertificate(new FileInputStream(tmpCert));
+			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
+			Certificate cert = instance.certFactory.generateCertificate(fi);
+			fi.close();
 			
 			// stop if already loaded
 			if (instance.loadedCertificates.containsKey(cert.hashCode())) {
-				tmpCert.delete();
 				return;
 			}
 			
 			// certificates temprary path
 			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, cert.hashCode() + ".cer");
 			// move to local directory
-			Files.move(tmpCert.toPath(), path);
+			Files.write(path, certificate);
 		} catch (Exception ex) {
 			
 		}
