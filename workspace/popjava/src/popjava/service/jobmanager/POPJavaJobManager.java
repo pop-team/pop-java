@@ -174,8 +174,9 @@ public class POPJavaJobManager extends POPJobService {
 						POPNetwork network = new POPNetwork(networkName, this, other);
 						
 						// put as last added network
-						if (!networkName.equals(lastNetwork))
+						if (!networkName.equals(lastNetwork)) {
 							lastNetwork = networkName;
+						}
 						
 						// set as default network the first network
 						// or change it if other tell us it's the default network
@@ -342,21 +343,24 @@ public class POPJavaJobManager extends POPJobService {
 			// get network from od
 			String networkString = od.getNetwork();
 			// use default if not set
-			if (networkString.isEmpty())
+			if (networkString.isEmpty()) {
 				networkString = defaultNetwork.getName();
+			}
 			// get real network
 			POPNetwork network = networks.get(networkString);
 
 			// throw exception if no network is found
-			if (network == null)
+			if (network == null) {
 				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
+			}
 
 			// get the job manager connector specified in the od
 			Class connectorClass = POPConnectorFactory.getConnectorClass(od.getConnector());
 			POPConnectorBase connectorImpl = network.getConnector(connectorClass);
 
-			if (connectorImpl == null)
+			if (connectorImpl == null) {
 				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
+			}
 
 			// call the protocol specific createObject
 			return connectorImpl.createObject(localservice, objname, od, howmany, objcontacts, howmany2, remotejobcontacts);
@@ -461,11 +465,13 @@ public class POPJavaJobManager extends POPJobService {
 			// check reservation
 			AppResource app = jobs.get(id);
 			// no resource in jobs list
-			if (app == null)
+			if (app == null) {
 				return null;
+			}
 			// resource already in use
-			if (app.isUsed())
+			if (app.isUsed()) {
 				return null;
+			}
 			// no problem with the reservation
 			app.setAccessTime(System.currentTimeMillis());
 			app.setUsed(true);
@@ -487,8 +493,9 @@ public class POPJavaJobManager extends POPJobService {
 	public int reserve(@POPParameter(Direction.IN) ObjectDescription od, @POPParameter(Direction.INOUT) POPMutableFloat iofitness, String popAppId, String reqID) {
 		//update();
 		
-		if (jobs.size() >= maxJobs)
+		if (jobs.size() >= maxJobs) {
 			return 0;
+		}
 		
 		Resource weighted = new Resource();
 		float fitness = 1f;
@@ -601,8 +608,9 @@ public class POPJavaJobManager extends POPJobService {
 				resource = jobs.remove(reqId);
 
 				// skip next step if resource is not in job queue
-				if (resource == null)
+				if (resource == null) {
 					continue;
+				}
 
 				// free JM resource
 				available.add(resource);
@@ -630,8 +638,9 @@ public class POPJavaJobManager extends POPJobService {
 			dumpFile = new File(f);
 		} while (dumpFile.exists());
 		// see if we can write there
-		if (!dumpFile.canWrite())
+		if (!dumpFile.canWrite()) {
 			dumpFile = new File("JobMgr." + idx);
+		}
 		if (!dumpFile.canWrite()) {
 			LogWriter.writeDebugInfo("[JM] No writable dump location found");
 			return;
@@ -732,8 +741,9 @@ public class POPJavaJobManager extends POPJobService {
 		
 		// other cases
 		List<String> vals = nodeExtra.get(type);
-		if (vals == null)
+		if (vals == null) {
 			return false;
+		}
 		// we can have a list of it
 		StringBuilder sb = new StringBuilder();
 		vals.forEach((s) -> sb.append(s + "\n"));
@@ -806,8 +816,9 @@ public class POPJavaJobManager extends POPJobService {
 		try {
 			// check if exists already
 			POPNetwork network = networks.get(name);
-			if (network != null)
+			if (network != null) {
 				return true;
+			}
 
 			// create the new network
 			POPNetwork newNetwork = new POPNetwork(name, this, params);
@@ -906,8 +917,9 @@ public class POPJavaJobManager extends POPJobService {
 	@POPAsyncConc
 	public void update() {
 		// don't update if too close to last one
-		if (System.currentTimeMillis() < nextUpdate)
+		if (System.currentTimeMillis() < nextUpdate) {
 			return;
+		}
 		
 		try {
 			mutex.lock();
@@ -987,7 +999,7 @@ public class POPJavaJobManager extends POPJobService {
 	
 	
 	////
-	// Utility
+	//		Utility
 	////
 	private final Semaphore stayAlive = new Semaphore(0);
 	/**
@@ -1093,12 +1105,14 @@ public class POPJavaJobManager extends POPJobService {
 			POPNetwork network = networks.get(request.getNetworkName());
 
 			// do nothing if we don't have the network
-			if (network == null)
+			if (network == null) {
 				return;
+			}
 
 			// decrease the hop we can still do
-			if (request.getRemainingHops() != Configuration.UNLIMITED_HOPS)
+			if (request.getRemainingHops() != Configuration.UNLIMITED_HOPS) {
 				request.decreaseHopLimit();
+			}
 			
 			// add all network neighbors to explorations list
 			for (POPNetworkNode node : network.getMembers(POPConnectorJobManager.class)) {
@@ -1141,8 +1155,9 @@ public class POPJavaJobManager extends POPJobService {
 			// check if request was already parsed once
 			// TODO ?? POPC also remove the current node from the sender since it's already reachable.
 			//         This may not a good solution in our case with multiple networks.
-			if (SNKnownRequests.contains(request.getUID()))
+			if (SNKnownRequests.contains(request.getUID())) {
 				return;
+			}
 			// add it if not, at the beginning to find it more easily 
 			SNKnownRequests.push(request.getUID());
 
@@ -1192,8 +1207,9 @@ public class POPJavaJobManager extends POPJobService {
 			// the result node is stored in the SNNodes
 			SNNodesInfo.Node result = response.getResultNode();
 			SNNodesInfo nodes = SNActualRequets.get(response.getUID());
-			if (nodes == null)
+			if (nodes == null) {
 				return;
+			}
 			// add the node
 			nodes.add(result);
 			
