@@ -37,14 +37,16 @@ public class POPNetwork {
 		return connectors.values().toArray(new POPConnectorBase[0]);
 	}
 	
-	public POPConnectorBase getConnector(Class connector){
-		return connectors.get(connector);
+	@SuppressWarnings("unchecked")
+	public<T extends POPConnectorBase> T getConnector(Class<T> connector){
+		return (T)connectors.get(connector);
 	}
 
 	public int size() {
 		int size = 0;
-		for (List<POPNetworkNode> l : members.values())
+		for (List<POPNetworkNode> l : members.values()) {
 			size += l.size();
+		}
 		return size;
 	}
 
@@ -57,8 +59,9 @@ public class POPNetwork {
 	@SuppressWarnings("unchecked")
 	public<T extends POPNetworkNode> List<T> getMembers(Class<? extends POPConnectorBase> connector) {
 		List<POPNetworkNode> nodes = members.get(connector);
-		if (nodes == null)
+		if (nodes == null) {
 			return new ArrayList<>();
+		}
 		return (List<T>) new ArrayList(nodes);
 	}
 
@@ -83,10 +86,12 @@ public class POPNetwork {
 			m = new ArrayList<>();
 			members.put(e.getConnectorClass(), m);
 		}
-		if (m.contains(e))
+		if (m.contains(e)) {
 			return true;
-		if (c.isValidNode(e))
+		}
+		if (c.isValidNode(e)) {
 			return m.add(e);
+		}
 		return false;
 	}
 
@@ -98,12 +103,14 @@ public class POPNetwork {
 	public boolean remove(POPNetworkNode o) {
 		// connector
 		POPConnectorBase c = connectors.get(o.getConnectorClass());
-		if (c == null)
+		if (c == null) {
 			return false;
+		}
 		// members
 		List<POPNetworkNode> mem = members.get(c.getClass());
-		if (mem == null)
+		if (mem == null) {
 			return false;
+		}
 		return mem.remove(o);
 	}
 
