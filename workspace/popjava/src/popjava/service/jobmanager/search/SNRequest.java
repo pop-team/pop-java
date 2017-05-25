@@ -3,6 +3,8 @@ package popjava.service.jobmanager.search;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.Resource;
@@ -25,17 +27,20 @@ public class SNRequest implements IPOPBase {
 	private SNWayback wayback;
 	
 	private String network;
+	private String connector;
 	
 	private boolean endRequest = false;
 	private int hops = Integer.MAX_VALUE;
 	private int popAppId;
 	
 	private byte[] publicCertificate = new byte[0];
+	
+	private Map<String,String> customParams = new HashMap<>();
 
 	public SNRequest() {
 	}
 	
-	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network) {
+	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network, String connector) {
 		this.requestId = nodeId;
 		this.os = POPSystem.getPlatform();
 		this.minResource = minResource;
@@ -43,6 +48,7 @@ public class SNRequest implements IPOPBase {
 		this.explorationNodes = new SNExploration();
 		this.wayback = new SNWayback();
 		this.network = network;
+		this.connector = connector;
 		
 		File cert = new File(Configuration.PUBLIC_CERTIFICATE);
 		if (cert.exists()) {
@@ -113,6 +119,18 @@ public class SNRequest implements IPOPBase {
 	public byte[] getPublicCertificate() {
 		return publicCertificate;
 	}
+
+	public String getConnector() {
+		return connector;
+	}
+	
+	public void setValue(String key, String value) {
+		customParams.put(key, value);
+	}
+	
+	public String getValue(String key) {
+		return customParams.get(key);
+	}
 	
 	@Override
 	public boolean serialize(POPBuffer buffer) {
@@ -127,6 +145,14 @@ public class SNRequest implements IPOPBase {
 		buffer.putInt(hops);
 		buffer.putInt(popAppId);
 		buffer.putByteArray(publicCertificate);
+		buffer.putString(connector);
+		buffer.putInt(customParams.size());
+		for (Map.Entry<String, String> entry : customParams.entrySet()) {
+			String key = entry.getKey();
+			String value = entry.getValue();
+			buffer.putString(key);
+			buffer.putString(value);
+		}
 		return true;
 	}
 
@@ -144,6 +170,11 @@ public class SNRequest implements IPOPBase {
 		popAppId = buffer.getInt();
 		int buffSize = buffer.getInt();
 		publicCertificate = buffer.getByteArray(buffSize);
+		connector = buffer.getString();
+		int mapSize = buffer.getInt();
+		for (int i = 0; i < mapSize; i++) {
+			customParams.put(buffer.getString(), buffer.getString());
+		}
 		return true;
 	}
 	

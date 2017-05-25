@@ -2,7 +2,9 @@ package popjava.service.jobmanager.search;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
@@ -70,6 +72,7 @@ public class SNNodesInfo implements IPOPBase {
 		private POPAccessPoint jobManager;
 		private String os;
 		private Resource resources;
+		private Map<String,String> customParams = new HashMap<>();
 
 		public Node() {
 		}
@@ -112,6 +115,14 @@ public class SNNodesInfo implements IPOPBase {
 		public void setResources(Resource resources) {
 			this.resources = resources;
 		}
+	
+		public void setValue(String key, String value) {
+			customParams.put(key, value);
+		}
+
+		public String getValue(String key) {
+			return customParams.get(key);
+		}
 
 		@Override
 		public boolean serialize(POPBuffer buffer) {
@@ -119,6 +130,13 @@ public class SNNodesInfo implements IPOPBase {
 			buffer.putValue(jobManager, POPAccessPoint.class);
 			buffer.putString(os);
 			buffer.putValue(resources, Resource.class);
+			buffer.putInt(customParams.size());
+			for (Map.Entry<String, String> entry : customParams.entrySet()) {
+				String key = entry.getKey();
+				String value = entry.getValue();
+				buffer.putString(key);
+				buffer.putString(value);
+			}
 			return true;
 		}
 
@@ -128,6 +146,10 @@ public class SNNodesInfo implements IPOPBase {
 			jobManager = (POPAccessPoint) buffer.getValue(POPAccessPoint.class);
 			os = buffer.getString();
 			resources = (Resource) buffer.getValue(Resource.class);
+			int mapSize = buffer.getInt();
+			for (int i = 0; i < mapSize; i++) {
+				customParams.put(buffer.getString(), buffer.getString());
+			}
 			return true;
 		}
 	}

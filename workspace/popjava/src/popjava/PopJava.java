@@ -1,12 +1,17 @@
 package popjava;
 
+import java.util.Arrays;
 import javassist.util.proxy.ProxyObject;
 import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
+import popjava.combox.ComboxFactoryFinder;
 import popjava.interfacebase.Interface;
+import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.service.jobmanager.connector.POPConnectorTFC;
+import popjava.serviceadapter.POPJobManager;
 import popjava.system.POPSystem;
 
 /**
@@ -80,6 +85,92 @@ public class PopJava {
 	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T)factoryProxy.newActiveFromBuffer(buffer);
+	}
+	
+	/**
+	 * Return multiple an array of T
+	 * @param targetClass The class we are looking for remotely
+	 * @param instances How many instances we would like to fill
+	 * @param od Parameters for the research, mainly the network we want to look into
+	 * @return The actual number of instances available in the the instances array
+	 */
+	public static int newTFCSearch(Class targetClass, POPAccessPoint[] instances, ObjectDescription od) {
+		POPSystem.start();
+		// we ARE in a TFC environment
+		od.setConnector(POPConnectorTFC.IDENTITY);
+		
+		// we must specify a network
+		if (od.getNetwork().isEmpty()) {
+			return 0;
+		}
+		// we must ask for at least one instance
+		if (instances == null || instances.length == 0) {
+			return 0;
+		}
+		
+		// fill with something if value is null
+		for (int i = 0; i < instances.length; i++) {
+			if (instances[i] == null) {
+				instances[i] = new POPAccessPoint();
+			}
+		}
+		
+		// connect to local job manager
+		POPJavaJobManager jm = getLocalJobManager();
+		
+		// we use create object in combination with a TFC connector
+		// this will get us a varing number of access points registered on the network
+		jm.createObject(POPSystem.appServiceAccessPoint, targetClass.getName(), od, instances.length, instances, 0, new POPAccessPoint[0]);
+		jm.exit();
+		
+		// 
+		Arrays.sort(instances, (a, b) -> a.isEmpty() ? 1 : -1);
+		return (int) Arrays.asList(instances).stream().filter(t -> !t.isEmpty()).count();
+	}
+	
+	/**
+	 * Register a POPObject and make it available for discovery in a network
+	 * @param object
+	 * @param tfcNetwork
+	 * @param secret
+	 * @return 
+	 */
+	public static boolean registerTFC(Object object, String tfcNetwork, String secret) {
+	    if(object instanceof POPObject){
+	        POPObject temp = (POPObject) object;
+			POPJavaJobManager jm = getLocalJobManager();
+			boolean status = jm.registerTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
+			jm.exit();
+			return status;
+		}
+		return false;
+	}
+	
+	/**
+	 * Unregister a POPObject from the local JobManager
+	 * @param object
+	 * @param tfcNetwork
+	 * @param secret 
+	 */
+	public static void unregisterTFC(Object object, String tfcNetwork, String secret) {
+	    if(object instanceof POPObject){
+	        POPObject temp = (POPObject) object;
+			POPJavaJobManager jm = getLocalJobManager();
+			jm.unregisterTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
+			jm.exit();
+		}
+	}
+	
+	/**
+	 * Open a connection to the local JobManager, this connection need to be closed with a call to .exit()
+	 * @return 
+	 */
+	private static POPJavaJobManager getLocalJobManager() {
+		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", 
+				finder.get(0).getComboxName(), POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
+		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);
+		return jm;
 	}
 	
 	public static POPAccessPoint getAccessPoint(Object object){

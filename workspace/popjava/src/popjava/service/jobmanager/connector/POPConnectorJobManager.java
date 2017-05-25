@@ -5,6 +5,7 @@ import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
@@ -12,8 +13,12 @@ import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.network.NodeJobManager;
+import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
+import popjava.service.jobmanager.search.SNResponse;
+import popjava.service.jobmanager.search.SNWayback;
+import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
@@ -22,7 +27,7 @@ import popjava.util.Util;
  *
  * @author Davide Mazzoleni
  */
-public class POPConnectorJobManager extends POPConnectorBase {
+public class POPConnectorJobManager extends POPConnectorBase implements POPConnectorSearchNodeInterface {
 	
 	public static final String IDENTITY = "jobmanager";
 	
@@ -47,7 +52,7 @@ public class POPConnectorJobManager extends POPConnectorBase {
 		}*/
 		
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName());
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName(), IDENTITY);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {
@@ -117,7 +122,7 @@ public class POPConnectorJobManager extends POPConnectorBase {
 					int[] localRIDs = { resIDs[i] };
 					POPAccessPoint[] localObjContact = { objcontacts[i] };
 					int status = jm.execObj(pobjname, 1, localRIDs, localservice.toString(), localObjContact);
-					// forse set return
+					// force set return
 					objcontacts[i] = localObjContact[0];
 					started++;
 					// failed, free resources
@@ -164,5 +169,25 @@ public class POPConnectorJobManager extends POPConnectorBase {
 		return node instanceof NodeJobManager && ((NodeJobManager)node).isInitialized();
 	}
 
-	
+	@Override
+	public void askResourcesDiscoveryAction(SNRequest request, POPAccessPoint sender, SNExploration oldExplorationList) {
+		// check local resource
+		Resource available = jobManager.getAvailableResources();
+		
+		// check local available resources to see if we can handle the request to the requester
+		if (available.canHandle(request.getResourceNeeded()) ||
+				available.canHandle(request.getMinResourceNeeded())) {
+			// build response and give it back to the original sender
+			SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(), POPSystem.getPlatform(), available);
+			SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
+
+			// if we want to answer we save the certificate if there is any
+			if (request.getPublicCertificate().length > 0) {
+				POPTrustManager.addCertToTempStore(request.getPublicCertificate());
+			}
+
+			// route response to the original JM
+			jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));
+		}
+	}
 }

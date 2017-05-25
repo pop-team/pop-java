@@ -12,6 +12,7 @@ public class POPConnectorFactory {
 			// network and job manager are passed manually afterwards
 			case POPConnectorJobManager.IDENTITY: return new POPConnectorJobManager();
 			case POPConnectorDirect.IDENTITY: return new POPConnectorDirect();
+			case POPConnectorTFC.IDENTITY: return new POPConnectorTFC();
 			default: // TODO look for other classes or factory with reflection
 				return null;
 		}
@@ -21,6 +22,7 @@ public class POPConnectorFactory {
 			// network and job manager are passed manually afterwards
 			case POPConnectorJobManager.IDENTITY: return POPConnectorJobManager.class;
 			case POPConnectorDirect.IDENTITY: return POPConnectorDirect.class;
+			case POPConnectorTFC.IDENTITY: return POPConnectorTFC.class;
 			default: // TODO look for other classes or factory with reflection
 				return null;
 		}

@@ -23,6 +23,7 @@ public class Configuration {
 	public static final int SELF_REGISTER_INTERVAL = 43200_000;
 	public static final int UNLOCK_TIMEOUT = 10000;
 	public static final int SEARCH_TIMEOUT = 0;
+	public static final int TFC_SEARCH_TIMEOUT = 5000;
 	public static final int UNLIMITED_HOPS = Integer.MAX_VALUE;
 	public static final int MAXREQTOSAVE = 300;
 	public static final String DEFAULT_JOBMANAGER_CONNECTOR = POPConnectorJobManager.IDENTITY;

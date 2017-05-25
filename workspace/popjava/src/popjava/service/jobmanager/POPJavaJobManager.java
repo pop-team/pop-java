@@ -45,11 +45,14 @@ import popjava.service.jobmanager.network.POPNetworkNodeFactory;
 import popjava.service.jobmanager.connector.POPConnectorBase;
 import popjava.service.jobmanager.connector.POPConnectorFactory;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
+import popjava.service.jobmanager.connector.POPConnectorSearchNodeInterface;
+import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
 import popjava.service.jobmanager.search.SNResponse;
 import popjava.service.jobmanager.search.SNWayback;
+import popjava.service.jobmanager.tfc.TFCResource;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPJavaConfiguration;
@@ -572,7 +575,7 @@ public class POPJavaJobManager extends POPJobService {
 			app.setReqId(reqID);
 			app.setNetwork(od.getNetwork());
 			// reservation time
-			app.setAccessTime(System.currentTimeMillis());
+			app.setAccessTime(System.currentTimeMillis() + Configuration.ALLOC_TIMEOUT);
 
 			// add job
 			jobs.put(app.getId(), app);
@@ -973,7 +976,7 @@ public class POPJavaJobManager extends POPJobService {
 	public void applicationEnd(int popAppId, boolean initiator) {
 		AppResource res = jobs.get(popAppId);
 		if (initiator && res != null) {
-			SNRequest r = new SNRequest(Util.generateUUID(), null, null, res.getNetwork());
+			SNRequest r = new SNRequest(Util.generateUUID(), null, null, res.getNetwork(), POPConnectorJobManager.IDENTITY);
 			r.setAsEndRequest();
 			r.setPOPAppId(popAppId);
 			
@@ -1007,6 +1010,66 @@ public class POPJavaJobManager extends POPJobService {
 	protected void finalize() throws Throwable {
 		stayAlive.release(Integer.MAX_VALUE);
 		super.finalize();
+	}
+	
+	
+	
+	////
+	//		TFC
+	////
+	/**
+	 * Register a new object that will be available for connection over TFC
+	 * @param networkName The network that will contain the object
+	 * @param objectName The class of the object
+	 * @param accessPoint Where to find the object on the machine
+	 * @param secret A secret to remove the object
+	 * @return true if we could add the object successfully
+	 */
+	@POPSyncConc
+	public boolean registerTFCObject(String networkName, String objectName, POPAccessPoint accessPoint, String secret) {
+		// get registerer network
+		POPNetwork network = networks.get(networkName);
+		if (network == null) {
+			return false;
+		}
+		
+		// get network's TFC connector to add the object
+		POPConnectorTFC tfc = network.getConnector(POPConnectorTFC.class);
+		if (tfc == null) {
+			return false;
+		}
+		
+		// create resource
+		TFCResource resource = new TFCResource(objectName, accessPoint, secret);
+		// register resource with the connector
+		return tfc.registerObject(resource);
+	}
+	
+	/**
+	 * Register a new object that will be available for connection over TFC
+	 * @param networkName The network that will contain the object
+	 * @param objectName The class of the object
+	 * @param accessPoint Where to find the object on the machine
+	 * @param secret A secret to remove the object
+	 */
+	@POPSyncConc
+	public void unregisterTFCObject(String networkName, String objectName, POPAccessPoint accessPoint, String secret) {
+		// get registerer network
+		POPNetwork network = networks.get(networkName);
+		if (network == null) {
+			return;
+		}
+		
+		// get network's TFC connector to add the object
+		POPConnectorTFC tfc = network.getConnector(POPConnectorTFC.class);
+		if (tfc == null) {
+			return;
+		}
+		
+		// create resource
+		TFCResource resource = new TFCResource(objectName, accessPoint, secret);
+		// unregister resource with the connector
+		tfc.unregisterObject(resource);
 	}
 	
 	
@@ -1094,15 +1157,26 @@ public class POPJavaJobManager extends POPJobService {
 			POPNetwork network = networks.get(request.getNetworkName());
 
 			// do nothing if we don't have the network
-			if (network == null)
+			if (network == null) {
 				return;
+			}
 
 			// decrease the hop we can still do
-			if (request.getRemainingHops() != Configuration.UNLIMITED_HOPS)
+			if (request.getRemainingHops() != Configuration.UNLIMITED_HOPS) {
 				request.decreaseHopLimit();
+			}
+			
+			// connector we are using
+			Class<? extends POPConnectorBase> connectorUsed = POPConnectorFactory.getConnectorClass(request.getConnector());
+			POPConnectorBase connector = network.getConnector(connectorUsed);
+			
+			// connector won't work with the SearchNode
+			if (!(connector instanceof POPConnectorSearchNodeInterface)) {
+				return;
+			}
 			
 			// add all network neighbors to explorations list
-			for (POPNetworkNode node : network.getMembers(POPConnectorJobManager.class)) {
+			for (POPNetworkNode node : network.getMembers(connectorUsed)) {
 				// only JM items and children
 				if (node instanceof NodeJobManager) {
 					NodeJobManager jmNode = (NodeJobManager) node;
@@ -1111,12 +1185,13 @@ public class POPJavaJobManager extends POPJobService {
 				}
 			}
 			
+			// XXX not currently in use
 			// used to kill the application from all JMs
 			if (request.isEndRequest()) {
 				// check if we can continue discovering
 				if (request.getRemainingHops() >= 0 || request.getRemainingHops() == Configuration.UNLIMITED_HOPS) {
 					// propagate to all neighbors
-					for (POPNetworkNode node : network.getMembers(POPConnectorJobManager.class)) {
+					for (POPNetworkNode node : network.getMembers(connectorUsed)) {
 						// only JM items and children
 						if (node instanceof NodeJobManager) {
 							NodeJobManager jmNode = (NodeJobManager) node;
@@ -1142,8 +1217,9 @@ public class POPJavaJobManager extends POPJobService {
 			// check if request was already parsed once
 			// TODO ?? POPC also remove the current node from the sender since it's already reachable.
 			//         This may not a good solution in our case with multiple networks.
-			if (SNKnownRequests.contains(request.getUID()))
+			if (SNKnownRequests.contains(request.getUID())) {
 				return;
+			}
 			// add it if not, at the beginning to find it more easily 
 			SNKnownRequests.push(request.getUID());
 
@@ -1152,28 +1228,16 @@ public class POPJavaJobManager extends POPJobService {
 				SNKnownRequests.pollLast();
 			}
 
-			// check local available resources to see if we can handle the request to the requester
-			if (available.canHandle(request.getResourceNeeded()) ||
-					available.canHandle(request.getMinResourceNeeded())) {
-				// build response and give it back to the original sender
-				SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(nodeId, getAccessPoint(), POPSystem.getPlatform(), available);
-				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
-
-				// if we want to answer we save the certificate if there is any
-				if (request.getPublicCertificate().length > 0) {
-					POPTrustManager.addCertToTempStore(request.getPublicCertificate());
-				}
-				
-				// route response to the original JM
-				rerouteResponse(response, new SNWayback(request.getWayback()));
-			}
+			// use the connector specific action to answer
+			POPConnectorSearchNodeInterface snConnector = (POPConnectorSearchNodeInterface) connector;
+			snConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
 			
 			// propagate in the network if we still can
 			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == Configuration.UNLIMITED_HOPS) {
 				// add current node do wayback
 				request.getWayback().push(getAccessPoint());
 				// request to all members of the network
-				for (POPNetworkNode node : network.getMembers(POPConnectorJobManager.class)) {
+				for (POPNetworkNode node : network.getMembers(connectorUsed)) {
 					if (node instanceof NodeJobManager) {
 						NodeJobManager jmNode = (NodeJobManager) node;
 						// contact if it's a new node
@@ -1198,8 +1262,9 @@ public class POPJavaJobManager extends POPJobService {
 			// the result node is stored in the SNNodes
 			SNNodesInfo.Node result = response.getResultNode();
 			SNNodesInfo nodes = SNActualRequets.get(response.getUID());
-			if (nodes == null)
+			if (nodes == null) {
 				return;
+			}
 			// add the node
 			nodes.add(result);
 			
