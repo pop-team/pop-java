@@ -72,7 +72,10 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 		// set return access points
 		for (int i = 0; i < howmany && i < remoteJobMngs.size(); i++) {
 			if (objcontacts[i] != null) {
-				objcontacts[i].setAccessString(remoteJobMngs.get(i).getJobManager().toString());
+				String objAP = remoteJobMngs.get(i).getValue(TFC_RES_ACCESS_POINT);
+				if (objAP != null && !objAP.isEmpty()) {
+					objcontacts[i].setAccessString(objAP);
+				}
 			}
 		}
 		
