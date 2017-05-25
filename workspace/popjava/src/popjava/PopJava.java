@@ -1,5 +1,6 @@
 package popjava;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import javassist.util.proxy.ProxyObject;
 import popjava.base.POPException;
@@ -88,31 +89,30 @@ public class PopJava {
 	}
 	
 	/**
-	 * Return multiple an array of T
+	 * Search a live object in the network
 	 * @param targetClass The class we are looking for remotely
-	 * @param instances How many instances we would like to fill
+	 * @param maxInstances The maximal number of instances we would like
 	 * @param od Parameters for the research, mainly the network we want to look into
-	 * @return The actual number of instances available in the the instances array
+	 * @return An array with all the 
 	 */
-	public static int newTFCSearch(Class targetClass, POPAccessPoint[] instances, ObjectDescription od) {
+	public static POPAccessPoint[] newTFCSearch(Class targetClass, int maxInstances, ObjectDescription od) {
 		POPSystem.start();
 		// we ARE in a TFC environment
 		od.setConnector(POPConnectorTFC.IDENTITY);
 		
 		// we must specify a network
 		if (od.getNetwork().isEmpty()) {
-			return 0;
+			return new POPAccessPoint[0];
 		}
 		// we must ask for at least one instance
-		if (instances == null || instances.length == 0) {
-			return 0;
+		if (maxInstances == 0) {
+			return new POPAccessPoint[0];
 		}
 		
-		// fill with something if value is null
-		for (int i = 0; i < instances.length; i++) {
-			if (instances[i] == null) {
-				instances[i] = new POPAccessPoint();
-			}
+		// create and fill array of AccesPoints
+		POPAccessPoint[] instances = new POPAccessPoint[maxInstances];
+		for (int i = 0; i < maxInstances; i++) {
+			instances[i] = new POPAccessPoint();
 		}
 		
 		// connect to local job manager
@@ -124,8 +124,9 @@ public class PopJava {
 		jm.exit();
 		
 		// 
-		Arrays.sort(instances, (a, b) -> a.isEmpty() ? 1 : -1);
-		return (int) Arrays.asList(instances).stream().filter(t -> !t.isEmpty()).count();
+		return Arrays.asList(instances).stream()
+				.filter(t -> !t.isEmpty())
+				.toArray(size -> new POPAccessPoint[size]);
 	}
 	
 	/**
