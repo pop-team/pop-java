@@ -14,6 +14,7 @@ import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.serviceadapter.POPJobManager;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 
 /**
  * 
@@ -168,8 +169,9 @@ public class PopJava {
 	 */
 	private static POPJavaJobManager getLocalJobManager() {
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+		String protocol = Configuration.DEFAULT_PROTOCOL;
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", 
-				finder.get(0).getComboxName(), POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
+				protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
 		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);
 		return jm;
 	}
