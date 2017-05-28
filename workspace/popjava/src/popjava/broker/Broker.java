@@ -44,7 +44,9 @@ import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.combox.ComboxServer;
 import popjava.javaagent.POPJavaAgent;
+import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 
@@ -783,6 +785,30 @@ public final class Broker {
 		buffer = new BufferXDR();
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 		int comboxCount = finder.getFactoryCount();
+		
+		// TODO this is a temporary solution!
+		// if POPJavaJobManager baypass
+		if (popInfo != null && popInfo.getClassName().equals(POPJavaJobManager.class.getName())) {
+			comboxServers = new ComboxServer[1];
+			ComboxFactory factory = finder.findFactory(Configuration.DEFAULT_PROTOCOL);
+			String protocol = factory.getComboxName();
+			String port = Util.removeStringFromList(argvs, String.format("-%s_port=", protocol));
+			int iPort = 0;
+			if (port != null && port.length() > 0) {
+				try {
+					iPort = Integer.parseInt(port);
+				} catch (NumberFormatException e) {
+
+				}
+			}
+			AccessPoint ap = new AccessPoint(protocol, POPSystem.getHostIP(), iPort);
+			accessPoint.addAccessPoint(ap);
+			
+			comboxServers[0] = factory.createServerCombox(ap, buffer, this);
+			
+			return true;
+		}
+		
 		comboxServers = new ComboxServer[comboxCount];
 		for (int i = 0; i < comboxCount; i++) {
 			ComboxFactory factory = finder.get(i);

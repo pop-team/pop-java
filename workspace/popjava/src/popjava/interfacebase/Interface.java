@@ -17,6 +17,7 @@ import popjava.base.MessageHeader;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.base.Semantic;
+import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
@@ -227,8 +228,9 @@ public class Interface {
 
         if (jobContact.isEmpty()) {
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+			String protocol = Configuration.DEFAULT_PROTOCOL;
 			jobContact.setAccessString(String.format("%s://%s:%d", 
-				finder.get(0).getComboxName(), POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
+				protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
         }
 
         POPJobService jobManager = null;
