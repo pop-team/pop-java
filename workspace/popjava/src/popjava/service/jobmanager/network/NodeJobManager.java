@@ -32,11 +32,16 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 		// get potential params
 		host = Util.removeStringFromList(params, "host=");
 		String portString = Util.removeStringFromList(params, "port=");
+		String protocol= Util.removeStringFromList(params, "protocol=");
 		
 		// stop if we have no host
 		if (host == null) {
 			initialized = false;
 			return;
+		}
+		
+		if (protocol == null) {
+			protocol = Configuration.DEFAULT_PROTOCOL;
 		}
 		
 		// some sane defaults
@@ -51,7 +56,7 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 		}
 		
 		// set access point
-		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", Configuration.DEFAULT_PROTOCOL, host, port));
+		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
 	}
 
 	public POPAccessPoint getJobManagerAccessPoint() {
