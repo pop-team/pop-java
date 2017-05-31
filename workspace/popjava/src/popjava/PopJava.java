@@ -1,7 +1,9 @@
 package popjava;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javassist.util.proxy.ProxyObject;
 import popjava.base.POPException;
 import popjava.base.POPObject;
@@ -124,10 +126,14 @@ public class PopJava {
 		jm.createObject(POPSystem.appServiceAccessPoint, targetClass.getName(), od, instances.length, instances, 0, new POPAccessPoint[0]);
 		jm.exit();
 		
-		// 
-		return Arrays.asList(instances).stream()
-				.filter(t -> !t.isEmpty())
-				.toArray(size -> new POPAccessPoint[size]);
+		// return only active access points
+		List<POPAccessPoint> actives = new ArrayList<>();
+		for (POPAccessPoint instance : instances) {
+			if (!instance.isEmpty()) {
+				actives.add(instance);
+			}
+		}
+		return actives.toArray(new POPAccessPoint[actives.size()]);
 	}
 	
 	/**
