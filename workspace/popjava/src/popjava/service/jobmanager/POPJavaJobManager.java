@@ -644,7 +644,10 @@ public class POPJavaJobManager extends POPJobService {
 		// write to file
 		try (PrintStream out = new PrintStream(dumpFile)){
 			out.println("[networks]");
-			networks.forEach((k,net) -> {
+			for (Map.Entry<String, POPNetwork> entry : networks.entrySet()) {
+				String k = entry.getKey();
+				POPNetwork net = entry.getValue();
+				
 				POPConnectorBase[] connectors = net.getConnectors();
 				out.println(String.format("[%s]", net.getName()));
 				out.println(String.format("connectors=%s", Arrays.toString(connectors)));
@@ -652,17 +655,19 @@ public class POPJavaJobManager extends POPJobService {
 				out.println(String.format("[%s.nodes]", net.getName()));
 				for (POPConnectorBase node : connectors) {
 					out.print(String.format("node=%s", node.toString()));
-				};
-			});
+				}
+			}
 			out.println("[config]");
 			out.println(String.format("power=%f", available.getFlops()));
 			out.println(String.format("memory=%f", available.getMemory()));
 			out.println(String.format("bandwidth=%f", available.getBandwidth()));
 			out.println(String.format("maxjobs=%d", maxJobs));
 			out.println("[extra]");
-			nodeExtra.forEach((k,v) -> {
+			for (Map.Entry<String, List<String>> entry1 : nodeExtra.entrySet()) {
+				String k = entry1.getKey();
+				List<String> v = entry1.getValue();
 				out.println(String.format("%s=%s", k, v));
-			});
+			}
 		} catch (IOException e) {
 			LogWriter.writeDebugInfo("[JM] IO Error while dumping JobManager");
 		}
@@ -725,7 +730,11 @@ public class POPJavaJobManager extends POPJobService {
 				return false;
 			case "networks":
 				sb = new StringBuilder();
-				networks.forEach((k,v) -> sb.append(String.format("%s=%s\n", k, v.size())));
+				for (Map.Entry<String, POPNetwork> entry : networks.entrySet()) {
+					String k = entry.getKey();
+					POPNetwork v = entry.getValue();
+					sb.append(String.format("%s=%s\n", k, v.size()));
+				}
 				value.setValue(sb.toString().trim());
 				return true;
 			case "power_available":
@@ -740,7 +749,9 @@ public class POPJavaJobManager extends POPJobService {
 			return false;
 		// we can have a list of it
 		StringBuilder sb = new StringBuilder();
-		vals.forEach((s) -> sb.append(s + "\n"));
+		for (String s : vals) {
+			sb.append(s + "\n");
+		}
 		value.setValue(sb.toString().trim());
 		return true;
 	}
@@ -1083,7 +1094,7 @@ public class POPJavaJobManager extends POPJobService {
 	private final Map<String, Semaphore> SNRequestSemaphore = new HashMap<>();
 	
 	@POPSyncConc
-	public SNNodesInfo launchDiscovery(@POPParameter(Direction.IN) SNRequest request, int timeout) {
+	public SNNodesInfo launchDiscovery(@POPParameter(Direction.IN) final SNRequest request, int timeout) {
 		try {
 			LogWriter.writeDebugInfo("[PSN] starting research");
 			
@@ -1120,12 +1131,15 @@ public class POPJavaJobManager extends POPJobService {
 				askResourcesDiscovery(request, sender);
 				
 				// start an automatic unlock to avoid an infinite thread waiting
-				new Thread(() -> { 
-					try {
-						Thread.sleep(Configuration.UNLOCK_TIMEOUT);
-						unlockDiscovery(request.getUID());
-					} catch(InterruptedException e) {}
-				}).start();
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(Configuration.UNLOCK_TIMEOUT);
+							unlockDiscovery(request.getUID());
+						} catch(InterruptedException e) {}
+					}
+				}, "SearchNode auto-unlock timer").start();
 				
 				// wait to semaphore to let us through
 				reqsem.acquireUninterruptibly();

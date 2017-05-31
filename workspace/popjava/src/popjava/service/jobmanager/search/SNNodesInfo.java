@@ -54,7 +54,9 @@ public class SNNodesInfo implements IPOPBase {
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putInt(nodes.size());
-		nodes.forEach((n) -> buffer.putValue(n, Node.class));
+		for (Node n : nodes) {
+			n.serialize(buffer);
+		}
 		return true;
 	}
 
