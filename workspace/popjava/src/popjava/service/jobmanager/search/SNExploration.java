@@ -40,7 +40,9 @@ public class SNExploration implements IPOPBase {
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putInt(visited.size());
-		visited.forEach((e) -> buffer.putValue(e, POPAccessPoint.class));
+		for (POPAccessPoint ap : visited) {
+			ap.serialize(buffer);
+		}
 		return true;
 	}
 
