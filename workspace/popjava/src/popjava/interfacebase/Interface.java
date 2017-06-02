@@ -31,6 +31,7 @@ import popjava.combox.ComboxFactoryFinder;
 import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.service.jobmanager.POPJavaAppService;
+import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
@@ -226,20 +227,25 @@ public class Interface {
 
         POPJobService jobManager = null;
         try{
-        	if(Configuration.CONNECT_TO_POPCPP || Configuration.START_JOBMANAGER){
+			// XXX There are some method not found error if we use the generic
+        	//if(Configuration.CONNECT_TO_POPCPP || Configuration.START_JOBMANAGER){
+        	//	jobManager = PopJava.newActive(POPJobService.class, jobContact);
+        	//}
+			if (Configuration.CONNECT_TO_POPCPP)
+        		jobManager = PopJava.newActive(POPJobManager.class, jobContact);
+			else if (Configuration.CONNECT_TO_JAVA_JOBMANAGER)
+        		jobManager = PopJava.newActive(POPJavaJobManager.class, jobContact);
+			else
         		jobManager = PopJava.newActive(POPJobService.class, jobContact);
-        	}
         }catch(Exception e){
         	e.printStackTrace();
         }
-        
+		
         if(jobManager == null){
             return false;
         }
-        
-        ObjectDescription constOd = new ObjectDescription(od);
-        
-        int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, constOd, allocatedAccessPoint.length, 
+		
+        int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, od, allocatedAccessPoint.length, 
         		allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
         jobManager.exit();
         if (createdCode != 0) {
@@ -689,18 +695,29 @@ public class Interface {
 			hostname = "localhost";
 		}
 		
-		if(isLocal){
+		// XXX To start localhost calls
+		String potentialPort = od.getValue("port");
+		if(isLocal && potentialPort.equals("")){
 			ret = SystemUtil.runCmd(argvList);
 		}else{
+			//String potentialPort = od.getValue("port");
 			switch(od.getConnectionType()){
 			case ANY:
 			case SSH:
-				ret = SystemUtil.runRemoteCmd(hostname, argvList);
+				// add port to host if specified
+				if (!potentialPort.equals(""))
+					ret = SystemUtil.runRemoteCmd(hostname, potentialPort, argvList);
+				else
+					ret = SystemUtil.runRemoteCmd(hostname, argvList);
 				break;
 			case DEAMON:
 				POPJavaDeamonConnector connector;
 				try {
-					connector = new POPJavaDeamonConnector(hostname);
+					// if manually specified port
+					if (potentialPort.equals(""))
+						connector = new POPJavaDeamonConnector(hostname);
+					else
+						connector = new POPJavaDeamonConnector(hostname, Integer.parseInt(potentialPort));
 					if(connector.sendCommand(od.getConnectionSecret(), argvList)){
 						ret = 0;
 					}

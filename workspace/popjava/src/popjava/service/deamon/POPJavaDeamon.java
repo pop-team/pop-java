@@ -43,6 +43,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	public static final String SUCCESS = "OK";
 	public static final int POP_JAVA_DEAMON_PORT = 43424;
 	private ServerSocket serverSocket;
+	private int port;
 	private String password = "";
 	
 	private static final String BACKUP_JAR = "build/jar/popjava.jar";
@@ -85,7 +86,12 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	}
 	
 	public POPJavaDeamon(String password){
+		this(password, POP_JAVA_DEAMON_PORT);
+	}
+	
+	public POPJavaDeamon(String password, int port){
 		this.password = password;
+		this.port = port;
 	}
 	
 	/**
@@ -242,7 +248,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	 * @throws IOException
 	 */
 	public void start() throws IOException{
-		serverSocket = new ServerSocket(POP_JAVA_DEAMON_PORT);
+		serverSocket = new ServerSocket(port);
 		
 		Executor executor = Executors.newCachedThreadPool();
 		

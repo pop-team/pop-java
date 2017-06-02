@@ -305,8 +305,8 @@ public class POPSystem {
                 POPJavaConfiguration.getPopJavaJar(),
                 getNeededClasspath());
         
-        if(Configuration.START_JOBMANAGER){
-        	jobmanager = PopJava.newActive(POPJavaJobManager.class, "localhost:"+POPJobManager.DEFAULT_PORT);
+        if(Configuration.CONNECT_TO_JAVA_JOBMANAGER){
+        	//jobmanager = PopJava.newActive(POPJavaJobManager.class, new POPAccessPoint("localhost:"+POPJobManager.DEFAULT_PORT));
         }
         
         initialized = initCodeService(codeconf, popJavaObjectExecuteCommand, coreServiceManager);
@@ -407,6 +407,12 @@ public class POPSystem {
 		
 		if(!new File(POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd").exists()){
 			LogWriter.printDebug("Could not open objectmap.xsd at "+POPJavaConfiguration.getPopJavaLocation());
+			return false;
+		}
+		
+		// check if file exists, if we do this we won't abord uselessly
+		if (!new File(fileconf).exists()) {
+			LogWriter.printDebug("Could not open "+fileconf);
 			return false;
 		}
 		

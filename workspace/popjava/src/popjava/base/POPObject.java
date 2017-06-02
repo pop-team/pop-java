@@ -97,6 +97,13 @@ public class POPObject implements IPOPBase {
 			od.setConnectionType(objectDescription.connection());
 			od.setConnectionSecret(objectDescription.connectionSecret());
 			od.setEncoding(objectDescription.encoding().toString());
+			od.setNetwork(objectDescription.network());
+			od.setConnector(objectDescription.connector());
+			od.setPower(objectDescription.power(), objectDescription.minPower());
+			od.setMemory(objectDescription.memory(), objectDescription.minMemory());
+			od.setBandwidth(objectDescription.bandwidth(), objectDescription.minBandwidth());
+			// TODO size (-1) is not implemented, may want to add it to POPObjectDescription
+			od.setSearch(objectDescription.searchDepth(), -1, objectDescription.searchTime());
 		}
 	}
 	

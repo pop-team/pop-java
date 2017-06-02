@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -130,6 +131,14 @@ public final class Util {
 		}
 		return result;
 
+	}
+	
+	/**
+	 * Generate UUID string
+	 * @return 
+	 */
+	public static String generateUUID() {
+		return UUID.randomUUID().toString();
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
+import popjava.util.Configuration;
 
 /**
  * This class represents the object description for a parallel object. The object description is the resource requirements for a specific parallel object.
@@ -41,11 +42,15 @@ public class ObjectDescription implements IPOPBase {
 	
 	protected String remoteAccessPoint = ""; //Used to connect to a remote object at object creation
 	
+	// keys for the attributes map, to keep compability with POPC
+	protected static final String NETWORK_KEY = "_network";
+	protected static final String CONNECTOR_KEY = "_connector";
+	
 	protected String jvmParamters;
 	protected ConnectionType connectionType = ConnectionType.ANY;
 	protected String connectionSecret;
 
-	private ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<String, String>();
+	private final ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<>();
 
 	/**
 	 * Create a new empty instance of ObjectDescription
@@ -73,6 +78,9 @@ public class ObjectDescription implements IPOPBase {
 		bandwidthReq = -1;
 		memoryMin = -1;
 		memoryReq = -1;
+		
+		setNetwork("");
+		setConnector(Configuration.DEFAULT_JOBMANAGER_CONNECTOR);
 	}
 	
 	public ObjectDescription(ObjectDescription od) {
@@ -101,6 +109,9 @@ public class ObjectDescription implements IPOPBase {
 		maxDepth = od.getSearchMaxDepth();
 		maxSize =  od.getSearchMaxSize();
 		waitTime = od.getSearchWaitTime();
+		
+		setNetwork(od.getNetwork());
+		setConnector(od.getConnector());
 	}
 	
 	/**
@@ -500,6 +511,38 @@ public class ObjectDescription implements IPOPBase {
 	}
 
 	/**
+	 * The network to use for this request
+	 * @return 
+	 */
+	public String getNetwork() {
+		return getValue(NETWORK_KEY);
+	}
+
+	/**
+	 * Specify network name to use
+	 * @param network 
+	 */
+	public void setNetwork(String network) {
+		setValue(NETWORK_KEY, network);
+	}
+
+	/**
+	 * Job Manager connector to use
+	 * @return 
+	 */
+	public String getConnector() {
+		return getValue(CONNECTOR_KEY);
+	}
+
+	/**
+	 * Job Manager connector to use
+	 * @param connector 
+	 */
+	public void setConnector(String connector) {
+		setValue(CONNECTOR_KEY, connector);
+	}
+
+	/**
 	 * Set a specific attribute in the list
 	 * @param key	Key for this attribute
 	 * @param value	value for this attribute
@@ -566,12 +609,12 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
-		float tmpPowerMin = buffer.getFloat();
 		float tmpPowerReq = buffer.getFloat();
-		float tmpMemoryMin = buffer.getFloat();
+		float tmpPowerMin = buffer.getFloat();
 		float tmpMemoryReq = buffer.getFloat();
-		float tmpBandwidthMin = buffer.getFloat();
+		float tmpMemoryMin = buffer.getFloat();
 		float tmpBandwidthReq = buffer.getFloat();
+		float tmpBandwidthMin = buffer.getFloat();
 //		ODElement power = ODElement.deserialize(buffer);
 //		ODElement memory = ODElement.deserialize(buffer);
 //		ODElement bandwidth = ODElement.deserialize(buffer);

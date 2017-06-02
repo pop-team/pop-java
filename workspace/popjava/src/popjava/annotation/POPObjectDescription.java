@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import popjava.baseobject.ConnectionType;
+import popjava.util.Configuration;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
@@ -31,6 +32,65 @@ public @interface POPObjectDescription {
 	String connectionSecret() default "";
 	
 	Encoding encoding() default Encoding.Default;
+	
+	/**
+	 * A network available on this machine
+	 * @return 
+	 */
+	String network() default "";
+	
+	/**
+	 * An available connector present in a network
+	 *  jobmanager: contact remote machine via the jobmanager
+	 *  direct: connect directly (ex SSH) to the remote machine
+	 * @return 
+	 */
+	String connector() default Configuration.DEFAULT_JOBMANAGER_CONNECTOR;
+	
+	/**
+	 * Power requested
+	 * @return 
+	 */
+	float power() default -1;
+	/**
+	 * Minimum power necessary
+	 * @return 
+	 */
+	float minPower() default -1;
+	/**
+	 * Memory requested
+	 * @return 
+	 */
+	float memory() default -1;
+	/**
+	 * Minimum memory necessary
+	 * @return 
+	 */
+	float minMemory() default -1;
+	/**
+	 * Bandwidth requested
+	 * @return 
+	 */
+	float bandwidth() default -1;
+	/**
+	 * Minimum bandwidth necessary
+	 * @return 
+	 */
+	float minBandwidth() default -1;
+	
+	/**
+	 * How many hops can we go after ours
+	 * @return 
+	 */
+	int searchDepth() default -1;
+	
+	/**
+	 * How much time elapse between the start and end of a research in the grid
+	 * if 0 the first node found is used
+	 * any other value > 0 (ms) will be a forced wait
+	 * @return 
+	 */
+	int searchTime() default -1;
 	
 	/**
 	 * Method id of the constructor.
