@@ -40,6 +40,10 @@ If you have kept the default options this should give you something like:
   export POPJAVA_JAVA
   PATH=$PATH:$POPJAVA_LOCATION/bin
 
+LICENCE
+-------
+POP-Java is licenced under LGPL v3
+
 RESOURCES
 ---------
 * The user manual `<http://pop-java.readthedocs.io/en/latest/>`_
