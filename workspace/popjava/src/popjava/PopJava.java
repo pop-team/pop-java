@@ -15,7 +15,7 @@ import popjava.system.POPSystem;
  *
  */
 public class PopJava {
-
+	
 	/** Creates a new instance of PopJava */
 	public PopJava() {
 	}

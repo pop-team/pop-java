@@ -6,6 +6,7 @@ import popjava.util.LogWriter;
 
 import java.net.*;
 import java.util.LinkedList;
+import java.util.List;
 import java.io.*;
 
 /**
@@ -22,7 +23,7 @@ public class ComboxAcceptSocket implements Runnable {
 	protected RequestQueue requestQueue;
 	protected ServerSocket serverSocket;
 	protected int status = EXIT;
-	protected LinkedList<Socket> concurentConnections = new LinkedList<Socket>();
+	protected List<Socket> concurentConnections = new LinkedList<Socket>();
 
 	/**
 	 * Create a new instance of the ComboxAccept socket
