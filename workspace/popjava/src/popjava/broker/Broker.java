@@ -14,6 +14,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,27 +56,30 @@ import popjava.util.Util;
  * them on the real object
  */
 public final class Broker {
-	static public final int RUNNING = 0;
-	static public final int EXIT = 1;
-	static public final int ABORT = 2;
+    
+    public static enum State{
+        Running,
+        Exit,
+        Abort
+    }
 	
-	static public final int REQUEST_QUEUE_TIMEOUT_MS = 600;
-	static public final int BASIC_CALL_MAX_RANGE = 10;
-	static public final int CONSTRUCTOR_SEMANTIC_ID = 21;
-	static public final String CALLBACK_PREFIX = "-callback=";
-	static public final String CODELOCATION_PREFIX = "-codelocation=";
-	static public final String OBJECT_NAME_PREFIX = "-object=";
-	static public final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
-	static public final String APPSERVICE_PREFIX = "-appservice=";
+    public static final int REQUEST_QUEUE_TIMEOUT_MS = 600;
+    public static final int BASIC_CALL_MAX_RANGE = 10;
+    public static final int CONSTRUCTOR_SEMANTIC_ID = 21;
+    public static final String CALLBACK_PREFIX = "-callback=";
+    public static final String CODELOCATION_PREFIX = "-codelocation=";
+    public static final String OBJECT_NAME_PREFIX = "-object=";
+    public static final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
+    public static final String APPSERVICE_PREFIX = "-appservice=";
 
-	protected int state;
-	protected ComboxServer comboxServer;
-	protected POPBuffer buffer;
-	protected static POPAccessPoint accessPoint = new POPAccessPoint();
-	protected POPObject popObject = null;
-	protected POPObject popInfo = null;
-	protected int connectionCount = 0;
-	protected Semaphore sequentialSemaphore = new Semaphore(1, true);
+	private State state;
+	private ComboxServer comboxServer;
+	private POPBuffer buffer;
+	private POPAccessPoint accessPoint = new POPAccessPoint();
+	private POPObject popObject = null;
+	private POPObject popInfo = null;
+	private int connectionCount = 0;
+	private Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
 	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
 	
@@ -102,11 +106,27 @@ public final class Broker {
 		}
 	});
 			//Executors.newCachedThreadPool());//
-
-	private static Broker me;
 	
-	public static Broker getBroker(){
-		return me;
+	public Broker(POPObject object){
+		this.popObject = object;
+		connectionCount++;
+		
+		initialize(java.util.Collections.EMPTY_LIST);
+		
+		popObject.setBroker(this);
+		popInfo = object;
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					treatRequests();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}, "Broker thread").start();
 	}
 	
 	/**
@@ -117,11 +137,7 @@ public final class Broker {
 	 * @param objectName
 	 *            Name of the object to create
 	 */
-	private Broker(String codelocation, String objectName) {
-		if(me == null){
-			me = this;
-		}
-		
+	private Broker(String codelocation, String objectName) {		
 		URLClassLoader urlClassLoader = null;
 		
 		if (codelocation != null && codelocation.length() > 0) {
@@ -230,6 +246,7 @@ public final class Broker {
 					comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
 				}
 				
+				popObject.setBroker(this);
 			} catch (Exception e) {
 				exception = POPException.createReflectException(
 						constructor.getName(), e.getMessage());
@@ -667,7 +684,7 @@ public final class Broker {
 	 * Kill the broker and its associated object
 	 */
 	public synchronized void kill() {
-		setState(Broker.EXIT);
+		setState(State.Exit);
 	}
 
 	/**
@@ -675,7 +692,7 @@ public final class Broker {
 	 * 
 	 * @return Access point associated with this broker
 	 */
-	public static POPAccessPoint getAccessPoint() {
+	public POPAccessPoint getAccessPoint() {
 		return accessPoint;
 	}
 
@@ -684,8 +701,8 @@ public final class Broker {
 	 * @throws InterruptedException 
 	 */
 	public void treatRequests() throws InterruptedException { 
-		setState(Broker.RUNNING);
-		while (getState() == Broker.RUNNING) {
+		setState(State.Running);
+		while (getState() == State.Running) {
 			Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
 					TimeUnit.MILLISECONDS);
 			
@@ -714,7 +731,7 @@ public final class Broker {
 		connectionCount--;
 		LogWriter.writeDebugInfo("Close connection, left "+connectionCount+" "+source);
 		if (connectionCount <= 0){
-			setState(Broker.EXIT);
+			setState(State.Exit);
 		}
 	}
 
@@ -736,9 +753,9 @@ public final class Broker {
 	 * 
 	 * @return current state
 	 */
-	public synchronized int getState() {
+	public synchronized State getState() {
 		if (isDaemon()){
-			return Broker.RUNNING;
+			return State.Running;
 		}
 		return state;
 	}
@@ -749,7 +766,7 @@ public final class Broker {
 	 * @param state
 	 *            state to set to this broker
 	 */
-	public synchronized void setState(int state) {
+	public synchronized void setState(State state) {
 		this.state = state;
 	}
 
@@ -772,7 +789,8 @@ public final class Broker {
 	 *            Arguments
 	 * @return true if the initialization process succeed
 	 */
-	public boolean initialize(ArrayList<String> argvs) {
+	public boolean initialize(List<String> argvs) {
+		
 		accessPoint = new POPAccessPoint();
 		
 		buffer = new BufferXDR();
@@ -798,6 +816,7 @@ public final class Broker {
 			comboxServer = factory.createServerCombox(ap, buffer, this);
 			
 		}
+		
 		return true;
 	}
 
@@ -865,6 +884,7 @@ public final class Broker {
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}
+		
 		ComboxSocket callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
 			POPAccessPoint accessPoint = new POPAccessPoint(callbackString);
@@ -892,6 +912,7 @@ public final class Broker {
 		}catch(Exception e){
 			LogWriter.writeExceptionLog(e);
 		}
+		
 		int status = 0;
 		if (broker == null || !broker.initialize(argvList)) {
 			status = 1;
@@ -903,14 +924,15 @@ public final class Broker {
 			POPBuffer buffer = new BufferXDR();
 			buffer.setHeader(messageHeader);
 			buffer.putInt(status);
-			LogWriter.writeDebugInfo("Broker can be accessed at "+Broker.getAccessPoint().toString());
-			Broker.getAccessPoint().serialize(buffer);
+			LogWriter.writeDebugInfo("Broker can be accessed at "+broker.getAccessPoint().toString());
+			broker.getAccessPoint().serialize(buffer);
 			callback.send(buffer);
 		}
 
 		if (status == 0 && broker != null){
 			broker.treatRequests();
 		}
+		
 		LogWriter.writeDebugInfo("End broker life : "+objectName);
 		System.exit(0);
 	}

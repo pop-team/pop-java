@@ -33,6 +33,8 @@ public @interface POPObjectDescription {
 	
 	Encoding encoding() default Encoding.Default;
 	
+	boolean localJVM() default false;
+	
 	/**
 	 * A network available on this machine
 	 * @return 

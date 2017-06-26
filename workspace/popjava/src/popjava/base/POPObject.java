@@ -10,9 +10,9 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javassist.util.proxy.Proxy;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import javassist.util.proxy.ProxyObject;
-import popjava.PJMethodHandler;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -49,7 +49,9 @@ public class POPObject implements IPOPBase {
 
 	private boolean temporary = false;
 	
-	private POPObject me = null;
+	private POPObject me = null; //This cache
+    
+    private Broker broker = null;
 	
 	/**
 	 * Creates a new instance of POPObject
@@ -104,6 +106,7 @@ public class POPObject implements IPOPBase {
 			od.setBandwidth(objectDescription.bandwidth(), objectDescription.minBandwidth());
 			// TODO size (-1) is not implemented, may want to add it to POPObjectDescription
 			od.setSearch(objectDescription.searchDepth(), -1, objectDescription.searchTime());
+			od.setUseLocalJVM(objectDescription.localJVM());
 		}
 	}
 	
@@ -115,7 +118,7 @@ public class POPObject implements IPOPBase {
 					POPConfig config = (POPConfig)annotations[i][loop];
 					 
 					if(argvs[i] == null){
-						throw new InvalidParameterException("Annotated paramater "+i+" for "+getClassName()+" was is null");
+						throw new InvalidParameterException("Annotated paramater "+i+" for "+getClassName()+" is null");
 					}
 					
 					switch(config.value()){
@@ -150,6 +153,14 @@ public class POPObject implements IPOPBase {
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type String for Annotation ACCESS_POINT");
+						}
+						break;
+					case LOCAL_JVM:
+						if(argvs[i]  instanceof Boolean){
+							od.setUseLocalJVM((Boolean)argvs[i]);
+						}else{
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
+									" was not of type Boolean for Annotation LOCAL_JVM");
 						}
 						break;
 					}
@@ -359,7 +370,7 @@ public class POPObject implements IPOPBase {
 	 * @return	POPAccessPoint object containing all access points to the parallel object
 	 */
 	public POPAccessPoint getAccessPoint() {
-		return Broker.getAccessPoint();
+		return broker.getAccessPoint();
 	}
 
 	/**
@@ -744,6 +755,15 @@ public class POPObject implements IPOPBase {
 	 */
 	@Override
     public boolean serialize(POPBuffer buffer) {
+		if(od.useLocalJVM() && broker != null){
+			//broker.onNewConnection();
+			
+			od.serialize(buffer);
+			broker.getAccessPoint().serialize(buffer);
+			buffer.putInt(1);//TODO: Find out what this number does
+			return true;
+		}
+		
 		return true;
 	}
 
@@ -811,14 +831,18 @@ public class POPObject implements IPOPBase {
 		return (T)this;
 	}
 	
+	public void setBroker(Broker broker){
+	    this.broker = broker;
+	}
+	
 	public <T extends Object> T getThis(Class<T> myClass){
 		if(me == null){
 			me = PopJava.newActive(getClass(), getAccessPoint());
 			
 			//After establishing connection with self, artificially decrease connection by one
 			//This is to avoid the issue of never closing objects with reference to itself
-			if(me != null && Broker.getBroker() != null){
-				Broker.getBroker().onCloseConnection("SelfReference");
+			if(me != null && broker != null){
+			    broker.onCloseConnection("SelfReference");
 			}
 		}
 		

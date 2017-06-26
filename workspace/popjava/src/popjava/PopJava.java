@@ -83,6 +83,10 @@ public class PopJava {
 	}
 	
 	public static POPAccessPoint getAccessPoint(Object object){
+		if(object == null){
+			throw new NullPointerException("Reference to POPJava object was null");
+		}
+		
 	    if(object instanceof POPObject){
 	        POPObject temp = (POPObject) object;
 	        return temp.getAccessPoint();

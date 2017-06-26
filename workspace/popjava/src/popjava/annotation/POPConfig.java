@@ -13,7 +13,8 @@ public @interface POPConfig {
 		URL,
 		CONNECTION,
 		CONNECTION_PWD,
-		ACCESS_POINT
+		ACCESS_POINT,
+		LOCAL_JVM
 	}
 	
 	Type value();
