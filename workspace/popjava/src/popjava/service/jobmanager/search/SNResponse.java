@@ -10,10 +10,11 @@ import popjava.util.LogWriter;
 
 /**
  * Response of a network request, create and send one for itself.
+ *
  * @author Davide Mazzoleni
  */
 public class SNResponse implements IPOPBase {
-	
+
 	private String uid;
 	private SNExploration explorationList;
 	private SNNodesInfo.Node nodeinfo;

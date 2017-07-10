@@ -23,18 +23,18 @@ import popjava.util.Util;
  * @author Davide Mazzoleni
  */
 public class POPConnectorJobManager extends POPConnectorBase {
-	
+
 	public static final String IDENTITY = "jobmanager";
-	
+
 	@Override
-	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
+	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// check local resource
 		Resource currAva = jobManager.getAvailableResources();
 		// od request
 		Resource resourceReq = new Resource(od.getPowerReq(), od.getMemoryReq(), od.getBandwidthReq());
 		Resource resourceMin = new Resource(od.getPowerMin(), od.getMemoryMin(), od.getBandwidthMin());
-		
+
 		// check if we have enough resources locally
 		// NOTE could be kept if we doun't want to pass through the SN, it's faster too
 		/*if (currAva.canHandle(resourceReq) || currAva.canHandle(resourceMin)) {
@@ -87,7 +87,7 @@ public class POPConnectorJobManager extends POPConnectorBase {
 				// failed creation
 				failed++;
 				jobIdx--;
-				
+
 				jm.exit();
 				if (failed == remoteJobMngs.size()) {
 					// cancel previous registrations on remote jms
@@ -105,7 +105,7 @@ public class POPConnectorJobManager extends POPConnectorBase {
 				jm.exit();
 			}
 		}
-		
+
 		// execute objects
 		int started = 0;
 		for (int i = 0; i < howmany; i++) {
@@ -137,13 +137,13 @@ public class POPConnectorJobManager extends POPConnectorBase {
 				}
 			}
 		}
-		
+
 		LogWriter.writeDebugInfo(String.format("Object count=%d, require=%d", started, howmany));
 		// created all objects
 		if (started >= howmany) {
 			return 0;
 		}
-		
+
 		// failed to start all objects, kill already started objects
 		for (int i = 0; i < started; i++) {
 			try {
@@ -155,14 +155,13 @@ public class POPConnectorJobManager extends POPConnectorBase {
 				LogWriter.writeDebugInfo(String.format("Exception while killing objects: %s", e.getMessage()));
 			}
 		}
-		
+
 		return POPErrorCode.POP_EXEC_FAIL;
 	}
 
 	@Override
 	public boolean isValidNode(POPNetworkNode node) {
-		return node instanceof NodeJobManager && ((NodeJobManager)node).isInitialized();
+		return node instanceof NodeJobManager && ((NodeJobManager) node).isInitialized();
 	}
 
-	
 }

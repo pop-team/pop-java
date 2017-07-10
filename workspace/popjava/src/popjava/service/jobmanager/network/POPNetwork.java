@@ -1,7 +1,6 @@
 package popjava.service.jobmanager.network;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,10 +10,12 @@ import popjava.service.jobmanager.connector.POPConnectorBase;
 import popjava.service.jobmanager.connector.POPConnectorFactory;
 
 /**
- *
+ * Describe a POP Network, made of POP Connector with relative members to of a POP COnnector.
+ * 
  * @author Davide Mazzoleni
  */
 public class POPNetwork {
+
 	private final String name;
 	private final Map<Class<? extends POPConnectorBase>, POPConnectorBase> connectors;
 	private final Map<Class<? extends POPConnectorBase>, List<POPNetworkNode>> members;
@@ -28,7 +29,7 @@ public class POPNetwork {
 		this.jobManager = jobManager;
 		this.otherParams = other;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -38,8 +39,8 @@ public class POPNetwork {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public<T extends POPConnectorBase> T getConnector(Class<T> connector){
-		return (T)connectors.get(connector);
+	public <T extends POPConnectorBase> T getConnector(Class<T> connector) {
+		return (T) connectors.get(connector);
 	}
 
 	public int size() {
@@ -52,12 +53,13 @@ public class POPNetwork {
 
 	/**
 	 * Get NetworkNode already casted to correct type
+	 *
 	 * @param <T> The type we want the set of NetworkNode
 	 * @param connector Which connector we are using
 	 * @return An immutable set we can loop through
 	 */
 	@SuppressWarnings("unchecked")
-	public<T extends POPNetworkNode> List<T> getMembers(Class<? extends POPConnectorBase> connector) {
+	public <T extends POPNetworkNode> List<T> getMembers(Class<? extends POPConnectorBase> connector) {
 		List<POPNetworkNode> nodes = members.get(connector);
 		if (nodes == null) {
 			return new ArrayList<>();
@@ -67,47 +69,49 @@ public class POPNetwork {
 
 	/**
 	 * Add a NetworkNode to this network
-	 * @param e The node
+	 *
+	 * @param node The node
 	 * @return true if the Node is added, false if not or not compatible
 	 */
 	@SuppressWarnings("unchecked")
-	public boolean add(POPNetworkNode e) {
+	public boolean add(POPNetworkNode node) {
 		// connector
-		POPConnectorBase c = connectors.get(e.getConnectorClass());
-		if (c == null) {
-			c = POPConnectorFactory.makeConnector(e.getConnectorName());
-			c.setJobManager(jobManager);
-			c.setNetwork(this);
-			connectors.put(e.getConnectorClass(), c);
+		POPConnectorBase connector = connectors.get(node.getConnectorClass());
+		if (connector == null) {
+			connector = POPConnectorFactory.makeConnector(node.getConnectorName());
+			connector.setJobManager(jobManager);
+			connector.setNetwork(this);
+			connectors.put(node.getConnectorClass(), connector);
 		}
 		// members
-		List<POPNetworkNode> m = members.get(c.getClass());
-		if (m == null) {
-			m = new ArrayList<>();
-			members.put(e.getConnectorClass(), m);
+		List<POPNetworkNode> connectorMembers = members.get(connector.getClass());
+		if (connectorMembers == null) {
+			connectorMembers = new ArrayList<>();
+			members.put(node.getConnectorClass(), connectorMembers);
 		}
-		if (m.contains(e)) {
+		if (connectorMembers.contains(node)) {
 			return true;
 		}
-		if (c.isValidNode(e)) {
-			return m.add(e);
+		if (connector.isValidNode(node)) {
+			return connectorMembers.add(node);
 		}
 		return false;
 	}
 
 	/**
 	 * Remove a node from this Network
+	 *
 	 * @param o The node
 	 * @return true if the Node is remove, false otherwise
 	 */
 	public boolean remove(POPNetworkNode o) {
 		// connector
-		POPConnectorBase c = connectors.get(o.getConnectorClass());
-		if (c == null) {
+		POPConnectorBase connector = connectors.get(o.getConnectorClass());
+		if (connector == null) {
 			return false;
 		}
 		// members
-		List<POPNetworkNode> mem = members.get(c.getClass());
+		List<POPNetworkNode> mem = members.get(connector.getClass());
 		if (mem == null) {
 			return false;
 		}
@@ -144,5 +148,5 @@ public class POPNetwork {
 		}
 		return true;
 	}
-	
+
 }

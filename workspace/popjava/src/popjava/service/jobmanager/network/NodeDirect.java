@@ -9,31 +9,32 @@ import popjava.util.Util;
 /**
  * A SSH node for direct IP connections
  * XXX: port is not used ATM it will always default to port 22
+ *
  * @author Davide Mazzoleni
  */
 public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
-	
+
 	private String host;
 	private int port;
 	private boolean daemon;
 	private String daemonSecret;
 	private boolean initialized = true;
-	
+
 	NodeDirect(List<String> params) {
 		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
-		
+
 		// get potential params
 		String host = Util.removeStringFromList(params, "host=");
 		String portString = Util.removeStringFromList(params, "port=");
 		String protocol = Util.removeStringFromList(params, "protocol=");
 		String secret = Util.removeStringFromList(params, "secret=");
-		
+
 		// stop if we have no host
 		if (host == null) {
 			initialized = false;
 			return;
 		}
-		
+
 		// set parameters
 		this.host = host;
 		this.daemon = protocol != null && protocol.equals("daemon");
@@ -44,11 +45,20 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 		if (portString != null) {
 			try {
 				port = Integer.parseInt(portString);
-			} catch(NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				// we assume the initialization failed in this case
 				initialized = false;
 			}
 		}
+
+		// set parameters again for future creation and sharing, keep posible extra values
+		params.add("host=" + this.host);
+		params.add("port=" + this.port);
+		params.add("protocol=" + (this.daemon ? "daemon" : "ssh"));
+		if (daemonSecret != null) {
+			params.add("secret=" + secret);
+		}
+		creationParams = params.toArray(new String[0]);
 	}
 
 	public String getHost() {
@@ -58,7 +68,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	public int getPort() {
 		return port;
 	}
-	
+
 	public boolean isInitialized() {
 		return initialized;
 	}
@@ -110,8 +120,8 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 
 	@Override
 	public String toString() {
-		return String.format("host=%s port=%d connector=%s protocol=%s %s", host, port, connectorName, 
-				daemon ? "daemon" : "ssh", 
+		return String.format("host=%s port=%d connector=%s protocol=%s %s", host, port, connectorName,
+				daemon ? "daemon" : "ssh",
 				daemonSecret == null ? "" : "secret=" + daemonSecret).trim();
 	}
 }

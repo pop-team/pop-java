@@ -12,20 +12,21 @@ import popjava.util.LogWriter;
 
 /**
  * A request for the Search Node, is also used to handle application death.
+ *
  * @author Davide Mazzoleni
  */
 public class SNRequest implements IPOPBase {
-	
+
 	private String requestId;
 	private String os;
 	private Resource minResource;
 	private Resource reqResource;
-	
+
 	private SNExploration explorationNodes;
 	private SNWayback wayback;
-	
+
 	private String network;
-	
+
 	private boolean endRequest = false;
 	private int hops = Integer.MAX_VALUE;
 	private int popAppId;
@@ -34,7 +35,7 @@ public class SNRequest implements IPOPBase {
 
 	public SNRequest() {
 	}
-	
+
 	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network) {
 		this.requestId = nodeId;
 		this.os = POPSystem.getPlatform();
@@ -53,7 +54,7 @@ public class SNRequest implements IPOPBase {
 			}
 		}
 	}
-	
+
 	public boolean isEndRequest() {
 		return endRequest;
 	}
@@ -77,11 +78,11 @@ public class SNRequest implements IPOPBase {
 	public void setHopLimit(int hops) {
 		this.hops = hops;
 	}
-	
+
 	public void decreaseHopLimit() {
 		hops--;
 	}
-	
+
 	public int getRemainingHops() {
 		return hops;
 	}
@@ -146,5 +147,5 @@ public class SNRequest implements IPOPBase {
 		publicCertificate = buffer.getByteArray(buffSize);
 		return true;
 	}
-	
+
 }

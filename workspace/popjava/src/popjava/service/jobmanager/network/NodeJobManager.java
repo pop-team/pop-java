@@ -11,6 +11,7 @@ import popjava.util.Util;
 
 /**
  * A JobManager node
+ *
  * @author Davide Mazzoleni
  */
 public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
@@ -18,21 +19,22 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 	private POPAccessPoint jobManagerAccessPoint;
 	private final String host;
 	private int port;
+	private String protocol;
 	private boolean initialized = true;
-	
+
 	/**
-	 * Two way to set this:
-	 *  case <protocol> <ip> <port> 
-	 *  case <access point>
+	 * Two way to set this: case <protocol> <ip> <port>
+	 * case <access point>
+	 *
 	 * @param params A 1 or 3 elements String array
 	 */
 	NodeJobManager(List<String> params) {
 		super(POPConnectorJobManager.IDENTITY, POPConnectorJobManager.class);
-		
+
 		// get potential params
 		host = Util.removeStringFromList(params, "host=");
 		String portString = Util.removeStringFromList(params, "port=");
-		String protocol= Util.removeStringFromList(params, "protocol=");
+		protocol= Util.removeStringFromList(params, "protocol=");
 		
 		// stop if we have no host
 		if (host == null) {
@@ -43,20 +45,25 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 		if (protocol == null) {
 			protocol = Configuration.DEFAULT_PROTOCOL;
 		}
-		
+
 		// some sane defaults
 		port = POPJobManager.DEFAULT_PORT;
 		if (portString != null) {
 			try {
 				port = Integer.parseInt(portString);
-			} catch(NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				// we assume the initialization failed in this case
 				initialized = false;
 			}
 		}
-		
+
 		// set access point
-		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
+		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", AccessPoint.SOCKET_PROTOCOL, host, port));
+
+		params.add("host=" + host);
+		params.add("port=" + port);
+		params.add("protocol=" + protocol);
+		creationParams = params.toArray(new String[0]);
 	}
 
 	public POPAccessPoint getJobManagerAccessPoint() {
@@ -96,9 +103,8 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 		return true;
 	}
 
-
 	@Override
 	public String toString() {
-		return String.format("host=%s port=%s connector=%s", host, port, connectorName);
+		return String.format("host=%s port=%s connector=%s protocol=%s", host, port, connectorName, protocol);
 	}
 }
