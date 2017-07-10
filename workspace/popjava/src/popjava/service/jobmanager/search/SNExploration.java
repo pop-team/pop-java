@@ -7,25 +7,28 @@ import popjava.dataswaper.IPOPBase;
 import popjava.util.Configuration;
 
 /**
- * Exploration list on the network in the grid.
+ * Exploration list on the network in the grid. 
  * Keep track of each node to avoid infinite loops.
+ *
  * @author Davide Mazzoleni
  */
 public class SNExploration implements IPOPBase {
+
 	private final LinkedList<POPAccessPoint> visited = new LinkedList<>();
 
 	public SNExploration() {
 	}
 
 	public SNExploration(SNExploration explorationList) {
-		for (POPAccessPoint e : explorationList.visited)
+		for (POPAccessPoint e : explorationList.visited) {
 			add(e);
+		}
 	}
 
 	public boolean contains(POPAccessPoint o) {
 		return visited.contains(o);
 	}
-	
+
 	public boolean contains(String o) {
 		return visited.contains(new POPAccessPoint(o));
 	}

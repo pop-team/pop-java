@@ -85,6 +85,20 @@ public class LogWriter {
 		}
 	}
 	
+	/**
+	 * Write a new debug information line in the file
+	 * @param format	Format of information to write {@link java.lang.String#format}
+	 * @param args  Arguments for the format
+	 */
+	public synchronized static void writeDebugInfo(String format, Object... args) {
+		
+		if (Configuration.DEBUG) {
+			String formattedInfo = String.format(format, args);
+			System.out.println(formattedInfo);
+			logInfo(formattedInfo);
+		}
+	}
+	
 	private static void logInfo(String info){
 		if (Configuration.DEBUG) {
 			info = pid + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;

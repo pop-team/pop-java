@@ -6,16 +6,18 @@ import popjava.dataswaper.IPOPBase;
 
 /**
  * This is a generic resource for the Job Manager
+ *
  * @author Davide Mazzoleni
  */
 public class Resource implements IPOPBase {
+
 	protected float flops;
 	protected float memory;
 	protected float bandwidth;
 
 	public Resource() {
 	}
-	
+
 	public Resource(float flops, float memory, float bandwidth) {
 		this.flops = flops;
 		this.memory = memory;
@@ -25,22 +27,27 @@ public class Resource implements IPOPBase {
 	Resource(Resource r) {
 		this(r.flops, r.memory, r.bandwidth);
 	}
-	
+
 	/**
 	 * Add another resource to this one, only positive values will be considered
+	 *
 	 * @param r Another resource
 	 */
 	public void add(Resource r) {
-		if(r.flops > 0)
+		if (r.flops > 0) {
 			flops += r.flops;
-		if(r.memory > 0)
+		}
+		if (r.memory > 0) {
 			memory += r.memory;
-		if(r.bandwidth > 0)
+		}
+		if (r.bandwidth > 0) {
 			bandwidth += bandwidth;
+		}
 	}
-	
+
 	/**
 	 * Set this resource in the OD
+	 *
 	 * @param od A initialized OD
 	 */
 	public void addTo(ObjectDescription od) {
@@ -51,15 +58,19 @@ public class Resource implements IPOPBase {
 
 	/**
 	 * Subtract another resource to this one, only positive values will be considered
+	 *
 	 * @param r Another resource
 	 */
 	public void subtract(Resource r) {
-		if(r.flops > 0)
+		if (r.flops > 0) {
 			flops -= r.flops;
-		if(r.memory > 0)
+		}
+		if (r.memory > 0) {
 			memory -= r.memory;
-		if(r.bandwidth > 0)
+		}
+		if (r.bandwidth > 0) {
 			bandwidth -= bandwidth;
+		}
 	}
 
 	public float getFlops() {
@@ -90,7 +101,7 @@ public class Resource implements IPOPBase {
 		boolean canHandle = true;
 		canHandle &= flops >= resource.flops;
 		canHandle &= memory >= resource.memory;
-		canHandle &= bandwidth >= resource.bandwidth;		
+		canHandle &= bandwidth >= resource.bandwidth;
 		return canHandle;
 	}
 

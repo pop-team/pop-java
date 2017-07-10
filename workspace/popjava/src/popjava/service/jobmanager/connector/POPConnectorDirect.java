@@ -13,17 +13,17 @@ import popjava.service.jobmanager.network.NodeDirect;
  * @author Davide Mazzoleni
  */
 public class POPConnectorDirect extends POPConnectorBase {
-	
+
 	public static final String IDENTITY = "direct";
-	
+
 	@Override
-	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
+	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// node in network
 		List<NodeDirect> nodes = network.getMembers(this.getClass());
 		// get a random node
-		NodeDirect node = nodes.get( (int) (Math.random() * nodes.size()) );
-		
+		NodeDirect node = nodes.get((int) (Math.random() * nodes.size()));
+
 		// set od hostname to connect directly
 		od.setHostname(node.getHost());
 		od.setValue("port", node.getPort() + "");
@@ -33,9 +33,9 @@ public class POPConnectorDirect extends POPConnectorBase {
 		if (node.isDaemon()) {
 			od.setConnectionType(ConnectionType.DEAMON);
 		}
-		
+
 		// do n times on the same node
-		for(int i = 0; i < howmany; i++){
+		for (int i = 0; i < howmany; i++) {
 			boolean success = Interface.tryLocal(objname, objcontacts[i], od);
 		}
 		return 0;
@@ -43,7 +43,7 @@ public class POPConnectorDirect extends POPConnectorBase {
 
 	@Override
 	public boolean isValidNode(POPNetworkNode node) {
-		return node instanceof NodeDirect && ((NodeDirect)node).isInitialized();
+		return node instanceof NodeDirect && ((NodeDirect) node).isInitialized();
 	}
-	
+
 }
