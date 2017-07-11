@@ -184,9 +184,14 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 			SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(), POPSystem.getPlatform(), available);
 			SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
 
-			// if we want to answer we save the certificate if there is any
+			// we want to save the requester's certificate if there is one
 			if (request.getPublicCertificate().length > 0) {
 				POPTrustManager.addCertToTempStore(request.getPublicCertificate());
+			}
+			
+			// we want to save the AppService's node certiicate
+			if (request.getAppServiceCertificate().length > 0) {
+				POPTrustManager.addCertToTempStore(request.getAppServiceCertificate());
 			}
 
 			// route response to the original JM

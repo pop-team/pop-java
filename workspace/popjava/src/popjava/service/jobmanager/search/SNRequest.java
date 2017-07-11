@@ -131,6 +131,10 @@ public class SNRequest implements IPOPBase {
 		return publicCertificate;
 	}
 
+	public byte[] getAppServiceCertificate() {
+		return appServiceCertificate;
+	}
+
 	public String getConnector() {
 		return connector;
 	}
