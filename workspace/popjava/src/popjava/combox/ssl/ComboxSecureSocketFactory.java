@@ -13,6 +13,7 @@ import popjava.combox.ComboxServer;
  * This class is the factory for all combox socket
  */
 public class ComboxSecureSocketFactory extends ComboxFactory {
+	
 	/**
 	 * Name of the implemented protocol
 	 */

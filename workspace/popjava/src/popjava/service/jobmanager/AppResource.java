@@ -5,9 +5,11 @@ import popjava.baseobject.POPAccessPoint;
 
 /**
  * This is an Application/Object own resource
+ *
  * @author Davide Mazzoleni
  */
 public class AppResource extends Resource {
+
 	protected int id;
 	protected String appId;
 	protected String reqId;
@@ -124,5 +126,5 @@ public class AppResource extends Resource {
 			return false;
 		}
 		return true;
-	}	
+	}
 }

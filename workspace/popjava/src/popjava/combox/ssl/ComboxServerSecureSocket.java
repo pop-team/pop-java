@@ -11,7 +11,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 import popjava.combox.ComboxServer;
-import popjava.util.LogWriter;
 
 /**
  * This class is an implementation of the combox with the protocol ssl for the server side.
@@ -65,8 +64,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 			SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
 			sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
 			
-			// WHY DO WE NEED THIS ?!!!
-			
+			// XXX WHY DO WE NEED THIS ?!!!
 			sslContext.getSupportedSSLParameters();
 			
 			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();

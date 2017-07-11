@@ -7,15 +7,16 @@ import popjava.dataswaper.IPOPBase;
 
 /**
  * List the AccessPoint of each intermediary node to go back to the origin.
+ *
  * @author Davide Mazzoleni
  */
 public class SNWayback implements IPOPBase {
-	
+
 	private final LinkedList<POPAccessPoint> stack = new LinkedList<>();
 
 	public SNWayback() {
 	}
-	
+
 	public SNWayback(SNWayback wayback) {
 		stack.addAll(wayback.stack);
 	}
@@ -53,8 +54,9 @@ public class SNWayback implements IPOPBase {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (POPAccessPoint e : stack)
+		for (POPAccessPoint e : stack) {
 			sb.append(e.toString()).append(" ");
+		}
 		return sb.toString();
 	}
 }

@@ -1,18 +1,23 @@
 package popjava.combox.ssl;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +28,7 @@ import javax.net.ssl.X509TrustManager;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.WatchDirectory;
+import sun.security.provider.X509Factory;
 
 /**
  * Two origin KeyStore TrustManager, single instance with Directory Watch and auto-reload.
@@ -62,7 +68,8 @@ public class POPTrustManager implements X509TrustManager {
 	private final String tempTrustStorePath;
 	
 	private X509TrustManager trustManager;
-	private Map<Integer,Certificate> loadedCertificates;
+	private Map<String,Certificate> loadedCertificates;
+	private Set<String> confidenceCertificates;
 	private CertificateFactory certFactory;
 	private Certificate publicCertificate;
 	
@@ -83,6 +90,7 @@ public class POPTrustManager implements X509TrustManager {
 		this.tempTrustStorePath = Configuration.TRUST_TEMP_STORE_DIR;
 		try {
 			loadedCertificates = new HashMap<>();
+			confidenceCertificates = new HashSet<>();
 			certFactory = CertificateFactory.getInstance("X.509");
 			publicCertificate = certFactory.generateCertificate(new FileInputStream(Configuration.PUBLIC_CERTIFICATE));
 			watcher = new WatchDirectory(tempTrustStorePath, new WatcherMethods());
@@ -114,11 +122,21 @@ public class POPTrustManager implements X509TrustManager {
 		return issuers;
 	}
 	
+	/**
+	 * Tell if a certificate is confidence link certificate or a temporary link
+	 * 
+	 * @param hash The identifier of the certificate
+	 * @return true if it's a confidence link, false otherwise
+	 */
+	public boolean isConfidenceLink(String hash) {
+		return confidenceCertificates.contains(hash);
+	}
+	
 	private void saveCertificatesLocally() {
 		loadedCertificates.clear();
 		Certificate[] certificates = getAcceptedIssuers();
 		for (Certificate cert : certificates) {
-			loadedCertificates.put(cert.hashCode(), cert);
+			loadedCertificates.put(getCertificateThumbprint(cert), cert);
 		}
 	}
 
@@ -132,6 +150,14 @@ public class POPTrustManager implements X509TrustManager {
 			trustedKS.load(trustedStore, trustStorePass.toCharArray());			
 		} finally {
 			trustedStore.close();
+		}
+		
+		// mark certificate in the keystore as confidence certificates
+		confidenceCertificates.clear();
+		for (Enumeration<String> eAlias = trustedKS.aliases(); eAlias.hasMoreElements();) {
+			String alias = eAlias.nextElement();
+			Certificate cert = trustedKS.getCertificate(alias);
+			confidenceCertificates.add(getCertificateThumbprint(cert));
 		}
 		
 		// add temporary certificates
@@ -174,12 +200,13 @@ public class POPTrustManager implements X509TrustManager {
 			fi.close();
 			
 			// stop if already loaded
-			if (instance.loadedCertificates.containsKey(cert.hashCode())) {
+			String thumbprint = getCertificateThumbprint(cert);
+			if (instance.loadedCertificates.containsKey(thumbprint)) {
 				return;
 			}
 			
 			// certificates temprary path
-			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, cert.hashCode() + ".cer");
+			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, thumbprint + ".cer");
 			// move to local directory
 			Files.write(path, certificate);
 		} catch (Exception ex) {
@@ -191,7 +218,67 @@ public class POPTrustManager implements X509TrustManager {
 		return instance.publicCertificate;
 	}
 	
-	public static Certificate getCertificate(int hash) {
-		return instance.loadedCertificates.get(hash);
+	public static Certificate getCertificate(String thumbprint) {
+		return instance.loadedCertificates.get(thumbprint);
+	}
+	
+	/**
+	 * Get the bytes of a certificate
+	 * 
+	 * @param cert
+	 * @return 
+	 */
+	public static byte[] getCertificateBytes(Certificate cert) {
+		StringBuilder sb = new StringBuilder();
+		try {
+			sb.append("-----BEGIN CERTIFICATE-----\n");
+			sb.append(javax.xml.bind.DatatypeConverter.printBase64Binary(cert.getEncoded())).append("\n");
+			sb.append("-----END CERTIFICATE-----\n");
+		} catch(CertificateEncodingException e) {
+		}
+		return sb.toString().getBytes();
+	}
+	
+	public static byte[] getCertificateBytes(String thumbprint) {
+		return getCertificateBytes(getCertificate(thumbprint));
+	}
+	
+	/**
+	 * Get the SHA-1 thumbprint of a certificate
+	 * 
+	 * @see https://stackoverflow.com/questions/1270703/how-to-retrieve-compute-an-x509-certificates-thumbprint-in-java
+	 * @param cert
+	 * @return The hex representation of the thumbprint
+	 */
+	public static String getCertificateThumbprint(Certificate cert) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			byte[] der = cert.getEncoded();
+			md.update(der);
+			byte[] digest = md.digest();
+			// TODO is there a better way to do this?
+			return javax.xml.bind.DatatypeConverter.printHexBinary(digest);
+		} catch (NoSuchAlgorithmException | CertificateEncodingException ex) {
+		}
+		return null;
+	}
+	
+	/**
+	 * Get the SHA-1 thumbprint of a certificate from its byte array representation
+	 * 
+	 * @param certificate
+	 * @return 
+	 */
+	public static String getCertificateThumbprint(byte[] certificate) {
+		try {
+			// load certificate
+			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
+			Certificate cert = instance.certFactory.generateCertificate(fi);
+			fi.close();
+			// compute hash
+			return getCertificateThumbprint(cert);
+		} catch(CertificateException | IOException e) {
+		}
+		return null;
 	}
 }

@@ -30,16 +30,16 @@ import popjava.util.Util;
 public class POPConnectorJobManager extends POPConnectorBase implements POPConnectorSearchNodeInterface {
 	
 	public static final String IDENTITY = "jobmanager";
-	
+
 	@Override
-	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, 
+	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// check local resource
 		Resource currAva = jobManager.getAvailableResources();
 		// od request
 		Resource resourceReq = new Resource(od.getPowerReq(), od.getMemoryReq(), od.getBandwidthReq());
 		Resource resourceMin = new Resource(od.getPowerMin(), od.getMemoryMin(), od.getBandwidthMin());
-		
+
 		// check if we have enough resources locally
 		// NOTE could be kept if we doun't want to pass through the SN, it's faster too
 		/*if (currAva.canHandle(resourceReq) || currAva.canHandle(resourceMin)) {
@@ -51,8 +51,11 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 			return jobManager.execObj(pobjname, howmany, resIDs, localservice.toString(), objcontacts);
 		}*/
 		
+		// the POPAccessPoint could contains the fingerprint of the AppService certificate
+		String appServiceThumbprint = localservice.getThumbprint();
+		
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName(), IDENTITY);
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName(), IDENTITY, appServiceThumbprint);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {
@@ -92,7 +95,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 				// failed creation
 				failed++;
 				jobIdx--;
-				
+
 				jm.exit();
 				if (failed == remoteJobMngs.size()) {
 					// cancel previous registrations on remote jms
@@ -110,7 +113,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 				jm.exit();
 			}
 		}
-		
+
 		// execute objects
 		int started = 0;
 		for (int i = 0; i < howmany; i++) {
@@ -142,13 +145,13 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 				}
 			}
 		}
-		
+
 		LogWriter.writeDebugInfo(String.format("Object count=%d, require=%d", started, howmany));
 		// created all objects
 		if (started >= howmany) {
 			return 0;
 		}
-		
+
 		// failed to start all objects, kill already started objects
 		for (int i = 0; i < started; i++) {
 			try {
@@ -160,13 +163,13 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 				LogWriter.writeDebugInfo(String.format("Exception while killing objects: %s", e.getMessage()));
 			}
 		}
-		
+
 		return POPErrorCode.POP_EXEC_FAIL;
 	}
 
 	@Override
 	public boolean isValidNode(POPNetworkNode node) {
-		return node instanceof NodeJobManager && ((NodeJobManager)node).isInitialized();
+		return node instanceof NodeJobManager && ((NodeJobManager) node).isInitialized();
 	}
 
 	@Override

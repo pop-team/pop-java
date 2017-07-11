@@ -30,6 +30,7 @@ import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
+import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
@@ -48,6 +49,7 @@ public class ComboxSecureSocket extends Combox {
 	private final int HANDSHAKE_CHALLANGE_SIZE = 256;
 
 	/**
+	 * NOTE: this is used by ServerCombox (server)
 	 * Create a new combox on the given socket
 	 * @param socket	The socket to create the combox 
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
@@ -61,11 +63,19 @@ public class ComboxSecureSocket extends Combox {
 		
 		// kill connection if handshake fail
 		if (!status) {
+			inputStream.close();
+			outputStream.close();
+			peerConnection.close();
 			throw new POPException(POPErrorCode.USER_DEFINE_ERROR + 30, "Handshake failed, unknow client.");
 		}
 	}
 
-	
+	/**
+	 * NOTE: this is used by Combox (client)
+	 * Create a combox on a given accesspoint
+	 * @param accesspoint
+	 * @param timeout 
+	 */
 	public ComboxSecureSocket(POPAccessPoint accesspoint, int timeout) {
 		super(accesspoint, timeout);
 		receivedBuffer = new byte[BUFFER_LENGTH];
@@ -103,6 +113,10 @@ public class ComboxSecureSocket extends Combox {
 		}
 	}
 
+	/**
+	 * A client connect to a server, Combox -> ComboxServer
+	 * @return 
+	 */
 	@Override
 	public boolean connect() {
 		try {
@@ -302,20 +316,24 @@ public class ComboxSecureSocket extends Combox {
 			PrivateKey pk = (PrivateKey) keyStore.getKey(Configuration.TRUST_STORE_PK_ALIAS, Configuration.TRUST_STORE_PK_PWD.toCharArray());
 			Certificate ppk = keyStore.getCertificate(Configuration.TRUST_STORE_PK_ALIAS);
 
-			// sign challange
+			// sign challange, with SHA256
+			// https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#Signature
 			Signature signer = Signature.getInstance("SHA256withRSA");
 			signer.initSign(pk);
 			signer.update(challangeBytes);
-			byte[] answer = signer.sign();
+			byte[] answerBytes = signer.sign();
 			
 			LogWriter.writeDebugInfo("Challange signed, sending answer");
 
 			// send answer
-			byte[] size = ByteBuffer.allocate(4).putInt(answer.length).array();
-			byte[] certHash = ByteBuffer.allocate(4).putInt(POPTrustManager.getLocalPublicCertificate().hashCode()).array();
-			outputStream.write(size);
-			outputStream.write(answer);
-			outputStream.write(certHash);
+			byte[] sizeAnswer = ByteBuffer.allocate(4).putInt(answerBytes.length).array();
+			String thumbprint = POPTrustManager.getCertificateThumbprint(POPTrustManager.getLocalPublicCertificate());
+			byte[] sizeThumbprint = ByteBuffer.allocate(4).putInt(thumbprint.length()).array();
+			byte[] thumbprintBytes = thumbprint.getBytes();
+			outputStream.write(sizeAnswer);
+			outputStream.write(answerBytes);
+			outputStream.write(sizeThumbprint);
+			outputStream.write(thumbprintBytes);
 			outputStream.flush();
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -338,19 +356,28 @@ public class ComboxSecureSocket extends Combox {
 			LogWriter.writeDebugInfo("Server waiting for answer");
 			
 			// receive answer
-			byte[] sizeBytes = new byte[4];
-			inputStream.read(sizeBytes);
-			int size = ByteBuffer.wrap(sizeBytes).asIntBuffer().get();
-			byte[] answerBytes = new byte[size];
+			byte[] sizeAnswerBytes = new byte[4];
+			inputStream.read(sizeAnswerBytes);
+			int sizeAnswer = ByteBuffer.wrap(sizeAnswerBytes).asIntBuffer().get();
+			byte[] answerBytes = new byte[sizeAnswer];
 			inputStream.read(answerBytes);
-			byte[] certHash = new byte[4];
-			inputStream.read(certHash);
-			int hash = ByteBuffer.wrap(certHash).asIntBuffer().get();
+			
+			// thumbprint
+			byte[] sizeThumbprintBytes = new byte[4];
+			inputStream.read(sizeThumbprintBytes);
+			int sizeThumbprint = ByteBuffer.wrap(sizeThumbprintBytes).asIntBuffer().get();
+			byte[] certThumbprintBytes = new byte[sizeThumbprint];
+			inputStream.read(certThumbprintBytes);
+			String thumbprint = new String(certThumbprintBytes);
+			
+			// XXX Dirty way of taking this information out of the combox
+			POPSystem.lastComboxThumbprint = thumbprint;
 
 			LogWriter.writeDebugInfo("Answer received, checking signature");
 			
+			// check client signature
 			Signature signer = Signature.getInstance("SHA256withRSA");
-			signer.initVerify(POPTrustManager.getCertificate(hash));
+			signer.initVerify(POPTrustManager.getCertificate(thumbprint));
 			signer.update(challange.getBytes());
 			boolean signatureStatus = signer.verify(answerBytes);
 

@@ -41,7 +41,7 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), new Resource(), new Resource(), network.getName(), IDENTITY);
+		SNRequest request = new SNRequest(Util.generateUUID(), new Resource(), new Resource(), network.getName(), IDENTITY, null);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {

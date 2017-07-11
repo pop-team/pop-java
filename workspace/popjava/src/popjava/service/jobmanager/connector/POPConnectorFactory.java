@@ -2,11 +2,13 @@ package popjava.service.jobmanager.connector;
 
 /**
  * Create a Protocol to createObject in the JobManager, this method should only be called when creating a Network
+ *
  * @see popjava.service.jobmanager.network.Network
  * @see popjava.service.jobmanager.POPJavaJobManager
  * @author Davide Mazzoleni
  */
 public class POPConnectorFactory {
+
 	public static POPConnectorBase makeConnector(String name) {
 		switch (name.toLowerCase()) {
 			// network and job manager are passed manually afterwards
@@ -17,6 +19,7 @@ public class POPConnectorFactory {
 				return null;
 		}
 	}
+
 	public static Class<? extends POPConnectorBase> getConnectorClass(String name) {
 		switch (name.toLowerCase()) {
 			// network and job manager are passed manually afterwards

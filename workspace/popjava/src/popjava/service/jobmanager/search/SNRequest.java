@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.security.cert.Certificate;
 import popjava.buffer.POPBuffer;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.Resource;
 import popjava.system.POPSystem;
@@ -14,18 +16,19 @@ import popjava.util.LogWriter;
 
 /**
  * A request for the Search Node, is also used to handle application death.
+ *
  * @author Davide Mazzoleni
  */
 public class SNRequest implements IPOPBase {
-	
+
 	private String requestId;
 	private String os;
 	private Resource minResource;
 	private Resource reqResource;
-	
+
 	private SNExploration explorationNodes;
 	private SNWayback wayback;
-	
+
 	private String network;
 	private String connector;
 	
@@ -34,13 +37,15 @@ public class SNRequest implements IPOPBase {
 	private int popAppId;
 	
 	private byte[] publicCertificate = new byte[0];
+	private byte[] appServiceCertificate = new byte[0];
 	
 	private Map<String,String> customParams = new HashMap<>();
 
 	public SNRequest() {
 	}
 	
-	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network, String connector) {
+	// TODO get appservice certificate and fill appServiceCertificate
+	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network, String connector, String appServiceThumbprint) {
 		this.requestId = nodeId;
 		this.os = POPSystem.getPlatform();
 		this.minResource = minResource;
@@ -50,16 +55,22 @@ public class SNRequest implements IPOPBase {
 		this.network = network;
 		this.connector = connector;
 		
-		File cert = new File(Configuration.PUBLIC_CERTIFICATE);
-		if (cert.exists()) {
+		// this node certificate
+		File localCertificatePath = new File(Configuration.PUBLIC_CERTIFICATE);
+		if (localCertificatePath.exists()) {
 			try {
-				publicCertificate = Files.readAllBytes(cert.toPath());
+				publicCertificate = Files.readAllBytes(localCertificatePath.toPath());
 			} catch (IOException e) {
 				LogWriter.writeDebugInfo("[SN] Could not extract certificate bytes");
 			}
 		}
+		
+		// app service certificate
+		if (appServiceThumbprint != null) {
+			appServiceCertificate = POPTrustManager.getCertificateBytes(appServiceThumbprint);
+		}
 	}
-	
+
 	public boolean isEndRequest() {
 		return endRequest;
 	}
@@ -83,11 +94,11 @@ public class SNRequest implements IPOPBase {
 	public void setHopLimit(int hops) {
 		this.hops = hops;
 	}
-	
+
 	public void decreaseHopLimit() {
 		hops--;
 	}
-	
+
 	public int getRemainingHops() {
 		return hops;
 	}
@@ -177,5 +188,5 @@ public class SNRequest implements IPOPBase {
 		}
 		return true;
 	}
-	
+
 }

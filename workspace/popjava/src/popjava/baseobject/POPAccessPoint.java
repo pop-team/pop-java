@@ -15,7 +15,8 @@ public class POPAccessPoint implements IPOPBase {
 	
 	private boolean isService;
 	private boolean noaddref = false;
-	private int security;	
+	private int security;
+	private String thumbprint = null;
 
 	/**
 	 * The list of the different access points
@@ -59,6 +60,12 @@ public class POPAccessPoint implements IPOPBase {
 		buffer.putInt(security);
 		buffer.putBoolean(isService);
 		buffer.putBoolean(noaddref);
+		if (thumbprint != null) {
+			buffer.putBoolean(true);
+			buffer.putString(thumbprint);
+		} else {
+			buffer.putBoolean(false);
+		}
 		return true;
 	}
 
@@ -72,7 +79,18 @@ public class POPAccessPoint implements IPOPBase {
 		security = buffer.getInt();
 		isService = buffer.getBoolean();
 		noaddref = buffer.getBoolean();
+		if (buffer.getBoolean()) {
+			thumbprint = buffer.getString();
+		}
 		return true;
+	}
+
+	public String getThumbprint() {
+		return thumbprint;
+	}
+
+	public void setThumbprint(String thumbprint) {
+		this.thumbprint = thumbprint;
 	}
 
 	/**
