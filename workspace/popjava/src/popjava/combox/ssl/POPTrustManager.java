@@ -1,6 +1,7 @@
 package popjava.combox.ssl;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import javax.net.ssl.X509TrustManager;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.WatchDirectory;
+import sun.security.provider.X509Factory;
 
 /**
  * Two origin KeyStore TrustManager, single instance with Directory Watch and auto-reload.
@@ -216,8 +218,29 @@ public class POPTrustManager implements X509TrustManager {
 		return instance.publicCertificate;
 	}
 	
-	public static Certificate getCertificate(String hash) {
-		return instance.loadedCertificates.get(hash);
+	public static Certificate getCertificate(String thumbprint) {
+		return instance.loadedCertificates.get(thumbprint);
+	}
+	
+	/**
+	 * Get the bytes of a certificate
+	 * 
+	 * @param cert
+	 * @return 
+	 */
+	public static byte[] getCertificateBytes(Certificate cert) {
+		StringBuilder sb = new StringBuilder();
+		try {
+			sb.append("-----BEGIN CERTIFICATE-----\n");
+			sb.append(javax.xml.bind.DatatypeConverter.printBase64Binary(cert.getEncoded())).append("\n");
+			sb.append("-----END CERTIFICATE-----\n");
+		} catch(CertificateEncodingException e) {
+		}
+		return sb.toString().getBytes();
+	}
+	
+	public static byte[] getCertificateBytes(String thumbprint) {
+		return getCertificateBytes(getCertificate(thumbprint));
 	}
 	
 	/**

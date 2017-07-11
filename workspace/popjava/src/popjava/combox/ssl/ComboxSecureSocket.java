@@ -30,6 +30,7 @@ import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
+import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
@@ -368,6 +369,9 @@ public class ComboxSecureSocket extends Combox {
 			byte[] certThumbprintBytes = new byte[sizeThumbprint];
 			inputStream.read(certThumbprintBytes);
 			String thumbprint = new String(certThumbprintBytes);
+			
+			// XXX Dirty way of taking this information out of the combox
+			POPSystem.lastComboxThumbprint = thumbprint;
 
 			LogWriter.writeDebugInfo("Answer received, checking signature");
 			

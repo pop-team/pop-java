@@ -3,7 +3,9 @@ package popjava.service.jobmanager.search;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.security.cert.Certificate;
 import popjava.buffer.POPBuffer;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.Resource;
 import popjava.system.POPSystem;
@@ -38,7 +40,7 @@ public class SNRequest implements IPOPBase {
 	}
 
 	// TODO get appservice certificate and fill appServiceCertificate
-	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network) {
+	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network, String appServiceThumbprint) {
 		this.requestId = nodeId;
 		this.os = POPSystem.getPlatform();
 		this.minResource = minResource;
@@ -47,13 +49,19 @@ public class SNRequest implements IPOPBase {
 		this.wayback = new SNWayback();
 		this.network = network;
 		
-		File cert = new File(Configuration.PUBLIC_CERTIFICATE);
-		if (cert.exists()) {
+		// this node certificate
+		File localCertificatePath = new File(Configuration.PUBLIC_CERTIFICATE);
+		if (localCertificatePath.exists()) {
 			try {
-				publicCertificate = Files.readAllBytes(cert.toPath());
+				publicCertificate = Files.readAllBytes(localCertificatePath.toPath());
 			} catch (IOException e) {
 				LogWriter.writeDebugInfo("[SN] Could not extract certificate bytes");
 			}
+		}
+		
+		// app service certificate
+		if (appServiceThumbprint != null) {
+			appServiceCertificate = POPTrustManager.getCertificateBytes(appServiceThumbprint);
 		}
 	}
 

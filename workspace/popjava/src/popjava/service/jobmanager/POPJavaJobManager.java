@@ -1057,7 +1057,7 @@ public class POPJavaJobManager extends POPJobService {
 	public void applicationEnd(int popAppId, boolean initiator) {
 		AppResource res = jobs.get(popAppId);
 		if (initiator && res != null) {
-			SNRequest r = new SNRequest(Util.generateUUID(), null, null, res.getNetwork());
+			SNRequest r = new SNRequest(Util.generateUUID(), null, null, res.getNetwork(), null);
 			r.setAsEndRequest();
 			r.setPOPAppId(popAppId);
 
@@ -1177,7 +1177,7 @@ public class POPJavaJobManager extends POPJobService {
 				askResourcesDiscovery(request, sender);
 
 				// start an automatic unlock to avoid an infinite thread waiting
-				new Thread(new Runnable() {
+				Thread SNunlock = new Thread(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -1186,7 +1186,9 @@ public class POPJavaJobManager extends POPJobService {
 						} catch (InterruptedException e) {
 						}
 					}
-				}, "SearchNode auto-unlock timer").start();
+				}, "SearchNode auto-unlock timer");
+				SNunlock.setDaemon(true);
+				SNunlock.start();
 				
 				// wait to semaphore to let us through
 				reqsem.acquireUninterruptibly();

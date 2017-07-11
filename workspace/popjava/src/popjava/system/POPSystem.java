@@ -68,6 +68,7 @@ public class POPSystem {
 	 * POP-Java application service access point 
 	 */
 	public static POPAccessPoint appServiceAccessPoint = new POPAccessPoint();
+	public static String lastComboxThumbprint = null;
 	
 	public static void writeLog(String log){
 		if(!Configuration.DEBUG){
@@ -288,7 +289,8 @@ public class POPSystem {
         
         if(coreServiceManager != null){
             appServiceAccessPoint = coreServiceManager.getAccessPoint();
-            
+            appServiceAccessPoint.setThumbprint(lastComboxThumbprint);
+			
             prlt = new POPRemoteLogThread(coreServiceManager.getPOPCAppID());
             prlt.start();
         }
