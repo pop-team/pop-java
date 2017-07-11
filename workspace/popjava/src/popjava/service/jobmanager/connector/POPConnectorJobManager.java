@@ -46,8 +46,11 @@ public class POPConnectorJobManager extends POPConnectorBase {
 			return jobManager.execObj(pobjname, howmany, resIDs, localservice.toString(), objcontacts);
 		}*/
 		
+		// TODO get AppService certificate hash
+		//byte[] appServiceCert = Paths...
+		
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName());
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName()/*, appServiceCert*/);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {

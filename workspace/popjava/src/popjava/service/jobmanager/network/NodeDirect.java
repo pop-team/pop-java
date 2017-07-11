@@ -8,7 +8,6 @@ import popjava.util.Util;
 
 /**
  * A SSH node for direct IP connections
- * XXX: port is not used ATM it will always default to port 22
  *
  * @author Davide Mazzoleni
  */

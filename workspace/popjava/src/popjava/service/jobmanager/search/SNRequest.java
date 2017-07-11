@@ -32,10 +32,12 @@ public class SNRequest implements IPOPBase {
 	private int popAppId;
 	
 	private byte[] publicCertificate = new byte[0];
+	private byte[] appServiceCertificate = new byte[0];
 
 	public SNRequest() {
 	}
 
+	// TODO get appservice certificate and fill appServiceCertificate
 	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network) {
 		this.requestId = nodeId;
 		this.os = POPSystem.getPlatform();
