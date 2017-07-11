@@ -50,6 +50,7 @@ import popjava.service.jobmanager.connector.POPConnectorFactory;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.service.jobmanager.connector.POPConnectorSearchNodeInterface;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
+import popjava.service.jobmanager.network.AbstractNodeJobManager;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
@@ -808,17 +809,21 @@ public class POPJavaJobManager extends POPJobService {
 				// all connectors in network
 				POPConnectorBase[] connectors = network.getConnectors();
 
-				// TODO register remotelly only with POP Connector with POPConnectorSearchNodeInterface
 				for (POPConnectorBase connector : connectors) {
+					// use connector with nodes who define a job manager
+					if (!(connector instanceof POPConnectorSearchNodeInterface)) {
+						continue;
+					}
+					
 					// all nodes
 					List<POPNetworkNode> nodes = network.getMembers(connector.getClass());
 
 					for (POPNetworkNode node : nodes) {
 						// only contact JM types of nodes
-						if (node instanceof NodeJobManager) {
+						if (node instanceof AbstractNodeJobManager) {
 							// connect to remove jm
-							NodeJobManager jmn = (NodeJobManager) node;
-							registerRemoteAsync(network.getName(), jmn);
+							AbstractNodeJobManager jmnode = (AbstractNodeJobManager) node;
+							registerRemoteAsync(network.getName(), jmnode);
 						}
 					}
 				}
@@ -843,7 +848,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param node
 	 */
 	@POPAsyncConc
-	private void registerRemoteAsync(String network, NodeJobManager node) {
+	private void registerRemoteAsync(String network, AbstractNodeJobManager node) {
 		try {
 			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, node.getJobManagerAccessPoint());
 			jm.registerNode(network, node.getCreationParams());

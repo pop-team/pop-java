@@ -14,7 +14,7 @@ import popjava.util.Util;
  *
  * @author Davide Mazzoleni
  */
-public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
+public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManager> {
 
 	private POPAccessPoint jobManagerAccessPoint;
 	private final String host;
@@ -66,6 +66,7 @@ public class NodeJobManager extends POPNetworkNode<POPConnectorJobManager> {
 		creationParams = params.toArray(new String[0]);
 	}
 
+	@Override
 	public POPAccessPoint getJobManagerAccessPoint() {
 		return jobManagerAccessPoint;
 	}

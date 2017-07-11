@@ -13,7 +13,7 @@ import popjava.util.Util;
  * A JobManager node
  * @author Davide Mazzoleni
  */
-public class NodeTFC extends POPNetworkNode<POPConnectorTFC> {
+public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 
 	private POPAccessPoint jobManagerAccessPoint;
 	private final String host;
@@ -54,6 +54,7 @@ public class NodeTFC extends POPNetworkNode<POPConnectorTFC> {
 		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", Configuration.DEFAULT_PROTOCOL, host, port));
 	}
 
+	@Override
 	public POPAccessPoint getJobManagerAccessPoint() {
 		return jobManagerAccessPoint;
 	}
