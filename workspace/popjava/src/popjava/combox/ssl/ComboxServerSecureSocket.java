@@ -1,13 +1,9 @@
 package popjava.combox.ssl;
 
-import java.io.FileInputStream;
 import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
-import popjava.util.Configuration;
 import java.net.*;
-import java.security.KeyStore;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 import popjava.combox.ComboxServer;
@@ -54,15 +50,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	 */
 	public void createServer() {
 		try {
-			// server only, read private key
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
-
-			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.TRUST_STORE_PK_PWD.toCharArray());
-
-			SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
-			sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
+			SSLContext sslContext = POPTrustManager.getNewSSLContext();
 			
 			// XXX WHY DO WE NEED THIS ?!!!
 			sslContext.getSupportedSSLParameters();

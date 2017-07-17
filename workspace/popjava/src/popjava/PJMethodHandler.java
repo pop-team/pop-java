@@ -23,6 +23,7 @@ import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.interfacebase.Interface;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
@@ -273,11 +274,23 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	
 	private void replacePOPObjectArguments(Object[] args){
 		for(int i = 0; i < args.length; i++){
-			if(args[i] instanceof POPObject && !(args[i] instanceof ProxyObject)){
+			if(args[i] instanceof POPObject){
 				POPObject object = (POPObject)args[i];
-				args[i] = PopJava.newActive(object.getClass(), object.getAccessPoint());
-				((POPObject)args[i]).makeTemporary();
+				// create proxy if it's not
+				if (!(args[i] instanceof ProxyObject)) {
+					object = PopJava.newActive(object.getClass(), object.getAccessPoint());
+					object.makeTemporary();
+					// change reference to proxy
+					args[i] = object;
+				}
+				// add source node's certificate to the accesspoint
+				POPAccessPoint objAp = object.getAccessPoint();
+				String thumbprint = objAp.getThumbprint();
+				if (thumbprint != null) {
+					objAp.setX509certificate(POPTrustManager.getInstance().getCertificateBytes(thumbprint));
+				}
 			}
+			
 		}
 	}
 

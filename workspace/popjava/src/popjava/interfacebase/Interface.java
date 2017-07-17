@@ -17,7 +17,6 @@ import popjava.base.MessageHeader;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.base.Semantic;
-import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
@@ -28,12 +27,9 @@ import popjava.buffer.POPBuffer;
 import popjava.codemanager.AppService;
 import popjava.combox.Combox;
 import popjava.combox.ComboxAllocate;
-import popjava.combox.ComboxAllocateSocket;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
-import popjava.combox.ComboxSocketFactory;
-import popjava.combox.ssl.ComboxAllocateSecureSocket;
-import popjava.combox.ssl.ComboxSecureSocketFactory;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.service.jobmanager.POPJavaAppService;
@@ -101,6 +97,13 @@ public class Interface {
 		boolean result = true;
 		od.deserialize(buffer);
 		popAccessPoint.deserialize(buffer);
+		
+		// if a certifate was sent with the request, save it
+		byte[] certificate = popAccessPoint.getX509certificate();
+		if (certificate != null && certificate.length > 0) {
+			POPTrustManager.getInstance().addCertToTempStore(certificate, true);
+		}
+		
 		int ref = buffer.getInt(); //related to the addRef called in serialize()
 		if (ref > 0) {
 			try {

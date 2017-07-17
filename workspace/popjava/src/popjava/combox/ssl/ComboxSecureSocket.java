@@ -2,7 +2,6 @@ package popjava.combox.ssl;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,29 +10,18 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.Signature;
 import java.security.cert.Certificate;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
 
 import popjava.base.MessageHeader;
-import popjava.base.POPErrorCode;
-import popjava.base.POPException;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
-import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
-import popjava.util.Util;
 /**
  * This combox implement the protocol ssl
  */
@@ -47,7 +35,7 @@ public class ComboxSecureSocket extends Combox {
 	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024; //8MB
 	
 	private final int HANDSHAKE_CHALLANGE_SIZE = 256;
-
+	
 	/**
 	 * NOTE: this is used by ServerCombox (server)
 	 * Create a new combox on the given socket
@@ -55,19 +43,11 @@ public class ComboxSecureSocket extends Combox {
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
 	public ComboxSecureSocket(Socket socket) throws IOException {
-		peerConnection = socket;
+		peerConnection = socket;		
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
 		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
-		boolean status = serverHandshake();
-		
-		// kill connection if handshake fail
-		if (!status) {
-			inputStream.close();
-			outputStream.close();
-			peerConnection.close();
-			throw new POPException(POPErrorCode.USER_DEFINE_ERROR + 30, "Handshake failed, unknow client.");
-		}
+		extractThumbprint();
 	}
 
 	/**
@@ -119,13 +99,8 @@ public class ComboxSecureSocket extends Combox {
 	 */
 	@Override
 	public boolean connect() {
-		try {
-			// init SSLContext to create SSLSockets
-			// https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
-			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
-			SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
-			sslContext.init(null, trustManagers, null);
-
+		try {			
+			SSLContext sslContext = POPTrustManager.getNewSSLContext();
 			SSLSocketFactory factory = sslContext.getSocketFactory();
 
 			available = false;
@@ -154,7 +129,7 @@ public class ComboxSecureSocket extends Combox {
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 					
-					clientHandhsake();
+					extractThumbprint();
 					
 					available = true;
 				} catch (UnknownHostException e) {
@@ -298,98 +273,22 @@ public class ComboxSecureSocket extends Combox {
 			return -1;
 		}
 	}
-	
-	private boolean clientHandhsake() {
+
+	private void extractThumbprint() {
 		try {
-			LogWriter.writeDebugInfo("Client waiting for challange");
-			// receive challange
-			byte[] challangeBytes = new byte[HANDSHAKE_CHALLANGE_SIZE];
-			inputStream.read(challangeBytes);
-			LogWriter.writeDebugInfo(String.format("Challange is: %s...", new String(challangeBytes, 0, 10)));
-
-			// load private key
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
-			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.TRUST_STORE_PK_PWD.toCharArray());
-			// private key
-			PrivateKey pk = (PrivateKey) keyStore.getKey(Configuration.TRUST_STORE_PK_ALIAS, Configuration.TRUST_STORE_PK_PWD.toCharArray());
-			Certificate ppk = keyStore.getCertificate(Configuration.TRUST_STORE_PK_ALIAS);
-
-			// sign challange, with SHA256
-			// https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#Signature
-			Signature signer = Signature.getInstance("SHA256withRSA");
-			signer.initSign(pk);
-			signer.update(challangeBytes);
-			byte[] answerBytes = signer.sign();
-			
-			LogWriter.writeDebugInfo("Challange signed, sending answer");
-
-			// send answer
-			byte[] sizeAnswer = ByteBuffer.allocate(4).putInt(answerBytes.length).array();
-			String thumbprint = POPTrustManager.getCertificateThumbprint(POPTrustManager.getLocalPublicCertificate());
-			byte[] sizeThumbprint = ByteBuffer.allocate(4).putInt(thumbprint.length()).array();
-			byte[] thumbprintBytes = thumbprint.getBytes();
-			outputStream.write(sizeAnswer);
-			outputStream.write(answerBytes);
-			outputStream.write(sizeThumbprint);
-			outputStream.write(thumbprintBytes);
-			outputStream.flush();
-		} catch(Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-	
-	private boolean serverHandshake() {
-		try {
-			POPTrustManager tm = POPTrustManager.getInstance();
-			// server client challange
-			String challange = Util.generateRandomString(HANDSHAKE_CHALLANGE_SIZE);
-			LogWriter.writeDebugInfo(String.format("Creating challange: %s...", challange.substring(0, 10)));
-
-			// send challange
-			outputStream.write(challange.getBytes(Charset.defaultCharset()));
-			outputStream.flush();
-			
-			LogWriter.writeDebugInfo("Server waiting for answer");
-			
-			// receive answer
-			byte[] sizeAnswerBytes = new byte[4];
-			inputStream.read(sizeAnswerBytes);
-			int sizeAnswer = ByteBuffer.wrap(sizeAnswerBytes).asIntBuffer().get();
-			byte[] answerBytes = new byte[sizeAnswer];
-			inputStream.read(answerBytes);
-			
-			// thumbprint
-			byte[] sizeThumbprintBytes = new byte[4];
-			inputStream.read(sizeThumbprintBytes);
-			int sizeThumbprint = ByteBuffer.wrap(sizeThumbprintBytes).asIntBuffer().get();
-			byte[] certThumbprintBytes = new byte[sizeThumbprint];
-			inputStream.read(certThumbprintBytes);
-			String thumbprint = new String(certThumbprintBytes);
-			
-			// XXX Dirty way of taking this information out of the combox
-			POPSystem.lastComboxThumbprint = thumbprint;
-
-			LogWriter.writeDebugInfo("Answer received, checking signature");
-			
-			// check client signature
-			Signature signer = Signature.getInstance("SHA256withRSA");
-			signer.initVerify(POPTrustManager.getCertificate(thumbprint));
-			signer.update(challange.getBytes());
-			boolean signatureStatus = signer.verify(answerBytes);
-
-			// can't verify, kill
-			if (!signatureStatus) {
-				throw new SSLHandshakeException("Nodes can't trust each other, signatures missmatch.");
+			// set the thumbprint in the accesspoint for all to know
+			// this time we have to look which it is
+			SSLSocket sslPeer = (SSLSocket) peerConnection;
+			Certificate[] certs = sslPeer.getSession().getPeerCertificates();
+			for (Certificate cert : certs) {
+				if (POPTrustManager.getInstance().isCertificateKnown(cert)) {
+					String thumbprint = POPTrustManager.getCertificateThumbprint(cert);
+					accessPoint.setThumbprint(thumbprint);
+					break;
+				}
 			}
-		} catch(Exception e) {
-			LogWriter.writeDebugInfo("Challange failed: " + e.getMessage());
-			return false;
+		} catch (Exception e) {
+			
 		}
-		LogWriter.writeDebugInfo("Challange answered successfully");
-		return true;
 	}
 }

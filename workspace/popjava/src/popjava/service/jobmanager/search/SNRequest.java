@@ -67,7 +67,7 @@ public class SNRequest implements IPOPBase {
 		
 		// app service certificate
 		if (appServiceThumbprint != null) {
-			appServiceCertificate = POPTrustManager.getCertificateBytes(appServiceThumbprint);
+			appServiceCertificate = POPTrustManager.getInstance().getCertificateBytes(appServiceThumbprint);
 		}
 	}
 

@@ -17,6 +17,7 @@ public class POPAccessPoint implements IPOPBase {
 	private boolean noaddref = false;
 	private int security;
 	private String thumbprint = null;
+	private byte[] x509certificate = null;
 
 	/**
 	 * The list of the different access points
@@ -60,9 +61,17 @@ public class POPAccessPoint implements IPOPBase {
 		buffer.putInt(security);
 		buffer.putBoolean(isService);
 		buffer.putBoolean(noaddref);
+		// serialize thumbprint if necessary
 		if (thumbprint != null) {
 			buffer.putBoolean(true);
 			buffer.putString(thumbprint);
+		} else {
+			buffer.putBoolean(false);
+		}
+		// serialize certificate if necessary
+		if (x509certificate != null) {
+			buffer.putBoolean(true);
+			buffer.putArray(x509certificate);
 		} else {
 			buffer.putBoolean(false);
 		}
@@ -82,6 +91,10 @@ public class POPAccessPoint implements IPOPBase {
 		if (buffer.getBoolean()) {
 			thumbprint = buffer.getString();
 		}
+		if (buffer.getBoolean()) {
+			int size = buffer.getInt();
+			x509certificate = buffer.getByteArray(size);
+		}
 		return true;
 	}
 
@@ -91,6 +104,14 @@ public class POPAccessPoint implements IPOPBase {
 
 	public void setThumbprint(String thumbprint) {
 		this.thumbprint = thumbprint;
+	}
+
+	public byte[] getX509certificate() {
+		return x509certificate;
+	}
+
+	public void setX509certificate(byte[] x509certificate) {
+		this.x509certificate = x509certificate;
 	}
 
 	/**

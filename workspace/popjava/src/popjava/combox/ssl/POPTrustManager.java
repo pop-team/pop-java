@@ -1,7 +1,6 @@
 package popjava.combox.ssl;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,13 +21,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.WatchDirectory;
-import sun.security.provider.X509Factory;
 
 /**
  * Two origin KeyStore TrustManager, single instance with Directory Watch and auto-reload.
@@ -42,16 +42,22 @@ public class POPTrustManager implements X509TrustManager {
 		Set<String> permutations = new HashSet<>();
 		
 		@Override
-		public void create(String s) {
-			if (!permutations.contains(s)) {
-				permutations.add(s);
-				reload();
+		public void create(String file) {
+			if (!permutations.contains(file)) {
+				permutations.add(file);
+				
+				// skip reload if its our certificate
+				if (file.equals(instance.skipCertificate)) {
+					instance.skipCertificate = null;
+				} else {
+					reload();
+				}
 			}
 		}
 
 		@Override
-		public void delete(String s) {
-			permutations.remove(s);
+		public void delete(String file) {
+			permutations.remove(file);
 			reload();
 		}
 		
@@ -63,25 +69,28 @@ public class POPTrustManager implements X509TrustManager {
 		}
 	}
 
+	// access to keystore
 	private final String trustStorePath;
 	private final String trustStorePass;
 	private final String tempTrustStorePath;
 	
+	// certificates stores
 	private X509TrustManager trustManager;
 	private Map<String,Certificate> loadedCertificates;
 	private Set<String> confidenceCertificates;
-	private CertificateFactory certFactory;
+	
+	// easy access
+	private static CertificateFactory certFactory;
 	private Certificate publicCertificate;
 	
+	// reload and add new certificates
 	private WatchDirectory watcher;
+	// don't reload whole manager if we add a certificate manually
+	private String skipCertificate;
 	
 	private static POPTrustManager instance;
 	static {
-		try {
-			instance = new POPTrustManager();
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+		instance = new POPTrustManager();
 	}
 	
 	private POPTrustManager() {
@@ -99,6 +108,7 @@ public class POPTrustManager implements X509TrustManager {
 			dirWatcher.start();
 			reloadTrustManager();
 		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -125,11 +135,11 @@ public class POPTrustManager implements X509TrustManager {
 	/**
 	 * Tell if a certificate is confidence link certificate or a temporary link
 	 * 
-	 * @param hash The identifier of the certificate
+	 * @param thumbprint The identifier of the certificate
 	 * @return true if it's a confidence link, false otherwise
 	 */
-	public boolean isConfidenceLink(String hash) {
-		return confidenceCertificates.contains(hash);
+	public boolean isConfidenceLink(String thumbprint) {
+		return confidenceCertificates.contains(thumbprint);
 	}
 	
 	private void saveCertificatesLocally() {
@@ -191,35 +201,70 @@ public class POPTrustManager implements X509TrustManager {
 
 		throw new NoSuchAlgorithmException("No X509TrustManager in TrustManagerFactory");
 	}
+	
+	/**
+	 * Do we know the certificate
+	 * 
+	 * @param cert
+	 * @return 
+	 */
+	public boolean isCertificateKnown(Certificate cert) {
+		return loadedCertificates.values().contains(cert);
+	}
 
-	public static void addCertToTempStore(byte[] certificate) {
+	/**
+	 * Add a certificate and don't reload locally
+	 * 
+	 * @see #addCertToTempStore(byte[], boolean) 
+	 * @param certificate 
+	 */
+	public void addCertToTempStore(byte[] certificate) {
+		addCertToTempStore(certificate, false);
+	}
+	
+	/**
+	 * Add a new certificate to the temporary store
+	 * 
+	 * @param certificate
+	 * @param reload 
+	 */
+	public void addCertToTempStore(byte[] certificate, boolean reload) {
 		try {
 			// load it
 			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
-			Certificate cert = instance.certFactory.generateCertificate(fi);
+			Certificate cert = certFactory.generateCertificate(fi);
 			fi.close();
 			
 			// stop if already loaded
 			String thumbprint = getCertificateThumbprint(cert);
-			if (instance.loadedCertificates.containsKey(thumbprint)) {
+			if (loadedCertificates.keySet().contains(thumbprint)) {
 				return;
 			}
 			
+			// certificate output name
+			String outName = thumbprint + ".cer";
+			
 			// certificates temprary path
-			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, thumbprint + ".cer");
+			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, outName);
 			// move to local directory
 			Files.write(path, certificate);
-		} catch (Exception ex) {
 			
+			// handle local reload
+			if (reload) {
+				skipCertificate = outName;
+				reloadTrustManager();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 	
-	public static Certificate getLocalPublicCertificate() {
-		return instance.publicCertificate;
+	public Certificate getLocalPublicCertificate() {
+		return publicCertificate;
 	}
 	
-	public static Certificate getCertificate(String thumbprint) {
-		return instance.loadedCertificates.get(thumbprint);
+	public Certificate getCertificate(String thumbprint) {
+		return loadedCertificates.get(thumbprint);
 	}
 	
 	/**
@@ -239,7 +284,7 @@ public class POPTrustManager implements X509TrustManager {
 		return sb.toString().getBytes();
 	}
 	
-	public static byte[] getCertificateBytes(String thumbprint) {
+	public byte[] getCertificateBytes(String thumbprint) {
 		return getCertificateBytes(getCertificate(thumbprint));
 	}
 	
@@ -273,12 +318,35 @@ public class POPTrustManager implements X509TrustManager {
 		try {
 			// load certificate
 			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
-			Certificate cert = instance.certFactory.generateCertificate(fi);
+			Certificate cert = certFactory.generateCertificate(fi);
 			fi.close();
 			// compute hash
 			return getCertificateThumbprint(cert);
 		} catch(CertificateException | IOException e) {
 		}
 		return null;
+	}
+	
+	/**
+	 * Get a correctly initialized SSLContext
+	 * 
+	 * @return 
+	 * @throws java.lang.Exception A lot of potential exceptions
+	 */
+	public static SSLContext getNewSSLContext() throws Exception {
+		// init SSLContext to create SSLSockets
+		// load private key
+		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+		keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
+		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		keyManagerFactory.init(keyStore, Configuration.TRUST_STORE_PK_PWD.toCharArray());
+		// https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
+		TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
+
+		// init ssl context with everything
+		SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
+		sslContext.init(keyManagerFactory.getKeyManagers(), trustManagers, null);
+
+		return sslContext;
 	}
 }

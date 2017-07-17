@@ -175,7 +175,7 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 
 				// if we want to answer we save the certificate if there is any
 				if (request.getPublicCertificate().length > 0) {
-					POPTrustManager.addCertToTempStore(request.getPublicCertificate());
+					POPTrustManager.getInstance().addCertToTempStore(request.getPublicCertificate());
 				}
 
 				// route response to the original JM

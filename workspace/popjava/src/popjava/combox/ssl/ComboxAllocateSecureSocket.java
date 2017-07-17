@@ -1,19 +1,15 @@
 package popjava.combox.ssl;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.security.KeyStore;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 
 import popjava.buffer.POPBuffer;
 import popjava.combox.ComboxAllocate;
 import popjava.system.POPSystem;
-import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 /**
@@ -31,16 +27,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	 */
 	public ComboxAllocateSecureSocket() {		
 		try {
-			// server only, read private key
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
-			
-			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.TRUST_STORE_PK_PWD.toCharArray());
-			
-			SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
-			sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
-			
+			SSLContext sslContext = POPTrustManager.getNewSSLContext();
 			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
 			
 			InetSocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);
@@ -58,7 +45,8 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	@Override
 	public void startToAcceptOneConnection() {
 		try {
-			Socket peerConnection = serverSocket.accept();
+			SSLSocket peerConnection = (SSLSocket) serverSocket.accept();
+			peerConnection.setNeedClientAuth(true);
 			combox = new ComboxSecureSocket(peerConnection);
 		} catch (IOException e) {
 			e.printStackTrace();

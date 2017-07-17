@@ -87,5 +87,5 @@ public abstract class Combox {
 	 */
 	public BufferFactory getBufferFactory() {
 		return bufferFactory;
-	}	
+	}
 }

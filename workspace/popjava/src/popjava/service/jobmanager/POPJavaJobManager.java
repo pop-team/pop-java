@@ -146,6 +146,7 @@ public class POPJavaJobManager extends POPJobService {
 			LogWriter.writeDebugInfo("[JM] Open config file [" + confFile + "] fail");
 			POPException.throwObjectNoResource();
 		}
+		LogWriter.writeDebugInfo("[JM] Using %s as config file", config.getAbsoluteFile().toString());
 
 		// default num of jobs
 		maxJobs = 100;
@@ -1373,7 +1374,7 @@ public class POPJavaJobManager extends POPJobService {
 
 				// if we want to answer we save the certificate if there is any
 				if (request.getPublicCertificate().length > 0) {
-					POPTrustManager.addCertToTempStore(request.getPublicCertificate());
+					POPTrustManager.getInstance().addCertToTempStore(request.getPublicCertificate());
 				}
 				
 				// route response to the original JM
@@ -1424,7 +1425,7 @@ public class POPJavaJobManager extends POPJobService {
 			
 			// save responder certificate
 			if (response.getPublicCertificate().length > 0) {
-				POPTrustManager.addCertToTempStore(response.getPublicCertificate());
+				POPTrustManager.getInstance().addCertToTempStore(response.getPublicCertificate());
 			}
 			
 			// we unlock the senaphore if it was set
