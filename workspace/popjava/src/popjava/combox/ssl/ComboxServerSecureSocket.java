@@ -5,6 +5,7 @@ import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
 import java.net.*;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import popjava.combox.ComboxServer;
 
@@ -16,7 +17,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	public static final int BUFFER_LENGTH = 1024;
 	private final int RECEIVE_BUFFER_SIZE = 1024 * 8 * 500;
 
-	protected ServerSocket serverSocket = null;
+	protected SSLServerSocket serverSocket = null;
 
 	// we use the simple socker implementation of this since it beahve the same way
 	private ComboxAcceptSecureSocket serverCombox = null;
@@ -53,10 +54,11 @@ public class ComboxServerSecureSocket extends ComboxServer {
 			SSLContext sslContext = POPTrustManager.getNewSSLContext();
 			
 			// XXX WHY DO WE NEED THIS ?!!!
-			sslContext.getSupportedSSLParameters();
+			//sslContext.getSupportedSSLParameters();
 			
 			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
-			serverSocket = factory.createServerSocket();
+			serverSocket = (SSLServerSocket) factory.createServerSocket();
+			serverSocket.setNeedClientAuth(true);
 			
 			serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
 			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));
@@ -68,6 +70,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 			accessPoint.setHost(accessPoint.getHost());
 			accessPoint.setPort(serverSocket.getLocalPort());
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

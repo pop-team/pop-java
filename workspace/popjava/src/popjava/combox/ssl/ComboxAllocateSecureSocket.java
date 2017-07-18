@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 
@@ -19,7 +20,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	
 	private static final int SOCKET_TIMEOUT_MS = 30000;
 	
-	protected ServerSocket serverSocket = null;	
+	protected SSLServerSocket serverSocket = null;	
 	private ComboxSecureSocket combox = null;
 	
 	/**
@@ -31,7 +32,8 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
 			
 			InetSocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);
-			serverSocket = factory.createServerSocket();
+			serverSocket = (SSLServerSocket) factory.createServerSocket();
+			serverSocket.setNeedClientAuth(true);
 			serverSocket.bind(sockAddr);
 			serverSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
 		} catch (Exception e) {
@@ -46,7 +48,6 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	public void startToAcceptOneConnection() {
 		try {
 			SSLSocket peerConnection = (SSLSocket) serverSocket.accept();
-			peerConnection.setNeedClientAuth(true);
 			combox = new ComboxSecureSocket(peerConnection);
 		} catch (IOException e) {
 			e.printStackTrace();
