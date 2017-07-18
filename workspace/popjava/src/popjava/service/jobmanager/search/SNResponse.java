@@ -2,7 +2,7 @@ package popjava.service.jobmanager.search;
 
 import java.security.cert.Certificate;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ssl.POPTrustManager;
+import popjava.combox.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
 
 /**
@@ -26,9 +26,9 @@ public class SNResponse implements IPOPBase {
 		this.explorationList = explorationList;
 		this.nodeinfo = nodeinfo;
 		
-		Certificate localPublicCertificate = POPTrustManager.getLocalPublicCertificate();
+		Certificate localPublicCertificate = SSLUtils.getLocalPublicCertificate();
 		if (localPublicCertificate != null) {
-			publicCertificate = POPTrustManager.getCertificateBytes(localPublicCertificate);
+			publicCertificate = SSLUtils.certificateBytes(localPublicCertificate);
 		}
 	}
 

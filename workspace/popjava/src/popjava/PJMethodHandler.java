@@ -25,6 +25,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ssl.POPTrustManager;
+import popjava.combox.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
@@ -287,16 +288,17 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				
 				// add source node's certificate to the accesspoint since it's a reference
 				POPAccessPoint objAp = object.getAccessPoint();
-				String thumbprint = objAp.getThumbprint();
-				if (thumbprint != null) {
+				String originThumbprint = objAp.getThumbprint();
+				if (originThumbprint != null) {
 					// add to access point for the connector
-					objAp.setX509certificate(POPTrustManager.getInstance().getCertificateBytes(thumbprint));
+					Certificate originCert = POPTrustManager.getInstance().getCertificate(originThumbprint);
+					objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
 					
 					// send connector certificate to object's node
 					String destinationThumbprint = popAccessPoint.getThumbprint();
-					Certificate certificate = POPTrustManager.getInstance().getCertificate(destinationThumbprint);
+					Certificate destCert = POPTrustManager.getInstance().getCertificate(destinationThumbprint);
 					// send caller certificate to origin node
-					object.PopRegisterFutureConnectorCertificate(POPTrustManager.getCertificateBytes(certificate));
+					object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
 				}
 			}
 			

@@ -22,6 +22,7 @@ import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+
 /**
  * This combox implement the protocol ssl
  */
@@ -100,7 +101,7 @@ public class ComboxSecureSocket extends Combox {
 	@Override
 	public boolean connect() {
 		try {			
-			SSLContext sslContext = POPTrustManager.getNewSSLContext();
+			SSLContext sslContext = SSLUtils.getSSLContext();
 			SSLSocketFactory factory = sslContext.getSocketFactory();
 
 			available = false;
@@ -282,7 +283,7 @@ public class ComboxSecureSocket extends Combox {
 			Certificate[] certs = sslPeer.getSession().getPeerCertificates();
 			for (Certificate cert : certs) {
 				if (POPTrustManager.getInstance().isCertificateKnown(cert)) {
-					String thumbprint = POPTrustManager.getCertificateThumbprint(cert);
+					String thumbprint = SSLUtils.certificateThumbprint(cert);
 					accessPoint.setThumbprint(thumbprint);
 					break;
 				}

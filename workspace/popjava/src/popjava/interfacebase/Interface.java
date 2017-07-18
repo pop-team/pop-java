@@ -29,7 +29,7 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxAllocate;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
-import popjava.combox.ssl.POPTrustManager;
+import popjava.combox.ssl.SSLUtils;
 import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.service.jobmanager.POPJavaAppService;
@@ -101,7 +101,7 @@ public class Interface {
 		// if a certifate was sent with the request, save it
 		byte[] certificate = popAccessPoint.getX509certificate();
 		if (certificate != null && certificate.length > 0) {
-			POPTrustManager.getInstance().addCertToTempStore(certificate, true);
+			SSLUtils.addCertToTempStore(certificate, true);
 		}
 		
 		int ref = buffer.getInt(); //related to the addRef called in serialize()

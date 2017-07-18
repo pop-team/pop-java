@@ -27,6 +27,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ssl.POPTrustManager;
+import popjava.combox.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
@@ -836,7 +837,7 @@ public class POPObject implements IPOPBase {
 	@POPSyncConc
 	public void PopRegisterFutureConnectorCertificate(byte[] cert) {
 		LogWriter.writeDebugInfo("Writing certificate received from reference.");
-		POPTrustManager.getInstance().addCertToTempStore(cert, true);
+		SSLUtils.addCertToTempStore(cert, true);
 	}
 	
 	@Override

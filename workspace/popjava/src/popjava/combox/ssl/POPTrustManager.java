@@ -1,18 +1,11 @@
 package popjava.combox.ssl;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.KeyStore;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -21,8 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -116,6 +107,11 @@ public class POPTrustManager implements X509TrustManager {
 		}
 	}
 
+	/**
+	 * The TrustManager instance 
+	 * 
+	 * @return 
+	 */
 	public static POPTrustManager getInstance() {
 		return instance;
 	}
@@ -146,15 +142,21 @@ public class POPTrustManager implements X509TrustManager {
 		return confidenceCertificates.contains(thumbprint);
 	}
 	
-	private void saveCertificatesLocally() {
-		loadedCertificates.clear();
+	/**
+	 * Sav
+	 */
+	private void saveCertificatesToMemory() {
+		Map<String,Certificate> temp = new HashMap<>();
 		Certificate[] certificates = getAcceptedIssuers();
 		for (Certificate cert : certificates) {
-			loadedCertificates.put(getCertificateThumbprint(cert), cert);
+			temp.put(SSLUtils.certificateThumbprint(cert), cert);
 		}
+		// empty and swap
+		loadedCertificates.clear();
+		loadedCertificates.putAll(temp);
 	}
 
-	private void reloadTrustManager() throws Exception {
+	final protected void reloadTrustManager() throws Exception {
 		long start = System.currentTimeMillis();
 		// load keystore from specified cert store (or default)
 		KeyStore trustedKS = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -171,7 +173,7 @@ public class POPTrustManager implements X509TrustManager {
 		for (Enumeration<String> eAlias = trustedKS.aliases(); eAlias.hasMoreElements();) {
 			String alias = eAlias.nextElement();
 			Certificate cert = trustedKS.getCertificate(alias);
-			confidenceCertificates.add(getCertificateThumbprint(cert));
+			confidenceCertificates.add(SSLUtils.certificateThumbprint(cert));
                         
 			// save public certificate
 			if (alias.equals(Configuration.TRUST_STORE_PK_ALIAS)) {
@@ -203,7 +205,7 @@ public class POPTrustManager implements X509TrustManager {
 		for (int i = 0; i < tms.length; i++) {
 			if (tms[i] instanceof X509TrustManager) {
 				trustManager = (X509TrustManager) tms[i];
-				saveCertificatesLocally();
+				saveCertificatesToMemory();
 				return;
 			}
 		}
@@ -220,142 +222,23 @@ public class POPTrustManager implements X509TrustManager {
 	public boolean isCertificateKnown(Certificate cert) {
 		return loadedCertificates.values().contains(cert);
 	}
-
-	/**
-	 * Add a certificate and don't reload locally
-	 * 
-	 * @see #addCertToTempStore(byte[], boolean) 
-	 * @param certificate 
-	 */
-	public void addCertToTempStore(byte[] certificate) {
-		addCertToTempStore(certificate, false);
-	}
 	
 	/**
-	 * Add a new certificate to the temporary store
+	 * Public certificate from the ones loaded
 	 * 
-	 * @param certificate
-	 * @param reload 
+	 * @return 
 	 */
-	public void addCertToTempStore(byte[] certificate, boolean reload) {
-		try {
-			// load it
-			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
-			Certificate cert = certFactory.generateCertificate(fi);
-			fi.close();
-			
-			// stop if already loaded
-			String thumbprint = getCertificateThumbprint(cert);
-			if (loadedCertificates.keySet().contains(thumbprint)) {
-				return;
-			}
-			
-			// certificate output name
-			String outName = thumbprint + ".cer";
-			
-			// certificates temprary path
-			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, outName);
-			// move to local directory
-			Files.write(path, certificate);
-			
-			// handle local reload
-			if (reload) {
-				skipCertificate = outName;
-				reloadTrustManager();
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
-	
-	public static Certificate getLocalPublicCertificate() {
+	protected static Certificate getLocalPublicCertificate() {
 		return publicCertificate;
 	}
 	
+	/**
+	 * Any certificate from the local Trust manager
+	 * 
+	 * @param thumbprint
+	 * @return 
+	 */
 	public Certificate getCertificate(String thumbprint) {
 		return loadedCertificates.get(thumbprint);
-	}
-	
-	/**
-	 * Get the bytes of a certificate
-	 * 
-	 * @param cert
-	 * @return 
-	 */
-	public static byte[] getCertificateBytes(Certificate cert) {
-		StringBuilder sb = new StringBuilder();
-		try {
-			sb.append("-----BEGIN CERTIFICATE-----\n");
-			sb.append(javax.xml.bind.DatatypeConverter.printBase64Binary(cert.getEncoded())).append("\n");
-			sb.append("-----END CERTIFICATE-----\n");
-		} catch(CertificateEncodingException e) {
-		}
-		return sb.toString().getBytes();
-	}
-	
-	public byte[] getCertificateBytes(String thumbprint) {
-		return getCertificateBytes(getCertificate(thumbprint));
-	}
-	
-	/**
-	 * Get the SHA-1 thumbprint of a certificate
-	 * 
-	 * @see https://stackoverflow.com/questions/1270703/how-to-retrieve-compute-an-x509-certificates-thumbprint-in-java
-	 * @param cert
-	 * @return The hex representation of the thumbprint
-	 */
-	public static String getCertificateThumbprint(Certificate cert) {
-		try {
-			MessageDigest md = MessageDigest.getInstance("SHA-1");
-			byte[] der = cert.getEncoded();
-			md.update(der);
-			byte[] digest = md.digest();
-			// TODO is there a better way to do this?
-			return javax.xml.bind.DatatypeConverter.printHexBinary(digest);
-		} catch (NoSuchAlgorithmException | CertificateEncodingException ex) {
-		}
-		return null;
-	}
-	
-	/**
-	 * Get the SHA-1 thumbprint of a certificate from its byte array representation
-	 * 
-	 * @param certificate
-	 * @return 
-	 */
-	public static String getCertificateThumbprint(byte[] certificate) {
-		try {
-			// load certificate
-			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
-			Certificate cert = certFactory.generateCertificate(fi);
-			fi.close();
-			// compute hash
-			return getCertificateThumbprint(cert);
-		} catch(CertificateException | IOException e) {
-		}
-		return null;
-	}
-	
-	/**
-	 * Get a correctly initialized SSLContext
-	 * 
-	 * @return 
-	 * @throws java.lang.Exception A lot of potential exceptions
-	 */
-	public static SSLContext getNewSSLContext() throws Exception {
-		// init SSLContext to create SSLSockets
-		// load private key
-		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-		keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
-		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		keyManagerFactory.init(keyStore, Configuration.TRUST_STORE_PK_PWD.toCharArray());
-		// https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
-		TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
-
-		// init ssl context with everything
-		SSLContext sslContext = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
-		sslContext.init(keyManagerFactory.getKeyManagers(), trustManagers, null);
-
-		return sslContext;
 	}
 }

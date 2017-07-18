@@ -2,7 +2,6 @@ package popjava.combox.ssl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -28,7 +27,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	 */
 	public ComboxAllocateSecureSocket() {		
 		try {
-			SSLContext sslContext = POPTrustManager.getNewSSLContext();
+			SSLContext sslContext = SSLUtils.getSSLContext();
 			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
 			
 			InetSocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);

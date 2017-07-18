@@ -5,7 +5,7 @@ import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.combox.ssl.POPTrustManager;
+import popjava.combox.ssl.SSLUtils;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
@@ -186,12 +186,12 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 
 			// we want to save the requester's certificate if there is one
 			if (request.getPublicCertificate().length > 0) {
-				POPTrustManager.getInstance().addCertToTempStore(request.getPublicCertificate());
+				SSLUtils.addCertToTempStore(request.getPublicCertificate());
 			}
 			
 			// we want to save the AppService's node certiicate
 			if (request.getAppServiceCertificate().length > 0) {
-				POPTrustManager.getInstance().addCertToTempStore(request.getAppServiceCertificate());
+				SSLUtils.addCertToTempStore(request.getAppServiceCertificate());
 			}
 
 			// route response to the original JM

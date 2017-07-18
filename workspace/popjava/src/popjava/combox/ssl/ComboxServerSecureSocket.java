@@ -51,7 +51,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	 */
 	public void createServer() {
 		try {
-			SSLContext sslContext = POPTrustManager.getNewSSLContext();
+			SSLContext sslContext = SSLUtils.getSSLContext();
 			
 			// XXX WHY DO WE NEED THIS ?!!!
 			//sslContext.getSupportedSSLParameters();

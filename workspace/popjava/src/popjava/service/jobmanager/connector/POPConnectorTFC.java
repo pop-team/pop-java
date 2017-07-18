@@ -9,7 +9,7 @@ import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.combox.ssl.POPTrustManager;
+import popjava.combox.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.NodeTFC;
@@ -175,7 +175,7 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 
 				// if we want to answer we save the certificate if there is any
 				if (request.getPublicCertificate().length > 0) {
-					POPTrustManager.getInstance().addCertToTempStore(request.getPublicCertificate());
+					SSLUtils.addCertToTempStore(request.getPublicCertificate());
 				}
 
 				// route response to the original JM

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.security.cert.Certificate;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ssl.POPTrustManager;
+import popjava.combox.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.Resource;
 import popjava.system.POPSystem;
@@ -51,14 +52,15 @@ public class SNRequest implements IPOPBase {
 		this.connector = connector;
 		
 		// this node certificate
-		Certificate localPublicCertificate = POPTrustManager.getLocalPublicCertificate();
+		Certificate localPublicCertificate = SSLUtils.getLocalPublicCertificate();
 		if (localPublicCertificate != null) {
-			publicCertificate = POPTrustManager.getCertificateBytes(localPublicCertificate);
+			publicCertificate = SSLUtils.certificateBytes(localPublicCertificate);
 		}
 		
 		// app service certificate
 		if (appServiceThumbprint != null) {
-			appServiceCertificate = POPTrustManager.getInstance().getCertificateBytes(appServiceThumbprint);
+			Certificate appServiceCert = POPTrustManager.getInstance().getCertificate(appServiceThumbprint);
+			appServiceCertificate = SSLUtils.certificateBytes(appServiceCert);
 		}
 	}
 
