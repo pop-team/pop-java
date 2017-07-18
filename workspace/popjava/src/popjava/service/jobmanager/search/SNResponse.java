@@ -1,12 +1,9 @@
 package popjava.service.jobmanager.search;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.security.cert.Certificate;
 import popjava.buffer.POPBuffer;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.dataswaper.IPOPBase;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
 
 /**
  * Response of a network request, create and send one for itself.
@@ -29,13 +26,9 @@ public class SNResponse implements IPOPBase {
 		this.explorationList = explorationList;
 		this.nodeinfo = nodeinfo;
 		
-		File cert = new File(Configuration.PUBLIC_CERTIFICATE);
-		if (cert.exists()) {
-			try {
-				publicCertificate = Files.readAllBytes(cert.toPath());
-			} catch (IOException e) {
-				LogWriter.writeDebugInfo("[SN] Could not extract certificate bytes");
-			}
+		Certificate localPublicCertificate = POPTrustManager.getLocalPublicCertificate();
+		if (localPublicCertificate != null) {
+			publicCertificate = POPTrustManager.getCertificateBytes(localPublicCertificate);
 		}
 	}
 

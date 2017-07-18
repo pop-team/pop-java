@@ -79,18 +79,24 @@ public class POPTrustManager implements X509TrustManager {
 	private Map<String,Certificate> loadedCertificates;
 	private Set<String> confidenceCertificates;
 	
-	// easy access
-	private static CertificateFactory certFactory;
-	private Certificate publicCertificate;
-	
 	// reload and add new certificates
 	private WatchDirectory watcher;
 	// don't reload whole manager if we add a certificate manually
 	private String skipCertificate;
 	
+	// easy access
+	private static Certificate publicCertificate;
+	private static CertificateFactory certFactory;
 	private static POPTrustManager instance;
+        
+	// static initializations
 	static {
-		instance = new POPTrustManager();
+		try {
+			certFactory = CertificateFactory.getInstance("X.509");
+			instance = new POPTrustManager();
+		} catch(Exception e) {
+
+		}
 	}
 	
 	private POPTrustManager() {
@@ -100,8 +106,6 @@ public class POPTrustManager implements X509TrustManager {
 		try {
 			loadedCertificates = new HashMap<>();
 			confidenceCertificates = new HashSet<>();
-			certFactory = CertificateFactory.getInstance("X.509");
-			publicCertificate = certFactory.generateCertificate(new FileInputStream(Configuration.PUBLIC_CERTIFICATE));
 			watcher = new WatchDirectory(tempTrustStorePath, new WatcherMethods());
 			Thread dirWatcher = new Thread(watcher, "TrustStore temporary folder watcher");
 			dirWatcher.setDaemon(true);
@@ -168,6 +172,11 @@ public class POPTrustManager implements X509TrustManager {
 			String alias = eAlias.nextElement();
 			Certificate cert = trustedKS.getCertificate(alias);
 			confidenceCertificates.add(getCertificateThumbprint(cert));
+                        
+			// save public certificate
+			if (alias.equals(Configuration.TRUST_STORE_PK_ALIAS)) {
+				publicCertificate = cert;
+			}
 		}
 		
 		// add temporary certificates
@@ -259,7 +268,7 @@ public class POPTrustManager implements X509TrustManager {
 		}
 	}
 	
-	public Certificate getLocalPublicCertificate() {
+	public static Certificate getLocalPublicCertificate() {
 		return publicCertificate;
 	}
 	

@@ -1,8 +1,5 @@
 package popjava.service.jobmanager.search;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.security.cert.Certificate;
@@ -11,8 +8,6 @@ import popjava.combox.ssl.POPTrustManager;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.Resource;
 import popjava.system.POPSystem;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
 
 /**
  * A request for the Search Node, is also used to handle application death.
@@ -56,13 +51,9 @@ public class SNRequest implements IPOPBase {
 		this.connector = connector;
 		
 		// this node certificate
-		File localCertificatePath = new File(Configuration.PUBLIC_CERTIFICATE);
-		if (localCertificatePath.exists()) {
-			try {
-				publicCertificate = Files.readAllBytes(localCertificatePath.toPath());
-			} catch (IOException e) {
-				LogWriter.writeDebugInfo("[SN] Could not extract certificate bytes");
-			}
+		Certificate localPublicCertificate = POPTrustManager.getLocalPublicCertificate();
+		if (localPublicCertificate != null) {
+			publicCertificate = POPTrustManager.getCertificateBytes(localPublicCertificate);
 		}
 		
 		// app service certificate
