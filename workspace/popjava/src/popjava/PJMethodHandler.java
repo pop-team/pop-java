@@ -3,6 +3,7 @@ package popjava;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.security.cert.Certificate;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -283,11 +284,19 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					// change reference to proxy
 					args[i] = object;
 				}
-				// add source node's certificate to the accesspoint
+				
+				// add source node's certificate to the accesspoint since it's a reference
 				POPAccessPoint objAp = object.getAccessPoint();
 				String thumbprint = objAp.getThumbprint();
 				if (thumbprint != null) {
+					// add to access point for the connector
 					objAp.setX509certificate(POPTrustManager.getInstance().getCertificateBytes(thumbprint));
+					
+					// send connector certificate to object's node
+					String destinationThumbprint = popAccessPoint.getThumbprint();
+					Certificate certificate = POPTrustManager.getInstance().getCertificate(destinationThumbprint);
+					// send caller certificate to origin node
+					object.PopRegisterFutureConnectorCertificate(POPTrustManager.getCertificateBytes(certificate));
 				}
 			}
 			

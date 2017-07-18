@@ -2,6 +2,8 @@ package popjava;
 
 import javassist.util.proxy.MethodFilter;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 import popjava.base.POPObject;
 
@@ -13,22 +15,21 @@ public class PJMethodFilter implements MethodFilter {
 	/**
 	 * Creates a new instance of PJMethodFilter
 	 */
-	static private java.util.ArrayList<String> filterMethodList = new java.util.ArrayList<String>();
+	static private Set<String> filterMethodList = new HashSet<String>();
 
 	/**
 	 * Create a filter list of not handled method
 	 */
 	static {
-		java.util.ArrayList<String> notFilterMethodList = new java.util.ArrayList<String>();
+		Set<String> notFilterMethodList = new HashSet<String>();
 		notFilterMethodList.add("serialize");
 		notFilterMethodList.add("deserialize");
 		notFilterMethodList.add("getAccessPoint");
-		notFilterMethodList.add("exit");		
+		notFilterMethodList.add("exit");
 		Class<?> c = POPObject.class;
 		Method[] methods = c.getDeclaredMethods();
 		for (Method m : methods) {
-			if (!notFilterMethodList.contains(m.getName())
-					&& !filterMethodList.contains(m.getName())) {				
+			if (!notFilterMethodList.contains(m.getName()) && !POPObject.isMethodPOPAnnotated(m)) {				
 				filterMethodList.add(m.getName());
 			}
 		}

@@ -10,9 +10,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javassist.util.proxy.Proxy;
 import javassist.util.proxy.ProxyObject;
-import popjava.PJMethodHandler;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -28,8 +26,10 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
+import popjava.util.LogWriter;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
  */
@@ -177,7 +177,7 @@ public class POPObject implements IPOPBase {
 		throw new InvalidParameterException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
 	}
 	
-	private boolean isMethodPOPAnnotated(Method method){
+	public static boolean isMethodPOPAnnotated(Method method){
 		if(method.isAnnotationPresent(POPSyncConc.class)){
 			return true;
 		}
@@ -617,10 +617,12 @@ public class POPObject implements IPOPBase {
 			
 			int index = startIndex;
 			for (Method m : allMethods) {
-				POPClass popClassAnnotation = m.getDeclaringClass().getAnnotation(POPClass.class);
-				if (popClassAnnotation != null && Modifier.isPublic(m.getModifiers()) && isMethodPOPAnnotated(m)) {
+				Class<?> declaringClass = m.getDeclaringClass();
+				POPClass popClassAnnotation = declaringClass.getAnnotation(POPClass.class);
+				if ((popClassAnnotation != null || declaringClass.equals(POPObject.class))
+						&& Modifier.isPublic(m.getModifiers()) && isMethodPOPAnnotated(m)) {
 				    int methodId = methodId(m,index);
-				    int id = popClassAnnotation.classId();
+				    int id = popClassAnnotation == null ? -1 : popClassAnnotation.classId();
 				    
 				    if(id == -1){
 				    	id = getClassId();
@@ -823,6 +825,18 @@ public class POPObject implements IPOPBase {
 		}
 		
 		return (T) me;
+	}
+	
+	/**
+	 * Register a certificate on the node 
+	 * TODO Handle this method for other kind of Combox (only SSL ATM)
+	 * 
+	 * @param cert 
+	 */
+	@POPSyncConc
+	public void PopRegisterFutureConnectorCertificate(byte[] cert) {
+		LogWriter.writeDebugInfo("Writing certificate received from reference.");
+		POPTrustManager.getInstance().addCertToTempStore(cert, true);
 	}
 	
 	@Override
