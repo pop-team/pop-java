@@ -1,6 +1,5 @@
 package popjava.util;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
@@ -10,7 +9,7 @@ import java.nio.file.WatchService;
 import java.util.List;
 
 /**
- * Watch a Directory for changes
+ * Watch a Directory or file for changes
  *
  * @see http://www.rgagnon.com/javadetails/java-detect-file-modification-event.html
  */
@@ -32,7 +31,9 @@ public class WatchDirectory implements Runnable {
 		try {
 			myDir = Paths.get(path);
 			watcher = myDir.getFileSystem().newWatchService();
-			myDir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
+			myDir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, 
+				StandardWatchEventKinds.ENTRY_DELETE,
+				StandardWatchEventKinds.ENTRY_MODIFY);
 			this.method = method;
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -30,25 +30,14 @@ import popjava.util.WatchDirectory;
 public class POPTrustManager implements X509TrustManager {
 	
 	private class WatcherMethods extends WatchDirectory.WatchMethod {
-		Set<String> permutations = new HashSet<>();
 		
 		@Override
 		public void create(String file) {
-			if (!permutations.contains(file)) {
-				permutations.add(file);
-				
-				// skip reload if its our certificate
-				if (file.equals(instance.skipCertificate)) {
-					instance.skipCertificate = null;
-				} else {
-					reload();
-				}
-			}
+			reload();
 		}
 
 		@Override
 		public void delete(String file) {
-			permutations.remove(file);
 			reload();
 		}
 		
@@ -59,7 +48,7 @@ public class POPTrustManager implements X509TrustManager {
 			} catch(Exception e) {}
 		}
 	}
-
+	
 	// access to keystore
 	private final String trustStorePath;
 	private final String trustStorePass;
@@ -72,8 +61,6 @@ public class POPTrustManager implements X509TrustManager {
 	
 	// reload and add new certificates
 	private WatchDirectory watcher;
-	// don't reload whole manager if we add a certificate manually
-	private String skipCertificate;
 	
 	// easy access
 	private static Certificate publicCertificate;
