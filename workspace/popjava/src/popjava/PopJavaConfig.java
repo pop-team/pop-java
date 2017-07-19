@@ -1,12 +1,16 @@
 package popjava;
 
+import java.io.IOException;
+import java.security.cert.Certificate;
 import popjava.base.POPObject;
 import popjava.baseobject.POPAccessPoint;
+import popjava.combox.ssl.SSLUtils;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.serviceadapter.POPJobManager;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
+import popjava.util.LogWriter;
 
 /**
  * Proxy to Job Manager for user use of the complexity
@@ -58,23 +62,80 @@ public class PopJavaConfig {
 	/**
 	 * Add a new Node/Friend to a network
 	 *
-	 * @param <T>
 	 * @param network The name of the network
 	 * @param node A network node implementation
 	 */
-	public<T extends POPNetworkNode> void registerNode(String network, T node) {
+	public void registerNode(String network, POPNetworkNode node) {
 		jobManager.registerPermanentNode(network, node.getCreationParams());
 	}
-
+	
 	/**
-	 * Remove a Node/Friend to a network
+	 * Register a new node with a certificate associated to it
+	 * 
+	 * @param network
+	 * @param node
+	 * @param certificate
+	 * @return 
+	 */
+	public boolean registerNode(String network, POPNetworkNode node, Certificate certificate) {
+		try {
+			SSLUtils.addConfidenceLink(node, certificate);
+			jobManager.registerPermanentNode(network, node.getCreationParams());
+			return true;
+		} catch(IOException e) {
+			LogWriter.writeExceptionLog(e);
+			return false;
+		}
+	}
+	
+	/**
+	 * Add a confidence link to a previously added node
+	 * 
+	 * @param node
+	 * @param certificate
+	 * @return 
+	 */
+	public boolean assignCertificate(POPNetworkNode node, Certificate certificate) {
+		try {
+			SSLUtils.addConfidenceLink(node, certificate);
+			return true;
+		} catch(IOException e) {
+			LogWriter.writeExceptionLog(e);
+			return false;
+		}
+	}
+	
+	/**
+	 * Add a confidence link to a previously added node
+	 * 
+	 * @param node
+	 * @param certificate
+	 * @return 
+	 */
+	public boolean replaceCertificate(POPNetworkNode node, Certificate certificate) {
+		try {
+			SSLUtils.replaceConfidenceLink(node, certificate);
+			return true;
+		} catch(IOException e) {
+			LogWriter.writeExceptionLog(e);
+			return false;
+		}
+	}
+	
+	/**
+	 * Remove a Node/Friend from a network
 	 *
-	 * @param <T>
 	 * @param network The name of the network
 	 * @param node A network node implementation
 	 */
-	public<T extends POPNetworkNode>  void unregisterNode(String network, T node) {
+	public void unregisterNode(String network, POPNetworkNode node) {
 		jobManager.unregisterPermanentNode(network, node.getCreationParams());
+		// try remove
+		try {
+			SSLUtils.removeConfidenceLink(node);
+		} catch(IOException e) {
+			// too bad
+		}
 	}
 
 	/**
