@@ -1,8 +1,9 @@
 package popjava.service.jobmanager.network;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import popjava.baseobject.AccessPoint;
+import java.util.Set;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.serviceadapter.POPJobManager;
@@ -16,17 +17,24 @@ import popjava.util.Util;
  */
 public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManager> {
 
-	private POPAccessPoint jobManagerAccessPoint;
 	private final String host;
 	private int port;
 	private String protocol;
 	private boolean initialized = true;
 
+	public NodeJobManager(String host, int port, String protocol) {
+		super(POPConnectorJobManager.IDENTITY, POPConnectorJobManager.class);
+		this.host = host;
+		this.port = port;
+		this.protocol = protocol;
+		
+		init();
+	}
+	
 	/**
-	 * Two way to set this: case <protocol> <ip> <port>
-	 * case <access point>
+	 * 
 	 *
-	 * @param params A 1 or 3 elements String array
+	 * @param params List with parameters
 	 */
 	NodeJobManager(List<String> params) {
 		super(POPConnectorJobManager.IDENTITY, POPConnectorJobManager.class);
@@ -56,14 +64,20 @@ public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManage
 				initialized = false;
 			}
 		}
-
+		
+		init();
+	}
+	
+	private void init() {
 		// set access point
-		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", AccessPoint.SOCKET_PROTOCOL, host, port));
+		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
 
-		params.add("host=" + host);
-		params.add("port=" + port);
-		params.add("protocol=" + protocol);
-		creationParams = params.toArray(new String[0]);
+		Set<String> paramsSet = new HashSet<>();
+		paramsSet.add("connector=" + POPConnectorJobManager.IDENTITY);
+		paramsSet.add("host=" + host);
+		paramsSet.add("port=" + port);
+		paramsSet.add("protocol=" + protocol);
+		creationParams = paramsSet.toArray(new String[0]);
 	}
 
 	@Override

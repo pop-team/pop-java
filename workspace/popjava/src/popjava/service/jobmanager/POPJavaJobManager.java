@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
-import static java.lang.Math.min;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
@@ -64,6 +63,9 @@ import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
+import popjava.annotation.POPSyncSeq;
+
+import static java.lang.Math.min;
 
 @POPClass
 public class POPJavaJobManager extends POPJobService {
@@ -73,8 +75,10 @@ public class POPJavaJobManager extends POPJobService {
 
 	/** Currently used resources of a node */
 	protected final Resource available = new Resource();
+	/** Max available resources of the node */
+	protected final Resource total = new Resource();
 	/** Total resources a job can have */
-	protected final Resource limit = new Resource();
+	protected final Resource jobLimit = new Resource();
 
 	
 	/** Total number of requests received */
@@ -154,7 +158,9 @@ public class POPJavaJobManager extends POPJobService {
 		// set resource by default hoping for the best
 		available.add(new Resource(30000, 8192, 1e6f));
 		// no restrictions on default limit
-		limit.add(available);
+		jobLimit.add(available);
+		// total is the same as available for now
+		total.add(available);
 		
 		// TODO run benchmark power (maybe memory and bandwidth if needed)
 
@@ -193,11 +199,10 @@ public class POPJavaJobManager extends POPJobService {
 							continue;
 						}
 
-						// get extra information, if any
 						String[] other = Arrays.copyOfRange(token, 2, token.length);
 
 						// create network
-						POPNetwork network = new POPNetwork(networkName, this, other);
+						POPNetwork network = new POPNetwork(networkName, this);
 
 						// set as last added network, this is used when defining nodes
 						if (!networkName.equals(lastNetwork)) {
@@ -266,21 +271,24 @@ public class POPJavaJobManager extends POPJobService {
 						switch (token[1]) {
 							case "power":
 								try {
-									available.setFlops(Integer.parseInt(token[2]));
+									available.setFlops(Float.parseFloat(token[2]));
+									total.setFlops(available.getFlops());
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, power value: %s", token[2]));
 								}
 								break;
 							case "memory":
 								try {
-									available.setBandwidth(Integer.parseInt(token[2]));
+									available.setMemory(Float.parseFloat(token[2]));
+									total.setMemory(available.getBandwidth());
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, memory value: %s", token[2]));
 								}
 								break;
 							case "bandwidth":
 								try {
-									available.setBandwidth(Integer.parseInt(token[2]));
+									available.setBandwidth(Float.parseFloat(token[2]));
+									total.setBandwidth(available.getBandwidth());
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, bandwidth value: %s", token[2]));
 								}
@@ -308,21 +316,21 @@ public class POPJavaJobManager extends POPJobService {
 								break;
 							case "power":
 								try {
-									limit.setFlops(Integer.parseInt(token[2]));
+									jobLimit.setFlops(Float.parseFloat(token[2]));
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, ram value: %s", token[2]));
 								}
 								break;
 							case "memory":
 								try {
-									limit.setMemory(Integer.parseInt(token[2]));
+									jobLimit.setMemory(Float.parseFloat(token[2]));
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, memory value: %s", token[2]));
 								}
 								break;
 							case "bandwidth":
 								try {
-									limit.setBandwidth(Integer.parseInt(token[2]));
+									jobLimit.setBandwidth(Float.parseFloat(token[2]));
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, bandwidth value: %s", token[2]));
 								}
@@ -552,12 +560,12 @@ public class POPJavaJobManager extends POPJobService {
 						min = require;
 					}
 
-					if (require > available.getFlops() || require > limit.getFlops()) {
-						flops = min(available.getFlops(), limit.getFlops());
+					if (require > available.getFlops() || require > jobLimit.getFlops()) {
+						flops = min(available.getFlops(), jobLimit.getFlops());
 						fitness = flops / require;
 					} else {
 						flops = require;
-						fitness = min(available.getFlops(), limit.getFlops()) / require;
+						fitness = min(available.getFlops(), jobLimit.getFlops()) / require;
 					}
 					if (fitness < iofitness.getValue()) {
 						return 0;
@@ -665,13 +673,20 @@ public class POPJavaJobManager extends POPJobService {
 
 		// look for new dump file
 		do {
-			String f = String.format("%s/dump/JobMgr.%d", System.getenv("POPJAVA_LOCATION"), idx++);
+			String location = System.getenv("POPJAVA_LOCATION");
+			if (location == null) {
+				location = ".";
+			}
+			
+			String f = String.format("%s/dump/JobMgr.%d.dump", location, idx++);
 			dumpFile = new File(f);
 		} while (dumpFile.exists());
-		// see if we can write there
-		if (!dumpFile.canWrite()) {
-			dumpFile = new File("JobMgr." + idx);
-		}
+		
+		// create file
+		try {
+			dumpFile.createNewFile();
+		} catch (IOException e) {}
+		
 		if (!dumpFile.canWrite()) {
 			LogWriter.writeDebugInfo("[JM] No writable dump location found");
 			return;
@@ -686,17 +701,25 @@ public class POPJavaJobManager extends POPJobService {
 				POPConnectorBase[] connectors = net.getConnectors();
 				out.println(String.format("[%s]", net.getName()));
 				out.println(String.format("connectors=%s", Arrays.toString(connectors)));
-				out.println(String.format("members=", net.size()));
-				out.println(String.format("[%s.nodes]", net.getName()));
-				for (POPConnectorBase node : connectors) {
-					out.print(String.format("node=%s", node.toString()));
+				out.println(String.format("members=%d", net.size()));
+				for (POPConnectorBase connector : connectors) {
+					out.println(String.format("[%s.%s]", net.getName(), connector.getClass().getCanonicalName()));
+					for (POPNetworkNode node : net.getMembers(connector.getClass())) {
+						out.println(String.format("node=%s", node.toString()));
+					}
 				}
 			}
 			out.println("[config]");
-			out.println(String.format("power=%f", available.getFlops()));
-			out.println(String.format("memory=%f", available.getMemory()));
-			out.println(String.format("bandwidth=%f", available.getBandwidth()));
-			out.println(String.format("maxjobs=%d", maxJobs));
+			out.println(String.format("available power=%f", available.getFlops()));
+			out.println(String.format("available memory=%f", available.getMemory()));
+			out.println(String.format("available bandwidth=%f", available.getBandwidth()));
+			out.println(String.format("total power=%f", total.getFlops()));
+			out.println(String.format("total memory=%f", total.getMemory()));
+			out.println(String.format("total bandwidth=%f", total.getBandwidth()));
+			out.println(String.format("job limit power=%f", jobLimit.getFlops()));
+			out.println(String.format("job limit memory=%f", jobLimit.getMemory()));
+			out.println(String.format("job limit bandwidth=%f", jobLimit.getBandwidth()));
+			out.println(String.format("max jobs=%d", maxJobs));
 			out.println("[extra]");
 			for (Map.Entry<String, List<String>> entry1 : nodeExtra.entrySet()) {
 				String k = entry1.getKey();
@@ -792,6 +815,63 @@ public class POPJavaJobManager extends POPJobService {
 		value.setValue(sb.toString().trim());
 		return true;
 	}
+	
+	@POPSyncSeq
+	public void changeAvailablePower(float limit) {
+		Resource diff = new Resource(total);
+		diff.setFlops(limit);
+		diff.subtract(total);
+		
+		total.setFlops(limit);
+		available.add(diff);
+		writeConfigurationFile();
+	}
+	
+	@POPSyncSeq
+	public void changeAvailableMemory(float limit) {
+		Resource diff = new Resource(total);
+		diff.setMemory(limit);
+		diff.subtract(total);
+		
+		total.setMemory(limit);
+		available.add(diff);
+		writeConfigurationFile();
+	}
+	
+	@POPSyncSeq
+	public void changeAvailableBandwidth(float limit) {
+		Resource diff = new Resource(total);
+		diff.setBandwidth(limit);
+		diff.subtract(total);
+		
+		total.setBandwidth(limit);
+		available.add(diff);
+		writeConfigurationFile();
+	}
+	
+	@POPSyncSeq
+	public void changeMaxJobLimit(int limit) {
+		maxJobs = limit;
+		writeConfigurationFile();
+	}
+	
+	@POPSyncSeq
+	public void changeMaxJobPower(float limit) {
+		jobLimit.setFlops(limit);
+		writeConfigurationFile();
+	}
+	
+	@POPSyncSeq
+	public void changeMaxJobMemory(float limit) {
+		jobLimit.setMemory(limit);
+		writeConfigurationFile();
+	}
+	
+	@POPSyncSeq
+	public void changeMaxJobBandwidth(float limit) {
+		jobLimit.setBandwidth(limit);
+		writeConfigurationFile();
+	}
 
 	/**
 	 * Contact neighbors and tell them we are alive
@@ -862,12 +942,10 @@ public class POPJavaJobManager extends POPJobService {
 	 * Create a new network and write the Job Manager configuration file anew
 	 *
 	 * @param name A unique name of the network
-	 * @param params An array of String that will be processed by {@link POPConnectorFactory}, 
-	 *				 use {@link POPNetworkNode#getCreationParams} to retrieve the parameters
 	 * @return true if created or already exists, false if already exists but use a different protocol
 	 */
 	@POPSyncConc
-	public boolean createNetwork(String name, String... params) {
+	public boolean createNetwork(String name) {
 		try {
 			// check if exists already
 			POPNetwork network = networks.get(name);
@@ -876,14 +954,14 @@ public class POPJavaJobManager extends POPJobService {
 			}
 
 			// create the new network
-			POPNetwork newNetwork = new POPNetwork(name, this, params);
-
-			// write all current configurations to a file
-			writeConfigurationFile();
+			POPNetwork newNetwork = new POPNetwork(name, this);
 
 			// add new network
 			LogWriter.writeDebugInfo(String.format("[JM] Network %s added", name));
 			networks.put(name, newNetwork);
+
+			// write all current configurations to a file
+			writeConfigurationFile();
 			return true;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo(String.format("[JM] Exception caught in createNetwork: %s", e.getMessage()));
@@ -903,11 +981,11 @@ public class POPJavaJobManager extends POPJobService {
 			return;
 		}
 		
-		// write all current configurations to a file
-		writeConfigurationFile();
-		
 		LogWriter.writeDebugInfo(String.format("[JM] Network %s removed", name));
 		networks.remove(name);
+		
+		// write all current configurations to a file
+		writeConfigurationFile();
 	}
 
 	/**
@@ -926,7 +1004,9 @@ public class POPJavaJobManager extends POPJobService {
 		}
 
 		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), network));
-		network.add(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
+		POPNetworkNode node = POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params)));
+		node.setTemporary(true);
+		network.add(node);
 	}
 
 	/**
@@ -970,23 +1050,39 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Register a node and write it in the configuration file
-	 * @param network
+	 * @param networkName
 	 * @param params
 	 */
 	@POPSyncConc
-	public void registerPermanentNode(String network, String... params) {
-		registerNode(network, params);
+	public void registerPermanentNode(String networkName, String... params) {
+		// get network
+		POPNetwork network = networks.get(networkName);
+		if (network == null) {
+			LogWriter.writeDebugInfo(String.format("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network));
+			return;
+		}
+
+		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), network));
+		network.add(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
 		writeConfigurationFile();
 	}
 	
 	/**
 	 * Unregister a node and write it in the configuration file
-	 * @param network
+	 * @param networkName
 	 * @param params
 	 */
 	@POPSyncConc 
-	public void unregisterPermanentNode(String network, String... params) {
-		unregisterNode(network, params);
+	public void unregisterPermanentNode(String networkName, String... params) {
+		// get network
+		POPNetwork network = networks.get(networkName);
+		if (network == null) {
+			LogWriter.writeDebugInfo(String.format("[JM] Node %s not removed, network not found", Arrays.toString(params)));
+			return;
+		}
+
+		LogWriter.writeDebugInfo(String.format("[JM] Node %s removed", Arrays.toString(params)));
+		network.remove(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
 		writeConfigurationFile();
 	}
 
@@ -1096,14 +1192,61 @@ public class POPJavaJobManager extends POPJobService {
 			FileChannel channel = new RandomAccessFile(config, "rw").getChannel();
 			FileLock lock = channel.lock();
 			
+			PrintStream ps = new PrintStream(config);
 			
-			// TODO write jm to file
-			// resources
-			// job
+			// resource power|memory|bandwidth
+			ps.println("# available resources for this job manager");
+			ps.println("resource power " + total.getFlops());
+			ps.println("resource memory " + total.getMemory());
+			ps.println("resource bandwidth " + total.getBandwidth());
+			
+			// job limit|power|memory|bandwidth
+			ps.println("# limit max for single job");
+			ps.println("job limit " + maxJobs);
+			ps.println("job power " + total.getFlops());
+			ps.println("job memory " + total.getMemory());
+			ps.println("job bandwidth " + total.getBandwidth());
+			
 			// networks
-			//   nodes
+			ps.println("# networks with nodes");
+			for (POPNetwork network : networks.values()) {
+				// name
+				ps.print("network " + network.getName());
+				// add default marker if needed
+				if (network.equals(defaultNetwork)) {
+					ps.print(" default");
+				}
+				ps.println();
+				
+				// nodes ordered by connector
+				for (POPConnectorBase connector : network.getConnectors()) {
+					ps.println("# nodes for connector " + connector.getClass().getCanonicalName());
+					
+					for (POPNetworkNode node : network.getMembers(connector.getClass())) {
+						if (node.isTemporary()) {
+							continue;
+						}
+						// chain creation parameters
+						ps.print("node ");
+						for (String param : node.getCreationParams()) {
+							ps.print(param + " ");
+						}
+						ps.println();
+					}
+				}
+			}
 			
+			// extra information present in a manually generated file
+			ps.println("# extra information");
+			for (String token0 : nodeExtra.keySet()) {
+				for (String line : nodeExtra.get(token0)) {
+					ps.print(token0);
+					ps.println(line);
+				}
+			}
 			
+			// write and close
+			ps.close();
 			lock.release();
 		} catch(IOException e) {
 			LogWriter.writeDebugInfo("[JM] Failed to write current configuration to disk");

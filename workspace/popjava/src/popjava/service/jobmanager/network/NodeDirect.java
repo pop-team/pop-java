@@ -1,7 +1,9 @@
 package popjava.service.jobmanager.network;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import popjava.service.deamon.POPJavaDeamon;
 import popjava.service.jobmanager.connector.POPConnectorDirect;
 import popjava.util.Util;
@@ -18,6 +20,16 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	private boolean daemon;
 	private String daemonSecret;
 	private boolean initialized = true;
+
+	public NodeDirect(String host, int port, boolean daemon, String daemonSecret) {
+		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
+		this.host = host;
+		this.port = port;
+		this.daemon = daemon;
+		this.daemonSecret = daemonSecret;
+		
+		init();
+	}
 
 	NodeDirect(List<String> params) {
 		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
@@ -49,15 +61,21 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 				initialized = false;
 			}
 		}
-
+		
+		init();
+	}
+	
+	private void init() {
 		// set parameters again for future creation and sharing, keep posible extra values
-		params.add("host=" + this.host);
-		params.add("port=" + this.port);
-		params.add("protocol=" + (this.daemon ? "daemon" : "ssh"));
+		Set<String> paramsSet = new HashSet<>();
+		paramsSet.add("connector=" + POPConnectorDirect.IDENTITY);
+		paramsSet.add("host=" + this.host);
+		paramsSet.add("port=" + this.port);
+		paramsSet.add("protocol=" + (this.daemon ? "daemon" : "ssh"));
 		if (daemonSecret != null) {
-			params.add("secret=" + secret);
+			paramsSet.add("secret=" + daemonSecret);
 		}
-		creationParams = params.toArray(new String[0]);
+		creationParams = paramsSet.toArray(new String[0]);
 	}
 
 	public String getHost() {

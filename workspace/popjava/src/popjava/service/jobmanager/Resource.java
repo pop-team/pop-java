@@ -34,15 +34,9 @@ public class Resource implements IPOPBase {
 	 * @param r Another resource
 	 */
 	public void add(Resource r) {
-		if (r.flops > 0) {
-			flops += r.flops;
-		}
-		if (r.memory > 0) {
-			memory += r.memory;
-		}
-		if (r.bandwidth > 0) {
-			bandwidth += bandwidth;
-		}
+		flops += r.flops;
+		memory += r.memory;
+		bandwidth += bandwidth;
 	}
 
 	/**
@@ -62,15 +56,9 @@ public class Resource implements IPOPBase {
 	 * @param r Another resource
 	 */
 	public void subtract(Resource r) {
-		if (r.flops > 0) {
-			flops -= r.flops;
-		}
-		if (r.memory > 0) {
-			memory -= r.memory;
-		}
-		if (r.bandwidth > 0) {
-			bandwidth -= bandwidth;
-		}
+		flops -= r.flops;
+		memory -= r.memory;
+		bandwidth -= bandwidth;
 	}
 
 	public float getFlops() {

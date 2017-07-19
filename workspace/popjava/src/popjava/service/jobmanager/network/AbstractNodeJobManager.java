@@ -11,9 +11,13 @@ import popjava.service.jobmanager.connector.POPConnectorBase;
  */
 public abstract class AbstractNodeJobManager<T extends POPConnectorBase> extends POPNetworkNode<T> {
 
+	protected POPAccessPoint jobManagerAccessPoint;
+	
 	public AbstractNodeJobManager(String connectorName, Class<T> connectorClass) {
 		super(connectorName, connectorClass);
 	}
 	
-    public abstract POPAccessPoint getJobManagerAccessPoint();
+    public POPAccessPoint getJobManagerAccessPoint() {
+		return  jobManagerAccessPoint;
+	}
 }

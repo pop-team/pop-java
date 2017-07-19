@@ -20,14 +20,12 @@ public class POPNetwork {
 	private final Map<Class<? extends POPConnectorBase>, POPConnectorBase> connectors;
 	private final Map<Class<? extends POPConnectorBase>, List<POPNetworkNode>> members;
 	private final POPJavaJobManager jobManager;
-	private final String[] otherParams;
 
-	public POPNetwork(String name, POPJavaJobManager jobManager, String... other) {
+	public POPNetwork(String name, POPJavaJobManager jobManager) {
 		this.name = name;
 		this.connectors = new HashMap<>();
 		this.members = new HashMap<>();
 		this.jobManager = jobManager;
-		this.otherParams = other;
 	}
 
 	public String getName() {
@@ -115,7 +113,12 @@ public class POPNetwork {
 		if (mem == null) {
 			return false;
 		}
-		return mem.remove(o);
+		boolean status = mem.remove(o);
+		if (mem.isEmpty()) {
+			members.remove(connector.getClass());
+			connectors.remove(connector.getClass());
+		}
+		return status;
 	}
 
 	@Override

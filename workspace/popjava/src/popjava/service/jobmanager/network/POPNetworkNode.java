@@ -13,6 +13,8 @@ public abstract class POPNetworkNode<T extends POPConnectorBase> {
 	protected final Class<T> connectorClass;
 	protected final String connectorName;
 	protected String[] creationParams;
+	
+	protected boolean temporary = false;
 
 	public POPNetworkNode(String connectorName, Class<T> connectorClass) {
 		this.connectorName = connectorName;
@@ -35,6 +37,24 @@ public abstract class POPNetworkNode<T extends POPConnectorBase> {
 	 */
 	public String getConnectorName() {
 		return connectorName;
+	}
+
+	/**
+	 * Should this node be store on disk
+	 * 
+	 * @return 
+	 */
+	public boolean isTemporary() {
+		return temporary;
+	}
+
+	/**
+	 * Mark node as temporary
+	 * 
+	 * @param temporary 
+	 */
+	public void setTemporary(boolean temporary) {
+		this.temporary = temporary;
 	}
 
 	/**

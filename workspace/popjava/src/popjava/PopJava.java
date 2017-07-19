@@ -1,8 +1,6 @@
 package popjava;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javassist.util.proxy.ProxyObject;
 import popjava.base.POPException;
@@ -11,7 +9,6 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ComboxFactoryFinder;
-import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.serviceadapter.POPJobManager;
@@ -134,39 +131,6 @@ public class PopJava {
 			}
 		}
 		return actives.toArray(new POPAccessPoint[actives.size()]);
-	}
-	
-	/**
-	 * Register a POPObject and make it available for discovery in a network
-	 * @param object
-	 * @param tfcNetwork
-	 * @param secret
-	 * @return 
-	 */
-	public static boolean registerTFC(Object object, String tfcNetwork, String secret) {
-	    if(object instanceof POPObject){
-	        POPObject temp = (POPObject) object;
-			POPJavaJobManager jm = getLocalJobManager();
-			boolean status = jm.registerTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
-			jm.exit();
-			return status;
-		}
-		return false;
-	}
-	
-	/**
-	 * Unregister a POPObject from the local JobManager
-	 * @param object
-	 * @param tfcNetwork
-	 * @param secret 
-	 */
-	public static void unregisterTFC(Object object, String tfcNetwork, String secret) {
-	    if(object instanceof POPObject){
-	        POPObject temp = (POPObject) object;
-			POPJavaJobManager jm = getLocalJobManager();
-			jm.unregisterTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
-			jm.exit();
-		}
 	}
 	
 	/**

@@ -1,8 +1,9 @@
 package popjava.service.jobmanager.network;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import popjava.baseobject.AccessPoint;
+import java.util.Set;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.serviceadapter.POPJobManager;
@@ -10,21 +11,29 @@ import popjava.util.Configuration;
 import popjava.util.Util;
 
 /**
- * A JobManager node
+ * A TFC node, identical to Job Manager one, different function
+ * 
  * @author Davide Mazzoleni
  */
 public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 
-	private POPAccessPoint jobManagerAccessPoint;
 	private final String host;
 	private int port;
+	private String protocol;
 	private boolean initialized = true;
+
+	public NodeTFC(String host, int port, String protocol) {
+		super(POPConnectorTFC.IDENTITY, POPConnectorTFC.class);
+		this.host = host;
+		this.port = port;
+		this.protocol = protocol;
+		
+		init();
+	}
 	
 	/**
-	 * Two way to set this:
-	 *  case <protocol> <ip> <port> 
-	 *  case <access point>
-	 * @param params A 1 or 3 elements String array
+	 * 
+	 * @param params List of parameters
 	 */
 	NodeTFC(List<String> params) {
 		super(POPConnectorTFC.IDENTITY, POPConnectorTFC.class);
@@ -32,6 +41,7 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 		// get potential params
 		host = Util.removeStringFromList(params, "host=");
 		String portString = Util.removeStringFromList(params, "port=");
+		protocol= Util.removeStringFromList(params, "protocol=");
 		
 		// stop if we have no host
 		if (host == null) {
@@ -39,19 +49,34 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 			return;
 		}
 		
+		if (protocol == null) {
+			protocol = Configuration.DEFAULT_PROTOCOL;
+		}
+		
 		// some sane defaults
 		port = POPJobManager.DEFAULT_PORT;
 		if (portString != null) {
 			try {
 				port = Integer.parseInt(portString);
-			} catch(NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				// we assume the initialization failed in this case
 				initialized = false;
 			}
 		}
 		
+		init();
+	}
+	
+	private void init() {
 		// set access point
-		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", Configuration.DEFAULT_PROTOCOL, host, port));
+		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
+
+		Set<String> paramsSet = new HashSet<>();
+		paramsSet.add("connector=" + POPConnectorTFC.IDENTITY);
+		paramsSet.add("host=" + host);
+		paramsSet.add("port=" + port);
+		paramsSet.add("protocol=" + protocol);
+		creationParams = paramsSet.toArray(new String[0]);
 	}
 
 	@Override
@@ -92,9 +117,8 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 		return true;
 	}
 
-
 	@Override
 	public String toString() {
-		return String.format("host=%s port=%s connector=%s", host, port, connectorName);
+		return String.format("host=%s port=%s connector=%s protocol=%s", host, port, connectorName, protocol);
 	}
 }
