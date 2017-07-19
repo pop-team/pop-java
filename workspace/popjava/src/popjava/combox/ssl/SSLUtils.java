@@ -18,6 +18,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import popjava.util.Configuration;
+import popjava.util.MethodUtil;
 
 /**
  * Utilities for the 
@@ -141,6 +142,12 @@ public class SSLUtils {
 	 * @param certificate 
 	 */
 	public static void addCertToTempStore(byte[] certificate) {
+		MethodUtil.grant(
+			"popjava.service.jobmanager.POPJavaJobManager.askResourcesDiscovery",
+			"popjava.service.jobmanager.POPJavaJobManager.callbackResult",
+			"popjava.service.jobmanager.connector.POPConnectorJobManager.askResourcesDiscoveryAction",
+			"popjava.service.jobmanager.connector.POPConnectorTFC.askResourcesDiscoveryAction"
+		);
 		addCertToTempStore(certificate, false);
 	}
 	
@@ -151,6 +158,11 @@ public class SSLUtils {
 	 * @param reload 
 	 */
 	public static void addCertToTempStore(byte[] certificate, boolean reload) {
+		MethodUtil.grant(
+			"popjava.combox.ssl.SSLUtils.addCertToTempStore",
+			"popjava.base.POPObject.PopRegisterFutureConnectorCertificate",
+			"popjava.interfacebase.Interface.deserialize"
+		);
 		try {
 			// load it
 			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);

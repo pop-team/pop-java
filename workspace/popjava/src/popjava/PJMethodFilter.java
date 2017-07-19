@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import popjava.base.POPObject;
+import popjava.util.MethodUtil;
 
 /**
  * This class is a method filter for the PJMethodHandler
@@ -15,7 +16,7 @@ public class PJMethodFilter implements MethodFilter {
 	/**
 	 * Creates a new instance of PJMethodFilter
 	 */
-	static private Set<String> filterMethodList = new HashSet<String>();
+	private static final Set<String> filterMethodList = new HashSet<>();
 
 	/**
 	 * Create a filter list of not handled method
@@ -29,7 +30,7 @@ public class PJMethodFilter implements MethodFilter {
 		Class<?> c = POPObject.class;
 		Method[] methods = c.getDeclaredMethods();
 		for (Method m : methods) {
-			if (!notFilterMethodList.contains(m.getName()) && !POPObject.isMethodPOPAnnotated(m)) {				
+			if (!notFilterMethodList.contains(m.getName()) && !MethodUtil.isMethodPOPAnnotated(m)) {				
 				filterMethodList.add(m.getName());
 			}
 		}

@@ -26,11 +26,11 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ssl.POPTrustManager;
 import popjava.combox.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
+import popjava.util.MethodUtil;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
  */
@@ -176,82 +176,6 @@ public class POPObject implements IPOPBase {
 	
 	private void throwMultipleAnnotationsError(Class<?> c, Method method){
 		throw new InvalidParameterException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
-	}
-	
-	public static boolean isMethodPOPAnnotated(Method method){
-		if(method.isAnnotationPresent(POPSyncConc.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPSyncSeq.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPSyncMutex.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPAsyncConc.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPAsyncSeq.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPAsyncMutex.class)){
-			return true;
-		}
-		
-		try{
-			if(method.getDeclaringClass().getSuperclass() != null){
-				Method parentMethod = method.getDeclaringClass().getSuperclass().getMethod(method.getName(), method.getParameterTypes());
-				
-				if(parentMethod != null){
-					return isMethodPOPAnnotated(parentMethod);
-				}
-			}
-			
-			
-		}catch (NoSuchMethodException e) {
-			// TODO: handle exception
-		}
-		
-		
-		return false;
-	}
-	
-	private int methodId(Method method, int defaultID){
-	    int id = -1;
-	    
-	    if(method.isAnnotationPresent(POPSyncConc.class)){
-	        id = method.getAnnotation(POPSyncConc.class).id();
-        }
-        
-        if(method.isAnnotationPresent(POPSyncSeq.class)){
-            id =  method.getAnnotation(POPSyncSeq.class).id();
-        }
-        
-        if(method.isAnnotationPresent(POPSyncMutex.class)){
-            id =  method.getAnnotation(POPSyncMutex.class).id();
-        }
-        
-        if(method.isAnnotationPresent(POPAsyncConc.class)){
-            id =  method.getAnnotation(POPAsyncConc.class).id();
-        }
-        
-        if(method.isAnnotationPresent(POPAsyncSeq.class)){
-            id =  method.getAnnotation(POPAsyncSeq.class).id();
-        }
-        
-        if(method.isAnnotationPresent(POPAsyncMutex.class)){
-            id =  method.getAnnotation(POPAsyncMutex.class).id();
-        }
-        
-        if(id >= 0){
-            return id;
-        }
-	    return defaultID;
 	}
 	
 	private void loadMethodSemantics(){
@@ -621,8 +545,8 @@ public class POPObject implements IPOPBase {
 				Class<?> declaringClass = m.getDeclaringClass();
 				POPClass popClassAnnotation = declaringClass.getAnnotation(POPClass.class);
 				if ((popClassAnnotation != null || declaringClass.equals(POPObject.class))
-						&& Modifier.isPublic(m.getModifiers()) && isMethodPOPAnnotated(m)) {
-				    int methodId = methodId(m,index);
+						&& Modifier.isPublic(m.getModifiers()) && MethodUtil.isMethodPOPAnnotated(m)) {
+				    int methodId = MethodUtil.methodId(m,index);
 				    int id = popClassAnnotation == null ? -1 : popClassAnnotation.classId();
 				    
 				    if(id == -1){
