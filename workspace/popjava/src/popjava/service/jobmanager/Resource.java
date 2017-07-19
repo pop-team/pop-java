@@ -36,7 +36,7 @@ public class Resource implements IPOPBase {
 	public void add(Resource r) {
 		flops += r.flops;
 		memory += r.memory;
-		bandwidth += bandwidth;
+		bandwidth += r.bandwidth;
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class Resource implements IPOPBase {
 	public void subtract(Resource r) {
 		flops -= r.flops;
 		memory -= r.memory;
-		bandwidth -= bandwidth;
+		bandwidth -= r.bandwidth;
 	}
 
 	public float getFlops() {

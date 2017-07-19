@@ -280,7 +280,7 @@ public class POPJavaJobManager extends POPJobService {
 							case "memory":
 								try {
 									available.setMemory(Float.parseFloat(token[2]));
-									total.setMemory(available.getBandwidth());
+									total.setMemory(available.getMemory());
 								} catch (NumberFormatException e) {
 									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, memory value: %s", token[2]));
 								}
@@ -810,7 +810,7 @@ public class POPJavaJobManager extends POPJobService {
 		// we can have a list of it
 		StringBuilder sb = new StringBuilder();
 		for (String s : vals) {
-			sb.append(s + "\n");
+			sb.append(s).append("\n");
 		}
 		value.setValue(sb.toString().trim());
 		return true;
@@ -1203,9 +1203,9 @@ public class POPJavaJobManager extends POPJobService {
 			// job limit|power|memory|bandwidth
 			ps.println("# limit max for single job");
 			ps.println("job limit " + maxJobs);
-			ps.println("job power " + total.getFlops());
-			ps.println("job memory " + total.getMemory());
-			ps.println("job bandwidth " + total.getBandwidth());
+			ps.println("job power " + jobLimit.getFlops());
+			ps.println("job memory " + jobLimit.getMemory());
+			ps.println("job bandwidth " + jobLimit.getBandwidth());
 			
 			// networks
 			ps.println("# networks with nodes");
