@@ -1,0 +1,26 @@
+In this document we will explain how the Job Manager configuration file works
+how to manually add new entries to it and how to do it programmatically.
+
+
+1. Configuring manually
+
+This file can be named however the user wish, the thing it has to make sure of
+is that it is "feed" correctly to the POPJavaJobManager class at its creation.
+
+The format is explained in the example file `jobmgr.conf' in two syntax.
+
+This is file is also re-generated each time a permanent modification is 
+requested to the Job Manager. This will remove any user create comments.
+
+
+2. Configuring programmatically
+
+To the user is given the possibility of creating a new instance of  the class 
+PopJavaConfig, this class contains all the methods necessary for creating 
+networks and neighbors, but also change the defaults value of the Job Manager.
+
+An example utilisation should look like similar to this:
+
+ config = new PopJavaConfig();
+ config.registerNode("myNet", new NodeJobManager("localhost", 2713, "ssl"));
+

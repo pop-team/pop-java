@@ -1,0 +1,36 @@
+In this document we will explain how create a PKCS12 (or JKS) KeyStore for
+storing Confidence Links in PopJava and how to configure PopJava to work
+correctly with said certificates.
+
+
+1. Create a KeyStore
+
+This step is automated on Unix machines via the `genkeys.sh' script, this will
+generate a PKCS12 storage containing a private and a public key, the public key
+will be extracted after its creation.
+
+The script will output the password used for the KeyStore, the user can choose
+to keep them or change them. It will also dump all information necessary to
+setup PopJava.
+
+ATTENTION: if we want to create JKS KeyStores (default Java format, non 
+           portable) open `genkeys.sh' and set STORE_TYPE to "JKS".
+
+
+2. Configure PopJava
+
+Currently PopJava need to be manually configured by modifying one of its class.
+
+Go to popjava.util.Configuration and look for the KEY_* constants. Those values
+should be changed into the values given by the previous dump.
+
+WARNING: `keytool' doesn't support PrivateKey specific password, so the 
+         password will be the same as the one set for the store. 
+         Use JKS or use `openssl' if you need two unique passwords.
+
+
+3. Configure directories
+
+PopJava will try to open a directory looking for temporary certificates, 
+TRUST_TEMP_STORE_DIR this directory should point to a writable directory.
+
