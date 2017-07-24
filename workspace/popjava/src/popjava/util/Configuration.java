@@ -13,7 +13,7 @@ public class Configuration {
 	/**
 	 * Creates a new instance of POPConfiguration
 	 */
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	public static final boolean DEBUG_COMBOBOX = false;
 	public static final int RESERVE_TIMEOUT = 60000;
 	public static final int ALLOC_TIMEOUT = 30000;
@@ -44,13 +44,16 @@ public class Configuration {
 	public static final String DEFAULT_JM_CONFIG_FILE = 
 		System.getenv("POPJAVA_LOCATION") == null ? "jobmgr.conf" : System.getenv("POPJAVA_LOCATION") + "/etc/jobmgr.conf";
 	
-	public static final String TRUST_STORE = "truststore.jks";
-	public static final String TRUST_STORE_PWD = "trustpass";
-	public static final String TRUST_STORE_PK_ALIAS = "truststore";
-	public static final String TRUST_STORE_PK_PWD = "trustpass";
+	public static final String KEY_STORE = "poplocal.p12";
+	public static final String KEY_STORE_FORMAT = "pkcs12"; // https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#KeyStore
+	public static final String KEY_STORE_PWD = "poplocalstore";
+	// private key
+	public static final String KEY_STORE_PK_ALIAS = "poplocal";
+	public static final String KEY_STORE_PK_PWD = "poplocalstore";
+	// temporary confidence link directory
 	public static final String TRUST_TEMP_STORE_DIR = "_temp_certificates";
 	
-	public static final String SSL_PROTOCOL = "TLSv1.2";
+	public static final String SSL_PROTOCOL_VERSION = "TLSv1.2";
 	
 	/**
 	 * Default constructor

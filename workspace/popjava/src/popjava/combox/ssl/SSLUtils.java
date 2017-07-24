@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -61,13 +60,13 @@ public class SSLUtils {
 		if (sslContextInstance == null) {
 			// load private key
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
+			keyStore.load(new FileInputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.TRUST_STORE_PK_PWD.toCharArray());
+			keyManagerFactory.init(keyStore, Configuration.KEY_STORE_PK_PWD.toCharArray());
 			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 
 			// init ssl context with everything
-			sslContextInstance = SSLContext.getInstance(Configuration.SSL_PROTOCOL);
+			sslContextInstance = SSLContext.getInstance(Configuration.SSL_PROTOCOL_VERSION);
 			sslContextInstance.init(keyManagerFactory.getKeyManagers(), trustManagers, new SecureRandom());
 		}
 
@@ -96,7 +95,7 @@ public class SSLUtils {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
+			keyStore.load(new FileInputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
 
 			// node identifier
 			String nodeHash = confidenceLinkHash(node);
@@ -113,7 +112,7 @@ public class SSLUtils {
 			}
 
 			// override the existing keystore
-			keyStore.store(new FileOutputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
+			keyStore.store(new FileOutputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
 			POPTrustManager.getInstance().reloadTrustManager();
 		} catch(Exception e) {
 			throw new IOException("Failed to save Confidence Link in KeyStore.");
@@ -155,7 +154,7 @@ public class SSLUtils {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
+			keyStore.load(new FileInputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
 
 			// node identifier
 			String nodeHash = confidenceLinkHash(node);
@@ -170,7 +169,7 @@ public class SSLUtils {
 			keyStore.deleteEntry(nodeHash);
 
 			// override the existing keystore
-			keyStore.store(new FileOutputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
+			keyStore.store(new FileOutputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
 			POPTrustManager.getInstance().reloadTrustManager();
 		} catch(Exception e) {
 			throw new IOException("Failed to save Confidence Link in KeyStore.");

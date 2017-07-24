@@ -78,8 +78,8 @@ public class POPTrustManager implements X509TrustManager {
 	}
 	
 	private POPTrustManager() {
-		this.trustStorePath = Configuration.TRUST_STORE;
-		this.trustStorePass = Configuration.TRUST_STORE_PWD;
+		this.trustStorePath = Configuration.KEY_STORE;
+		this.trustStorePass = Configuration.KEY_STORE_PWD;
 		this.tempTrustStorePath = Configuration.TRUST_TEMP_STORE_DIR;
 		try {
 			loadedCertificates = new HashMap<>();
@@ -163,7 +163,7 @@ public class POPTrustManager implements X509TrustManager {
 			confidenceCertificates.add(SSLUtils.certificateThumbprint(cert));
                         
 			// save public certificate
-			if (alias.equals(Configuration.TRUST_STORE_PK_ALIAS)) {
+			if (alias.equals(Configuration.KEY_STORE_PK_ALIAS)) {
 				publicCertificate = cert;
 			}
 		}
