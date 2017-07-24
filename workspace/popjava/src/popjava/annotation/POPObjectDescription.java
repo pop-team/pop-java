@@ -14,6 +14,11 @@ public @interface POPObjectDescription {
 	
 	public static final String LOCAL_DEBUG_URL = "localhost-debug";
 	
+	/**
+	 * <url> or <url>:<port> where the object should be.
+	 * If multiple procol are active you should also define {@link #protocol()}
+	 * @return 
+	 */
 	String url() default "";
 	
 	/**

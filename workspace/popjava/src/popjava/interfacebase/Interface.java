@@ -696,13 +696,31 @@ public class Interface {
 			String jobString = String.format("-jobservice=%s", jobserv.toString());
 			argvList.add(jobString);
 		}
+		
+		// if no port was specified we let the system decide
+		if (rport == null || rport.isEmpty()) {
+			rport = "0";
+		}
+		// if specified a port but no protocol, automatically set the default one
+		else {
+			if (od.getProtocol() == null || od.getProtocol().isEmpty()) {
+				od.setProtocol(Configuration.DEFAULT_PROTOCOL);
+			}
+		}
 
-		if (rport != null && rport.length() > 0) {
+		// if no protocol was specified we use all of them
+		if (od.getProtocol() == null || od.getProtocol().isEmpty()) {
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 			for (int i = 0; i < finder.getFactoryCount(); i++) {
 				String portString = String.format("-%s_port=%s", finder.get(i).getComboxName(), rport);
 				argvList.add(portString);
 			}
+		}
+		// if we specified a protocol, we send only the wanted one
+		else {
+			ComboxFactory wantedProtocol = ComboxFactoryFinder.getInstance().findFactory(od.getProtocol());
+			String portString = String.format("-%s_port=%s", wantedProtocol.getComboxName(), rport);
+			argvList.add(portString);
 		}
 		
 		int ret = -1;
