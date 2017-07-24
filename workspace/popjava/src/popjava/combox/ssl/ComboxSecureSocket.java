@@ -46,7 +46,7 @@ public class ComboxSecureSocket extends Combox {
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
 		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
-		extractThumbprint();
+		extractFingerprint();
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class ComboxSecureSocket extends Combox {
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 					
-					extractThumbprint();
+					extractFingerprint();
 					
 					available = true;
 				} catch (UnknownHostException e) {
@@ -273,16 +273,16 @@ public class ComboxSecureSocket extends Combox {
 		}
 	}
 
-	private void extractThumbprint() {
+	private void extractFingerprint() {
 		try {
-			// set the thumbprint in the accesspoint for all to know
+			// set the fingerprint in the accesspoint for all to know
 			// this time we have to look which it is
 			SSLSocket sslPeer = (SSLSocket) peerConnection;
 			Certificate[] certs = sslPeer.getSession().getPeerCertificates();
 			for (Certificate cert : certs) {
 				if (POPTrustManager.getInstance().isCertificateKnown(cert)) {
-					String thumbprint = SSLUtils.certificateThumbprint(cert);
-					accessPoint.setThumbprint(thumbprint);
+					String fingerprint = SSLUtils.certificateFingerprint(cert);
+					accessPoint.setFingerprint(fingerprint);
 					break;
 				}
 			}

@@ -52,10 +52,10 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 		}*/
 		
 		// the POPAccessPoint could contains the fingerprint of the AppService certificate
-		String appServiceThumbprint = localservice.getThumbprint();
+		String appServiceFingerprint = localservice.getFingerprint();
 		
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName(), IDENTITY, appServiceThumbprint);
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName(), IDENTITY, appServiceFingerprint);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {

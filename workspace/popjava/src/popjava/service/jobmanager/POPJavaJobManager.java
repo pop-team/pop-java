@@ -66,6 +66,21 @@ import popjava.util.Util;
 import popjava.annotation.POPSyncSeq;
 
 import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
+import static java.lang.Math.min;
 
 @POPClass
 public class POPJavaJobManager extends POPJobService {

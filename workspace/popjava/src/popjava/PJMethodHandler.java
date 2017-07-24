@@ -288,15 +288,15 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				
 				// add source node's certificate to the accesspoint since it's a reference
 				POPAccessPoint objAp = object.getAccessPoint();
-				String originThumbprint = objAp.getThumbprint();
-				if (originThumbprint != null) {
+				String originFingerprint = objAp.getFingerprint();
+				if (originFingerprint != null) {
 					// add to access point for the connector
-					Certificate originCert = POPTrustManager.getInstance().getCertificate(originThumbprint);
+					Certificate originCert = POPTrustManager.getInstance().getCertificate(originFingerprint);
 					objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
 					
 					// send connector certificate to object's node
-					String destinationThumbprint = popAccessPoint.getThumbprint();
-					Certificate destCert = POPTrustManager.getInstance().getCertificate(destinationThumbprint);
+					String destinationFingerprint = popAccessPoint.getFingerprint();
+					Certificate destCert = POPTrustManager.getInstance().getCertificate(destinationFingerprint);
 					// send caller certificate to origin node
 					object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
 				}

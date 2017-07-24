@@ -16,7 +16,7 @@ public class POPAccessPoint implements IPOPBase {
 	private boolean isService;
 	private boolean noaddref = false;
 	private int security;
-	private String thumbprint = null;
+	private String fingerprint = null;
 	private byte[] x509certificate = null;
 
 	/**
@@ -61,10 +61,10 @@ public class POPAccessPoint implements IPOPBase {
 		buffer.putInt(security);
 		buffer.putBoolean(isService);
 		buffer.putBoolean(noaddref);
-		// serialize thumbprint if necessary
-		if (thumbprint != null) {
+		// serialize fingerprint if necessary
+		if (fingerprint != null) {
 			buffer.putBoolean(true);
-			buffer.putString(thumbprint);
+			buffer.putString(fingerprint);
 		} else {
 			buffer.putBoolean(false);
 		}
@@ -89,7 +89,7 @@ public class POPAccessPoint implements IPOPBase {
 		isService = buffer.getBoolean();
 		noaddref = buffer.getBoolean();
 		if (buffer.getBoolean()) {
-			thumbprint = buffer.getString();
+			fingerprint = buffer.getString();
 		}
 		if (buffer.getBoolean()) {
 			int size = buffer.getInt();
@@ -98,12 +98,12 @@ public class POPAccessPoint implements IPOPBase {
 		return true;
 	}
 
-	public String getThumbprint() {
-		return thumbprint;
+	public String getFingerprint() {
+		return fingerprint;
 	}
 
-	public void setThumbprint(String thumbprint) {
-		this.thumbprint = thumbprint;
+	public void setFingerprint(String fingerprint) {
+		this.fingerprint = fingerprint;
 	}
 
 	public byte[] getX509certificate() {

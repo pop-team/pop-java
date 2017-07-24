@@ -41,7 +41,7 @@ public class SNRequest implements IPOPBase {
 	}
 	
 	// TODO get appservice certificate and fill appServiceCertificate
-	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network, String connector, String appServiceThumbprint) {
+	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network, String connector, String appServiceFingerprint) {
 		this.requestId = nodeId;
 		this.os = POPSystem.getPlatform();
 		this.minResource = minResource;
@@ -58,8 +58,8 @@ public class SNRequest implements IPOPBase {
 		}
 		
 		// app service certificate
-		if (appServiceThumbprint != null) {
-			Certificate appServiceCert = POPTrustManager.getInstance().getCertificate(appServiceThumbprint);
+		if (appServiceFingerprint != null) {
+			Certificate appServiceCert = POPTrustManager.getInstance().getCertificate(appServiceFingerprint);
 			appServiceCertificate = SSLUtils.certificateBytes(appServiceCert);
 		}
 	}

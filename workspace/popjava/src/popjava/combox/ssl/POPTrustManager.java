@@ -122,11 +122,11 @@ public class POPTrustManager implements X509TrustManager {
 	/**
 	 * Tell if a certificate is confidence link certificate or a temporary link
 	 * 
-	 * @param thumbprint The identifier of the certificate
+	 * @param fingerprint The identifier of the certificate
 	 * @return true if it's a confidence link, false otherwise
 	 */
-	public boolean isConfidenceLink(String thumbprint) {
-		return confidenceCertificates.contains(thumbprint);
+	public boolean isConfidenceLink(String fingerprint) {
+		return confidenceCertificates.contains(fingerprint);
 	}
 	
 	/**
@@ -136,7 +136,7 @@ public class POPTrustManager implements X509TrustManager {
 		Map<String,Certificate> temp = new HashMap<>();
 		Certificate[] certificates = getAcceptedIssuers();
 		for (Certificate cert : certificates) {
-			temp.put(SSLUtils.certificateThumbprint(cert), cert);
+			temp.put(SSLUtils.certificateFingerprint(cert), cert);
 		}
 		// empty and swap
 		loadedCertificates.clear();
@@ -160,7 +160,7 @@ public class POPTrustManager implements X509TrustManager {
 		for (Enumeration<String> eAlias = trustedKS.aliases(); eAlias.hasMoreElements();) {
 			String alias = eAlias.nextElement();
 			Certificate cert = trustedKS.getCertificate(alias);
-			confidenceCertificates.add(SSLUtils.certificateThumbprint(cert));
+			confidenceCertificates.add(SSLUtils.certificateFingerprint(cert));
                         
 			// save public certificate
 			if (alias.equals(Configuration.KEY_STORE_PK_ALIAS)) {
@@ -222,10 +222,10 @@ public class POPTrustManager implements X509TrustManager {
 	/**
 	 * Any certificate from the local Trust manager
 	 * 
-	 * @param thumbprint
+	 * @param fingerprint
 	 * @return 
 	 */
-	public Certificate getCertificate(String thumbprint) {
-		return loadedCertificates.get(thumbprint);
+	public Certificate getCertificate(String fingerprint) {
+		return loadedCertificates.get(fingerprint);
 	}
 }

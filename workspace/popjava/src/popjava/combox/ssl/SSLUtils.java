@@ -177,32 +177,32 @@ public class SSLUtils {
 	}
 	
 	/**
-	 * Get the SHA-1 thumbprint of a certificate from its byte array representation
+	 * Get the SHA-1 fingerprint of a certificate from its byte array representation
 	 * 
 	 * @param certificate
 	 * @return 
 	 */
-	public static String certificateThumbprint(byte[] certificate) {
+	public static String certificateFingerprint(byte[] certificate) {
 		try {
 			// load certificate
 			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
 			Certificate cert = certFactory.generateCertificate(fi);
 			fi.close();
 			// compute hash
-			return certificateThumbprint(cert);
+			return SSLUtils.certificateFingerprint(cert);
 		} catch(CertificateException | IOException e) {
 		}
 		return null;
 	}
 	
 	/**
-	 * Get the SHA-1 thumbprint of a certificate
+	 * Get the SHA-1 fingerprint of a certificate
 	 * 
 	 * @see https://stackoverflow.com/questions/1270703/how-to-retrieve-compute-an-x509-certificates-thumbprint-in-java
 	 * @param cert
-	 * @return The hex representation of the thumbprint
+	 * @return The hex representation of the fingerprint
 	 */
-	public static String certificateThumbprint(Certificate cert) {
+	public static String certificateFingerprint(Certificate cert) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
 			byte[] der = cert.getEncoded();
@@ -282,8 +282,8 @@ public class SSLUtils {
 			}
 			
 			// certificate output name
-			String thumbprint = certificateThumbprint(cert);
-			String outName = thumbprint + ".cer";
+			String fingerprint = SSLUtils.certificateFingerprint(cert);
+			String outName = fingerprint + ".cer";
 			
 			// certificates temprary path
 			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, outName);
