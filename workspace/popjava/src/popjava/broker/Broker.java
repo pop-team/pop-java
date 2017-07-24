@@ -491,7 +491,7 @@ public final class Broker {
 	 * @return true if the request has been treated correctly
 	 * @throws InterruptedException 
 	 */
-	public boolean invoke(Request request) throws InterruptedException {
+	public boolean invoke(Request request) throws InterruptedException {		
 		if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
 			invokeConstructor(request);
 		} else {

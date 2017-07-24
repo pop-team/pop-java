@@ -98,7 +98,7 @@ public class POPObject implements IPOPBase {
 			od.setConnectionType(objectDescription.connection());
 			od.setConnectionSecret(objectDescription.connectionSecret());
 			od.setEncoding(objectDescription.encoding().toString());
-			od.setProtocol(objectDescription.protocol());
+			od.setProtocol(objectDescription.protocol().getName());
 			od.setNetwork(objectDescription.network());
 			od.setConnector(objectDescription.connector());
 			od.setPower(objectDescription.power(), objectDescription.minPower());
@@ -760,7 +760,7 @@ public class POPObject implements IPOPBase {
 	 */
 	@POPSyncConc
 	public void PopRegisterFutureConnectorCertificate(byte[] cert) {
-		LogWriter.writeDebugInfo("Writing certificate received from reference.");
+		LogWriter.writeDebugInfo("Writing certificate received from middleman.");
 		SSLUtils.addCertToTempStore(cert, true);
 	}
 	

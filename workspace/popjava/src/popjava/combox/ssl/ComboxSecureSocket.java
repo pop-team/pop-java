@@ -35,8 +35,6 @@ public class ComboxSecureSocket extends Combox {
 	protected OutputStream outputStream = null;
 	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024; //8MB
 	
-	private final int HANDSHAKE_CHALLANGE_SIZE = 256;
-	
 	/**
 	 * NOTE: this is used by ServerCombox (server)
 	 * Create a new combox on the given socket

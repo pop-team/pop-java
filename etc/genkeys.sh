@@ -7,7 +7,7 @@ then
     exit 1
 fi
 
-STORE_TYPE="pkcs12"
+STORE_TYPE="jks"
 EXTENSION="jks"
 STORE_PWD="${1}store"
 KEY_PWD="${1}key"

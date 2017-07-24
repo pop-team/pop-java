@@ -53,9 +53,6 @@ public class ComboxServerSecureSocket extends ComboxServer {
 		try {
 			SSLContext sslContext = SSLUtils.getSSLContext();
 			
-			// XXX WHY DO WE NEED THIS ?!!!
-			//sslContext.getSupportedSSLParameters();
-			
 			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
 			serverSocket = (SSLServerSocket) factory.createServerSocket();
 			serverSocket.setNeedClientAuth(true);

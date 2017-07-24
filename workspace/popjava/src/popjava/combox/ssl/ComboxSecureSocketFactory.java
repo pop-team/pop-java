@@ -1,6 +1,7 @@
 package popjava.combox.ssl;
 
 import popjava.baseobject.AccessPoint;
+import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
@@ -17,7 +18,7 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	/**
 	 * Name of the implemented protocol
 	 */
-	public static final String PROTOCOL = "ssl";
+	public static final String PROTOCOL = ConnectionProtocol.SSL.getName();
 
 	@Override
 	public String getComboxName() {

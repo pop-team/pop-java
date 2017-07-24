@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import popjava.baseobject.ConnectionProtocol;
 
 import popjava.baseobject.ConnectionType;
 import popjava.util.Configuration;
@@ -40,11 +41,9 @@ public @interface POPObjectDescription {
 	
 	/**
 	 * Set the protocol for this connection.
-	 * socket : unencrypted (default)
-	 * ssl: encrypted (experimental)
 	 * @return 
 	 */
-	String protocol() default "";
+	ConnectionProtocol protocol() default ConnectionProtocol.ALL;
 	
 	/**
 	 * A network available on this machine

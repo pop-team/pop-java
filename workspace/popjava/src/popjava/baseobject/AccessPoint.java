@@ -3,16 +3,17 @@ package popjava.baseobject;
 import java.net.UnknownHostException;
 
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 
 /**
  * This class represent an access to a broker-side parallel object
  */
 public class AccessPoint {
     
-	public static final String SOCKET_PROTOCOL = "socket";
+	/*public static final String SOCKET_PROTOCOL = "socket";
 	public static final String WEBSERVICE_PROTOCOL = "webservice";
 	public static final String HTTP_PROTOCOL = "http";
-	public static final String SSL_PROTOCOL = "ssl";
+	public static final String SSL_PROTOCOL = "ssl";*/
 	public static final int DEFAULT_PORT = 12008;
 	public static final String DEFAULT_HOST = "localhost";
 	
@@ -80,8 +81,8 @@ public class AccessPoint {
 			host = datas[1].trim();
 			port = Integer.parseInt(datas[2]);
 		} else if (n == 2) {
-		    if(args[0].trim().equalsIgnoreCase("socket")){
-		        protocol = SOCKET_PROTOCOL;
+		    if(args[0].trim().equalsIgnoreCase(Configuration.DEFAULT_PROTOCOL)){
+		        protocol = Configuration.DEFAULT_PROTOCOL;
 	            host = datas[0].trim();
 	            port = Integer.parseInt(datas[1]);
 		    }else{
@@ -89,7 +90,7 @@ public class AccessPoint {
 		    }
 			
 		} else {
-			protocol = SOCKET_PROTOCOL;
+			protocol = Configuration.DEFAULT_PROTOCOL;
 			host = DEFAULT_HOST;
 			port = DEFAULT_PORT;
 		}
