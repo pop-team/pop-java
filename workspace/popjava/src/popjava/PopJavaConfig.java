@@ -123,6 +123,23 @@ public class PopJavaConfig {
 	}
 	
 	/**
+	 * Remove a confidence link to a previously added node, preserve the node.
+	 * Use {@link #unregisterNode} to remove both node and certificate.
+	 * 
+	 * @param node
+	 * @return 
+	 */
+	public boolean removeCertificate(POPNetworkNode node) {
+		try {
+			SSLUtils.removeConfidenceLink(node);
+			return true;
+		} catch(IOException e) {
+			LogWriter.writeExceptionLog(e);
+			return false;
+		}
+	}
+	
+	/**
 	 * Remove a Node/Friend from a network
 	 *
 	 * @param network The name of the network

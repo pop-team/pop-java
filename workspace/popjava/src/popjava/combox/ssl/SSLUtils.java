@@ -75,27 +75,37 @@ public class SSLUtils {
 	}
 	
 	/**
+	 * A constant hash String identifier from a node
+	 * 
+	 * @param node
+	 * @return 
+	 */
+	private static String confidenceLinkHash(POPNetworkNode node) {
+		return String.format("%x", node.hashCode());
+	}
+	
+	/**
 	 * Add or Replace confidence link
 	 * 
 	 * @param node
 	 * @param certificate
-	 * @param onlyOverride
+	 * @param mode false if we want to add the certificate, true if we want to replace it
 	 * @throws IOException 
 	 */
-	private static void addConfidenceLink(POPNetworkNode node, Certificate certificate, boolean onlyOverride) throws IOException {
+	private static void addConfidenceLink(POPNetworkNode node, Certificate certificate, boolean mode) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
 
 			// node identifier
-			String nodeHash = String.valueOf(node.hashCode());
+			String nodeHash = confidenceLinkHash(node);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
-			// if onlyOverride the certificate must be present
-			// if not onlyOverride the certificate must NOT be present
-			if (aliases.contains(nodeHash) ^ onlyOverride) {
+			// if `mode' is true the certificate must be present
+			// if `mode' is false the certificate must NOT be present
+			if (aliases.contains(nodeHash) ^ mode) {
 				return;
 			} else {
 				// add/replace a new entry
@@ -104,7 +114,8 @@ public class SSLUtils {
 
 			// override the existing keystore
 			keyStore.store(new FileOutputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
-		} catch(KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+			POPTrustManager.getInstance().reloadTrustManager();
+		} catch(Exception e) {
 			throw new IOException("Failed to save Confidence Link in KeyStore.");
 		}
 	}
@@ -147,7 +158,7 @@ public class SSLUtils {
 			keyStore.load(new FileInputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
 
 			// node identifier
-			String nodeHash = String.valueOf(node.hashCode());
+			String nodeHash = confidenceLinkHash(node);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
@@ -160,7 +171,8 @@ public class SSLUtils {
 
 			// override the existing keystore
 			keyStore.store(new FileOutputStream(Configuration.TRUST_STORE), Configuration.TRUST_STORE_PWD.toCharArray());
-		} catch(KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+			POPTrustManager.getInstance().reloadTrustManager();
+		} catch(Exception e) {
 			throw new IOException("Failed to save Confidence Link in KeyStore.");
 		}
 	}
