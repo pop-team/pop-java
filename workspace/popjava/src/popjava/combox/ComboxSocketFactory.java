@@ -47,4 +47,9 @@ public class ComboxSocketFactory extends ComboxFactory {
 		return new ComboxAllocateSocket();
 	}
 
+	@Override
+	public boolean isAvailable() {
+		return true;
+	}
+
 }

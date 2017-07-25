@@ -42,4 +42,9 @@ public class ComboxFactoryPlugin extends ComboxFactory {
 		return null;
 	}
 
+	@Override
+	public boolean isAvailable() {
+		return false;
+	}
+
 }

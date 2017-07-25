@@ -58,4 +58,10 @@ public abstract class ComboxFactory {
 	 * @return name of the combox
 	 */
 	public abstract String getComboxName();
+	
+	/**
+	 * Check if this combox is usable
+	 * @return true if it's usable
+	 */
+	public abstract boolean isAvailable();
 }

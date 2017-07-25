@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import javax.net.ssl.SSLContext;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
@@ -9,6 +10,7 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxAllocate;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxServer;
+import popjava.util.LogWriter;
 
 /**
  * This class is the factory for all combox socket
@@ -50,6 +52,17 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	@Override
 	public ComboxAllocate createAllocateCombox() {
 		return new ComboxAllocateSecureSocket();
+	}
+
+	@Override
+	public boolean isAvailable() {
+		try {
+			SSLContext context = SSLUtils.getSSLContext();
+			return true;
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo("[SSL Combox] can't be initialized correctly: ", e.getMessage());
+			return false;
+		}
 	}
 
 }
