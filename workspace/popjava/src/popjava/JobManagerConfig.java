@@ -40,7 +40,7 @@ public class JobManagerConfig {
 	 * @param secret
 	 * @return
 	 */
-	public boolean registerTFC(Object object, String tfcNetwork, String secret) {
+	public boolean publishTFCObject(Object object, String tfcNetwork, String secret) {
 		if (object instanceof POPObject) {
 			POPObject temp = (POPObject) object;
 			boolean status = jobManager.registerTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
@@ -56,7 +56,7 @@ public class JobManagerConfig {
 	 * @param tfcNetwork
 	 * @param secret
 	 */
-	public void unregisterTFC(Object object, String tfcNetwork, String secret) {
+	public void withdrawnTFCObject(Object object, String tfcNetwork, String secret) {
 		if (object instanceof POPObject) {
 			POPObject temp = (POPObject) object;
 			jobManager.unregisterTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
