@@ -17,7 +17,6 @@ import popjava.util.Util;
  */
 public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 
-	private final String host;
 	private int port;
 	private String protocol;
 	private boolean initialized = true;

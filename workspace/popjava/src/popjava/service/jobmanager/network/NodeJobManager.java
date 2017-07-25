@@ -17,7 +17,6 @@ import popjava.util.Util;
  */
 public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManager> {
 
-	private final String host;
 	private int port;
 	private String protocol;
 	private boolean initialized = true;

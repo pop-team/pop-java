@@ -66,21 +66,6 @@ import popjava.util.Util;
 import popjava.annotation.POPSyncSeq;
 
 import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
 
 @POPClass
 public class POPJavaJobManager extends POPJobService {
@@ -1268,6 +1253,40 @@ public class POPJavaJobManager extends POPJobService {
 		} finally {
 			
 		}
+	}
+	
+	/**
+	 * The available networks in the current Job Manager
+	 * 
+	 * @return 
+	 */
+	@POPSyncConc
+	public String[] getAvailableNetworks() {
+		String[] networksArray = networks.keySet().toArray(new String[0]);
+		return networksArray;
+	}
+	
+	/**
+	 * All the nodes in a network
+	 * 
+	 * @param networkName
+	 * @return 
+	 */
+	@POPSyncConc
+	public String[][] getNetworkNodes(String networkName) {
+		POPNetwork network = networks.get(networkName);
+		if (network == null) {
+			return new String[0][0];
+		}
+		
+		String[][] nodes = new String[network.size()][];
+		int i = 0;
+		for (POPConnectorBase connector : network.getConnectors()) {
+			for (POPNetworkNode member : network.getMembers(connector.getClass())) {
+				nodes[i++] = member.getCreationParams();
+			}
+		}
+		return nodes;
 	}
 
 	/**

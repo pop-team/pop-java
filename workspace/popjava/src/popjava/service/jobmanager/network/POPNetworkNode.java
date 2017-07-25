@@ -10,6 +10,7 @@ import popjava.service.jobmanager.connector.POPConnectorBase;
  */
 public abstract class POPNetworkNode<T extends POPConnectorBase> {
 
+	protected String host;
 	protected final Class<T> connectorClass;
 	protected final String connectorName;
 	protected String[] creationParams;
@@ -37,6 +38,15 @@ public abstract class POPNetworkNode<T extends POPConnectorBase> {
 	 */
 	public String getConnectorName() {
 		return connectorName;
+	}
+
+	/**
+	 * Host of the node
+	 * 
+	 * @return 
+	 */
+	public String getHost() {
+		return host;
 	}
 
 	/**

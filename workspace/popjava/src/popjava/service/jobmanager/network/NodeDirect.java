@@ -15,7 +15,6 @@ import popjava.util.Util;
  */
 public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 
-	private String host;
 	private int port;
 	private boolean daemon;
 	private String daemonSecret;

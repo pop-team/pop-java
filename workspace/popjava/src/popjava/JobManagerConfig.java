@@ -2,11 +2,15 @@ package popjava;
 
 import java.io.IOException;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import popjava.base.POPObject;
 import popjava.baseobject.POPAccessPoint;
 import popjava.combox.ssl.SSLUtils;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.network.POPNetworkNode;
+import popjava.service.jobmanager.network.POPNetworkNodeFactory;
 import popjava.serviceadapter.POPJobManager;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
@@ -17,11 +21,11 @@ import popjava.util.LogWriter;
  *
  * @author Davide Mazzoleni
  */
-public class PopJavaConfig {
+public class JobManagerConfig {
 
 	private final POPJavaJobManager jobManager;
 
-	public PopJavaConfig() {
+	public JobManagerConfig() {
 		String protocol = Configuration.DEFAULT_PROTOCOL;
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
 			protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
@@ -234,6 +238,36 @@ public class PopJavaConfig {
 	 */
 	public void changeMaxJobBandwidth(float limit) {
 		jobManager.changeMaxJobBandwidth(limit);
+	}
+	
+	/**
+	 * Array of networks available locally
+	 * 
+	 * @return 
+	 */
+	public String[] availableNetworks() {
+		return jobManager.getAvailableNetworks();
+	}
+	
+	/**
+	 * All the node available in a network
+	 * Use {@link POPNetworkNode#getConnectorName()} or {@link POPNetworkNode#getConnectorClass()} to know which type you are working with.
+	 * 
+	 * @param networkName
+	 * @return 
+	 */
+	public POPNetworkNode[] networkNodes(String networkName) {
+		// get nodes
+		String[][] networkNodes = jobManager.getNetworkNodes(networkName);
+		POPNetworkNode[] nodes = new POPNetworkNode[networkNodes.length];
+		// make them real
+		int i = 0;
+		for (int j = 0; j < networkNodes.length; j++) {
+			List<String> nodeParams = new ArrayList(Arrays.asList(networkNodes[j]));
+			nodes[i] = POPNetworkNodeFactory.makeNode(nodeParams);
+		}
+		
+		return nodes;
 	}
 	
 	/**
