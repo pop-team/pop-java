@@ -830,6 +830,7 @@ public class Interface {
 		if(combox != null){
 			combox.close();
 		}
+		
 		combox = null;
 	}
 

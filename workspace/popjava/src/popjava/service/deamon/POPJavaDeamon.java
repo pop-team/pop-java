@@ -69,7 +69,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	public static Cipher createKey(String salt, String password, boolean encrypt){
 		try{
 			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-			KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
+			KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, Math.min(Cipher.getMaxAllowedKeyLength("AES"), 256));
 			SecretKey tmp = factory.generateSecret(spec);
 			SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 			

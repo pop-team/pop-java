@@ -9,6 +9,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -147,12 +149,9 @@ public class POPTrustManager implements X509TrustManager {
 		long start = System.currentTimeMillis();
 		// load keystore from specified cert store (or default)
 		KeyStore trustedKS = KeyStore.getInstance(Configuration.KEY_STORE_FORMAT);
-		InputStream trustedStore = new FileInputStream(trustStorePath);
-		try {
+		try (InputStream trustedStore = new FileInputStream(trustStorePath)) {
 			// load stores in memory
 			trustedKS.load(trustedStore, trustStorePass.toCharArray());			
-		} finally {
-			trustedStore.close();
 		}
 		
 		// mark certificate in the keystore as confidence certificates
@@ -172,9 +171,10 @@ public class POPTrustManager implements X509TrustManager {
 		// get all files in directory and add them
 		for (File file : new File(tempTrustStorePath).listFiles()) {
 			if (file.isFile() && file.getName().endsWith(".cer")) {
-				try {
-					Certificate cert = certFactory.generateCertificate(new FileInputStream(file));
-					trustedKS.setCertificateEntry(file.getName(), cert);
+				try (InputStream fileStream = new FileInputStream(file)) {
+					Certificate cert = certFactory.generateCertificate(fileStream);
+					String alias = file.getName().substring(0, file.getName().length() - 4);
+					trustedKS.setCertificateEntry(alias, cert);
 				} catch(Exception e) {
 				}
 			}
@@ -189,9 +189,9 @@ public class POPTrustManager implements X509TrustManager {
 
 		// acquire X509 trust manager from factory
 		TrustManager tms[] = tmf.getTrustManagers();
-		for (int i = 0; i < tms.length; i++) {
-			if (tms[i] instanceof X509TrustManager) {
-				trustManager = (X509TrustManager) tms[i];
+		for (TrustManager tm : tms) {
+			if (tm instanceof X509TrustManager) {
+				trustManager = (X509TrustManager) tm;
 				saveCertificatesToMemory();
 				return;
 			}

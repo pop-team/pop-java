@@ -29,6 +29,15 @@ public class ComboxSocket extends Combox {
 	protected OutputStream outputStream = null;
 	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024; //8MB
 
+	@Override
+	public String toString(){
+		if(peerConnection != null){
+			return peerConnection.toString();
+		}
+		
+		return "Closed";
+	}
+	
 	/**
 	 * Create a new combox on the given socket
 	 * @param socket	The socket to create the combox 
@@ -75,7 +84,7 @@ public class ComboxSocket extends Combox {
 				    peerConnection.close();
 				}
 			} catch (IOException e) {
-				LogWriter.writeExceptionLog(e);
+				//LogWriter.writeExceptionLog(e);
 			}
 		}
 	}

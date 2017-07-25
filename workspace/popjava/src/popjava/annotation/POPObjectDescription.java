@@ -39,6 +39,8 @@ public @interface POPObjectDescription {
 	
 	Encoding encoding() default Encoding.Default;
 	
+	boolean localJVM() default false;
+	
 	/**
 	 * Set the protocol for this connection.
 	 * @return 
