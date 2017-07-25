@@ -147,8 +147,13 @@ public class POPJavaJobManager extends POPJobService {
 
 		// early exit
 		if (!config.exists()) {
-			LogWriter.writeDebugInfo("[JM] Open config file [" + confFile + "] fail");
-			POPException.throwObjectNoResource();
+			LogWriter.writeDebugInfo("[JM] Open config file [%s] fail, trying to create", confFile);
+			
+			try {
+				config.createNewFile();
+			} catch (IOException e) {
+				LogWriter.writeDebugInfo("[JM] can't create job manager file %s", confFile);
+			}
 		}
 		LogWriter.writeDebugInfo("[JM] Using %s as config file", config.getAbsoluteFile().toString());
 
