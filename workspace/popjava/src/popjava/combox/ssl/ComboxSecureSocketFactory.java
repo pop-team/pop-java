@@ -60,7 +60,7 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 			SSLContext context = SSLUtils.getSSLContext();
 			return true;
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo("[SSL Combox] can't be initialized correctly: ", e.getMessage());
+			LogWriter.writeDebugInfo("[SSL Combox] can't be initialized correctly: %s", e.getMessage());
 			return false;
 		}
 	}
