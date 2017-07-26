@@ -259,6 +259,12 @@ public class JobManagerConfig {
 	public POPNetworkNode[] networkNodes(String networkName) {
 		// get nodes
 		String[][] networkNodes = jobManager.getNetworkNodes(networkName);
+		
+		// no results
+		if (networkNodes == null) {
+			return new POPNetworkNode[0];
+		}
+		
 		POPNetworkNode[] nodes = new POPNetworkNode[networkNodes.length];
 		// make them real
 		int i = 0;

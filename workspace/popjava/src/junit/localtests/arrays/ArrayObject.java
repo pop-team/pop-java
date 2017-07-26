@@ -17,4 +17,17 @@ public class ArrayObject extends POPObject{
     public void testArray(byte [] array){
         
     }
+	
+	@POPSyncConc
+	public String[][] strings2d() {
+		return new String[][] {
+			{ "a", "b" },
+			{ "c" }
+		};
+	}
+	
+	@POPSyncConc
+	public String[][] empty2d() {
+		return new String[0][0];
+	}
 }
