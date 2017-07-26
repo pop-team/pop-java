@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import javassist.util.proxy.ProxyObject;
+import popjava.PJMethodHandler;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -27,6 +28,7 @@ import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
+import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
@@ -295,6 +297,9 @@ public class POPObject implements IPOPBase {
 	 * @return	POPAccessPoint object containing all access points to the parallel object
 	 */
 	public POPAccessPoint getAccessPoint() {
+		if(broker == null){
+			throw new RuntimeException("Can not pass object as parameter before it has been initialized");
+		}
 		return broker.getAccessPoint();
 	}
 

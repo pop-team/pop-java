@@ -191,4 +191,12 @@ public class JVMObjectTest {
 	public void testNullParameterConstructor2(){
 		LocalObject local1 = PopJava.newActive(LocalObject.class, true, "", null);
 	}
+	
+	@Test(expected = Exception.class)
+	public void testConstructorCreation(){
+		LocalObject local1 = PopJava.newActive(LocalObject.class, new Long(1000));
+		
+		assertEquals(local1.getValue(), local1.getReference().getReference().getValue());
+		
+	}
 }

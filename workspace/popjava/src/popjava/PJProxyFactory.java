@@ -151,7 +151,7 @@ public class PJProxyFactory extends ProxyFactory {
 				methodHandler.setOd(originalOd);
 				methodHandler.popConstructor(targetClass, argvs);
 				this.setHandler(methodHandler);
-				Class<?> c = this.createClass();
+				Class<?> c = createClass();
 				Object result = c.newInstance();
 				((ProxyObject) result).setHandler(methodHandler);
 								

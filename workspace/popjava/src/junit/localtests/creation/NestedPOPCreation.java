@@ -10,7 +10,7 @@ import popjava.PopJava;
  */
 public class NestedPOPCreation {
 	
-	@Test
+	@Test(expected = Exception.class)
 	public void creation() {
 		ObjA a = PopJava.newActive(ObjA.class, 10);
 		ObjB b = a.getB();

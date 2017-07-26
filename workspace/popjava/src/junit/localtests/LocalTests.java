@@ -8,6 +8,7 @@ import junit.localtests.arrays.ArraysTest;
 import junit.localtests.bigData.BigDataTests;
 import junit.localtests.callback.CallBackTest;
 import junit.localtests.concurrency.TestConcurrency;
+import junit.localtests.creation.NestedPOPCreation;
 import junit.localtests.deamontest.DeamonTest;
 import junit.localtests.enums.EnumTests;
 import junit.localtests.integer.IntegerTest;
@@ -21,7 +22,7 @@ import junit.localtests.subclassReturns.SubclassingTest;
 @Suite.SuiteClasses( { CallBackTest.class, IntegerTest.class, AnnotationsTest.class, ReaderWriterTest.class,
 	TestConcurrency.class, DeamonTest.class, EnumTests.class,
 	ArraysTest.class, ParameterTests.class,
-	BigDataTests.class, SubclassingTest.class, ReferenceTest.class, JVMObjectTest.class})
+	BigDataTests.class, SubclassingTest.class, ReferenceTest.class, JVMObjectTest.class, NestedPOPCreation.class})
 public class LocalTests {
 
 }

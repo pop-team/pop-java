@@ -114,7 +114,9 @@ public class LogWriter {
 	 * @param e The exception to be logged
 	 */
 	public static void writeExceptionLog(Throwable e){
-		//e.printStackTrace();
+		if(Configuration.DEBUG){
+			e.printStackTrace();
+		}
 		logInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
         for(int i = 0; i < e.getStackTrace().length; i++){
         	logInfo(e.getStackTrace()[i].getClassName()+" "+e.getStackTrace()[i].getLineNumber());

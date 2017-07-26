@@ -83,7 +83,7 @@ public final class Broker {
 	private Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
 	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
-	
+		
 	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		
 		@Override
@@ -110,11 +110,11 @@ public final class Broker {
 	
 	public Broker(POPObject object){
 		this.popObject = object;
+		popObject.setBroker(this);
+		
 		connectionCount++;
 		
 		initialize(java.util.Collections.EMPTY_LIST);
-		
-		popObject.setBroker(this);
 		popInfo = object;
 		
 		new Thread(new Runnable() {
@@ -138,7 +138,8 @@ public final class Broker {
 	 * @param objectName
 	 *            Name of the object to create
 	 */
-	private Broker(String codelocation, String objectName) {		
+	private Broker(String codelocation, String objectName) {
+		
 		URLClassLoader urlClassLoader = null;
 		
 		if (codelocation != null && codelocation.length() > 0) {
@@ -242,14 +243,14 @@ public final class Broker {
 		if (exception == null && constructor != null) {
 			try {
 				popObject = (POPObject) constructor.newInstance(parameters);
+				popObject.setBroker(this);
+				
 				POPClass annotation = popObject.getClass().getAnnotation(POPClass.class);
 				if(annotation != null){
 					for (ComboxServer comboxServer : comboxServers) {
 						comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
 					}
 				}
-				
-				popObject.setBroker(this);
 			} catch (Exception e) {
 				exception = POPException.createReflectException(
 						constructor.getName(), e.getMessage());
