@@ -82,7 +82,7 @@ public class ObjectDescription implements IPOPBase {
 		memoryReq = -1;
 		
 		setNetwork("");
-		setConnector(Configuration.DEFAULT_JOBMANAGER_CONNECTOR);
+		setConnector(Configuration.DEFAULT_CONNECTOR);
 	}
 	
 	public ObjectDescription(ObjectDescription od) {

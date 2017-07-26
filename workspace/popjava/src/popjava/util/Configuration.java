@@ -24,7 +24,7 @@ public class Configuration {
 	public static final int TFC_SEARCH_TIMEOUT = 5000;
 	public static final int UNLIMITED_HOPS = Integer.MAX_VALUE;
 	public static final int MAXREQTOSAVE = 300;
-	public static final String DEFAULT_JOBMANAGER_CONNECTOR = POPConnectorJobManager.IDENTITY;
+	public static final String DEFAULT_CONNECTOR = POPConnectorJobManager.IDENTITY;
 	public static final int EXPLORATION_MAX_SIZE = 300;
 	
 	public static final String DEFAULT_ENCODING = "xdr";
