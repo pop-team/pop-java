@@ -762,6 +762,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param value A formatted String with some data in it
 	 * @return true if the query is successful, false otherwise
 	 */
+	@POPSyncConc
 	public boolean query(String type, @POPParameter(Direction.INOUT) POPString value) {
 		switch (type) {
 			case "platform":
