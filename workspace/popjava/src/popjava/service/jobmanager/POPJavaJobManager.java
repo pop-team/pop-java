@@ -937,9 +937,8 @@ public class POPJavaJobManager extends POPJobService {
 	@POPAsyncConc
 	private void registerRemoteAsync(String network, AbstractNodeJobManager node) {
 		try {
-			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, node.getJobManagerAccessPoint());
+			POPJavaJobManager jm = node.getJobManager();			
 			jm.registerNode(network, node.getCreationParams());
-			jm.exit();
 		} catch (POPException e) {
 		}
 	}
@@ -1495,12 +1494,13 @@ public class POPJavaJobManager extends POPJobService {
 			if (!(connector instanceof POPConnectorSearchNodeInterface)) {
 				return;
 			}
+			POPConnectorSearchNodeInterface snEnableConnector = (POPConnectorSearchNodeInterface) connector;
 			
 			// add all network neighbors to explorations list
 			for (POPNetworkNode node : network.getMembers(connectorUsed)) {
 				// only JM items and children
-				if (node instanceof NodeJobManager) {
-					NodeJobManager jmNode = (NodeJobManager) node;
+				if (node instanceof AbstractNodeJobManager) {
+					AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
 					// add to exploration list
 					explorationList.add(jmNode.getJobManagerAccessPoint());
 				}
@@ -1515,14 +1515,17 @@ public class POPJavaJobManager extends POPJobService {
 					for (POPNetworkNode node : network.getMembers(connectorUsed)) {
 						// only JM items and children
 						if (node instanceof NodeJobManager) {
-							NodeJobManager jmNode = (NodeJobManager) node;
+							AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
 
 							// contact if it has not been contacted before by someone else
 							if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
-								// send request to other JM
-								POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jmNode.getJobManagerAccessPoint());
-								jm.askResourcesDiscovery(request, getAccessPoint());
-								jm.exit();
+								try {
+									// send request to other JM
+									POPJavaJobManager jm = jmNode.getJobManager();
+									jm.askResourcesDiscovery(request, getAccessPoint());		
+								} catch(Exception e) {
+									LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s", jmNode.getJobManagerAccessPoint(), e.getMessage());
+								}
 							}
 						}
 					}
@@ -1548,21 +1551,8 @@ public class POPJavaJobManager extends POPJobService {
 				SNKnownRequests.pollLast();
 			}
 
-			// check local available resources to see if we can handle the request to the requester
-			if (available.canHandle(request.getResourceNeeded())
-					|| available.canHandle(request.getMinResourceNeeded())) {
-				// build response and give it back to the original sender
-				SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(nodeId, getAccessPoint(), POPSystem.getPlatform(), available);
-				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
-
-				// if we want to answer we save the certificate if there is any
-				if (request.getPublicCertificate().length > 0) {
-					SSLUtils.addCertToTempStore(request.getPublicCertificate());
-				}
-				
-				// route response to the original JM
-				rerouteResponse(response, new SNWayback(request.getWayback()));
-			}
+			// send request, handled by the different connectors
+			snEnableConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
 
 			// propagate in the network if we still can
 			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == Configuration.UNLIMITED_HOPS) {
@@ -1570,14 +1560,17 @@ public class POPJavaJobManager extends POPJobService {
 				request.getWayback().push(getAccessPoint());
 				// request to all members of the network
 				for (POPNetworkNode node : network.getMembers(connectorUsed)) {
-					if (node instanceof NodeJobManager) {
-						NodeJobManager jmNode = (NodeJobManager) node;
+					if (node instanceof AbstractNodeJobManager) {
+						AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
 						// contact if it's a new node
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
-							// send request to other JM
-							POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jmNode.getJobManagerAccessPoint());
-							jm.askResourcesDiscovery(request, getAccessPoint());
-							jm.exit();
+							try {
+								// send request to other JM
+								POPJavaJobManager jm = jmNode.getJobManager();
+								jm.askResourcesDiscovery(request, getAccessPoint());
+							} catch(Exception e) {
+								LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s", jmNode.getJobManagerAccessPoint(), e.getMessage());
+							}
 						}
 
 					}

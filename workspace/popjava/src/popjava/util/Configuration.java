@@ -11,7 +11,7 @@ public class Configuration {
 	/**
 	 * Creates a new instance of POPConfiguration
 	 */
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	public static boolean DEBUG_COMBOBOX = false;
 	public static final int RESERVE_TIMEOUT = 60000;
 	public static final int ALLOC_TIMEOUT = 30000;
