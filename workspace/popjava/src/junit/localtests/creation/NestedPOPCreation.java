@@ -2,18 +2,17 @@ package junit.localtests.creation;
 
 import org.junit.Assert;
 import org.junit.Test;
-import popjava.annotation.POPClass;
+import popjava.PopJava;
 
 /**
  *
  * @author dosky
  */
-@POPClass(isDistributable = false)
 public class NestedPOPCreation {
 	
 	@Test
 	public void creation() {
-		ObjA a = new ObjA(10);
+		ObjA a = PopJava.newActive(ObjA.class, 10);
 		ObjB b = a.getB();
 		
 		Assert.assertEquals(a.getbVal(), b.getVal());

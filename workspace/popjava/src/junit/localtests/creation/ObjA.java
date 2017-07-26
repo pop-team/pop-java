@@ -1,5 +1,6 @@
 package junit.localtests.creation;
 
+import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 
@@ -21,7 +22,7 @@ public class ObjA {
 	public ObjA(int val) {
 		this.val = val;
 		bVal = (int) (Math.random() * 100);
-		b = new ObjB(this, bVal);
+		b = PopJava.newActive(ObjB.class, this, bVal);
 	}
 
 	public int getVal() {
