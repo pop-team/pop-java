@@ -73,14 +73,14 @@ public final class Broker {
 	static public final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
 	static public final String APPSERVICE_PREFIX = "-appservice=";
 
-	protected State state;
-	protected ComboxServer[] comboxServers;
-	protected POPBuffer buffer;
-	protected static POPAccessPoint accessPoint = new POPAccessPoint();
-	protected POPObject popObject = null;
-	protected POPObject popInfo = null;
-	protected int connectionCount = 0;
-	protected Semaphore sequentialSemaphore = new Semaphore(1, true);
+	private State state;
+	private ComboxServer[] comboxServers;
+	private POPBuffer buffer;
+	private POPAccessPoint accessPoint = new POPAccessPoint();
+	private POPObject popObject = null;
+	private POPObject popInfo = null;
+	private int connectionCount = 0;
+	private Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
 	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
 	
@@ -830,6 +830,19 @@ public final class Broker {
 			liveServers.add(factory.createServerCombox(ap, buffer, this));
 			
 		}
+		
+		//If no protocol was specified, fall back to default protocol
+		//TODO: LocalJVM objects need a way to specifiy the protocol(s), maybe as an annotation?
+		//TODO: Handle case where a port was specified, but the protocol is unavailable, throw exception
+		if(liveServers.isEmpty()){
+			ComboxFactory factory = finder.findFactory(Configuration.DEFAULT_PROTOCOL);
+			
+			AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
+			accessPoint.addAccessPoint(ap);
+			
+			liveServers.add(factory.createServerCombox(ap, buffer, this));
+		}
+		
 		comboxServers = liveServers.toArray(new ComboxServer[0]);
 		return true;
 	}

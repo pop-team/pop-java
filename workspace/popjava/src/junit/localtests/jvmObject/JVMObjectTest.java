@@ -86,6 +86,8 @@ public class JVMObjectTest {
 		LocalObject [] objs = new LocalObject[10];
 		LocalObject remote = PopJava.newActive(LocalObject.class, "localhost");
 		
+		assertFalse(remote.getAccessPoint().toString().isEmpty());
+		
 		Set<String> accessPoints = new HashSet<String>();
 		
 		for(int i = 0; i < objs.length; i++){

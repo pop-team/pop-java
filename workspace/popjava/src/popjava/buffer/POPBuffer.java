@@ -375,17 +375,17 @@ public abstract class POPBuffer extends Object {
 		}else if (c.equals(boolean.class) || c.equals(Boolean.class)){
 			return new Boolean(getBoolean());
 		}else if (c.equals(String.class)){
-			return this.getString();
+			return getString();
 		}else if (c.equals(char.class) || c.equals(Character.class)){
-			return this.getChar();
+			return getChar();
 		}else if (c.equals(long.class) || c.equals(Long.class)){
-			return this.getLong();
+			return getLong();
 		}else if (c.equals(double.class) || c.equals(Double.class)){
-			return this.getDouble();
+			return getDouble();
 		}else if (c.equals(short.class) || c.equals(Short.class)){
-			return this.getShort();
+			return getShort();
 		}else if (c.isArray()) {
-			return this.getArray(c);
+			return getArray(c);
 		} else if (POPObject.class.isAssignableFrom(c)) {
 			return PopJava.newActiveFromBuffer(c, this);
 		} else if (IPOPBase.class.isAssignableFrom(c)){
@@ -485,26 +485,26 @@ public abstract class POPBuffer extends Object {
 	public void putArray(Object o) throws POPException {
 		int length = 0;
 		if (o == null) {
-			this.putInt(0);
+			this.putInt(-1);
 			return;
 		} else {			
 			Class<?> c = o.getClass();
-			if (c.equals(byte[].class))						
-				this.putByteArray((byte[]) o);			
+			if (c.equals(byte[].class))
+				putByteArray((byte[]) o);
 			else if (c.equals(int[].class))
-				this.putIntArray((int[]) o);
+				putIntArray((int[]) o);
 			else if (c.equals(float[].class))
-				this.putFloatArray((float[]) o);
+				putFloatArray((float[]) o);
 			else if (c.equals(boolean[].class))
-				this.putBooleanArray((boolean[]) o);
+				putBooleanArray((boolean[]) o);
 			else if (c.equals(long[].class))
-				this.putLongArray((long[]) o);
+				putLongArray((long[]) o);
 			else if (c.equals(double[].class))
-				this.putDoubleArray((double[]) o);
+				putDoubleArray((double[]) o);
 			else if (c.equals(short[].class))
-				this.putShortArray((short[]) o);
+				putShortArray((short[]) o);
 			else if (c.equals(char[].class))
-				this.putCharArray((char[]) o);
+				putCharArray((char[]) o);
 			else {
 				length = Array.getLength(o);
 				putInt(length);
@@ -526,52 +526,33 @@ public abstract class POPBuffer extends Object {
 	public Object getArray(Class<?> arrayType) throws POPException {
 		int length = this.getInt();
 		
-		if (length == 0){
+		if (length < 0){
 			return null;
 		} else {
-
 			if (arrayType.equals(byte[].class))
-				return this.getByteArray(length);
+				return getByteArray(length);
 			else if (arrayType.equals(int[].class))
-				return this.getIntArray(length);
+				return getIntArray(length);
 			else if (arrayType.equals(float[].class))
-				return this.getFloatArray(length);
+				return getFloatArray(length);
 			else if (arrayType.equals(boolean[].class))
-				return this.getBooleanArray(length);
+				return getBooleanArray(length);
 			else if (arrayType.equals(long[].class))
-				return this.getLongArray(length);
+				return getLongArray(length);
 			else if (arrayType.equals(double[].class))
-				return this.getDoubleArray(length);
+				return getDoubleArray(length);
 			else if (arrayType.equals(short[].class))
-				return this.getShortArray(length);
+				return getShortArray(length);
 			else if (arrayType.equals(char[].class))
-				return this.getCharArray(length);
+				return getCharArray(length);
 			else {
 				Class<?> elementType = arrayType.getComponentType();
 				Object resultArray = Array.newInstance(elementType, length);
 				for (int index = 0; index < length; index++) {
-				    //System.out.println("read array index "+index);
 				    try{
-				        /*if(index == 636){
-				            BufferRaw raw = ((BufferRaw)this);
-	                        
-	                        System.err.println("Array error buffer pos: "+raw.position());
-	                        for(int i = raw.position() - 5; i < raw.position() + 15; i++){
-	                            System.err.println("A "+i+" "+raw.array()[i]);
-	                        }
-				        }*/
-				        
 				        Object value = getValue(elementType);
 				        Array.set(resultArray, index, value);
 				    }catch(POPException e){
-				        System.err.println("Error on array index: "+index+" out of "+length);
-				        
-				        BufferRaw raw = ((BufferRaw)this);
-				        
-				        System.err.println("Array error buffer pos: "+raw.position());
-				        for(int i = raw.position() - 15; i < raw.position() + 15; i++){
-				            System.err.println("B "+i+" "+raw.array()[i]);
-				        }
 				        throw e;
 				    }
 				}
@@ -591,9 +572,9 @@ public abstract class POPBuffer extends Object {
 			throws POPException {
 		try {
 			if (type.isArray()) {
-				this.putArray(obj);
+				putArray(obj);
 			} else if (IPOPBase.class.isAssignableFrom(type)) {
-				this.putValue(obj,type);
+				putValue(obj,type);
 			}
 		} catch (SecurityException e) {
 			e.printStackTrace();

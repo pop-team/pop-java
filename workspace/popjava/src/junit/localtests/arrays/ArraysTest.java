@@ -21,6 +21,18 @@ public class ArraysTest {
         
     }
 	
+
+	@Test
+	public void testEmptyArray(){
+
+        POPSystem.initialize();
+        
+        ArrayObject array =  PopJava.newActive(ArrayObject.class);
+
+		Assert.assertArrayEquals(new String[0], array.empty1d());
+		
+        POPSystem.end();
+	}
 	
 	@Test
 	public void testTriangularBidimensional() {

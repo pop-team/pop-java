@@ -30,4 +30,9 @@ public class ArrayObject extends POPObject{
 	public String[][] empty2d() {
 		return new String[0][0];
 	}
+
+	@POPSyncConc
+	public String[] empty1d(){
+		return new String[0];
+	}
 }
