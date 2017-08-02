@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import popjava.base.POPObject;
 import popjava.baseobject.POPAccessPoint;
+import popjava.combox.ssl.KeyStoreOptions;
 import popjava.combox.ssl.SSLUtils;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.network.POPNetworkNode;
@@ -274,6 +275,17 @@ public class JobManagerConfig {
 		}
 		
 		return nodes;
+	}
+	
+	/**
+	 * Generate a KeyStore with private key and certificate.
+	 * Proxy for {@link SSLUtils#generateKeyStore(popjava.combox.ssl.KeyStoreOptions)}
+	 * 
+	 * @param options
+	 * @return 
+	 */
+	public boolean generateKeyStore(KeyStoreOptions options) {
+		return SSLUtils.generateKeyStore(options);
 	}
 	
 	/**
