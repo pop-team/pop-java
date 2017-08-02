@@ -384,16 +384,19 @@ public class SSLUtils {
 			ASN1InputStream asn1InputStream	= new ASN1InputStream(new ByteArrayInputStream(rsaPublicKey.getEncoded()));
 			SubjectPublicKeyInfo pubKey = new SubjectPublicKeyInfo((ASN1Sequence) asn1InputStream.readObject());
 
+			// name of the certificate (RDN) -> OU=Group,O=Org,CN=Myself
 			X500NameBuilder nameBuilder = new X500NameBuilder(new BCStrictStyle());
 			for (Map.Entry<ASN1ObjectIdentifier, String> entry : options.getRDN().entrySet()) {
 				nameBuilder.addRDN(entry.getKey(), entry.getValue());
 			}
 
+			// sign ourself
 			X500Name subjectName = nameBuilder.build();
 			X500Name issuerName = subjectName;
 			X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(issuerName, BigInteger.valueOf(sr.nextInt()), 
 				GregorianCalendar.getInstance().getTime(), options.getValidUntil(), subjectName, pubKey);
 
+			// signature for the certificate
 			AlgorithmIdentifier sigAlgId = new DefaultSignatureAlgorithmIdentifierFinder().find("SHA1withRSA");
 			AlgorithmIdentifier digAlgId = new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
 			BcContentSignerBuilder sigGen = new BcRSAContentSignerBuilder(sigAlgId, digAlgId);

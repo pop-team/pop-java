@@ -12,17 +12,19 @@
         <property name="release.dir" value ="release"/>
         
         <property name="javassist.jar" value="dependencies/javassist.jar"/>
-        <property name="sshj.jar" value="dependencies/sshj-0.9.0-SNAPSHOT-jar-with-dependencies.jar"/>
+        <property name="sshj.jar" value="dependencies/sshj-0.21.1-with-dependencies.jar"/>
         <property name="log4j.jar" value="dependencies/slf4j-nop-1.7.2.jar"/>
-	    <property name="junit.jar" value="dependencies/junit-4.8.2.jar"/>
+	    <property name="junit.jar" value="dependencies/junit-4.10.jar"/>
         <property name="junit-benchmark.jar" value="dependencies/junit-benchmarks-0.7.2.jar"/>
         
         <property name="popjava.jar" value="popjava.jar"/>
         <property name="testsuite.jar" value="testsuite.jar"/>
+    	<property name="junit.out" value="junit.jar"/>
 	    <property name="obj.map" value="testsuite.jar.map"/> 
         
         <property name="popjava.src" value ="workspace/popjava/src/popjava"/>
         <property name="testsuite.src" value ="workspace/popjava/src/testsuite"/>
+    	<property name="junit.src" value ="workspace/popjava/src/junit"/>
         
         <property name="popjavac.dir" value ="popjavac"/>
         <property name="javadoc.dir" value ="doc"/>
@@ -58,6 +60,19 @@
         <javac srcdir="${testsuite.src}"
                 destdir="${classes.dir}"
         	    classpath="${jar.dir}/${popjava.jar}"
+                debug="true" debuglevel="lines,vars,source"
+                target="7"
+                source="7"
+        >
+          <compilerarg value="-Xlint:deprecation,unchecked"/>
+        </javac>
+</target>
+
+<target name="make-junit" depends="jar-popjava" description="build popjava's junit tests">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${junit.src}"
+                destdir="${classes.dir}"
+                classpath="${jar.dir}/${popjava.jar}:${junit.jar}:${junit-benchmark.jar}"
                 debug="true" debuglevel="lines,vars,source"
                 target="7"
                 source="7"
@@ -192,7 +207,7 @@
 	<echo message="Test 2 exit code: ${test2}"/>
 </target>
 
-<target name="make" depends="clean, jar-popjava, jar-testsuite" description="Builds the whole sourcecode">
+<target name="make" depends="clean, jar-popjava, jar-testsuite, make-junit" description="Builds the whole sourcecode">
 </target>
 
 <target name="make-release-folder" depends="make" description="Creates the directory that will be installed">
