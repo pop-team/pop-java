@@ -42,16 +42,16 @@ public class Configuration {
 	public static final String DEFAULT_JM_CONFIG_FILE = 
 		System.getenv("POPJAVA_LOCATION") == null ? "jobmgr.conf" : System.getenv("POPJAVA_LOCATION") + "/etc/jobmgr.conf";
 	
-	public static final String KEY_STORE = "poplocal.jks";
-	public static final String KEY_STORE_FORMAT = "JKS"; // https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#KeyStore
-	public static final String KEY_STORE_PWD = "poplocalstore";
+	public static String KEY_STORE = "poplocal.jks";
+	public static String KEY_STORE_FORMAT = "JKS"; // https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#KeyStore
+	public static String KEY_STORE_PWD = "poplocalstore";
 	// private key
-	public static final String KEY_STORE_PK_ALIAS = "poplocal";
-	public static final String KEY_STORE_PK_PWD = "poplocalkey";
+	public static String KEY_STORE_PK_ALIAS = "poplocal";
+	public static String KEY_STORE_PK_PWD = "poplocalkey";
 	// temporary confidence link directory
-	public static final String TRUST_TEMP_STORE_DIR = "_temp_certificates";
+	public static String TRUST_TEMP_STORE_DIR = "_temp_certificates";
 	
-	public static final String SSL_PROTOCOL_VERSION = "TLSv1.2";
+	public static String SSL_PROTOCOL_VERSION = "TLSv1.2";
 	
 	/**
 	 * Default constructor

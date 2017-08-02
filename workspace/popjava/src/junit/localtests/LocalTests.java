@@ -16,13 +16,15 @@ import junit.localtests.jvmObject.JVMObjectTest;
 import junit.localtests.parameters.ParameterTests;
 import junit.localtests.readerWriter.ReaderWriterTest;
 import junit.localtests.referencePassing.ReferenceTest;
+import junit.localtests.security.CreateKeyStoreTest;
 import junit.localtests.subclassReturns.SubclassingTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( { CallBackTest.class, IntegerTest.class, AnnotationsTest.class, ReaderWriterTest.class,
 	TestConcurrency.class, DeamonTest.class, EnumTests.class,
 	ArraysTest.class, ParameterTests.class,
-	BigDataTests.class, SubclassingTest.class, ReferenceTest.class, JVMObjectTest.class, NestedPOPCreation.class})
+	BigDataTests.class, SubclassingTest.class, ReferenceTest.class, JVMObjectTest.class, NestedPOPCreation.class,
+	CreateKeyStoreTest.class })
 public class LocalTests {
 
 }

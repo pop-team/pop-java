@@ -1,27 +1,57 @@
 package popjava.combox.ssl;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStrictStyle;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.bc.BcContentSignerBuilder;
+import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.util.Configuration;
+import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
 
 /**
@@ -53,9 +83,15 @@ public class SSLUtils {
 	 * Get a correctly initialized SSLContext
 	 * 
 	 * @return 
-	 * @throws java.lang.Exception A lot of potential exceptions
+	 * @throws java.security.KeyStoreException 
+	 * @throws java.io.IOException 
+	 * @throws java.security.NoSuchAlgorithmException
+	 * @throws java.security.cert.CertificateException
+	 * @throws java.security.UnrecoverableKeyException
+	 * @throws java.security.KeyManagementException
 	 */
-	public static SSLContext getSSLContext() throws Exception {
+	public static SSLContext getSSLContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, 
+		CertificateException, UnrecoverableKeyException, KeyManagementException {
 		// init SSLContext once
 		if (sslContextInstance == null) {
 			// load private key
@@ -296,6 +332,107 @@ public class SSLUtils {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Create a new KeyStore with a new Private Key and Certificate
+	 * 
+	 * @param options 
+	 * @return true if we were able to create the keystore
+	 */
+	public static boolean generateKeyStore(KeyStoreOptions options) {
+		// something the key generated seems to be invalid (invalidated by bouncycastle)
+		// we retry for a while in that case
+		int limit = 15;
+		boolean generated;
+		do {
+			generated = generateKeyStoreOnce(options);
+			
+			if (limit-- <= 0) {
+				break;
+			}
+		} while (!generated);
+		
+		return generated;
+	}
+	
+	/**
+	 * Generation of keys and certificate and save into keystore.
+	 * 
+	 * @see https://github.com/xdtianyu/android-4.2_r1/blob/master/tools/motodev/src/plugins/certmanager/src/com/motorolamobility/studio/android/certmanager/core/KeyStoreUtils.java
+	 * @param options
+	 * @return 
+	 */
+	private static boolean generateKeyStoreOnce(KeyStoreOptions options) {
+		options.validate();
+		
+		try {
+			SecureRandom sr = new SecureRandom();
+
+			// generate keys
+			KeyPairGenerator pairGenerator = KeyPairGenerator.getInstance("RSA");
+			pairGenerator.initialize(options.getKeySize());
+			KeyPair pair = pairGenerator.generateKeyPair();
+
+			// public certificate setup
+			RSAPublicKey rsaPublicKey = (RSAPublicKey) pair.getPublic();
+			RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) pair.getPrivate();
+			
+
+			// generate certificate from key pair
+			ASN1InputStream asn1InputStream	= new ASN1InputStream(new ByteArrayInputStream(rsaPublicKey.getEncoded()));
+			SubjectPublicKeyInfo pubKey = new SubjectPublicKeyInfo((ASN1Sequence) asn1InputStream.readObject());
+
+			X500NameBuilder nameBuilder = new X500NameBuilder(new BCStrictStyle());
+			for (Map.Entry<ASN1ObjectIdentifier, String> entry : options.getRDN().entrySet()) {
+				nameBuilder.addRDN(entry.getKey(), entry.getValue());
+			}
+
+			X500Name subjectName = nameBuilder.build();
+			X500Name issuerName = subjectName;
+			X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(issuerName, BigInteger.valueOf(sr.nextInt()), 
+				GregorianCalendar.getInstance().getTime(), options.getValidUntil(), subjectName, pubKey);
+
+			AlgorithmIdentifier sigAlgId = new DefaultSignatureAlgorithmIdentifierFinder().find("SHA1withRSA");
+			AlgorithmIdentifier digAlgId = new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
+			BcContentSignerBuilder sigGen = new BcRSAContentSignerBuilder(sigAlgId, digAlgId);
+
+			// create RSAKeyParameters, the private key format expected by Bouncy Castle
+			RSAKeyParameters keyParams = new RSAKeyParameters(true, rsaPrivateKey.getPrivateExponent(), rsaPrivateKey.getModulus());
+
+			ContentSigner contentSigner = sigGen.build(keyParams);
+			X509CertificateHolder certificateHolder = certBuilder.build(contentSigner);
+
+			// convert the X509Certificate from BouncyCastle format to the java.security format
+			JcaX509CertificateConverter certConverter = new JcaX509CertificateConverter();
+			X509Certificate x509Certificate = certConverter.getCertificate(certificateHolder);
+
+
+			// initialize a keystore
+			KeyStore ks = KeyStore.getInstance(options.getKeyStoreFormat());
+			ks.load(null);
+
+			// add private key to the new keystore
+			KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(rsaPrivateKey, new Certificate[]{x509Certificate});
+			KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(options.getKeyPass());
+
+			ks.setEntry(options.getAlias(), privateKeyEntry, passwordProtection);
+
+			// write to memory
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ks.store(out, options.getStorePass());
+			out.close();
+			
+			// load a "clean" version and save to disk
+			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+			KeyStore ksout = KeyStore.getInstance(options.getKeyStoreFormat());
+			ksout.load(in, options.getStorePass());
+			ksout.store(new FileOutputStream(options.getKeyStoreFile()), options.getStorePass());
+			return true;
+		} catch(Exception e) {
+			LogWriter.writeDebugInfo("[KeyStore] Generation failed with message: %s. Retrying.", e.getMessage());
+			return false;
 		}
 	}
 }
