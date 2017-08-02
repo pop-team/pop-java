@@ -13,7 +13,9 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import popjava.combox.ssl.KeyStoreOptions;
 import popjava.combox.ssl.SSLUtils;
 import popjava.util.Configuration;
@@ -96,15 +98,19 @@ public class CreateKeyStoreTest {
 		option.validate();
 	}
 	
+	@Rule
+	public TemporaryFolder testDir = new TemporaryFolder();
+	
 	@Test
 	public void full() throws Exception {
-		File tmp = File.createTempFile("popjava", ".jks");
-		Path tmpDir = Files.createTempDirectory("popjava");
+		testDir.create();
+		File tmpKS = testDir.newFile();
+		File tmpDir = testDir.newFolder();
 		
 		String alias = "myself";
 		String storepass = "mypass";
 		String keypass = "mykeypass";
-		String keyStoreFile = tmp.getAbsolutePath(); 
+		String keyStoreFile = tmpKS.getAbsolutePath(); 
 		
 		LogWriter.writeDebugInfo("Creating KeyStore");
 		KeyStoreOptions options = new KeyStoreOptions(alias, storepass, keypass, keyStoreFile);
@@ -116,7 +122,7 @@ public class CreateKeyStoreTest {
 		Configuration.KEY_STORE_FORMAT = "JKS";
 		Configuration.KEY_STORE_PK_PWD = keypass;
 		Configuration.KEY_STORE_PK_ALIAS = alias;
-		Configuration.TRUST_TEMP_STORE_DIR = tmpDir.toFile().getAbsolutePath();
+		Configuration.TRUST_TEMP_STORE_DIR = tmpDir.getAbsolutePath();
 		
 		LogWriter.writeDebugInfo("Starting SSL Context");
 		// test create context
@@ -155,7 +161,6 @@ public class CreateKeyStoreTest {
 		serverSocket.close();
 			
 		LogWriter.writeDebugInfo("Cleanup");
-		tmp.deleteOnExit();
-		tmpDir.toFile().deleteOnExit();
+		testDir.delete();
 	}
 }
