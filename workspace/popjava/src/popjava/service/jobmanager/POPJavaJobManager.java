@@ -66,13 +66,12 @@ import popjava.util.Util;
 import popjava.annotation.POPSyncSeq;
 
 import static java.lang.Math.min;
-import static java.lang.Math.min;
 
 @POPClass
 public class POPJavaJobManager extends POPJobService {
 	
 	/** The configuration file location */
-	protected final String configurationFile;
+	protected String configurationFile;
 
 	/** Currently used resources of a node */
 	protected final Resource available = new Resource();
@@ -1010,7 +1009,7 @@ public class POPJavaJobManager extends POPJobService {
 		}
 
 		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), network));
-		POPNetworkNode node = POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params)));
+		POPNetworkNode node = POPNetworkNodeFactory.makeNode(params);
 		node.setTemporary(true);
 		network.add(node);
 	}
@@ -1031,7 +1030,7 @@ public class POPJavaJobManager extends POPJobService {
 		}
 
 		LogWriter.writeDebugInfo(String.format("[JM] Node %s removed", Arrays.toString(params)));
-		network.remove(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
+		network.remove(POPNetworkNodeFactory.makeNode(params));
 	}
 
 	/**
@@ -1069,7 +1068,7 @@ public class POPJavaJobManager extends POPJobService {
 		}
 
 		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), network));
-		network.add(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
+		network.add(POPNetworkNodeFactory.makeNode(params));
 		writeConfigurationFile();
 	}
 	
@@ -1088,7 +1087,7 @@ public class POPJavaJobManager extends POPJobService {
 		}
 
 		LogWriter.writeDebugInfo(String.format("[JM] Node %s removed", Arrays.toString(params)));
-		network.remove(POPNetworkNodeFactory.makeNode(new ArrayList<>(Arrays.asList(params))));
+		network.remove(POPNetworkNodeFactory.makeNode(params));
 		writeConfigurationFile();
 	}
 
@@ -1148,6 +1147,36 @@ public class POPJavaJobManager extends POPJobService {
 	}
 
 	/**
+	 * The initial capacity of the node
+	 * 
+	 * @return 
+	 */
+	@POPSyncConc
+	public Resource getInitialAvailableResources() {
+		return new Resource(total);
+	}
+
+	/**
+	 * The upper limit for each job
+	 * 
+	 * @return 
+	 */
+	@POPSyncConc
+	public Resource getJobResourcesLimit() {
+		return new Resource(jobLimit);
+	}
+
+	/**
+	 * The maximum number of simultaneous object available on the JM machine
+	 * 
+	 * @return 
+	 */
+	@POPSyncConc
+	public int getMaxJobs() {
+		return maxJobs;
+	}
+
+	/**
 	 * Unique ID for this node execution
 	 *
 	 * @return the UUID of the node
@@ -1186,6 +1215,9 @@ public class POPJavaJobManager extends POPJobService {
 	//		Utility
 	////
 	
+	/**
+	 * Rewrite the configuration file to disk
+	 */
 	private void writeConfigurationFile() {
 		try {
 			File config = new File(configurationFile);
@@ -1260,6 +1292,19 @@ public class POPJavaJobManager extends POPJobService {
 			
 		}
 	}
+
+	/**
+	 * Change configuration file location.
+	 * This method will only change the location and try to write in it, it will not delete the old file.
+	 * This method is not meant to be used to load a new configuration file.
+	 * 
+	 * @param configurationFile 
+	 */
+	@POPAsyncConc
+	public void setConfigurationFile(String configurationFile) {
+		this.configurationFile = configurationFile;
+		writeConfigurationFile();
+	}	
 	
 	/**
 	 * The available networks in the current Job Manager

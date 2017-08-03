@@ -1,5 +1,7 @@
 package popjava.service.jobmanager.network;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.service.jobmanager.connector.POPConnectorDirect;
@@ -12,6 +14,10 @@ import popjava.util.Util;
  * @author Davide Mazzoleni
  */
 public class POPNetworkNodeFactory {
+	
+	public static POPNetworkNode makeNode(String... other) {
+		return makeNode(new ArrayList<>(Arrays.asList(other)));
+	}
 
 	public static POPNetworkNode makeNode(List<String> other) {
 		String connector = Util.removeStringFromList(other, "connector=");

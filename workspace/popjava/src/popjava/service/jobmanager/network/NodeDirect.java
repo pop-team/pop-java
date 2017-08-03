@@ -20,12 +20,35 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	private String daemonSecret;
 	private boolean initialized = true;
 
-	public NodeDirect(String host, int port, boolean daemon, String daemonSecret) {
+	/**
+	 * Used for creating daemons direct nodes
+	 * 
+	 * @param host
+	 * @param port
+	 * @param daemonSecret 
+	 */
+	public NodeDirect(String host, int port, String daemonSecret) {
 		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
 		this.host = host;
 		this.port = port;
-		this.daemon = daemon;
+		this.daemon = true;
 		this.daemonSecret = daemonSecret;
+		
+		init();
+	}
+
+	/**
+	 * Used for creating SSH nodes
+	 * 
+	 * @param host
+	 * @param port 
+	 */
+	public NodeDirect(String host, int port) {
+		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
+		this.host = host;
+		this.port = port;
+		this.daemon = false;
+		this.daemonSecret = null;
 		
 		init();
 	}

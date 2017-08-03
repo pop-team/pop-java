@@ -1,5 +1,6 @@
 package popjava;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.combox.ssl.KeyStoreOptions;
 import popjava.combox.ssl.SSLUtils;
 import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.network.POPNetworkNodeFactory;
 import popjava.serviceadapter.POPJobManager;
@@ -286,6 +288,49 @@ public class JobManagerConfig {
 	 */
 	public boolean generateKeyStore(KeyStoreOptions options) {
 		return SSLUtils.generateKeyStore(options);
+	}
+	
+	/**
+	 * Change configuration file location.
+	 * This method will only change the location and try to write in it, it will not delete the old file.
+	 * This method is NOT meant to be used to load a new configuration file.
+	 * 
+	 * @param location The new location of the configuration file.
+	 * @throws java.io.IOException If you can't write in the location specified.
+	 */
+	public void setConfigurationFileLocation(File location) throws IOException {
+		if (!location.canWrite()) {
+			throw new IOException("Can't write in this location");
+		}
+		jobManager.setConfigurationFile(location.getAbsolutePath());
+	}
+	
+	
+	/**
+	 * The initial capacity of the node
+	 * 
+	 * @return 
+	 */
+	public Resource getInitialAvailableResources() {
+		return jobManager.getInitialAvailableResources();
+	}
+
+	/**
+	 * The upper limit for each job
+	 * 
+	 * @return 
+	 */
+	public Resource getJobResourcesLimit() {
+		return jobManager.getInitialAvailableResources();
+	}
+
+	/**
+	 * The maximum number of simultaneous object available on the JM machine
+	 * 
+	 * @return 
+	 */
+	public int getMaxJobs() {
+		return jobManager.getMaxJobs();
 	}
 	
 	/**
