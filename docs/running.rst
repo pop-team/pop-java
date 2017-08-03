@@ -246,7 +246,8 @@ At the end an example is given on how run the POP-Java application directly thro
 **POP-Java application run directly through java**
 
 ::
-	java -agent:$POPJAVA_LOCATION/JarFile/popjava.jar -cp $POPJAVA_LOCATION/JarFile/popjava.jar:. TestInteger
+
+  java -javaagent:$POPJAVA_LOCATION/JarFile/popjava.jar -cp myjar.jar TestInteger -codeconf=objectmap.xml
 
 **Application output**
 
