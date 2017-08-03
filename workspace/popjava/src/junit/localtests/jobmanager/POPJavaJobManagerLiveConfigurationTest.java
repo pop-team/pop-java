@@ -1,10 +1,8 @@
 package junit.localtests.jobmanager;
 
-import java.io.File;
 import java.io.IOException;
 import junit.framework.Assert;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import popjava.service.jobmanager.POPJavaJobManager;
@@ -14,25 +12,13 @@ import popjava.service.jobmanager.POPJavaJobManager;
  * @author dosky
  */
 public class POPJavaJobManagerLiveConfigurationTest {
-		
-	TemporaryFolder tf;
-	File config;
-	
-	@Before
-	public void setup() throws IOException {
-		tf = new TemporaryFolder();
-		tf.create();
-		config = tf.newFile();
-	}
-	
-	@After
-	public void destroy() {
-		tf.delete();
-	}
+
+	@Rule
+	public TemporaryFolder tf = new TemporaryFolder();
 	
 	@Test
-	public void networks() {
-		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", config.getAbsolutePath());
+	public void networks() throws IOException {
+		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
 		
 		// networks
 		String ONE = "1", TWO = "2", TRE = "3";
@@ -63,8 +49,8 @@ public class POPJavaJobManagerLiveConfigurationTest {
 	}
 	
 	@Test
-	public void nodes() {
-		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", config.getAbsolutePath());
+	public void nodes() throws IOException {
+		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
 		
 		String N = "n", M = "m";
 		// node params (creation)
@@ -102,8 +88,8 @@ public class POPJavaJobManagerLiveConfigurationTest {
 	}
 	
 	@Test
-	public void mixed() {
-		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", config.getAbsolutePath());
+	public void mixed() throws IOException {
+		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
 		
 		String N = "n", M = "m";
 		// node params (creation)
