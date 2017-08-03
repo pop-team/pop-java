@@ -1004,11 +1004,11 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network));
+			LogWriter.writeDebugInfo(String.format("[JM] Node %s not registered, network %s not found", Arrays.toString(params), networkName));
 			return;
 		}
 
-		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), network));
+		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), networkName));
 		POPNetworkNode node = POPNetworkNodeFactory.makeNode(params);
 		node.setTemporary(true);
 		network.add(node);
