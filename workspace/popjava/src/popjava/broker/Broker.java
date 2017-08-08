@@ -48,10 +48,10 @@ import popjava.combox.ComboxServer;
 import popjava.combox.ssl.POPTrustManager;
 import popjava.util.ssl.SSLUtils;
 import popjava.javaagent.POPJavaAgent;
-import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 import popjava.util.Util;
 
 /**
@@ -75,7 +75,10 @@ public final class Broker {
 	static public final String OBJECT_NAME_PREFIX = "-object=";
 	static public final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
 	static public final String APPSERVICE_PREFIX = "-appservice=";
-
+	
+	// thread unique callers
+	private static ThreadLocal<POPRemoteCaller> remoteCaller = new InheritableThreadLocal<>();
+	
 	private State state;
 	private ComboxServer[] comboxServers;
 	private POPBuffer buffer;
@@ -223,6 +226,10 @@ public final class Broker {
 			MethodInfo info = new MethodInfo(request.getClassId(),
 					request.getMethodId());
 			constructor = popInfo.getConstructorByInfo(info);
+			
+			POPRemoteCaller caller = request.getRemoteCaller();
+			caller.setMethod(constructor.getName());
+			remoteCaller.set(caller);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
 					popInfo.getClass().getName(), 
@@ -357,6 +364,10 @@ public final class Broker {
 			
 			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 			method = popInfo.getMethodByInfo(info);
+		
+			POPRemoteCaller caller = request.getRemoteCaller();
+			caller.setMethod(method.getName());
+			remoteCaller.set(caller);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
 					popInfo.getClass().getName(),
@@ -778,6 +789,10 @@ public final class Broker {
 		}
 			
 		return true;
+	}
+
+	public static POPRemoteCaller getRemoteCaller() {
+		return new POPRemoteCaller(remoteCaller.get());
 	}
 
 	/**

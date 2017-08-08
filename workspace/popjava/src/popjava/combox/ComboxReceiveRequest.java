@@ -48,6 +48,7 @@ public abstract class ComboxReceiveRequest implements Runnable {
 		setStatus(RUNNING);
 		while (getStatus() == RUNNING) {
 			Request popRequest = new Request();
+			popRequest.setRemoteCaller(combox.getRemoteCaller());
 			try {
 				if (!receiveRequest(popRequest)) {
 					setStatus(EXIT);

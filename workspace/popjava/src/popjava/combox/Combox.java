@@ -6,6 +6,7 @@ import popjava.buffer.BufferFactory;
 import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.POPBuffer;
 import popjava.util.Configuration;
+import popjava.util.POPRemoteCaller;
 /**
  * This class is the base implementation for all Combox in the POP-Java library
  * All other combox must inherit from this class
@@ -16,6 +17,8 @@ public abstract class Combox {
 	protected POPAccessPoint accessPoint;
 	protected boolean available = false;
 	protected BufferFactory bufferFactory;
+	
+	protected POPRemoteCaller remoteCaller = new POPRemoteCaller();
 	
 	/**
 	 * Default constructor
@@ -95,5 +98,13 @@ public abstract class Combox {
 	 */
 	public POPAccessPoint getAccessPoint() {
 		return accessPoint;
+	}
+
+	/**
+	 * Information about who we are talking too
+	 * @return 
+	 */
+	public POPRemoteCaller getRemoteCaller() {
+		return remoteCaller;
 	}
 }

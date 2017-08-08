@@ -17,6 +17,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+
 /**
  * This combox implement the protocol Socket
  */
@@ -48,6 +49,7 @@ public class ComboxSocket extends Combox {
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
 		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
+		exportConnectionInfo();
 	}
 
 	
@@ -117,6 +119,7 @@ public class ComboxSocket extends Combox {
 				}
 				inputStream = new BufferedInputStream(peerConnection.getInputStream());
 				outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
+				exportConnectionInfo();
 				available = true;
 			} catch (UnknownHostException e) {
 				available = false;
@@ -256,6 +259,11 @@ public class ComboxSocket extends Combox {
 			}
 			return -1;
 		}
+	}
+
+	private void exportConnectionInfo() {
+		remoteCaller.setRemote(peerConnection.getInetAddress());
+		remoteCaller.setProtocol(ComboxSocketFactory.PROTOCOL);
 	}
 
 }

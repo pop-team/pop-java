@@ -7,6 +7,7 @@ import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
+import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.service.jobmanager.POPJavaJobManager;
@@ -14,6 +15,7 @@ import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.serviceadapter.POPJobManager;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
+import popjava.util.POPRemoteCaller;
 
 /**
  * 
@@ -22,8 +24,7 @@ import popjava.util.Configuration;
  */
 public class PopJava {
 
-	/** Creates a new instance of PopJava */
-	public PopJava() {
+	private PopJava() {
 	}
 	
 	/**
@@ -195,5 +196,13 @@ public class PopJava {
 	    }
 	    
 	    return true;
+	}
+	
+	/**
+	 * Return the remote source for the call to this method
+	 * @return 
+	 */
+	public static POPRemoteCaller getRemoteCaller() {
+		return Broker.getRemoteCaller();
 	}
 }

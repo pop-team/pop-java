@@ -3,6 +3,7 @@ package popjava.broker;
 import popjava.base.Semantic;
 import popjava.buffer.*;
 import popjava.combox.*;
+import popjava.util.POPRemoteCaller;
 /**
  * This class symbolize a request between the interface-side and the broker-side.
  *
@@ -24,6 +25,8 @@ public class Request {
 	protected ComboxReceiveRequest receivedCombox;
 	protected Combox combox;	
 	protected int status;
+	
+	protected POPRemoteCaller remoteCaller;
 
 	/**
 	 * Creating a new pending request
@@ -223,5 +226,17 @@ public class Request {
 	 */
 	public boolean isSequential(){
 		return !isConcurrent() && !isMutex();
+	}
+
+	/**
+	 * Return from where the call to this request come from
+	 * @return 
+	 */
+	public POPRemoteCaller getRemoteCaller() {
+		return remoteCaller;
+	}
+
+	public void setRemoteCaller(POPRemoteCaller callSource) {
+		this.remoteCaller = callSource;
 	}
 }

@@ -10,8 +10,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,15 +50,14 @@ public class POPTrustManager implements X509TrustManager {
 		}
 	}
 	
-	// access to keystore
-	private final String trustStorePath;
-	private final String trustStorePass;
-	private final String tempTrustStorePath;
-	
 	// certificates stores
 	private X509TrustManager trustManager;
+	// Map(Fingerprint,Certificate)
 	private Map<String,Certificate> loadedCertificates;
+	// Set(Fingerprints)
 	private Set<String> confidenceCertificates;
+	// Map<Fingerprint,Network>
+	private Map<String,String> certificatesNetwork;
 	
 	// reload and add new certificates
 	private WatchDirectory watcher;
@@ -81,19 +78,17 @@ public class POPTrustManager implements X509TrustManager {
 	}
 	
 	private POPTrustManager() {
-		this.trustStorePath = Configuration.KEY_STORE;
-		this.trustStorePass = Configuration.KEY_STORE_PWD;
-		this.tempTrustStorePath = Configuration.TRUST_TEMP_STORE_DIR;
 		try {
 			loadedCertificates = new HashMap<>();
 			confidenceCertificates = new HashSet<>();
-			watcher = new WatchDirectory(tempTrustStorePath, new WatcherMethods());
+			certificatesNetwork = new HashMap<>();
+			watcher = new WatchDirectory(Configuration.TRUST_TEMP_STORE_DIR, new WatcherMethods());
 			Thread dirWatcher = new Thread(watcher, "TrustStore temporary folder watcher");
 			dirWatcher.setDaemon(true);
 			dirWatcher.start();
 			reloadTrustManager();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			LogWriter.writeDebugInfo("[KeyStore] can't initialize TrustManager: %s", ex.getMessage());
 		}
 	}
 
@@ -133,7 +128,17 @@ public class POPTrustManager implements X509TrustManager {
 	}
 	
 	/**
-	 * Sav
+	 * Get the network assigned to a specific certificate
+	 * 
+	 * @param fingerprint
+	 * @return 
+	 */
+	public String getNetworkFromCertificate(String fingerprint) {
+		return certificatesNetwork.get(fingerprint);
+	}
+	
+	/**
+	 * Refresh loadedCertificates after a reload of the keystore or of the temp dir
 	 */
 	private void saveCertificatesToMemory() {
 		Map<String,Certificate> temp = new HashMap<>();
@@ -150,18 +155,26 @@ public class POPTrustManager implements X509TrustManager {
 		long start = System.currentTimeMillis();
 		// load keystore from specified cert store (or default)
 		KeyStore trustedKS = KeyStore.getInstance(Configuration.KEY_STORE_FORMAT);
-		try (InputStream trustedStore = new FileInputStream(trustStorePath)) {
+		try (InputStream trustedStore = new FileInputStream(Configuration.KEY_STORE)) {
 			// load stores in memory
-			trustedKS.load(trustedStore, trustStorePass.toCharArray());			
+			trustedKS.load(trustedStore, Configuration.KEY_STORE_PWD.toCharArray());			
 		}
 		
 		// mark certificate in the keystore as confidence certificates
 		confidenceCertificates.clear();
-		for (Enumeration<String> eAlias = trustedKS.aliases(); eAlias.hasMoreElements();) {
-			String alias = eAlias.nextElement();
+		for (Enumeration<String> certAlias = trustedKS.aliases(); certAlias.hasMoreElements();) {
+			String alias = certAlias.nextElement();
 			Certificate cert = trustedKS.getCertificate(alias);
-			confidenceCertificates.add(SSLUtils.certificateFingerprint(cert));
-                        
+			String fingerprint = SSLUtils.certificateFingerprint(cert);
+			confidenceCertificates.add(fingerprint);
+			
+			// extract network
+			int atLocation = alias.indexOf('@');
+			if (atLocation >= 0) {
+				String network = alias.substring(atLocation + 1);
+				certificatesNetwork.put(fingerprint, network);
+			}
+			
 			// save public certificate
 			if (alias.equals(Configuration.KEY_STORE_PK_ALIAS)) {
 				publicCertificate = cert;
@@ -170,7 +183,7 @@ public class POPTrustManager implements X509TrustManager {
 		
 		// add temporary certificates
 		// get all files in directory and add them
-		for (File file : new File(tempTrustStorePath).listFiles()) {
+		for (File file : new File(Configuration.TRUST_TEMP_STORE_DIR).listFiles()) {
 			if (file.isFile() && file.getName().endsWith(".cer")) {
 				try (InputStream fileStream = new FileInputStream(file)) {
 					Certificate cert = certFactory.generateCertificate(fileStream);

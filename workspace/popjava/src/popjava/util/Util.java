@@ -58,7 +58,7 @@ public final class Util {
 		String myhost = POPSystem.getHostIP();
 		
 		boolean isLocal = (hostname == null || hostname.length() == 0
-				|| popjava.util.Util.sameContact(myhost, hostname)
+				|| sameContact(myhost, hostname)
 				|| hostname.equals("localhost") ||
 				hostname.equals("127.0.0.1") ||
 				hostname.equals("127.0.1.1"));

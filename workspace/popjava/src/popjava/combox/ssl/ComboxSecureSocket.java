@@ -274,7 +274,7 @@ public class ComboxSecureSocket extends Combox {
 		}
 	}
 
-	private void extractFingerprint() {
+	private void extractFingerprint() {		
 		try {
 			// set the fingerprint in the accesspoint for all to know
 			// this time we have to look which it is
@@ -284,6 +284,15 @@ public class ComboxSecureSocket extends Combox {
 				if (POPTrustManager.getInstance().isCertificateKnown(cert)) {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
+					
+					// set global access to those information
+					String network = POPTrustManager.getInstance().getNetworkFromCertificate(fingerprint);
+					
+					remoteCaller.setRemote(peerConnection.getInetAddress());
+					remoteCaller.setProtocol(ComboxSecureSocketFactory.PROTOCOL);
+					remoteCaller.setNetwork(network);
+					remoteCaller.setFingerprint(fingerprint);
+					
 					break;
 				}
 			}
