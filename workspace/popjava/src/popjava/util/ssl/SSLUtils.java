@@ -111,14 +111,15 @@ public class SSLUtils {
 	}
 	
 	/**
-	 * A constant hash String identifier from a node
+	 * A constant hash String identifier from a node.
+	 * NOTE: aliases seems to be all lowercase
 	 * 
 	 * @param node
 	 * @param networkName 
 	 * @return 
 	 */
 	private static String confidenceLinkAlias(POPNetworkNode node, String networkName) {
-		return String.format("%x@%s", node.hashCode(), networkName);
+		return String.format("%x@%s", node.hashCode(), networkName.toLowerCase());
 	}
 	
 	/**
