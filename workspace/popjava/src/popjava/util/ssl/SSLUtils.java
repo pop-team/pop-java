@@ -307,7 +307,7 @@ public class SSLUtils {
 	 */
 	public static void addCertToTempStore(byte[] certificate, boolean reload) {
 		MethodUtil.grant(
-			"popjava.combox.ssl.SSLUtils.addCertToTempStore",
+			"popjava.util.ssl.SSLUtils.addCertToTempStore",
 			"popjava.base.POPObject.PopRegisterFutureConnectorCertificate",
 			"popjava.interfacebase.Interface.deserialize"
 		);
