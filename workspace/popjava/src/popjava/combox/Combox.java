@@ -88,4 +88,12 @@ public abstract class Combox {
 	public BufferFactory getBufferFactory() {
 		return bufferFactory;
 	}
+
+	/**
+	 * Return the access point we are connected to
+	 * @return 
+	 */
+	public POPAccessPoint getAccessPoint() {
+		return accessPoint;
+	}
 }

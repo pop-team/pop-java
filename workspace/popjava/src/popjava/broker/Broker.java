@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,8 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.combox.ComboxServer;
+import popjava.combox.ssl.POPTrustManager;
+import popjava.combox.ssl.SSLUtils;
 import popjava.javaagent.POPJavaAgent;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.system.POPSystem;
@@ -444,6 +447,27 @@ public final class Broker {
 				if (exception == null) {
 					if (returnType != Void.class && returnType != void.class && returnType != Void.TYPE){
 						try {
+							
+							// propagate certificates for return type
+							if (result instanceof POPObject) {
+								POPObject returnObject = (POPObject) result;
+								POPAccessPoint objAp = returnObject.getAccessPoint();
+								
+								// a certificate is necessary to connect to the returned object
+								String originFingerprint = objAp.getFingerprint();
+								if (originFingerprint != null) {
+									// add to access point for the connector
+									Certificate originCert = POPTrustManager.getInstance().getCertificate(originFingerprint);
+									objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
+
+									// send connector certificate to object's node
+									String destinationFingerprint = request.getCombox().getAccessPoint().getFingerprint();
+									Certificate destCert = POPTrustManager.getInstance().getCertificate(destinationFingerprint);
+									// send caller' certificate to object origin node
+									returnObject.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
+								}
+							}
+							
 						    responseBuffer.putValue(result, returnType);
 						} catch (POPException e) {
 							exception = e;
