@@ -23,6 +23,7 @@ import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 
 /**
  * This combox implement the protocol ssl
@@ -288,11 +289,12 @@ public class ComboxSecureSocket extends Combox {
 					// set global access to those information
 					String network = POPTrustManager.getInstance().getNetworkFromCertificate(fingerprint);
 					
-					remoteCaller.setRemote(peerConnection.getInetAddress());
-					remoteCaller.setProtocol(ComboxSecureSocketFactory.PROTOCOL);
-					remoteCaller.setNetwork(network);
-					remoteCaller.setFingerprint(fingerprint);
-					
+					remoteCaller = new POPRemoteCaller(
+						peerConnection.getInetAddress(), 
+						ComboxSecureSocketFactory.PROTOCOL, 
+						fingerprint, 
+						network
+					);					
 					break;
 				}
 			}

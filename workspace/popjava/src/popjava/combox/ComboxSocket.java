@@ -17,6 +17,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 
 /**
  * This combox implement the protocol Socket
@@ -262,8 +263,12 @@ public class ComboxSocket extends Combox {
 	}
 
 	private void exportConnectionInfo() {
-		remoteCaller.setRemote(peerConnection.getInetAddress());
-		remoteCaller.setProtocol(ComboxSocketFactory.PROTOCOL);
+		remoteCaller = new POPRemoteCaller(
+			peerConnection.getInetAddress(), 
+			ComboxSocketFactory.PROTOCOL, 
+			null, 
+			null
+		);					
 	}
 
 }

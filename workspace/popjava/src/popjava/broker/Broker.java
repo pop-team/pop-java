@@ -226,10 +226,6 @@ public final class Broker {
 			MethodInfo info = new MethodInfo(request.getClassId(),
 					request.getMethodId());
 			constructor = popInfo.getConstructorByInfo(info);
-			
-			POPRemoteCaller caller = request.getRemoteCaller();
-			caller.setMethod(constructor.getName());
-			remoteCaller.set(caller);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
 					popInfo.getClass().getName(), 
@@ -364,10 +360,6 @@ public final class Broker {
 			
 			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 			method = popInfo.getMethodByInfo(info);
-		
-			POPRemoteCaller caller = request.getRemoteCaller();
-			caller.setMethod(method.getName());
-			remoteCaller.set(caller);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
 					popInfo.getClass().getName(),
@@ -543,7 +535,8 @@ public final class Broker {
 	 * @return true if the request has been treated correctly
 	 * @throws InterruptedException 
 	 */
-	public boolean invoke(Request request) throws InterruptedException {		
+	public boolean invoke(Request request) throws InterruptedException {	
+		remoteCaller.set(request.getRemoteCaller());	
 		if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
 			invokeConstructor(request);
 		} else {
@@ -792,7 +785,7 @@ public final class Broker {
 	}
 
 	public static POPRemoteCaller getRemoteCaller() {
-		return new POPRemoteCaller(remoteCaller.get());
+		return remoteCaller.get();
 	}
 
 	/**

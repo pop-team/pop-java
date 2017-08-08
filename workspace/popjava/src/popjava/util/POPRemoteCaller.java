@@ -9,28 +9,16 @@ import java.net.InetAddress;
  */
 public class POPRemoteCaller {
 	
-	private InetAddress remote;
-	private String protocol;
+	private final InetAddress remote;
+	private final String protocol;
 	
-	private String method;
-	
-	private String fingerprint;
-	private String network;
+	private final String fingerprint;
+	private final String network;
 
-	public POPRemoteCaller() {
-	}
-
-	public POPRemoteCaller(POPRemoteCaller o) {
-		this.remote = o.remote;
-		this.protocol = o.protocol;
-		this.network = o.network;
-		this.method = o.method;
-		this.fingerprint = o.fingerprint;
-	}
-	
-	public POPRemoteCaller(InetAddress remote, String protocol, String network) {
+	public POPRemoteCaller(InetAddress remote, String protocol, String fingerprint, String network) {
 		this.remote = remote;
 		this.protocol = protocol;
+		this.fingerprint = fingerprint;
 		this.network = network;
 	}
 
@@ -38,44 +26,15 @@ public class POPRemoteCaller {
 		return remote;
 	}
 
-	public void setRemote(InetAddress remote) {
-		this.remote = remote;
-	}
-
 	public String getProtocol() {
 		return protocol;
-	}
-
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
-
-	public String getMethod() {
-		return method;
-	}
-
-	public void setMethod(String method) {
-		this.method = method;
 	}
 
 	public String getFingerprint() {
 		return fingerprint;
 	}
 
-	public void setFingerprint(String fingerprint) {
-		this.fingerprint = fingerprint;
-	}
-
 	public String getNetwork() {
 		return network;
-	}
-
-	public void setNetwork(String network) {
-		this.network = network;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("[%s] %s", remote.getHostAddress(), method);
 	}
 }

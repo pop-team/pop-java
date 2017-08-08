@@ -18,7 +18,7 @@ public abstract class Combox {
 	protected boolean available = false;
 	protected BufferFactory bufferFactory;
 	
-	protected POPRemoteCaller remoteCaller = new POPRemoteCaller();
+	protected POPRemoteCaller remoteCaller;
 	
 	/**
 	 * Default constructor
