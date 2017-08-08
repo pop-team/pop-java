@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import popjava.util.ssl.SSLUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -145,7 +146,7 @@ public class POPTrustManager implements X509TrustManager {
 		loadedCertificates.putAll(temp);
 	}
 
-	final protected void reloadTrustManager() throws Exception {
+	public final void reloadTrustManager() throws Exception {
 		long start = System.currentTimeMillis();
 		// load keystore from specified cert store (or default)
 		KeyStore trustedKS = KeyStore.getInstance(Configuration.KEY_STORE_FORMAT);
@@ -215,7 +216,7 @@ public class POPTrustManager implements X509TrustManager {
 	 * 
 	 * @return 
 	 */
-	protected static Certificate getLocalPublicCertificate() {
+	public static Certificate getLocalPublicCertificate() {
 		return publicCertificate;
 	}
 	

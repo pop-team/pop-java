@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import popjava.util.ssl.SSLUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;

@@ -38,7 +38,7 @@ import popjava.base.POPException;
 import popjava.codemanager.AppService;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.network.POPNetwork;

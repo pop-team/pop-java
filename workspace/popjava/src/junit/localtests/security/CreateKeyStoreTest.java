@@ -16,8 +16,8 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import popjava.combox.ssl.KeyStoreOptions;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.KeyStoreOptions;
+import popjava.util.ssl.SSLUtils;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 

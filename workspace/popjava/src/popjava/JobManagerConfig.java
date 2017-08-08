@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import popjava.base.POPObject;
 import popjava.baseobject.POPAccessPoint;
-import popjava.combox.ssl.KeyStoreOptions;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.KeyStoreOptions;
+import popjava.util.ssl.SSLUtils;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.POPNetworkNode;
@@ -79,14 +79,14 @@ public class JobManagerConfig {
 	/**
 	 * Register a new node with a certificate associated to it
 	 * 
-	 * @param network
-	 * @param node
-	 * @param certificate
+	 * @param network Name of the network
+	 * @param node The node to add
+	 * @param certificate The certificate to use
 	 * @return 
 	 */
 	public boolean registerNode(String network, POPNetworkNode node, Certificate certificate) {
 		try {
-			SSLUtils.addConfidenceLink(node, certificate);
+			SSLUtils.addConfidenceLink(node, certificate, network);
 			jobManager.registerPermanentNode(network, node.getCreationParams());
 			return true;
 		} catch(IOException e) {
@@ -98,13 +98,14 @@ public class JobManagerConfig {
 	/**
 	 * Add a confidence link to a previously added node
 	 * 
-	 * @param node
-	 * @param certificate
+	 * @param network Name of the network
+	 * @param node The node to add
+	 * @param certificate The certificate to use
 	 * @return 
 	 */
-	public boolean assignCertificate(POPNetworkNode node, Certificate certificate) {
+	public boolean assignCertificate(String network, POPNetworkNode node, Certificate certificate) {
 		try {
-			SSLUtils.addConfidenceLink(node, certificate);
+			SSLUtils.addConfidenceLink(node, certificate, network);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -115,13 +116,14 @@ public class JobManagerConfig {
 	/**
 	 * Add a confidence link to a previously added node
 	 * 
-	 * @param node
-	 * @param certificate
+	 * @param network Name of the network
+	 * @param node The node to add
+	 * @param certificate The certificate to load
 	 * @return 
 	 */
-	public boolean replaceCertificate(POPNetworkNode node, Certificate certificate) {
+	public boolean replaceCertificate(String network, POPNetworkNode node, Certificate certificate) {
 		try {
-			SSLUtils.replaceConfidenceLink(node, certificate);
+			SSLUtils.replaceConfidenceLink(node, certificate, network);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -133,12 +135,13 @@ public class JobManagerConfig {
 	 * Remove a confidence link to a previously added node, preserve the node.
 	 * Use {@link #unregisterNode} to remove both node and certificate.
 	 * 
-	 * @param node
+	 * @param network Name of the network
+	 * @param node The node to add
 	 * @return 
 	 */
-	public boolean removeCertificate(POPNetworkNode node) {
+	public boolean removeCertificate(String network, POPNetworkNode node) {
 		try {
-			SSLUtils.removeConfidenceLink(node);
+			SSLUtils.removeConfidenceLink(node, network);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -156,7 +159,7 @@ public class JobManagerConfig {
 		jobManager.unregisterPermanentNode(network, node.getCreationParams());
 		// try remove
 		try {
-			SSLUtils.removeConfidenceLink(node);
+			SSLUtils.removeConfidenceLink(node, network);
 		} catch(IOException e) {
 			// too bad
 		}

@@ -27,7 +27,7 @@ import popjava.broker.Broker;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ssl.POPTrustManager;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;

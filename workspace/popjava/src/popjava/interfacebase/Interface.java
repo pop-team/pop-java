@@ -29,7 +29,7 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxAllocate;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.service.jobmanager.POPJavaAppService;

@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import popjava.util.ssl.SSLUtils;
 import javax.net.ssl.SSLContext;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ConnectionProtocol;

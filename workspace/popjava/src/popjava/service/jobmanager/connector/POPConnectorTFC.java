@@ -9,7 +9,7 @@ import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.NodeTFC;

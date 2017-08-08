@@ -1,4 +1,4 @@
-package popjava.combox.ssl;
+package popjava.util.ssl;
 
 import java.security.InvalidParameterException;
 import java.time.Instant;
@@ -37,13 +37,17 @@ public class KeyStoreOptions {
 	}
 
 	/**
-	 * Parameters to create a KeyStore with some defaults Defaults are: keyStoreFormat := JKS, validity := 30 days,
-	 * keySize = 2048 bits
+	 * Parameters to create a KeyStore with some defaults.
+	 * Consider using {@link #setValidFor(int)}
+	 * Defaults are: 
+	 *  keyStoreFormat := JKS 
+	 *  validity := 30 days
+	 *  keySize = 2048 bits
 	 *
-	 * @param alias
-	 * @param storepass
-	 * @param keypass
-	 * @param keyStoreFile
+	 * @param alias The alias of this node, used to find its own public certificate
+	 * @param storepass The main password for the KeyStore, protect from tempering with the file
+	 * @param keypass The password of the primate key, used to extract it
+	 * @param keyStoreFile Where to save the file
 	 */
 	public KeyStoreOptions(String alias, String storepass, String keypass, String keyStoreFile) {
 		if (storepass == null || keypass == null) {
@@ -66,6 +70,11 @@ public class KeyStoreOptions {
 		return alias;
 	}
 
+	/**
+	 * Set the alias of the local node
+	 * 
+	 * @param alias 
+	 */
 	public void setAlias(String alias) {
 		this.alias = alias;
 	}
@@ -74,6 +83,11 @@ public class KeyStoreOptions {
 		return storepass;
 	}
 
+	/**
+	 * Password of the keystore file, protect the integrity of the file
+	 * 
+	 * @param storepass 
+	 */
 	public void setStorePass(String storepass) {
 		if (storepass == null) {
 			throw new IllegalArgumentException("Password can't be null");
@@ -85,6 +99,11 @@ public class KeyStoreOptions {
 		return keypass;
 	}
 
+	/**
+	 * Password of the Private Key in the KeyStore
+	 * 
+	 * @param keypass 
+	 */
 	public void setKeyPass(String keypass) {
 		if (keypass == null) {
 			throw new IllegalArgumentException("Password can't be null");
@@ -96,6 +115,11 @@ public class KeyStoreOptions {
 		return keyStoreFile;
 	}
 
+	/**
+	 * Where to save the file
+	 * 
+	 * @param keyStoreFile 
+	 */
 	public void setKeyStoreFile(String keyStoreFile) {
 		this.keyStoreFile = keyStoreFile;
 	}
@@ -104,6 +128,12 @@ public class KeyStoreOptions {
 		return keyStoreFormat;
 	}
 
+	/**
+	 * Format of the keystore.
+	 * Be aware that format different from JKS could have issues.
+	 * 
+	 * @param keyStoreFormat 
+	 */
 	public void setKeyStoreFormat(String keyStoreFormat) {
 		this.keyStoreFormat = keyStoreFormat;
 	}
@@ -112,10 +142,20 @@ public class KeyStoreOptions {
 		return validUntil;
 	}
 
+	/**
+	 * Until when the certificate should be valid
+	 * 
+	 * @param validUntil 
+	 */
 	public void setValidUntil(Date validUntil) {
 		this.validUntil = validUntil;
 	}
 
+	/**
+	 * For how many day from now should the certificate be valid
+	 * 
+	 * @param days 
+	 */
 	public void setValidFor(int days) {
 		this.validUntil = Date.from(Instant.now().plus(days, ChronoUnit.DAYS));
 	}
@@ -124,6 +164,11 @@ public class KeyStoreOptions {
 		return keySize;
 	}
 
+	/**
+	 * The complexity of the RSA key, must be greater than 1024 bits
+	 * 
+	 * @param keySize 
+	 */
 	public void setKeySize(int keySize) {
 		this.keySize = keySize;
 	}

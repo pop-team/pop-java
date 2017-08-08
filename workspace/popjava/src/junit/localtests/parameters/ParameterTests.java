@@ -44,9 +44,9 @@ public class ParameterTests {
         POPSystem.initialize();
         ParameterObject test = PopJava.newActive(ParameterObject.class);
         
-        test.setValue("a€𝄞d");
+        test.setValue("a\u20AC\uD834\uDD1Ed");
         
-        assertEquals("a€𝄞d", test.getValue());
+        assertEquals("a\u20AC\uD834\uDD1Ed", test.getValue());
         
         POPSystem.end();
     }

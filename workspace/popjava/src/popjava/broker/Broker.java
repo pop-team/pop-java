@@ -46,7 +46,7 @@ import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.combox.ComboxServer;
 import popjava.combox.ssl.POPTrustManager;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.javaagent.POPJavaAgent;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.system.POPSystem;

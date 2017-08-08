@@ -1,4 +1,4 @@
-package popjava.combox.ssl;
+package popjava.util.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,6 +49,7 @@ import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.bc.BcContentSignerBuilder;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -113,10 +114,11 @@ public class SSLUtils {
 	 * A constant hash String identifier from a node
 	 * 
 	 * @param node
+	 * @param networkName 
 	 * @return 
 	 */
-	private static String confidenceLinkHash(POPNetworkNode node) {
-		return String.format("%x", node.hashCode());
+	private static String confidenceLinkAlias(POPNetworkNode node, String networkName) {
+		return String.format("%x@%s", node.hashCode(), networkName);
 	}
 	
 	/**
@@ -124,27 +126,28 @@ public class SSLUtils {
 	 * 
 	 * @param node
 	 * @param certificate
+	 * @param networkName 
 	 * @param mode false if we want to add the certificate, true if we want to replace it
 	 * @throws IOException 
 	 */
-	private static void addConfidenceLink(POPNetworkNode node, Certificate certificate, boolean mode) throws IOException {
+	private static void addConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName, boolean mode) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(new FileInputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
 
 			// node identifier
-			String nodeHash = confidenceLinkHash(node);
+			String nodeAlias = confidenceLinkAlias(node, networkName);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
 			// if `mode' is true the certificate must be present
 			// if `mode' is false the certificate must NOT be present
-			if (aliases.contains(nodeHash) ^ mode) {
+			if (aliases.contains(nodeAlias) ^ mode) {
 				return;
 			} else {
 				// add/replace a new entry
-				keyStore.setCertificateEntry(nodeHash, certificate);
+				keyStore.setCertificateEntry(nodeAlias, certificate);
 			}
 
 			// override the existing keystore
@@ -161,10 +164,11 @@ public class SSLUtils {
 	 * 
 	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
+	 * @param networkName The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void addConfidenceLink(POPNetworkNode node, Certificate certificate) throws IOException {
-		addConfidenceLink(node, certificate, false);
+	public static void addConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName) throws IOException {
+		addConfidenceLink(node, certificate, networkName, false);
 	}
 	
 	/**
@@ -173,10 +177,11 @@ public class SSLUtils {
 	 * 
 	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
+	 * @param networkName The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void replaceConfidenceLink(POPNetworkNode node, Certificate certificate) throws IOException {
-		addConfidenceLink(node, certificate, true);
+	public static void replaceConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName) throws IOException {
+		addConfidenceLink(node, certificate, networkName, true);
 	}
 	
 	/**
@@ -186,23 +191,23 @@ public class SSLUtils {
 	 * @param node A node created somehow, directly or with the factory
 	 * @throws IOException Many
 	 */
-	public static void removeConfidenceLink(POPNetworkNode node) throws IOException {
+	public static void removeConfidenceLink(POPNetworkNode node, String networkName) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
 			keyStore.load(new FileInputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
 
 			// node identifier
-			String nodeHash = confidenceLinkHash(node);
+			String nodeAlias = confidenceLinkAlias(node, networkName);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
-			if (!aliases.contains(nodeHash)) {
+			if (!aliases.contains(nodeAlias)) {
 				return;
 			}
 
 			// add a new entry
-			keyStore.deleteEntry(nodeHash);
+			keyStore.deleteEntry(nodeAlias);
 
 			// override the existing keystore
 			keyStore.store(new FileOutputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());

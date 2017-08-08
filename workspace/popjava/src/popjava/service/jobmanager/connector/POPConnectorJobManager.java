@@ -5,7 +5,7 @@ import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
