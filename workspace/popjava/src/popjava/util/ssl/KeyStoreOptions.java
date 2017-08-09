@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 
@@ -17,15 +18,22 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
  * @author Davide Mazzoleni
  */
 public class KeyStoreOptions {
+	
+	public static enum KeyStoreFormat {
+		JKS,
+		PKCS12;
+	}
 
 	private String alias;
 	private char[] storepass;
 	private char[] keypass;
 	private String keyStoreFile;
-	private String keyStoreFormat;
+	private KeyStoreFormat keyStoreFormat;
 	private Date validUntil;
 	private int keySize;
 	private final Map<ASN1ObjectIdentifier, String> rdn = new HashMap<>();
+	
+	private String tempCertFolder;
 
 	// validation
 	boolean hasName = false;
@@ -37,7 +45,36 @@ public class KeyStoreOptions {
 	}
 
 	/**
-	 * Parameters to create a KeyStore with some defaults.
+	 * Full constructor
+	 * 
+	 * @param alias The alias of this node, used to find its own public certificate
+	 * @param storepass The main password for the KeyStore, protect from tempering with the file
+	 * @param keypass The password of the primate key, used to extract it
+	 * @param keyStoreFile Where to save the file
+	 * @param keyStoreFormat Which format to save the KeyStore: JKS, PKCS12 (may have issue)
+	 * @param validUntil Until when the certificate should be valid
+	 * @param keySize The complexity of the RSA key, must be greater than 1024 bits
+	 * @param tempCertFolder The location on the temporary certificate folder
+	 */
+	public KeyStoreOptions(String alias, String storepass, String keypass, String keyStoreFile, KeyStoreFormat keyStoreFormat, Date validUntil, int keySize, String tempCertFolder) {
+		Objects.nonNull(storepass);
+		Objects.nonNull(keypass);
+		
+		this.alias = alias;
+		this.storepass = storepass.toCharArray();
+		this.keypass = keypass.toCharArray();
+		this.keyStoreFile = keyStoreFile;
+		this.keyStoreFormat = keyStoreFormat;
+		this.validUntil = validUntil;
+		this.keySize = keySize;
+		this.tempCertFolder = tempCertFolder;
+		this.rdn.put(BCStyle.OU, "PopJava");
+		this.rdn.put(BCStyle.CN, alias);
+		hasName = true;
+	}
+	
+	/**
+	 * Parameters to create a KeyStore with sane defaults.
 	 * Consider using {@link #setValidFor(int)}
 	 * Defaults are: 
 	 *  keyStoreFormat := JKS 
@@ -50,20 +87,23 @@ public class KeyStoreOptions {
 	 * @param keyStoreFile Where to save the file
 	 */
 	public KeyStoreOptions(String alias, String storepass, String keypass, String keyStoreFile) {
-		if (storepass == null || keypass == null) {
-			throw new IllegalArgumentException("Password can't be null");
-		}
-		
-		this.alias = alias;
-		this.storepass = storepass.toCharArray();
-		this.keypass = keypass.toCharArray();
-		this.keyStoreFile = keyStoreFile;
-		this.keyStoreFormat = "JKS";
-		this.validUntil = Date.from(Instant.now().plus(30, ChronoUnit.DAYS));
-		this.keySize = 2048;
-		this.rdn.put(BCStyle.OU, "PopJava");
-		this.rdn.put(BCStyle.CN, alias);
-		hasName = true;
+		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS, Date.from(Instant.now().plus(30, ChronoUnit.DAYS)), 2048, "tempCerts");
+	}
+
+	/**
+	 * Constructor specific for the configuration of POP-Java.
+	 * ValidUntil is null and RSA complexity is 0.
+	 * If created with this constructor {@link #validate() } will throw and exception.
+	 * 
+	 * @param alias
+	 * @param storepass
+	 * @param keypass
+	 * @param keyStoreFile
+	 * @param keyStoreFormat
+	 * @param tempCertFolder 
+	 */
+	public KeyStoreOptions(String alias, String storepass, String keypass, String keyStoreFile, KeyStoreFormat keyStoreFormat, String tempCertFolder) {
+		this(alias, storepass, keypass, keyStoreFile, keyStoreFormat, null, 0, tempCertFolder);
 	}
 
 	public String getAlias() {
@@ -89,9 +129,7 @@ public class KeyStoreOptions {
 	 * @param storepass 
 	 */
 	public void setStorePass(String storepass) {
-		if (storepass == null) {
-			throw new IllegalArgumentException("Password can't be null");
-		}
+		Objects.nonNull(storepass);
 		this.storepass = storepass.toCharArray();
 	}
 
@@ -105,9 +143,7 @@ public class KeyStoreOptions {
 	 * @param keypass 
 	 */
 	public void setKeyPass(String keypass) {
-		if (keypass == null) {
-			throw new IllegalArgumentException("Password can't be null");
-		}
+		Objects.nonNull(keypass);
 		this.keypass = keypass.toCharArray();
 	}
 
@@ -124,7 +160,7 @@ public class KeyStoreOptions {
 		this.keyStoreFile = keyStoreFile;
 	}
 
-	public String getKeyStoreFormat() {
+	public KeyStoreFormat getKeyStoreFormat() {
 		return keyStoreFormat;
 	}
 
@@ -134,7 +170,7 @@ public class KeyStoreOptions {
 	 * 
 	 * @param keyStoreFormat 
 	 */
-	public void setKeyStoreFormat(String keyStoreFormat) {
+	public void setKeyStoreFormat(KeyStoreFormat keyStoreFormat) {
 		this.keyStoreFormat = keyStoreFormat;
 	}
 
@@ -192,6 +228,19 @@ public class KeyStoreOptions {
 		return Collections.unmodifiableMap(rdn);
 	}
 
+	public String getTempCertFolder() {
+		return tempCertFolder;
+	}
+
+	/**
+	 * The location where temporary certificates should be stored
+	 * 
+	 * @param tempCertFolder 
+	 */
+	public void setTempCertFolder(String tempCertFolder) {
+		this.tempCertFolder = tempCertFolder;
+	}
+
 	/**
 	 * @throws InvalidParameterException when something is set incorrectly for creating a new KeyStore
 	 */
@@ -211,7 +260,7 @@ public class KeyStoreOptions {
 		if (keyStoreFile == null || keyStoreFile.isEmpty()) {
 			throw new InvalidParameterException("KeyStore file must be set and not empty");
 		}
-		if (keyStoreFormat == null || keyStoreFormat.isEmpty()) {
+		if (keyStoreFormat == null) {
 			throw new InvalidParameterException("A format for the keystore must be provided: JKS, PKCS12, ...");
 		}
 		if (validUntil == null) {
@@ -221,7 +270,7 @@ public class KeyStoreOptions {
 			throw new InvalidParameterException("Keys below 1024 bits are insecure (consider using 2048 or higher)");
 		}
 
-		if (keyStoreFormat.toLowerCase().equals("pkcs12") && !Arrays.equals(keypass, storepass)) {
+		if (keyStoreFormat == KeyStoreFormat.PKCS12 && !Arrays.equals(keypass, storepass)) {
 			throw new InvalidParameterException("When using PKCS12 storePass and keyPass must match");
 		}
 	}

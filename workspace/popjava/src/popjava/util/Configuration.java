@@ -2,6 +2,8 @@ package popjava.util;
 
 import popjava.baseobject.ConnectionProtocol;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
+import popjava.util.ssl.KeyStoreOptions;
+import popjava.util.ssl.KeyStoreOptions.KeyStoreFormat;
 
 /**
  * This class regroup some configuration values
@@ -42,15 +44,10 @@ public class Configuration {
 	public static final String DEFAULT_JM_CONFIG_FILE = 
 		System.getenv("POPJAVA_LOCATION") == null ? "jobmgr.conf" : System.getenv("POPJAVA_LOCATION") + "/etc/jobmgr.conf";
 	
-	public static String KEY_STORE = "poplocal.jks";
-	public static String KEY_STORE_FORMAT = "JKS"; // https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#KeyStore
-	public static String KEY_STORE_PWD = "poplocalstore";
-	// private key
-	public static String KEY_STORE_PK_ALIAS = "poplocal";
-	public static String KEY_STORE_PK_PWD = "poplocalkey";
-	// temporary confidence link directory
-	public static String TRUST_TEMP_STORE_DIR = "_temp_certificates";
+	// all relevant information of the keystore (alias, keyStorePassword, privateKeyPassword, keyStoreLocation, keyStoreType, temporaryCertificatesDir)
+	public static final KeyStoreOptions SSL_KEY_STORE_OPTIONS = new KeyStoreOptions("poplocal", "poplocalstore", "poplocalkey", "poplocal.jks", KeyStoreFormat.JKS, "tempCertifiates");
 	
+	// NOTE this is waiting for TLSv1.3 to be officialized
 	public static String SSL_PROTOCOL_VERSION = "TLSv1.2";
 	
 	/**

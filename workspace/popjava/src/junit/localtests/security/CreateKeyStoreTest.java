@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.InvalidParameterException;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
@@ -20,6 +18,7 @@ import popjava.util.ssl.KeyStoreOptions;
 import popjava.util.ssl.SSLUtils;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.ssl.KeyStoreOptions.KeyStoreFormat;
 
 /**
  *
@@ -66,7 +65,7 @@ public class CreateKeyStoreTest {
 	@Test(expected = InvalidParameterException.class)
 	public void optPKCS12Pass() {
 		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "654321", "1");
-		option.setKeyStoreFormat("PKCS12");
+		option.setKeyStoreFormat(KeyStoreFormat.PKCS12);
 		option.validate();
 	}
 	
@@ -117,12 +116,12 @@ public class CreateKeyStoreTest {
 		SSLUtils.generateKeyStore(options);
 		
 		LogWriter.writeDebugInfo("Setting up environment");
-		Configuration.KEY_STORE = keyStoreFile;
-		Configuration.KEY_STORE_PWD = storepass;
-		Configuration.KEY_STORE_FORMAT = "JKS";
-		Configuration.KEY_STORE_PK_PWD = keypass;
-		Configuration.KEY_STORE_PK_ALIAS = alias;
-		Configuration.TRUST_TEMP_STORE_DIR = tmpDir.getAbsolutePath();
+		Configuration.SSL_KEY_STORE_OPTIONS.setKeyStoreFile(keyStoreFile);
+		Configuration.SSL_KEY_STORE_OPTIONS.setStorePass(storepass);
+		Configuration.SSL_KEY_STORE_OPTIONS.setKeyStoreFormat(KeyStoreFormat.JKS);
+		Configuration.SSL_KEY_STORE_OPTIONS.setKeyPass(keypass);
+		Configuration.SSL_KEY_STORE_OPTIONS.setAlias(alias);
+		Configuration.SSL_KEY_STORE_OPTIONS.setTempCertFolder(tmpDir.getAbsolutePath());
 		
 		LogWriter.writeDebugInfo("Starting SSL Context");
 		// test create context
