@@ -1,5 +1,7 @@
 package popjava.util;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
@@ -15,11 +17,13 @@ import java.util.List;
  */
 public class WatchDirectory implements Runnable {
 
-	public static abstract class WatchMethod {
+	public static class WatchMethod {
 		public void create(String s) {}
 		public void delete(String s) {}
 		public void modify(String s) {}
 	}
+	
+	public static WatchMethod EMPTY = new WatchMethod();
 	
 	private Path myDir;
 	private WatchService watcher;
@@ -36,10 +40,11 @@ public class WatchDirectory implements Runnable {
 				StandardWatchEventKinds.ENTRY_MODIFY);
 			this.method = method;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogWriter.writeDebugInfo("[WatchDirectory] Failed to start watcher services: %s", e.getMessage());
 		}
 	}
 
+	@Override
 	public void run() {
 		while (running) {
 			try {
@@ -60,6 +65,17 @@ public class WatchDirectory implements Runnable {
 			} catch (Exception e) {
 				LogWriter.writeDebugInfo("[WatchDirectory] Error: " + e.toString());
 			}
+		}
+	}
+	
+	public void stop() {
+		running = false;
+		method = WatchDirectory.EMPTY;
+		// unlock watcher event listener
+		try {
+			Files.createTempFile(myDir, "stopwatcher.", ".tmp");
+		} catch(IOException e) {
+			LogWriter.writeDebugInfo("[WatchDirectory] Thread may have not stopped correctly: " + e.toString());
 		}
 	}
 }

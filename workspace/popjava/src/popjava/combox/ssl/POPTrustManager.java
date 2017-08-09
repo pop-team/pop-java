@@ -4,6 +4,7 @@ import popjava.util.ssl.SSLUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
@@ -53,11 +54,11 @@ public class POPTrustManager implements X509TrustManager {
 	// certificates stores
 	private X509TrustManager trustManager;
 	// Map(Fingerprint,Certificate)
-	private Map<String,Certificate> loadedCertificates;
+	private Map<String,Certificate> loadedCertificates = new HashMap<>();
 	// Set(Fingerprints)
-	private Set<String> confidenceCertificates;
+	private Set<String> confidenceCertificates = new HashSet<>();
 	// Map<Fingerprint,Network>
-	private Map<String,String> certificatesNetwork;
+	private Map<String,String> certificatesNetwork = new HashMap<>();
 	
 	// reload and add new certificates
 	private WatchDirectory watcher;
@@ -79,13 +80,6 @@ public class POPTrustManager implements X509TrustManager {
 	
 	private POPTrustManager() {
 		try {
-			loadedCertificates = new HashMap<>();
-			confidenceCertificates = new HashSet<>();
-			certificatesNetwork = new HashMap<>();
-			watcher = new WatchDirectory(Configuration.TRUST_TEMP_STORE_DIR, new WatcherMethods());
-			Thread dirWatcher = new Thread(watcher, "TrustStore temporary folder watcher");
-			dirWatcher.setDaemon(true);
-			dirWatcher.start();
 			reloadTrustManager();
 		} catch (Exception ex) {
 			LogWriter.writeDebugInfo("[KeyStore] can't initialize TrustManager: %s", ex.getMessage());
@@ -183,14 +177,34 @@ public class POPTrustManager implements X509TrustManager {
 		
 		// add temporary certificates
 		// get all files in directory and add them
-		for (File file : new File(Configuration.TRUST_TEMP_STORE_DIR).listFiles()) {
-			if (file.isFile() && file.getName().endsWith(".cer")) {
-				try (InputStream fileStream = new FileInputStream(file)) {
-					Certificate cert = certFactory.generateCertificate(fileStream);
-					String alias = file.getName().substring(0, file.getName().length() - 4);
-					trustedKS.setCertificateEntry(alias, cert);
-				} catch(Exception e) {
+		File tempCertDir = new File(Configuration.TRUST_TEMP_STORE_DIR);
+		if (tempCertDir.exists()) {
+			for (File file : tempCertDir.listFiles()) {
+				if (file.isFile() && file.getName().endsWith(".cer")) {
+					try (InputStream fileStream = new FileInputStream(file)) {
+						Certificate cert = certFactory.generateCertificate(fileStream);
+						String alias = file.getName().substring(0, file.getName().length() - 4);
+						trustedKS.setCertificateEntry(alias, cert);
+					} catch(Exception e) {
+					}
 				}
+			}
+		}
+		// directory doesn't exists, create it (may have changed)
+		else {
+			// create temp dir if not found
+			Files.createDirectory(tempCertDir.toPath());
+			// watch temporaray certificate directory
+			if (tempCertDir.canRead()) {
+				// stop previous watcher
+				if (watcher != null) {
+					watcher.stop();
+				}
+				
+				watcher = new WatchDirectory(tempCertDir.getAbsolutePath(), new WatcherMethods());
+				Thread dirWatcher = new Thread(watcher, "TrustStore temporary folder watcher");
+				dirWatcher.setDaemon(true);
+				dirWatcher.start();
 			}
 		}
 		

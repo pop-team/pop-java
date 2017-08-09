@@ -18,6 +18,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
+import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
@@ -291,7 +292,7 @@ public class ComboxSecureSocket extends Combox {
 					
 					remoteCaller = new POPRemoteCaller(
 						peerConnection.getInetAddress(), 
-						ComboxSecureSocketFactory.PROTOCOL, 
+						ConnectionProtocol.SSL, 
 						fingerprint, 
 						network
 					);					

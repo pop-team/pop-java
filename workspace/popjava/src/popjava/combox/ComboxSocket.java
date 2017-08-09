@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
+import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.util.Configuration;
@@ -265,7 +266,7 @@ public class ComboxSocket extends Combox {
 	private void exportConnectionInfo() {
 		remoteCaller = new POPRemoteCaller(
 			peerConnection.getInetAddress(), 
-			ComboxSocketFactory.PROTOCOL, 
+			ConnectionProtocol.SOCKET, 
 			null, 
 			null
 		);					
