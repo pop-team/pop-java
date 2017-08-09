@@ -91,7 +91,7 @@ public class SSLUtils {
 	 */
 	private static KeyStore loadKeyStore() throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
 		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-		keyStore.load(new FileInputStream(Configuration.SSL_KEY_STORE_OPTIONS.getKeyStoreFile()), Configuration.SSL_KEY_STORE_OPTIONS.getStorePass());
+		keyStore.load(new FileInputStream(Configuration.SSL_KEY_STORE_OPTIONS.getKeyStoreFile()), Configuration.SSL_KEY_STORE_OPTIONS.getStorePass().toCharArray());
 		return keyStore;
 	}
 	
@@ -106,7 +106,7 @@ public class SSLUtils {
 	 * @throws Exception 
 	 */
 	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, Exception {
-		keyStore.store(new FileOutputStream(Configuration.SSL_KEY_STORE_OPTIONS.getKeyStoreFile()), Configuration.SSL_KEY_STORE_OPTIONS.getStorePass());
+		keyStore.store(new FileOutputStream(Configuration.SSL_KEY_STORE_OPTIONS.getKeyStoreFile()), Configuration.SSL_KEY_STORE_OPTIONS.getStorePass().toCharArray());
 		POPTrustManager.getInstance().reloadTrustManager();
 	}
 	
@@ -128,7 +128,7 @@ public class SSLUtils {
 			// load private key
 			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.SSL_KEY_STORE_OPTIONS.getKeyPass());
+			keyManagerFactory.init(keyStore, Configuration.SSL_KEY_STORE_OPTIONS.getKeyPass().toCharArray());
 			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 
 			// init ssl context with everything
@@ -449,20 +449,20 @@ public class SSLUtils {
 
 			// add private key to the new keystore
 			KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(rsaPrivateKey, new Certificate[]{x509Certificate});
-			KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(options.getKeyPass());
+			KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(options.getKeyPass().toCharArray());
 
 			ks.setEntry(options.getAlias(), privateKeyEntry, passwordProtection);
 
 			// write to memory
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			ks.store(out, options.getStorePass());
+			ks.store(out, options.getStorePass().toCharArray());
 			out.close();
 			
 			// load a "clean" version and save to disk
 			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 			KeyStore ksout = KeyStore.getInstance(options.getKeyStoreFormat().name());
-			ksout.load(in, options.getStorePass());
-			ksout.store(new FileOutputStream(options.getKeyStoreFile()), options.getStorePass());
+			ksout.load(in, options.getStorePass().toCharArray());
+			ksout.store(new FileOutputStream(options.getKeyStoreFile()), options.getStorePass().toCharArray());
 			return true;
 		} catch(Exception e) {
 			LogWriter.writeDebugInfo("[KeyStore] Generation failed with message: %s. Retrying.", e.getMessage());

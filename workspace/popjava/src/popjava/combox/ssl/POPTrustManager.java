@@ -151,7 +151,7 @@ public class POPTrustManager implements X509TrustManager {
 		KeyStore trustedKS = KeyStore.getInstance(Configuration.SSL_KEY_STORE_OPTIONS.getKeyStoreFormat().name());
 		try (InputStream trustedStore = new FileInputStream(Configuration.SSL_KEY_STORE_OPTIONS.getKeyStoreFile())) {
 			// load stores in memory
-			trustedKS.load(trustedStore, Configuration.SSL_KEY_STORE_OPTIONS.getStorePass());
+			trustedKS.load(trustedStore, Configuration.SSL_KEY_STORE_OPTIONS.getStorePass().toCharArray());
 		}
 		
 		// mark certificate in the keystore as confidence certificates

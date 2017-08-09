@@ -25,8 +25,8 @@ public class KeyStoreOptions {
 	}
 
 	private String alias;
-	private char[] storepass;
-	private char[] keypass;
+	private String storepass;
+	private String keypass;
 	private String keyStoreFile;
 	private KeyStoreFormat keyStoreFormat;
 	private Date validUntil;
@@ -61,8 +61,8 @@ public class KeyStoreOptions {
 		Objects.nonNull(keypass);
 		
 		this.alias = alias;
-		this.storepass = storepass.toCharArray();
-		this.keypass = keypass.toCharArray();
+		this.storepass = storepass;
+		this.keypass = keypass;
 		this.keyStoreFile = keyStoreFile;
 		this.keyStoreFormat = keyStoreFormat;
 		this.validUntil = validUntil;
@@ -119,7 +119,7 @@ public class KeyStoreOptions {
 		this.alias = alias;
 	}
 
-	public char[] getStorePass() {
+	public String getStorePass() {
 		return storepass;
 	}
 
@@ -129,11 +129,10 @@ public class KeyStoreOptions {
 	 * @param storepass 
 	 */
 	public void setStorePass(String storepass) {
-		Objects.nonNull(storepass);
-		this.storepass = storepass.toCharArray();
+		this.storepass = storepass;
 	}
 
-	public char[] getKeyPass() {
+	public String getKeyPass() {
 		return keypass;
 	}
 
@@ -143,8 +142,7 @@ public class KeyStoreOptions {
 	 * @param keypass 
 	 */
 	public void setKeyPass(String keypass) {
-		Objects.nonNull(keypass);
-		this.keypass = keypass.toCharArray();
+		this.keypass = keypass;
 	}
 
 	public String getKeyStoreFile() {
@@ -251,10 +249,10 @@ public class KeyStoreOptions {
 		if (alias == null || alias.isEmpty()) {
 			throw new InvalidParameterException("An alias must be given and not empty");
 		}
-		if (storepass == null || storepass.length < 6) {
+		if (storepass == null || storepass.length() < 6) {
 			throw new InvalidParameterException("Store password must be set and at least 6 character long");
 		}
-		if (keypass == null || keypass.length < 6) {
+		if (keypass == null || keypass.length() < 6) {
 			throw new InvalidParameterException("Key password must be set and at least 6 character long");
 		}
 		if (keyStoreFile == null || keyStoreFile.isEmpty()) {
@@ -270,7 +268,7 @@ public class KeyStoreOptions {
 			throw new InvalidParameterException("Keys below 1024 bits are insecure (consider using 2048 or higher)");
 		}
 
-		if (keyStoreFormat == KeyStoreFormat.PKCS12 && !Arrays.equals(keypass, storepass)) {
+		if (keyStoreFormat == KeyStoreFormat.PKCS12 && !keypass.equals(storepass)) {
 			throw new InvalidParameterException("When using PKCS12 storePass and keyPass must match");
 		}
 	}
