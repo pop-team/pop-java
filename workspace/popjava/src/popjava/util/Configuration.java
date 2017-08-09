@@ -45,7 +45,7 @@ public class Configuration {
 		System.getenv("POPJAVA_LOCATION") == null ? "jobmgr.conf" : System.getenv("POPJAVA_LOCATION") + "/etc/jobmgr.conf";
 	
 	// all relevant information of the keystore (alias, keyStorePassword, privateKeyPassword, keyStoreLocation, keyStoreType, temporaryCertificatesDir)
-	public static final KeyStoreOptions SSL_KEY_STORE_OPTIONS = new KeyStoreOptions("poplocal", "poplocalstore", "poplocalkey", "poplocal.jks", KeyStoreFormat.JKS, "tempCertifiates");
+	public static KeyStoreOptions SSL_KEY_STORE_OPTIONS = new KeyStoreOptions("poplocal", "poplocalstore", "poplocalkey", "poplocal.jks", KeyStoreFormat.JKS, "tempCertifiates");
 	
 	// NOTE this is waiting for TLSv1.3 to be officialized
 	public static String SSL_PROTOCOL_VERSION = "TLSv1.2";
