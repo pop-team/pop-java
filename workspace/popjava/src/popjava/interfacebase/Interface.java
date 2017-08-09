@@ -34,6 +34,7 @@ import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.service.jobmanager.POPJavaAppService;
 import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.service.jobmanager.connector.POPConnectorDirect;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
@@ -731,11 +732,13 @@ public class Interface {
 		}
 		
 		// XXX To start localhost calls
-		String potentialPort = od.getValue("port");
+		String potentialPort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
 		if(isLocal && potentialPort.equals("")){
+			// add config file, system or local
+			argvList.add(String.format("%s%s", Broker.POPJAVA_CONFIG_PREFIX, Configuration.getPOPJavaConfig()));
 			ret = SystemUtil.runCmd(argvList);
 		}else{
-			//String potentialPort = od.getValue("port");
+			//String potentialPort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
 			switch(od.getConnectionType()){
 			case ANY:
 			case SSH:

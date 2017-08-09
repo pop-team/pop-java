@@ -75,6 +75,7 @@ public final class Broker {
 	static public final String OBJECT_NAME_PREFIX = "-object=";
 	static public final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
 	static public final String APPSERVICE_PREFIX = "-appservice=";
+	static public final String POPJAVA_CONFIG_PREFIX = "-configfile=";
 	
 	// thread unique callers
 	private static ThreadLocal<POPRemoteCaller> remoteCaller = new InheritableThreadLocal<>();
@@ -937,6 +938,18 @@ public final class Broker {
 				OBJECT_NAME_PREFIX);
 		String actualObjectName = Util.removeStringFromList(argvList,
 				ACTUAL_OBJECT_NAME_PREFIX);
+		String userConfiguration = Util.removeStringFromList(argvList, 
+				POPJAVA_CONFIG_PREFIX);
+		
+		if (userConfiguration != null) {
+			try {
+				File config = new File(userConfiguration);
+				Configuration.load(config);
+			} catch(IOException e) {
+				LogWriter.writeDebugInfo("[Broker] Couldn't load user config %s: %s", userConfiguration, e.getMessage());
+			}
+		}
+		
 		if (actualObjectName != null && actualObjectName.length() > 0) {
 			objectName = actualObjectName;
 		}
