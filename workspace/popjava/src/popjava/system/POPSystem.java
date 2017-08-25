@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -70,7 +69,7 @@ public class POPSystem {
 	public static POPAccessPoint appServiceAccessPoint = new POPAccessPoint();
 	
 	public static void writeLog(String log){
-		if(!Configuration.DEBUG){
+		if(!Configuration.isDebug()){
 			System.out.println(log);
 		}
 		LogWriter.writeDebugInfo(log);
@@ -305,7 +304,7 @@ public class POPSystem {
                 POPJavaConfiguration.getPopJavaJar(),
                 getNeededClasspath());
         
-        if(Configuration.CONNECT_TO_JAVA_JOBMANAGER){
+        if(Configuration.isConnectToJavaJobmanager()){
         	//jobmanager = PopJava.newActive(POPJavaJobManager.class, new POPAccessPoint("localhost:"+POPJobManager.DEFAULT_PORT));
         }
         
@@ -364,7 +363,7 @@ public class POPSystem {
 				url = String.format("%s -proxy=%s", appservicecode, proxy);
 			}
 			
-			if(Configuration.CONNECT_TO_POPCPP && 
+			if(Configuration.isConnectToPOPcpp() && 
 			        (appservicecode.contains(" ") || new File(appservicecode).exists())){
 				try{
 					return createAppCoreService(url);

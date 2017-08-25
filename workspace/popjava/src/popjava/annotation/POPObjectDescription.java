@@ -59,7 +59,7 @@ public @interface POPObjectDescription {
 	 *  direct: connect directly (ex SSH) to the remote machine
 	 * @return 
 	 */
-	String connector() default Configuration.DEFAULT_CONNECTOR;
+	String connector() default "";
 	
 	/**
 	 * Power requested

@@ -116,12 +116,12 @@ public class CreateKeyStoreTest {
 		SSLUtils.generateKeyStore(options);
 		
 		LogWriter.writeDebugInfo("Setting up environment");
-		Configuration.SSL_KEY_STORE_OPTIONS.setKeyStoreFile(keyStoreFile);
-		Configuration.SSL_KEY_STORE_OPTIONS.setStorePass(storepass);
-		Configuration.SSL_KEY_STORE_OPTIONS.setKeyStoreFormat(KeyStoreFormat.JKS);
-		Configuration.SSL_KEY_STORE_OPTIONS.setKeyPass(keypass);
-		Configuration.SSL_KEY_STORE_OPTIONS.setAlias(alias);
-		Configuration.SSL_KEY_STORE_OPTIONS.setTempCertFolder(tmpDir.getAbsolutePath());
+		Configuration.setKeyStoreFile(new File(keyStoreFile));
+		Configuration.setKeyStorePassword(storepass);
+		Configuration.setKeyStoreFormat(KeyStoreFormat.JKS);
+		Configuration.setKeyStorePrivateKeyPassword(keypass);
+		Configuration.setKeyStoreLocalAlias(alias);
+		Configuration.setKeyStoreTempLocation(tmpDir);
 		
 		LogWriter.writeDebugInfo("Starting SSL Context");
 		// test create context

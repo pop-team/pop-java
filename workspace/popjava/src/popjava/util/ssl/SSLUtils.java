@@ -91,7 +91,7 @@ public class SSLUtils {
 	 */
 	private static KeyStore loadKeyStore() throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
 		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-		keyStore.load(new FileInputStream(Configuration.SSL_KEY_STORE_OPTIONS.getKeyStoreFile()), Configuration.SSL_KEY_STORE_OPTIONS.getStorePass().toCharArray());
+		keyStore.load(new FileInputStream(Configuration.getKeyStoreFile()), Configuration.getKeyStorePassword().toCharArray());
 		return keyStore;
 	}
 	
@@ -106,7 +106,7 @@ public class SSLUtils {
 	 * @throws Exception 
 	 */
 	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, Exception {
-		keyStore.store(new FileOutputStream(Configuration.SSL_KEY_STORE_OPTIONS.getKeyStoreFile()), Configuration.SSL_KEY_STORE_OPTIONS.getStorePass().toCharArray());
+		keyStore.store(new FileOutputStream(Configuration.getKeyStoreFile()), Configuration.getKeyStorePassword().toCharArray());
 		POPTrustManager.getInstance().reloadTrustManager();
 	}
 	
@@ -128,11 +128,11 @@ public class SSLUtils {
 			// load private key
 			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.SSL_KEY_STORE_OPTIONS.getKeyPass().toCharArray());
+			keyManagerFactory.init(keyStore, Configuration.getKeyStorePassword().toCharArray());
 			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 
 			// init ssl context with everything
-			sslContextInstance = SSLContext.getInstance(Configuration.SSL_PROTOCOL_VERSION);
+			sslContextInstance = SSLContext.getInstance(Configuration.getSSLProtocolVersion());
 			sslContextInstance.init(keyManagerFactory.getKeyManagers(), trustManagers, new SecureRandom());
 		}
 
@@ -353,7 +353,7 @@ public class SSLUtils {
 			String outName = fingerprint + ".cer";
 			
 			// certificates temprary path
-			Path path = Paths.get(Configuration.SSL_KEY_STORE_OPTIONS.getTempCertFolder(), outName);
+			Path path = Paths.get(Configuration.getKeyStoreTempLocation().toString(), outName);
 			// move to local directory
 			Files.write(path, certificate);
 			

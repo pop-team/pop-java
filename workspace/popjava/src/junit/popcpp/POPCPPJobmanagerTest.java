@@ -23,8 +23,8 @@ public class POPCPPJobmanagerTest {
 	
 	@BeforeClass
 	public static void setup(){
-		popcppConnect = Configuration.CONNECT_TO_POPCPP;
-		Configuration.CONNECT_TO_POPCPP = true;
+		popcppConnect = Configuration.isConnectToPOPcpp();
+		Configuration.setConnectToPOPcpp(true);
 	}
 	
 	@Test
@@ -42,6 +42,6 @@ public class POPCPPJobmanagerTest {
 	
 	@AfterClass
 	public static void finish(){
-		Configuration.CONNECT_TO_POPCPP = popcppConnect;
+		Configuration.setConnectToPOPcpp(popcppConnect);
 	}
 }

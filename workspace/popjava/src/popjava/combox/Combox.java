@@ -35,7 +35,7 @@ public abstract class Combox {
 	public Combox(POPAccessPoint accesspoint, int timeout) {
 		accessPoint = accesspoint;
 		timeOut = timeout;
-		bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.DEFAULT_ENCODING);
+		bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.getDefaultEncoding());
 	}
 
 	/**

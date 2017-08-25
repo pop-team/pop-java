@@ -19,6 +19,7 @@ import junit.localtests.parameters.ParameterTests;
 import junit.localtests.readerWriter.ReaderWriterTest;
 import junit.localtests.referencePassing.ReferenceTest;
 import junit.localtests.security.CreateKeyStoreTest;
+import junit.localtests.security.MethodAccessTest;
 import junit.localtests.subclassReturns.SubclassingTest;
 
 @RunWith(Suite.class)
@@ -26,7 +27,8 @@ import junit.localtests.subclassReturns.SubclassingTest;
 	TestConcurrency.class, DeamonTest.class, EnumTests.class,
 	ArraysTest.class, ParameterTests.class,
 	BigDataTests.class, SubclassingTest.class, ReferenceTest.class, JVMObjectTest.class, NestedPOPCreation.class,
-	CreateKeyStoreTest.class, POPJavaJobManagerConfigurationTest.class, POPJavaJobManagerLiveConfigurationTest.class})
+	CreateKeyStoreTest.class, MethodAccessTest.class,
+	POPJavaJobManagerConfigurationTest.class, POPJavaJobManagerLiveConfigurationTest.class})
 public class LocalTests {
 
 }

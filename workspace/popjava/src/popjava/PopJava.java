@@ -140,7 +140,7 @@ public class PopJava {
 	 */
 	private static POPJavaJobManager getLocalJobManager() {
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-		String protocol = Configuration.DEFAULT_PROTOCOL;
+		String protocol = Configuration.getDefaultProtocol();
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", 
 				protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
 		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);

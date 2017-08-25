@@ -160,7 +160,7 @@ public class JVMObjectTest {
 	
 	@Test
 	public void multipleConnections(){
-		Configuration.DEBUG = true;
+		Configuration.setDebug(true);
 		LocalObject local1 = PopJava.newActive(LocalObject.class, new Double(1));
 		
 		LocalObject remote = PopJava.newActive(LocalObject.class, PopJava.getThis(local1).getAccessPoint());

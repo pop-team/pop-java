@@ -869,7 +869,7 @@ public final class Broker {
 		//TODO: LocalJVM objects need a way to specifiy the protocol(s), maybe as an annotation?
 		//TODO: Handle case where a port was specified, but the protocol is unavailable, throw exception
 		if(liveServers.isEmpty()){
-			ComboxFactory factory = finder.findFactory(Configuration.DEFAULT_PROTOCOL);
+			ComboxFactory factory = finder.findFactory(Configuration.getDefaultProtocol());
 			
 			AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
 			accessPoint.addAccessPoint(ap);

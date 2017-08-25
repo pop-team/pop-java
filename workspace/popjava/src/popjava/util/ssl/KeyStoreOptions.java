@@ -43,6 +43,23 @@ public class KeyStoreOptions {
 	 */
 	public KeyStoreOptions() {
 	}
+	
+	/**
+	 * Copy constructor
+	 * @param other 
+	 */
+	public KeyStoreOptions(KeyStoreOptions other) {
+		this.alias = other.alias;
+		this.storepass = other.storepass;
+		this.keypass = other.keypass;
+		this.keyStoreFile = other.keyStoreFile;
+		this.keyStoreFormat = other.keyStoreFormat;
+		this.validUntil = other.validUntil;
+		this.keySize = other.keySize;
+		this.tempCertFolder = other.tempCertFolder;
+		this.rdn.putAll(other.rdn);
+		this.hasName = other.hasName;
+	}
 
 	/**
 	 * Full constructor
@@ -57,9 +74,6 @@ public class KeyStoreOptions {
 	 * @param tempCertFolder The location on the temporary certificate folder
 	 */
 	public KeyStoreOptions(String alias, String storepass, String keypass, String keyStoreFile, KeyStoreFormat keyStoreFormat, Date validUntil, int keySize, String tempCertFolder) {
-		Objects.nonNull(storepass);
-		Objects.nonNull(keypass);
-		
 		this.alias = alias;
 		this.storepass = storepass;
 		this.keypass = keypass;

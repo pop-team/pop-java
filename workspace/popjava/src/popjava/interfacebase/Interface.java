@@ -232,7 +232,7 @@ public class Interface {
 
         if (jobContact.isEmpty()) {
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-			String protocol = Configuration.DEFAULT_PROTOCOL;
+			String protocol = Configuration.getDefaultProtocol();
 			jobContact.setAccessString(String.format("%s://%s:%d", 
 				protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
         }
@@ -243,9 +243,9 @@ public class Interface {
         	//if(Configuration.CONNECT_TO_POPCPP || Configuration.START_JOBMANAGER){
         	//	jobManager = PopJava.newActive(POPJobService.class, jobContact);
         	//}
-			if (Configuration.CONNECT_TO_POPCPP)
+			if (Configuration.isConnectToPOPcpp())
         		jobManager = PopJava.newActive(POPJobManager.class, jobContact);
-			else if (Configuration.CONNECT_TO_JAVA_JOBMANAGER)
+			else if (Configuration.isConnectToJavaJobmanager())
         		jobManager = PopJava.newActive(POPJavaJobManager.class, jobContact);
 			else
         		jobManager = PopJava.newActive(POPJobService.class, jobContact);
@@ -303,14 +303,14 @@ public class Interface {
 		combox = finder.findFactory(od.getProtocol())
 				.createClientCombox(accesspoint);
 		
-		if (combox.connect(accesspoint, Configuration.CONNECTION_TIMEOUT)) {
+		if (combox.connect(accesspoint, Configuration.getConnectionTimeout())) {
 
 			BindStatus bindStatus = new BindStatus();
 			bindStatus(bindStatus);
 			switch (bindStatus.getCode()) {
 			case BindStatus.BIND_OK:
 				this.getOD().setPlatform(bindStatus.getPlatform());
-				negotiateEncoding(Configuration.SELECTED_ENCODING, bindStatus
+				negotiateEncoding(Configuration.getSelectedEncoding(), bindStatus
 						.getPlatform());
 				return true;
 			case BindStatus.BIND_FORWARD_SESSION:
@@ -371,7 +371,7 @@ public class Interface {
 		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
 		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
-		popBuffer.putString(Configuration.SELECTED_ENCODING);
+		popBuffer.putString(Configuration.getSelectedEncoding());
 
 		popDispatch(popBuffer);
 
@@ -381,7 +381,7 @@ public class Interface {
 		popResponse(responseBuffer, messageHeader.getRequestID());
 		result = responseBuffer.getBoolean();
 		if (result) {
-			BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.SELECTED_ENCODING);
+			BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.getSelectedEncoding());
 			combox.setBufferFactory(bufferFactory);
 			
 			//TODO: Check out why this was done
@@ -565,7 +565,7 @@ public class Interface {
 	public static AppService getAppcoreService(){
 	    AppService appCoreService = null;
 	    if(!POPSystem.appServiceAccessPoint.isEmpty()){
-            if(Configuration.CONNECT_TO_POPCPP){
+            if(Configuration.isConnectToPOPcpp()){
                 try{
                 	POPAppService tempService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
                 	tempService.unregisterService("");
@@ -666,7 +666,7 @@ public class Interface {
 			argvList.add(1, "-Xmx"+od.getMemoryReq()+"m");
 		}*/
 		
-		if(codeFile.startsWith("java") && Configuration.ACTIVATE_JMX){
+		if(codeFile.startsWith("java") && Configuration.isActivateJmx()){
 			argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
 			argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
 			argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");
@@ -705,7 +705,7 @@ public class Interface {
 		// if specified a port but no protocol, automatically set the default one
 		else {
 			if (od.getProtocol() == null || od.getProtocol().isEmpty()) {
-				od.setProtocol(Configuration.DEFAULT_PROTOCOL);
+				od.setProtocol(Configuration.getDefaultProtocol());
 			}
 		}
 
@@ -734,8 +734,10 @@ public class Interface {
 		// XXX To start localhost calls
 		String potentialPort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
 		if(isLocal && potentialPort.equals("")){
-			// add config file, system or local
-			argvList.add(String.format("%s%s", Broker.POPJAVA_CONFIG_PREFIX, Configuration.getPOPJavaConfig()));
+			if (Configuration.isUsingUserConfig()) {
+				// add config file, system or local
+				argvList.add(String.format("%s%s", Broker.POPJAVA_CONFIG_PREFIX, Configuration.getUserConfig().toString()));
+			}
 			ret = SystemUtil.runCmd(argvList);
 		}else{
 			//String potentialPort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);

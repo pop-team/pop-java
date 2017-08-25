@@ -65,7 +65,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 		if (od.getSearchMaxSize() > 0) {
 			;
 		}
-		int timeout = Configuration.SEARCH_TIMEOUT;
+		int timeout = Configuration.getSearchNodeSearchTimeout();
 		if (od.getSearchWaitTime() >= 0) {
 			timeout = od.getSearchWaitTime();
 		}

@@ -230,7 +230,7 @@ public class ComboxSecureSocket extends Combox {
 
 			int headerLength = MessageHeader.HEADER_LENGTH;
 			if (result < headerLength) {
-				if (Configuration.DEBUG_COMBOBOX) {
+				if (Configuration.isDebugCombox()) {
 					String logInfo = String.format(
 							"%s.failed to receive header. receivedLength= %d < %d Message length %d",
 							this.getClass().getName(), result, headerLength);
@@ -243,7 +243,7 @@ public class ComboxSecureSocket extends Combox {
 			
 			return result;
 		} catch (Exception e) {
-			if (Configuration.DEBUG_COMBOBOX){
+			if (Configuration.isDebugCombox()){
 				LogWriter.writeDebugInfo("ComboxServerSocket Error while receiving data:"
 								+ e.getMessage());
 			}
@@ -267,7 +267,7 @@ public class ComboxSecureSocket extends Combox {
 			
 			return length;
 		} catch (IOException e) {
-			if (Configuration.DEBUG_COMBOBOX){
+			if (Configuration.isDebugCombox()){
 				e.printStackTrace();
 				LogWriter.writeDebugInfo(this.getClass().getName()
 						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);

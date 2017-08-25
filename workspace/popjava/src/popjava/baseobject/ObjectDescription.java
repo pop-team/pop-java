@@ -82,7 +82,7 @@ public class ObjectDescription implements IPOPBase {
 		memoryReq = -1;
 		
 		setNetwork("");
-		setConnector(Configuration.DEFAULT_CONNECTOR);
+		setConnector("");
 	}
 	
 	public ObjectDescription(ObjectDescription od) {
@@ -552,6 +552,9 @@ public class ObjectDescription implements IPOPBase {
 	 * @param connector 
 	 */
 	public void setConnector(String connector) {
+		if (connector.isEmpty()) {
+			connector = Configuration.getJobManagerDefaultConnector();
+		}
 		setValue(CONNECTOR_KEY, connector);
 	}
 

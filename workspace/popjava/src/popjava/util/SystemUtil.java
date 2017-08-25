@@ -40,7 +40,7 @@ public class SystemUtil {
 		}
 		
 		ProcessBuilder pb = new ProcessBuilder(argvs);
-		if(Configuration.REDIRECT_OUTPUT_TO_ROOT){
+		if(Configuration.isRedirectOutputToRoot()){
 			pb = pb.inheritIO();
 		}else{
 			pb.redirectErrorStream(true);
@@ -116,7 +116,7 @@ public class SystemUtil {
 	}
 	
 	public static int runRemoteCmd(String url, List<String> command){
-		if(Configuration.USE_NATIVE_SSH_IF_POSSIBLE && commandExists("ssh")){
+		if(Configuration.isUseNativeSSHifPossible() && commandExists("ssh")){
 			command.add(0, url);
 			command.add(0, "ssh");
 			
@@ -127,7 +127,7 @@ public class SystemUtil {
 	}
 	
 	public static int runRemoteCmd(String url, String port, List<String> command){
-		if(Configuration.USE_NATIVE_SSH_IF_POSSIBLE && commandExists("ssh")){
+		if(Configuration.isUseNativeSSHifPossible() && commandExists("ssh")){
 			command.add(0, url);
 			command.add(0, "-p " + port);
 			command.add(0, "ssh");

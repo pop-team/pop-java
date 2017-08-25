@@ -81,8 +81,8 @@ public class AccessPoint {
 			host = datas[1].trim();
 			port = Integer.parseInt(datas[2]);
 		} else if (n == 2) {
-		    if(args[0].trim().equalsIgnoreCase(Configuration.DEFAULT_PROTOCOL)){
-		        protocol = Configuration.DEFAULT_PROTOCOL;
+		    if(args[0].trim().equalsIgnoreCase(Configuration.getDefaultProtocol())){
+		        protocol = Configuration.getDefaultProtocol();
 	            host = datas[0].trim();
 	            port = Integer.parseInt(datas[1]);
 		    }else{
@@ -90,7 +90,7 @@ public class AccessPoint {
 		    }
 			
 		} else {
-			protocol = Configuration.DEFAULT_PROTOCOL;
+			protocol = Configuration.getDefaultProtocol();
 			host = DEFAULT_HOST;
 			port = DEFAULT_PORT;
 		}

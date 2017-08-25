@@ -23,7 +23,7 @@ public class POPNetworkNodeFactory {
 		String connector = Util.removeStringFromList(other, "connector=");
 		// use job manager if nothing is specified
 		if (connector == null) {
-			connector = Configuration.DEFAULT_CONNECTOR;
+			connector = Configuration.getJobManagerDefaultConnector();
 		}
 
 		switch (connector.toLowerCase()) {

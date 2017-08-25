@@ -34,7 +34,7 @@ public class SNExploration implements IPOPBase {
 	}
 
 	public boolean add(POPAccessPoint e) {
-		if (visited.size() >= Configuration.EXPLORATION_MAX_SIZE) {
+		if (visited.size() >= Configuration.getSearchNodeExplorationQueueSize()) {
 			visited.pop();
 		}
 		return visited.add(e);

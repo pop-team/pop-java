@@ -141,7 +141,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		
 		POPClass annotation = targetClass.getAnnotation(POPClass.class);
 		
-		if(Configuration.ASYNC_CONSTRUCTOR && (annotation == null || annotation.useAsyncConstructor())){
+		if(Configuration.isAsyncConstructor() && (annotation == null || annotation.useAsyncConstructor())){
 			POPSystem.startAsyncConstructor(constructorRunnable);
 		}else{
 			constructorRunnable.run();

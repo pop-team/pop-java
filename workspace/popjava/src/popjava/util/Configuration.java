@@ -413,9 +413,9 @@ public class Configuration {
 		Configuration.SSL_KEY_STORE_OPTIONS.setAlias(val);
 	}
 
-	public static void setKeyStoreFormat(String val) {
-		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FORMAT.name(), val);
-		Configuration.SSL_KEY_STORE_OPTIONS.setKeyStoreFormat(KeyStoreFormat.valueOf(val));
+	public static void setKeyStoreFormat(KeyStoreFormat val) {
+		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FORMAT.name(), val.name());
+		Configuration.SSL_KEY_STORE_OPTIONS.setKeyStoreFormat(val);
 	}
 
 	public static void setKeyStoreTempLocation(File file) {

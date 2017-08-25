@@ -50,7 +50,7 @@ public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManage
 		}
 		
 		if (protocol == null) {
-			protocol = Configuration.DEFAULT_PROTOCOL;
+			protocol = Configuration.getDefaultProtocol();
 		}
 
 		// some sane defaults

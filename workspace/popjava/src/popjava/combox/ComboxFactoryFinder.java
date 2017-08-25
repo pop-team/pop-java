@@ -141,7 +141,7 @@ public class ComboxFactoryFinder {
 	 */
 	public ComboxFactory findFactory(String factoryName) {
 		if (factoryName == null || factoryName.isEmpty())
-			factoryName = Configuration.DEFAULT_PROTOCOL;
+			factoryName = Configuration.getDefaultProtocol();
 		factoryName = factoryName.toLowerCase();
 		if (comboxFactoryList.containsKey(factoryName)) {
 			return comboxFactoryList.get(factoryName);

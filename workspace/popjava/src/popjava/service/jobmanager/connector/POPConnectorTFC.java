@@ -51,7 +51,7 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 		if (od.getSearchMaxSize() > 0) {
 			;
 		}
-		int timeout = Configuration.TFC_SEARCH_TIMEOUT;
+		int timeout = Configuration.getTFCSearchTimeout();
 		if (od.getSearchWaitTime() >= 0) {
 			timeout = od.getSearchWaitTime();
 		}
