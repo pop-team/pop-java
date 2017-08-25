@@ -66,7 +66,7 @@ public class Configuration {
 	}
 	
 	// config files
-	private static final File SYSTEM_CONFIG	     = Paths.get(POPJAVA_LOCATION, "etc", "popjava.conf").toFile();
+	private static final File SYSTEM_CONFIG	     = Paths.get(POPJAVA_LOCATION, "etc", "popjava.properties").toFile();
 	private static File systemJobManagerConfig   = Paths.get(POPJAVA_LOCATION, "etc", "jobmgr.conf").toFile();
 	
 	// properties set by the user are found here
@@ -445,7 +445,7 @@ public class Configuration {
 		}
 		
 		// abort if we can't load
-		if (!file.exists() || file.canRead()) {
+		if (!file.exists()) {
 			LogWriter.writeDebugInfo("[Configuration] '%s' doesn't exists or can't be read.", file.getCanonicalPath());
 			return;
 		}
@@ -483,37 +483,41 @@ public class Configuration {
 					continue;
 				}
 				
-				switch(keyEnum) {
-					case SYSTEM_JOBMANAGER_CONFIG:           systemJobManagerConfig = new File(value); break;
-					case DEBUG:                              debug = Boolean.parseBoolean(value); break;
-					case DEBUG_COMBOBOX:                     debugCombox = Boolean.parseBoolean(value); break;
-					case RESERVE_TIMEOUT:                    reserveTimeout = Integer.parseInt(value); break;
-					case ALLOC_TIMEOUT:                      allocTimeout = Integer.parseInt(value); break;
-					case CONNECTION_TIMEOUT:                 connectionTimeout = Integer.parseInt(value); break;
-					case JOBMANAGER_UPDATE_INTERVAL:         jobManagerUpdateInterval = Integer.parseInt(value); break;
-					case JOBMANAGER_SELF_REGISTER_INTERVAL:  jobManagerSelfRegisterInterval = Integer.parseInt(value); break;
-					case JOBMANAGER_DEFAULT_CONNECTOR:       jobManagerDefaultConnector = value; break;
-					case SEARCH_NODE_UNLOCK_TIMEOUT:         searchNodeUnlockTimeout = Integer.parseInt(value); break;
-					case SEARCH_NODE_SEARCH_TIMEOUT:         searchNodeSearchTimeout = Integer.parseInt(value); break;
-					case SEARCH_NODE_MAX_REQUESTS:         searchNodeMaxRequests = Integer.parseInt(value); break;
-					case SEARCH_NODE_EXPLORATION_QUEUE_SIZE: searchNodeExplorationQueueSize = Integer.parseInt(value); break;
-					case TFC_SEARCH_TIMEOUT:                 tfcSearchTimeout = Integer.parseInt(value); break;
-					case DEFAULT_ENCODING:                   defaultEncoding = value; break;
-					case SELECTED_ENCODING:                  selectedEncoding = value; break;
-					case DEFAULT_PROTOCOL:                   defaultProtocol = value; break;
-					case ASYNC_CONSTRUCTOR:                  asyncConstructor = Boolean.parseBoolean(value); break;
-					case ACTIVATE_JMX:                       activateJmx = Boolean.parseBoolean(value); break;
-					case CONNECT_TO_POPCPP:                  connectToPOPcpp = Boolean.parseBoolean(value); break;
-					case CONNECT_TO_JAVA_JOBMANAGER:         connectToJavaJobmanager = Boolean.parseBoolean(value); break;
-					case REDIRECT_OUTPUT_TO_ROOT:            redirectOutputToRoot = Boolean.parseBoolean(value); break;
-					case USE_NATIVE_SSH_IF_POSSIBLE:         useNativeSSHifPossible = Boolean.parseBoolean(value); break;
-					case SSL_PROTOCOL_VERSION:               SSLProtocolVersion = value; break;
-					case SSL_KEY_STORE_FILE:                 SSL_KEY_STORE_OPTIONS.setKeyStoreFile(value); break;
-					case SSL_KEY_STORE_PASSWORD:             SSL_KEY_STORE_OPTIONS.setStorePass(value); break;
-					case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSL_KEY_STORE_OPTIONS.setKeyPass(value); break;
-					case SSL_KEY_STORE_LOCAL_ALIAS:          SSL_KEY_STORE_OPTIONS.setAlias(value); break;
-					case SSL_KEY_STORE_FORMAT:                 SSL_KEY_STORE_OPTIONS.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
-					case SSL_KEY_STORE_TEMP_LOCATION:        SSL_KEY_STORE_OPTIONS.setTempCertFolder(value); break;
+				try {
+					switch(keyEnum) {
+						case SYSTEM_JOBMANAGER_CONFIG:           systemJobManagerConfig = new File(value); break;
+						case DEBUG:                              debug = Boolean.parseBoolean(value); break;
+						case DEBUG_COMBOBOX:                     debugCombox = Boolean.parseBoolean(value); break;
+						case RESERVE_TIMEOUT:                    reserveTimeout = Integer.parseInt(value); break;
+						case ALLOC_TIMEOUT:                      allocTimeout = Integer.parseInt(value); break;
+						case CONNECTION_TIMEOUT:                 connectionTimeout = Integer.parseInt(value); break;
+						case JOBMANAGER_UPDATE_INTERVAL:         jobManagerUpdateInterval = Integer.parseInt(value); break;
+						case JOBMANAGER_SELF_REGISTER_INTERVAL:  jobManagerSelfRegisterInterval = Integer.parseInt(value); break;
+						case JOBMANAGER_DEFAULT_CONNECTOR:       jobManagerDefaultConnector = value; break;
+						case SEARCH_NODE_UNLOCK_TIMEOUT:         searchNodeUnlockTimeout = Integer.parseInt(value); break;
+						case SEARCH_NODE_SEARCH_TIMEOUT:         searchNodeSearchTimeout = Integer.parseInt(value); break;
+						case SEARCH_NODE_MAX_REQUESTS:           searchNodeMaxRequests = Integer.parseInt(value); break;
+						case SEARCH_NODE_EXPLORATION_QUEUE_SIZE: searchNodeExplorationQueueSize = Integer.parseInt(value); break;
+						case TFC_SEARCH_TIMEOUT:                 tfcSearchTimeout = Integer.parseInt(value); break;
+						case DEFAULT_ENCODING:                   defaultEncoding = value; break;
+						case SELECTED_ENCODING:                  selectedEncoding = value; break;
+						case DEFAULT_PROTOCOL:                   defaultProtocol = value; break;
+						case ASYNC_CONSTRUCTOR:                  asyncConstructor = Boolean.parseBoolean(value); break;
+						case ACTIVATE_JMX:                       activateJmx = Boolean.parseBoolean(value); break;
+						case CONNECT_TO_POPCPP:                  connectToPOPcpp = Boolean.parseBoolean(value); break;
+						case CONNECT_TO_JAVA_JOBMANAGER:         connectToJavaJobmanager = Boolean.parseBoolean(value); break;
+						case REDIRECT_OUTPUT_TO_ROOT:            redirectOutputToRoot = Boolean.parseBoolean(value); break;
+						case USE_NATIVE_SSH_IF_POSSIBLE:         useNativeSSHifPossible = Boolean.parseBoolean(value); break;
+						case SSL_PROTOCOL_VERSION:               SSLProtocolVersion = value; break;
+						case SSL_KEY_STORE_FILE:                 SSL_KEY_STORE_OPTIONS.setKeyStoreFile(value); break;
+						case SSL_KEY_STORE_PASSWORD:             SSL_KEY_STORE_OPTIONS.setStorePass(value); break;
+						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSL_KEY_STORE_OPTIONS.setKeyPass(value); break;
+						case SSL_KEY_STORE_LOCAL_ALIAS:          SSL_KEY_STORE_OPTIONS.setAlias(value); break;
+						case SSL_KEY_STORE_FORMAT:               SSL_KEY_STORE_OPTIONS.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
+						case SSL_KEY_STORE_TEMP_LOCATION:        SSL_KEY_STORE_OPTIONS.setTempCertFolder(value); break;
+					}
+				} catch(NumberFormatException e) {
+					LogWriter.writeDebugInfo("[Configuration] unknown value '%s' for key '%s'.", value, key);
 				}
 			}
 		}
