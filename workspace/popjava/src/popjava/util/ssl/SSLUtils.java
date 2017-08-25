@@ -128,7 +128,7 @@ public class SSLUtils {
 			// load private key
 			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.getKeyStorePassword().toCharArray());
+			keyManagerFactory.init(keyStore, Configuration.getKeyStorePrivateKeyPassword().toCharArray());
 			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 
 			// init ssl context with everything
