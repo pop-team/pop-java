@@ -144,7 +144,7 @@ public class PopJava {
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 		String protocol = conf.getDefaultProtocol();
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", 
-				protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
+				protocol, POPSystem.getHostIP(), conf.getJobManagerPort()));
 		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);
 		return jm;
 	}

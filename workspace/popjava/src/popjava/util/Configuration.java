@@ -31,6 +31,8 @@ public final class Configuration {
 		JOBMANAGER_UPDATE_INTERVAL,
 		JOBMANAGER_SELF_REGISTER_INTERVAL,
 		JOBMANAGER_DEFAULT_CONNECTOR,
+		JOBMANAGER_PORT,
+		POP_JAVA_DEAMON_PORT,
 		SEARCH_NODE_UNLOCK_TIMEOUT,
 		SEARCH_NODE_SEARCH_TIMEOUT,
 		SEARCH_NODE_MAX_REQUESTS,
@@ -95,6 +97,9 @@ public final class Configuration {
 	private int searchNodeMaxRequests = 300;
 	private int searchNodeExplorationQueueSize = 300;
 	
+	private int jobManagerPort = 2711;
+	private int popJavaDeamonPort = 43424;
+	
 	private String defaultEncoding = "xdr";
 	private String selectedEncoding = "raw";
 	private String defaultProtocol = ConnectionProtocol.SOCKET.getName();
@@ -131,7 +136,7 @@ public final class Configuration {
 		return instance;
 	}
 
-	public String getPOPJAVA_LOCATION() {
+	public String getPopJavaLocation() {
 		return POPJAVA_LOCATION;
 	}
 
@@ -271,132 +276,140 @@ public final class Configuration {
 		return new File(SSLKeyStoreOptions.getTempCertFolder());
 	}
 
+	public int getJobManagerPort() {
+		return jobManagerPort;
+	}
+
+	public int getPopJavaDeamonPort() {
+		return popJavaDeamonPort;
+	}
+
 
 
 	
 	public void setSystemJobManagerConfig(File systemJobManagerConfig) {
 		USER_PROPERTIES.setProperty(Settable.SYSTEM_JOBMANAGER_CONFIG.name(), systemJobManagerConfig.toString());
-		systemJobManagerConfig = systemJobManagerConfig;
+		this.systemJobManagerConfig = systemJobManagerConfig;
 	}
 
 	public void setUserConfig(File userConfig) {
-		userConfig = userConfig;
+		this.userConfig = userConfig;
 		usingUserConfig = true;
 	}
 
 	public void setDebug(boolean debug) {
 		USER_PROPERTIES.setProperty(Settable.DEBUG.name(), String.valueOf(debug));
-		debug = debug;
+		this.debug = debug;
 	}
 
 	public void setDebugCombox(boolean debugCombox) {
 		USER_PROPERTIES.setProperty(Settable.DEBUG_COMBOBOX.name(), String.valueOf(debugCombox));
-		debugCombox = debugCombox;
+		this.debugCombox = debugCombox;
 	}
 
 	public void setReserveTimeout(int reserveTimeout) {
 		USER_PROPERTIES.setProperty(Settable.RESERVE_TIMEOUT.name(), String.valueOf(reserveTimeout));
-		reserveTimeout = reserveTimeout;
+		this.reserveTimeout = reserveTimeout;
 	}
 
 	public void setAllocTimeout(int allocTimeout) {
 		USER_PROPERTIES.setProperty(Settable.ALLOC_TIMEOUT.name(), String.valueOf(allocTimeout));
-		allocTimeout = allocTimeout;
+		this.allocTimeout = allocTimeout;
 	}
 
 	public void setConnectionTimeout(int connectionTimeout) {
 		USER_PROPERTIES.setProperty(Settable.CONNECTION_TIMEOUT.name(), String.valueOf(connectionTimeout));
-		connectionTimeout = connectionTimeout;
+		this.connectionTimeout = connectionTimeout;
 	}
 
 	public void setJobManagerUpdateInterval(int jobManagerUpdateInterval) {
 		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_UPDATE_INTERVAL.name(), String.valueOf(jobManagerUpdateInterval));
-		jobManagerUpdateInterval = jobManagerUpdateInterval;
+		this.jobManagerUpdateInterval = jobManagerUpdateInterval;
 	}
 
 	public void setJobManagerSelfRegisterInterval(int jobManagerSelfRegisterInterval) {
 		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_SELF_REGISTER_INTERVAL.name(), String.valueOf(jobManagerSelfRegisterInterval));
-		jobManagerSelfRegisterInterval = jobManagerSelfRegisterInterval;
+		this.jobManagerSelfRegisterInterval = jobManagerSelfRegisterInterval;
 	}
 
 	public void setJobManagerDefaultConnector(String jobManagerDefaultConnector) {
 		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_DEFAULT_CONNECTOR.name(), String.valueOf(jobManagerDefaultConnector));
-		jobManagerDefaultConnector = jobManagerDefaultConnector;
+		this.jobManagerDefaultConnector = jobManagerDefaultConnector;
 	}
 
 	public void setSearchNodeUnlockTimeout(int searchNodeUnlockTimeout) {
 		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_UNLOCK_TIMEOUT.name(), String.valueOf(searchNodeUnlockTimeout));
-		searchNodeUnlockTimeout = searchNodeUnlockTimeout;
+		this.searchNodeUnlockTimeout = searchNodeUnlockTimeout;
 	}
 
 	public void setSearchNodeSearchTimeout(int searchNodeSearchTimeout) {
 		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_SEARCH_TIMEOUT.name(), String.valueOf(searchNodeSearchTimeout));
-		searchNodeSearchTimeout = searchNodeSearchTimeout;
+		this.searchNodeSearchTimeout = searchNodeSearchTimeout;
 	}
 
 	public void setTFCSearchTimeout(int tfcSearchTimeout) {
 		USER_PROPERTIES.setProperty(Settable.TFC_SEARCH_TIMEOUT.name(), String.valueOf(tfcSearchTimeout));
-		tfcSearchTimeout = tfcSearchTimeout;
+		this.tfcSearchTimeout = tfcSearchTimeout;
 	}
 
 	public void setSearchNodeMaxRequests(int searchNodeMaxRequests) {
 		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_MAX_REQUESTS.name(), String.valueOf(searchNodeMaxRequests));
-		searchNodeMaxRequests = searchNodeMaxRequests;
+		this.searchNodeMaxRequests = searchNodeMaxRequests;
 	}
 
 	public void setSearchNodeExplorationQueueSize(int searchNodeExplorationQueueSize) {
 		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_EXPLORATION_QUEUE_SIZE.name(), String.valueOf(searchNodeExplorationQueueSize));
-		searchNodeExplorationQueueSize = searchNodeExplorationQueueSize;
+		this.searchNodeExplorationQueueSize = searchNodeExplorationQueueSize;
 	}
 
 	public void setDefaultEncoding(String defaultEncoding) {
 		USER_PROPERTIES.setProperty(Settable.DEFAULT_ENCODING.name(), defaultEncoding);
-		defaultEncoding = defaultEncoding;
+		this.defaultEncoding = defaultEncoding;
 	}
 
 	public void setSelectedEncoding(String selectedEncoding) {
 		USER_PROPERTIES.setProperty(Settable.SELECTED_ENCODING.name(), selectedEncoding);
-		selectedEncoding = selectedEncoding;
+		this.selectedEncoding = selectedEncoding;
 	}
 
 	public void setDefaultProtocol(String defaultProtocol) {
 		USER_PROPERTIES.setProperty(Settable.DEFAULT_PROTOCOL.name(), defaultProtocol);
-		defaultProtocol = defaultProtocol;
+		this.defaultProtocol = defaultProtocol;
 	}
 
 	public void setAsyncConstructor(boolean asyncConstructor) {
 		USER_PROPERTIES.setProperty(Settable.ASYNC_CONSTRUCTOR.name(), String.valueOf(asyncConstructor));
-		asyncConstructor = asyncConstructor;
+		this.asyncConstructor = asyncConstructor;
 	}
 
 	public void setActivateJmx(boolean activateJmx) {
 		USER_PROPERTIES.setProperty(Settable.ACTIVATE_JMX.name(), String.valueOf(activateJmx));
-		activateJmx = activateJmx;
+		this.activateJmx = activateJmx;
 	}
 
 	public void setConnectToPOPcpp(boolean connectToPOPcpp) {
 		USER_PROPERTIES.setProperty(Settable.CONNECT_TO_POPCPP.name(), String.valueOf(connectToPOPcpp));
-		connectToPOPcpp = connectToPOPcpp;
+		this.connectToPOPcpp = connectToPOPcpp;
 	}
 
 	public void setConnectToJavaJobmanager(boolean connectToJavaJobmanager) {
 		USER_PROPERTIES.setProperty(Settable.CONNECT_TO_JAVA_JOBMANAGER.name(), String.valueOf(connectToJavaJobmanager));
-		connectToJavaJobmanager = connectToJavaJobmanager;
+		this.connectToJavaJobmanager = connectToJavaJobmanager;
 	}
 
 	public void setRedirectOutputToRoot(boolean redirectOutputToRoot) {
 		USER_PROPERTIES.setProperty(Settable.REDIRECT_OUTPUT_TO_ROOT.name(), String.valueOf(redirectOutputToRoot));
-		redirectOutputToRoot = redirectOutputToRoot;
+		this.redirectOutputToRoot = redirectOutputToRoot;
 	}
 
 	public void setUseNativeSSHifPossible(boolean useNativeSSHifPossible) {
 		USER_PROPERTIES.setProperty(Settable.USE_NATIVE_SSH_IF_POSSIBLE.name(), String.valueOf(useNativeSSHifPossible));
-		useNativeSSHifPossible = useNativeSSHifPossible;
+		this.useNativeSSHifPossible = useNativeSSHifPossible;
 	}
 
 	public void setSSLProtocolVersion(String SSLProtocolVersion) {
 		USER_PROPERTIES.setProperty(Settable.SSL_PROTOCOL_VERSION.name(), SSLProtocolVersion);
-		SSLProtocolVersion = SSLProtocolVersion;
+		this.SSLProtocolVersion = SSLProtocolVersion;
 	}
 
 	public void setKeyStoreFile(File file) {
@@ -429,8 +442,18 @@ public final class Configuration {
 		SSLKeyStoreOptions.setTempCertFolder(file.toString());
 	}
 	
-	public void setKeyStoreOptions(KeyStoreOptions options) {
+	public void setSSLKeyStoreOptions(KeyStoreOptions options) {
 		SSLKeyStoreOptions = new KeyStoreOptions(options);
+	}
+
+	public void setJobManagerPort(int jobManagerPort) {
+		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_PORT.name(), String.valueOf(jobManagerPort));
+		this.jobManagerPort = jobManagerPort;
+	}
+
+	public void setPopJavaDeamonPort(int popJavaDeamonPort) {
+		USER_PROPERTIES.setProperty(Settable.POP_JAVA_DEAMON_PORT.name(), String.valueOf(popJavaDeamonPort));
+		this.popJavaDeamonPort = popJavaDeamonPort;
 	}
 	
 	
@@ -459,10 +482,10 @@ public final class Configuration {
 			return;
 		}
 		
-		// merge previous values
+		// merge manually set values
 		ALL_PROPERTIES.putAll(USER_PROPERTIES);
 		
-		// load user config and merge with all
+		// load user config and merge with all		
 		if (usingUserConfig) {
 			try (InputStream in = new FileInputStream(file)) {
 				USER_PROPERTIES.load(in);
@@ -503,6 +526,8 @@ public final class Configuration {
 						case JOBMANAGER_UPDATE_INTERVAL:         jobManagerUpdateInterval = Integer.parseInt(value); break;
 						case JOBMANAGER_SELF_REGISTER_INTERVAL:  jobManagerSelfRegisterInterval = Integer.parseInt(value); break;
 						case JOBMANAGER_DEFAULT_CONNECTOR:       jobManagerDefaultConnector = value; break;
+						case JOBMANAGER_PORT:                    jobManagerPort = Integer.parseInt(value); break;
+						case POP_JAVA_DEAMON_PORT:               popJavaDeamonPort = Integer.parseInt(value); break;
 						case SEARCH_NODE_UNLOCK_TIMEOUT:         searchNodeUnlockTimeout = Integer.parseInt(value); break;
 						case SEARCH_NODE_SEARCH_TIMEOUT:         searchNodeSearchTimeout = Integer.parseInt(value); break;
 						case SEARCH_NODE_MAX_REQUESTS:           searchNodeMaxRequests = Integer.parseInt(value); break;

@@ -33,9 +33,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
 import popjava.combox.ComboxSocketFactory;
 import popjava.service.jobmanager.POPJavaAppService;
-import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.serviceadapter.POPAppService;
-import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -328,7 +326,7 @@ public class POPSystem {
         }
     }    
 
-	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
+	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), conf.getJobManagerPort());
 	private static String codeconf;
 	private static String appservicecode;
 	private static String proxy;

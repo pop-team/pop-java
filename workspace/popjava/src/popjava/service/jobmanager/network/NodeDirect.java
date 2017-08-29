@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import popjava.service.deamon.POPJavaDeamon;
 import popjava.service.jobmanager.connector.POPConnectorDirect;
+import popjava.util.Configuration;
 import popjava.util.Util;
 
 /**
@@ -73,7 +73,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 		this.daemon = protocol != null && protocol.equals("daemon");
 		this.daemonSecret = secret;
 		// by default 22 if ssh, 43424 if daemon
-		this.port = !this.daemon ? 22 : POPJavaDeamon.POP_JAVA_DEAMON_PORT;
+		this.port = !this.daemon ? 22 : Configuration.getInstance().getPopJavaDeamonPort();
 		// port need to be parsed
 		if (portString != null) {
 			try {

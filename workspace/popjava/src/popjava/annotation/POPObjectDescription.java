@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 import popjava.baseobject.ConnectionProtocol;
 
 import popjava.baseobject.ConnectionType;
-import popjava.util.Configuration;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)

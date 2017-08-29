@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Set;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
-import popjava.serviceadapter.POPJobManager;
 import popjava.util.Configuration;
 import popjava.util.Util;
 
@@ -55,7 +54,7 @@ public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManage
 		}
 
 		// some sane defaults
-		port = POPJobManager.DEFAULT_PORT;
+		port = conf.getJobManagerPort();
 		if (portString != null) {
 			try {
 				port = Integer.parseInt(portString);

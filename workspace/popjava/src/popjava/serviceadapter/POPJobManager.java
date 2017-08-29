@@ -19,11 +19,6 @@ import popjava.dataswaper.POPString;
 public class POPJobManager extends POPJobService {
 
 	/**
-	 * Default running port of the JobMgr service
-	 */
-	public static final int DEFAULT_PORT = 2711;
-
-	/**
 	 * Default constructor of POPJobManager.
 	 * Create a POP-C++ object JobMgr
 	 */

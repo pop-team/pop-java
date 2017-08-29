@@ -54,7 +54,7 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 		}
 		
 		// some sane defaults
-		port = POPJobManager.DEFAULT_PORT;
+		port = conf.getJobManagerPort();
 		if (portString != null) {
 			try {
 				port = Integer.parseInt(portString);

@@ -28,6 +28,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import popjava.system.POPJavaConfiguration;
+import popjava.util.Configuration;
 import popjava.util.SystemUtil;
 
 /**
@@ -41,7 +42,6 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	private static final String salt = "POPSALT";
 	
 	public static final String SUCCESS = "OK";
-	public static final int POP_JAVA_DEAMON_PORT = 43424;
 	private ServerSocket serverSocket;
 	private int port;
 	private String password = "";
@@ -86,7 +86,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	}
 	
 	public POPJavaDeamon(String password){
-		this(password, POP_JAVA_DEAMON_PORT);
+		this(password, Configuration.getInstance().getPopJavaDeamonPort());
 	}
 	
 	public POPJavaDeamon(String password, int port){

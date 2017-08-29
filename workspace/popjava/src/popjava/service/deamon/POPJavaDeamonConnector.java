@@ -16,6 +16,8 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.IllegalBlockSizeException;
 
+import popjava.util.Configuration;
+
 /**
  * Connector class for the POPJavaDeamon.
  * Connects to the remote deamon and starts a command
@@ -27,7 +29,7 @@ public class POPJavaDeamonConnector {
 	private final Socket socket;
 	
 	public POPJavaDeamonConnector(String url) throws UnknownHostException, IOException{
-		this(url, POPJavaDeamon.POP_JAVA_DEAMON_PORT);
+		this(url, Configuration.getInstance().getPopJavaDeamonPort());
 	}
 	
 	public POPJavaDeamonConnector(String url, int port) throws UnknownHostException, IOException{
