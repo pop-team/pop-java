@@ -15,6 +15,7 @@ import popjava.util.Configuration;
 public class SNExploration implements IPOPBase {
 
 	private final LinkedList<POPAccessPoint> visited = new LinkedList<>();
+	private final Configuration conf = Configuration.getInstance();
 
 	public SNExploration() {
 	}
@@ -34,7 +35,7 @@ public class SNExploration implements IPOPBase {
 	}
 
 	public boolean add(POPAccessPoint e) {
-		if (visited.size() >= Configuration.getSearchNodeExplorationQueueSize()) {
+		if (visited.size() >= conf.getSearchNodeExplorationQueueSize()) {
 			visited.pop();
 		}
 		return visited.add(e);

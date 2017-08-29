@@ -70,6 +70,8 @@ import static java.lang.Math.min;
 @POPClass
 public class POPJavaJobManager extends POPJobService {
 	
+	private final Configuration conf = Configuration.getInstance();
+	
 	/** The configuration file location */
 	protected String configurationFile;
 
@@ -120,15 +122,15 @@ public class POPJavaJobManager extends POPJobService {
 	 * Do not call this directly, way too many methods to this so no init was added.
 	 */
 	public POPJavaJobManager() {
-		//init(Configuration.DEFAULT_JM_CONFIG_FILE);
-		configurationFile = Configuration.getSystemJobManagerConfig().toString();
+		//init(conf.DEFAULT_JM_CONFIG_FILE);
+		configurationFile = conf.getSystemJobManagerConfig().toString();
 	}
 
 	// may also want to use  -XX:MaxHeapFreeRatio=?? -XX:MinHeapFreeRatio=??  if fine tuned
 	@POPObjectDescription(jvmParameters = "-Xmx512m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url) {
-		configurationFile = Configuration.getSystemJobManagerConfig().toString();
-		init(Configuration.getSystemJobManagerConfig().toString());
+		configurationFile = conf.getSystemJobManagerConfig().toString();
+		init(conf.getSystemJobManagerConfig().toString());
 	}
 
 	@POPObjectDescription(jvmParameters = "-Xmx512m")
@@ -622,7 +624,7 @@ public class POPJavaJobManager extends POPJobService {
 			app.setReqId(reqID);
 			app.setNetwork(od.getNetwork());
 			// reservation time
-			app.setAccessTime(System.currentTimeMillis() + Configuration.getAllocTimeout());
+			app.setAccessTime(System.currentTimeMillis() + conf.getAllocTimeout());
 
 			// add job
 			jobs.put(app.getId(), app);
@@ -747,7 +749,7 @@ public class POPJavaJobManager extends POPJobService {
 			try {
 				selfRegister();
 				update();
-				Thread.sleep(Configuration.getJobManagerUpdateInterval());
+				Thread.sleep(conf.getJobManagerUpdateInterval());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -916,7 +918,7 @@ public class POPJavaJobManager extends POPJobService {
 				}
 			}
 		} finally {
-			nextSelfRegister = System.currentTimeMillis() + Configuration.getJobManagerSelfRegisterInterval();
+			nextSelfRegister = System.currentTimeMillis() + conf.getJobManagerSelfRegisterInterval();
 		}
 	}
 	
@@ -1108,7 +1110,7 @@ public class POPJavaJobManager extends POPJobService {
 				AppResource job = iterator.next();
 				// job not started after timeout
 				if (!job.isUsed()) {
-					if (job.getAccessTime() + Configuration.getReserveTimeout() > System.currentTimeMillis()) {
+					if (job.getAccessTime() + conf.getReserveTimeout() > System.currentTimeMillis()) {
 						// manually remove from iterator
 						available.add(job);
 						iterator.remove();
@@ -1116,7 +1118,7 @@ public class POPJavaJobManager extends POPJobService {
 					}
 				} // dead objects check with min UPDATE_MIN_INTERVAL time between them
 				else if (job.getAccessTime() < System.currentTimeMillis()) {
-					job.setAccessTime(System.currentTimeMillis() + Configuration.getJobManagerUpdateInterval());
+					job.setAccessTime(System.currentTimeMillis() + conf.getJobManagerUpdateInterval());
 					try {
 						// connection to object ok
 						Interface obj = new Interface(job.getContact());
@@ -1131,7 +1133,7 @@ public class POPJavaJobManager extends POPJobService {
 			}
 		} finally {
 			// set next update
-			nextUpdate = System.currentTimeMillis() + Configuration.getJobManagerUpdateInterval();
+			nextUpdate = System.currentTimeMillis() + conf.getJobManagerUpdateInterval();
 			mutex.unlock();
 		}
 	}
@@ -1424,7 +1426,7 @@ public class POPJavaJobManager extends POPJobService {
 	////
 	
 	/** UID of requests to SN */
-	private final LinkedBlockingDeque<String> SNKnownRequests = new LinkedBlockingDeque<>(Configuration.getSearchNodeMaxRequests());
+	private final LinkedBlockingDeque<String> SNKnownRequests = new LinkedBlockingDeque<>(conf.getSearchNodeMaxRequests());
 	/** Answering nodes for a search request */
 	private final Map<String, SNNodesInfo> SNActualRequets = new HashMap<>();
 	/** Semaphores for non-timed requests */
@@ -1478,7 +1480,7 @@ public class POPJavaJobManager extends POPJobService {
 					@Override
 					public void run() {
 						try {
-							Thread.sleep(Configuration.getSearchNodeUnlockTimeout());
+							Thread.sleep(conf.getSearchNodeUnlockTimeout());
 							unlockDiscovery(request.getUID());
 						} catch (InterruptedException e) {
 						}
@@ -1528,7 +1530,7 @@ public class POPJavaJobManager extends POPJobService {
 			}
 
 			// decrease the hop we can still do
-			if (request.getRemainingHops() != Configuration.getSearchNodeUnlimitedHops()) {
+			if (request.getRemainingHops() != conf.getSearchNodeUnlimitedHops()) {
 				request.decreaseHopLimit();
 			}
 			
@@ -1556,7 +1558,7 @@ public class POPJavaJobManager extends POPJobService {
 			// used to kill the application from all JMs
 			if (request.isEndRequest()) {
 				// check if we can continue discovering
-				if (request.getRemainingHops() >= 0 || request.getRemainingHops() == Configuration.getSearchNodeUnlimitedHops()) {
+				if (request.getRemainingHops() >= 0 || request.getRemainingHops() == conf.getSearchNodeUnlimitedHops()) {
 					// propagate to all neighbors
 					for (POPNetworkNode node : network.getMembers(connectorUsed)) {
 						// only JM items and children
@@ -1593,7 +1595,7 @@ public class POPJavaJobManager extends POPJobService {
 			SNKnownRequests.push(request.getUID());
 
 			// remove older elements
-			if (SNKnownRequests.size() > Configuration.getSearchNodeMaxRequests()) {
+			if (SNKnownRequests.size() > conf.getSearchNodeMaxRequests()) {
 				SNKnownRequests.pollLast();
 			}
 
@@ -1601,7 +1603,7 @@ public class POPJavaJobManager extends POPJobService {
 			snEnableConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
 
 			// propagate in the network if we still can
-			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == Configuration.getSearchNodeUnlimitedHops()) {
+			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == conf.getSearchNodeUnlimitedHops()) {
 				// add current node do wayback
 				request.getWayback().push(getAccessPoint());
 				// request to all members of the network

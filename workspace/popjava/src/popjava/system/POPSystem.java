@@ -68,8 +68,10 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint appServiceAccessPoint = new POPAccessPoint();
 	
+	private static final Configuration conf = Configuration.getInstance();
+	
 	public static void writeLog(String log){
-		if(!Configuration.isDebug()){
+		if(!conf.isDebug()){
 			System.out.println(log);
 		}
 		LogWriter.writeDebugInfo(log);
@@ -304,7 +306,7 @@ public class POPSystem {
                 POPJavaConfiguration.getPopJavaJar(),
                 getNeededClasspath());
         
-        if(Configuration.isConnectToJavaJobmanager()){
+        if(conf.isConnectToJavaJobmanager()){
         	//jobmanager = PopJava.newActive(POPJavaJobManager.class, new POPAccessPoint("localhost:"+POPJobManager.DEFAULT_PORT));
         }
         
@@ -363,7 +365,7 @@ public class POPSystem {
 				url = String.format("%s -proxy=%s", appservicecode, proxy);
 			}
 			
-			if(Configuration.isConnectToPOPcpp() && 
+			if(conf.isConnectToPOPcpp() && 
 			        (appservicecode.contains(" ") || new File(appservicecode).exists())){
 				try{
 					return createAppCoreService(url);

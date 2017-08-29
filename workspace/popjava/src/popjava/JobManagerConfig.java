@@ -27,9 +27,10 @@ import popjava.util.LogWriter;
 public class JobManagerConfig {
 
 	private final POPJavaJobManager jobManager;
+	private final Configuration conf = Configuration.getInstance();
 
 	public JobManagerConfig() {
-		String protocol = Configuration.getDefaultProtocol();
+		String protocol = conf.getDefaultProtocol();
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
 			protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
 		jobManager = PopJava.newActive(POPJavaJobManager.class, jma);

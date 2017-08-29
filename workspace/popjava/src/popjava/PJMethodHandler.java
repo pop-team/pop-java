@@ -52,6 +52,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	
 	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
 
+	private final Configuration conf = Configuration.getInstance();
+	
 	/**
 	 * Associate an POPObject with this handler
 	 * @param popObject	The POPObject to associate
@@ -141,7 +143,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		
 		POPClass annotation = targetClass.getAnnotation(POPClass.class);
 		
-		if(Configuration.isAsyncConstructor() && (annotation == null || annotation.useAsyncConstructor())){
+		if(conf.isAsyncConstructor() && (annotation == null || annotation.useAsyncConstructor())){
 			POPSystem.startAsyncConstructor(constructorRunnable);
 		}else{
 			constructorRunnable.run();

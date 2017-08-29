@@ -197,7 +197,8 @@ public class Popjrun {
 		
 		arguments.add(0, classPath);
 		arguments.add(0, "-cp");
-		if (Configuration.isActivateJmx()) {
+		Configuration conf = Configuration.getInstance();
+		if (conf.isActivateJmx()) {
 			arguments.add(0, "-Dcom.sun.management.jmxremote.port=3333");
 			arguments.add(0, "-Dcom.sun.management.jmxremote.ssl=false");
 			arguments.add(0,

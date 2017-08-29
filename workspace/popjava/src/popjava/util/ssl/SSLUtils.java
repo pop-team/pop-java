@@ -66,6 +66,8 @@ public class SSLUtils {
 	private static SSLContext sslContextInstance = null;
 	/** Factory to create X.509 certificate from RSA text input */
 	private static CertificateFactory certFactory;
+	
+	private static final Configuration conf = Configuration.getInstance();
 
 	
 	// static initialization of objects
@@ -91,7 +93,7 @@ public class SSLUtils {
 	 */
 	private static KeyStore loadKeyStore() throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
 		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-		keyStore.load(new FileInputStream(Configuration.getKeyStoreFile()), Configuration.getKeyStorePassword().toCharArray());
+		keyStore.load(new FileInputStream(conf.getKeyStoreFile()), conf.getKeyStorePassword().toCharArray());
 		return keyStore;
 	}
 	
@@ -106,7 +108,7 @@ public class SSLUtils {
 	 * @throws Exception 
 	 */
 	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, Exception {
-		keyStore.store(new FileOutputStream(Configuration.getKeyStoreFile()), Configuration.getKeyStorePassword().toCharArray());
+		keyStore.store(new FileOutputStream(conf.getKeyStoreFile()), conf.getKeyStorePassword().toCharArray());
 		POPTrustManager.getInstance().reloadTrustManager();
 	}
 	
@@ -128,11 +130,11 @@ public class SSLUtils {
 			// load private key
 			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.getKeyStorePrivateKeyPassword().toCharArray());
+			keyManagerFactory.init(keyStore, conf.getKeyStorePrivateKeyPassword().toCharArray());
 			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 
 			// init ssl context with everything
-			sslContextInstance = SSLContext.getInstance(Configuration.getSSLProtocolVersion());
+			sslContextInstance = SSLContext.getInstance(conf.getSSLProtocolVersion());
 			sslContextInstance.init(keyManagerFactory.getKeyManagers(), trustManagers, new SecureRandom());
 		}
 
@@ -353,7 +355,7 @@ public class SSLUtils {
 			String outName = fingerprint + ".cer";
 			
 			// certificates temprary path
-			Path path = Paths.get(Configuration.getKeyStoreTempLocation().toString(), outName);
+			Path path = Paths.get(conf.getKeyStoreTempLocation().toString(), outName);
 			// move to local directory
 			Files.write(path, certificate);
 			

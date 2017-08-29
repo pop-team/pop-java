@@ -37,6 +37,8 @@ public class ComboxFactoryFinder {
 	private final String PackageNodeName = "Package";
 	private final String JarAttributeName = "JarFile";
 	private final String ComboxFactoryNodeName = "ComboxFactory";
+	
+	private final Configuration conf = Configuration.getInstance();
 
 	/**
 	 * Default constructor
@@ -141,7 +143,7 @@ public class ComboxFactoryFinder {
 	 */
 	public ComboxFactory findFactory(String factoryName) {
 		if (factoryName == null || factoryName.isEmpty())
-			factoryName = Configuration.getDefaultProtocol();
+			factoryName = conf.getDefaultProtocol();
 		factoryName = factoryName.toLowerCase();
 		if (comboxFactoryList.containsKey(factoryName)) {
 			return comboxFactoryList.get(factoryName);

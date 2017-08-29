@@ -20,6 +20,8 @@ public abstract class Combox {
 	
 	protected POPRemoteCaller remoteCaller;
 	
+	protected final Configuration conf = Configuration.getInstance();
+	
 	/**
 	 * Default constructor
 	 */
@@ -35,7 +37,7 @@ public abstract class Combox {
 	public Combox(POPAccessPoint accesspoint, int timeout) {
 		accessPoint = accesspoint;
 		timeOut = timeout;
-		bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.getDefaultEncoding());
+		bufferFactory = BufferFactoryFinder.getInstance().findFactory(conf.getDefaultEncoding());
 	}
 
 	/**

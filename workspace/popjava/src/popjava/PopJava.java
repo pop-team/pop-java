@@ -23,6 +23,8 @@ import popjava.util.POPRemoteCaller;
  *
  */
 public class PopJava {
+	
+	private static final Configuration conf = Configuration.getInstance();
 
 	private PopJava() {
 	}
@@ -140,7 +142,7 @@ public class PopJava {
 	 */
 	private static POPJavaJobManager getLocalJobManager() {
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-		String protocol = Configuration.getDefaultProtocol();
+		String protocol = conf.getDefaultProtocol();
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", 
 				protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
 		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);

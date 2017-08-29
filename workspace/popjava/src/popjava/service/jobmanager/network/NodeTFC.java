@@ -20,6 +20,7 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 	private int port;
 	private String protocol;
 	private boolean initialized = true;
+	private final Configuration conf = Configuration.getInstance();
 
 	public NodeTFC(String host, int port, String protocol) {
 		super(POPConnectorTFC.IDENTITY, POPConnectorTFC.class);
@@ -49,7 +50,7 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 		}
 		
 		if (protocol == null) {
-			protocol = Configuration.getDefaultProtocol();
+			protocol = conf.getDefaultProtocol();
 		}
 		
 		// some sane defaults

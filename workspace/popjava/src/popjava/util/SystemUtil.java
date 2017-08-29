@@ -16,6 +16,7 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 public class SystemUtil {
 	
 	private static List<Process> processes = new ArrayList<Process>();
+	private static final Configuration conf = Configuration.getInstance();
 
 	public static void endAllChildren(){
 		for(int i = 0; i < processes.size(); i++){
@@ -40,7 +41,7 @@ public class SystemUtil {
 		}
 		
 		ProcessBuilder pb = new ProcessBuilder(argvs);
-		if(Configuration.isRedirectOutputToRoot()){
+		if(conf.isRedirectOutputToRoot()){
 			pb = pb.inheritIO();
 		}else{
 			pb.redirectErrorStream(true);
@@ -116,7 +117,7 @@ public class SystemUtil {
 	}
 	
 	public static int runRemoteCmd(String url, List<String> command){
-		if(Configuration.isUseNativeSSHifPossible() && commandExists("ssh")){
+		if(conf.isUseNativeSSHifPossible() && commandExists("ssh")){
 			command.add(0, url);
 			command.add(0, "ssh");
 			
@@ -127,7 +128,7 @@ public class SystemUtil {
 	}
 	
 	public static int runRemoteCmd(String url, String port, List<String> command){
-		if(Configuration.isUseNativeSSHifPossible() && commandExists("ssh")){
+		if(conf.isUseNativeSSHifPossible() && commandExists("ssh")){
 			command.add(0, url);
 			command.add(0, "-p " + port);
 			command.add(0, "ssh");

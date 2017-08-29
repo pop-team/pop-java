@@ -20,7 +20,8 @@ public class PopjServices {
 	public static void main(String[] args) throws InterruptedException {
 
 		int port = 2711;
-		String config = Configuration.getSystemJobManagerConfig().getAbsolutePath();
+		Configuration conf = Configuration.getInstance();
+		String config = conf.getSystemJobManagerConfig().getAbsolutePath();
 
 		List<String> argl = new ArrayList<>(Arrays.asList(args));
 		for (Iterator<String> itr = argl.iterator(); itr.hasNext();) {

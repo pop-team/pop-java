@@ -32,16 +32,16 @@ public class MethodAccessTest {
 		try {
 			optionsTemporary = new KeyStoreOptions(String.format("%x@mynet", node.hashCode()), "mypass", "keypass", "test_store1.jks");
 			optionsTemporary.setTempCertFolder("temp1");
-			Configuration.SSL_KEY_STORE_OPTIONS = optionsTemporary;
+			conf.SSL_KEY_STORE_OPTIONS = optionsTemporary;
 			SSLUtils.generateKeyStore(optionsTemporary);
 
 			optionsTrusted = new KeyStoreOptions(String.format("%x@mynet2", node.hashCode()), "mypass", "keypass", "test_store2.jks");
 			optionsTrusted.setTempCertFolder("temp2");
-			Configuration.SSL_KEY_STORE_OPTIONS = optionsTrusted;
+			conf.SSL_KEY_STORE_OPTIONS = optionsTrusted;
 			SSLUtils.generateKeyStore(optionsTrusted);
 
 			// setup first keystore
-			Configuration.SSL_KEY_STORE_OPTIONS = optionsTemporary;
+			conf.SSL_KEY_STORE_OPTIONS = optionsTemporary;
 			Certificate opt1Pub = SSLUtils.getLocalPublicCertificate();
 
 			// write certificate to dir
@@ -67,7 +67,7 @@ public class MethodAccessTest {
 	
 	@Test
 	public void testTemporaryConnection() {
-		Configuration.SSL_KEY_STORE_OPTIONS = optionsTemporary;
+		conf.SSL_KEY_STORE_OPTIONS = optionsTemporary;
 		
 		A a = PopJava.newActive(A.class);	
 		assertFalse(a.isCallFromCL());
@@ -75,7 +75,7 @@ public class MethodAccessTest {
 	
 	@Test
 	public void testTrustedConnection() {
-		Configuration.SSL_KEY_STORE_OPTIONS = optionsTrusted;
+		conf.SSL_KEY_STORE_OPTIONS = optionsTrusted;
 		
 		A a = PopJava.newActive(A.class);
 		assertTrue(a.isCallFromCL());

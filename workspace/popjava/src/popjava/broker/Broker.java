@@ -67,6 +67,8 @@ public final class Broker {
         Abort
     }
 	
+	private final Configuration conf = Configuration.getInstance();
+	
 	static public final int REQUEST_QUEUE_TIMEOUT_MS = 600;
 	static public final int BASIC_CALL_MAX_RANGE = 10;
 	static public final int CONSTRUCTOR_SEMANTIC_ID = 21;
@@ -869,7 +871,7 @@ public final class Broker {
 		//TODO: LocalJVM objects need a way to specifiy the protocol(s), maybe as an annotation?
 		//TODO: Handle case where a port was specified, but the protocol is unavailable, throw exception
 		if(liveServers.isEmpty()){
-			ComboxFactory factory = finder.findFactory(Configuration.getDefaultProtocol());
+			ComboxFactory factory = finder.findFactory(conf.getDefaultProtocol());
 			
 			AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
 			accessPoint.addAccessPoint(ap);
@@ -941,10 +943,11 @@ public final class Broker {
 		String userConfiguration = Util.removeStringFromList(argvList, 
 				POPJAVA_CONFIG_PREFIX);
 		
+		Configuration conf = Configuration.getInstance();
 		if (userConfiguration != null) {
 			try {
 				File config = new File(userConfiguration);
-				Configuration.load(config);
+				conf.load(config);
 			} catch(IOException e) {
 				LogWriter.writeDebugInfo("[Broker] Couldn't load user config %s: %s", userConfiguration, e.getMessage());
 			}

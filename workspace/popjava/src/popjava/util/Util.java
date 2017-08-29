@@ -23,6 +23,7 @@ import popjava.system.POPSystem;
 public final class Util {
 	
 	private static final Random RANDOM = new SecureRandom();
+	private static final Configuration conf = Configuration.getInstance();
 
 	/**
 	 * Check if the two contact string are the same

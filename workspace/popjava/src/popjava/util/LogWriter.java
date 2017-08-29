@@ -16,6 +16,7 @@ public class LogWriter {
 	
 	private static final String LOG_FOLDER_NAME = "logFolder";
 	private static final String DEFAULT_LOCATION = "/usr/local/popj/"+LOG_FOLDER_NAME;
+	private static final Configuration conf = Configuration.getInstance();
 
 	/**
 	 * Process identifier
@@ -68,7 +69,7 @@ public class LogWriter {
 	}
 
 	public static synchronized void printDebug(String message){
-		if (Configuration.isDebug()) {
+		if (conf.isDebug()) {
 			System.out.println(message);
 		}
 	}
@@ -79,7 +80,7 @@ public class LogWriter {
 	 */
 	public synchronized static void writeDebugInfo(String info) {
 		
-		if (Configuration.isDebug()) {
+		if (conf.isDebug()) {
 			System.out.println(info);
 			logInfo(info);
 		}
@@ -92,7 +93,7 @@ public class LogWriter {
 	 */
 	public synchronized static void writeDebugInfo(String format, Object... args) {
 		
-		if (Configuration.isDebug()) {
+		if (conf.isDebug()) {
 			String formattedInfo = String.format(format, args);
 			System.out.println(formattedInfo);
 			logInfo(formattedInfo);
@@ -100,7 +101,7 @@ public class LogWriter {
 	}
 	
 	private static void logInfo(String info){
-		if (Configuration.isDebug()) {
+		if (conf.isDebug()) {
 			info = pid + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
 			info += "\r\n";
 			String path = String.format("%s%s%s.txt", logFolder, File.separator, prefix);
@@ -114,7 +115,7 @@ public class LogWriter {
 	 * @param e The exception to be logged
 	 */
 	public static void writeExceptionLog(Throwable e){
-		if(Configuration.isDebug()){
+		if(conf.isDebug()){
 			e.printStackTrace();
 		}
 		logInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());

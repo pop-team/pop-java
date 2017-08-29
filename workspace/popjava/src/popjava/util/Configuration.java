@@ -16,7 +16,7 @@ import popjava.util.ssl.KeyStoreOptions.KeyStoreFormat;
 /**
  * This class regroup some configuration values
  */
-public class Configuration {
+public final class Configuration {
 	
 	/**
 	 * Settable parameters for load and store options
@@ -54,6 +54,9 @@ public class Configuration {
 		SSL_KEY_STORE_TEMP_LOCATION,
 	}
 	
+	// instance
+	private static Configuration instance;
+	
 	// Location of POPJava installation
 	private static final String POPJAVA_LOCATION;
 	static {
@@ -67,57 +70,53 @@ public class Configuration {
 	
 	// config files
 	private static final File SYSTEM_CONFIG	     = Paths.get(POPJAVA_LOCATION, "etc", "popjava.properties").toFile();
-	private static File systemJobManagerConfig   = Paths.get(POPJAVA_LOCATION, "etc", "jobmgr.conf").toFile();
+	private File systemJobManagerConfig   = Paths.get(POPJAVA_LOCATION, "etc", "jobmgr.conf").toFile();
 	
 	// properties set by the user are found here
-	private static File userConfig = null;
-	private static boolean usingUserConfig = false;
-	private static final Properties USER_PROPERTIES = new Properties();
-	private static final Properties ALL_PROPERTIES = new Properties();
+	private File userConfig = null;
+	private boolean usingUserConfig = false;
+	private final Properties USER_PROPERTIES = new Properties();
+	private final Properties ALL_PROPERTIES = new Properties();
 	
 	// user configurable attributes w/ POP's defaults
-	private static boolean debug = true;
-	private static boolean debugCombox = false;
-	private static int reserveTimeout = 60000;
-	private static int allocTimeout = 30000;
-	private static int connectionTimeout = 30000;
+	private boolean debug = true;
+	private boolean debugCombox = false;
+	private int reserveTimeout = 60000;
+	private int allocTimeout = 30000;
+	private int connectionTimeout = 30000;
 	
-	private static int jobManagerUpdateInterval = 10000;
-	private static int jobManagerSelfRegisterInterval = 43_200_000;
-	private static String jobManagerDefaultConnector = POPConnectorJobManager.IDENTITY;
-	private static int searchNodeUnlockTimeout = 10000;
-	private static int searchNodeSearchTimeout = 0;
-	private static int tfcSearchTimeout = 5000;
-	private static int searchNodeUnlimitedHops = Integer.MAX_VALUE;
-	private static int searchNodeMaxRequests = 300;
-	private static int searchNodeExplorationQueueSize = 300;
+	private int jobManagerUpdateInterval = 10000;
+	private int jobManagerSelfRegisterInterval = 43_200_000;
+	private String jobManagerDefaultConnector = POPConnectorJobManager.IDENTITY;
+	private int searchNodeUnlockTimeout = 10000;
+	private int searchNodeSearchTimeout = 0;
+	private int tfcSearchTimeout = 5000;
+	private int searchNodeUnlimitedHops = Integer.MAX_VALUE;
+	private int searchNodeMaxRequests = 300;
+	private int searchNodeExplorationQueueSize = 300;
 	
-	private static String defaultEncoding = "xdr";
-	private static String selectedEncoding = "raw";
-	private static String defaultProtocol = ConnectionProtocol.SOCKET.getName();
+	private String defaultEncoding = "xdr";
+	private String selectedEncoding = "raw";
+	private String defaultProtocol = ConnectionProtocol.SOCKET.getName();
 
-	private static boolean asyncConstructor = true;
-	private static boolean activateJmx = false;
-	private static boolean connectToPOPcpp = false;
-	private static boolean connectToJavaJobmanager = !connectToPOPcpp;
+	private boolean asyncConstructor = true;
+	private boolean activateJmx = false;
+	private boolean connectToPOPcpp = false;
+	private boolean connectToJavaJobmanager = !connectToPOPcpp;
 	
-	private static boolean redirectOutputToRoot = true;
-	private static boolean useNativeSSHifPossible = true;
+	private boolean redirectOutputToRoot = true;
+	private boolean useNativeSSHifPossible = true;
 	
 	// all relevant information of the keystore (alias, keyStorePassword, privateKeyPassword, keyStoreLocation, keyStoreType, temporaryCertificatesDir)
-	private static final KeyStoreOptions SSL_KEY_STORE_OPTIONS = new KeyStoreOptions();
+	private KeyStoreOptions SSLKeyStoreOptions = new KeyStoreOptions();
 	
 	// NOTE this is waiting for TLSv1.3 to be officialized
-	private static String SSLProtocolVersion = "TLSv1.2";
+	private String SSLProtocolVersion = "TLSv1.2";
 
 	/**
-	 * We want a static class
+	 * This is a singleton
 	 */
 	private Configuration() {
-	}
-	
-	// initialization
-	static {
 		try {
 			load(SYSTEM_CONFIG);
 		} catch(IOException e) {
@@ -125,304 +124,314 @@ public class Configuration {
 		}
 	}
 
-	public static String getPOPJAVA_LOCATION() {
+	public static Configuration getInstance() {
+		if (Objects.isNull(instance)) {
+			instance = new Configuration();
+		}
+		return instance;
+	}
+
+	public String getPOPJAVA_LOCATION() {
 		return POPJAVA_LOCATION;
 	}
 
-	public static File getSystemJobManagerConfig() {
+	public File getSystemJobManagerConfig() {
 		return systemJobManagerConfig;
 	}
 
-	public static File getUserConfig() {
+	public File getUserConfig() {
 		return userConfig;
 	}
 
-	public static boolean isUsingUserConfig() {
+	public boolean isUsingUserConfig() {
 		return usingUserConfig;
 	}
 
-	public static boolean isDebug() {
+	public boolean isDebug() {
 		return debug;
 	}
 
-	public static boolean isDebugCombox() {
+	public boolean isDebugCombox() {
 		return debugCombox;
 	}
 
-	public static int getReserveTimeout() {
+	public int getReserveTimeout() {
 		return reserveTimeout;
 	}
 
-	public static int getAllocTimeout() {
+	public int getAllocTimeout() {
 		return allocTimeout;
 	}
 
-	public static int getConnectionTimeout() {
+	public int getConnectionTimeout() {
 		return connectionTimeout;
 	}
 
-	public static int getJobManagerUpdateInterval() {
+	public int getJobManagerUpdateInterval() {
 		return jobManagerUpdateInterval;
 	}
 
-	public static int getJobManagerSelfRegisterInterval() {
+	public int getJobManagerSelfRegisterInterval() {
 		return jobManagerSelfRegisterInterval;
 	}
 
-	public static String getJobManagerDefaultConnector() {
+	public String getJobManagerDefaultConnector() {
 		return jobManagerDefaultConnector;
 	}
 
-	public static int getSearchNodeUnlockTimeout() {
+	public int getSearchNodeUnlockTimeout() {
 		return searchNodeUnlockTimeout;
 	}
 
-	public static int getSearchNodeSearchTimeout() {
+	public int getSearchNodeSearchTimeout() {
 		return searchNodeSearchTimeout;
 	}
 
-	public static int getTFCSearchTimeout() {
+	public int getTFCSearchTimeout() {
 		return tfcSearchTimeout;
 	}
 
-	public static int getSearchNodeUnlimitedHops() {
+	public int getSearchNodeUnlimitedHops() {
 		return searchNodeUnlimitedHops;
 	}
 
-	public static int getSearchNodeMaxRequests() {
+	public int getSearchNodeMaxRequests() {
 		return searchNodeMaxRequests;
 	}
 
-	public static int getSearchNodeExplorationQueueSize() {
+	public int getSearchNodeExplorationQueueSize() {
 		return searchNodeExplorationQueueSize;
 	}
 
-	public static String getDefaultEncoding() {
+	public String getDefaultEncoding() {
 		return defaultEncoding;
 	}
 
-	public static String getSelectedEncoding() {
+	public String getSelectedEncoding() {
 		return selectedEncoding;
 	}
 
-	public static String getDefaultProtocol() {
+	public String getDefaultProtocol() {
 		return defaultProtocol;
 	}
 
-	public static boolean isAsyncConstructor() {
+	public boolean isAsyncConstructor() {
 		return asyncConstructor;
 	}
 
-	public static boolean isActivateJmx() {
+	public boolean isActivateJmx() {
 		return activateJmx;
 	}
 
-	public static boolean isConnectToPOPcpp() {
+	public boolean isConnectToPOPcpp() {
 		return connectToPOPcpp;
 	}
 
-	public static boolean isConnectToJavaJobmanager() {
+	public boolean isConnectToJavaJobmanager() {
 		return connectToJavaJobmanager;
 	}
 
-	public static boolean isRedirectOutputToRoot() {
+	public boolean isRedirectOutputToRoot() {
 		return redirectOutputToRoot;
 	}
 
-	public static boolean isUseNativeSSHifPossible() {
+	public boolean isUseNativeSSHifPossible() {
 		return useNativeSSHifPossible;
 	}
 
-	public static KeyStoreOptions getSSLKeyStoreOptions() {
-		return new KeyStoreOptions(SSL_KEY_STORE_OPTIONS);
+	public KeyStoreOptions getSSLKeyStoreOptions() {
+		return new KeyStoreOptions(SSLKeyStoreOptions);
 	}
 
-	public static String getSSLProtocolVersion() {
+	public String getSSLProtocolVersion() {
 		return SSLProtocolVersion;
 	}
 	
-	public static File getKeyStoreFile() {
-		return new File(SSL_KEY_STORE_OPTIONS.getKeyStoreFile());
+	public File getKeyStoreFile() {
+		return new File(SSLKeyStoreOptions.getKeyStoreFile());
 	}
 
-	public static String getKeyStorePassword() {
-		return SSL_KEY_STORE_OPTIONS.getStorePass();
+	public String getKeyStorePassword() {
+		return SSLKeyStoreOptions.getStorePass();
 	}
 
-	public static String getKeyStorePrivateKeyPassword() {
-		return SSL_KEY_STORE_OPTIONS.getKeyPass();
+	public String getKeyStorePrivateKeyPassword() {
+		return SSLKeyStoreOptions.getKeyPass();
 	}
 
-	public static String getKeyStoreLocalAlias() {
-		return SSL_KEY_STORE_OPTIONS.getAlias();
+	public String getKeyStoreLocalAlias() {
+		return SSLKeyStoreOptions.getAlias();
 	}
 
-	public static KeyStoreFormat getKeyStoreFormat() {
-		return SSL_KEY_STORE_OPTIONS.getKeyStoreFormat();
+	public KeyStoreFormat getKeyStoreFormat() {
+		return SSLKeyStoreOptions.getKeyStoreFormat();
 	}
 
-	public static File getKeyStoreTempLocation() {
-		return new File(SSL_KEY_STORE_OPTIONS.getTempCertFolder());
+	public File getKeyStoreTempLocation() {
+		return new File(SSLKeyStoreOptions.getTempCertFolder());
 	}
 
 
 
 	
-	public static void setSystemJobManagerConfig(File systemJobManagerConfig) {
+	public void setSystemJobManagerConfig(File systemJobManagerConfig) {
 		USER_PROPERTIES.setProperty(Settable.SYSTEM_JOBMANAGER_CONFIG.name(), systemJobManagerConfig.toString());
-		Configuration.systemJobManagerConfig = systemJobManagerConfig;
+		systemJobManagerConfig = systemJobManagerConfig;
 	}
 
-	public static void setUserConfig(File userConfig) {
-		Configuration.userConfig = userConfig;
-		Configuration.usingUserConfig = true;
+	public void setUserConfig(File userConfig) {
+		userConfig = userConfig;
+		usingUserConfig = true;
 	}
 
-	public static void setDebug(boolean debug) {
+	public void setDebug(boolean debug) {
 		USER_PROPERTIES.setProperty(Settable.DEBUG.name(), String.valueOf(debug));
-		Configuration.debug = debug;
+		debug = debug;
 	}
 
-	public static void setDebugCombox(boolean debugCombox) {
+	public void setDebugCombox(boolean debugCombox) {
 		USER_PROPERTIES.setProperty(Settable.DEBUG_COMBOBOX.name(), String.valueOf(debugCombox));
-		Configuration.debugCombox = debugCombox;
+		debugCombox = debugCombox;
 	}
 
-	public static void setReserveTimeout(int reserveTimeout) {
+	public void setReserveTimeout(int reserveTimeout) {
 		USER_PROPERTIES.setProperty(Settable.RESERVE_TIMEOUT.name(), String.valueOf(reserveTimeout));
-		Configuration.reserveTimeout = reserveTimeout;
+		reserveTimeout = reserveTimeout;
 	}
 
-	public static void setAllocTimeout(int allocTimeout) {
+	public void setAllocTimeout(int allocTimeout) {
 		USER_PROPERTIES.setProperty(Settable.ALLOC_TIMEOUT.name(), String.valueOf(allocTimeout));
-		Configuration.allocTimeout = allocTimeout;
+		allocTimeout = allocTimeout;
 	}
 
-	public static void setConnectionTimeout(int connectionTimeout) {
+	public void setConnectionTimeout(int connectionTimeout) {
 		USER_PROPERTIES.setProperty(Settable.CONNECTION_TIMEOUT.name(), String.valueOf(connectionTimeout));
-		Configuration.connectionTimeout = connectionTimeout;
+		connectionTimeout = connectionTimeout;
 	}
 
-	public static void setJobManagerUpdateInterval(int jobManagerUpdateInterval) {
+	public void setJobManagerUpdateInterval(int jobManagerUpdateInterval) {
 		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_UPDATE_INTERVAL.name(), String.valueOf(jobManagerUpdateInterval));
-		Configuration.jobManagerUpdateInterval = jobManagerUpdateInterval;
+		jobManagerUpdateInterval = jobManagerUpdateInterval;
 	}
 
-	public static void setJobManagerSelfRegisterInterval(int jobManagerSelfRegisterInterval) {
+	public void setJobManagerSelfRegisterInterval(int jobManagerSelfRegisterInterval) {
 		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_SELF_REGISTER_INTERVAL.name(), String.valueOf(jobManagerSelfRegisterInterval));
-		Configuration.jobManagerSelfRegisterInterval = jobManagerSelfRegisterInterval;
+		jobManagerSelfRegisterInterval = jobManagerSelfRegisterInterval;
 	}
 
-	public static void setJobManagerDefaultConnector(String jobManagerDefaultConnector) {
+	public void setJobManagerDefaultConnector(String jobManagerDefaultConnector) {
 		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_DEFAULT_CONNECTOR.name(), String.valueOf(jobManagerDefaultConnector));
-		Configuration.jobManagerDefaultConnector = jobManagerDefaultConnector;
+		jobManagerDefaultConnector = jobManagerDefaultConnector;
 	}
 
-	public static void setSearchNodeUnlockTimeout(int searchNodeUnlockTimeout) {
+	public void setSearchNodeUnlockTimeout(int searchNodeUnlockTimeout) {
 		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_UNLOCK_TIMEOUT.name(), String.valueOf(searchNodeUnlockTimeout));
-		Configuration.searchNodeUnlockTimeout = searchNodeUnlockTimeout;
+		searchNodeUnlockTimeout = searchNodeUnlockTimeout;
 	}
 
-	public static void setSearchNodeSearchTimeout(int searchNodeSearchTimeout) {
+	public void setSearchNodeSearchTimeout(int searchNodeSearchTimeout) {
 		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_SEARCH_TIMEOUT.name(), String.valueOf(searchNodeSearchTimeout));
-		Configuration.searchNodeSearchTimeout = searchNodeSearchTimeout;
+		searchNodeSearchTimeout = searchNodeSearchTimeout;
 	}
 
-	public static void setTFCSearchTimeout(int tfcSearchTimeout) {
+	public void setTFCSearchTimeout(int tfcSearchTimeout) {
 		USER_PROPERTIES.setProperty(Settable.TFC_SEARCH_TIMEOUT.name(), String.valueOf(tfcSearchTimeout));
-		Configuration.tfcSearchTimeout = tfcSearchTimeout;
+		tfcSearchTimeout = tfcSearchTimeout;
 	}
 
-	public static void setSearchNodeMaxRequests(int searchNodeMaxRequests) {
+	public void setSearchNodeMaxRequests(int searchNodeMaxRequests) {
 		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_MAX_REQUESTS.name(), String.valueOf(searchNodeMaxRequests));
-		Configuration.searchNodeMaxRequests = searchNodeMaxRequests;
+		searchNodeMaxRequests = searchNodeMaxRequests;
 	}
 
-	public static void setSearchNodeExplorationQueueSize(int searchNodeExplorationQueueSize) {
+	public void setSearchNodeExplorationQueueSize(int searchNodeExplorationQueueSize) {
 		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_EXPLORATION_QUEUE_SIZE.name(), String.valueOf(searchNodeExplorationQueueSize));
-		Configuration.searchNodeExplorationQueueSize = searchNodeExplorationQueueSize;
+		searchNodeExplorationQueueSize = searchNodeExplorationQueueSize;
 	}
 
-	public static void setDefaultEncoding(String defaultEncoding) {
+	public void setDefaultEncoding(String defaultEncoding) {
 		USER_PROPERTIES.setProperty(Settable.DEFAULT_ENCODING.name(), defaultEncoding);
-		Configuration.defaultEncoding = defaultEncoding;
+		defaultEncoding = defaultEncoding;
 	}
 
-	public static void setSelectedEncoding(String selectedEncoding) {
+	public void setSelectedEncoding(String selectedEncoding) {
 		USER_PROPERTIES.setProperty(Settable.SELECTED_ENCODING.name(), selectedEncoding);
-		Configuration.selectedEncoding = selectedEncoding;
+		selectedEncoding = selectedEncoding;
 	}
 
-	public static void setDefaultProtocol(String defaultProtocol) {
+	public void setDefaultProtocol(String defaultProtocol) {
 		USER_PROPERTIES.setProperty(Settable.DEFAULT_PROTOCOL.name(), defaultProtocol);
-		Configuration.defaultProtocol = defaultProtocol;
+		defaultProtocol = defaultProtocol;
 	}
 
-	public static void setAsyncConstructor(boolean asyncConstructor) {
+	public void setAsyncConstructor(boolean asyncConstructor) {
 		USER_PROPERTIES.setProperty(Settable.ASYNC_CONSTRUCTOR.name(), String.valueOf(asyncConstructor));
-		Configuration.asyncConstructor = asyncConstructor;
+		asyncConstructor = asyncConstructor;
 	}
 
-	public static void setActivateJmx(boolean activateJmx) {
+	public void setActivateJmx(boolean activateJmx) {
 		USER_PROPERTIES.setProperty(Settable.ACTIVATE_JMX.name(), String.valueOf(activateJmx));
-		Configuration.activateJmx = activateJmx;
+		activateJmx = activateJmx;
 	}
 
-	public static void setConnectToPOPcpp(boolean connectToPOPcpp) {
+	public void setConnectToPOPcpp(boolean connectToPOPcpp) {
 		USER_PROPERTIES.setProperty(Settable.CONNECT_TO_POPCPP.name(), String.valueOf(connectToPOPcpp));
-		Configuration.connectToPOPcpp = connectToPOPcpp;
+		connectToPOPcpp = connectToPOPcpp;
 	}
 
-	public static void setConnectToJavaJobmanager(boolean connectToJavaJobmanager) {
+	public void setConnectToJavaJobmanager(boolean connectToJavaJobmanager) {
 		USER_PROPERTIES.setProperty(Settable.CONNECT_TO_JAVA_JOBMANAGER.name(), String.valueOf(connectToJavaJobmanager));
-		Configuration.connectToJavaJobmanager = connectToJavaJobmanager;
+		connectToJavaJobmanager = connectToJavaJobmanager;
 	}
 
-	public static void setRedirectOutputToRoot(boolean redirectOutputToRoot) {
+	public void setRedirectOutputToRoot(boolean redirectOutputToRoot) {
 		USER_PROPERTIES.setProperty(Settable.REDIRECT_OUTPUT_TO_ROOT.name(), String.valueOf(redirectOutputToRoot));
-		Configuration.redirectOutputToRoot = redirectOutputToRoot;
+		redirectOutputToRoot = redirectOutputToRoot;
 	}
 
-	public static void setUseNativeSSHifPossible(boolean useNativeSSHifPossible) {
+	public void setUseNativeSSHifPossible(boolean useNativeSSHifPossible) {
 		USER_PROPERTIES.setProperty(Settable.USE_NATIVE_SSH_IF_POSSIBLE.name(), String.valueOf(useNativeSSHifPossible));
-		Configuration.useNativeSSHifPossible = useNativeSSHifPossible;
+		useNativeSSHifPossible = useNativeSSHifPossible;
 	}
 
-	public static void setSSLProtocolVersion(String SSLProtocolVersion) {
+	public void setSSLProtocolVersion(String SSLProtocolVersion) {
 		USER_PROPERTIES.setProperty(Settable.SSL_PROTOCOL_VERSION.name(), SSLProtocolVersion);
-		Configuration.SSLProtocolVersion = SSLProtocolVersion;
+		SSLProtocolVersion = SSLProtocolVersion;
 	}
 
-	public static void setKeyStoreFile(File file) {
+	public void setKeyStoreFile(File file) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FILE.name(), file.toString());
-		Configuration.SSL_KEY_STORE_OPTIONS.setKeyStoreFile(file.toString());
+		SSLKeyStoreOptions.setKeyStoreFile(file.toString());
 	}
 
-	public static void setKeyStorePassword(String val) {
+	public void setKeyStorePassword(String val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_PASSWORD.name(), val);
-		Configuration.SSL_KEY_STORE_OPTIONS.setStorePass(val);
+		SSLKeyStoreOptions.setStorePass(val);
 	}
 
-	public static void setKeyStorePrivateKeyPassword(String val) {
+	public void setKeyStorePrivateKeyPassword(String val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_PRIVATE_KEY_PASSWORD.name(), val);
-		Configuration.SSL_KEY_STORE_OPTIONS.setKeyPass(val);
+		SSLKeyStoreOptions.setKeyPass(val);
 	}
 
-	public static void setKeyStoreLocalAlias(String val) {
+	public void setKeyStoreLocalAlias(String val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_LOCAL_ALIAS.name(), val);
-		Configuration.SSL_KEY_STORE_OPTIONS.setAlias(val);
+		SSLKeyStoreOptions.setAlias(val);
 	}
 
-	public static void setKeyStoreFormat(KeyStoreFormat val) {
+	public void setKeyStoreFormat(KeyStoreFormat val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FORMAT.name(), val.name());
-		Configuration.SSL_KEY_STORE_OPTIONS.setKeyStoreFormat(val);
+		SSLKeyStoreOptions.setKeyStoreFormat(val);
 	}
 
-	public static void setKeyStoreTempLocation(File file) {
+	public void setKeyStoreTempLocation(File file) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_TEMP_LOCATION.name(), file.toString());
-		Configuration.SSL_KEY_STORE_OPTIONS.setTempCertFolder(file.toString());
+		SSLKeyStoreOptions.setTempCertFolder(file.toString());
 	}
 	
+	public void setKeyStoreOptions(KeyStoreOptions options) {
+		SSLKeyStoreOptions = new KeyStoreOptions(options);
+	}
 	
 	
 	/**
@@ -432,10 +441,10 @@ public class Configuration {
 	 *      Machine
 	 *   POP Defaults
 	 * 
-	 * @param file The file 
+	 * @param file The properties file to load
 	 * @throws java.io.IOException 
 	 */
-	public static void load(File file) throws IOException {
+	public void load(File file) throws IOException {
 		Objects.requireNonNull(file);
 		
 		// mark as using user config file
@@ -509,12 +518,12 @@ public class Configuration {
 						case REDIRECT_OUTPUT_TO_ROOT:            redirectOutputToRoot = Boolean.parseBoolean(value); break;
 						case USE_NATIVE_SSH_IF_POSSIBLE:         useNativeSSHifPossible = Boolean.parseBoolean(value); break;
 						case SSL_PROTOCOL_VERSION:               SSLProtocolVersion = value; break;
-						case SSL_KEY_STORE_FILE:                 SSL_KEY_STORE_OPTIONS.setKeyStoreFile(value); break;
-						case SSL_KEY_STORE_PASSWORD:             SSL_KEY_STORE_OPTIONS.setStorePass(value); break;
-						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSL_KEY_STORE_OPTIONS.setKeyPass(value); break;
-						case SSL_KEY_STORE_LOCAL_ALIAS:          SSL_KEY_STORE_OPTIONS.setAlias(value); break;
-						case SSL_KEY_STORE_FORMAT:               SSL_KEY_STORE_OPTIONS.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
-						case SSL_KEY_STORE_TEMP_LOCATION:        SSL_KEY_STORE_OPTIONS.setTempCertFolder(value); break;
+						case SSL_KEY_STORE_FILE:                 SSLKeyStoreOptions.setKeyStoreFile(value); break;
+						case SSL_KEY_STORE_PASSWORD:             SSLKeyStoreOptions.setStorePass(value); break;
+						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSLKeyStoreOptions.setKeyPass(value); break;
+						case SSL_KEY_STORE_LOCAL_ALIAS:          SSLKeyStoreOptions.setAlias(value); break;
+						case SSL_KEY_STORE_FORMAT:               SSLKeyStoreOptions.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
+						case SSL_KEY_STORE_TEMP_LOCATION:        SSLKeyStoreOptions.setTempCertFolder(value); break;
 					}
 				} catch(NumberFormatException e) {
 					LogWriter.writeDebugInfo("[Configuration] unknown value '%s' for key '%s'.", value, key);
@@ -528,7 +537,7 @@ public class Configuration {
 	 * 
 	 * @throws IOException 
 	 */
-	public static void store() throws IOException {
+	public void store() throws IOException {
 		Objects.requireNonNull(userConfig);
 		File file = userConfig;
 		

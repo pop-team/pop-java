@@ -12,6 +12,8 @@ import popjava.util.Configuration;
  */
 public class ObjectDescription implements IPOPBase {
 
+	private final Configuration conf = Configuration.getInstance();
+	
 	protected boolean isLocalJob;
 	protected boolean isManual;
 	protected int maxDepth;
@@ -553,7 +555,7 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	public void setConnector(String connector) {
 		if (connector.isEmpty()) {
-			connector = Configuration.getJobManagerDefaultConnector();
+			connector = conf.getJobManagerDefaultConnector();
 		}
 		setValue(CONNECTOR_KEY, connector);
 	}

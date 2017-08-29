@@ -32,6 +32,7 @@ import popjava.util.Util;
 public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSearchNodeInterface {
 	
 	public static final String IDENTITY = "tfc";
+	private final Configuration conf = Configuration.getInstance();
 	
 	private static final String TFC_REQ_OBJECT = "_tfc_object";
 	private static final String TFC_RES_ACCESS_POINT = "_tfc_access_point";
@@ -51,7 +52,7 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 		if (od.getSearchMaxSize() > 0) {
 			;
 		}
-		int timeout = Configuration.getTFCSearchTimeout();
+		int timeout = conf.getTFCSearchTimeout();
 		if (od.getSearchWaitTime() >= 0) {
 			timeout = od.getSearchWaitTime();
 		}

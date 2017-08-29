@@ -20,6 +20,7 @@ public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManage
 	private int port;
 	private String protocol;
 	private boolean initialized = true;
+	private final Configuration conf = Configuration.getInstance();
 
 	public NodeJobManager(String host, int port, String protocol) {
 		super(POPConnectorJobManager.IDENTITY, POPConnectorJobManager.class);
@@ -50,7 +51,7 @@ public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManage
 		}
 		
 		if (protocol == null) {
-			protocol = Configuration.getDefaultProtocol();
+			protocol = conf.getDefaultProtocol();
 		}
 
 		// some sane defaults

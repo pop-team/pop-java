@@ -51,6 +51,8 @@ public class POPTrustManager implements X509TrustManager {
 		}
 	}
 	
+	private final Configuration conf = Configuration.getInstance();
+	
 	// certificates stores
 	private X509TrustManager trustManager;
 	// Map(Fingerprint,Certificate)
@@ -148,10 +150,10 @@ public class POPTrustManager implements X509TrustManager {
 	public final void reloadTrustManager() throws Exception {
 		long start = System.currentTimeMillis();
 		// load keystore from specified cert store (or default)
-		KeyStore trustedKS = KeyStore.getInstance(Configuration.getKeyStoreFormat().name());
-		try (InputStream trustedStore = new FileInputStream(Configuration.getKeyStoreFile())) {
+		KeyStore trustedKS = KeyStore.getInstance(conf.getKeyStoreFormat().name());
+		try (InputStream trustedStore = new FileInputStream(conf.getKeyStoreFile())) {
 			// load stores in memory
-			trustedKS.load(trustedStore, Configuration.getKeyStorePassword().toCharArray());
+			trustedKS.load(trustedStore, conf.getKeyStorePassword().toCharArray());
 		}
 		
 		// mark certificate in the keystore as confidence certificates
@@ -170,14 +172,14 @@ public class POPTrustManager implements X509TrustManager {
 			}
 			
 			// save public certificate
-			if (alias.equals(Configuration.getKeyStoreLocalAlias())) {
+			if (alias.equals(conf.getKeyStoreLocalAlias())) {
 				publicCertificate = cert;
 			}
 		}
 		
 		// add temporary certificates
 		// get all files in directory and add them
-		File tempCertDir = Configuration.getKeyStoreTempLocation();
+		File tempCertDir = conf.getKeyStoreTempLocation();
 		if (tempCertDir.exists()) {
 			for (File file : tempCertDir.listFiles()) {
 				if (file.isFile() && file.getName().endsWith(".cer")) {

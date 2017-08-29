@@ -10,6 +10,7 @@ import popjava.util.Configuration;
  */
 public class AccessPoint {
     
+	private final Configuration conf = Configuration.getInstance();
 	/*public static final String SOCKET_PROTOCOL = "socket";
 	public static final String WEBSERVICE_PROTOCOL = "webservice";
 	public static final String HTTP_PROTOCOL = "http";
@@ -69,30 +70,33 @@ public class AccessPoint {
 		String[] args = accessString.split("://|:");
 		String[] datas = new String[3];
 		int n = 0;
-		for (int i = 0; i < args.length; i++) {
-			String tempString = args[i].trim();
+		for (String arg : args) {
+			String tempString = arg.trim();
 			if (tempString.length() > 0){
 				datas[n++] = tempString;
 			}
 		}
 		
-		if (n == 3) {
-			protocol = datas[0].trim();
-			host = datas[1].trim();
-			port = Integer.parseInt(datas[2]);
-		} else if (n == 2) {
-		    if(args[0].trim().equalsIgnoreCase(Configuration.getDefaultProtocol())){
-		        protocol = Configuration.getDefaultProtocol();
-	            host = datas[0].trim();
-	            port = Integer.parseInt(datas[1]);
-		    }else{
-		        return null;
-		    }
-			
-		} else {
-			protocol = Configuration.getDefaultProtocol();
-			host = DEFAULT_HOST;
-			port = DEFAULT_PORT;
+		Configuration conf = Configuration.getInstance();
+		switch (n) {
+			case 3:
+				protocol = datas[0].trim();
+				host = datas[1].trim();
+				port = Integer.parseInt(datas[2]);
+				break;
+			case 2:
+				if(args[0].trim().equalsIgnoreCase(conf.getDefaultProtocol())){
+					protocol = conf.getDefaultProtocol();
+					host = datas[0].trim();
+					port = Integer.parseInt(datas[1]);
+				}else{
+					return null;
+				}	break;
+			default:
+				protocol = conf.getDefaultProtocol();
+				host = DEFAULT_HOST;
+				port = DEFAULT_PORT;
+				break;
 		}
 		
 		if (protocol.length() > 0 && host.length() > 0){

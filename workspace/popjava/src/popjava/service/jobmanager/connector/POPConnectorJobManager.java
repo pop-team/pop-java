@@ -30,6 +30,7 @@ import popjava.util.Util;
 public class POPConnectorJobManager extends POPConnectorBase implements POPConnectorSearchNodeInterface {
 	
 	public static final String IDENTITY = "jobmanager";
+	private final Configuration conf = Configuration.getInstance();
 
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
@@ -65,7 +66,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 		if (od.getSearchMaxSize() > 0) {
 			;
 		}
-		int timeout = Configuration.getSearchNodeSearchTimeout();
+		int timeout = conf.getSearchNodeSearchTimeout();
 		if (od.getSearchWaitTime() >= 0) {
 			timeout = od.getSearchWaitTime();
 		}

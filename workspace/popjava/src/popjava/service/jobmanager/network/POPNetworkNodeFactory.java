@@ -15,6 +15,8 @@ import popjava.util.Util;
  */
 public class POPNetworkNodeFactory {
 	
+	private static final Configuration conf = Configuration.getInstance();
+	
 	public static POPNetworkNode makeNode(String... other) {
 		return makeNode(new ArrayList<>(Arrays.asList(other)));
 	}
@@ -23,7 +25,7 @@ public class POPNetworkNodeFactory {
 		String connector = Util.removeStringFromList(other, "connector=");
 		// use job manager if nothing is specified
 		if (connector == null) {
-			connector = Configuration.getJobManagerDefaultConnector();
+			connector = conf.getJobManagerDefaultConnector();
 		}
 
 		switch (connector.toLowerCase()) {
