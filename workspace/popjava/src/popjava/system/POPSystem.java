@@ -326,7 +326,7 @@ public class POPSystem {
         }
     }    
 
-	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), conf.getJobManagerPort());
+	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), conf.getJobManagerPorts()[0]);
 	private static String codeconf;
 	private static String appservicecode;
 	private static String proxy;

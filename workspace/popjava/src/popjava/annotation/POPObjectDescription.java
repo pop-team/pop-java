@@ -46,6 +46,8 @@ public @interface POPObjectDescription {
 	 */
 	ConnectionProtocol protocol() default ConnectionProtocol.ALL;
 	
+	String[] protocols() default "";
+	
 	/**
 	 * A network available on this machine
 	 * @return 

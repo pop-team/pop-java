@@ -6,8 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import popjava.baseobject.ConnectionProtocol;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.util.ssl.KeyStoreOptions;
@@ -31,7 +36,8 @@ public final class Configuration {
 		JOBMANAGER_UPDATE_INTERVAL,
 		JOBMANAGER_SELF_REGISTER_INTERVAL,
 		JOBMANAGER_DEFAULT_CONNECTOR,
-		JOBMANAGER_PORT,
+		JOBMANAGER_PROTOCOLS,
+		JOBMANAGER_PORTS,
 		POP_JAVA_DEAMON_PORT,
 		SEARCH_NODE_UNLOCK_TIMEOUT,
 		SEARCH_NODE_SEARCH_TIMEOUT,
@@ -81,7 +87,7 @@ public final class Configuration {
 	private final Properties ALL_PROPERTIES = new Properties();
 	
 	// user configurable attributes w/ POP's defaults
-	private boolean debug = true;
+	private boolean debug = false;
 	private boolean debugCombox = false;
 	private int reserveTimeout = 60000;
 	private int allocTimeout = 30000;
@@ -97,7 +103,8 @@ public final class Configuration {
 	private int searchNodeMaxRequests = 300;
 	private int searchNodeExplorationQueueSize = 300;
 	
-	private int jobManagerPort = 2711;
+	private String[] jobManagerProtocols = { ConnectionProtocol.SOCKET.getName() };
+	private int[] jobManagerPorts = { 2711 };
 	private int popJavaDeamonPort = 43424;
 	
 	private String defaultEncoding = "xdr";
@@ -125,7 +132,7 @@ public final class Configuration {
 		try {
 			load(SYSTEM_CONFIG);
 		} catch(IOException e) {
-			LogWriter.writeDebugInfo("[Configuration] couldn't load '%s' using POP-Java's defaults.", SYSTEM_CONFIG);
+			System.out.format("[Configuration] couldn't load '%s' using POP-Java's defaults.\n", SYSTEM_CONFIG);
 		}
 	}
 
@@ -276,8 +283,8 @@ public final class Configuration {
 		return new File(SSLKeyStoreOptions.getTempCertFolder());
 	}
 
-	public int getJobManagerPort() {
-		return jobManagerPort;
+	public int[] getJobManagerPorts() {
+		return jobManagerPorts;
 	}
 
 	public int getPopJavaDeamonPort() {
@@ -374,7 +381,7 @@ public final class Configuration {
 
 	public void setDefaultProtocol(String defaultProtocol) {
 		USER_PROPERTIES.setProperty(Settable.DEFAULT_PROTOCOL.name(), defaultProtocol);
-		this.defaultProtocol = defaultProtocol;
+		this.defaultProtocol = ConnectionProtocol.valueOf(defaultProtocol.toUpperCase()).getName();
 	}
 
 	public void setAsyncConstructor(boolean asyncConstructor) {
@@ -446,9 +453,14 @@ public final class Configuration {
 		SSLKeyStoreOptions = new KeyStoreOptions(options);
 	}
 
-	public void setJobManagerPort(int jobManagerPort) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_PORT.name(), String.valueOf(jobManagerPort));
-		this.jobManagerPort = jobManagerPort;
+	public void setJobManagerPorts(int[] jobManagerPorts) {
+		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_PORTS.name(), Arrays.toString(jobManagerPorts));
+		this.jobManagerPorts = jobManagerPorts;
+	}
+
+	public void setJobManagerProtocols(String[] jobManagerProtocols) {
+		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_PROTOCOLS.name(), Arrays.toString(jobManagerProtocols));
+		this.jobManagerProtocols = jobManagerProtocols;
 	}
 
 	public void setPopJavaDeamonPort(int popJavaDeamonPort) {
@@ -468,6 +480,7 @@ public final class Configuration {
 	 * @throws java.io.IOException 
 	 */
 	public void load(File file) throws IOException {
+		long start = System.currentTimeMillis();
 		Objects.requireNonNull(file);
 		
 		// mark as using user config file
@@ -478,7 +491,9 @@ public final class Configuration {
 		
 		// abort if we can't load
 		if (!file.exists()) {
-			LogWriter.writeDebugInfo("[Configuration] '%s' doesn't exists or can't be read.", file.getCanonicalPath());
+			if (debug) {
+				System.out.format("[Configuration] '%s' doesn't exists or can't be read.\n", file.getCanonicalPath());
+			}
 			return;
 		}
 		
@@ -511,7 +526,9 @@ public final class Configuration {
 				try {
 					keyEnum = Settable.valueOf(key.toUpperCase());
 				} catch(IllegalArgumentException e) {
-					LogWriter.writeDebugInfo("[Configuration] unknown key '%s'", key);
+					if (debug) {
+						System.out.format("[Configuration] unknown key '%s'\n", key);
+					}
 					continue;
 				}
 				
@@ -526,7 +543,27 @@ public final class Configuration {
 						case JOBMANAGER_UPDATE_INTERVAL:         jobManagerUpdateInterval = Integer.parseInt(value); break;
 						case JOBMANAGER_SELF_REGISTER_INTERVAL:  jobManagerSelfRegisterInterval = Integer.parseInt(value); break;
 						case JOBMANAGER_DEFAULT_CONNECTOR:       jobManagerDefaultConnector = value; break;
-						case JOBMANAGER_PORT:                    jobManagerPort = Integer.parseInt(value); break;
+						case JOBMANAGER_PORTS:
+							Pattern p = Pattern.compile("\\d+");
+							Matcher m = p.matcher(value);
+							List<String> matches = new ArrayList<>();
+							while (m.find()) {
+								matches.add(m.group());
+							}
+							jobManagerPorts = new int[matches.size()];
+							for (int i = 0; i < matches.size(); i++) {
+								jobManagerPorts[i] = Integer.parseInt(matches.get(i));
+							}
+							break;
+						case JOBMANAGER_PROTOCOLS:
+							p = Pattern.compile("\\w+");
+							m = p.matcher(value);
+							matches = new ArrayList<>();
+							while (m.find()) {
+								matches.add(m.group());
+							}
+							jobManagerProtocols = matches.toArray(new String[0]);
+							break;
 						case POP_JAVA_DEAMON_PORT:               popJavaDeamonPort = Integer.parseInt(value); break;
 						case SEARCH_NODE_UNLOCK_TIMEOUT:         searchNodeUnlockTimeout = Integer.parseInt(value); break;
 						case SEARCH_NODE_SEARCH_TIMEOUT:         searchNodeSearchTimeout = Integer.parseInt(value); break;
@@ -535,7 +572,7 @@ public final class Configuration {
 						case TFC_SEARCH_TIMEOUT:                 tfcSearchTimeout = Integer.parseInt(value); break;
 						case DEFAULT_ENCODING:                   defaultEncoding = value; break;
 						case SELECTED_ENCODING:                  selectedEncoding = value; break;
-						case DEFAULT_PROTOCOL:                   defaultProtocol = value; break;
+						case DEFAULT_PROTOCOL:                   defaultProtocol = ConnectionProtocol.valueOf(value.toUpperCase()).getName(); break;
 						case ASYNC_CONSTRUCTOR:                  asyncConstructor = Boolean.parseBoolean(value); break;
 						case ACTIVATE_JMX:                       activateJmx = Boolean.parseBoolean(value); break;
 						case CONNECT_TO_POPCPP:                  connectToPOPcpp = Boolean.parseBoolean(value); break;
@@ -551,9 +588,15 @@ public final class Configuration {
 						case SSL_KEY_STORE_TEMP_LOCATION:        SSLKeyStoreOptions.setTempCertFolder(value); break;
 					}
 				} catch(NumberFormatException e) {
-					LogWriter.writeDebugInfo("[Configuration] unknown value '%s' for key '%s'.", value, key);
+					if (debug) {
+						System.out.format("[Configuration] unknown value '%s' for key '%s'.\n", value, key);
+					}
 				}
 			}
+		}
+		if (debug) {
+			long end = System.currentTimeMillis();
+			System.out.format("[Configuration] loaded '%s' in %d ms\n", file.getCanonicalPath(), end - start);
 		}
 	}
 	

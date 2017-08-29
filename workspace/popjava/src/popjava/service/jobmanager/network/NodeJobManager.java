@@ -54,7 +54,7 @@ public class NodeJobManager extends AbstractNodeJobManager<POPConnectorJobManage
 		}
 
 		// some sane defaults
-		port = conf.getJobManagerPort();
+		port = conf.getJobManagerPorts()[0];
 		if (portString != null) {
 			try {
 				port = Integer.parseInt(portString);

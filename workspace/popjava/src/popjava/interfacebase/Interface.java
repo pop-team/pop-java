@@ -236,7 +236,7 @@ public class Interface {
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 			String protocol = conf.getDefaultProtocol();
 			jobContact.setAccessString(String.format("%s://%s:%d", 
-				protocol, POPSystem.getHostIP(), conf.getJobManagerPort()));
+				protocol, POPSystem.getHostIP(), conf.getJobManagerPorts()[0]));
         }
 
         POPJobService jobManager = null;
