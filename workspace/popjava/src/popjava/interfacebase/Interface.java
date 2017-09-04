@@ -544,7 +544,7 @@ public class Interface {
 			int protocolsCount = finder.getFactoryCount();
 			
 			// use default protocol if a port is set in url
-			if (protocolsCount > 1 && rports != null) {
+			if (rports != null) {
 				protocols = new String[] { conf.getDefaultProtocol() };
 			}
 			// use all other protocols otherwise
