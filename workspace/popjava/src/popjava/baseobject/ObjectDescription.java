@@ -34,7 +34,7 @@ public class ObjectDescription implements IPOPBase {
 //	protected ODElement od_bandwidth;
 	protected float wallTime;
 	protected String encoding;
-	protected String protocol;
+	protected String[] protocols;
 	protected String platform;
 	protected String hostName;
 	protected String jobUrl;
@@ -65,7 +65,7 @@ public class ObjectDescription implements IPOPBase {
 //		od_bandwidth = new ODElement();
 		wallTime = -1;
 		encoding = "";
-		protocol = "";
+		protocols = new String[]{""};
 		platform = "*-*";
 		hostName = "";
 		jobUrl = "";
@@ -102,7 +102,7 @@ public class ObjectDescription implements IPOPBase {
 		bandwidthReq = od.getBandwidthReq();
 		wallTime = od.getWallTime();
 		encoding = od.getEncoding();
-		protocol = od.getProtocol();
+		protocols = od.getProtocols();
 		platform = od.getPlatform();
 		hostName = od.getHostName();
 		jobUrl = od.getJobUrl();
@@ -355,8 +355,8 @@ public class ObjectDescription implements IPOPBase {
 	 * Set the OD protocol value
 	 * @param protocol	protocol to be used to communicate with the object
 	 */
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
+	public void setProtocols(String[] protocols) {
+		this.protocols = protocols;
 	}
 
 	/**
@@ -476,8 +476,8 @@ public class ObjectDescription implements IPOPBase {
 	 * Get the OD protocol value
 	 * @return protocol set in this OD
 	 */
-	public String getProtocol() {
-		return protocol;
+	public String[] getProtocols() {
+		return protocols;
 	}
 
 	/**
@@ -613,13 +613,12 @@ public class ObjectDescription implements IPOPBase {
 	 * @return true if empty
 	 */
 	public boolean isEmpty() {
-		if (powerMin <=0 && powerReq <=0 && bandwidthMin <=0 && bandwidthReq <=0 && memoryMin <= 0 && memoryReq <=0
-				&& wallTime <= 0 && encoding.length() == 0
-				&& protocol.length() == 0 && platform.length() == 0
-				&& hostName.length() == 0 && jobUrl.length() == 0
-				&& codeFile.length() == 0)
-			return true;
-		return false;
+		return powerMin <=0 && powerReq <=0 && bandwidthMin <=0 && bandwidthReq <=0 
+			&& memoryMin <= 0 && memoryReq <=0 && wallTime <= 0
+			&& encoding.isEmpty() && platform.isEmpty()
+			&& hostName.isEmpty() && jobUrl.isEmpty()
+			&& codeFile.isEmpty()
+			&& (protocols.length == 0 || protocols.length == 1 && protocols[0].isEmpty());
 	}
 
 	/**
@@ -650,7 +649,7 @@ public class ObjectDescription implements IPOPBase {
 		String jobUrl = buffer.getString();
 		String codeFile = buffer.getString();
 		String platform = buffer.getString();
-		String protocol = buffer.getString();
+		String[] protocols = buffer.getArray(String[].class);
 		String encoding = buffer.getString();
 		this.setPower(tmpPowerReq, tmpPowerMin);
 		this.setMemory(tmpMemoryReq, tmpMemoryMin);
@@ -667,7 +666,7 @@ public class ObjectDescription implements IPOPBase {
 		this.setJobUrl(jobUrl);
 		this.setCodeFile(codeFile);
 		this.setPlatform(platform);
-		this.setProtocol(protocol);
+		this.setProtocols(protocols);
 		this.setEncoding(encoding);
 
 		// put the attributes
@@ -709,7 +708,7 @@ public class ObjectDescription implements IPOPBase {
 		buffer.putString(jobUrl);
 		buffer.putString(codeFile);
 		buffer.putString(platform);
-		buffer.putString(protocol);
+		buffer.putArray(protocols);
 		buffer.putString(encoding);
 		// put the attributes
 		buffer.putInt(attributes.size());
@@ -727,39 +726,52 @@ public class ObjectDescription implements IPOPBase {
 	 * @param od	The object description to be merged with this one
 	 */
 	public void merge(ObjectDescription od) {
-		if (od.getPowerMin() > 0 && od.getPowerReq() > 0)
+		if (od.getPowerMin() > 0 && od.getPowerReq() > 0) {
 			setPower(od.getPowerMin(), od.getPowerReq());
-		if(od.getBandwidthMin() > 0 && od.getBandwidthReq() > 0)
+		}
+		if (od.getBandwidthMin() > 0 && od.getBandwidthReq() > 0) {
 			setBandwidth(od.getBandwidthReq(), od.getBandwidthMin());
-		if(od.getMemoryMin() > 0 && od.getMemoryReq() > 0)
+		}
+		if (od.getMemoryMin() > 0 && od.getMemoryReq() > 0) {
 			setMemory(od.getMemoryReq(), od.getMemoryMin());
+		}
 //		if (!od.getPower().isEmpty())
 //			power.set(od.getPower());
 //		if (!od.getMemory().isEmpty())
 //			od_memory.set(od.getMemory());
 //		if (!od.getBandwidth().isEmpty())
 //			od_bandwidth.set(od.getBandwidth());
-		if (od.getWallTime() > 0)
+		if (od.getWallTime() > 0) {
 			wallTime = od.getWallTime();
-		if (od.getEncoding().length() > 0)
+		}
+		if (od.getEncoding().length() > 0) {
 			encoding = od.getEncoding();
-		if (od.getProtocol().length() > 0)
-			protocol = od.getProtocol();
-		if (od.getPlatform().length() > 0)
+		}
+		if (od.getProtocols().length > protocols.length) {
+			protocols = od.getProtocols();
+		}
+		if (od.getPlatform().length() > 0) {
 			platform = od.getPlatform();
-		if (od.getHostName().length() > 0)
+		}
+		if (od.getHostName().length() > 0) {
 			hostName = od.getHostName();
-		if (od.getJobUrl().length() > 0)
+		}
+		if (od.getJobUrl().length() > 0) {
 			jobUrl = od.getJobUrl();
-		if (od.getCodeFile().length() > 0)
+		}
+		if (od.getCodeFile().length() > 0) {
 			codeFile = od.getCodeFile();
-		if(od.getSearchMaxDepth() > 0)
+		}
+		if (od.getSearchMaxDepth() > 0) {
 			maxDepth = od.getSearchMaxDepth();
-		if(od.getSearchMaxSize() > 0)
+		}
+		if (od.getSearchMaxSize() > 0) {
 			maxSize = od.getSearchMaxSize();
-		if(od.getSearchWaitTime() >  0)
+		}
+		if (od.getSearchWaitTime() > 0) {
 			waitTime = od.getSearchWaitTime();
-		if(od.useLocalJVM != null){
+		}
+		if (od.useLocalJVM != null) {
 			useLocalJVM = od.useLocalJVM;
 		}
 		if (od.getNetwork() != null) {

@@ -556,7 +556,7 @@ public final class Configuration {
 							}
 							break;
 						case JOBMANAGER_PROTOCOLS:
-							p = Pattern.compile("\\w+");
+							p = Pattern.compile("[\\w\\d]+");
 							m = p.matcher(value);
 							matches = new ArrayList<>();
 							while (m.find()) {

@@ -845,26 +845,28 @@ public final class Broker {
 			ComboxFactory factory = finder.get(i);
 			String prefix = String.format("-%s_port=", factory.getComboxName());
 			
-			String port = Util.removeStringFromList(argvs, prefix);
-			// if we don't have a port, abort
-			if (port == null) {
-				continue;
-			}
-			
-			int iPort = 0;
-			if (port.length() > 0) {
-				try {
-					iPort = Integer.parseInt(port);
-				} catch (NumberFormatException e) {
-
+			// hadle multiple times the same protocol
+			String port;
+			while ((port = Util.removeStringFromList(argvs, prefix)) != null) {
+				// if we don't have a port, abort
+				if (port == null) {
+					continue;
 				}
+
+				int iPort = 0;
+				if (port.length() > 0) {
+					try {
+						iPort = Integer.parseInt(port);
+					} catch (NumberFormatException e) {
+
+					}
+				}
+
+				AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
+				accessPoint.addAccessPoint(ap);
+
+				liveServers.add(factory.createServerCombox(ap, buffer, this));
 			}
-			
-			AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
-			accessPoint.addAccessPoint(ap);
-			
-			liveServers.add(factory.createServerCombox(ap, buffer, this));
-			
 		}
 		
 		//If no protocol was specified, fall back to default protocol

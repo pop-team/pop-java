@@ -34,8 +34,9 @@ public final class POPErrorCode {
 
 	public static final int NOT_ALLOW_PUT_NULL_OBJECT_TP_BUFFER = USER_DEFINE_ERROR + 19;
 	public static final int UNKNOWN_EXCEPTION = USER_DEFINE_ERROR + 20;
-    public static final int METHOD_ANNOTATION_EXCEPTION = USER_DEFINE_ERROR + 21;
-	public static final int USER_DEFINE_LASTERROR = USER_DEFINE_ERROR + 21;
+    public static final int METHOD_ANNOTATION_EXCEPTION = USER_DEFINE_ERROR + 21; 
+	
+	public static final int USER_DEFINE_LASTERROR = USER_DEFINE_ERROR + 22;
 
 	/**
 	 * Default constructor

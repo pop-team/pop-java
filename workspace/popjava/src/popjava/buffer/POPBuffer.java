@@ -519,32 +519,34 @@ public abstract class POPBuffer extends Object {
 
 	/**
 	 * Retrieve an array from the buffer
+	 * @param <T>
 	 * @param arrayType	Class of the array to retrieve
 	 * @return	Array retrieved in the buffer
 	 * @throws POPException	thrown if the serialization process is not going well
 	 */
-	public Object getArray(Class<?> arrayType) throws POPException {
+	@SuppressWarnings("unchecked")
+	public<T> T getArray(Class<T> arrayType) throws POPException {
 		int length = this.getInt();
 		
 		if (length < 0){
 			return null;
 		} else {
 			if (arrayType.equals(byte[].class))
-				return getByteArray(length);
+				return (T)getByteArray(length);
 			else if (arrayType.equals(int[].class))
-				return getIntArray(length);
+				return (T)getIntArray(length);
 			else if (arrayType.equals(float[].class))
-				return getFloatArray(length);
+				return (T)getFloatArray(length);
 			else if (arrayType.equals(boolean[].class))
-				return getBooleanArray(length);
+				return (T)getBooleanArray(length);
 			else if (arrayType.equals(long[].class))
-				return getLongArray(length);
+				return (T)getLongArray(length);
 			else if (arrayType.equals(double[].class))
-				return getDoubleArray(length);
+				return (T)getDoubleArray(length);
 			else if (arrayType.equals(short[].class))
-				return getShortArray(length);
+				return (T)getShortArray(length);
 			else if (arrayType.equals(char[].class))
-				return getCharArray(length);
+				return (T)getCharArray(length);
 			else {
 				Class<?> elementType = arrayType.getComponentType();
 				Object resultArray = Array.newInstance(elementType, length);
@@ -556,7 +558,7 @@ public abstract class POPBuffer extends Object {
 				        throw e;
 				    }
 				}
-				return resultArray;
+				return (T)resultArray;
 			}
 
 		}

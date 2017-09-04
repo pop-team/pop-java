@@ -41,11 +41,18 @@ public @interface POPObjectDescription {
 	boolean localJVM() default false;
 	
 	/**
-	 * Set the protocol for this connection.
+	 * Protocols this object should use.
+	 * Options:
+	 *   ""
+	 *   "protocol"
+	 *   "protocol:port"
+	 *   {"protocol1", "protocol2"}
+	 *   {"protocol1:port1", "protocol2"}
+	 *   {"protocol1:port1", "protocol2:port2"}
+	 * 
+	 * If nothing is specified all available protocols will be used.
 	 * @return 
 	 */
-	ConnectionProtocol protocol() default ConnectionProtocol.ALL;
-	
 	String[] protocols() default "";
 	
 	/**

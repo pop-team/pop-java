@@ -101,7 +101,7 @@ public class POPObject implements IPOPBase {
 			od.setConnectionType(objectDescription.connection());
 			od.setConnectionSecret(objectDescription.connectionSecret());
 			od.setEncoding(objectDescription.encoding().toString());
-			od.setProtocol(objectDescription.protocol().getName());
+			od.setProtocols(objectDescription.protocols());
 			od.setNetwork(objectDescription.network());
 			od.setConnector(objectDescription.connector());
 			od.setPower(objectDescription.power(), objectDescription.minPower());
@@ -164,6 +164,18 @@ public class POPObject implements IPOPBase {
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type Boolean for Annotation LOCAL_JVM");
+						}
+						break;
+					case PROTOCOLS:
+						if (argvs[i] instanceof String) {
+							od.setProtocols(new String[] { (String) argvs[i] });
+						}
+						else if (argvs[i] instanceof String[]) {
+							od.setProtocols((String[]) argvs[i]);
+						}
+						else {
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
+									" was not of type String or String[] for Annotation PROTOCOLS");
 						}
 						break;
 					}

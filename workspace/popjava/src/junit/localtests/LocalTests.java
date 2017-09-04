@@ -21,6 +21,7 @@ import junit.localtests.referencePassing.ReferenceTest;
 import junit.localtests.security.CreateKeyStoreTest;
 import junit.localtests.security.MethodAccessTest;
 import junit.localtests.subclassReturns.SubclassingTest;
+import junit.localtests.protocols.ProtocolsTests;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( { CallBackTest.class, IntegerTest.class, AnnotationsTest.class, ReaderWriterTest.class,
@@ -28,7 +29,8 @@ import junit.localtests.subclassReturns.SubclassingTest;
 	ArraysTest.class, ParameterTests.class,
 	BigDataTests.class, SubclassingTest.class, ReferenceTest.class, JVMObjectTest.class, NestedPOPCreation.class,
 	CreateKeyStoreTest.class, MethodAccessTest.class,
-	POPJavaJobManagerConfigurationTest.class, POPJavaJobManagerLiveConfigurationTest.class})
+	POPJavaJobManagerConfigurationTest.class, POPJavaJobManagerLiveConfigurationTest.class,
+	ProtocolsTests.class})
 public class LocalTests {
 
 }

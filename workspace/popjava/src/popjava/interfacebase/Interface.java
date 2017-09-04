@@ -302,7 +302,7 @@ public class Interface {
 		if (combox != null){
 			combox.close();
 		}
-		combox = finder.findFactory(od.getProtocol())
+		combox = finder.findFactory(splitPort(od.getProtocols()[0])[0])
 				.createClientCombox(accesspoint);
 		
 		if (combox.connect(accesspoint, conf.getConnectionTimeout())) {
@@ -523,14 +523,87 @@ public class Interface {
 			}
 		}
 
-		String rport = "";
-		int index = joburl.lastIndexOf(":");
-		if (index > 0) {
-			rport = joburl.substring(index + 1);
-			joburl = joburl.substring(0, index);
+		// parameters for localExec
+		String[] rports = null;
+		String[] protocols = null;	
+		
+		// object port in od.url
+		int urlPortIndex = joburl.lastIndexOf(":");
+		if (urlPortIndex > 0) {
+			rports = new String[] { joburl.substring(urlPortIndex + 1) };
+			joburl = joburl.substring(0, urlPortIndex);
 		}
 		
-		int status = localExec(joburl, codeFile, objectName, rport,
+		// object protocol(s) with port(s), may be empty
+		int nbProtocols = od.getProtocols().length;
+		
+		
+		// empty protocol in od, all or default
+		if (nbProtocols == 1 && od.getProtocols()[0].isEmpty()) {			
+			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+			int protocolsCount = finder.getFactoryCount();
+			
+			// use default protocol if a port is set in url
+			if (protocolsCount > 1 && rports != null) {
+				protocols = new String[] { conf.getDefaultProtocol() };
+			}
+			// use all other protocols otherwise
+			else {
+				protocols = new String[protocolsCount];
+				rports = new String[protocolsCount];
+				for (int i = 0; i < protocolsCount; i++) {
+					protocols[i] = finder.get(i).getComboxName();
+					rports[i] = "0";
+				}
+			}
+		}
+		// multiple protocols
+		else if (nbProtocols >= 1) {
+			// missmatch between number of choosen protocols and previously set ports (1 from od.host)
+			if (rports != null && nbProtocols != rports.length) {
+				throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "You can't specify a port in the url and have multiple protocols.");
+			}
+			
+			// if we have to set ports or check that we don't set them multiuple times
+			boolean setPorts = rports == null;
+			if (setPorts) {
+				rports = new String[nbProtocols];
+			}
+			protocols = new String[nbProtocols];
+			
+			for (int i = 0; i < nbProtocols; i++) {
+				String protocol = od.getProtocols()[i];
+				String port = null;
+				
+				// look for port in protocol
+				int portIdx = protocol.lastIndexOf(":");
+				if (portIdx > 0) {
+					port = protocol.substring(portIdx + 1);
+					protocol = protocol.substring(0, portIdx);
+				}
+				
+				// can't set ports multiple times
+				if (!setPorts && port != null) {
+					throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "You can't specify ports multiple times");
+				}
+				// set port array
+				if (setPorts) {
+					if (port == null) {
+						rports[i] = "0";
+					} else {
+						rports[i] = port;
+					}
+				}
+				
+				protocols[i] = protocol;
+			}
+		}
+		// no protocols, error
+		else {
+			throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "At least one protocol should be specified");
+		}
+		
+		int status = localExec(joburl, codeFile, objectName, protocols, rports,
 				POPSystem.jobService, POPSystem.appServiceAccessPoint, accesspoint,
 				od);
 		
@@ -636,16 +709,18 @@ public class Interface {
 	 * @param hostname	Hostname to create the object
 	 * @param codeFile	Path of the executable code file
 	 * @param classname	Name of the Class of the parallel object
-	 * @param rport		port
+	 * @param rports		port
 	 * @param jobserv	jobMgr service access point
 	 * @param appserv	Application service access point
 	 * @param objaccess	Output arguments - Access point to the object
 	 * @return -1 if the local execution failed 
 	 */
 	private static int localExec(String hostname, String codeFile,
-			String classname, String rport, POPAccessPoint jobserv,
+			String classname, String[] protocols, String[] rports, POPAccessPoint jobserv,
 			POPAccessPoint appserv, POPAccessPoint objaccess,
 			ObjectDescription od) {
+		
+		assert protocols.length == rports.length;
 		
 		boolean isLocal = Util.isLocal(hostname);
 		/*if (!isLocal) {
@@ -681,8 +756,8 @@ public class Interface {
 			}
 		}
 		
-		String protocol = od.getProtocol();
-		ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
+		String allocateProtocol = protocols[0];
+		ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(allocateProtocol);
 		ComboxAllocate allocateCombox = factory.createAllocateCombox();
 		
 		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox.getUrl());
@@ -700,30 +775,16 @@ public class Interface {
 			argvList.add(jobString);
 		}
 		
-		// if no port was specified we let the system decide
-		if (rport == null || rport.isEmpty()) {
-			rport = "0";
-		}
-		// if specified a port but no protocol, automatically set the default one
-		else {
-			if (od.getProtocol() == null || od.getProtocol().isEmpty()) {
-				od.setProtocol(conf.getDefaultProtocol());
-			}
-		}
-
-		// if no protocol was specified we use all of them
-		if (od.getProtocol() == null || od.getProtocol().isEmpty()) {
-			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-			for (int i = 0; i < finder.getFactoryCount(); i++) {
-				String portString = String.format("-%s_port=%s", finder.get(i).getComboxName(), rport);
+		for (int i = 0; i < protocols.length; i++) {
+			String protocol = protocols[i];
+			String port = rports[i];
+			ComboxFactory wantedProtocol = ComboxFactoryFinder.getInstance().findFactory(protocol);
+			if (wantedProtocol != null) {
+				String portString = String.format("-%s_port=%s", wantedProtocol.getComboxName(), port);
 				argvList.add(portString);
+			} else {
+				LogWriter.writeDebugInfo("[Interface] specified protocol '%s' can't be found.", protocol);
 			}
-		}
-		// if we specified a protocol, we send only the wanted one
-		else {
-			ComboxFactory wantedProtocol = ComboxFactoryFinder.getInstance().findFactory(od.getProtocol());
-			String portString = String.format("-%s_port=%s", wantedProtocol.getComboxName(), rport);
-			argvList.add(portString);
 		}
 		
 		int ret = -1;
@@ -733,9 +794,9 @@ public class Interface {
 			hostname = "localhost";
 		}
 		
-		// XXX To start localhost calls
-		String potentialPort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
-		if(isLocal && potentialPort.equals("")){
+		// XXX Move this to regular OD?
+		String potentialServicePort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
+		if(isLocal && potentialServicePort.isEmpty()){
 			if (conf.isUsingUserConfig()) {
 				// add config file, system or local
 				argvList.add(String.format("%s%s", Broker.POPJAVA_CONFIG_PREFIX, conf.getUserConfig().toString()));
@@ -747,8 +808,8 @@ public class Interface {
 			case ANY:
 			case SSH:
 				// add port to host if specified
-				if (!potentialPort.equals(""))
-					ret = SystemUtil.runRemoteCmd(hostname, potentialPort, argvList);
+				if (!potentialServicePort.isEmpty())
+					ret = SystemUtil.runRemoteCmd(hostname, potentialServicePort, argvList);
 				else
 					ret = SystemUtil.runRemoteCmd(hostname, argvList);
 				break;
@@ -756,10 +817,10 @@ public class Interface {
 				POPJavaDeamonConnector connector;
 				try {
 					// if manually specified port
-					if (potentialPort.equals(""))
+					if (potentialServicePort.equals(""))
 						connector = new POPJavaDeamonConnector(hostname);
 					else
-						connector = new POPJavaDeamonConnector(hostname, Integer.parseInt(potentialPort));
+						connector = new POPJavaDeamonConnector(hostname, Integer.parseInt(potentialServicePort));
 					if(connector.sendCommand(od.getConnectionSecret(), argvList)){
 						ret = 0;
 					}
@@ -855,4 +916,20 @@ public class Interface {
 
 	}
 
+	/**
+	 * Split the last colon in a String
+	 * @param value
+	 * @return [0] value before : [1] the value after the : or 0 if it was not present
+	 */
+	private static String[] splitPort(String value) {
+		String[] output = { value, "0" };
+		
+		int colonIndex = value.lastIndexOf(":");
+		if (colonIndex > 0) {
+			output[1] = value.substring(colonIndex + 1);
+			output[0] = value.substring(0, colonIndex);
+		}
+		
+		return output;
+	}
 }

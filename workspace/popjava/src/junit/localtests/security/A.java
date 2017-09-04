@@ -14,7 +14,7 @@ import popjava.baseobject.ConnectionProtocol;
 @POPClass
 public class A extends POPObject {
 
-	@POPObjectDescription(url = "localhost", protocol = ConnectionProtocol.SSL)
+	@POPObjectDescription(url = "localhost", protocols = "ssl")
 	public A() {
 	}
 	

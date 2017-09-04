@@ -65,15 +65,6 @@ import popjava.util.LogWriter;
 import popjava.util.Util;
 import popjava.annotation.POPSyncSeq;
 
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-import static java.lang.Math.min;
-
 @POPClass
 public class POPJavaJobManager extends POPJobService {
 	
@@ -575,11 +566,11 @@ public class POPJavaJobManager extends POPJobService {
 					}
 
 					if (require > available.getFlops() || require > jobLimit.getFlops()) {
-						flops = min(available.getFlops(), jobLimit.getFlops());
+						flops = Math.min(available.getFlops(), jobLimit.getFlops());
 						fitness = flops / require;
 					} else {
 						flops = require;
-						fitness = min(available.getFlops(), jobLimit.getFlops()) / require;
+						fitness = Math.min(available.getFlops(), jobLimit.getFlops()) / require;
 					}
 					if (fitness < iofitness.getValue()) {
 						return 0;
