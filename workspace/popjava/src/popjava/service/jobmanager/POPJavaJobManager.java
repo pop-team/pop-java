@@ -119,6 +119,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Do not call this directly, way too many methods to this so no init was added.
 	 */
+	@POPObjectDescription(url = "localhost", jvmParameters = "-Xmx512m")
 	public POPJavaJobManager() {
 		//init(conf.DEFAULT_JM_CONFIG_FILE);
 		configurationFile = conf.getSystemJobManagerConfig().toString();
@@ -129,6 +130,18 @@ public class POPJavaJobManager extends POPJobService {
 	public POPJavaJobManager(@POPConfig(Type.URL) String url) {
 		configurationFile = conf.getSystemJobManagerConfig().toString();
 		init(conf.getSystemJobManagerConfig().toString());
+	}
+	
+	@POPObjectDescription(jvmParameters = "-Xmx512m")
+	public POPJavaJobManager(@POPConfig(Type.URL) String url, @POPConfig(Type.PROTOCOLS) String[] protocols) {
+		configurationFile = conf.getSystemJobManagerConfig().toString();
+		init(conf.getSystemJobManagerConfig().toString());
+	}
+	
+	@POPObjectDescription(jvmParameters = "-Xmx512m")
+	public POPJavaJobManager(@POPConfig(Type.URL) String url, @POPConfig(Type.PROTOCOLS) String[] protocols, String conf) {
+		configurationFile = conf;
+		init(conf);
 	}
 
 	@POPObjectDescription(jvmParameters = "-Xmx512m")
@@ -962,14 +975,14 @@ public class POPJavaJobManager extends POPJobService {
 			POPNetwork newNetwork = new POPNetwork(name, this);
 
 			// add new network
-			LogWriter.writeDebugInfo(String.format("[JM] Network %s added", name));
+			LogWriter.writeDebugInfo("[JM] Network %s added", name);
 			networks.put(name, newNetwork);
 
 			// write all current configurations to a file
 			writeConfigurationFile();
 			return true;
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(String.format("[JM] Exception caught in createNetwork: %s", e.getMessage()));
+			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
 			return false;
 		}
 	}
@@ -982,11 +995,11 @@ public class POPJavaJobManager extends POPJobService {
 	@POPAsyncConc
 	public void removeNetwork(String name) {
 		if (!networks.containsKey(name)) {
-			LogWriter.writeDebugInfo(String.format("[JM] Network %s not removed, not found", name));
+			LogWriter.writeDebugInfo("[JM] Network %s not removed, not found", name);
 			return;
 		}
 		
-		LogWriter.writeDebugInfo(String.format("[JM] Network %s removed", name));
+		LogWriter.writeDebugInfo("[JM] Network %s removed", name);
 		networks.remove(name);
 		
 		// write all current configurations to a file
@@ -1004,11 +1017,11 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("[JM] Node %s not registered, network %s not found", Arrays.toString(params), networkName));
+			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), networkName);
 			return;
 		}
 
-		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), networkName));
+		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), networkName);
 		POPNetworkNode node = POPNetworkNodeFactory.makeNode(params);
 		node.setTemporary(true);
 		network.add(node);
@@ -1025,11 +1038,11 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("[JM] Node %s not removed, network not found", Arrays.toString(params)));
+			LogWriter.writeDebugInfo("[JM] Node %s not removed, network not found", Arrays.toString(params));
 			return;
 		}
 
-		LogWriter.writeDebugInfo(String.format("[JM] Node %s removed", Arrays.toString(params)));
+		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
 		network.remove(POPNetworkNodeFactory.makeNode(params));
 	}
 
@@ -1063,11 +1076,11 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network));
+			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network);
 			return;
 		}
 
-		LogWriter.writeDebugInfo(String.format("[JM] Node %s added to %s", Arrays.toString(params), network));
+		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), network);
 		network.add(POPNetworkNodeFactory.makeNode(params));
 		writeConfigurationFile();
 	}
@@ -1082,11 +1095,11 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
-			LogWriter.writeDebugInfo(String.format("[JM] Node %s not removed, network not found", Arrays.toString(params)));
+			LogWriter.writeDebugInfo("[JM] Node %s not removed, network not found", Arrays.toString(params));
 			return;
 		}
 
-		LogWriter.writeDebugInfo(String.format("[JM] Node %s removed", Arrays.toString(params)));
+		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
 		network.remove(POPNetworkNodeFactory.makeNode(params));
 		writeConfigurationFile();
 	}
@@ -1112,7 +1125,7 @@ public class POPJavaJobManager extends POPJobService {
 						// manually remove from iterator
 						available.add(job);
 						iterator.remove();
-						LogWriter.writeDebugInfo(String.format("[JM] Free up [%s] resources (unused).", job));
+						LogWriter.writeDebugInfo("[JM] Free up [%s] resources (unused).", job);
 					}
 				} // dead objects check with min UPDATE_MIN_INTERVAL time between them
 				else if (job.getAccessTime() < System.currentTimeMillis()) {
@@ -1125,7 +1138,7 @@ public class POPJavaJobManager extends POPJobService {
 						// manually remove from iterator
 						available.add(job);
 						iterator.remove();
-						LogWriter.writeDebugInfo(String.format("[JM] Free up [%s] resources (dead object).", job));
+						LogWriter.writeDebugInfo("[JM] Free up [%s] resources (dead object).", job);
 					}
 				}
 			}
@@ -1448,7 +1461,7 @@ public class POPJavaJobManager extends POPJobService {
 			if (request.isEndRequest()) {
 				timeout = 1;
 			} else {
-				LogWriter.writeDebugInfo(String.format("[PSN] LDISCOVERY;TIMEOUT;%d", timeout));
+				LogWriter.writeDebugInfo("[PSN] LDISCOVERY;TIMEOUT;%d", timeout);
 			}
 
 			// create and add request to local map
@@ -1501,7 +1514,7 @@ public class POPJavaJobManager extends POPJobService {
 
 			return results;
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in launchDiscovery: %s", e.getMessage()));
+			LogWriter.writeDebugInfo("[PSN] Exception caught in launchDiscovery: %s", e.getMessage());
 			return new SNNodesInfo();
 		}
 	}
@@ -1623,7 +1636,7 @@ public class POPJavaJobManager extends POPJobService {
 				}
 			}
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage()));
+			LogWriter.writeDebugInfo("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage());
 		}
 	}
 
@@ -1653,7 +1666,7 @@ public class POPJavaJobManager extends POPJobService {
 			// we unlock the senaphore if it was set
 			unlockDiscovery(response.getUID());
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in callbackResult: %s", e.getMessage()));
+			LogWriter.writeDebugInfo("[PSN] Exception caught in callbackResult: %s", e.getMessage());
 		}
 	}
 
@@ -1670,7 +1683,7 @@ public class POPJavaJobManager extends POPJobService {
 			// we want the call in the network to be between neighbors only
 			// so we go back on the way we came with the response for the source
 			if (!wayback.isLastNode()) {
-				LogWriter.writeDebugInfo(String.format("[PSN] REROUTE;%s;DEST;%s", response.getUID(), wayback.toString()));
+				LogWriter.writeDebugInfo("[PSN] REROUTE;%s;DEST;%s", response.getUID(), wayback.toString());
 				// get next node to contact
 				POPAccessPoint jm = wayback.pop();
 				POPJavaJobManager njm = PopJava.newActive(POPJavaJobManager.class, jm);
@@ -1679,11 +1692,11 @@ public class POPJavaJobManager extends POPJobService {
 				njm.exit();
 			} // is the last node, give the answer to the original JM who launched the request
 			else {
-				LogWriter.writeDebugInfo(String.format("[PSN] REROUTE_ORIGIN;%s;", response.getUID()));
+				LogWriter.writeDebugInfo("[PSN] REROUTE_ORIGIN;%s;", response.getUID());
 				callbackResult(response);
 			}
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(String.format("[PSN] Exception caught in rerouteResponse: %s", e.getMessage()));
+			LogWriter.writeDebugInfo("[PSN] Exception caught in rerouteResponse: %s", e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -1700,7 +1713,7 @@ public class POPJavaJobManager extends POPJobService {
 		// release if the semaphore was set
 		if (sem != null) {
 			sem.release();
-			LogWriter.writeDebugInfo(String.format("[PSN] UNLOCK SEMAPHORE %s", requid));
+			LogWriter.writeDebugInfo("[PSN] UNLOCK SEMAPHORE %s", requid);
 		}
 	}
 }

@@ -92,7 +92,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 
 			// failed requests
 			if (resIDs[jobIdx] == 0) {
-				LogWriter.writeDebugInfo(String.format("[JM] Usable to reserve on %s", jm.getAccessPoint()));
+				LogWriter.writeDebugInfo("[JM] Usable to reserve on %s", jm.getAccessPoint());
 				// failed creation
 				failed++;
 				jobIdx--;
@@ -147,7 +147,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 			}
 		}
 
-		LogWriter.writeDebugInfo(String.format("Object count=%d, require=%d", started, howmany));
+		LogWriter.writeDebugInfo("[JM] Object count=%d, require=%d", started, howmany);
 		// created all objects
 		if (started >= howmany) {
 			return 0;
@@ -161,7 +161,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[i]);
 				jm.exit();
 			} catch (POPException e) {
-				LogWriter.writeDebugInfo(String.format("Exception while killing objects: %s", e.getMessage()));
+				LogWriter.writeDebugInfo("[JM] Exception while killing objects: %s", e.getMessage());
 			}
 		}
 

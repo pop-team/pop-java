@@ -20,6 +20,7 @@ import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.network.NodeTFC;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.network.POPNetworkNodeFactory;
+import popjava.system.POPSystem;
 
 /**
  *
@@ -31,6 +32,7 @@ public class POPJavaJobManagerConfigurationTest {
 	
 	@Before
 	public void setup() throws IOException {
+		POPSystem.initialize();
 		tf = new TemporaryFolder();
 		tf.create();
 	}
@@ -38,6 +40,7 @@ public class POPJavaJobManagerConfigurationTest {
 	@After
 	public void destroy() {
 		tf.delete();
+		POPSystem.end();
 	}
 	
 	@Test

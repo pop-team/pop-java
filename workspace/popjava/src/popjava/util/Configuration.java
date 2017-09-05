@@ -103,13 +103,13 @@ public final class Configuration {
 	private int searchNodeMaxRequests = 300;
 	private int searchNodeExplorationQueueSize = 300;
 	
-	private String[] jobManagerProtocols = { ConnectionProtocol.SOCKET.getName() };
+	private String[] jobManagerProtocols = { "socket" };
 	private int[] jobManagerPorts = { 2711 };
 	private int popJavaDeamonPort = 43424;
 	
 	private String defaultEncoding = "xdr";
 	private String selectedEncoding = "raw";
-	private String defaultProtocol = ConnectionProtocol.SOCKET.getName();
+	private String defaultProtocol = "socket";
 
 	private boolean asyncConstructor = true;
 	private boolean activateJmx = false;
@@ -120,7 +120,7 @@ public final class Configuration {
 	private boolean useNativeSSHifPossible = true;
 	
 	// all relevant information of the keystore (alias, keyStorePassword, privateKeyPassword, keyStoreLocation, keyStoreType, temporaryCertificatesDir)
-	private KeyStoreOptions SSLKeyStoreOptions = new KeyStoreOptions();
+	private final KeyStoreOptions SSLKeyStoreOptions = new KeyStoreOptions();
 	
 	// NOTE this is waiting for TLSv1.3 to be officialized
 	private String SSLProtocolVersion = "TLSv1.2";
@@ -287,6 +287,10 @@ public final class Configuration {
 		return jobManagerPorts;
 	}
 
+	public String[] getJobManagerProtocols() {
+		return jobManagerProtocols;
+	}
+
 	public int getPopJavaDeamonPort() {
 		return popJavaDeamonPort;
 	}
@@ -450,7 +454,12 @@ public final class Configuration {
 	}
 	
 	public void setSSLKeyStoreOptions(KeyStoreOptions options) {
-		SSLKeyStoreOptions = new KeyStoreOptions(options);
+		setKeyStoreFile(new File(options.getKeyStoreFile()));
+		setKeyStoreFormat(options.getKeyStoreFormat());
+		setKeyStoreLocalAlias(options.getAlias());
+		setKeyStorePassword(options.getStorePass());
+		setKeyStorePrivateKeyPassword(options.getKeyPass());
+		setKeyStoreTempLocation(new File(options.getTempCertFolder()));
 	}
 
 	public void setJobManagerPorts(int[] jobManagerPorts) {

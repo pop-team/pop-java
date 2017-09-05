@@ -25,23 +25,28 @@ public class WatchDirectory implements Runnable {
 	
 	public static WatchMethod EMPTY = new WatchMethod();
 	
-	private Path myDir;
+	private Path watchedDir;
 	private WatchService watcher;
 	private WatchMethod method;
 	
 	private boolean running = true;
 	
-	public WatchDirectory(String path, WatchMethod method) {
+	public WatchDirectory(Path path, WatchMethod method) {
 		try {
-			myDir = Paths.get(path);
-			watcher = myDir.getFileSystem().newWatchService();
-			myDir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, 
+			watchedDir = path;
+			watcher = watchedDir.getFileSystem().newWatchService();
+			watchedDir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, 
 				StandardWatchEventKinds.ENTRY_DELETE,
 				StandardWatchEventKinds.ENTRY_MODIFY);
 			this.method = method;
+			LogWriter.writeDebugInfo("[WatchDirectory] Watching '%s'.", path);
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[WatchDirectory] Failed to start watcher services: %s", e.getMessage());
 		}
+	}
+
+	public Path getWatchedDir() {
+		return watchedDir;
 	}
 
 	@Override
@@ -73,9 +78,11 @@ public class WatchDirectory implements Runnable {
 		method = WatchDirectory.EMPTY;
 		// unlock watcher event listener
 		try {
-			Files.createTempFile(myDir, "stopwatcher.", ".tmp");
+			LogWriter.writeDebugInfo("[WatchDirectory] Stopped watching '%s'.", watchedDir.toString());
+			Path stopWatcher = Files.createTempFile(watchedDir, "stopwatcher.", ".tmp");
+			Files.deleteIfExists(stopWatcher);
 		} catch(IOException e) {
-			LogWriter.writeDebugInfo("[WatchDirectory] Thread may have not stopped correctly: " + e.toString());
+			LogWriter.writeDebugInfo("[WatchDirectory] Thread may have not stopped correctly: %s", e.toString());
 		}
 	}
 }

@@ -154,7 +154,7 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 		
 		// we answer the origin jobManager with all the discovered objects
 		if (requestObjects != null && requestObjects.size() > 0) {
-			LogWriter.writeDebugInfo(String.format("[TFC] found %d object(s)", requestObjects.size()));
+			LogWriter.writeDebugInfo("[TFC] found %d object(s)", requestObjects.size());
 		
 			for (Iterator<TFCResource> iterator = requestObjects.iterator(); iterator.hasNext();) {
 				TFCResource tfcResource = iterator.next();

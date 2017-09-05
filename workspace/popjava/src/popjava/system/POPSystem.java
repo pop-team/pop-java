@@ -349,6 +349,16 @@ public class POPSystem {
 		appservicecode = Util.removeStringFromList(argvList, "-appservicecode=");
 		proxy = Util.removeStringFromList(argvList, "-proxy=");
         appservicecontact = Util.removeStringFromList(argvList, "-appservicecontact=");
+		
+		String userConfig = Util.removeStringFromList(argvList, "-configfile=");
+		if (userConfig != null) {
+			File config = new File(userConfig);
+			try {
+				conf.load(config);
+			} catch(IOException e) {
+				LogWriter.writeDebugInfo("[Init] can't access user config '%s'", config.getAbsolutePath());
+			}
+		}
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){

@@ -16,7 +16,7 @@ public class ReferenceTest {
  */
 	@Test
 	public void test(){
-		POPSystem.start();
+		POPSystem.initialize();
 		
 		A a = PopJava.newActive(A.class);
 		

@@ -113,7 +113,7 @@ public class Interface {
 				bind(popAccessPoint);
 			} catch (POPException e) {
 				result = false;
-				LogWriter.writeDebugInfo("Deserialize. Cannot bind to " + popAccessPoint.toString());
+				LogWriter.writeDebugInfo("[Interface] Deserialize. Cannot bind to " + popAccessPoint.toString());
 				e.printStackTrace();
 			}
 			if (result){
@@ -234,9 +234,18 @@ public class Interface {
 
         if (jobContact.isEmpty()) {
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-			String protocol = conf.getDefaultProtocol();
-			jobContact.setAccessString(String.format("%s://%s:%d", 
-				protocol, POPSystem.getHostIP(), conf.getJobManagerPorts()[0]));
+			String[] jmProtocols = conf.getJobManagerProtocols();
+			for (int i = 0; i < jmProtocols.length; i++) {
+				String protocol = jmProtocols[i];
+				ComboxFactory factory = finder.findFactory(protocol);
+				if (factory != null) {
+					jobContact.setAccessString(String.format("%s://%s:%d", 
+						factory.getComboxName(), 
+						POPSystem.getHostIP(),
+						conf.getJobManagerPorts()[i]));
+					break;
+				}
+			}
         }
 
         POPJobService jobManager = null;
@@ -294,7 +303,7 @@ public class Interface {
 	protected boolean bind(POPAccessPoint accesspoint) throws POPException {
 
 		if (accesspoint == null || accesspoint.isEmpty()){
-			POPException.throwAccessPointNotAvailableException(accesspoint);
+			throw POPException.throwAccessPointNotAvailableException(accesspoint);
 		}
 		
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
@@ -302,8 +311,16 @@ public class Interface {
 		if (combox != null){
 			combox.close();
 		}
-		combox = finder.findFactory(splitPort(od.getProtocols()[0])[0])
-				.createClientCombox(accesspoint);
+		
+		for (int i = 0; i < accesspoint.size(); i++) {
+			String protocol = accesspoint.get(i).getProtocol();
+			ComboxFactory factory = finder.findFactory(protocol);
+			// choose the first available protocol
+			if (factory != null) {
+				combox = factory.createClientCombox(accesspoint);
+				break;
+			}
+		}
 		
 		if (combox.connect(accesspoint, conf.getConnectionTimeout())) {
 
@@ -510,7 +527,7 @@ public class Interface {
 		if(joburl == null || joburl.length() == 0){
 			return false;
 		}
-		LogWriter.writeDebugInfo("Joburl "+joburl+" "+objectName);
+		LogWriter.writeDebugInfo("[Interface] Joburl "+joburl+" "+objectName);
 
 		codeFile = od.getCodeFile();
 		
@@ -541,7 +558,8 @@ public class Interface {
 		// empty protocol in od, all or default
 		if (nbProtocols == 1 && od.getProtocols()[0].isEmpty()) {			
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-			int protocolsCount = finder.getFactoryCount();
+			ComboxFactory[] protocolsFactories = finder.getAvailableFactories();
+			int protocolsCount = protocolsFactories.length;
 			
 			// use default protocol if a port is set in url
 			if (rports != null) {
@@ -552,7 +570,7 @@ public class Interface {
 				protocols = new String[protocolsCount];
 				rports = new String[protocolsCount];
 				for (int i = 0; i < protocolsCount; i++) {
-					protocols[i] = finder.get(i).getComboxName();
+					protocols[i] = protocolsFactories[i].getComboxName();
 					rports[i] = "0";
 				}
 			}
@@ -606,10 +624,10 @@ public class Interface {
 		int status = localExec(joburl, codeFile, objectName, protocols, rports,
 				POPSystem.jobService, POPSystem.appServiceAccessPoint, accesspoint,
 				od);
-		
+
 		if (status != 0) {
 			// Throw exception
-			LogWriter.writeDebugInfo("Could not create "+objectName+" on "+joburl);
+			LogWriter.writeDebugInfo("[Interface] Could not create "+objectName+" on "+joburl);
 		}
 		
 		return (status == 0);
@@ -646,7 +664,7 @@ public class Interface {
                 	tempService.unregisterService("");
                     appCoreService = tempService;
                 }catch(Exception e){
-                	LogWriter.writeDebugInfo("Running app service is not from POP-C++, fall back to POP-Java");
+                	LogWriter.writeDebugInfo("[Interface] Running app service is not from POP-C++, fall back to POP-Java");
                     appCoreService = null;
                 }
             }
@@ -656,7 +674,7 @@ public class Interface {
                     appCoreService = PopJava.newActive(
                     		POPJavaAppService.class, POPSystem.appServiceAccessPoint);
                 }catch(POPException e){
-                    LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
+                    LogWriter.writeDebugInfo("[Interface] Could not contact Appservice to recover code file");
                 }
             }
         }else{
@@ -731,7 +749,7 @@ public class Interface {
 		}
 		codeFile = codeFile.trim();
 
-		ArrayList<String> argvList = new ArrayList<String>();
+		ArrayList<String> argvList = new ArrayList<>();
 
 		ArrayList<String> codeList = Util.splitTheCommand(codeFile);
 		argvList.addAll(codeList);
@@ -756,9 +774,17 @@ public class Interface {
 			}
 		}
 		
-		String allocateProtocol = protocols[0];
-		ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(allocateProtocol);
-		ComboxAllocate allocateCombox = factory.createAllocateCombox();
+		ComboxAllocate allocateCombox = null;
+		for (String protocol : protocols) {
+			ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
+			if (factory.isAvailable()) {
+				allocateCombox = factory.createAllocateCombox();
+				break;
+			}
+		}
+		if (allocateCombox == null) {
+			return -1;
+		}
 		
 		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox.getUrl());
 		argvList.add(callbackString);
@@ -839,7 +865,7 @@ public class Interface {
 		allocateCombox.startToAcceptOneConnection();
 		
 		if(!allocateCombox.isComboxConnected()){
-			LogWriter.writeDebugInfo("Could not connect broker");
+			LogWriter.writeDebugInfo("[Interface] Could not connect broker");
 			return -1;
 		}
 		

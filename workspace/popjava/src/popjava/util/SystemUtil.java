@@ -35,9 +35,9 @@ public class SystemUtil {
 	 */
 	public static int runCmd(List<String> argvs) {
 		long startTime = System.currentTimeMillis();
-		LogWriter.writeDebugInfo("Run command");
+		LogWriter.writeDebugInfo("[System] Run command");
 		for(String arg: argvs){
-			LogWriter.writeDebugInfo(arg);
+			LogWriter.writeDebugInfo(" %79s", arg);
 		}
 		
 		ProcessBuilder pb = new ProcessBuilder(argvs);
@@ -50,14 +50,14 @@ public class SystemUtil {
 		
 		if (pb != null) {
 			try {
-				String directory = System.getProperty("java.io.tmpdir");
+				/*String directory = System.getProperty("java.io.tmpdir");
 				File currentDirectory = new File(directory);
 				if (currentDirectory != null) {
 					//pb.directory(currentDirectory);
-				}
+				}*/
 				Process process = pb.start();
 				processes.add(process);
-				LogWriter.writeDebugInfo("Started command after "+(System.currentTimeMillis() - startTime));
+				LogWriter.writeDebugInfo("[System] Started command after %s ms", System.currentTimeMillis() - startTime);
 				return 0;
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -79,12 +79,12 @@ public class SystemUtil {
 	public static int runRemoteCmdSSHJ(String url, List<String> command){
 		int returnValue = -1;
 		final SSHClient client = new SSHClient();
-		LogWriter.writeDebugInfo("Connect to "+url+" using sshj");
+		LogWriter.writeDebugInfo("[System] Connect to "+url+" using sshj");
 		try {
 			client.addHostKeyVerifier(new PromiscuousVerifier());
 			client.connect(url);
 			
-			LogWriter.writeDebugInfo("Use user "+System.getProperty("user.name")+"for connection");
+			LogWriter.writeDebugInfo("[System] Use user "+System.getProperty("user.name")+"for connection");
 			client.authPublickey(System.getProperty("user.name"));
 
             final Session session = client.startSession();
@@ -96,7 +96,7 @@ public class SystemUtil {
                 		commandAsString += " ";
                 	}
                 }
-                LogWriter.writeDebugInfo("Run remote command");
+                LogWriter.writeDebugInfo("[System] Run remote command");
                 session.exec(commandAsString);
                 returnValue = 0;
             }finally{

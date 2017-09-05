@@ -179,12 +179,12 @@ public final class Broker {
 			}
 			
 			try {
-				LogWriter.writeDebugInfo("Local file " + codelocation);
+				LogWriter.writeDebugInfo("[Broker] Local file '%s'", codelocation);
 				url = new File(codelocation).toURI().toURL();
 				POPJavaAgent.getInstance().addJar(codelocation);
 			} catch (MalformedURLException e) {
-				LogWriter.writeDebugInfo(this.getClass().getName()
-						+ ".MalformedURLException: " + e.getMessage());
+				LogWriter.writeDebugInfo("[Broker] %s.MalformedURLException : %s", 
+					this.getClass().getName(), e.getMessage());
 				System.exit(0);
 			} catch (NotFoundException e) {
                 e.printStackTrace();
@@ -192,7 +192,7 @@ public final class Broker {
             }
 			
 			if (url != null) {
-				LogWriter.writeDebugInfo("url construct");
+				LogWriter.writeDebugInfo("[Broker] url construct");
 				
 				urlClassLoader = new URLClassLoader(new URL[]{url});
 			}
@@ -203,9 +203,8 @@ public final class Broker {
 			targetClass = getPOPObjectClass(objectName, urlClassLoader);
 			popInfo = (POPObject) targetClass.getConstructor().newInstance();
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(getClass().getName()
-					+ " Constructor Exception: " + e.getClass().getName()
-					+ " Message:" + e.getMessage());
+			LogWriter.writeDebugInfo("[Broker] %s ; Mesage: %s",
+					e.getClass().getName(), e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -306,8 +305,8 @@ public final class Broker {
 			}
 		}
 		if (exception != null) {
-			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException:"
-					+ exception.getMessage());
+			LogWriter.writeDebugInfo("[Broker] %s sendException: %s", 
+				this.getLogPrefix(), exception.getMessage());
 			sendException(request.getCombox(), exception, request.getRequestID());
 			System.exit(0);
 		}
@@ -408,7 +407,7 @@ public final class Broker {
 			}catch(InvocationTargetException e){
 				LogWriter.writeExceptionLog(e);
 				LogWriter.writeExceptionLog(e.getCause());
-				LogWriter.writeDebugInfo("Cannot execute. Cause "+e.getCause().getMessage());
+				LogWriter.writeDebugInfo("[Broker] Cannot execute. Cause %s.", e.getCause().getMessage());
 				exception = POPException.createReflectException(
 						method.getName(), e.getCause().getMessage());
 			}catch (Exception e) {
@@ -416,7 +415,7 @@ public final class Broker {
 				LogWriter.writeExceptionLog(e);
 				System.out.println(method.toGenericString());
 				System.out.println(request.getClassId()+" "+request.getMethodId());
-				LogWriter.writeDebugInfo("Cannot execute "+method.toGenericString());
+				LogWriter.writeDebugInfo("[Broker] Cannot execute %s", method.toGenericString());
 				exception = POPException.createReflectException(
 						method.getName(), e.getMessage());
 
@@ -443,7 +442,7 @@ public final class Broker {
 						try {
 							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
 						} catch (POPException e) {
-							LogWriter.writeDebugInfo("Excecption serializing parameter "+parameterTypes[index].getName());
+							LogWriter.writeDebugInfo("[Broker] Excecption serializing parameter %s", parameterTypes[index].getName());
 							exception = new POPException(e.errorCode, e.errorMessage);
 							break;
 						}
@@ -493,7 +492,7 @@ public final class Broker {
 					POPObject object = (POPObject)parameters[index];
 					//LogWriter.writeDebugInfo("POPObject parameter is temporary: "+object.isTemporary());
 					if(object.isTemporary()){
-						LogWriter.writeDebugInfo("Exit popobject");
+						LogWriter.writeDebugInfo("[Broker] Exit popobject");
 						object.exit();
 					}
 				}
@@ -503,7 +502,8 @@ public final class Broker {
 		// or cannot put the output parameter,
 		// send it to the interface
 		if (exception != null) {
-			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException : " + exception.getMessage());
+			LogWriter.writeDebugInfo("[Broker] %s sendException: %s.", 
+				this.getLogPrefix(), exception.getMessage());
 			if (request.isSynchronous()){
 				sendException(request.getCombox(), exception, request.getRequestID());
 			}
@@ -751,7 +751,7 @@ public final class Broker {
 				}
 			}
 		}
-		LogWriter.writeDebugInfo("Close broker "+popInfo.getClassName());
+		LogWriter.writeDebugInfo("[Broker] Close broker "+popInfo.getClassName());
 	}
 
 	/**
@@ -759,7 +759,7 @@ public final class Broker {
 	 */
 	public synchronized void onNewConnection() {
 		connectionCount++;
-		LogWriter.writeDebugInfo("Open connection "+connectionCount);
+		LogWriter.writeDebugInfo("[Broker] Open connection "+connectionCount);
 	}
 
 	/**
@@ -768,7 +768,7 @@ public final class Broker {
 	 */
 	public synchronized void onCloseConnection(String source) {
 		connectionCount--;
-		LogWriter.writeDebugInfo("Close connection, left "+connectionCount+" "+source);
+		LogWriter.writeDebugInfo("[Broker] Close connection, left "+connectionCount+" "+source);
 		if (connectionCount <= 0){
 			setState(State.Exit);
 		}
@@ -838,11 +838,10 @@ public final class Broker {
 		
 		buffer = new BufferXDR();
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-		int comboxCount = finder.getFactoryCount();
+		ComboxFactory[] comboxFactories = finder.getAvailableFactories();
 		
 		List<ComboxServer> liveServers = new ArrayList<>();
-		for (int i = 0; i < comboxCount; i++) {
-			ComboxFactory factory = finder.get(i);
+		for (ComboxFactory factory : comboxFactories) {
 			String prefix = String.format("-%s_port=", factory.getComboxName());
 			
 			// hadle multiple times the same protocol
@@ -921,18 +920,18 @@ public final class Broker {
             
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-            	LogWriter.writeDebugInfo("POP Uncatched exception");
+            	LogWriter.writeDebugInfo("[Broker] POP Uncatched exception");
             	LogWriter.writeExceptionLog(e);
             }
         });
 		
 		ArrayList<String> argvList = new ArrayList<String>();
-		LogWriter.writeDebugInfo("Broker parameters");
+		LogWriter.writeDebugInfo("[Broker] Broker parameters");
 		for (String str : argvs) {
 			argvList.add(str);
-			LogWriter.writeDebugInfo(str);
+			LogWriter.writeDebugInfo(" %79s", str);
 		}
-		LogWriter.writeDebugInfo("Broker parameters end");
+		LogWriter.writeDebugInfo("[Broker] Broker parameters end");
 		
 		String appservice = Util.removeStringFromList(argvList,
 				APPSERVICE_PREFIX);
@@ -976,17 +975,16 @@ public final class Broker {
 				callback = factory.createClientCombox(accessPoint, 0);
 				
 				if (!callback.connect()) {
-					LogWriter.writeDebugInfo(String.format(
-							"-Error: fail to connect to callback:%s",
-							accessPoint.toString()));
+					LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",
+							accessPoint.toString());
 					System.exit(1);
 				} else {
-						LogWriter.writeDebugInfo("Connected to callback socket");
+						LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
 				}
 			}
 
 		} else {
-			LogWriter.writeDebugInfo("-Error: callback is null");
+			LogWriter.writeDebugInfo("[Broker] Error: callback is null");
 			System.exit(1);
 		}
 		
@@ -1009,7 +1007,7 @@ public final class Broker {
 			POPBuffer buffer = new BufferXDR();
 			buffer.setHeader(messageHeader);
 			buffer.putInt(status);
-			LogWriter.writeDebugInfo("Broker can be accessed at "+broker.getAccessPoint().toString());
+			LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 			broker.getAccessPoint().serialize(buffer);
 			callback.send(buffer);
 		}
@@ -1018,7 +1016,7 @@ public final class Broker {
 			broker.treatRequests();
 		}
 		
-		LogWriter.writeDebugInfo("End broker life : "+objectName);
+		LogWriter.writeDebugInfo("[Broker] End broker life : "+objectName);
 		System.exit(0);
 	}
 

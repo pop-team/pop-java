@@ -180,33 +180,44 @@ public class POPTrustManager implements X509TrustManager {
 		// add temporary certificates
 		// get all files in directory and add them
 		File tempCertDir = conf.getKeyStoreTempLocation();
-		if (tempCertDir.exists()) {
-			for (File file : tempCertDir.listFiles()) {
-				if (file.isFile() && file.getName().endsWith(".cer")) {
-					try (InputStream fileStream = new FileInputStream(file)) {
-						Certificate cert = certFactory.generateCertificate(fileStream);
-						String alias = file.getName().substring(0, file.getName().length() - 4);
-						trustedKS.setCertificateEntry(alias, cert);
-					} catch(Exception e) {
+		if (tempCertDir != null) {
+			if (tempCertDir.exists()) {
+				for (File file : tempCertDir.listFiles()) {
+					if (file.isFile() && file.getName().endsWith(".cer")) {
+						try (InputStream fileStream = new FileInputStream(file)) {
+							Certificate cert = certFactory.generateCertificate(fileStream);
+							String alias = file.getName().substring(0, file.getName().length() - 4);
+							trustedKS.setCertificateEntry(alias, cert);
+						} catch(Exception e) {
+						}
 					}
 				}
 			}
-		}
-		// directory doesn't exists, create it (may have changed)
-		else {
-			// create temp dir if not found
-			Files.createDirectory(tempCertDir.toPath());
+			// directory doesn't exists, create it (may have changed)
+			else {
+				// create temp dir if not found
+				Files.createDirectory(tempCertDir.toPath());
+			}
 			// watch temporaray certificate directory
 			if (tempCertDir.canRead()) {
 				// stop previous watcher
+				boolean createWatcher = true;
 				if (watcher != null) {
-					watcher.stop();
+					if (tempCertDir.toPath().equals(watcher.getWatchedDir())) {
+						createWatcher = false;
+					}
+					// change of directory
+					else {
+						watcher.stop();
+					}
 				}
-				
-				watcher = new WatchDirectory(tempCertDir.getAbsolutePath(), new WatcherMethods());
-				Thread dirWatcher = new Thread(watcher, "TrustStore temporary folder watcher");
-				dirWatcher.setDaemon(true);
-				dirWatcher.start();
+
+				if (createWatcher) {
+					watcher = new WatchDirectory(tempCertDir.toPath(), new WatcherMethods());
+					Thread dirWatcher = new Thread(watcher, "TrustStore temporary folder watcher");
+					dirWatcher.setDaemon(true);
+					dirWatcher.start();
+				}
 			}
 		}
 		

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.InvalidParameterException;
+import java.util.Random;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -137,7 +138,9 @@ public class CreateKeyStoreTest {
 		serverSocket.setNeedClientAuth(true);
 		
 		// expected message
-		final byte[] expecteds = new byte[]{ 1, 2, 3, 2, 1 };
+		Random rnd = new Random();
+		final byte[] expecteds = new byte[1024 + rnd.nextInt(1024)];
+		rnd.nextBytes(expecteds);
 		
 		new Thread(new Runnable() {
 			@Override
@@ -152,14 +155,14 @@ public class CreateKeyStoreTest {
 		LogWriter.writeDebugInfo("Connecting client");
 		try (Socket server = socketFactory.createSocket(serverSocket.getInetAddress(), serverSocket.getLocalPort());
 			InputStream in = server.getInputStream()) {
-			byte[] actuals = new byte[5];
+			byte[] actuals = new byte[expecteds.length];
 			in.read(actuals);
 			
 			Assert.assertArrayEquals(expecteds, actuals);
 		}
 		
 		serverSocket.close();
-			
+		
 		LogWriter.writeDebugInfo("Cleanup");
 		testDir.delete();
 	}

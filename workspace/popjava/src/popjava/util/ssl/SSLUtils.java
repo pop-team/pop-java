@@ -2,6 +2,7 @@ package popjava.util.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -64,6 +65,8 @@ public class SSLUtils {
 	
 	/** Single instance of SSLContext for each process */
 	private static SSLContext sslContextInstance = null;
+	/** Keep track of the keystore location so we can reload it */
+	private static File keyStoreLocation = null;
 	/** Factory to create X.509 certificate from RSA text input */
 	private static CertificateFactory certFactory;
 	
@@ -126,15 +129,19 @@ public class SSLUtils {
 	public static SSLContext getSSLContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, 
 		CertificateException, UnrecoverableKeyException, KeyManagementException {
 		// init SSLContext once
-		if (sslContextInstance == null) {
+		if (sslContextInstance == null || !conf.getKeyStoreTempLocation().equals(keyStoreLocation)) {
 			// load private key
+			keyStoreLocation = conf.getKeyStoreTempLocation();
 			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			keyManagerFactory.init(keyStore, conf.getKeyStorePrivateKeyPassword().toCharArray());
 			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 
+			// create the context the first time, and update it when necessary
+			if (sslContextInstance == null) {
+				sslContextInstance = SSLContext.getInstance(conf.getSSLProtocolVersion());
+			}
 			// init ssl context with everything
-			sslContextInstance = SSLContext.getInstance(conf.getSSLProtocolVersion());
 			sslContextInstance.init(keyManagerFactory.getKeyManagers(), trustManagers, new SecureRandom());
 		}
 
