@@ -1,5 +1,6 @@
 package junit.localtests.security;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +20,7 @@ import popjava.combox.ssl.POPTrustManager;
 import popjava.service.jobmanager.network.NodeTFC;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
-import popjava.util.ssl.KeyStoreOptions;
+import popjava.util.ssl.KeyStoreCreationOptions;
 import popjava.util.ssl.SSLUtils;
 
 
@@ -29,8 +30,8 @@ import popjava.util.ssl.SSLUtils;
  */
 public class MethodAccessTest {
 	
-	static KeyStoreOptions optionsTemporary;
-	static KeyStoreOptions optionsTrusted;
+	static KeyStoreCreationOptions optionsTemporary;
+	static KeyStoreCreationOptions optionsTrusted;
 	
 	static Path configTemporary;
 	static Path configTrusted;
@@ -46,18 +47,18 @@ public class MethodAccessTest {
 			Configuration conf = Configuration.getInstance();
 			conf.setDebug(true);
 			
-			optionsTemporary = new KeyStoreOptions(String.format("%x@mynet", node.hashCode()), "mypass", "keypass", "test_store1.jks");
-			optionsTemporary.setTempCertFolder("temp1");
+			optionsTemporary = new KeyStoreCreationOptions(String.format("%x@mynet", node.hashCode()), "mypass", "keypass", new File("test_store1.jks"));
+			optionsTemporary.setTempCertFolder(new File("temp1"));
 			
-			optionsTrusted = new KeyStoreOptions(String.format("%x@mynet2", node.hashCode()), "mypass", "keypass", "test_store2.jks");
-			optionsTrusted.setTempCertFolder("temp2");
+			optionsTrusted = new KeyStoreCreationOptions(String.format("%x@mynet2", node.hashCode()), "mypass", "keypass", new File("test_store2.jks"));
+			optionsTrusted.setTempCertFolder(new File("temp2"));
 			
 			// remove possible leftovers
-			Files.deleteIfExists(Paths.get(optionsTemporary.getTempCertFolder(), "cert1.cer"));
-			Files.deleteIfExists(Paths.get(optionsTemporary.getTempCertFolder()));
-			Files.deleteIfExists(Paths.get(optionsTrusted.getTempCertFolder()));
-			Files.deleteIfExists(Paths.get(optionsTemporary.getKeyStoreFile()));
-			Files.deleteIfExists(Paths.get(optionsTrusted.getKeyStoreFile()));
+			Files.deleteIfExists(Paths.get(optionsTemporary.getTempCertFolder().getAbsolutePath(), "cert1.cer"));
+			Files.deleteIfExists(optionsTemporary.getKeyStoreFile().toPath());
+			Files.deleteIfExists(optionsTrusted.getKeyStoreFile().toPath());
+			Files.deleteIfExists(optionsTemporary.getTempCertFolder().toPath());
+			Files.deleteIfExists(optionsTrusted.getTempCertFolder().toPath());	
 			
 			configTemporary = Files.createTempFile("pop-junit-", ".properties");
 			configTrusted = Files.createTempFile("pop-junit-", ".properties");
@@ -70,12 +71,12 @@ public class MethodAccessTest {
 			Certificate opt1Pub = SSLUtils.getLocalPublicCertificate();
 
 			// write certificate to dir
-			Path temp1 = Paths.get(optionsTemporary.getTempCertFolder());
+			Path temp1 = optionsTemporary.getTempCertFolder().toPath();
 			if (!temp1.toFile().exists()) {
 				Files.createDirectory(temp1);
 			}
 			byte[] certificateBytes = SSLUtils.certificateBytes(opt1Pub);
-			Path p = Paths.get(optionsTemporary.getTempCertFolder(), "cert1.cer");
+			Path p = Paths.get(optionsTemporary.getTempCertFolder().getAbsolutePath(), "cert1.cer");
 			Files.createFile(p);
 			Files.write(p, certificateBytes, StandardOpenOption.APPEND);
 
@@ -87,7 +88,7 @@ public class MethodAccessTest {
 			// create truststore
 			conf.setSSLKeyStoreOptions(optionsTrusted);
 			SSLUtils.generateKeyStore(optionsTrusted);
-			Path temp2 = Paths.get(optionsTrusted.getTempCertFolder());
+			Path temp2 = optionsTrusted.getTempCertFolder().toPath();
 			if (!temp2.toFile().exists()) {
 				Files.createDirectory(temp2);
 			}
@@ -100,11 +101,11 @@ public class MethodAccessTest {
 	
 	@AfterClass
 	public static void afterClass() throws IOException {
-		Files.deleteIfExists(Paths.get(optionsTemporary.getTempCertFolder(), "cert1.cer"));
-		Files.deleteIfExists(Paths.get(optionsTemporary.getKeyStoreFile()));
-		Files.deleteIfExists(Paths.get(optionsTrusted.getKeyStoreFile()));
-		Files.deleteIfExists(Paths.get(optionsTemporary.getTempCertFolder()));
-		Files.deleteIfExists(Paths.get(optionsTrusted.getTempCertFolder()));	
+		Files.deleteIfExists(Paths.get(optionsTemporary.getTempCertFolder().getAbsolutePath(), "cert1.cer"));
+		Files.deleteIfExists(optionsTemporary.getKeyStoreFile().toPath());
+		Files.deleteIfExists(optionsTrusted.getKeyStoreFile().toPath());
+		Files.deleteIfExists(optionsTemporary.getTempCertFolder().toPath());
+		Files.deleteIfExists(optionsTrusted.getTempCertFolder().toPath());	
 		Files.deleteIfExists(configTrusted);
 		Files.deleteIfExists(configTemporary);
 	}

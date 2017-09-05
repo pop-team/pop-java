@@ -96,7 +96,7 @@ public class SSLUtils {
 	 */
 	private static KeyStore loadKeyStore() throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
 		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-		keyStore.load(new FileInputStream(conf.getKeyStoreFile()), conf.getKeyStorePassword().toCharArray());
+		keyStore.load(new FileInputStream(conf.getSSLKeyStoreFile()), conf.getSSLKeyStorePassword().toCharArray());
 		return keyStore;
 	}
 	
@@ -111,7 +111,7 @@ public class SSLUtils {
 	 * @throws Exception 
 	 */
 	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, Exception {
-		keyStore.store(new FileOutputStream(conf.getKeyStoreFile()), conf.getKeyStorePassword().toCharArray());
+		keyStore.store(new FileOutputStream(conf.getSSLKeyStoreFile()), conf.getSSLKeyStorePassword().toCharArray());
 		POPTrustManager.getInstance().reloadTrustManager();
 	}
 	
@@ -129,12 +129,12 @@ public class SSLUtils {
 	public static SSLContext getSSLContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, 
 		CertificateException, UnrecoverableKeyException, KeyManagementException {
 		// init SSLContext once
-		if (sslContextInstance == null || !conf.getKeyStoreTempLocation().equals(keyStoreLocation)) {
+		if (sslContextInstance == null || !conf.getSSLKeyStoreTemporaryLocation().equals(keyStoreLocation)) {
 			// load private key
-			keyStoreLocation = conf.getKeyStoreTempLocation();
+			keyStoreLocation = conf.getSSLKeyStoreTemporaryLocation();
 			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, conf.getKeyStorePrivateKeyPassword().toCharArray());
+			keyManagerFactory.init(keyStore, conf.getSSLKeyStorePrivateKeyPassword().toCharArray());
 			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 
 			// create the context the first time, and update it when necessary
@@ -362,7 +362,7 @@ public class SSLUtils {
 			String outName = fingerprint + ".cer";
 			
 			// certificates temprary path
-			Path path = Paths.get(conf.getKeyStoreTempLocation().toString(), outName);
+			Path path = Paths.get(conf.getSSLKeyStoreTemporaryLocation().toString(), outName);
 			// move to local directory
 			Files.write(path, certificate);
 			
@@ -381,7 +381,7 @@ public class SSLUtils {
 	 * @param options 
 	 * @return true if we were able to create the keystore
 	 */
-	public static boolean generateKeyStore(KeyStoreOptions options) {
+	public static boolean generateKeyStore(KeyStoreCreationOptions options) {
 		// something the key generated seems to be invalid (invalidated by bouncycastle)
 		// we retry for a while in that case
 		int limit = 15;
@@ -404,7 +404,7 @@ public class SSLUtils {
 	 * @param options
 	 * @return 
 	 */
-	private static boolean generateKeyStoreOnce(KeyStoreOptions options) {
+	private static boolean generateKeyStoreOnce(KeyStoreCreationOptions options) {
 		options.validate();
 		
 		try {
@@ -412,7 +412,7 @@ public class SSLUtils {
 
 			// generate keys
 			KeyPairGenerator pairGenerator = KeyPairGenerator.getInstance("RSA");
-			pairGenerator.initialize(options.getKeySize());
+			pairGenerator.initialize(options.getPrivateKeySize());
 			KeyPair pair = pairGenerator.generateKeyPair();
 
 			// public certificate setup
@@ -458,20 +458,20 @@ public class SSLUtils {
 
 			// add private key to the new keystore
 			KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(rsaPrivateKey, new Certificate[]{x509Certificate});
-			KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(options.getKeyPass().toCharArray());
+			KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(options.getPrivateKeyPassword().toCharArray());
 
-			ks.setEntry(options.getAlias(), privateKeyEntry, passwordProtection);
+			ks.setEntry(options.getLocalAlias(), privateKeyEntry, passwordProtection);
 
 			// write to memory
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			ks.store(out, options.getStorePass().toCharArray());
+			ks.store(out, options.getKeyStorePassword().toCharArray());
 			out.close();
 			
 			// load a "clean" version and save to disk
 			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 			KeyStore ksout = KeyStore.getInstance(options.getKeyStoreFormat().name());
-			ksout.load(in, options.getStorePass().toCharArray());
-			ksout.store(new FileOutputStream(options.getKeyStoreFile()), options.getStorePass().toCharArray());
+			ksout.load(in, options.getKeyStorePassword().toCharArray());
+			ksout.store(new FileOutputStream(options.getKeyStoreFile()), options.getKeyStorePassword().toCharArray());
 			return true;
 		} catch(Exception e) {
 			LogWriter.writeDebugInfo("[KeyStore] Generation failed with message: %s. Retrying.", e.getMessage());

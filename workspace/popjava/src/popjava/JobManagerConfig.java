@@ -8,16 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 import popjava.base.POPObject;
 import popjava.baseobject.POPAccessPoint;
-import popjava.util.ssl.KeyStoreOptions;
 import popjava.util.ssl.SSLUtils;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.network.POPNetworkNodeFactory;
-import popjava.serviceadapter.POPJobManager;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.ssl.KeyStoreCreationOptions;
 
 /**
  * Proxy to Job Manager for user use of the complexity
@@ -290,7 +289,7 @@ public class JobManagerConfig {
 	 * @param options
 	 * @return 
 	 */
-	public boolean generateKeyStore(KeyStoreOptions options) {
+	public boolean generateKeyStore(KeyStoreCreationOptions options) {
 		return SSLUtils.generateKeyStore(options);
 	}
 	

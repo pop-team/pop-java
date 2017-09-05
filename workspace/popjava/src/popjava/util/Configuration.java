@@ -15,8 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import popjava.baseobject.ConnectionProtocol;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
-import popjava.util.ssl.KeyStoreOptions;
-import popjava.util.ssl.KeyStoreOptions.KeyStoreFormat;
+import popjava.util.ssl.KeyStoreDetails;
+import popjava.util.ssl.KeyStoreDetails.KeyStoreFormat;
 
 /**
  * This class regroup some configuration values
@@ -120,7 +120,7 @@ public final class Configuration {
 	private boolean useNativeSSHifPossible = true;
 	
 	// all relevant information of the keystore (alias, keyStorePassword, privateKeyPassword, keyStoreLocation, keyStoreType, temporaryCertificatesDir)
-	private final KeyStoreOptions SSLKeyStoreOptions = new KeyStoreOptions();
+	private final KeyStoreDetails SSLKeyStoreOptions = new KeyStoreDetails();
 	
 	// NOTE this is waiting for TLSv1.3 to be officialized
 	private String SSLProtocolVersion = "TLSv1.2";
@@ -251,36 +251,36 @@ public final class Configuration {
 		return useNativeSSHifPossible;
 	}
 
-	public KeyStoreOptions getSSLKeyStoreOptions() {
-		return new KeyStoreOptions(SSLKeyStoreOptions);
+	public KeyStoreDetails getSSLKeyStoreOptions() {
+		return new KeyStoreDetails(SSLKeyStoreOptions);
 	}
 
 	public String getSSLProtocolVersion() {
 		return SSLProtocolVersion;
 	}
 	
-	public File getKeyStoreFile() {
-		return new File(SSLKeyStoreOptions.getKeyStoreFile());
+	public File getSSLKeyStoreFile() {
+		return SSLKeyStoreOptions.getKeyStoreFile();
 	}
 
-	public String getKeyStorePassword() {
-		return SSLKeyStoreOptions.getStorePass();
+	public String getSSLKeyStorePassword() {
+		return SSLKeyStoreOptions.getKeyStorePassword();
 	}
 
-	public String getKeyStorePrivateKeyPassword() {
-		return SSLKeyStoreOptions.getKeyPass();
+	public String getSSLKeyStorePrivateKeyPassword() {
+		return SSLKeyStoreOptions.getPrivateKeyPassword();
 	}
 
-	public String getKeyStoreLocalAlias() {
-		return SSLKeyStoreOptions.getAlias();
+	public String getSSLKeyStoreLocalAlias() {
+		return SSLKeyStoreOptions.getLocalAlias();
 	}
 
-	public KeyStoreFormat getKeyStoreFormat() {
+	public KeyStoreFormat getSSLKeyStoreFormat() {
 		return SSLKeyStoreOptions.getKeyStoreFormat();
 	}
 
-	public File getKeyStoreTempLocation() {
-		return new File(SSLKeyStoreOptions.getTempCertFolder());
+	public File getSSLKeyStoreTemporaryLocation() {
+		return SSLKeyStoreOptions.getTempCertFolder();
 	}
 
 	public int[] getJobManagerPorts() {
@@ -423,43 +423,43 @@ public final class Configuration {
 		this.SSLProtocolVersion = SSLProtocolVersion;
 	}
 
-	public void setKeyStoreFile(File file) {
+	public void setSSLKeyStoreFile(File file) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FILE.name(), file.toString());
-		SSLKeyStoreOptions.setKeyStoreFile(file.toString());
+		SSLKeyStoreOptions.setKeyStoreFile(file);
 	}
 
-	public void setKeyStorePassword(String val) {
+	public void setSSLKeyStorePassword(String val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_PASSWORD.name(), val);
-		SSLKeyStoreOptions.setStorePass(val);
+		SSLKeyStoreOptions.setKeyStorePassword(val);
 	}
 
-	public void setKeyStorePrivateKeyPassword(String val) {
+	public void setSSLKeyStorePrivateKeyPassword(String val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_PRIVATE_KEY_PASSWORD.name(), val);
-		SSLKeyStoreOptions.setKeyPass(val);
+		SSLKeyStoreOptions.setPrivateKeyPassword(val);
 	}
 
-	public void setKeyStoreLocalAlias(String val) {
+	public void setSSLKeyStoreLocalAlias(String val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_LOCAL_ALIAS.name(), val);
-		SSLKeyStoreOptions.setAlias(val);
+		SSLKeyStoreOptions.setLocalAlias(val);
 	}
 
-	public void setKeyStoreFormat(KeyStoreFormat val) {
+	public void setSSLKeyStoreFormat(KeyStoreFormat val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FORMAT.name(), val.name());
 		SSLKeyStoreOptions.setKeyStoreFormat(val);
 	}
 
-	public void setKeyStoreTempLocation(File file) {
+	public void setSSLKeyStoreTempLocation(File file) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_TEMP_LOCATION.name(), file.toString());
-		SSLKeyStoreOptions.setTempCertFolder(file.toString());
+		SSLKeyStoreOptions.setTempCertFolder(file);
 	}
 	
-	public void setSSLKeyStoreOptions(KeyStoreOptions options) {
-		setKeyStoreFile(new File(options.getKeyStoreFile()));
-		setKeyStoreFormat(options.getKeyStoreFormat());
-		setKeyStoreLocalAlias(options.getAlias());
-		setKeyStorePassword(options.getStorePass());
-		setKeyStorePrivateKeyPassword(options.getKeyPass());
-		setKeyStoreTempLocation(new File(options.getTempCertFolder()));
+	public void setSSLKeyStoreOptions(KeyStoreDetails options) {
+		setSSLKeyStoreFile(options.getKeyStoreFile());
+		setSSLKeyStoreFormat(options.getKeyStoreFormat());
+		setSSLKeyStoreLocalAlias(options.getLocalAlias());
+		setSSLKeyStorePassword(options.getKeyStorePassword());
+		setSSLKeyStorePrivateKeyPassword(options.getPrivateKeyPassword());
+		setSSLKeyStoreTempLocation(options.getTempCertFolder());
 	}
 
 	public void setJobManagerPorts(int[] jobManagerPorts) {
@@ -589,12 +589,12 @@ public final class Configuration {
 						case REDIRECT_OUTPUT_TO_ROOT:            redirectOutputToRoot = Boolean.parseBoolean(value); break;
 						case USE_NATIVE_SSH_IF_POSSIBLE:         useNativeSSHifPossible = Boolean.parseBoolean(value); break;
 						case SSL_PROTOCOL_VERSION:               SSLProtocolVersion = value; break;
-						case SSL_KEY_STORE_FILE:                 SSLKeyStoreOptions.setKeyStoreFile(value); break;
-						case SSL_KEY_STORE_PASSWORD:             SSLKeyStoreOptions.setStorePass(value); break;
-						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSLKeyStoreOptions.setKeyPass(value); break;
-						case SSL_KEY_STORE_LOCAL_ALIAS:          SSLKeyStoreOptions.setAlias(value); break;
+						case SSL_KEY_STORE_FILE:                 SSLKeyStoreOptions.setKeyStoreFile(new File(value)); break;
+						case SSL_KEY_STORE_PASSWORD:             SSLKeyStoreOptions.setKeyStorePassword(value); break;
+						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSLKeyStoreOptions.setPrivateKeyPassword(value); break;
+						case SSL_KEY_STORE_LOCAL_ALIAS:          SSLKeyStoreOptions.setLocalAlias(value); break;
 						case SSL_KEY_STORE_FORMAT:               SSLKeyStoreOptions.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
-						case SSL_KEY_STORE_TEMP_LOCATION:        SSLKeyStoreOptions.setTempCertFolder(value); break;
+						case SSL_KEY_STORE_TEMP_LOCATION:        SSLKeyStoreOptions.setTempCertFolder(new File(value)); break;
 					}
 				} catch(NumberFormatException e) {
 					if (debug) {

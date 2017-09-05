@@ -15,11 +15,11 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import popjava.util.ssl.KeyStoreOptions;
+import popjava.util.ssl.KeyStoreCreationOptions;
 import popjava.util.ssl.SSLUtils;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
-import popjava.util.ssl.KeyStoreOptions.KeyStoreFormat;
+import popjava.util.ssl.KeyStoreDetails.KeyStoreFormat;
 
 /**
  *
@@ -29,71 +29,71 @@ public class CreateKeyStoreTest {
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optAlias() {
-		KeyStoreOptions option = new KeyStoreOptions(null, "123456", "123456", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions(null, "123456", "123456", new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optStorePassShort() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123", "123456", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123", "123456", new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void optStorePassNull() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", null, "123456", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", null, "123456", new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optKeyPassShort() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123", new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void optKeyPassNull() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", null, "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", null, new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optFileNull() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123456", null);
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123456", null);
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optPKCS12Pass() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "654321", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "654321", new File("1"));
 		option.setKeyStoreFormat(KeyStoreFormat.PKCS12);
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optEmpty() {
-		KeyStoreOptions option = new KeyStoreOptions();
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions();
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optExpiration() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123456", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123456", new File("1"));
 		option.setValidUntil(null);
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optKeySize() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123456", "1");
-		option.setKeySize(512);
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123456", new File("1"));
+		option.setPrivateKeySize(512);
 		option.validate();
 	}
 	
 	@Test
 	public void optFull() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123456", "1");
-		option.setKeySize(4096);
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123456", new File("1"));
+		option.setPrivateKeySize(4096);
 		option.setValidFor(90);
 		option.validate();
 	}
@@ -110,20 +110,20 @@ public class CreateKeyStoreTest {
 		String alias = "myself";
 		String storepass = "mypass";
 		String keypass = "mykeypass";
-		String keyStoreFile = tmpKS.getAbsolutePath(); 
+		File keyStoreFile = tmpKS; 
 		
 		LogWriter.writeDebugInfo("Creating KeyStore");
-		KeyStoreOptions options = new KeyStoreOptions(alias, storepass, keypass, keyStoreFile);
+		KeyStoreCreationOptions options = new KeyStoreCreationOptions(alias, storepass, keypass, keyStoreFile);
 		SSLUtils.generateKeyStore(options);
 		
 		LogWriter.writeDebugInfo("Setting up environment");
 		Configuration conf = Configuration.getInstance();
-		conf.setKeyStoreFile(new File(keyStoreFile));
-		conf.setKeyStorePassword(storepass);
-		conf.setKeyStoreFormat(KeyStoreFormat.JKS);
-		conf.setKeyStorePrivateKeyPassword(keypass);
-		conf.setKeyStoreLocalAlias(alias);
-		conf.setKeyStoreTempLocation(tmpDir);
+		conf.setSSLKeyStoreFile(keyStoreFile);
+		conf.setSSLKeyStorePassword(storepass);
+		conf.setSSLKeyStoreFormat(KeyStoreFormat.JKS);
+		conf.setSSLKeyStorePrivateKeyPassword(keypass);
+		conf.setSSLKeyStoreLocalAlias(alias);
+		conf.setSSLKeyStoreTempLocation(tmpDir);
 		
 		LogWriter.writeDebugInfo("Starting SSL Context");
 		// test create context
