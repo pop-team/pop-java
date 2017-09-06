@@ -77,8 +77,8 @@ public final class Configuration {
 	}
 	
 	// config files
-	private static final File SYSTEM_CONFIG	     = Paths.get(POPJAVA_LOCATION, "etc", "popjava.properties").toFile();
-	private File systemJobManagerConfig   = Paths.get(POPJAVA_LOCATION, "etc", "jobmgr.conf").toFile();
+	private static final File SYSTEM_CONFIG = Paths.get(POPJAVA_LOCATION, "etc", "popjava.properties").toFile();
+	private File systemJobManagerConfig = Paths.get(POPJAVA_LOCATION, "etc", "jobmgr.conf").toFile();
 	
 	// properties set by the user are found here
 	private File userConfig = null;
@@ -615,7 +615,7 @@ public final class Configuration {
 	 * @throws IOException 
 	 */
 	public void store() throws IOException {
-		Objects.requireNonNull(userConfig);
+		Objects.requireNonNull(userConfig, "A user configuration file must be provided via setUserConfig or load.");
 		File file = userConfig;
 		
 		try (PrintStream out = new PrintStream(file)) {

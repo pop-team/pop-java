@@ -34,23 +34,6 @@ public class Request {
 	public Request() {
 		status = PENDING;
 	}
-
-	/**
-	 * Creating a new specific request
-	 * @param classId	Class identifier for this request
-	 * @param methodId	Method identifier for this request
-	 * @param semantics	Semantics used for this methods
-	 * @param broker	Broker associated with this request
-	 * @param combox	Combox associated with this request
-	 */
-	public Request(int classId, int methodId, int semantics, Broker broker, Combox combox) {
-		this.classId = classId;
-		this.methodId = methodId;
-		this.semantics = semantics;
-		this.broker = broker;
-		status = PENDING;
-		this.combox = combox;
-	}
 	
 	/**
 	 * Get the class identifier of the current request
