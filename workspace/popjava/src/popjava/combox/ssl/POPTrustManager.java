@@ -9,7 +9,6 @@ import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -67,17 +66,11 @@ public class POPTrustManager implements X509TrustManager {
 	
 	// easy access
 	private static Certificate publicCertificate;
-	private static CertificateFactory certFactory;
 	private static POPTrustManager instance;
         
 	// static initializations
 	static {
-		try {
-			certFactory = CertificateFactory.getInstance("X.509");
-			instance = new POPTrustManager();
-		} catch(Exception e) {
-
-		}
+		instance = new POPTrustManager();
 	}
 	
 	private POPTrustManager() {
@@ -184,8 +177,8 @@ public class POPTrustManager implements X509TrustManager {
 			if (tempCertDir.exists()) {
 				for (File file : tempCertDir.listFiles()) {
 					if (file.isFile() && file.getName().endsWith(".cer")) {
-						try (InputStream fileStream = new FileInputStream(file)) {
-							Certificate cert = certFactory.generateCertificate(fileStream);
+						try {
+							Certificate cert = SSLUtils.certificateFromBytes(Files.readAllBytes(file.toPath()));
 							String alias = file.getName().substring(0, file.getName().length() - 4);
 							trustedKS.setCertificateEntry(alias, cert);
 						} catch(Exception e) {

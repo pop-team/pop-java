@@ -309,6 +309,22 @@ public class SSLUtils {
 	}
 	
 	/**
+	 * Transform a certificate byte array to a real certificate.
+	 * 
+	 * @param certificate A byte array in PEM format
+	 * @return The certificate or null
+	 * @throws IOException
+	 * @throws CertificateException 
+	 */
+	public static Certificate certificateFromBytes(byte[] certificate) throws IOException, CertificateException {
+		Certificate cert;
+		try (ByteArrayInputStream fi = new ByteArrayInputStream(certificate)) {
+			cert = certFactory.generateCertificate(fi);
+		}
+		return cert;
+	}
+	
+	/**
 	 * The local public certificate
 	 * 
 	 * @return null or a certificate that can be transformed with {@link #getCertificateBytes}
@@ -347,9 +363,7 @@ public class SSLUtils {
 		);
 		try {
 			// load it
-			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
-			Certificate cert = certFactory.generateCertificate(fi);
-			fi.close();
+			Certificate cert = certificateFromBytes(certificate);
 			
 			// stop if already loaded
 			POPTrustManager trustManager = POPTrustManager.getInstance();
