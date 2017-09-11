@@ -27,6 +27,7 @@ public class Request {
 	protected int status;
 	
 	protected POPRemoteCaller remoteCaller;
+	private boolean localhost;
 
 	/**
 	 * Creating a new pending request
@@ -221,5 +222,17 @@ public class Request {
 
 	public void setRemoteCaller(POPRemoteCaller callSource) {
 		this.remoteCaller = callSource;
+	}
+
+	boolean isLocalhost() {
+		return localhost;
+	}
+
+	public void setLocalhost(boolean localhost) {
+		this.localhost = localhost;
+	}
+	
+	public RequestQueue getRequestQueue() {
+		return this.receivedCombox.getRequestQueue();
 	}
 }

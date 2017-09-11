@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import javassist.util.proxy.ProxyObject;
-import popjava.PJMethodHandler;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -28,7 +27,6 @@ import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
-import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
@@ -45,9 +43,9 @@ public class POPObject implements IPOPBase {
 	protected ObjectDescription od = new ObjectDescription();
 	private String className = "";
 	private final int startMethodIndex = 10;
-	private ConcurrentHashMap<MethodInfo, Integer> semantics = new ConcurrentHashMap<MethodInfo, Integer>();
-	private ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<MethodInfo, Method>();
-	private ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<MethodInfo, Constructor<?>>();
+	private final ConcurrentHashMap<MethodInfo, Integer> semantics = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<>();
 
 	private boolean temporary = false;
 	
@@ -371,14 +369,13 @@ public class POPObject implements IPOPBase {
 	 * @throws NoSuchMethodException	thrown is the method is not found
 	 */
 	public Method getMethodByInfo(MethodInfo info) throws NoSuchMethodException {
-		Method method = null;
-		for(MethodInfo key : methodInfos.keySet()){
-			if (key.equals(info)) {
-				method = findSuperMethod(methodInfos.get(key));
-				break;
-			}
-		}
-		if (method == null){
+		Method method = methodInfos.get(info);
+		
+		/*if (method != null) {
+			method = findSuperMethod(method);
+		}*/
+		
+		if (method == null) {
 			for(MethodInfo key : methodInfos.keySet()){
 				System.out.println(key.getClassId()+" "+key.getMethodId()+" "+methodInfos.get(key).getName());
 			}
@@ -389,12 +386,13 @@ public class POPObject implements IPOPBase {
 		return method;
 	}
 
-	/**
+	// XXX What does this actually do?!
+	/*
 	 * Retrieve a specific method in the super class
 	 * @param method	informations about the method to retrieve
 	 * @return	A method object that represent the method found in the parallel class or null
 	 */
-	private Method findSuperMethod(Method method) {
+	/*private Method findSuperMethod(Method method) {
 		String findingSign = ClassUtil.getMethodSign(method);
 		Class<?> findingClass = method.getDeclaringClass();
 		Method result = method;
@@ -411,7 +409,7 @@ public class POPObject implements IPOPBase {
 			}
 		}
 		return result;
-	}
+	}*/
 
 	/**
 	 * Retrieve a constructor by its informations

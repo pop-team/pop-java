@@ -54,9 +54,12 @@ public abstract class ComboxReceiveRequest implements Runnable {
 					setStatus(EXIT);
 					break;
 				}
-		
+				
 				// add request to fifo list
 				if (broker != null && !broker.popCall(popRequest)) {
+					// replace buffer sent information using local annotation (if possible)
+					broker.finalizeRequest(popRequest);
+				
 					requestQueue.add(popRequest);					
 				}
 			} catch (Exception e) {
@@ -125,6 +128,14 @@ public abstract class ComboxReceiveRequest implements Runnable {
 		BufferFactoryFinder finder = BufferFactoryFinder.getInstance();
 		BufferFactory factory = finder.findFactory(bufferType);		
 		combox.setBufferFactory(factory);		
+	}
+
+	/**
+	 * Get server socket request queue
+	 * @return 
+	 */
+	public RequestQueue getRequestQueue() {
+		return requestQueue;
 	}
 
 	/**

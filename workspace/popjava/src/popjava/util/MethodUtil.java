@@ -1,7 +1,9 @@
 package popjava.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
@@ -88,6 +90,18 @@ public class MethodUtil {
             return id;
         }
 	    return defaultID;
+	}
+	
+	public static boolean hasAnnotation(Annotation[] annotations, Class< ? extends Annotation> clazz) {
+		if (annotations == null || clazz == null) {
+			return false;
+		}
+		for (Annotation annotation : annotations) {
+			if (annotation.annotationType().equals(clazz)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**

@@ -28,6 +28,13 @@ import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPParameter;
+import popjava.annotation.Localhost;
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncMutex;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncMutex;
+import popjava.annotation.POPSyncSeq;
 import popjava.base.MessageHeader;
 import popjava.base.MethodInfo;
 import popjava.base.POPErrorCode;
@@ -51,6 +58,7 @@ import popjava.javaagent.POPJavaAgent;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.MethodUtil;
 import popjava.util.POPRemoteCaller;
 import popjava.util.Util;
 
@@ -91,7 +99,8 @@ public final class Broker {
 	private int connectionCount = 0;
 	private Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
-	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
+	private Map<Method, Annotation[][]> methodParametersAnnotationCache = new HashMap<>();
+	private Map<Method, Integer> methodSemanticsCache = new HashMap<>();
 		
 	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		
@@ -339,6 +348,62 @@ public final class Broker {
 	}
 	
 	/**
+	 * Replace the request semantics if we are working with a PopJava Object with the corresponding local annotation.
+	 * 
+	 * @param request The request to be queued 
+	 */
+	public void finalizeRequest(Request request) {
+		try {
+			// skip if marked as constructor
+			if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
+				return;
+			}
+			
+			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
+			Method method = popInfo.getMethodByInfo(info);
+			
+			// use previously set semantics if possible
+			if(methodSemanticsCache.containsKey(method)){
+				//request.setSenmatics(methodSemanticsCache.get(method));
+				return;
+			}
+			
+			Annotation[] annotations = method.getDeclaredAnnotations();
+			/*int semantics = 0;
+			
+			// local semantics
+			if (MethodUtil.hasAnnotation(annotations, POPSyncConc.class)) {
+				semantics = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
+			}
+			else if (MethodUtil.hasAnnotation(annotations, POPSyncSeq.class)) {
+				semantics = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
+			}
+			else if (MethodUtil.hasAnnotation(annotations, POPSyncMutex.class)) {
+				semantics = Semantic.SYNCHRONOUS | Semantic.MUTEX;
+			}
+			else if (MethodUtil.hasAnnotation(annotations, POPAsyncConc.class)) {
+				semantics = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
+			}
+			else if (MethodUtil.hasAnnotation(annotations, POPAsyncSeq.class)) {
+				semantics = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
+			}
+			else if (MethodUtil.hasAnnotation(annotations, POPAsyncMutex.class)) {
+				semantics = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
+			}*/
+			
+			// localhost only call
+			if (MethodUtil.hasAnnotation(annotations, Localhost.class)) {
+				request.setLocalhost(true);
+			}
+			
+			//request.setSenmatics(semantics);
+			//methodSemanticsCache.put(method, semantics);
+		} catch (NoSuchMethodException e) {
+		}
+
+	}
+	
+	/**
 	 * This method is responsible to call the correct method on the associated
 	 * object
 	 * 
@@ -351,6 +416,7 @@ public final class Broker {
 		if(request.isSequential()){
 			sequentialSemaphore.acquire();
 		}
+		
 		Object result = new Object();
 		POPException exception = null;
 		Method method = null;
@@ -358,8 +424,8 @@ public final class Broker {
 		Class<?>[] parameterTypes = null;
 		Object[] parameters = null;
 		int index = 0;
+		
 		try {
-			
 			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 			method = popInfo.getMethodByInfo(info);
 		} catch (NoSuchMethodException e) {
@@ -370,12 +436,13 @@ public final class Broker {
 		}
 		
 		if(method != null){
-		    if(!methodAnnotationCache.containsKey(method)){
-	            methodAnnotationCache.put(method, method.getParameterAnnotations());
-	        }
+			// cache the method and parameters annotations since they take a while to generate
+			if(!methodParametersAnnotationCache.containsKey(method)){
+				methodParametersAnnotationCache.put(method, method.getParameterAnnotations());
+			}
 		}
 		
-		Annotation[][] annotations = methodAnnotationCache.get(method);
+		Annotation[][] parametersAnnotations = methodParametersAnnotationCache.get(method);
 		
 		// Get parameter if found the method
 		if (exception == null && method != null) {
@@ -387,7 +454,7 @@ public final class Broker {
 
 				POPBuffer requestBuffer = request.getBuffer();
 				request.setBuffer(null);//This way the JVM can free the  buffer content
-				parameters = getParameters(requestBuffer, parameterTypes, annotations);
+				parameters = getParameters(requestBuffer, parameterTypes, parametersAnnotations);
 			}catch(POPException e){
 				exception = e;
 			}
@@ -435,9 +502,9 @@ public final class Broker {
 				for (index = 0; index < parameterTypes.length; index++) {
 					//If parameter is not a IN variable and
 					//The parameter is not a POPObject without any specified direction
-					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-					        Util.isParameterUseable(annotations[index]) &&
-							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
+					if(Util.isParameterNotOfDirection(parametersAnnotations[index], POPParameter.Direction.IN) &&
+					        Util.isParameterUseable(parametersAnnotations[index]) &&
+							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(parametersAnnotations[index]))
 							){
 						try {
 							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
@@ -539,12 +606,28 @@ public final class Broker {
 	 * @throws InterruptedException 
 	 */
 	public boolean invoke(Request request) throws InterruptedException {	
-		remoteCaller.set(request.getRemoteCaller());	
-		if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
-			invokeConstructor(request);
-		} else {
-			invokeMethod(request);
+		POPRemoteCaller caller = request.getRemoteCaller();
+		remoteCaller.set(caller);
+		
+		// check for localhost only execution and throw exception if we can't
+		if (request.isLocalhost() && !caller.isLocalHost()) {
+			if (request.isSynchronous()){
+				POPException exception = new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, 
+					"You can't call a @Localhost method from a remote location.");
+				sendException(request.getCombox(), exception, request.getRequestID());
+			}
 		}
+		
+		// normal case
+		else {
+			// normal execution
+			if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
+				invokeConstructor(request);
+			} else {
+				invokeMethod(request);
+			}
+		}
+		
 		request.setStatus(Request.SERVED);
 		clearResourceAfterInvoke(request);
 
@@ -558,9 +641,7 @@ public final class Broker {
 	 *            Request to be removed
 	 */
 	public void clearResourceAfterInvoke(Request request) {
-		for (ComboxServer comboxServer : comboxServers) {
-			comboxServer.getRequestQueue().remove(request);
-		}
+		request.getRequestQueue().remove(request);
 	}
 
 	/**
