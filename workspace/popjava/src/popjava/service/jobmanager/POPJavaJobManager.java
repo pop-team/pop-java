@@ -22,6 +22,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import popjava.PopJava;
+import popjava.annotation.Localhost;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
@@ -836,6 +837,7 @@ public class POPJavaJobManager extends POPJobService {
 	}
 	
 	@POPSyncSeq
+	@Localhost
 	public void changeAvailablePower(float limit) {
 		Resource diff = new Resource(total);
 		diff.setFlops(limit);
@@ -847,6 +849,7 @@ public class POPJavaJobManager extends POPJobService {
 	}
 	
 	@POPSyncSeq
+	@Localhost
 	public void changeAvailableMemory(float limit) {
 		Resource diff = new Resource(total);
 		diff.setMemory(limit);
@@ -858,6 +861,7 @@ public class POPJavaJobManager extends POPJobService {
 	}
 	
 	@POPSyncSeq
+	@Localhost
 	public void changeAvailableBandwidth(float limit) {
 		Resource diff = new Resource(total);
 		diff.setBandwidth(limit);
@@ -869,24 +873,28 @@ public class POPJavaJobManager extends POPJobService {
 	}
 	
 	@POPSyncSeq
+	@Localhost
 	public void changeMaxJobLimit(int limit) {
 		maxJobs = limit;
 		writeConfigurationFile();
 	}
 	
 	@POPSyncSeq
+	@Localhost
 	public void changeMaxJobPower(float limit) {
 		jobLimit.setFlops(limit);
 		writeConfigurationFile();
 	}
 	
 	@POPSyncSeq
+	@Localhost
 	public void changeMaxJobMemory(float limit) {
 		jobLimit.setMemory(limit);
 		writeConfigurationFile();
 	}
 	
 	@POPSyncSeq
+	@Localhost
 	public void changeMaxJobBandwidth(float limit) {
 		jobLimit.setBandwidth(limit);
 		writeConfigurationFile();
@@ -963,6 +971,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return true if created or already exists, false if already exists but use a different protocol
 	 */
 	@POPSyncConc
+	@Localhost
 	public boolean createNetwork(String name) {
 		try {
 			// check if exists already
@@ -993,6 +1002,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param name The unique name of the network
 	 */
 	@POPAsyncConc
+	@Localhost
 	public void removeNetwork(String name) {
 		if (!networks.containsKey(name)) {
 			LogWriter.writeDebugInfo("[JM] Network %s not removed, not found", name);
@@ -1072,6 +1082,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param params
 	 */
 	@POPSyncConc
+	@Localhost
 	public void registerPermanentNode(String networkName, String... params) {
 		// get network
 		POPNetwork network = networks.get(networkName);
@@ -1091,6 +1102,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param params
 	 */
 	@POPSyncConc 
+	@Localhost
 	public void unregisterPermanentNode(String networkName, String... params) {
 		// get network
 		POPNetwork network = networks.get(networkName);
@@ -1109,6 +1121,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * to be made before continuing
 	 */
 	@POPAsyncConc
+	@Localhost
 	public void update() {
 		// don't update if too close to last one
 		if (nextUpdate > System.currentTimeMillis()) {
@@ -1155,6 +1168,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return A copy Resource object
 	 */
 	@POPSyncConc
+	@Localhost
 	public Resource getAvailableResources() {
 		return new Resource(available);
 	}
@@ -1165,6 +1179,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return 
 	 */
 	@POPSyncConc
+	@Localhost
 	public Resource getInitialAvailableResources() {
 		return new Resource(total);
 	}
@@ -1175,6 +1190,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return 
 	 */
 	@POPSyncConc
+	@Localhost
 	public Resource getJobResourcesLimit() {
 		return new Resource(jobLimit);
 	}
@@ -1185,6 +1201,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return 
 	 */
 	@POPSyncConc
+	@Localhost
 	public int getMaxJobs() {
 		return maxJobs;
 	}
@@ -1314,6 +1331,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param configurationFile 
 	 */
 	@POPAsyncConc
+	@Localhost
 	public void setConfigurationFile(String configurationFile) {
 		this.configurationFile = configurationFile;
 		writeConfigurationFile();
@@ -1325,6 +1343,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return 
 	 */
 	@POPSyncConc
+	@Localhost
 	public String[] getAvailableNetworks() {
 		String[] networksArray = networks.keySet().toArray(new String[0]);
 		return networksArray;
@@ -1337,6 +1356,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return 
 	 */
 	@POPSyncConc
+	@Localhost
 	public String[][] getNetworkNodes(String networkName) {
 		POPNetwork network = networks.get(networkName);
 		if (network == null) {
@@ -1357,6 +1377,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * Blocking method until death of this object.
 	 */
 	@POPSyncConc
+	@Localhost
 	public void stayAlive() {
 		stayAlive.acquireUninterruptibly();
 	}
@@ -1386,6 +1407,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return true if we could add the object successfully
 	 */
 	@POPSyncConc
+	@Localhost
 	public boolean registerTFCObject(String networkName, String objectName, POPAccessPoint accessPoint, String secret) {
 		// get registerer network
 		POPNetwork network = networks.get(networkName);
@@ -1413,6 +1435,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param secret A secret to remove the object
 	 */
 	@POPSyncConc
+	@Localhost
 	public void unregisterTFCObject(String networkName, String objectName, POPAccessPoint accessPoint, String secret) {
 		// get registerer network
 		POPNetwork network = networks.get(networkName);
@@ -1451,6 +1474,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return All the nodes that answered our request
 	 */
 	@POPSyncConc
+	@Localhost
 	public SNNodesInfo launchDiscovery(@POPParameter(Direction.IN) final SNRequest request, int timeout) {
 		try {
 			LogWriter.writeDebugInfo("[PSN] starting research");
