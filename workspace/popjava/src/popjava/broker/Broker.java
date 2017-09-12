@@ -12,6 +12,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1035,6 +1038,31 @@ public final class Broker {
 			}
 		}
 		
+		
+		// directories informations
+		String objId = Util.generateUUID();
+		Path basePath = Paths.get(objId);
+		Path origin = Paths.get(".");
+		// create directories
+		try {
+			basePath = Files.createDirectories(basePath);
+		} catch(IOException e) {
+			try {
+				basePath = Files.createTempDirectory(String.format("popjava-%s", objId));
+			} catch(IOException ex) {
+				throw new RuntimeException("Broker couldn't create the object directory.");
+			}
+		}
+		LogWriter.writeDebugInfo("[Broker] Running %s in '%s'.", objectName, basePath.toString());
+		// change base dir
+		System.setProperty("user.dir", basePath.toString());
+		// change SSL configuration
+		conf.setSSLKeyStoreTempLocation(basePath.toFile());
+		
+		// set exit cleanup
+		Runtime.getRuntime().addShutdownHook(new GracefulExit(origin, basePath));
+		
+		
 		if (actualObjectName != null && actualObjectName.length() > 0) {
 			objectName = actualObjectName;
 		}
@@ -1042,6 +1070,7 @@ public final class Broker {
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}
+		
 		Combox callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
 			POPAccessPoint accessPoint = new POPAccessPoint(callbackString);
