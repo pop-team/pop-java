@@ -12,9 +12,12 @@ import popjava.dataswaper.POPString;
 import popjava.serviceadapter.POPAppService;
 import popjava.system.POPJavaConfiguration;
 import popjava.util.LogWriter;
+import popjava.util.Util;
 
 @POPClass(classId = 99923, deconstructor = false)
 public class POPJavaAppService extends POPObject implements AppService{
+	
+	private final String uuid = Util.generateUUID();
 	
 	@POPObjectDescription(url = "localhost")
 	public POPJavaAppService() {
@@ -123,7 +126,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	@Override
     @POPSyncSeq
 	public String getPOPCAppID(){
-		return "PopJavaApp";
+		return uuid;
 	}
 	
 }

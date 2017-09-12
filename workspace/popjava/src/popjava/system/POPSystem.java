@@ -345,7 +345,7 @@ public class POPSystem {
 			jobservice = tempJobservice;
 		}
 		
-		codeconf = Util.removeStringFromList(argvList, "-codeconf=");		
+		codeconf = Util.removeStringFromList(argvList, "-codeconf=");
 		appservicecode = Util.removeStringFromList(argvList, "-appservicecode=");
 		proxy = Util.removeStringFromList(argvList, "-proxy=");
         appservicecontact = Util.removeStringFromList(argvList, "-appservicecontact=");
@@ -414,9 +414,14 @@ public class POPSystem {
 		fileconf = fileconf.trim();
 		XMLWorker xw = new XMLWorker();
 		
-		if(!new File(POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd").exists()){
-			LogWriter.printDebug("Could not open objectmap.xsd at "+POPJavaConfiguration.getPopJavaLocation());
-			return false;
+		String mapXsd = POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd";
+		
+		if(!new File(mapXsd).exists()) {
+			mapXsd = "etc/objectmap.xsd";
+			if (!new File(mapXsd).exists()) {
+				LogWriter.printDebug("Could not open objectmap.xsd at "+mapXsd);
+				return false;
+			}
 		}
 		
 		// check if file exists, if we do this we won't abord uselessly
@@ -425,7 +430,7 @@ public class POPSystem {
 			return false;
 		}
 		
-		if(!xw.isValid(fileconf, POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd")){
+		if(!xw.isValid(fileconf, mapXsd)){
 			throw new POPException(0, "Object map not valid");
 		}
 		

@@ -490,7 +490,13 @@ public class POPJavaJobManager extends POPJobService {
 							args[j + 1] = jarLocation;
 						}
 					}
-					od.setCodeFile(String.join(" ", args));
+					
+					StringBuilder sb = new StringBuilder();
+					for (String arg : args) {
+						sb.append(arg).append(" ");
+					}
+					od.setCodeFile(sb.toString().trim());
+					od.setOriginAppService(res.getAppService());
 
 					// execute locally, and save status
 					status |= Interface.tryLocal(objname.getValue(), objcontacts[i], od);
@@ -686,6 +692,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * Dump of JobManager information
 	 */
 	@POPAsyncSeq
+	@Localhost
 	public void dump() {
 		File dumpFile;
 		int idx = 0;
@@ -755,6 +762,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * update like a signal from the Broker (should trigger after death)
 	 */
 	@POPAsyncConc
+	@Localhost
 	@Override
 	public void start() {
 		while (true) {

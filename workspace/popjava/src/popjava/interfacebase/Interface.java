@@ -621,8 +621,14 @@ public class Interface {
 			throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "At least one protocol should be specified");
 		}
 		
+		// has custom app service
+		POPAccessPoint appService = POPSystem.appServiceAccessPoint;
+		if (od.getOriginAppService() != null) {
+			appService = od.getOriginAppService();
+		}
+		
 		int status = localExec(joburl, codeFile, objectName, protocols, rports,
-				POPSystem.jobService, POPSystem.appServiceAccessPoint, accesspoint,
+				POPSystem.jobService, appService, accesspoint,
 				od);
 
 		if (status != 0) {

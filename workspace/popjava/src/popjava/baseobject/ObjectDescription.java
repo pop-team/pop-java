@@ -42,7 +42,8 @@ public class ObjectDescription implements IPOPBase {
 	protected String cwd;
 	protected String batch;
 	
-	protected String remoteAccessPoint = ""; //Used to connect to a remote object at object creation
+	protected String remoteAccessPoint = ""; // Used to connect to a remote object at object creation
+	protected POPAccessPoint originAppService = null;  // Point to some application service 
 	
 	// keys for the attributes map, to keep compability with POPC
 	protected static final String NETWORK_KEY = "_network";
@@ -606,6 +607,14 @@ public class ObjectDescription implements IPOPBase {
 	
 	public String getRemoteAccessPoint(){
 		return remoteAccessPoint;
+	}
+
+	public POPAccessPoint getOriginAppService() {
+		return originAppService;
+	}
+
+	public void setOriginAppService(POPAccessPoint originAppService) {
+		this.originAppService = originAppService;
 	}
 
 	/**
