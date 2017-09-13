@@ -97,7 +97,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 		if (daemonSecret != null) {
 			paramsSet.add("secret=" + daemonSecret);
 		}
-		creationParams = paramsSet.toArray(new String[0]);
+		creationParams = paramsSet.toArray(new String[paramsSet.size()]);
 	}
 
 	public String getHost() {

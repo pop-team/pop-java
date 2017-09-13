@@ -955,12 +955,12 @@ public final class Broker {
 		//TODO: LocalJVM objects need a way to specifiy the protocol(s), maybe as an annotation?
 		//TODO: Handle case where a port was specified, but the protocol is unavailable, throw exception
 		if(liveServers.isEmpty()){
-			ComboxFactory factory = finder.findFactory(conf.getDefaultProtocol());
-			
-			AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
-			accessPoint.addAccessPoint(ap);
-			
-			liveServers.add(factory.createServerCombox(ap, buffer, this));
+			for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
+				AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
+				accessPoint.addAccessPoint(ap);
+
+				liveServers.add(factory.createServerCombox(ap, buffer, this));
+			}
 		}
 		
 		comboxServers = liveServers.toArray(new ComboxServer[0]);
@@ -1056,12 +1056,17 @@ public final class Broker {
 		Combox callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
 			POPAccessPoint accessPoint = new POPAccessPoint(callbackString);
-			if (accessPoint.size() > 0) {
+			for (int i = 0; i < accessPoint.size(); i++) {
 				// use factory to determine which combox to use
 				ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 				// get protocol from accessPoint
-				String protocol = accessPoint.toString().split("://")[0];
+				String protocol = accessPoint.get(i).getProtocol();
 				ComboxFactory factory = finder.findFactory(protocol);
+				
+				// skip to next protocol
+				if (factory == null) {
+					continue;
+				}
 				
 				// create callback
 				callback = factory.createClientCombox(accessPoint, 0);
@@ -1070,11 +1075,11 @@ public final class Broker {
 					LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",
 							accessPoint.toString());
 					System.exit(1);
-				} else {
-						LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
 				}
+				// 
+				LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
+				break;
 			}
-
 		} else {
 			LogWriter.writeDebugInfo("[Broker] Error: callback is null");
 			System.exit(1);

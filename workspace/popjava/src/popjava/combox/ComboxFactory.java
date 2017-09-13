@@ -4,6 +4,7 @@ import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
+import popjava.util.Configuration;
 
 /**
  * This abstract class regroup the method needed by a ComboxFactory
@@ -60,8 +61,31 @@ public abstract class ComboxFactory {
 	public abstract String getComboxName();
 	
 	/**
-	 * Check if this combox is usable
+	 * Check if this combox is usable.
+	 * When overriding call super.isAvailable to appy the white/black lists.
+	 * NB: If an item is in both white and black lists, the blacklist will take precedence
+	 * 
+	 * Expression applyied: (a V b) Λ ¬c 
+	 *  a = whitelist is empty
+	 *  b = is in whitelist
+	 *  c = is in blacklist
+	 * 
+	 * Truth table:
+	 *  a	b	c		(a V b) Λ ¬c 
+	 *  T	T	T		- 
+	 *  T	T	F		-
+	 *  T	F	T		F  : blacklist
+	 *  T	F	F		T  : no restrictions
+	 *  F	T	T		F  : blacklist take precedence
+	 *  F	T	F		T  : whitelist
+	 *  F	F	T		F  : not in whitelist + blacklist
+	 *  F	F	F		F  : not in whitelist
+	 *  
 	 * @return true if it's usable
 	 */
-	public abstract boolean isAvailable();
+	public boolean isAvailable() {
+		Configuration conf = Configuration.getInstance();
+		return (conf.getProtocolsWhitelist().isEmpty() || conf.getProtocolsWhitelist().contains(getComboxName())
+			&& !conf.getProtocolsBlacklist().contains(getComboxName()));
+	}
 }

@@ -782,7 +782,7 @@ public class Interface {
 		ComboxAllocate allocateCombox = null;
 		for (String protocol : protocols) {
 			ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
-			if (factory.isAvailable()) {
+			if (factory != null && factory.isAvailable()) {
 				allocateCombox = factory.createAllocateCombox();
 				break;
 			}

@@ -8,9 +8,12 @@ import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import popjava.baseobject.ConnectionProtocol;
@@ -47,6 +50,8 @@ public final class Configuration {
 		DEFAULT_ENCODING,
 		SELECTED_ENCODING,
 		DEFAULT_PROTOCOL,
+		PROTOCOLS_WHITELIST,
+		PROTOCOLS_BLACKLIST,
 		ASYNC_CONSTRUCTOR,
 		ACTIVATE_JMX,
 		CONNECT_TO_POPCPP,
@@ -109,6 +114,9 @@ public final class Configuration {
 	private String defaultEncoding = "xdr";
 	private String selectedEncoding = "raw";
 	private String defaultProtocol = "socket";
+	
+	private Set<String> protocolsWhitelist = new HashSet<>();
+	private Set<String> protocolsBlacklist = new HashSet<>();
 
 	private boolean asyncConstructor = true;
 	private boolean activateJmx = false;
@@ -295,8 +303,16 @@ public final class Configuration {
 		return popJavaDeamonPort;
 	}
 
+	public Set<String> getProtocolsWhitelist() {
+		return Collections.unmodifiableSet(protocolsWhitelist);
+	}
+
+	public Set<String> getProtocolsBlacklist() {
+		return Collections.unmodifiableSet(protocolsBlacklist);
+	}
 
 
+	
 	
 	public void setSystemJobManagerConfig(File systemJobManagerConfig) {
 		USER_PROPERTIES.setProperty(Settable.SYSTEM_JOBMANAGER_CONFIG.name(), systemJobManagerConfig.toString());
@@ -474,6 +490,16 @@ public final class Configuration {
 		USER_PROPERTIES.setProperty(Settable.POP_JAVA_DEAMON_PORT.name(), String.valueOf(popJavaDeamonPort));
 		this.popJavaDeamonPort = popJavaDeamonPort;
 	}
+
+	public void setProtocolsWhitelist(Set<String> protocolsWhitelist) {
+		USER_PROPERTIES.setProperty(Settable.PROTOCOLS_WHITELIST.name(), protocolsWhitelist.toString());
+		this.protocolsWhitelist = new HashSet<>(protocolsWhitelist);
+	}
+
+	public void setProtocolsBlacklist(Set<String> protocolsBlacklist) {
+		USER_PROPERTIES.setProperty(Settable.PROTOCOLS_BLACKLIST.name(), protocolsBlacklist.toString());
+		this.protocolsBlacklist = new HashSet<>(protocolsBlacklist);
+	}
 	
 	
 	/**
@@ -569,7 +595,7 @@ public final class Configuration {
 							while (m.find()) {
 								matches.add(m.group());
 							}
-							jobManagerProtocols = matches.toArray(new String[0]);
+							jobManagerProtocols = matches.toArray(new String[matches.size()]);
 							break;
 						case POP_JAVA_DEAMON_PORT:               popJavaDeamonPort = Integer.parseInt(value); break;
 						case SEARCH_NODE_UNLOCK_TIMEOUT:         searchNodeUnlockTimeout = Integer.parseInt(value); break;
@@ -580,6 +606,22 @@ public final class Configuration {
 						case DEFAULT_ENCODING:                   defaultEncoding = value; break;
 						case SELECTED_ENCODING:                  selectedEncoding = value; break;
 						case DEFAULT_PROTOCOL:                   defaultProtocol = ConnectionProtocol.valueOf(value.toUpperCase()).getName(); break;
+						case PROTOCOLS_WHITELIST:
+							protocolsWhitelist.clear();
+							p = Pattern.compile("[\\w\\d]+");
+							m = p.matcher(value);
+							while (m.find()) {
+								protocolsWhitelist.add(m.group());
+							}
+							break;
+						case PROTOCOLS_BLACKLIST:
+							protocolsBlacklist.clear();
+							p = Pattern.compile("[\\w\\d]+");
+							m = p.matcher(value);
+							while (m.find()) {
+								protocolsBlacklist.add(m.group());
+							}
+							break;
 						case ASYNC_CONSTRUCTOR:                  asyncConstructor = Boolean.parseBoolean(value); break;
 						case ACTIVATE_JMX:                       activateJmx = Boolean.parseBoolean(value); break;
 						case CONNECT_TO_POPCPP:                  connectToPOPcpp = Boolean.parseBoolean(value); break;

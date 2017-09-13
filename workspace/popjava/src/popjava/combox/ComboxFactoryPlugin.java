@@ -44,7 +44,7 @@ public class ComboxFactoryPlugin extends ComboxFactory {
 
 	@Override
 	public boolean isAvailable() {
-		return false;
+		return super.isAvailable();
 	}
 
 }

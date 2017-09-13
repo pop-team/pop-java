@@ -76,7 +76,7 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 		paramsSet.add("host=" + host);
 		paramsSet.add("port=" + port);
 		paramsSet.add("protocol=" + protocol);
-		creationParams = paramsSet.toArray(new String[0]);
+		creationParams = paramsSet.toArray(new String[paramsSet.size()]);
 	}
 
 	@Override

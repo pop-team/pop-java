@@ -258,7 +258,7 @@ public class POPSystem {
 		
 		initialize(argvList);
 		
-		return argvList.toArray(new String[0]);
+		return argvList.toArray(new String[argvList.size()]);
 	}
 	
 	private static boolean isStarted = false;

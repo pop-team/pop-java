@@ -49,7 +49,7 @@ public class ComboxSocketFactory extends ComboxFactory {
 
 	@Override
 	public boolean isAvailable() {
-		return true;
+		return super.isAvailable();
 	}
 
 }

@@ -119,9 +119,9 @@ public class LogWriter {
 			e.printStackTrace();
 		}
 		logInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
-        for(int i = 0; i < e.getStackTrace().length; i++){
-        	logInfo(e.getStackTrace()[i].getClassName()+" "+e.getStackTrace()[i].getLineNumber());
-        }
+		for (StackTraceElement trace : e.getStackTrace()) {
+			logInfo(trace.getClassName() + " " + trace.getLineNumber());
+		}
 	}
 
 	/**

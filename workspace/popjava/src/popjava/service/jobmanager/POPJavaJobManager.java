@@ -1353,7 +1353,8 @@ public class POPJavaJobManager extends POPJobService {
 	@POPSyncConc
 	@Localhost
 	public String[] getAvailableNetworks() {
-		String[] networksArray = networks.keySet().toArray(new String[0]);
+		int size = networks.keySet().size();
+		String[] networksArray = networks.keySet().toArray(new String[size]);
 		return networksArray;
 	}
 	

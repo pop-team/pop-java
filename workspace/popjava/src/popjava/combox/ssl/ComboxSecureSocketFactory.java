@@ -57,6 +57,9 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 
 	@Override
 	public boolean isAvailable() {
+		if (!super.isAvailable()) {
+			return false;
+		}
 		try {
 			SSLContext context = SSLUtils.getSSLContext();
 			return true;
