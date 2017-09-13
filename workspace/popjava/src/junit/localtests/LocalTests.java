@@ -22,6 +22,7 @@ import junit.localtests.security.CreateKeyStoreTest;
 import junit.localtests.security.MethodAccessTest;
 import junit.localtests.subclassReturns.SubclassingTest;
 import junit.localtests.protocols.ProtocolsTests;
+import junit.localtests.serializable.JavaSerializableTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( { CallBackTest.class, IntegerTest.class, AnnotationsTest.class, ReaderWriterTest.class,
@@ -30,7 +31,7 @@ import junit.localtests.protocols.ProtocolsTests;
 	BigDataTests.class, SubclassingTest.class, ReferenceTest.class, JVMObjectTest.class, NestedPOPCreation.class,
 	CreateKeyStoreTest.class, MethodAccessTest.class,
 	POPJavaJobManagerConfigurationTest.class, POPJavaJobManagerLiveConfigurationTest.class,
-	ProtocolsTests.class})
+	ProtocolsTests.class, JavaSerializableTest.class})
 public class LocalTests {
 
 }

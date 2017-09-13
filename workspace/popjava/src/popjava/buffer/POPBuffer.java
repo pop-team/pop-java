@@ -1,5 +1,13 @@
 package popjava.buffer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.Map;
@@ -408,7 +416,6 @@ public abstract class POPBuffer extends Object {
 			} catch(NoSuchMethodException e){
 				POPException.throwReflectSerializeException(c.getName(), "Default constructor is missing");
 			} catch (Exception e) {
-			    e.printStackTrace();
 				LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
 			}
@@ -416,6 +423,17 @@ public abstract class POPBuffer extends Object {
 			String name = this.getString();
 			Class<? extends Enum> t = (Class<? extends Enum>)c;
 			return Enum.valueOf(t, name);
+		}
+		else if(Serializable.class.isAssignableFrom(c)) {
+			int length = getInt();
+			try (ByteArrayInputStream bis = new ByteArrayInputStream(getByteArray(length))) {
+				try (ObjectInput in = new ObjectInputStream(bis)) {
+				  return in.readObject(); 
+				}
+			} catch(IOException | ClassNotFoundException e) {
+				LogWriter.writeExceptionLog(e);
+				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
+			}
 		}
 		
 		return null;
@@ -472,7 +490,20 @@ public abstract class POPBuffer extends Object {
 			}
 		} else if( c.isEnum()){
 			putString(((Enum) o).name());
-		}else{
+		}
+		else if(Serializable.class.isAssignableFrom(c)){
+			try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+				try (ObjectOutput out = new ObjectOutputStream(bos)) {
+					out.writeObject(o);
+					out.flush();
+					putByteArray(bos.toByteArray());
+				}
+			} catch(IOException e) {
+				LogWriter.writeExceptionLog(e);
+				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
+			}
+		}
+		else{
 		    POPException.throwReflectSerializeException(c.getName(), "Can not serialize parameter "+c.getName());
 		}
 	}
