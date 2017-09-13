@@ -21,8 +21,6 @@ public class KeyStoreDetails {
 	protected File keyStoreFile;
 	protected KeyStoreFormat keyStoreFormat;
 	
-	private File tempCertificateFolder;
-
 	/**
 	 * When using this constructor we must ensure {@link #validate()} return true
 	 */
@@ -39,7 +37,6 @@ public class KeyStoreDetails {
 		this.privateKeyPassword = other.privateKeyPassword;
 		this.keyStoreFile = other.keyStoreFile;
 		this.keyStoreFormat = other.keyStoreFormat;
-		this.tempCertificateFolder = other.tempCertificateFolder;
 	}
 
 	/**
@@ -50,19 +47,17 @@ public class KeyStoreDetails {
 	 * @param keypass The password of the primate key, used to extract it
 	 * @param keyStoreFile Where to save the file
 	 * @param keyStoreFormat Which format to save the KeyStore: JKS, PKCS12 (may have issue)
-	 * @param tempCertificateFolder The location on the temporary certificate folder
 	 */
-	public KeyStoreDetails(String alias, String storepass, String keypass, File keyStoreFile, KeyStoreFormat keyStoreFormat, File tempCertificateFolder) {
+	public KeyStoreDetails(String alias, String storepass, String keypass, File keyStoreFile, KeyStoreFormat keyStoreFormat) {
 		this.localAlias = alias;
 		this.keyStorePassword = storepass;
 		this.privateKeyPassword = keypass;
 		this.keyStoreFile = keyStoreFile;
 		this.keyStoreFormat = keyStoreFormat;
-		this.tempCertificateFolder = tempCertificateFolder;
 	}
 	
 	/**
-	 * Parameters to create a KeyStore with sane defaults.
+	 * Parameters to create a KeyStore with JKS as default keystore
 	 *
 	 * @param alias The alias of this node, used to find its own public certificate
 	 * @param storepass The main password for the KeyStore, protect from tempering with the file
@@ -70,7 +65,7 @@ public class KeyStoreDetails {
 	 * @param keyStoreFile Where to save the file
 	 */
 	public KeyStoreDetails(String alias, String storepass, String keypass, File keyStoreFile) {
-		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS, new File("tempCerts"));
+		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS);
 	}
 
 	/**
@@ -152,24 +147,6 @@ public class KeyStoreDetails {
 	 */
 	public void setKeyStoreFormat(KeyStoreFormat keyStoreFormat) {
 		this.keyStoreFormat = keyStoreFormat;
-	}
-
-	/**
-	 * Get the location of the temporary folder
-	 * 
-	 * @return 
-	 */
-	public File getTempCertFolder() {
-		return tempCertificateFolder;
-	}
-
-	/**
-	 * The location where temporary certificates should be stored
-	 * 
-	 * @param tempCertFolder 
-	 */
-	public void setTempCertFolder(File tempCertFolder) {
-		this.tempCertificateFolder = tempCertFolder;
 	}
 
 	/**

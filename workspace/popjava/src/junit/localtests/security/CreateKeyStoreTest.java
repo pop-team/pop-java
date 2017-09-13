@@ -123,7 +123,7 @@ public class CreateKeyStoreTest {
 		conf.setSSLKeyStoreFormat(KeyStoreFormat.JKS);
 		conf.setSSLKeyStorePrivateKeyPassword(keypass);
 		conf.setSSLKeyStoreLocalAlias(alias);
-		conf.setSSLKeyStoreTempLocation(tmpDir);
+		conf.setSSLTemporaryCertificateDirectory(tmpDir);
 		
 		LogWriter.writeDebugInfo("Starting SSL Context");
 		// test create context

@@ -508,7 +508,7 @@ public class Interface {
 	 */
 	public static boolean tryLocal(String objectName, POPAccessPoint accesspoint, ObjectDescription od)
 			throws POPException {
-	//	String hostname = "";
+		//String hostname = "";
 		String joburl ="";
 		String codeFile = "";
 		// Get ClassName
@@ -645,12 +645,11 @@ public class Interface {
 	 * @return
 	 */
 	private static String getRemoteCodeFile(String objectName){
-		if(objectName.equals(POPAppService.class.getName()) ||
-				objectName.equals(POPJavaAppService.class.getName())
-				){
+		if (objectName.equals(POPAppService.class.getName())
+			|| objectName.equals(POPJavaAppService.class.getName())) {
 			return getPOPCodeFile();
 		}
-		
+
 		AppService appCoreService = getAppcoreService();
 		
 		if(appCoreService != null){

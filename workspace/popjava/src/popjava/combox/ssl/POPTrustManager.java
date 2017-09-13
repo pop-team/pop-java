@@ -34,12 +34,16 @@ public class POPTrustManager implements X509TrustManager {
 		
 		@Override
 		public void create(String file) {
-			reload();
+			if (file.endsWith(".cer")) {
+				reload();
+			}
 		}
 
 		@Override
 		public void delete(String file) {
-			reload();
+			if (file.endsWith(".cer")) {
+				reload();
+			}
 		}
 		
 		private void reload() {
@@ -66,7 +70,7 @@ public class POPTrustManager implements X509TrustManager {
 	
 	// easy access
 	private static Certificate publicCertificate;
-	private static POPTrustManager instance;
+	private static final POPTrustManager instance;
         
 	// static initializations
 	static {
@@ -172,7 +176,7 @@ public class POPTrustManager implements X509TrustManager {
 		
 		// add temporary certificates
 		// get all files in directory and add them
-		File tempCertDir = conf.getSSLKeyStoreTemporaryLocation();
+		File tempCertDir = conf.getSSLTemporaryCertificateLocation();
 		if (tempCertDir != null) {
 			if (tempCertDir.exists()) {
 				for (File file : tempCertDir.listFiles()) {

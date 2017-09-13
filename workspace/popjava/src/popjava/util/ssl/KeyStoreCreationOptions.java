@@ -54,10 +54,9 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 	 * @param keyStoreFormat Which format to save the KeyStore: JKS, PKCS12 (may have issue)
 	 * @param validUntil Until when the certificate should be valid
 	 * @param privateKeySize The complexity of the RSA key, must be greater than 1024 bits
-	 * @param tempCertificateFolder The location on the temporary certificate folder
 	 */
-	public KeyStoreCreationOptions(String alias, String keyStorePass, String privateKeyPass, File keyStoreFile, KeyStoreFormat keyStoreFormat, Date validUntil, int privateKeySize, File tempCertificateFolder) {
-		super(alias, keyStorePass, privateKeyPass, keyStoreFile, keyStoreFormat, tempCertificateFolder);
+	public KeyStoreCreationOptions(String alias, String keyStorePass, String privateKeyPass, File keyStoreFile, KeyStoreFormat keyStoreFormat, Date validUntil, int privateKeySize) {
+		super(alias, keyStorePass, privateKeyPass, keyStoreFile, keyStoreFormat);
 		this.rdn.put(BCStyle.OU, "PopJava");
 		this.rdn.put(BCStyle.CN, alias);
 		this.validUntil = validUntil;
@@ -72,7 +71,6 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 	 *  keyStoreFormat := JKS 
 	 *  validity := 365 days
 	 *  keySize := 2048 bits
-	 *  temporarayCertificates = tempCerts
 	 *
 	 * @param alias The alias of this node, used to find its own public certificate
 	 * @param storepass The main password for the KeyStore, protect from tempering with the file
@@ -80,7 +78,7 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 	 * @param keyStoreFile Where to save the file
 	 */
 	public KeyStoreCreationOptions(String alias, String storepass, String keypass, File keyStoreFile) {
-		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS, Date.from(Instant.now().plus(365, ChronoUnit.DAYS)), 2048, new File("tempCerts"));
+		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS, Date.from(Instant.now().plus(365, ChronoUnit.DAYS)), 2048);
 	}
 
 	/**

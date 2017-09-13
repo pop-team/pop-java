@@ -1,30 +1,43 @@
-package popjava.broker;
+package popjava.util;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
-import popjava.util.LogWriter;
 
 /**
  * Broker cleanup after itself on exit
  *
  * @author Davide Mazzoleni
  */
-public class GracefulExit extends Thread {
+public class RuntimeDirectoryThread extends Thread {
 
 	private final Path origin;
-	private final Path basePath;
+	private Path basePath;
 
-	public GracefulExit(Path origin, Path basePath) {
-		Objects.requireNonNull(origin);
-		Objects.requireNonNull(basePath);
+	public RuntimeDirectoryThread(String id) {
+		Objects.requireNonNull(id);
 		
-		this.origin = origin;
-		this.basePath = basePath;
+		this.origin = Paths.get(".");
+		this.basePath = Paths.get(id);
+		
+		Configuration conf = Configuration.getInstance();
+		// create directories
+		try {
+			basePath = Files.createDirectories(basePath);
+		} catch(IOException e) {
+			try {
+				basePath = Files.createTempDirectory(String.format("popjava-%s", id));
+			} catch(IOException ex) {
+				throw new RuntimeException("Broker couldn't create the object directory.");
+			}
+		}
+		// change SSL configuration
+		conf.setSSLTemporaryCertificateDirectory(basePath.toFile());
 	}
 
 	@Override
@@ -34,6 +47,11 @@ public class GracefulExit extends Thread {
 		} catch (IOException e) {
 			LogWriter.writeDebugInfo("[Broker] A problem occurred when cleaning up: %s", e.getMessage());
 		}
+	}
+	
+	public void addCleanupHook() {		
+		// set exit cleanup
+		Runtime.getRuntime().addShutdownHook(this);
 	}
 
 	private void cleanup() throws IOException {

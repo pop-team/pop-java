@@ -15,7 +15,7 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 public class SystemUtil {
 	
-	private static List<Process> processes = new ArrayList<Process>();
+	private static final List<Process> processes = new ArrayList<Process>();
 	private static final Configuration conf = Configuration.getInstance();
 
 	public static void endAllChildren(){

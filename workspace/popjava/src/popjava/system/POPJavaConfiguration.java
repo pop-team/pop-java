@@ -210,12 +210,12 @@ public class POPJavaConfiguration {
             }
             
             if(location.isFile() && location.getAbsolutePath().endsWith(".jar")){
-                popJar = location.getAbsolutePath();
+                popJar = location.toPath().toString();
             }           
         }
         
         if(!popJar.endsWith(".jar")){
-            popJar = new File("build/jar/"+Popjavac.POP_JAVA_JAR_FILE).getAbsolutePath();
+            popJar = new File("build/jar/"+Popjavac.POP_JAVA_JAR_FILE).toPath().toString();
         }
         
         return popJar;

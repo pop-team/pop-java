@@ -59,7 +59,6 @@ public final class Configuration {
 		SSL_KEY_STORE_PRIVATE_KEY_PASSWORD,
 		SSL_KEY_STORE_LOCAL_ALIAS,
 		SSL_KEY_STORE_FORMAT,
-		SSL_KEY_STORE_TEMP_LOCATION,
 	}
 	
 	// instance
@@ -121,6 +120,7 @@ public final class Configuration {
 	
 	// all relevant information of the keystore (alias, keyStorePassword, privateKeyPassword, keyStoreLocation, keyStoreType, temporaryCertificatesDir)
 	private final KeyStoreDetails SSLKeyStoreOptions = new KeyStoreDetails();
+	private File SSLTemporaryCertificatesLocation = new File(".");
 	
 	// NOTE this is waiting for TLSv1.3 to be officialized
 	private String SSLProtocolVersion = "TLSv1.2";
@@ -279,8 +279,8 @@ public final class Configuration {
 		return SSLKeyStoreOptions.getKeyStoreFormat();
 	}
 
-	public File getSSLKeyStoreTemporaryLocation() {
-		return SSLKeyStoreOptions.getTempCertFolder();
+	public File getSSLTemporaryCertificateLocation() {
+		return SSLTemporaryCertificatesLocation;
 	}
 
 	public int[] getJobManagerPorts() {
@@ -448,9 +448,8 @@ public final class Configuration {
 		SSLKeyStoreOptions.setKeyStoreFormat(val);
 	}
 
-	public void setSSLKeyStoreTempLocation(File file) {
-		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_TEMP_LOCATION.name(), file.toString());
-		SSLKeyStoreOptions.setTempCertFolder(file);
+	public void setSSLTemporaryCertificateDirectory(File file) {
+		SSLTemporaryCertificatesLocation = file;
 	}
 	
 	public void setSSLKeyStoreOptions(KeyStoreDetails options) {
@@ -459,7 +458,6 @@ public final class Configuration {
 		setSSLKeyStoreLocalAlias(options.getLocalAlias());
 		setSSLKeyStorePassword(options.getKeyStorePassword());
 		setSSLKeyStorePrivateKeyPassword(options.getPrivateKeyPassword());
-		setSSLKeyStoreTempLocation(options.getTempCertFolder());
 	}
 
 	public void setJobManagerPorts(int[] jobManagerPorts) {
@@ -594,7 +592,6 @@ public final class Configuration {
 						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSLKeyStoreOptions.setPrivateKeyPassword(value); break;
 						case SSL_KEY_STORE_LOCAL_ALIAS:          SSLKeyStoreOptions.setLocalAlias(value); break;
 						case SSL_KEY_STORE_FORMAT:               SSLKeyStoreOptions.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
-						case SSL_KEY_STORE_TEMP_LOCATION:        SSLKeyStoreOptions.setTempCertFolder(new File(value)); break;
 					}
 				} catch(NumberFormatException e) {
 					if (debug) {

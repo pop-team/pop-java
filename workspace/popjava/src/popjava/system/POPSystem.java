@@ -7,6 +7,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
@@ -37,6 +38,7 @@ import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.RuntimeDirectoryThread;
 import popjava.util.SystemUtil;
 import popjava.util.Util;
 import popjava.util.Util.OSType;
@@ -245,17 +247,14 @@ public class POPSystem {
 	
 	/**
 	 * Entry point for the application scope initialization
-	 * @param argvs	Any arguments to pass to the initialization
+	 * @param args	Any arguments to pass to the initialization
 	 * @return	true if the initialization is succeed
 	 * @throws POPException thrown is any problems occurred during the initialization
 	 */
-	public static String[] initialize(String ... args){
+	public static String[] initialize(String... args){
 		asyncConstructorExecutor = Executors.newFixedThreadPool(20);
-		ArrayList<String> argvList = new ArrayList<String>();
-		
-		for (String str : args){
-			argvList.add(str);
-		}
+		ArrayList<String> argvList = new ArrayList<>();
+		argvList.addAll(Arrays.asList(args));
 		
 		initialize(argvList);
 		
@@ -359,6 +358,11 @@ public class POPSystem {
 				LogWriter.writeDebugInfo("[Init] can't access user config '%s'", config.getAbsolutePath());
 			}
 		}
+		
+		// like Broker, the main has its own directory
+		// create directories and setup their cleanup
+		RuntimeDirectoryThread runtimeCleanup = new RuntimeDirectoryThread(Util.generateUUID());
+		runtimeCleanup.addCleanupHook();
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){

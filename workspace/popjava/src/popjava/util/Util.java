@@ -116,7 +116,7 @@ public final class Util {
 		return s1.equalsIgnoreCase(s2);
 
 	}
-
+	
 	/**
 	 * Generate a random string of the given length
 	 * @param length	Length of the generated string

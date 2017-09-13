@@ -129,9 +129,9 @@ public class SSLUtils {
 	public static SSLContext getSSLContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, 
 		CertificateException, UnrecoverableKeyException, KeyManagementException {
 		// init SSLContext once
-		if (sslContextInstance == null || !conf.getSSLKeyStoreTemporaryLocation().equals(keyStoreLocation)) {
+		if (sslContextInstance == null || !conf.getSSLTemporaryCertificateLocation().equals(keyStoreLocation)) {
 			// load private key
-			keyStoreLocation = conf.getSSLKeyStoreTemporaryLocation();
+			keyStoreLocation = conf.getSSLTemporaryCertificateLocation();
 			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			keyManagerFactory.init(keyStore, conf.getSSLKeyStorePrivateKeyPassword().toCharArray());
@@ -361,7 +361,7 @@ public class SSLUtils {
 			"popjava.base.POPObject.PopRegisterFutureConnectorCertificate",
 			"popjava.interfacebase.Interface.deserialize"
 		);
-		try {
+		try {			
 			// load it
 			Certificate cert = certificateFromBytes(certificate);
 			
@@ -376,13 +376,13 @@ public class SSLUtils {
 			String outName = fingerprint + ".cer";
 			
 			// certificates temprary path
-			Path path = Paths.get(conf.getSSLKeyStoreTemporaryLocation().toString(), outName);
+			Path path = Paths.get(conf.getSSLTemporaryCertificateLocation().toString(), outName);
 			// move to local directory
 			Files.write(path, certificate);
 			
 			// handle local reload
 			if (reload) {
-				POPTrustManager.getInstance().reloadTrustManager();
+				trustManager.reloadTrustManager();
 			}
 		} catch (Exception ex) {
 			LogWriter.writeDebugInfo("[SSLUtils] failed to save certificate: ", ex.getMessage());
@@ -398,7 +398,7 @@ public class SSLUtils {
 	public static boolean generateKeyStore(KeyStoreCreationOptions options) {
 		// something the key generated seems to be invalid (invalidated by bouncycastle)
 		// we retry for a while in that case
-		int limit = 15;
+		int limit = 20;
 		boolean generated;
 		do {
 			generated = generateKeyStoreOnce(options);
