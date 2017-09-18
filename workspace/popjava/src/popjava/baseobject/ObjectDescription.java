@@ -39,7 +39,7 @@ public class ObjectDescription implements IPOPBase {
 	protected String hostName;
 	protected String jobUrl;
 	protected String codeFile;
-	protected String cwd;
+	protected String directory;
 	protected String batch;
 	
 	protected String remoteAccessPoint = ""; // Used to connect to a remote object at object creation
@@ -71,7 +71,7 @@ public class ObjectDescription implements IPOPBase {
 		hostName = "";
 		jobUrl = "";
 		codeFile = "";
-		cwd ="";
+		directory ="";
 		batch = "";
 		waitTime=-1;
 		hostarch = "";
@@ -135,7 +135,15 @@ public class ObjectDescription implements IPOPBase {
 	 * @param d	Specific directory
 	 */
 	public void setDirectory(String d){
-		cwd = d;
+		directory = d;
+	}
+
+	/**
+	 * Get the directory we want the process to run into
+	 * @return 
+	 */
+	public String getDirectory() {
+		return directory;
 	}
 
 	/**
@@ -354,7 +362,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * Set the OD protocol value
-	 * @param protocol	protocol to be used to communicate with the object
+	 * @param protocols	protocol to be used to communicate with the object
 	 */
 	public void setProtocols(String[] protocols) {
 		this.protocols = protocols;
@@ -705,7 +713,7 @@ public class ObjectDescription implements IPOPBase {
 //		od_bandwidth.serialize(buffer);
 		buffer.putFloat(wallTime);
 		buffer.putBoolean(isManual);
-		buffer.putString(cwd);
+		buffer.putString(directory);
 		buffer.putInt(maxDepth);
 		buffer.putInt(maxSize);
 		buffer.putInt(waitTime);
@@ -756,7 +764,8 @@ public class ObjectDescription implements IPOPBase {
 		if (od.getEncoding().length() > 0) {
 			encoding = od.getEncoding();
 		}
-		if (od.getProtocols().length > protocols.length) {
+		if (protocols == null || protocols.length == 0 || protocols[0].isEmpty() || 
+			od.getProtocols().length > protocols.length) {
 			protocols = od.getProtocols();
 		}
 		if (od.getPlatform().length() > 0) {

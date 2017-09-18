@@ -8,6 +8,9 @@ import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,6 +90,9 @@ public class POPJavaJobManager extends POPJobService {
 
 	/** Number of job alive, mapped by {@link AppResource#id} */
 	protected Map<Integer,AppResource> jobs = new HashMap<>();
+	
+	/** Jobs we need to cleanup */
+	private final LinkedBlockingDeque<AppResource> cleanupJobs = new LinkedBlockingDeque<>();
 
 	/** Networks saved in this JobManager */
 	protected Map<String,POPNetwork> networks = new HashMap<>();
@@ -416,7 +422,7 @@ public class POPJavaJobManager extends POPJobService {
 			// get the job manager connector specified in the od
 			Class connectorClass = POPConnectorFactory.getConnectorClass(od.getConnector());
 			POPConnectorBase connectorImpl = network.getConnector(connectorClass);
-
+			
 			if (connectorImpl == null) {
 				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
 			}
@@ -462,6 +468,7 @@ public class POPJavaJobManager extends POPJobService {
 					res.setAppService(new POPAccessPoint(localservice));
 					// create request od and add the reservation params
 					ObjectDescription od = new ObjectDescription();
+					od.merge(res.getOd());
 					res.addTo(od);
 
 					// force od to localhost
@@ -469,16 +476,25 @@ public class POPJavaJobManager extends POPJobService {
 
 					// code file
 					POPString codeFile = new POPString();
+					String appId = "unknown";
 					AppService service;
 					try {
 						service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
 						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
+						appId = service.getPOPCAppID();
 						service.exit();
 					} catch (POPException e) {
 						service = PopJava.newActive(POPAppService.class, res.getAppService());
 						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
+						appId = service.getPOPCAppID();
 						service.exit();
 					}
+					
+					// create directory if it doesn't exists and set OD.cwd
+					Path objectAppCwd = Paths.get(conf.getJobManagerExecutionBaseDirectory(), appId).toAbsolutePath();
+					objectAppCwd = Files.createDirectories(objectAppCwd);
+					od.setDirectory(objectAppCwd.toString());
+					res.setAppDirectory(objectAppCwd);
 					
 					// modify popjava location with local ones
 					String[] args = codeFile.getValue().split(" ");
@@ -640,7 +656,7 @@ public class POPJavaJobManager extends POPJobService {
 			// TODO walltime?
 			app.setAppId(popAppId);
 			app.setReqId(reqID);
-			app.setNetwork(od.getNetwork());
+			app.setOd(od);
 			// reservation time
 			app.setAccessTime(System.currentTimeMillis() + conf.getAllocTimeout());
 
@@ -758,8 +774,7 @@ public class POPJavaJobManager extends POPJobService {
 	}
 
 	/**
-	 * Start object and parallel thread check for resources death TODO: make private TODO: find another method to call
-	 * update like a signal from the Broker (should trigger after death)
+	 * Start object and parallel thread check for resources death and other timed tasks.
 	 */
 	@POPAsyncConc
 	@Localhost
@@ -769,6 +784,7 @@ public class POPJavaJobManager extends POPJobService {
 			try {
 				selfRegister();
 				update();
+				cleanup();
 				Thread.sleep(conf.getJobManagerUpdateInterval());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1159,6 +1175,8 @@ public class POPJavaJobManager extends POPJobService {
 						// manually remove from iterator
 						available.add(job);
 						iterator.remove();
+						// add to cleanup job
+						cleanupJobs.add(job);
 						LogWriter.writeDebugInfo("[JM] Free up [%s] resources (dead object).", job);
 					}
 				}
@@ -1235,7 +1253,7 @@ public class POPJavaJobManager extends POPJobService {
 	public void applicationEnd(int popAppId, boolean initiator) {
 		AppResource res = jobs.get(popAppId);
 		if (initiator && res != null) {
-			SNRequest r = new SNRequest(Util.generateUUID(), null, null, res.getNetwork(), POPConnectorJobManager.IDENTITY, null);
+			SNRequest r = new SNRequest(Util.generateUUID(), null, null, res.getOd().getNetwork(), res.getOd().getConnector(), null);
 			r.setAsEndRequest();
 			r.setPOPAppId(popAppId);
 
@@ -1328,6 +1346,27 @@ public class POPJavaJobManager extends POPJobService {
 			LogWriter.writeDebugInfo("[JM] Failed to write current configuration to disk");
 		} finally {
 			
+		}
+	}
+	
+	/**
+	 * Dead AppResources are handled here, cleaning them up.
+	 */
+	@POPAsyncSeq
+	protected void cleanup() {
+		for (Iterator<AppResource> iterator = cleanupJobs.iterator(); iterator.hasNext();) {
+			try {
+				AppResource job = iterator.next();
+				Path appDirectory = job.getAppDirectory();
+				if (appDirectory == null) {
+					continue;
+				}
+				if (Files.exists(appDirectory) && appDirectory.toFile().list().length == 0) {
+					Files.deleteIfExists(appDirectory);
+					iterator.remove();
+				}
+			} catch(IOException e) {
+			}
 		}
 	}
 

@@ -207,7 +207,7 @@ public class Interface {
             POPAccessPoint[] remotejobscontact) {
         // ask the job manager to allocate the broker
         String platforms = od.getPlatform();
-
+			
         if (platforms.isEmpty()) {
         	AppService appCoreService = null;
         	appCoreService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
@@ -524,7 +524,7 @@ public class Interface {
 			return false;
 		}*/
 		
-		if(joburl == null || joburl.length() == 0){
+		if(joburl == null || joburl.isEmpty()){
 			return false;
 		}
 		LogWriter.writeDebugInfo("[Interface] Joburl "+joburl+" "+objectName);
@@ -827,22 +827,29 @@ public class Interface {
 		
 		// XXX Move this to regular OD?
 		String potentialServicePort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
+		// We want to use SSH locally if we force a port
 		if(isLocal && potentialServicePort.isEmpty()){
 			if (conf.isUsingUserConfig()) {
 				// add config file, system or local
-				argvList.add(String.format("%s%s", Broker.POPJAVA_CONFIG_PREFIX, conf.getUserConfig().toString()));
+				argvList.add(Broker.POPJAVA_CONFIG_PREFIX + conf.getUserConfig().toString());
 			}
-			ret = SystemUtil.runCmd(argvList);
+			String dir = od.getDirectory(); 
+			if (dir != null && !dir.isEmpty()) {
+				ret = SystemUtil.runCmd(argvList, dir);
+			} else {
+				ret = SystemUtil.runCmd(argvList);
+			}
 		}else{
 			//String potentialPort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
 			switch(od.getConnectionType()){
 			case ANY:
 			case SSH:
 				// add port to host if specified
-				if (!potentialServicePort.isEmpty())
+				if (!potentialServicePort.isEmpty()) {
 					ret = SystemUtil.runRemoteCmd(hostname, potentialServicePort, argvList);
-				else
+				} else {
 					ret = SystemUtil.runRemoteCmd(hostname, argvList);
+				}
 				break;
 			case DEAMON:
 				POPJavaDeamonConnector connector;
@@ -860,6 +867,7 @@ public class Interface {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				break;
 			}
 		}
 

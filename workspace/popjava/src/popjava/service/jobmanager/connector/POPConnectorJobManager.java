@@ -73,6 +73,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 		if (!od.getPlatform().isEmpty()) {
 			request.setOS(od.getPlatform());
 		}
+		// TODO get appId from AppService
 		String appId = "", reqId = "";
 
 		// send request

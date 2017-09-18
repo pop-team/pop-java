@@ -17,6 +17,7 @@ public class SystemUtil {
 	
 	private static final List<Process> processes = new ArrayList<Process>();
 	private static final Configuration conf = Configuration.getInstance();
+	private static boolean sshAvailable = commandExists("ssh");
 
 	public static void endAllChildren(){
 		for(int i = 0; i < processes.size(); i++){
@@ -29,11 +30,12 @@ public class SystemUtil {
 	}
 	
 	/**
-	 * Run a new command
+	 * Run a new command in a directory
 	 * @param argvs arguments to pass to the new process
+	 * @param dir Working directory
 	 * @return 0 if the command launch is a success
 	 */
-	public static int runCmd(List<String> argvs) {
+	public static int runCmd(List<String> argvs, String dir) {
 		long startTime = System.currentTimeMillis();
 		LogWriter.writeDebugInfo("[System] Run command");
 		for(String arg: argvs){
@@ -41,6 +43,10 @@ public class SystemUtil {
 		}
 		
 		ProcessBuilder pb = new ProcessBuilder(argvs);
+		if (dir != null) {
+			pb.directory(new File(dir));
+		}
+		
 		if(conf.isRedirectOutputToRoot()){
 			pb = pb.inheritIO();
 		}else{
@@ -64,6 +70,15 @@ public class SystemUtil {
 			}
 		}
 		return -1;
+	}
+	
+	/**
+	 * Run a new command
+	 * @param argvs arguments to pass to the new process
+	 * @return 0 if the command launch is a success
+	 */
+	public static int runCmd(List<String> argvs) {
+		return runCmd(argvs, null);
 	}
 	
 	public static boolean commandExists(String command){
@@ -117,20 +132,17 @@ public class SystemUtil {
 	}
 	
 	public static int runRemoteCmd(String url, List<String> command){
-		if(conf.isUseNativeSSHifPossible() && commandExists("ssh")){
-			command.add(0, url);
-			command.add(0, "ssh");
-			
-			return runCmd(command);
-		}
-		
-		return runRemoteCmdSSHJ(url, command);
+		return runRemoteCmd(url, null, command);
 	}
 	
 	public static int runRemoteCmd(String url, String port, List<String> command){
-		if(conf.isUseNativeSSHifPossible() && commandExists("ssh")){
+		if(conf.isUseNativeSSHifPossible() && sshAvailable){
+			command.add("'");
+			command.add(0, "'");
 			command.add(0, url);
-			command.add(0, "-p " + port);
+			if (port != null || !port.isEmpty()) {
+				command.add(0, "-p " + port);
+			}
 			command.add(0, "ssh");
 			
 			return runCmd(command);
