@@ -792,10 +792,10 @@ public class ObjectDescription implements IPOPBase {
 		if (od.useLocalJVM != null) {
 			useLocalJVM = od.useLocalJVM;
 		}
-		if (od.getNetwork() != null) {
+		if (getNetwork() == null || getNetwork().isEmpty()) {
 			setNetwork(od.getNetwork());
 		}
-		if (od.getConnector() != null) {
+		if (getConnector() == null || getConnector().isEmpty()) {
 			setConnector(od.getConnector());
 		}
 	}
