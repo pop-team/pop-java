@@ -14,7 +14,7 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
  */
 
 public class SystemUtil {
-	
+
 	private static final List<Process> processes = new ArrayList<Process>();
 	private static final Configuration conf = Configuration.getInstance();
 	private static boolean sshAvailable = commandExists("ssh");
@@ -22,13 +22,13 @@ public class SystemUtil {
 	public static void endAllChildren(){
 		for(int i = 0; i < processes.size(); i++){
 			Process process = processes.get(i);
-			
+
 			if(process != null){
 				process.destroy();
 			}
 		}
 	}
-	
+
 	/**
 	 * Run a new command in a directory
 	 * @param argvs arguments to pass to the new process
@@ -41,19 +41,19 @@ public class SystemUtil {
 		for(String arg: argvs){
 			LogWriter.writeDebugInfo(" %79s", arg);
 		}
-		
+
 		ProcessBuilder pb = new ProcessBuilder(argvs);
 		if (dir != null) {
 			pb.directory(new File(dir));
 		}
-		
+
 		if(conf.isRedirectOutputToRoot()){
 			pb = pb.inheritIO();
 		}else{
 			pb.redirectErrorStream(true);
 			pb.redirectOutput(new File("/dev/null"));
 		}
-		
+
 		if (pb != null) {
 			try {
 				/*String directory = System.getProperty("java.io.tmpdir");
@@ -71,7 +71,7 @@ public class SystemUtil {
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Run a new command
 	 * @param argvs arguments to pass to the new process
@@ -80,17 +80,17 @@ public class SystemUtil {
 	public static int runCmd(List<String> argvs) {
 		return runCmd(argvs, null);
 	}
-	
+
 	public static boolean commandExists(String command){
 		try {
 			Runtime.getRuntime().exec("ssh");
 			return true;
 		} catch (Exception e) {
 		}
-		
+
 		return false;
 	}
-	
+
 	public static int runRemoteCmdSSHJ(String url, List<String> command){
 		int returnValue = -1;
 		final SSHClient client = new SSHClient();
@@ -98,7 +98,7 @@ public class SystemUtil {
 		try {
 			client.addHostKeyVerifier(new PromiscuousVerifier());
 			client.connect(url);
-			
+
 			LogWriter.writeDebugInfo("[System] Use user "+System.getProperty("user.name")+"for connection");
 			client.authPublickey(System.getProperty("user.name"));
 
@@ -127,27 +127,34 @@ public class SystemUtil {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return returnValue;
 	}
-	
+
 	public static int runRemoteCmd(String url, List<String> command){
 		return runRemoteCmd(url, null, command);
 	}
-	
+
 	public static int runRemoteCmd(String url, String port, List<String> command){
 		if(conf.isUseNativeSSHifPossible() && sshAvailable){
-			command.add("'");
-			command.add(0, "'");
-			command.add(0, url);
-			if (port != null || !port.isEmpty()) {
-				command.add(0, "-p " + port);
+			// it's better to send the command over SSH as a single argument
+			// every argument is escaped to avoid expansion
+			StringBuilder sb = new StringBuilder();
+			for (String arg : command) {
+				sb.append('\'').append(arg).append("' ");
 			}
-			command.add(0, "ssh");
-			
+
+			command.clear();
+			command.add("ssh");
+			if (port != null || !port.isEmpty()) {
+				command.add("-p " + port);
+			}
+			command.add(url);
+			command.add(sb.toString());
+
 			return runCmd(command);
 		}
-		
+
 		return runRemoteCmdSSHJ(url, command);
 	}
 }
