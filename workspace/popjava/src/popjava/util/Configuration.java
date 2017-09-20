@@ -93,7 +93,7 @@ public final class Configuration {
 	private final Properties ALL_PROPERTIES = new Properties();
 	
 	// user configurable attributes w/ POP's defaults
-	private boolean debug = true;
+	private boolean debug = false;
 	private boolean debugCombox = false;
 	private int reserveTimeout = 60000;
 	private int allocTimeout = 30000;
