@@ -3,7 +3,6 @@ package popjava.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +41,7 @@ public class SystemUtil {
 	 */
 	public static int runCmd(List<String> argvs, String dir, String executeAs) {
 		if (executeAs != null && !executeAs.isEmpty() && canChangeUser(executeAs)) {
-			argvs = commandAs(executeAs, Util.join(" ", (argvs)));
+			argvs = commandAs(executeAs, Util.join(" ", escapeDollar(argvs)));
 		}
 		
 		long startTime = System.currentTimeMillis();
@@ -238,7 +237,8 @@ public class SystemUtil {
 		for (int i = 0; i < newCommand.size(); i++) {
 			String com = newCommand.get(i);
 			if (com.contains("$")) {
-				newCommand.set(i, com.replace("$", "\\$"));
+				// XXX escaping AFTER the $ works, why though is rather a mystery
+				newCommand.set(i, com.replace("$", "$\\"));
 			}
 		}
 		
