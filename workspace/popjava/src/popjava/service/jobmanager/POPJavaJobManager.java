@@ -1367,7 +1367,9 @@ public class POPJavaJobManager extends POPJobService {
 				}
 				if (Files.exists(appDirectory) && appDirectory.toFile().list().length == 0) {
 					Files.deleteIfExists(appDirectory);
-					iterator.remove();
+					if (!Files.exists(appDirectory)) {
+						iterator.remove();
+					}
 				}
 			} catch(IOException e) {
 				LogWriter.writeExceptionLog(e);
