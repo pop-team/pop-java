@@ -28,6 +28,7 @@ import popjava.PopJava;
 import popjava.annotation.Localhost;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPSyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPConfig.Type;
@@ -50,7 +51,6 @@ import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.network.POPNetworkNodeFactory;
 import popjava.service.jobmanager.connector.POPConnectorBase;
 import popjava.service.jobmanager.connector.POPConnectorFactory;
-import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.service.jobmanager.connector.POPConnectorSearchNodeInterface;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.service.jobmanager.network.AbstractNodeJobManager;
@@ -67,7 +67,7 @@ import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
-import popjava.annotation.POPSyncSeq;
+import popjava.util.SystemUtil;
 
 @POPClass
 public class POPJavaJobManager extends POPJobService {
@@ -473,6 +473,9 @@ public class POPJavaJobManager extends POPJobService {
 
 					// force od to localhost
 					od.setHostname("localhost");
+					// set user to use locally
+					String hostuser = conf.getJobmanagerExecutionUser();
+					od.setHostuser(hostuser);
 
 					// code file
 					POPString codeFile = new POPString();
@@ -492,7 +495,10 @@ public class POPJavaJobManager extends POPJobService {
 					
 					// create directory if it doesn't exists and set OD.cwd
 					Path objectAppCwd = Paths.get(conf.getJobManagerExecutionBaseDirectory(), appId).toAbsolutePath();
-					objectAppCwd = Files.createDirectories(objectAppCwd);
+					// XXX Find a working solution with Files.setOwner(..)?
+					String[] cmd = { "mkdir", objectAppCwd.toAbsolutePath().toString() };
+					SystemUtil.runCmd(Arrays.asList(cmd), null, hostuser);
+					
 					od.setDirectory(objectAppCwd.toString());
 					res.setAppDirectory(objectAppCwd);
 					
@@ -507,11 +513,7 @@ public class POPJavaJobManager extends POPJobService {
 						}
 					}
 					
-					StringBuilder sb = new StringBuilder();
-					for (String arg : args) {
-						sb.append(arg).append(" ");
-					}
-					od.setCodeFile(sb.toString().trim());
+					od.setCodeFile(Util.join(" ", args));
 					od.setOriginAppService(res.getAppService());
 
 					// execute locally, and save status
@@ -520,8 +522,9 @@ public class POPJavaJobManager extends POPJobService {
 					res.setContact(objcontacts[i]);
 					res.setAccessTime(System.currentTimeMillis());
 				}
-			} // if any problem occour, cancel reservation
+			} // if any problem occurs, cancel reservation
 			catch (Throwable e) {
+				LogWriter.writeExceptionLog(e);
 				status = false;
 				cancelReservation(reserveIDs, howmany);
 			}
@@ -658,7 +661,7 @@ public class POPJavaJobManager extends POPJobService {
 			app.setReqId(reqID);
 			app.setOd(od);
 			// reservation time
-			app.setAccessTime(System.currentTimeMillis() + conf.getAllocTimeout());
+			app.setAccessTime(System.currentTimeMillis());
 
 			// add job
 			jobs.put(app.getId(), app);
@@ -1154,6 +1157,7 @@ public class POPJavaJobManager extends POPJobService {
 
 		try {
 			mutex.lock();
+			long updateInterval = conf.getJobManagerUpdateInterval();
 			for (Iterator<AppResource> iterator = jobs.values().iterator(); iterator.hasNext();) {
 				AppResource job = iterator.next();
 				// job not started after timeout
@@ -1165,8 +1169,8 @@ public class POPJavaJobManager extends POPJobService {
 						LogWriter.writeDebugInfo("[JM] Free up [%s] resources (unused).", job);
 					}
 				} // dead objects check with min UPDATE_MIN_INTERVAL time between them
-				else if (job.getAccessTime() < System.currentTimeMillis()) {
-					job.setAccessTime(System.currentTimeMillis() + conf.getJobManagerUpdateInterval());
+				else if (job.getAccessTime() < System.currentTimeMillis() - updateInterval) {
+					job.setAccessTime(System.currentTimeMillis());
 					try {
 						// connection to object ok
 						Interface obj = new Interface(job.getContact());
@@ -1366,6 +1370,7 @@ public class POPJavaJobManager extends POPJobService {
 					iterator.remove();
 				}
 			} catch(IOException e) {
+				LogWriter.writeExceptionLog(e);
 			}
 		}
 	}

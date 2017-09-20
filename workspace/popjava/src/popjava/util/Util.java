@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -118,6 +118,38 @@ public final class Util {
 	}
 	
 	/**
+	 * Join an array of String
+	 * @param delimiter Separator of each string
+	 * @param join What we want to join
+	 * @return 
+	 */
+	public static String join(String delimiter, String... join) {
+		Objects.requireNonNull(join);
+		
+		StringBuilder sb = null;
+		for (String s : join) {
+			if (sb != null) {
+				sb.append(delimiter);
+			} else {
+				sb = new StringBuilder();
+			}
+			
+			sb.append(s);
+		}
+		return sb != null ? sb.toString() : null;
+	}
+	
+	/**
+	 * Join a list of String
+	 * @param delimiter Separator of each string
+	 * @param join What we want to join
+	 * @return 
+	 */
+	public static String join(String delimiter, List<String> join) {
+		return join(delimiter, join.toArray(new String[join.size()]));
+	}
+	
+	/**
 	 * Generate a random string of the given length
 	 * @param length	Length of the generated string
 	 * @return	The generated string
@@ -146,7 +178,7 @@ public final class Util {
 	 * @return	The split command as an array list
 	 */
 	public static ArrayList<String> splitTheCommand(String command) {
-		return new ArrayList<String>(Arrays.asList(command.trim().split(" ")));
+		return new ArrayList<>(Arrays.asList(command.trim().split(" ")));
 	}
 
 	/**

@@ -42,6 +42,7 @@ public final class Configuration {
 		JOBMANAGER_PROTOCOLS,
 		JOBMANAGER_PORTS,
 		JOBMANAGER_EXECUTION_BASE_DIRECTORY,
+		JOBMANAGER_EXECUTION_USER,
 		POP_JAVA_DEAMON_PORT,
 		SEARCH_NODE_UNLOCK_TIMEOUT,
 		SEARCH_NODE_SEARCH_TIMEOUT,
@@ -112,6 +113,7 @@ public final class Configuration {
 	private int[] jobManagerPorts = { 2711 };
 	private int popJavaDeamonPort = 43424;
 	private String jobManagerExecutionBaseDirectory = ".";
+	private String jobmanagerExecutionUser = null;
 	
 	private String defaultEncoding = "xdr";
 	private String selectedEncoding = "raw";
@@ -203,6 +205,10 @@ public final class Configuration {
 
 	public String getJobManagerExecutionBaseDirectory() {
 		return jobManagerExecutionBaseDirectory;
+	}
+
+	public String getJobmanagerExecutionUser() {
+		return jobmanagerExecutionUser;
 	}
 
 	public int getSearchNodeUnlockTimeout() {
@@ -366,13 +372,18 @@ public final class Configuration {
 	}
 
 	public void setJobManagerDefaultConnector(String jobManagerDefaultConnector) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_DEFAULT_CONNECTOR.name(), String.valueOf(jobManagerDefaultConnector));
+		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_DEFAULT_CONNECTOR.name(), jobManagerDefaultConnector);
 		this.jobManagerDefaultConnector = jobManagerDefaultConnector;
 	}
 
 	public void setJobManagerExecutionBaseDirectory(String jobManagerExecutionBaseDirectory) {
 		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_EXECUTION_BASE_DIRECTORY.name(), jobManagerExecutionBaseDirectory);
 		this.jobManagerExecutionBaseDirectory = jobManagerExecutionBaseDirectory;
+	}
+
+	public void setJobmanagerExecutionUser(String jobmanagerExecutionUser) {
+		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_EXECUTION_USER.name(), jobmanagerExecutionUser);
+		this.jobmanagerExecutionUser = jobmanagerExecutionUser;
 	}
 
 	public void setSearchNodeUnlockTimeout(int searchNodeUnlockTimeout) {
@@ -588,6 +599,7 @@ public final class Configuration {
 						case JOBMANAGER_SELF_REGISTER_INTERVAL:  jobManagerSelfRegisterInterval = Integer.parseInt(value); break;
 						case JOBMANAGER_DEFAULT_CONNECTOR:       jobManagerDefaultConnector = value; break;
 						case JOBMANAGER_EXECUTION_BASE_DIRECTORY:jobManagerExecutionBaseDirectory = value; break;
+						case JOBMANAGER_EXECUTION_USER:          jobmanagerExecutionUser = value; break;
 						case JOBMANAGER_PORTS:
 							String[] ports = matchRegEx(value, "\\d+");
 							jobManagerPorts = new int[ports.length];

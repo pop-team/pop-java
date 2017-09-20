@@ -833,12 +833,7 @@ public class Interface {
 				// add config file, system or local
 				argvList.add(Broker.POPJAVA_CONFIG_PREFIX + conf.getUserConfig().toString());
 			}
-			String dir = od.getDirectory(); 
-			if (dir != null && !dir.isEmpty()) {
-				ret = SystemUtil.runCmd(argvList, dir);
-			} else {
-				ret = SystemUtil.runCmd(argvList);
-			}
+			ret = SystemUtil.runCmd(argvList, od.getDirectory(), od.getHostuser());
 		}else{
 			//String potentialPort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
 			switch(od.getConnectionType()){
@@ -953,22 +948,5 @@ public class Interface {
 			super.finalize();
 		}
 
-	}
-
-	/**
-	 * Split the last colon in a String
-	 * @param value
-	 * @return [0] value before : [1] the value after the : or 0 if it was not present
-	 */
-	private static String[] splitPort(String value) {
-		String[] output = { value, "0" };
-		
-		int colonIndex = value.lastIndexOf(":");
-		if (colonIndex > 0) {
-			output[1] = value.substring(colonIndex + 1);
-			output[0] = value.substring(0, colonIndex);
-		}
-		
-		return output;
 	}
 }
