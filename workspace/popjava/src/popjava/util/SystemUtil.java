@@ -156,7 +156,7 @@ public class SystemUtil {
 			case UNIX:
 			default:
 				execute.add("sudo");
-				execute.add("-snu");
+				execute.add("-inu"); // --login --non-interactive --user
 				execute.add(user);
 				execute.add("sh");
 				execute.add("-c");
