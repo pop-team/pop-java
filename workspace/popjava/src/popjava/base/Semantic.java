@@ -13,4 +13,5 @@ public class Semantic {
 	public static final int CONCURRENT = 8;
 	public static final int MUTEX = 16;
 	public static final int SEQUENCE = 0;
+	public static final int LOCALHOST = 256;
 }

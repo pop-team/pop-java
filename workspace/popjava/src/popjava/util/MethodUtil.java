@@ -92,16 +92,36 @@ public class MethodUtil {
 	    return defaultID;
 	}
 	
-	public static boolean hasAnnotation(Annotation[] annotations, Class< ? extends Annotation> clazz) {
+	/**
+	 * Check if an array of annotations contains a specific type of annotation
+	 * 
+	 * @param annotations
+	 * @param clazz
+	 * @return 
+	 */
+	public static boolean hasAnnotation(Annotation[] annotations, Class<? extends Annotation> clazz) {
+		return getAnnotation(annotations, clazz) != null;
+	}
+	
+	/**
+	 * Get the annotation we are looking for
+	 * 
+	 * @param <T>
+	 * @param annotations
+	 * @param clazz
+	 * @return 
+	 */
+	@SuppressWarnings("unchecked")
+	public static<T extends Annotation> T getAnnotation(Annotation[] annotations, Class<T> clazz) {
 		if (annotations == null || clazz == null) {
-			return false;
+			return null;
 		}
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType().equals(clazz)) {
-				return true;
+				return (T) annotation;
 			}
 		}
-		return false;
+		return null;
 	}
 	
 	/**

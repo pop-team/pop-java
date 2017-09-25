@@ -16,6 +16,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPParameter;
-import popjava.annotation.Localhost;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
@@ -366,40 +366,58 @@ public final class Broker {
 			
 			// use previously set semantics if possible
 			if(methodSemanticsCache.containsKey(method)){
-				//request.setSenmatics(methodSemanticsCache.get(method));
+				request.setSenmatics(methodSemanticsCache.get(method));
 				return;
 			}
 			
-			Annotation[] annotations = method.getDeclaredAnnotations();
-			/*int semantics = 0;
+			Annotation[] annotations = method.getAnnotations();
+			int semantics = 0;
+			boolean isLocalhost = false;
+			
+			POPSyncConc syncConc;
+			POPSyncSeq syncSeq;
+			POPSyncMutex syncMutex;
+			POPAsyncConc asyncConc;
+			POPAsyncSeq asyncSeq;
+			POPAsyncMutex asyncMutex;
 			
 			// local semantics
-			if (MethodUtil.hasAnnotation(annotations, POPSyncConc.class)) {
+			if ((syncConc = MethodUtil.getAnnotation(annotations, POPSyncConc.class)) != null) {
 				semantics = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
+				isLocalhost = syncConc.localhost();
 			}
-			else if (MethodUtil.hasAnnotation(annotations, POPSyncSeq.class)) {
+			else if ((syncSeq = MethodUtil.getAnnotation(annotations, POPSyncSeq.class)) != null) {
 				semantics = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
+				isLocalhost = syncSeq.localhost();
 			}
-			else if (MethodUtil.hasAnnotation(annotations, POPSyncMutex.class)) {
+			else if ((syncMutex = MethodUtil.getAnnotation(annotations, POPSyncMutex.class)) != null) {
 				semantics = Semantic.SYNCHRONOUS | Semantic.MUTEX;
+				isLocalhost = syncMutex.localhost();
 			}
-			else if (MethodUtil.hasAnnotation(annotations, POPAsyncConc.class)) {
+			else if ((asyncConc = MethodUtil.getAnnotation(annotations, POPAsyncConc.class)) != null) {
 				semantics = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
+				isLocalhost = asyncConc.localhost();
 			}
-			else if (MethodUtil.hasAnnotation(annotations, POPAsyncSeq.class)) {
+			else if ((asyncSeq = MethodUtil.getAnnotation(annotations, POPAsyncSeq.class)) != null) {
 				semantics = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
+				isLocalhost = asyncSeq.localhost();
 			}
-			else if (MethodUtil.hasAnnotation(annotations, POPAsyncMutex.class)) {
+			else if ((asyncMutex = MethodUtil.getAnnotation(annotations, POPAsyncMutex.class)) != null) {
 				semantics = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
-			}*/
+				isLocalhost = asyncMutex.localhost();
+			} else {
+				// not a semantic match, we keep what we received
+				// XXX this happen when we get the annotation from a superclass
+				semantics = request.getSenmatics();
+			}
 			
 			// localhost only call
-			if (MethodUtil.hasAnnotation(annotations, Localhost.class)) {
-				request.setLocalhost(true);
+			if (isLocalhost) {
+				semantics |= Semantic.LOCALHOST;
 			}
 			
-			//request.setSenmatics(semantics);
-			//methodSemanticsCache.put(method, semantics);
+			request.setSenmatics(semantics);
+			methodSemanticsCache.put(method, semantics);
 		} catch (NoSuchMethodException e) {
 		}
 

@@ -27,7 +27,6 @@ public class Request {
 	protected int status;
 	
 	protected POPRemoteCaller remoteCaller;
-	private boolean localhost;
 
 	/**
 	 * Creating a new pending request
@@ -225,11 +224,7 @@ public class Request {
 	}
 
 	boolean isLocalhost() {
-		return localhost;
-	}
-
-	public void setLocalhost(boolean localhost) {
-		this.localhost = localhost;
+		return (getSenmatics() & Semantic.LOCALHOST) != 0;
 	}
 	
 	public RequestQueue getRequestQueue() {

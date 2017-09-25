@@ -17,5 +17,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface POPSyncConc {
     int id() default -1;
-    
+	boolean localhost() default false;
 }
