@@ -9,5 +9,6 @@
    user/mixed-applications
    user/plugin
    user/installation
+   user/configuration
    user/troubleshooting
    user/bibliography
