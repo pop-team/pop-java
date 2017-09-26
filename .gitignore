@@ -21,3 +21,10 @@
 #folders
 /release
 /build
+/.idea
+/.settings
+/nbproject
+
+#files
+.classpath
+.project
