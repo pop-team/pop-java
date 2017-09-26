@@ -288,7 +288,7 @@ space (and the data is represented differently due to heterogeneity),
 the propagation of exception back to a remote component is complex.
 
 .. _fig-exception:
-.. figure:: images/exception.png
+.. figure:: ../images/exception.png
 
    Exception handling example
 

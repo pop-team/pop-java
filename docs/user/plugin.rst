@@ -24,7 +24,7 @@ package ``popjava.combox`` in the POP-Java library. The
 :num:`fig-combox-class` shows the ``ComboxPlugin`` class signature.
 
 .. _fig-combox-class:
-.. figure:: images/combox.png
+.. figure:: ../images/combox.png
    :width: 10cm
    :align: center
 
@@ -35,7 +35,7 @@ the package popjava.combox in the POP-Java library. The
 :num:`fig-comboxserver-class` shows the ComboxServer class signature.
 
 .. _fig-comboxserver-class:
-.. figure:: images/comboxserver.png
+.. figure:: ../images/comboxserver.png
    :width: 9.5cm
    :align: center
 
@@ -46,7 +46,7 @@ the package ``popjava.combox`` in the POP-Java library. The
 :num:`fig-comboxfactory-class` shows the ComboxFactory class signature.
 
 .. _fig-comboxfactory-class:
-.. figure:: images/comboxfactory.png
+.. figure:: ../images/comboxfactory.png
    :width: 10.6cm
    :align: center
 
@@ -84,7 +84,7 @@ package ``popjava.buffer`` in the POP-Java library. The
 :num:`fig-buffer-class` shows the ``BufferPlugin`` class signature.
 
 .. _fig-buffer-class:
-.. figure:: images/buffer.png
+.. figure:: ../images/buffer.png
    :width: 10.45cm
    :align: center
 
@@ -95,7 +95,7 @@ in the package ``popjava.buffer`` in the POP-Java library. The
 :num:`fig-bufferfactory-class` shows the ``BufferFactory`` class signature.
 
 .. _fig-bufferfactory-class:
-.. figure:: images/bufferfactory.png
+.. figure:: ../images/bufferfactory.png
    :width: 5cm
    :align: center
 

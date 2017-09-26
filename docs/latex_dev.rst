@@ -1,7 +1,3 @@
-.. _developer-manual:
-
-Developer manual
-================
 
 .. toctree::
    :maxdepth: 1
@@ -9,3 +5,4 @@ Developer manual
    dev/contributing
    dev/release
    dev/documentation
+

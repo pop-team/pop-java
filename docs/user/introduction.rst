@@ -76,7 +76,7 @@ system is implemented and the runtime system is the same as the one used in
 POP-C++.
 
 .. _fig-popsystem:
-.. figure:: images/architecture.png
+.. figure:: ../images/architecture.png
 
    POP system architecture
 

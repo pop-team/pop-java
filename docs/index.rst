@@ -31,50 +31,28 @@ This documentation is divided in three parts:
 
 .. _user-manual:
 
-User manual
------------
-
 .. toctree::
    :maxdepth: 1
+   :caption: User manual
 
-   introduction
-   model
-   applications-development
-   running
-   mixed-applications
-   plugin
-   installation
-   troubleshooting
-   bibliography
+   latex_user
 
 .. ............................................................................
 
 .. _developer-manual:
 
-Developer manual
-----------------
-
 .. toctree::
    :maxdepth: 1
+   :caption: Developer manual
 
-   dev/contributing
-   dev/release
-   dev/documentation
+   latex_dev
 
 .. ............................................................................
 
 .. _references:
 
-References
-----------
-
 .. toctree::
    :maxdepth: 1
-   POP-Java homepage <http://gridgroup.hefr.ch/popj/>
-   API Reference <http://gridgroup.github.io/pop-java/api/>
-   POP-Java source code <https://github.com/pop-team/pop-java>
-   examples
-   commands
-   releases   
-   POP-C++ homepage <http://gridgroup.hefr.ch/popc/>
-   todos
+   :caption: References
+
+   latex_refs

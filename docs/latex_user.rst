@@ -1,17 +1,13 @@
-.. _user-manual:
-
-User manual
-===========
 
 .. toctree::
    :maxdepth: 1
 
-   introduction
-   model
-   applications-development
-   running
-   mixed-applications
-   plugin
-   installation
-   troubleshooting
-   bibliography
+   user/introduction
+   user/model
+   user/applications-development
+   user/running
+   user/mixed-applications
+   user/plugin
+   user/installation
+   user/troubleshooting
+   user/bibliography
