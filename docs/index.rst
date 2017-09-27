@@ -35,7 +35,16 @@ This documentation is divided in three parts:
    :maxdepth: 1
    :caption: User manual
 
-   latex_user
+   user/introduction
+   user/model
+   user/applications-development
+   user/running
+   user/mixed-applications
+   user/plugin
+   user/installation
+   user/configuration
+   user/troubleshooting
+   user/bibliography
 
 .. ............................................................................
 
@@ -45,7 +54,18 @@ This documentation is divided in three parts:
    :maxdepth: 1
    :caption: Developer manual
 
-   latex_dev
+   dev/contributing
+   dev/release
+   dev/documentation
+   dev/architecture
+   dev/brokerinterface
+   dev/packages
+   dev/communication
+   dev/javaagent
+   dev/configuration
+   dev/services
+   dev/annotations
+   dev/testing
 
 .. ............................................................................
 
@@ -55,4 +75,11 @@ This documentation is divided in three parts:
    :maxdepth: 1
    :caption: References
 
-   latex_refs
+   POP-Java homepage <http://gridgroup.hefr.ch/popj/>
+   API Reference <http://gridgroup.github.io/pop-java/api/>
+   POP-Java source code <https://github.com/pop-team/pop-java>
+   refs/examples
+   refs/commands
+   refs/releases
+   POP-C++ homepage <http://gridgroup.hefr.ch/popc/>
+   refs/todos
