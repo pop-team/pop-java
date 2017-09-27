@@ -8,7 +8,7 @@ COMPILE POP-Java SOURCE CODE
 
 .. code::
 
-  user@computer$ ant
+  $ ant
 
 
 INSTALLING POP-Java
@@ -16,7 +16,7 @@ INSTALLING POP-Java
 
 .. code::
 
-  user@computer$ ./install
+  $ ./install
 
 You might use sudo or to be root tu execute "make install" if you do not have the right to write in the destination folder.
 
