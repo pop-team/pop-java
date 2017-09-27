@@ -2,8 +2,6 @@ package testsuite.popjavatest;
 
 import popjava.annotation.POPClass;
 import popjava.annotation.POPSyncSeq;
-import popjava.base.POPObject;
-import popjava.base.Semantic;
 
 @POPClass
 public class POPJParclass{

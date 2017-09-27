@@ -10,7 +10,7 @@ public class ComplexType3 implements IPOPBase {
 	private int value;
 	
 	public ComplexType3(){
-		vector = new Vector<Integer>(10);
+		vector = new Vector<>(10);
 		for (int i = 0; i < vector.capacity(); i++) {
 			vector.add(new Integer(i));
 		}
@@ -22,7 +22,7 @@ public class ComplexType3 implements IPOPBase {
 		value = buffer.getInt();
 		int size = buffer.getInt();
 		int[] array = buffer.getIntArray(size);
-		vector = new Vector<Integer>(size);
+		vector = new Vector<>(size);
 		for (int i = 0; i < array.length; i++) {
 			vector.add(new Integer(array[i]));
 		}

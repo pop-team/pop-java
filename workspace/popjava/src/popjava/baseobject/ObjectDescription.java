@@ -146,7 +146,7 @@ public class ObjectDescription implements IPOPBase {
 		return directory;
 	}
 
-	/**
+	/*
 	 * Set the power OD by ODElement
 	 * @param power	ODElement specifying the required and minimum values
 	 */
@@ -168,7 +168,7 @@ public class ObjectDescription implements IPOPBase {
 //		this.power.minValue = min;
 	}
 
-	/**
+	/*
 	 * Set the memory OD by ODElement
 	 * @param memory	ODElement specifying the required and minimum values
 	 */
@@ -191,7 +191,7 @@ public class ObjectDescription implements IPOPBase {
 //		this.memory.setRequiredValue(required);
 	}
 
-	/**
+	/*
 	 * Set the bandwidth OD by ODELement
 	 * @param bandwidth	ODElement specifying the required and minimum values
 	 */
@@ -409,7 +409,7 @@ public class ObjectDescription implements IPOPBase {
 		connectionSecret = secret;
 	}
 	
-	/**
+	/*
 	 * Get the OD power value
 	 * @return power value set in this OD
 	 */
@@ -417,7 +417,7 @@ public class ObjectDescription implements IPOPBase {
 //		return power;
 //	}
 
-	/**
+	/*
 	 * Get the OD memory value
 	 * @return	memory value set in this OD
 	 */

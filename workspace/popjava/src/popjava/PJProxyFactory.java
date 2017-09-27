@@ -8,7 +8,6 @@ import javassist.util.proxy.ProxyObject;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.base.POPObject;
-import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;

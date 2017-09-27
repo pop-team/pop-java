@@ -127,14 +127,10 @@ public class ComboxFactoryFinder {
 					}
 				}
 			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (ParserConfigurationException | IOException | SAXException e) {
 			e.printStackTrace();
 		}
-	}
+    }
 
 	/**
 	 * Find a specific factory with the given name

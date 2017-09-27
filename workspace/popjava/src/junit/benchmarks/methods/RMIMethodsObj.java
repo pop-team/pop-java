@@ -79,7 +79,6 @@ public class RMIMethodsObj extends UnicastRemoteObject implements RMIInterface{
         try {
             rmiRegistry.unbind(RMI_NAME);
         } catch (NotBoundException e) {
-        } catch (AccessException e) {
         } catch (RemoteException e) {
         }
         

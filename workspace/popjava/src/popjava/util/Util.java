@@ -23,7 +23,6 @@ import popjava.system.POPSystem;
 public final class Util {
 	
 	private static final Random RANDOM = new SecureRandom();
-	private static final Configuration conf = Configuration.getInstance();
 
 	/**
 	 * Check if the two contact string are the same
@@ -42,7 +41,7 @@ public final class Util {
 		
 		String[] allDestHost = dest.split("[ \t\r\n]");
 		for (String str : allDestHost) {
-			if (source.indexOf(str) >= 0){
+			if (source.contains(str)){
 				return true;
 			}
 		}
@@ -56,15 +55,13 @@ public final class Util {
 	 * @return	true if the contact string is the local host
 	 */
 	public static boolean isLocal(String hostname) {
-		String myhost = POPSystem.getHostIP();
-		
-		boolean isLocal = (hostname == null || hostname.length() == 0
-				|| sameContact(myhost, hostname)
+		String myHost = POPSystem.getHostIP();
+
+		return (hostname == null || hostname.length() == 0
+				|| sameContact(myHost, hostname)
 				|| hostname.equals("localhost") ||
 				hostname.equals("127.0.0.1") ||
 				hostname.equals("127.0.1.1"));
-		
-		return isLocal;
 	}
 
 	/**
@@ -96,9 +93,7 @@ public final class Util {
 	 * @return	true if the strings are equal
 	 */
 	public static boolean isStringEqual(String s1, String s2) {
-		if (s1 == null || s2 == null)
-			return false;
-		return s1.equals(s2);
+		return s1 != null && s2 != null && s1.equals(s2);
 
 	}
 
@@ -109,11 +104,7 @@ public final class Util {
 	 * @return	true if the strings are equal
 	 */
 	public static boolean isNoCaseStringEqual(String s1, String s2) {
-		if (s1 == null || s2 == null){
-			return false;
-		}
-		
-		return s1.equalsIgnoreCase(s2);
+		return s1 != null && s2 != null && s1.equalsIgnoreCase(s2);
 
 	}
 	
@@ -236,7 +227,7 @@ public final class Util {
 		return false;
 	}
 	
-	public static boolean isParameterUseable(Annotation [] annotations){
+	public static boolean isParameterUsable(Annotation [] annotations){
         for(Annotation annotation: annotations){
             if(annotation.annotationType() == POPParameter.class){
                 POPParameter popParameter = (POPParameter) annotation;

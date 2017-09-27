@@ -88,7 +88,7 @@ public class JVMObjectTest {
 		
 		assertFalse(remote.getAccessPoint().toString().isEmpty());
 		
-		Set<String> accessPoints = new HashSet<String>();
+		Set<String> accessPoints = new HashSet<>();
 		
 		for(int i = 0; i < objs.length; i++){
 			objs[i] = PopJava.newActive(LocalObject.class, new Double(1));

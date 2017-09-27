@@ -73,13 +73,10 @@ public class XMLWorker {
 	    // validate the DOM tree
 	    try {
 	        validator.validate(new DOMSource(document));
-	    } catch (SAXException e) {
+	    } catch (SAXException | IOException e) {
 	    	e.printStackTrace();
 	        return false;
-	    } catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+	    }
 		return true;
 	}	
 }

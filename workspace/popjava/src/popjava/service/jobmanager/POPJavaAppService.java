@@ -25,7 +25,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	}
 	
 	//Platform, objectname, codefile
-	private Map<String, Map<String, String>> registeredCode = new HashMap<String, Map<String,String>>();
+	private Map<String, Map<String, String>> registeredCode = new HashMap<>();
 	
 	/**
 	 * Register a executable code file in the CodeMgr service
@@ -39,7 +39,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 		Map<String, String> platf = registeredCode.get(platform);
 		
 		if(platf == null){
-			platf = new HashMap<String, String>();
+			platf = new HashMap<>();
 			registeredCode.put(platform, platf);
 		}
 		platf.put(objname, codefile);
@@ -97,17 +97,17 @@ public class POPJavaAppService extends POPObject implements AppService{
 		try{
 			ClassLoader classloader = getClass().getClassLoader();
 			Class<?> javaClass = classloader.loadClass(objname);
-						
+
 			codePath = String.format(
 					POPJavaConfiguration.getBrokerCommand(),
 					POPJavaConfiguration.getPopJavaJar(),
-					POPJavaConfiguration.getClassPath()) + 
+					POPJavaConfiguration.getClassPath()) +
 					javaClass.getProtectionDomain().getCodeSource().getLocation().getPath();
-			
+
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		
+
 		return codePath;
 	}
 

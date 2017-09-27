@@ -34,13 +34,15 @@ public class LogWriter {
 	public static String prefix = "pop-java-";
 
 	static {
-		String pidTemp = ManagementFactory.getRuntimeMXBean()
-				.getName();
+		String pidTemp = ManagementFactory.getRuntimeMXBean().getName();
+		StringBuilder pidSb = new StringBuilder();
 		for (int index = 0; index < pidTemp.length(); index++) {
-			if (Character.isLetterOrDigit(pidTemp.charAt(index))){
-				pid += pidTemp.charAt(index);
+			char c = pidTemp.charAt(index);
+			if (Character.isLetterOrDigit(c)){
+				pidSb.append(c);
 			}
 		}
+		pid = pidSb.toString();
 		
 		String popLocation = POPJavaConfiguration.getPopJavaLocation();
 		
@@ -156,8 +158,8 @@ public class LogWriter {
 	public static boolean deleteLogDir() {
 		File dir = new File(logFolder);
 		String[] children = dir.list();
-		for (int i = 0; i < children.length; i++) {
-			new File(dir, children[i]).delete();
+		for (String child : children) {
+			new File(dir, child).delete();
 		}
 		return true;
 	}

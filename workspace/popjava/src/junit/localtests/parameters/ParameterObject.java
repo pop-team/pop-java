@@ -43,7 +43,7 @@ public class ParameterObject extends POPObject implements MyInterface{
     
     @POPSyncConc
     public List<String> impossibleReturn(){
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
     
     @POPSyncConc

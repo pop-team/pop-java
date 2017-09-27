@@ -13,7 +13,7 @@ public enum ConnectionProtocol {
 	private final String name;
 	private final boolean secure;
 
-	private ConnectionProtocol(String name, boolean secure) {
+	ConnectionProtocol(String name, boolean secure) {
 		this.name = name;
 		this.secure = secure;
 	}

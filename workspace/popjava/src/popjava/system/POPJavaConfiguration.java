@@ -140,11 +140,11 @@ public class POPJavaConfiguration {
 	}
 	
 	public static String getClassPath(){
-	    String popJar = "";
+	    StringBuilder popJar = new StringBuilder();
 	    
 	    URL [] urls = ((URLClassLoader)POPAppService.class.getClassLoader()).getURLs();
         
-        Set<String> paths = new HashSet<String>();
+        Set<String> paths = new HashSet<>();
         for(int i = 0; i < urls.length; i++){
             URL url = urls[i];
             try {
@@ -155,16 +155,16 @@ public class POPJavaConfiguration {
             }
         }
         
-        List<String> pathList = new ArrayList<String>(paths);
+        List<String> pathList = new ArrayList<>(paths);
         
         for(int i = 0; i < pathList.size(); i++){
-            popJar += pathList.get(i);
+            popJar.append(pathList.get(i));
             if(i != pathList.size() - 1){
-                popJar += File.pathSeparatorChar;
+                popJar.append(File.pathSeparatorChar);
             }
         }
         
-        return popJar;
+        return popJar.toString();
 	}
 	
 	public static String getPOPJavaCodePath(){

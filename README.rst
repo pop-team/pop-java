@@ -1,10 +1,10 @@
-POP-Java 1.0
-===========
+POP-Java 1.5
+============
 
-Version 1.0 is under development, use it at your own risk.
+Version 1.5 is under development, use it at your own risk.
 
 COMPILE POP-Java SOURCE CODE
----------------------------
+----------------------------
 
 .. code::
 
@@ -12,7 +12,7 @@ COMPILE POP-Java SOURCE CODE
 
 
 INSTALLING POP-Java
-------------------
+-------------------
 
 .. code::
 
@@ -27,7 +27,7 @@ The installation script will ask you several questions. Here they are:
 If unsure leave the answer blank to keep the default setting.
 
 STARTING POP-Java
-----------------
+-----------------
 
 **Do not forget to add these lines to your .bashrc file or equivalent :**
 If you have kept the default options this should give you something like:

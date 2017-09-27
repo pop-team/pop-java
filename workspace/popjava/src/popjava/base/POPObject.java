@@ -63,7 +63,8 @@ public class POPObject implements IPOPBase {
 		loadClassAnnotations();
 		initializePOPObject();
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	private Class<? extends POPObject> getRealClass(){
 		if(this instanceof ProxyObject){
 			return (Class<? extends POPObject>) getClass().getSuperclass();
@@ -253,7 +254,6 @@ public class POPObject implements IPOPBase {
 
 	/**
 	 * Initialize the method identifiers of a POPObject
-	 * @param c	the class to initialize
 	 */
 	protected final void initializePOPObject() {
 		if (generateClassId){
@@ -652,9 +652,7 @@ public class POPObject implements IPOPBase {
 				semantics.put(methodInfo, semanticId);
 			}
 			
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
 	}
@@ -675,9 +673,7 @@ public class POPObject implements IPOPBase {
 			semantics.put(info, Semantic.CONSTRUCTOR
 					| Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
 			
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
 	}
@@ -767,27 +763,33 @@ public class POPObject implements IPOPBase {
 	public void makeTemporary(){
 		temporary = true;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public <T extends POPObject> T makePermanent(){
 		temporary = false;
-		return (T)this;
+		return (T) this;
 	}
 	
 	public void setBroker(Broker broker){
 	    this.broker = broker;
 	}
-	
-	public <T extends Object> T getThis(Class<T> myClass){
+
+	public <T> T getThis(Class<T> myClass){
+		return getThis();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getThis(){
 		if(me == null){
 			me = PopJava.newActive(getClass(), getAccessPoint());
-			
+
 			//After establishing connection with self, artificially decrease connection by one
 			//This is to avoid the issue of never closing objects with reference to itself
 			if(me != null && broker != null){
-			    broker.onCloseConnection("SelfReference");
+				broker.onCloseConnection("SelfReference");
 			}
 		}
-		
+
 		return (T) me;
 	}
 	

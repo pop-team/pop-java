@@ -2,8 +2,6 @@ package popjava.util.ssl;
 
 import java.io.File;
 import java.security.InvalidParameterException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,7 +10,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 
 /**
- * This class is meant to be send to {@link SSLUtils#generateKeyStore(popjava.combox.ssl.KeyStoreOptions) }
+ * This class is meant to be send to {@link SSLUtils#generateKeyStore(KeyStoreCreationOptions)} ) }
  * 
  * @author Davide Mazzoleni
  */
@@ -78,7 +76,8 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 	 * @param keyStoreFile Where to save the file
 	 */
 	public KeyStoreCreationOptions(String alias, String storepass, String keypass, File keyStoreFile) {
-		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS, Date.from(Instant.now().plus(365, ChronoUnit.DAYS)), 2048);
+		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS,
+				new Date(System.currentTimeMillis() + 31536000_000l), 2048);
 	}
 
 	/**
@@ -105,7 +104,8 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 	 * @param days 
 	 */
 	public void setValidFor(int days) {
-		this.validUntil = Date.from(Instant.now().plus(days, ChronoUnit.DAYS));
+		long until = System.currentTimeMillis() + days * 86400_000l;
+		this.validUntil = new Date(until);
 	}
 
 	/**

@@ -32,7 +32,7 @@ public class POPConnectorDirect extends POPConnectorBase {
 		od.setConnectionSecret(node.getDaemonSecret());
 		// use daemon if necessary
 		if (node.isDaemon()) {
-			od.setConnectionType(ConnectionType.DEAMON);
+			od.setConnectionType(ConnectionType.DAEMON);
 		}
 
 		// do n times on the same node

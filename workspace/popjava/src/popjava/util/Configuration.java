@@ -75,7 +75,7 @@ public final class Configuration {
 	private static final String POPJAVA_LOCATION;
 	static {
 		String env = System.getenv("POPJAVA_LOCATION");
-		if (Objects.isNull(env)) {
+		if (env == null) {
 			POPJAVA_LOCATION = "./";
 		} else {
 			POPJAVA_LOCATION = env;
@@ -149,7 +149,7 @@ public final class Configuration {
 	}
 
 	public static Configuration getInstance() {
-		if (Objects.isNull(instance)) {
+		if (instance == null) {
 			instance = new Configuration();
 		}
 		return instance;

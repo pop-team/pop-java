@@ -26,9 +26,9 @@ import popjava.util.ssl.KeyStoreCreationOptions;
 public class JobManagerConfig {
 
 	private final POPJavaJobManager jobManager;
-	private final Configuration conf = Configuration.getInstance();
 
 	public JobManagerConfig() {
+		Configuration conf = Configuration.getInstance();
 		String protocol = conf.getDefaultProtocol();
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
 			protocol, POPSystem.getHostIP(), conf.getJobManagerPorts()[0]));
@@ -46,8 +46,7 @@ public class JobManagerConfig {
 	public boolean publishTFCObject(Object object, String tfcNetwork, String secret) {
 		if (object instanceof POPObject) {
 			POPObject temp = (POPObject) object;
-			boolean status = jobManager.registerTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
-			return status;
+			return jobManager.registerTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
 		}
 		return false;
 	}
@@ -274,8 +273,8 @@ public class JobManagerConfig {
 		POPNetworkNode[] nodes = new POPNetworkNode[networkNodes.length];
 		// make them real
 		int i = 0;
-		for (int j = 0; j < networkNodes.length; j++) {
-			List<String> nodeParams = new ArrayList(Arrays.asList(networkNodes[j]));
+		for (String[] networkNode : networkNodes) {
+			List<String> nodeParams = new ArrayList<>(Arrays.asList(networkNode));
 			nodes[i] = POPNetworkNodeFactory.makeNode(nodeParams);
 		}
 		
@@ -284,7 +283,7 @@ public class JobManagerConfig {
 	
 	/**
 	 * Generate a KeyStore with private key and certificate.
-	 * Proxy for {@link SSLUtils#generateKeyStore(popjava.combox.ssl.KeyStoreOptions)}
+	 * Proxy for {@link SSLUtils#generateKeyStore(KeyStoreCreationOptions)}
 	 * 
 	 * @param options
 	 * @return 

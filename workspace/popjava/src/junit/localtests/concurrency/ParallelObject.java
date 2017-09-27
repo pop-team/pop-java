@@ -109,7 +109,7 @@ public class ParallelObject extends POPObject{
 			e.printStackTrace();
 		}
 		System.out.println("Success ? "+counter2.intValue());
-		return error == false && counter2.intValue() == 4;
+		return !error && counter2.intValue() == 4;
 	}
 	
 	@POPSyncConc

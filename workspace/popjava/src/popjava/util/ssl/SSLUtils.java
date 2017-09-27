@@ -86,7 +86,7 @@ public class SSLUtils {
 	}
 	
 	/**
-	 * Load the KeyStore with the parameters from {@link Configuration#SSL_KEY_STORE_OPTIONS}
+	 * Load the KeyStore with the parameters from {@link Configuration#getSSLKeyStoreOptions()}
 	 * 
 	 * @return
 	 * @throws IOException
@@ -101,7 +101,7 @@ public class SSLUtils {
 	}
 	
 	/**
-	 * Save the KeyStore with the parameters from {@link Configuration#SSL_KEY_STORE_OPTIONS}
+	 * Save the KeyStore with the parameters from {@link Configuration#getSSLKeyStoreOptions()}
 	 * 
 	 * @param keyStore
 	 * @throws KeyStoreException
@@ -327,7 +327,7 @@ public class SSLUtils {
 	/**
 	 * The local public certificate
 	 * 
-	 * @return null or a certificate that can be transformed with {@link #getCertificateBytes}
+	 * @return null or a certificate that can be transformed with {@link #certificateBytes(Certificate)}
 	 */
 	public static Certificate getLocalPublicCertificate() {
 		return POPTrustManager.getLocalPublicCertificate();
@@ -444,10 +444,9 @@ public class SSLUtils {
 				nameBuilder.addRDN(entry.getKey(), entry.getValue());
 			}
 
-			// sign ourself
+			// sign ourselves
 			X500Name subjectName = nameBuilder.build();
-			X500Name issuerName = subjectName;
-			X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(issuerName, BigInteger.valueOf(sr.nextInt()), 
+			X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(subjectName, BigInteger.valueOf(sr.nextInt()),
 				GregorianCalendar.getInstance().getTime(), options.getValidUntil(), subjectName, pubKey);
 
 			// signature for the certificate

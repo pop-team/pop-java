@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import popjava.base.MessageHeader;
@@ -16,7 +15,6 @@ import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
-import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
 
@@ -30,7 +28,7 @@ public class ComboxSocket extends Combox {
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
-	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024; //8MB
+	private final int STREAM_BUFFER_SIZE = 8 * 1024 * 1024; //8MB
 
 	@Override
 	public String toString(){
@@ -49,8 +47,8 @@ public class ComboxSocket extends Combox {
 	public ComboxSocket(Socket socket) throws IOException {
 		peerConnection = socket;
 		receivedBuffer = new byte[BUFFER_LENGTH];
-		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
-		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
+		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
+		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
 		exportConnectionInfo();
 	}
 
@@ -123,10 +121,6 @@ public class ComboxSocket extends Combox {
 				outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 				exportConnectionInfo();
 				available = true;
-			} catch (UnknownHostException e) {
-				available = false;
-			} catch (SocketTimeoutException e) {
-				available = false;
 			} catch (IOException e) {
 				available = false;
 			}
@@ -219,7 +213,7 @@ public class ComboxSocket extends Combox {
 			if (result < headerLength) {
 				if (conf.isDebugCombox()) {
 					String logInfo = String.format(
-							"%s.failed to receive header. receivedLength= %d < %d Message length %d",
+							"%s. failed to receive header. receivedLength= %d, Message length %d",
 							this.getClass().getName(), result, headerLength);
 					LogWriter.writeDebugInfo(logInfo);
 				}

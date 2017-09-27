@@ -16,7 +16,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +70,7 @@ import popjava.util.Util;
  */
 public final class Broker {
     
-    public static enum State{
+    public enum State{
         Running,
         Exit,
         Abort
@@ -128,6 +127,7 @@ public final class Broker {
 	});
 			//Executors.newCachedThreadPool());//
 	
+	@SuppressWarnings("unchecked")
 	public Broker(POPObject object){
 		this.popObject = object;
 		popObject.setBroker(this);
@@ -180,9 +180,6 @@ public final class Broker {
 					codelocation = tempJar.getAbsolutePath();
 					
 					tempJar.deleteOnExit();
-				}catch(MalformedURLException e){
-					e.printStackTrace();
-					System.exit(0);
 				} catch (IOException e) {
 					e.printStackTrace();
 					System.exit(0);
@@ -288,7 +285,7 @@ public final class Broker {
 				Annotation [][] annotations = constructor.getParameterAnnotations();
 				for (int index = 0; index < parameterTypes.length; index++) {
 					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-					        Util.isParameterUseable(annotations[index])
+					        Util.isParameterUsable(annotations[index])
 							&&
 							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 						try {
@@ -332,7 +329,7 @@ public final class Broker {
 		// Get parameters
 		for (index = 0; index < parameterTypes.length; index++) {
 			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) &&
-			        Util.isParameterUseable(annotations[index])){
+			        Util.isParameterUsable(annotations[index])){
 				try {
 					parameters[index] = requestBuffer
 							.getValue(parameterTypes[index]);
@@ -523,7 +520,7 @@ public final class Broker {
 					//If parameter is not a IN variable and
 					//The parameter is not a POPObject without any specified direction
 					if(Util.isParameterNotOfDirection(parametersAnnotations[index], POPParameter.Direction.IN) &&
-					        Util.isParameterUseable(parametersAnnotations[index]) &&
+					        Util.isParameterUsable(parametersAnnotations[index]) &&
 							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(parametersAnnotations[index]))
 							){
 						try {
@@ -884,7 +881,7 @@ public final class Broker {
 		if (popInfo != null) {
 			return popInfo.isDaemon();
 		}
-			
+
 		return true;
 	}
 
@@ -999,8 +996,7 @@ public final class Broker {
 	protected Class<?> getPOPObjectClass(String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
 
 		if (urlClassLoader != null) {
-			Class<?> c = Class.forName(className, true, urlClassLoader);
-			return c;
+			return Class.forName(className, true, urlClassLoader);
 		} else {
 			return Class.forName(className);
 		}
@@ -1026,7 +1022,7 @@ public final class Broker {
             }
         });
 		
-		ArrayList<String> argvList = new ArrayList<String>();
+		ArrayList<String> argvList = new ArrayList<>();
 		LogWriter.writeDebugInfo("[Broker] Broker parameters");
 		for (String str : argvs) {
 			argvList.add(str);

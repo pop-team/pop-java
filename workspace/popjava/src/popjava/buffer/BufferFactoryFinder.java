@@ -31,7 +31,7 @@ public class BufferFactoryFinder {
 	/**
 	 * List of different buffer name and their class
 	 */
-	private ConcurrentHashMap<String, BufferFactory> bufferFactoryList = new ConcurrentHashMap<String, BufferFactory>();
+	private ConcurrentHashMap<String, BufferFactory> bufferFactoryList = new ConcurrentHashMap<>();
 	/**
 	 * Class loader to retrive a plugin
 	 */
@@ -145,11 +145,7 @@ public class BufferFactoryFinder {
 					}
 				}
 			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (ParserConfigurationException | IOException | SAXException e) {
 			e.printStackTrace();
 		}
 	}
@@ -195,19 +191,7 @@ public class BufferFactoryFinder {
 			} else {
 
 			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InvocationTargetException | IllegalAccessException | InstantiationException | IllegalArgumentException e) {
 			e.printStackTrace();
 		}
 		return bufferFactory;
@@ -219,14 +203,14 @@ public class BufferFactoryFinder {
 	 * @return formatted string of supporting buffer
 	 */
 	public String getSupportingBuffer() {
-		String supportingBuffer = "";
+		StringBuilder supportingBuffer = new StringBuilder();
 		Enumeration<String> keys = bufferFactoryList.keys();
 		String key = "";
 		while (keys.hasMoreElements()) {
 			key = keys.nextElement();
-			supportingBuffer += key + " ";
+			supportingBuffer.append(key).append(" ");
 		}
-		supportingBuffer = supportingBuffer.trim();
-		return supportingBuffer;
+		supportingBuffer = new StringBuilder(supportingBuffer.toString().trim());
+		return supportingBuffer.toString();
 	}
 }

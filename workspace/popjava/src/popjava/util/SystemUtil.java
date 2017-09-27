@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
@@ -16,17 +15,15 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 
 public class SystemUtil {
 
-	private static final List<Process> processes = new ArrayList<Process>();
+	private static final List<Process> processes = new ArrayList<>();
 	private static final Configuration conf = Configuration.getInstance();
 	private static final boolean sshAvailable = commandExists("ssh");
 	private static boolean changeUserStatus = false;
 	private static String changeUserName = null;
 		
 	public static void endAllChildren(){
-		for(int i = 0; i < processes.size(); i++){
-			Process process = processes.get(i);
-
-			if(process != null){
+		for (Process process : processes) {
+			if (process != null) {
 				process.destroy();
 			}
 		}
@@ -119,8 +116,7 @@ public class SystemUtil {
 		try {
 			ProcessBuilder exec = new ProcessBuilder(command);
 			Process start = exec.start();
-			boolean wait = start.waitFor(1, TimeUnit.SECONDS);
-			return wait && start.exitValue() == 0;
+			return start.waitFor() == 0;
 		} catch (IOException | InterruptedException e) {
 			return false;
 		}
@@ -179,15 +175,15 @@ public class SystemUtil {
 
             final Session session = client.startSession();
             try{
-            	String commandAsString = "";
+            	StringBuilder commandAsString = new StringBuilder();
                 for(int i = 0; i < command.size(); i++){
-                	commandAsString += command.get(i);
+                	commandAsString.append(command.get(i));
                 	if(i < command.size() - 1){
-                		commandAsString += " ";
+                		commandAsString.append(" ");
                 	}
                 }
                 LogWriter.writeDebugInfo("[System] Run remote command");
-                session.exec(commandAsString);
+                session.exec(commandAsString.toString());
                 returnValue = 0;
             }finally{
             	//session.close();

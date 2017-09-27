@@ -20,7 +20,7 @@ public class ReaderWriterTest {
 		
 		Writer writer = PopJava.newActive(Writer.class, "localhost");
 		
-		List<Worker> workers = new ArrayList<Worker>();
+		List<Worker> workers = new ArrayList<>();
 		
 		for(int i = 0; i < workerCount; i++){
 			workers.add(PopJava.newActive(Worker.class, "localhost", writer));

@@ -395,6 +395,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPSyncConc(id = 12)
 	@Override
+	@SuppressWarnings("unchecked")
 	public int createObject(POPAccessPoint localservice,
 			String objname,
 			@POPParameter(Direction.IN) ObjectDescription od,
@@ -544,8 +545,7 @@ public class POPJavaJobManager extends POPJobService {
 	private List<AppResource> verifyReservation(int[] ids) {
 		List<AppResource> reservations = new ArrayList<>();
 		boolean ret = true;
-		for (int i = 0; i < ids.length; i++) {
-			int id = ids[i];
+		for (int id : ids) {
 			// check reservation
 			AppResource app = jobs.get(id);
 			// no resource in jobs list
@@ -1036,7 +1036,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * Register node to a network by supplying an array of string matching the format in the configuration file
 	 *
 	 * @param networkName The name of an existing network in this JM
-	 * @param params An array of String that will be processed by {@link POPNetwork#makeNode}
+	 * @param params An array of String that will be processed by {@link POPNetworkNodeFactory#makeNode(String...)}
 	 */
 	@POPSyncConc
 	public void registerNode(String networkName, String... params) {
@@ -1380,8 +1380,7 @@ public class POPJavaJobManager extends POPJobService {
 	@POPSyncConc(localhost = true)
 	public String[] getAvailableNetworks() {
 		int size = networks.keySet().size();
-		String[] networksArray = networks.keySet().toArray(new String[size]);
-		return networksArray;
+		return networks.keySet().toArray(new String[size]);
 	}
 	
 	/**

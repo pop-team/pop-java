@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ScriptUtils {
@@ -17,7 +18,7 @@ public class ScriptUtils {
 	}
 	
 	public static boolean isWindows(){
-		return System.getProperty("os.name").toLowerCase().indexOf("windows") > -1;
+		return System.getProperty("os.name").toLowerCase().contains("windows");
 	}
 	
 	public static boolean containsOption(String [] args, String option){
@@ -67,11 +68,9 @@ public class ScriptUtils {
     }
 	
 	public static List<String> arrayToList(String ... args){
-		ArrayList<String> arguments = new ArrayList<String>();
-		
-		for(String arg: args){
-			arguments.add(arg);
-		}
+		ArrayList<String> arguments = new ArrayList<>();
+
+		Collections.addAll(arguments, args);
 		return arguments;
 	}
 	
@@ -124,12 +123,10 @@ public class ScriptUtils {
 			}
 			
 			return exitValue;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		return -1;
 	}
 }

@@ -23,7 +23,6 @@ import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
-import popjava.broker.Broker;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ssl.POPTrustManager;
@@ -50,7 +49,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 
 	private AtomicBoolean setup = new AtomicBoolean(false);
 	
-	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
+	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<>();
 
 	private final Configuration conf = Configuration.getInstance();
 	
@@ -106,7 +105,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					Annotation [][] annotations = constructor.getParameterAnnotations();
 					for (int index = 0; index < argvs.length; index++) {
 						if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) && 
-						        Util.isParameterUseable(annotations[index])){
+						        Util.isParameterUsable(annotations[index])){
 							popBuffer.putValue(argvs[index], parameterTypes[index]);
 						}
 					}
@@ -117,7 +116,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					
 					for (int index = 0; index < parameterTypes.length; index++) {
 						if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-						        Util.isParameterUseable(annotations[index])
+						        Util.isParameterUsable(annotations[index])
 								&&
 								!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 							responseBuffer.deserializeReferenceObject(parameterTypes[index],
@@ -171,8 +170,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @param m			The method to be called
 	 * @param proceed	The method to proceed the call
 	 * @param argvs		Arguments of the methods
-	 * @return	Any object if the method has a return value
-	 * @throws	Throw any exception if the method throws any exception
+	 * @return Any object if the method has a return value
+	 * @throws Throwable Throw any exception if the method throws any exception
 	 */
 	@Override
     public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
@@ -223,7 +222,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		
 		for (int index = 0; index < argvs.length; index++) {
 			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) &&
-			        Util.isParameterUseable(annotations[index])){
+			        Util.isParameterUsable(annotations[index])){
 				popBuffer.putValue(argvs[index], parameterTypes[index]);
 			}
 		}
@@ -238,7 +237,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			//Modify the content of an array and it gets copied back in here
 			for (int index = 0; index < parameterTypes.length; index++) {
 				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-				        Util.isParameterUseable(annotations[index])
+				        Util.isParameterUsable(annotations[index])
 						&&
 						!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 					responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
@@ -265,13 +264,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				}
 			}
 		}
-		
-		
-		for (int index = 0; index < argvs.length; index++) {
-			if(argvs[index] instanceof POPObject){
-				POPObject object = (POPObject)argvs[index];
+
+
+		for (Object argv : argvs) {
+			if (argv instanceof POPObject) {
+				POPObject object = (POPObject) argv;
 				LogWriter.writeDebugInfo("Closing POPObject again");
-				if(object.isTemporary()){
+				if (object.isTemporary()) {
 					object.exit();
 				}
 			}
@@ -313,15 +312,15 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	}
 
 	private int hashMethod(Method m){
-		String hash = m.getName();
+		StringBuilder hash = new StringBuilder(m.getName());
 		for(Class<?> type: m.getParameterTypes()){
-			hash += type.getName();
+			hash.append(type.getName());
 		}
 		
-		return hash.hashCode();
+		return hash.toString().hashCode();
 	}
 	
-	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<Integer, Method>();
+	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<>();
 	private Set<Integer> methodMisses = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
 	
 	/**

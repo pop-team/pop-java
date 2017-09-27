@@ -37,15 +37,12 @@ public class XMLWorker {
 	    Document document = null;
 		try {
 			document = parser.parse(new File(xmlFile));
-		} catch (SAXException e1) {
-			e1.printStackTrace();
-			return false;
-		} catch (IOException e1) {
+		} catch (SAXException | IOException e1) {
 			e1.printStackTrace();
 			return false;
 		}
 
-	    // create a SchemaFactory capable of understanding WXS schemas
+        // create a SchemaFactory capable of understanding WXS schemas
 	    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
 	    // load a WXS schema, represented by a Schema instance
@@ -64,14 +61,11 @@ public class XMLWorker {
 	    // validate the DOM tree
 	    try {
 	        validator.validate(new DOMSource(document));
-	    } catch (SAXException e) {
+	    } catch (SAXException | IOException e) {
 	    	e.printStackTrace();
 	        return false;
-	    } catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-		return true;
+	    }
+        return true;
 	}
 	
 	/**

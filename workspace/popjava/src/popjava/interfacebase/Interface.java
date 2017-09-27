@@ -1,12 +1,6 @@
-/**
- * Interface.java 
- * 
- */
-
 package popjava.interfacebase;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -282,10 +276,12 @@ public class Interface {
         	}
         }
 
+		// XXX What does this really do?
         for (int i = 0; i < allocatedAccessPoint.length; i++) {
         	if(allocatedAccessPoint[0].size() >= 1 && (
-        			allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") || 
+        			allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") ||
         			allocatedAccessPoint[0].get(0).getHost().equals("127.0.1.1"))){
+
         		allocatedAccessPoint[0].get(0).setHost(remotejobscontact[0].get(0).getHost());
         	}
         }
@@ -352,7 +348,7 @@ public class Interface {
 	 */
 	private void bindStatus(BindStatus bindStatus) throws POPException {
 		if (combox == null){
-			POPException.throwComboxNotAvailableException();
+			throw POPException.throwComboxNotAvailableException();
 		}
 
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
@@ -384,7 +380,7 @@ public class Interface {
 	private void negotiateEncoding(String info, String platform)
 			throws POPException {
 		if (combox == null){
-			POPException.throwComboxNotAvailableException();
+			throw POPException.throwComboxNotAvailableException();
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
@@ -495,7 +491,6 @@ public class Interface {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer, messageHeader.getRequestID());
 		} catch (POPException e) {
-			return;
 		}
 	}
 
@@ -653,8 +648,7 @@ public class Interface {
 		AppService appCoreService = getAppcoreService();
 		
 		if(appCoreService != null){
-			String codeFile = getCodeFile(appCoreService, objectName);
-			return codeFile;
+			return getCodeFile(appCoreService, objectName);
 		}
 		
 		return getPOPCodeFile();
@@ -846,7 +840,7 @@ public class Interface {
 					ret = SystemUtil.runRemoteCmd(hostname, argvList);
 				}
 				break;
-			case DEAMON:
+			case DAEMON:
 				POPJavaDeamonConnector connector;
 				try {
 					// if manually specified port
@@ -857,8 +851,6 @@ public class Interface {
 					if(connector.sendCommand(od.getConnectionSecret(), argvList)){
 						ret = 0;
 					}
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

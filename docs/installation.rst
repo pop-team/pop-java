@@ -338,3 +338,4 @@ Here is the output we should get after the completion of the test suite::
    Connecting to 172.28.10.67:2711....
    POPCSearchNode stopped
    JobMgr stopped
+

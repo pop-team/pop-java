@@ -42,12 +42,10 @@ public class Popjavac {
 			if(p.waitFor() != 0){
 				executable = null;
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		if(executable == null){
 			if(ScriptUtils.isWindows()){
 				executable = "C:\\Program Files\\Java\\jdk1.7.0_11\\bin\\javac";
@@ -176,7 +174,7 @@ public class Popjavac {
 	}
 	
 	private static List<String> extractBinaries(List<String> files){
-		List<String> binaries = new ArrayList<String>();
+		List<String> binaries = new ArrayList<>();
 		
 		for(int i = 0; i < files.size(); i++){
 			String file = files.get(i);
@@ -191,7 +189,7 @@ public class Popjavac {
 	}
 	
 	private static List<String> expandSources(List<String> sourceFiles){
-		List<String> sources = new ArrayList<String>();
+		List<String> sources = new ArrayList<>();
 		try {
 			
 			for(String path: sourceFiles){
@@ -244,8 +242,8 @@ public class Popjavac {
 			}
 		}
 		
-		List<String> javaFiles = new ArrayList<String>();
-		List<String> convertedFiles = new ArrayList<String>();
+		List<String> javaFiles = new ArrayList<>();
+		List<String> convertedFiles = new ArrayList<>();
 
 		//Convert files to java if needed
 		for(String file: sourceFiles){
@@ -259,7 +257,7 @@ public class Popjavac {
 			}
 		}
 		
-		List<String> allFiles = new ArrayList<String>(javaFiles);
+		List<String> allFiles = new ArrayList<>(javaFiles);
 		allFiles.addAll(convertedFiles);
 		
 		List<String> classFiles = Collections.emptyList();
@@ -304,7 +302,7 @@ public class Popjavac {
 	}
 	
 	private static void convertFile(final String input, final String output, final String sources, final String popcInfos){
-		ArrayList<String> parameters = new ArrayList<String>();
+		ArrayList<String> parameters = new ArrayList<>();
 		
 		parameters.add("java");
 		parameters.add("-cp");
@@ -334,7 +332,7 @@ public class Popjavac {
 	}
 	
 	private static List<String> compileFiles(List<String> javaFiles, String classPathElements){
-		ArrayList<String> outputFiles = new ArrayList<String>();
+		ArrayList<String> outputFiles = new ArrayList<>();
 		//javac -cp ".:$ADD_CLASSPATH:$POPJAVA_JAR$CLASSPATHADD" $COMPILE_FILES $STDFILES
 
 		System.out.println("Compile java files: "+javaFiles.size()+" files");

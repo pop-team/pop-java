@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import popjava.broker.Broker;
@@ -100,41 +101,52 @@ public class Popjrun {
 	private static String classPath = "";
 
 	private static List<String> parseArguments(String[] args) {
-		List<String> arguments = new ArrayList<String>();
-		int i = 0;
-		for (; i < args.length; i++) {
-			if (args[i].equals("-h") || args[i].equals("--help")) {
-				help = true;
-			} else if (args[i].equals("-k") || args[i].equals("--killall")) {
-				killAll = true;
-			} else if (args[i].equals("-v") || args[i].equals("--verbose")) {
-				verbose = true;
-			} else if (args[i].equals("-b") || args[i].equals("--broker")) {
-                broker = true;
-            } else if (args[i].equals("-l") || args[i].equals("--listlong")) {
-				if (args.length > i + 1) {
-					listLong = args[i + 1];
-					i++;
-				} else {
-					System.err.println("Listlong command needs a parameter following it");
-					System.exit(0);
-				}
-			} else if (args[i].equals("-c") || args[i].equals("--classpath")) {
-				if (args.length > i + 1) {
-					classPath = createClassPath(args[i + 1]);
-					i++;
-				} else {
-					System.err.println("Classpath parameter needs a parameter following it");
-					System.exit(0);
-				}
-			} else {
-				break;
+		List<String> arguments = new ArrayList<>();
+		label:
+		for (int i = 0; i < args.length; i++) {
+			switch (args[i]) {
+				case "-h":
+				case "--help":
+					help = true;
+					break;
+				case "-k":
+				case "--killall":
+					killAll = true;
+					break;
+				case "-v":
+				case "--verbose":
+					verbose = true;
+					break;
+				case "-b":
+				case "--broker":
+					broker = true;
+					break;
+				case "-l":
+				case "--listlong":
+					if (args.length > i + 1) {
+						listLong = args[i + 1];
+						i++;
+					} else {
+						System.err.println("Listlong command needs a parameter following it");
+						System.exit(0);
+					}
+					break;
+				case "-c":
+				case "--classpath":
+					if (args.length > i + 1) {
+						classPath = createClassPath(args[i + 1]);
+						i++;
+					} else {
+						System.err.println("Classpath parameter needs a parameter following it");
+						System.exit(0);
+					}
+					break;
+				default:
+					break label;
 			}
 		}
 
-		for (; i < args.length; i++) {
-			arguments.add(args[i]);
-		}
+		arguments.addAll(Arrays.asList(args));
 
 		return arguments;
 	}

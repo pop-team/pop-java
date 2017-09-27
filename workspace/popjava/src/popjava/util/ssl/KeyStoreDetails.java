@@ -10,9 +10,9 @@ import java.security.InvalidParameterException;
  */
 public class KeyStoreDetails {
 	
-	public static enum KeyStoreFormat {
+	public enum KeyStoreFormat {
 		JKS,
-		PKCS12;
+		PKCS12
 	}
 
 	protected String localAlias;

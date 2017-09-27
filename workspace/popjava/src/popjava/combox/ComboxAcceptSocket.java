@@ -23,7 +23,7 @@ public class ComboxAcceptSocket implements Runnable {
 	protected RequestQueue requestQueue;
 	protected ServerSocket serverSocket;
 	protected int status = EXIT;
-	protected List<Socket> concurentConnections = new LinkedList<>();
+	protected final List<Socket> concurentConnections = new LinkedList<>();
 
 	/**
 	 * Create a new instance of the ComboxAccept socket

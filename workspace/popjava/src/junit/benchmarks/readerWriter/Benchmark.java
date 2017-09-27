@@ -25,7 +25,7 @@ public class Benchmark {
 		Writer writer = PopJava.newActive(Writer.class, "localhost", TOTAL);
 		System.out.println("Writer created after "+(System.currentTimeMillis() - start)+" ms");
 		
-		List<Worker> workers = new ArrayList<Worker>();
+		List<Worker> workers = new ArrayList<>();
 		
 		for(int i = 0; i < workerCount; i++){
 			workers.add(PopJava.newActive(Worker.class, "localhost", writer));

@@ -3,7 +3,6 @@ package testsuite.pure.callback;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
-import popjava.base.POPObject;
 
 @POPClass(classId = 1034)
 public class Titi{

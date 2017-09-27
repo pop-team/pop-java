@@ -9,7 +9,6 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ComboxFactoryFinder;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.system.POPSystem;
@@ -36,12 +35,13 @@ public class PopJava {
 	 * @return references to the parallel object created
 	 * @throws POPException 
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass,
 			ObjectDescription objectDescription, Object ... argvs)
 			throws POPException {
 	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T)factoryProxy.newPOPObject(objectDescription, argvs);
+		return (T) factoryProxy.newPOPObject(objectDescription, argvs);
 	}
 	
 	public static Object newActive(String targetClass, Object... argvs) throws POPException, ClassNotFoundException{
@@ -55,11 +55,12 @@ public class PopJava {
 	 * @return references to the parallel object created
 	 * @throws POPException
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass, Object... argvs)
 			throws POPException {
 	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T)factoryProxy.newPOPObject(argvs);
+		return (T) factoryProxy.newPOPObject(argvs);
 	}
 
 	/**
@@ -69,11 +70,12 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass,
 			POPAccessPoint accessPoint) throws POPException {
 	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T)factoryProxy.bindPOPObject(accessPoint);
+		return (T) factoryProxy.bindPOPObject(accessPoint);
 	}
 
 	/**
@@ -83,11 +85,12 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T newActiveFromBuffer(Class<T> targetClass, POPBuffer buffer)
 			throws POPException {
 	    POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T)factoryProxy.newActiveFromBuffer(buffer);
+		return (T) factoryProxy.newActiveFromBuffer(buffer);
 	}
 	
 	/**
@@ -140,12 +143,10 @@ public class PopJava {
 	 * @return 
 	 */
 	private static POPJavaJobManager getLocalJobManager() {
-		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 		String protocol = conf.getDefaultProtocol();
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", 
 				protocol, POPSystem.getHostIP(), conf.getJobManagerPorts()[0]));
-		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);
-		return jm;
+		return PopJava.newActive(POPJavaJobManager.class, jma);
 	}
 	
 	public static POPAccessPoint getAccessPoint(Object object){
@@ -161,8 +162,12 @@ public class PopJava {
 	    throw new RuntimeException("Object was not of type "+POPObject.class.getName());
 	}
 	
-	public static <T extends Object> T getThis(T object){
-	    return (T) ((POPObject) object).getThis(object.getClass());
+	@SuppressWarnings("unchecked")
+	public static <T> T getThis(T object){
+		if (object instanceof POPObject) {
+			return (T) ((POPObject) object).getThis(object.getClass());
+		}
+		return null;
 	}
 	
 	/**

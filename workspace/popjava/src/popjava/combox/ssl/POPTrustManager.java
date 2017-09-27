@@ -106,8 +106,7 @@ public class POPTrustManager implements X509TrustManager {
 
 	@Override
 	public X509Certificate[] getAcceptedIssuers() {
-		X509Certificate[] issuers = trustManager.getAcceptedIssuers();
-		return issuers;
+		return trustManager.getAcceptedIssuers();
 	}
 	
 	/**

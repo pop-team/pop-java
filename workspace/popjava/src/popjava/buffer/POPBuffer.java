@@ -43,7 +43,7 @@ import popjava.util.LogWriter;
  * <br>
  * Note that null arrays can be stored in the buffer, but will be transformed to arrays of length 0 during deserializiation.
  */
-public abstract class POPBuffer extends Object {
+public abstract class POPBuffer {
 	/**
 	 * Each buffer send must contains a message header
 	 */
@@ -350,7 +350,7 @@ public abstract class POPBuffer extends Object {
 		return size;
 	}
 
-	private static Map<Integer, Constructor<?>> constructorsCache = new ConcurrentHashMap<Integer, Constructor<?>>();
+	private static Map<Integer, Constructor<?>> constructorsCache = new ConcurrentHashMap<>();
 	
 	private Constructor<?> getConstructorForClass(Class<?> c) throws SecurityException, NoSuchMethodException{
 		int hash = c.getName().hashCode();
@@ -371,6 +371,7 @@ public abstract class POPBuffer extends Object {
 	 * @return	Object retrieved in the buffer
 	 * @throws POPException	thrown if the deserialization process is not going well
 	 */
+	@SuppressWarnings("unchecked")
 	public Object getValue(Class<?> c) throws POPException {
 		//LogWriter.Prefix="Broker";
 		
@@ -381,7 +382,7 @@ public abstract class POPBuffer extends Object {
 		}else if (c.equals(float.class) || c.equals(Float.class)){
 			return new Float(getFloat());
 		}else if (c.equals(boolean.class) || c.equals(Boolean.class)){
-			return new Boolean(getBoolean());
+			return Boolean.valueOf(getBoolean());
 		}else if (c.equals(String.class)){
 			return getString();
 		}else if (c.equals(char.class) || c.equals(Character.class)){
@@ -449,30 +450,41 @@ public abstract class POPBuffer extends Object {
 		if (o == null) {
 			if (c.isArray()) {
 				putArray(o);
-			}else{
-				POPException.throwNullObjectNotAllowException();
+			} else {
+				throw POPException.throwNullObjectNotAllowException();
 			}
-		}else if (c.equals(byte.class) || c.equals(Byte.class)){
+		}
+		else if (c.equals(byte.class) || c.equals(Byte.class)) {
 			put((Byte) o);
-		}else if (c.equals(int.class) || c.equals(Integer.class)){
+		}
+		else if (c.equals(int.class) || c.equals(Integer.class)) {
 			putInt((Integer) o);
-		}else if (c.equals(float.class) || c.equals(Float.class)){
+		}
+		else if (c.equals(float.class) || c.equals(Float.class)) {
 			putFloat((Float) o);
-		}else if (c.equals(boolean.class) || c.equals(Boolean.class)){
+		}
+		else if (c.equals(boolean.class) || c.equals(Boolean.class)) {
 			putBoolean((Boolean) o);
-		}else if (c.equals(String.class)){
+		}
+		else if (c.equals(String.class)) {
 			putString((String) o);
-		}else if (c.equals(char.class) || c.equals(Character.class)){
+		}
+		else if (c.equals(char.class) || c.equals(Character.class)) {
 			putChar((Character) o);
-		}else if (c.equals(long.class) || c.equals(Long.class)){
+		}
+		else if (c.equals(long.class) || c.equals(Long.class)) {
 			putLong((Long) o);
-		}else if (c.equals(double.class) || c.equals(Double.class)){
+		}
+		else if (c.equals(double.class) || c.equals(Double.class)) {
 			putDouble((Double) o);
-		}else if (c.equals(short.class) || c.equals(Short.class)){
-			putShort((Short)o);
-		}else if (c.isArray()) {
+		}
+		else if (c.equals(short.class) || c.equals(Short.class)) {
+			putShort((Short) o);
+		}
+		else if (c.isArray()) {
 			putArray(o);
-		} else if (IPOPBaseInput.class.isAssignableFrom(c)) {
+		}
+		else if (IPOPBaseInput.class.isAssignableFrom(c)) {
 			try {
 				IPOPBaseInput temp = (IPOPBaseInput) o;
 				temp.serialize(this);
@@ -480,7 +492,8 @@ public abstract class POPBuffer extends Object {
 				LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
 			}
-		} else if (IPOPBase.class.isAssignableFrom(c)) {
+		}
+		else if (IPOPBase.class.isAssignableFrom(c)) {
 			try {
 				IPOPBase temp = (IPOPBase) o;
 				temp.serialize(this);
@@ -488,7 +501,8 @@ public abstract class POPBuffer extends Object {
 				LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
 			}
-		} else if( c.isEnum()){
+		}
+		else if( c.isEnum()){
 			putString(((Enum) o).name());
 		}
 		else if(Serializable.class.isAssignableFrom(c)){
@@ -518,31 +532,39 @@ public abstract class POPBuffer extends Object {
 		if (o == null) {
 			this.putInt(-1);
 			return;
-		} else {			
-			Class<?> c = o.getClass();
-			if (c.equals(byte[].class))
-				putByteArray((byte[]) o);
-			else if (c.equals(int[].class))
-				putIntArray((int[]) o);
-			else if (c.equals(float[].class))
-				putFloatArray((float[]) o);
-			else if (c.equals(boolean[].class))
-				putBooleanArray((boolean[]) o);
-			else if (c.equals(long[].class))
-				putLongArray((long[]) o);
-			else if (c.equals(double[].class))
-				putDoubleArray((double[]) o);
-			else if (c.equals(short[].class))
-				putShortArray((short[]) o);
-			else if (c.equals(char[].class))
-				putCharArray((char[]) o);
-			else {
-				length = Array.getLength(o);
-				putInt(length);
-				for (int i = 0; i < length; i++) {
-					Object element = Array.get(o, i);
-					putValue(element, c.getComponentType());
-				}
+		}
+
+		Class<?> c = o.getClass();
+		if (c.equals(byte[].class)) {
+			putByteArray((byte[]) o);
+		}
+		else if (c.equals(int[].class)) {
+			putIntArray((int[]) o);
+		}
+		else if (c.equals(float[].class)) {
+			putFloatArray((float[]) o);
+		}
+		else if (c.equals(boolean[].class)) {
+			putBooleanArray((boolean[]) o);
+		}
+		else if (c.equals(long[].class)) {
+			putLongArray((long[]) o);
+		}
+		else if (c.equals(double[].class)) {
+			putDoubleArray((double[]) o);
+		}
+		else if (c.equals(short[].class)) {
+			putShortArray((short[]) o);
+		}
+		else if (c.equals(char[].class)) {
+			putCharArray((char[]) o);
+		}
+		else {
+			length = Array.getLength(o);
+			putInt(length);
+			for (int i = 0; i < length; i++) {
+				Object element = Array.get(o, i);
+				putValue(element, c.getComponentType());
 			}
 		}
 
@@ -562,22 +584,30 @@ public abstract class POPBuffer extends Object {
 		if (length < 0){
 			return null;
 		} else {
-			if (arrayType.equals(byte[].class))
-				return (T)getByteArray(length);
-			else if (arrayType.equals(int[].class))
-				return (T)getIntArray(length);
-			else if (arrayType.equals(float[].class))
-				return (T)getFloatArray(length);
-			else if (arrayType.equals(boolean[].class))
-				return (T)getBooleanArray(length);
-			else if (arrayType.equals(long[].class))
-				return (T)getLongArray(length);
-			else if (arrayType.equals(double[].class))
-				return (T)getDoubleArray(length);
-			else if (arrayType.equals(short[].class))
-				return (T)getShortArray(length);
-			else if (arrayType.equals(char[].class))
-				return (T)getCharArray(length);
+			if (arrayType.equals(byte[].class)) {
+				return (T) getByteArray(length);
+			}
+			else if (arrayType.equals(int[].class)) {
+				return (T) getIntArray(length);
+			}
+			else if (arrayType.equals(float[].class)) {
+				return (T) getFloatArray(length);
+			}
+			else if (arrayType.equals(boolean[].class)) {
+				return (T) getBooleanArray(length);
+			}
+			else if (arrayType.equals(long[].class)) {
+				return (T) getLongArray(length);
+			}
+			else if (arrayType.equals(double[].class)) {
+				return (T) getDoubleArray(length);
+			}
+			else if (arrayType.equals(short[].class)) {
+				return (T) getShortArray(length);
+			}
+			else if (arrayType.equals(char[].class)) {
+				return (T) getCharArray(length);
+			}
 			else {
 				Class<?> elementType = arrayType.getComponentType();
 				Object resultArray = Array.newInstance(elementType, length);
@@ -585,7 +615,7 @@ public abstract class POPBuffer extends Object {
 				    try{
 				        Object value = getValue(elementType);
 				        Array.set(resultArray, index, value);
-				    }catch(POPException e){
+				    } catch(POPException e) {
 				        throw e;
 				    }
 				}
@@ -609,9 +639,7 @@ public abstract class POPBuffer extends Object {
 			} else if (IPOPBase.class.isAssignableFrom(type)) {
 				putValue(obj,type);
 			}
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
+		} catch (SecurityException | IllegalArgumentException e) {
 			e.printStackTrace();
 		}
 	}

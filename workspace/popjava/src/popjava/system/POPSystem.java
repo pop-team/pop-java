@@ -205,8 +205,7 @@ public class POPSystem {
 	 * @return	a new empty object description
 	 */
 	public static ObjectDescription getDefaultOD() {
-		ObjectDescription od = new ObjectDescription();
-		return od;
+		return new ObjectDescription();
 	}
 
 	/**
@@ -487,11 +486,7 @@ public class POPSystem {
 					appCoreService.registerCode(objectname, platform, codefile);
 				}
 			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (ParserConfigurationException | IOException | SAXException e) {
 			e.printStackTrace();
 		}
 		return true;
@@ -509,19 +504,17 @@ public class POPSystem {
 		int maxUsignedByte = 255;
 		byte[] bytes = new byte[255];
 		random.nextBytes(bytes);
-		String randString = "";
+		StringBuilder randString = new StringBuilder();
 		for (int i = 0; i < 255; i++) {
 			char randChar = (char) (((double) (bytes[i] + 128) / maxUsignedByte) * 25 + 97);
-			randString += Character.toString(randChar);
+			randString.append(randChar);
 		}
 
 		ObjectDescription objectDescription = POPSystem.getDefaultOD();
 		objectDescription.setHostname(POPSystem.getHostIP());
 		objectDescription.setCodeFile(codelocation);
-		
-		POPAppService appService = PopJava.newActive(POPAppService.class, objectDescription, randString, false, codelocation);
-				
-		return appService;
+
+		return PopJava.newActive(POPAppService.class, objectDescription, randString.toString(), false, codelocation);
 	}
 	
 	public static void end(){

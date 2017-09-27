@@ -82,7 +82,9 @@ public class POPJobManager extends POPJobService {
 	 * @param objname		Name of the object to create
 	 * @param od			Object description for the resource requirements of this object
 	 * @param howmany		Number of objects to create
-	 * @param jobcontacts	Output arguments - contacts to the objects created
+	 * @param objcontacts	Output arguments - contacts to the objects created
+	 * @param howmany2		??
+	 * @param remotejobcontacts	??
 	 * @return 0 if the object is created correctly
 	 */
 	@POPSyncConc(id = 12)

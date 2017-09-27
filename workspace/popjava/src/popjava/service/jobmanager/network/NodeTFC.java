@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Set;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
-import popjava.serviceadapter.POPJobManager;
 import popjava.util.Configuration;
 import popjava.util.Util;
 
@@ -20,7 +19,6 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 	private int port;
 	private String protocol;
 	private boolean initialized = true;
-	private final Configuration conf = Configuration.getInstance();
 
 	public NodeTFC(String host, int port, String protocol) {
 		super(POPConnectorTFC.IDENTITY, POPConnectorTFC.class);
@@ -48,7 +46,8 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 			initialized = false;
 			return;
 		}
-		
+
+		Configuration conf = Configuration.getInstance();
 		if (protocol == null) {
 			protocol = conf.getDefaultProtocol();
 		}

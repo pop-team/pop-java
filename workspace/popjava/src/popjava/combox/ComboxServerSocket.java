@@ -5,7 +5,6 @@ package popjava.combox;
 import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
-import popjava.system.POPSystem;
 
 import java.net.*;
 import java.io.*;
