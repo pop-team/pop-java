@@ -4,14 +4,11 @@ Public packages and classes
 
 This section explain the public available classes a user can use to make his POP application.
 
-In POP the User never has to interact with the framework directly apart in very specific occasions. Which means
-that the public POP API are a simple set of annotations and some helper classes, as we can see below.
+In POP the User never has to interact with the framework directly apart in very specific occasions. Which means that the public POP API are a simple set of annotations and some helper classes, as we can see below.
 
-If we want to add new functionality visible to the User adding parameter in one annotation or adding a method
-``popjava.PopJava`` should be the preferred way to go.
+If we want to add new functionality visible to the User adding parameter in one annotation or adding a method ``popjava.PopJava`` should be the preferred way to go.
 
-In case of very specific API, like ``popjava.JobManagerConfig`` used for configuring ``POPJavaJobManager``,
-it is acceptable to add a new class to the public API.
+In case of very specific API, like ``popjava.JobManagerConfig`` used for configuring ``POPJavaJobManager``, it is acceptable to add a new class to the public API.
 
 
 .. data:: popjava.annotation.✳

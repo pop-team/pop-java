@@ -12,14 +12,11 @@ This kind of tests are used to see if many expected behaviors don't changes over
 This kind of tests can tricky because contrarily to Test Suite tests, all of the JUnit tests a
 
 Create a new test
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
-In the ``junit`` package in the POP-Java workspace look for an appropriate package or create a new one to host a
-new test.
+In the ``junit`` package in the POP-Java workspace look for an appropriate package or create a new one to host a new test.
 
-Use the following template to start creating a test class. It's important that each unit test initialize and end the POP
-Environment, the methods marked with ``@Before`` and ``@After`` do exactly this. For further information in regards
-how JUnit works visit `JUnit's documentation <http://junit.org/junit4/>`_. ::
+Use the following template to start creating a test class. It's important that each unit test initialize and end the POP Environment, the methods marked with ``@Before`` and ``@After`` do exactly this. For further information in regards how JUnit works visit `JUnit's documentation <http://junit.org/junit4/>`_. ::
 
     public class SomeTests {
 
@@ -51,10 +48,8 @@ After the test is written don't forget to add it to the Test Suite. For example 
 Peculiarities
 ~~~~~~~~~~~~~
 
-The is one extra details we have to be on alert with writing JUnit tests, all POP Object apart from having the
-``@POPClass`` annotation should also extends POPObject directly.
-Furthermore, all new POP Object create must use the ``PopJava.newInstance`` method since there is no Java Agent
-running in the JUnit tests. ::
+The is one extra details we have to be on alert with writing JUnit tests, all POP Object apart from having the ``@POPClass`` annotation should also extends POPObject directly.
+Furthermore, all new POP Object create must use the ``PopJava.newInstance`` method since there is no Java Agent running in the JUnit tests. ::
 
     @POPClass
     class MyPOP extends POPObject {
@@ -71,9 +66,8 @@ running in the JUnit tests. ::
     }
 
 Test Suite
----------
+----------
 
-The POP-Java Test Suite is a Shell Script with the objective of executing some small POP-Java program in a configured
-POP Environment.
+The POP-Java Test Suite is a Shell Script with the objective of executing some small POP-Java program in a configured POP Environment.
 
 .. todo:: continue
