@@ -52,16 +52,12 @@ In the case no particular protocol was supplied, the default one specified in :r
 
 .. note:: It's possible to open multiple ``ComboxServer`` of the same type by supplying ``<PROTOCOL>_port`` multiple times.
 
-Interface
----------
+Interface & PJMethodHandler
+---------------------------
 
+``Interface`` is the class we use to allocate a new JVM and connect to a new POP Object; ``PJMethodHandler``, instead, by extending it, add the ability to invoke the POP Object methods.
 
-POP Object
-~~~~~~~~~~
+Generally ``Interface`` enable us only to connect to a POP Object, while ``PJMethodHandler`` allow us to use it.
 
-Class analysis? Transformation?
+.. note:: Currently ``Interface`` contains multiple static methods used to run a command on the local machine and lauch a new JVM. Those methods, name-wise and location-wise, are confusing and should be moved.
 
-Object Creation
-~~~~~~~~~~~~~~~
-
-POP System calls
