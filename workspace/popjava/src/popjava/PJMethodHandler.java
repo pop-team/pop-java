@@ -105,7 +105,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					Annotation [][] annotations = constructor.getParameterAnnotations();
 					for (int index = 0; index < argvs.length; index++) {
 						if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) && 
-						        Util.isParameterUsable(annotations[index])){
+								Util.isParameterUsable(annotations[index])){
 							popBuffer.putValue(argvs[index], parameterTypes[index]);
 						}
 					}
@@ -116,7 +116,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					
 					for (int index = 0; index < parameterTypes.length; index++) {
 						if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-						        Util.isParameterUsable(annotations[index])
+								Util.isParameterUsable(annotations[index])
 								&&
 								!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 							responseBuffer.deserializeReferenceObject(parameterTypes[index],
@@ -174,7 +174,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @throws Throwable Throw any exception if the method throws any exception
 	 */
 	@Override
-    public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
+	public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
 			throws Throwable {
 		//TODO: Busy waiting, bad, remove with lock?
 		while(!setup.get()){
@@ -201,7 +201,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		MethodInfo info = popObjectInfo.getMethodInfo(m);
 		
 		if(info.getClassId() == 0 && info.getMethodId() == 0){
-		    throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "The methods "+m.getName()+" has no POP annotation");
+			throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "The methods "+m.getName()+" has no POP annotation");
 		}
 
 		m.setAccessible(true);
@@ -222,7 +222,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		
 		for (int index = 0; index < argvs.length; index++) {
 			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) &&
-			        Util.isParameterUsable(annotations[index])){
+					Util.isParameterUsable(annotations[index])){
 				popBuffer.putValue(argvs[index], parameterTypes[index]);
 			}
 		}
@@ -231,13 +231,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		if ((methodSemantics & Semantic.SYNCHRONOUS) != 0) {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			
-		    popResponse(responseBuffer, messageHeader.getRequestID());
+			popResponse(responseBuffer, messageHeader.getRequestID());
 			
 			//Recover the data from the calling method. The called method can
 			//Modify the content of an array and it gets copied back in here
 			for (int index = 0; index < parameterTypes.length; index++) {
 				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-				        Util.isParameterUsable(annotations[index])
+						Util.isParameterUsable(annotations[index])
 						&&
 						!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 					responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
@@ -405,7 +405,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * Format a string of this object
 	 */
 	@Override
-    public String toString() {
+	public String toString() {
 		return getClass().getName() + ":" + popAccessPoint.toString();
 	}
 }

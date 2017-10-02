@@ -39,13 +39,13 @@ public class PopJava {
 	public static <T> T newActive(Class<T> targetClass,
 			ObjectDescription objectDescription, Object ... argvs)
 			throws POPException {
-	    POPSystem.start();
+		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T) factoryProxy.newPOPObject(objectDescription, argvs);
 	}
 	
 	public static Object newActive(String targetClass, Object... argvs) throws POPException, ClassNotFoundException{
-	    return newActive(Class.forName(targetClass), argvs);
+		return newActive(Class.forName(targetClass), argvs);
 	}
 	
 	/**
@@ -58,7 +58,7 @@ public class PopJava {
 	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass, Object... argvs)
 			throws POPException {
-	    POPSystem.start();
+		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T) factoryProxy.newPOPObject(argvs);
 	}
@@ -73,7 +73,7 @@ public class PopJava {
 	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass,
 			POPAccessPoint accessPoint) throws POPException {
-	    POPSystem.start();
+		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T) factoryProxy.bindPOPObject(accessPoint);
 	}
@@ -88,7 +88,7 @@ public class PopJava {
 	@SuppressWarnings("unchecked")
 	public static <T> T newActiveFromBuffer(Class<T> targetClass, POPBuffer buffer)
 			throws POPException {
-	    POPSystem.start();
+		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T) factoryProxy.newActiveFromBuffer(buffer);
 	}
@@ -154,12 +154,12 @@ public class PopJava {
 			throw new NullPointerException("Reference to POPJava object was null");
 		}
 		
-	    if(object instanceof POPObject){
-	        POPObject temp = (POPObject) object;
-	        return temp.getAccessPoint();
-	    }
-	    
-	    throw new RuntimeException("Object was not of type "+POPObject.class.getName());
+		if(object instanceof POPObject){
+			POPObject temp = (POPObject) object;
+			return temp.getAccessPoint();
+		}
+		
+		throw new RuntimeException("Object was not of type "+POPObject.class.getName());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -195,13 +195,13 @@ public class PopJava {
 	 * @return
 	 */
 	public static boolean isPOPJavaActive(){
-	    try {
-	        popjava.javaagent.POPJavaAgent.getInstance();
-	    } catch (Exception e) {
-	        return false;
-	    }
-	    
-	    return true;
+		try {
+			popjava.javaagent.POPJavaAgent.getInstance();
+		} catch (Exception e) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**

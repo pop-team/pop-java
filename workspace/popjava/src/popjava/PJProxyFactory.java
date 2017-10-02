@@ -157,7 +157,7 @@ public class PJProxyFactory extends ProxyFactory {
 				return result;
 			}
 		} catch(POPException e){
-		    throw e;
+			throw e;
 		} catch (Exception e) {
 			LogWriter.writeExceptionLog(e);
 		}
