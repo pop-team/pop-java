@@ -21,6 +21,8 @@ The Broker's Main will create a new ``Broker`` instance which will be the wrappe
 
     Broker components
 
+.. note:: ``PJMethodHandler`` extends ``Interface``, which is the base of communication with a ``Broker``; without ``PJMethodHandler`` is what enable us to make remote calls to methods.
+
 Entry Point
 ~~~~~~~~~~~
 

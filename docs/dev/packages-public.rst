@@ -15,7 +15,7 @@ In case of very specific API, like ``popjava.JobManagerConfig`` used for configu
 
     The minimum needed to use POP. This package contains all the ``@POP`` annotations for methods and classes.
 
-.. note :: We have 6 different sending methods, but generally if we want to add an option we add it to the six of them.
+.. note:: We have 6 different method annotations and, generally, if we want to add an option to one we add it to the six of them, or at least half of them.
 
 
 .. data:: popjava.PopJava

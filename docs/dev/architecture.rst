@@ -32,3 +32,6 @@ The allocate method in :num:`pop-object-creation` will handle the creation of a 
 .. figure:: ../images/popobj-allocate.png
 
     PJMethodHandler (Interface) spawn a connect to a new JVM
+
+``bind``, at the end, connect ``PJMethodHandler`` and the ``Broker`` instance directly so they can communicate.
+``treatRequests`` is a loop designed to handle all method calls toward an object.
