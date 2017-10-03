@@ -17,18 +17,15 @@ In case of very specific API, like ``popjava.JobManagerConfig`` used for configu
 
 .. note:: We have 6 different method annotations and, generally, if we want to add an option to one we add it to the six of them, or at least half of them.
 
-
 .. data:: popjava.PopJava
 
     Needed for some POP specific tasks like getting the Access Point of a POP Object.
 
     It contains all methods to initiate a new POP Object.
 
-
 .. data:: popjava.JobManagerConfig
 
     Used to configure the JobManager on the local machine. It's a Proxy to methods of ``POPJavaJobManager``.
-
 
 .. data:: popjava.util.Configuration
 
@@ -39,3 +36,5 @@ In case of very specific API, like ``popjava.JobManagerConfig`` used for configu
 .. data:: popjava.baseobject.ConnectionProtocol
 
     Used by ``@POPObjectDescription(connection = ...)`` to define the direct method of connection used.
+
+.. note:: JobManagerConfig is a special class that enable the configuration of a peculiar POP service, for this reason it access to extra classes.

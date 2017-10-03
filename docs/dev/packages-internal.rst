@@ -29,6 +29,11 @@ If what is added is designed to fail in some scenarios it is advised to add a ne
 
     Extends ``Interface`` and add the ability of calling methods. The methods in the special set in :ref:`PJMethodFilter <popjava.PJMethodFilter>` are implemented here.
 
+.. _popjava.interfacebase.Interface:
+.. data:: popjava.interfacebase.Interface
+
+    Handle the connection with a ``Broker`` instance and how to communicate with it.
+
 .. _popjava.annotation.processors.POPClassProcessor:
 .. data:: popjava.annotation.processors.POPClassProcessor
 
