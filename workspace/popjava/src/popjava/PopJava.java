@@ -11,6 +11,8 @@ import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
+import popjava.service.jobmanager.network.AbstractNodeJobManager;
+import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.POPRemoteCaller;
@@ -136,6 +138,33 @@ public class PopJava {
 			}
 		}
 		return actives.toArray(new POPAccessPoint[actives.size()]);
+	}
+	
+	/**
+	 * Return the 
+	 * 
+	 * @param targetClass
+	 * @param networkName
+	 * @param node
+	 * @return 
+	 */
+	public static POPAccessPoint[] newTFCSearchOn(Class targetClass, String networkName, POPNetworkNode node) {
+		POPAccessPoint[] aps = new POPAccessPoint[0];
+		if (!(node instanceof AbstractNodeJobManager)) {
+			return aps;
+		}
+		
+		// cast node and connect to remote job manager
+		AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
+		POPJavaJobManager jobManager = jmNode.getJobManager();
+		
+		// make local reserach on node
+		aps = jobManager.localTFCSearch(networkName, targetClass.getCanonicalName());
+		
+		// exit since the node keep connection alives
+		jobManager.exit();
+		
+		return aps;
 	}
 	
 	/**

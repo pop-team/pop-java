@@ -1,5 +1,6 @@
 package popjava.service.jobmanager.connector;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -138,6 +139,36 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 		// add to list
 		return localTFCObjects.add(resource);
 	}
+	
+	private List<TFCResource> getAliveTFCResources(String tfcObject) {
+		List<TFCResource> resources = tfcObjects.get(tfcObject);
+		if (resources == null) {
+			return null;
+		}
+		
+		// test liviness
+		for (Iterator<TFCResource> iterator = resources.iterator(); iterator.hasNext();) {
+			TFCResource tfcResource = iterator.next();
+			try {
+				// test if object is actually alive
+				Interface aliveTest = new Interface(tfcResource.getAccessPoint());
+				aliveTest.close();
+			} catch(Exception e) {
+				// failed to connect, dead object, remove from list
+				iterator.remove();
+				LogWriter.writeDebugInfo("[TFC] unavailable %s removed ", tfcResource);
+			}
+		}
+		return Collections.unmodifiableList(resources);
+	}
+	
+	public List<TFCResource> getObjects(String tfcObject) {
+		List<TFCResource> resources = getAliveTFCResources(tfcObject);
+		if (resources == null) {
+			return null;
+		}
+		return resources;
+	}
 
 	@Override
 	public void askResourcesDiscoveryAction(SNRequest request, POPAccessPoint sender, SNExploration oldExplorationList) {
@@ -156,18 +187,8 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 		if (requestObjects != null && requestObjects.size() > 0) {
 			LogWriter.writeDebugInfo("[TFC] found %d object(s)", requestObjects.size());
 		
-			for (Iterator<TFCResource> iterator = requestObjects.iterator(); iterator.hasNext();) {
-				TFCResource tfcResource = iterator.next();
-				try {
-					// test if object is actually alive
-					Interface aliveTest = new Interface(tfcResource.getAccessPoint());
-					aliveTest.close();
-				} catch(Exception e) {
-					// failed to connect, dead object, remove from list
-					iterator.remove();
-					continue;
-				}
-				
+			List<TFCResource> resources = getAliveTFCResources(tfcObject);
+			for (TFCResource tfcResource : resources) {
 				// send an answer to the origin
 				SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(), POPSystem.getPlatform(), new Resource());
 				// add custom TFC parameter
@@ -180,7 +201,7 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 				}
 
 				// route response to the original JM
-				jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));
+				jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));				
 			}
 		}
 	}

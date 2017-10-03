@@ -53,6 +53,7 @@ import popjava.service.jobmanager.connector.POPConnectorFactory;
 import popjava.service.jobmanager.connector.POPConnectorSearchNodeInterface;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.service.jobmanager.network.AbstractNodeJobManager;
+import popjava.service.jobmanager.network.NodeTFC;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
@@ -1446,10 +1447,16 @@ public class POPJavaJobManager extends POPJobService {
 			return false;
 		}
 		
-		// get network's TFC connector to add the object
+		// get network's TFC connector to add the object or add a local one
 		POPConnectorTFC tfc = network.getConnector(POPConnectorTFC.class);
 		if (tfc == null) {
-			return false;
+			// add a local node, this will also add the connector
+			String protocol = getAccessPoint().get(0).getProtocol();
+			int port = getAccessPoint().get(0).getPort();
+			POPNetworkNode newNode = new NodeTFC("localhost", port, protocol);
+			this.registerPermanentNode(networkName, newNode.getCreationParams());
+			
+			tfc = network.getConnector(POPConnectorTFC.class);
 		}
 		
 		// create resource
@@ -1483,6 +1490,42 @@ public class POPJavaJobManager extends POPJobService {
 		TFCResource resource = new TFCResource(objectName, accessPoint, secret);
 		// unregister resource with the connector
 		tfc.unregisterObject(resource);
+	}
+	
+	/**
+	 * Looks for live TFC objects in a POP Network on this node.
+	 * @param networkName
+	 * @param objectName
+	 * @return The POPAccessPoint(s) of lives TFC Objects registered on this Job Manager.
+	 */
+	@POPSyncConc
+	public POPAccessPoint[] localTFCSearch(String networkName, String objectName) {
+		POPAccessPoint[] aps = new POPAccessPoint[0];
+		// get registerer network
+		POPNetwork network = networks.get(networkName);
+		if (network == null) {
+			return aps;
+		}
+		
+		// get network's TFC connector to add the object
+		POPConnectorTFC tfc = network.getConnector(POPConnectorTFC.class);
+		if (tfc == null) {
+			return aps;
+		}
+		
+		// research in TFC Connector, only alive
+		List<TFCResource> resources = tfc.getObjects(objectName);
+		if (resources == null || resources.isEmpty()) {
+			return aps;
+		}
+		
+		// create result to send
+		aps = new POPAccessPoint[resources.size()];
+		for (int i = 0; i < aps.length; i++) {
+			aps[i] = resources.get(i).getAccessPoint();
+		}
+		
+		return aps;
 	}
 
 	/////
