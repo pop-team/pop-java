@@ -1,6 +1,8 @@
 package popjava.service.jobmanager;
 
+import java.nio.file.Path;
 import java.util.Objects;
+import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 
 /**
@@ -16,7 +18,8 @@ public class AppResource extends Resource {
 	protected long accessTime;
 	protected POPAccessPoint contact;
 	protected POPAccessPoint appService;
-	protected String network;
+	protected ObjectDescription od;
+	protected Path appDirectory;
 	protected boolean used;
 
 	public int getId() {
@@ -67,20 +70,28 @@ public class AppResource extends Resource {
 		this.appService = appService;
 	}
 
-	public String getNetwork() {
-		return network;
-	}
-
-	public void setNetwork(String network) {
-		this.network = network;
-	}
-
 	public boolean isUsed() {
 		return used;
 	}
 
 	public void setUsed(boolean used) {
 		this.used = used;
+	}
+
+	public ObjectDescription getOd() {
+		return od;
+	}
+
+	public void setOd(ObjectDescription od) {
+		this.od = od;
+	}
+
+	public Path getAppDirectory() {
+		return appDirectory;
+	}
+
+	public void setAppDirectory(Path appDirectory) {
+		this.appDirectory = appDirectory;
 	}
 
 	@Override
@@ -91,7 +102,6 @@ public class AppResource extends Resource {
 		hash = 41 * hash + Objects.hashCode(this.reqId);
 		hash = 41 * hash + Objects.hashCode(this.contact);
 		hash = 41 * hash + Objects.hashCode(this.appService);
-		hash = 41 * hash + Objects.hashCode(this.network);
 		return hash;
 	}
 
@@ -116,9 +126,6 @@ public class AppResource extends Resource {
 		if (!Objects.equals(this.reqId, other.reqId)) {
 			return false;
 		}
-		if (!Objects.equals(this.network, other.network)) {
-			return false;
-		}
 		if (!Objects.equals(this.contact, other.contact)) {
 			return false;
 		}
@@ -127,4 +134,6 @@ public class AppResource extends Resource {
 		}
 		return true;
 	}
+
+	
 }

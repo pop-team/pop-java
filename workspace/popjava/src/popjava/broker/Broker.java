@@ -1,5 +1,6 @@
 package popjava.broker;
 
+import popjava.util.RuntimeDirectoryThread;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,6 +13,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Paths;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +30,12 @@ import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPParameter;
+import popjava.annotation.POPAsyncConc;
+import popjava.annotation.POPAsyncMutex;
+import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncMutex;
+import popjava.annotation.POPSyncSeq;
 import popjava.base.MessageHeader;
 import popjava.base.MethodInfo;
 import popjava.base.POPErrorCode;
@@ -44,11 +53,14 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.combox.ComboxServer;
+import popjava.combox.ssl.POPTrustManager;
+import popjava.util.ssl.SSLUtils;
 import popjava.javaagent.POPJavaAgent;
-import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.MethodUtil;
+import popjava.util.POPRemoteCaller;
 import popjava.util.Util;
 
 /**
@@ -58,11 +70,13 @@ import popjava.util.Util;
  */
 public final class Broker {
     
-    public static enum State{
+    public enum State{
         Running,
         Exit,
         Abort
     }
+	
+	private final Configuration conf = Configuration.getInstance();
 	
 	static public final int REQUEST_QUEUE_TIMEOUT_MS = 600;
 	static public final int BASIC_CALL_MAX_RANGE = 10;
@@ -72,7 +86,11 @@ public final class Broker {
 	static public final String OBJECT_NAME_PREFIX = "-object=";
 	static public final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
 	static public final String APPSERVICE_PREFIX = "-appservice=";
-
+	static public final String POPJAVA_CONFIG_PREFIX = "-configfile=";
+	
+	// thread unique callers
+	private static ThreadLocal<POPRemoteCaller> remoteCaller = new InheritableThreadLocal<>();
+	
 	private State state;
 	private ComboxServer[] comboxServers;
 	private POPBuffer buffer;
@@ -82,7 +100,8 @@ public final class Broker {
 	private int connectionCount = 0;
 	private Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
-	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
+	private Map<Method, Annotation[][]> methodParametersAnnotationCache = new HashMap<>();
+	private Map<Method, Integer> methodSemanticsCache = new HashMap<>();
 		
 	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		
@@ -108,6 +127,7 @@ public final class Broker {
 	});
 			//Executors.newCachedThreadPool());//
 	
+	@SuppressWarnings("unchecked")
 	public Broker(POPObject object){
 		this.popObject = object;
 		popObject.setBroker(this);
@@ -160,9 +180,6 @@ public final class Broker {
 					codelocation = tempJar.getAbsolutePath();
 					
 					tempJar.deleteOnExit();
-				}catch(MalformedURLException e){
-					e.printStackTrace();
-					System.exit(0);
 				} catch (IOException e) {
 					e.printStackTrace();
 					System.exit(0);
@@ -170,12 +187,12 @@ public final class Broker {
 			}
 			
 			try {
-				LogWriter.writeDebugInfo("Local file " + codelocation);
+				LogWriter.writeDebugInfo("[Broker] Local file '%s'", codelocation);
 				url = new File(codelocation).toURI().toURL();
 				POPJavaAgent.getInstance().addJar(codelocation);
 			} catch (MalformedURLException e) {
-				LogWriter.writeDebugInfo(this.getClass().getName()
-						+ ".MalformedURLException: " + e.getMessage());
+				LogWriter.writeDebugInfo("[Broker] %s.MalformedURLException : %s", 
+					this.getClass().getName(), e.getMessage());
 				System.exit(0);
 			} catch (NotFoundException e) {
                 e.printStackTrace();
@@ -183,7 +200,7 @@ public final class Broker {
             }
 			
 			if (url != null) {
-				LogWriter.writeDebugInfo("url construct");
+				LogWriter.writeDebugInfo("[Broker] url construct");
 				
 				urlClassLoader = new URLClassLoader(new URL[]{url});
 			}
@@ -194,9 +211,8 @@ public final class Broker {
 			targetClass = getPOPObjectClass(objectName, urlClassLoader);
 			popInfo = (POPObject) targetClass.getConstructor().newInstance();
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo(getClass().getName()
-					+ " Constructor Exception: " + e.getClass().getName()
-					+ " Message:" + e.getMessage());
+			LogWriter.writeDebugInfo("[Broker] %s ; Mesage: %s",
+					e.getClass().getName(), e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
@@ -269,7 +285,7 @@ public final class Broker {
 				Annotation [][] annotations = constructor.getParameterAnnotations();
 				for (int index = 0; index < parameterTypes.length; index++) {
 					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-					        Util.isParameterUseable(annotations[index])
+					        Util.isParameterUsable(annotations[index])
 							&&
 							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 						try {
@@ -297,8 +313,8 @@ public final class Broker {
 			}
 		}
 		if (exception != null) {
-			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException:"
-					+ exception.getMessage());
+			LogWriter.writeDebugInfo("[Broker] %s sendException: %s", 
+				this.getLogPrefix(), exception.getMessage());
 			sendException(request.getCombox(), exception, request.getRequestID());
 			System.exit(0);
 		}
@@ -313,7 +329,7 @@ public final class Broker {
 		// Get parameters
 		for (index = 0; index < parameterTypes.length; index++) {
 			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) &&
-			        Util.isParameterUseable(annotations[index])){
+			        Util.isParameterUsable(annotations[index])){
 				try {
 					parameters[index] = requestBuffer
 							.getValue(parameterTypes[index]);
@@ -331,6 +347,80 @@ public final class Broker {
 	}
 	
 	/**
+	 * Replace the request semantics if we are working with a PopJava Object with the corresponding local annotation.
+	 * 
+	 * @param request The request to be queued 
+	 */
+	public void finalizeRequest(Request request) {
+		try {
+			// skip if marked as constructor
+			if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
+				return;
+			}
+			
+			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
+			Method method = popInfo.getMethodByInfo(info);
+			
+			// use previously set semantics if possible
+			if(methodSemanticsCache.containsKey(method)){
+				request.setSenmatics(methodSemanticsCache.get(method));
+				return;
+			}
+			
+			Annotation[] annotations = method.getAnnotations();
+			int semantics = 0;
+			boolean isLocalhost = false;
+			
+			POPSyncConc syncConc;
+			POPSyncSeq syncSeq;
+			POPSyncMutex syncMutex;
+			POPAsyncConc asyncConc;
+			POPAsyncSeq asyncSeq;
+			POPAsyncMutex asyncMutex;
+			
+			// local semantics
+			if ((syncConc = MethodUtil.getAnnotation(annotations, POPSyncConc.class)) != null) {
+				semantics = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
+				isLocalhost = syncConc.localhost();
+			}
+			else if ((syncSeq = MethodUtil.getAnnotation(annotations, POPSyncSeq.class)) != null) {
+				semantics = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
+				isLocalhost = syncSeq.localhost();
+			}
+			else if ((syncMutex = MethodUtil.getAnnotation(annotations, POPSyncMutex.class)) != null) {
+				semantics = Semantic.SYNCHRONOUS | Semantic.MUTEX;
+				isLocalhost = syncMutex.localhost();
+			}
+			else if ((asyncConc = MethodUtil.getAnnotation(annotations, POPAsyncConc.class)) != null) {
+				semantics = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
+				isLocalhost = asyncConc.localhost();
+			}
+			else if ((asyncSeq = MethodUtil.getAnnotation(annotations, POPAsyncSeq.class)) != null) {
+				semantics = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
+				isLocalhost = asyncSeq.localhost();
+			}
+			else if ((asyncMutex = MethodUtil.getAnnotation(annotations, POPAsyncMutex.class)) != null) {
+				semantics = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
+				isLocalhost = asyncMutex.localhost();
+			} else {
+				// not a semantic match, we keep what we received
+				// XXX this happen when we get the annotation from a superclass
+				semantics = request.getSenmatics();
+			}
+			
+			// localhost only call
+			if (isLocalhost) {
+				semantics |= Semantic.LOCALHOST;
+			}
+			
+			request.setSenmatics(semantics);
+			methodSemanticsCache.put(method, semantics);
+		} catch (NoSuchMethodException e) {
+		}
+
+	}
+	
+	/**
 	 * This method is responsible to call the correct method on the associated
 	 * object
 	 * 
@@ -343,6 +433,7 @@ public final class Broker {
 		if(request.isSequential()){
 			sequentialSemaphore.acquire();
 		}
+		
 		Object result = new Object();
 		POPException exception = null;
 		Method method = null;
@@ -350,8 +441,8 @@ public final class Broker {
 		Class<?>[] parameterTypes = null;
 		Object[] parameters = null;
 		int index = 0;
+		
 		try {
-			
 			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 			method = popInfo.getMethodByInfo(info);
 		} catch (NoSuchMethodException e) {
@@ -362,12 +453,13 @@ public final class Broker {
 		}
 		
 		if(method != null){
-		    if(!methodAnnotationCache.containsKey(method)){
-	            methodAnnotationCache.put(method, method.getParameterAnnotations());
-	        }
+			// cache the method and parameters annotations since they take a while to generate
+			if(!methodParametersAnnotationCache.containsKey(method)){
+				methodParametersAnnotationCache.put(method, method.getParameterAnnotations());
+			}
 		}
 		
-		Annotation[][] annotations = methodAnnotationCache.get(method);
+		Annotation[][] parametersAnnotations = methodParametersAnnotationCache.get(method);
 		
 		// Get parameter if found the method
 		if (exception == null && method != null) {
@@ -379,7 +471,7 @@ public final class Broker {
 
 				POPBuffer requestBuffer = request.getBuffer();
 				request.setBuffer(null);//This way the JVM can free the  buffer content
-				parameters = getParameters(requestBuffer, parameterTypes, annotations);
+				parameters = getParameters(requestBuffer, parameterTypes, parametersAnnotations);
 			}catch(POPException e){
 				exception = e;
 			}
@@ -399,7 +491,7 @@ public final class Broker {
 			}catch(InvocationTargetException e){
 				LogWriter.writeExceptionLog(e);
 				LogWriter.writeExceptionLog(e.getCause());
-				LogWriter.writeDebugInfo("Cannot execute. Cause "+e.getCause().getMessage());
+				LogWriter.writeDebugInfo("[Broker] Cannot execute. Cause %s.", e.getCause().getMessage());
 				exception = POPException.createReflectException(
 						method.getName(), e.getCause().getMessage());
 			}catch (Exception e) {
@@ -407,7 +499,7 @@ public final class Broker {
 				LogWriter.writeExceptionLog(e);
 				System.out.println(method.toGenericString());
 				System.out.println(request.getClassId()+" "+request.getMethodId());
-				LogWriter.writeDebugInfo("Cannot execute "+method.toGenericString());
+				LogWriter.writeDebugInfo("[Broker] Cannot execute %s", method.toGenericString());
 				exception = POPException.createReflectException(
 						method.getName(), e.getMessage());
 
@@ -427,14 +519,14 @@ public final class Broker {
 				for (index = 0; index < parameterTypes.length; index++) {
 					//If parameter is not a IN variable and
 					//The parameter is not a POPObject without any specified direction
-					if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-					        Util.isParameterUseable(annotations[index]) &&
-							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))
+					if(Util.isParameterNotOfDirection(parametersAnnotations[index], POPParameter.Direction.IN) &&
+					        Util.isParameterUsable(parametersAnnotations[index]) &&
+							!(parameters[index] instanceof POPObject && !Util.isParameterOfAnyDirection(parametersAnnotations[index]))
 							){
 						try {
 							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
 						} catch (POPException e) {
-							LogWriter.writeDebugInfo("Excecption serializing parameter "+parameterTypes[index].getName());
+							LogWriter.writeDebugInfo("[Broker] Excecption serializing parameter %s", parameterTypes[index].getName());
 							exception = new POPException(e.errorCode, e.errorMessage);
 							break;
 						}
@@ -444,6 +536,27 @@ public final class Broker {
 				if (exception == null) {
 					if (returnType != Void.class && returnType != void.class && returnType != Void.TYPE){
 						try {
+							
+							// propagate certificates for return type
+							if (result instanceof POPObject) {
+								POPObject returnObject = (POPObject) result;
+								POPAccessPoint objAp = returnObject.getAccessPoint();
+								
+								// a certificate is necessary to connect to the returned object
+								String originFingerprint = objAp.getFingerprint();
+								if (originFingerprint != null) {
+									// add to access point for the connector
+									Certificate originCert = POPTrustManager.getInstance().getCertificate(originFingerprint);
+									objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
+
+									// send connector certificate to object's node
+									String destinationFingerprint = request.getCombox().getAccessPoint().getFingerprint();
+									Certificate destCert = POPTrustManager.getInstance().getCertificate(destinationFingerprint);
+									// send caller' certificate to object origin node
+									returnObject.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
+								}
+							}
+							
 						    responseBuffer.putValue(result, returnType);
 						} catch (POPException e) {
 							exception = e;
@@ -463,7 +576,7 @@ public final class Broker {
 					POPObject object = (POPObject)parameters[index];
 					//LogWriter.writeDebugInfo("POPObject parameter is temporary: "+object.isTemporary());
 					if(object.isTemporary()){
-						LogWriter.writeDebugInfo("Exit popobject");
+						LogWriter.writeDebugInfo("[Broker] Exit popobject");
 						object.exit();
 					}
 				}
@@ -473,7 +586,8 @@ public final class Broker {
 		// or cannot put the output parameter,
 		// send it to the interface
 		if (exception != null) {
-			LogWriter.writeDebugInfo(this.getLogPrefix() + "sendException : " + exception.getMessage());
+			LogWriter.writeDebugInfo("[Broker] %s sendException: %s.", 
+				this.getLogPrefix(), exception.getMessage());
 			if (request.isSynchronous()){
 				sendException(request.getCombox(), exception, request.getRequestID());
 			}
@@ -508,12 +622,29 @@ public final class Broker {
 	 * @return true if the request has been treated correctly
 	 * @throws InterruptedException 
 	 */
-	public boolean invoke(Request request) throws InterruptedException {		
-		if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
-			invokeConstructor(request);
-		} else {
-			invokeMethod(request);
+	public boolean invoke(Request request) throws InterruptedException {	
+		POPRemoteCaller caller = request.getRemoteCaller();
+		remoteCaller.set(caller);
+		
+		// check for localhost only execution and throw exception if we can't
+		if (request.isLocalhost() && !caller.isLocalHost()) {
+			if (request.isSynchronous()){
+				POPException exception = new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, 
+					"You can't call a @Localhost method from a remote location.");
+				sendException(request.getCombox(), exception, request.getRequestID());
+			}
 		}
+		
+		// normal case
+		else {
+			// normal execution
+			if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
+				invokeConstructor(request);
+			} else {
+				invokeMethod(request);
+			}
+		}
+		
 		request.setStatus(Request.SERVED);
 		clearResourceAfterInvoke(request);
 
@@ -527,9 +658,7 @@ public final class Broker {
 	 *            Request to be removed
 	 */
 	public void clearResourceAfterInvoke(Request request) {
-		for (ComboxServer comboxServer : comboxServers) {
-			comboxServer.getRequestQueue().remove(request);
-		}
+		request.getRequestQueue().remove(request);
 	}
 
 	/**
@@ -720,7 +849,7 @@ public final class Broker {
 				}
 			}
 		}
-		LogWriter.writeDebugInfo("Close broker "+popInfo.getClassName());
+		LogWriter.writeDebugInfo("[Broker] Close broker "+popInfo.getClassName());
 	}
 
 	/**
@@ -728,7 +857,7 @@ public final class Broker {
 	 */
 	public synchronized void onNewConnection() {
 		connectionCount++;
-		LogWriter.writeDebugInfo("Open connection "+connectionCount);
+		LogWriter.writeDebugInfo("[Broker] Open connection "+connectionCount);
 	}
 
 	/**
@@ -737,7 +866,7 @@ public final class Broker {
 	 */
 	public synchronized void onCloseConnection(String source) {
 		connectionCount--;
-		LogWriter.writeDebugInfo("Close connection, left "+connectionCount+" "+source);
+		LogWriter.writeDebugInfo("[Broker] Close connection, left "+connectionCount+" "+source);
 		if (connectionCount <= 0){
 			setState(State.Exit);
 		}
@@ -752,8 +881,12 @@ public final class Broker {
 		if (popInfo != null) {
 			return popInfo.isDaemon();
 		}
-			
+
 		return true;
+	}
+
+	public static POPRemoteCaller getRemoteCaller() {
+		return remoteCaller.get();
 	}
 
 	/**
@@ -803,45 +936,46 @@ public final class Broker {
 		
 		buffer = new BufferXDR();
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-		int comboxCount = finder.getFactoryCount();
+		ComboxFactory[] comboxFactories = finder.getAvailableFactories();
 		
 		List<ComboxServer> liveServers = new ArrayList<>();
-		for (int i = 0; i < comboxCount; i++) {
-			ComboxFactory factory = finder.get(i);
+		for (ComboxFactory factory : comboxFactories) {
 			String prefix = String.format("-%s_port=", factory.getComboxName());
 			
-			String port = Util.removeStringFromList(argvs, prefix);
-			// if we don't have a port, abort
-			if (port == null) {
-				continue;
-			}
-			
-			int iPort = 0;
-			if (port.length() > 0) {
-				try {
-					iPort = Integer.parseInt(port);
-				} catch (NumberFormatException e) {
-
+			// hadle multiple times the same protocol
+			String port;
+			while ((port = Util.removeStringFromList(argvs, prefix)) != null) {
+				// if we don't have a port, abort
+				if (port == null) {
+					continue;
 				}
+
+				int iPort = 0;
+				if (port.length() > 0) {
+					try {
+						iPort = Integer.parseInt(port);
+					} catch (NumberFormatException e) {
+
+					}
+				}
+
+				AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
+				accessPoint.addAccessPoint(ap);
+
+				liveServers.add(factory.createServerCombox(ap, buffer, this));
 			}
-			
-			AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
-			accessPoint.addAccessPoint(ap);
-			
-			liveServers.add(factory.createServerCombox(ap, buffer, this));
-			
 		}
 		
 		//If no protocol was specified, fall back to default protocol
 		//TODO: LocalJVM objects need a way to specifiy the protocol(s), maybe as an annotation?
 		//TODO: Handle case where a port was specified, but the protocol is unavailable, throw exception
 		if(liveServers.isEmpty()){
-			ComboxFactory factory = finder.findFactory(Configuration.DEFAULT_PROTOCOL);
-			
-			AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
-			accessPoint.addAccessPoint(ap);
-			
-			liveServers.add(factory.createServerCombox(ap, buffer, this));
+			for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
+				AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
+				accessPoint.addAccessPoint(ap);
+
+				liveServers.add(factory.createServerCombox(ap, buffer, this));
+			}
 		}
 		
 		comboxServers = liveServers.toArray(new ComboxServer[0]);
@@ -862,8 +996,7 @@ public final class Broker {
 	protected Class<?> getPOPObjectClass(String className, URLClassLoader urlClassLoader) throws ClassNotFoundException {
 
 		if (urlClassLoader != null) {
-			Class<?> c = Class.forName(className, true, urlClassLoader);
-			return c;
+			return Class.forName(className, true, urlClassLoader);
 		} else {
 			return Class.forName(className);
 		}
@@ -884,18 +1017,18 @@ public final class Broker {
             
             @Override
             public void uncaughtException(Thread t, Throwable e) {
-            	LogWriter.writeDebugInfo("POP Uncatched exception");
+            	LogWriter.writeDebugInfo("[Broker] POP Uncatched exception");
             	LogWriter.writeExceptionLog(e);
             }
         });
 		
-		ArrayList<String> argvList = new ArrayList<String>();
-		LogWriter.writeDebugInfo("Broker parameters");
+		ArrayList<String> argvList = new ArrayList<>();
+		LogWriter.writeDebugInfo("[Broker] Broker parameters");
 		for (String str : argvs) {
 			argvList.add(str);
-			LogWriter.writeDebugInfo(str);
+			LogWriter.writeDebugInfo(" %79s", str);
 		}
-		LogWriter.writeDebugInfo("Broker parameters end");
+		LogWriter.writeDebugInfo("[Broker] Broker parameters end");
 		
 		String appservice = Util.removeStringFromList(argvList,
 				APPSERVICE_PREFIX);
@@ -905,6 +1038,27 @@ public final class Broker {
 				OBJECT_NAME_PREFIX);
 		String actualObjectName = Util.removeStringFromList(argvList,
 				ACTUAL_OBJECT_NAME_PREFIX);
+		String userConfiguration = Util.removeStringFromList(argvList, 
+				POPJAVA_CONFIG_PREFIX);
+		
+		Configuration conf = Configuration.getInstance();
+		if (userConfiguration != null) {
+			try {
+				File config = new File(userConfiguration);
+				conf.load(config);
+			} catch(IOException e) {
+				LogWriter.writeDebugInfo("[Broker] Couldn't load user config %s: %s", userConfiguration, e.getMessage());
+			}
+		}
+		
+		// directories informations
+		String objId = Util.generateUUID();
+		// create directories and setup their cleanup
+		RuntimeDirectoryThread runtimeCleanup = new RuntimeDirectoryThread(objId);
+		runtimeCleanup.addCleanupHook();
+		// change base dir
+		System.setProperty("user.dir", Paths.get(objId).toString());
+		
 		if (actualObjectName != null && actualObjectName.length() > 0) {
 			objectName = actualObjectName;
 		}
@@ -912,31 +1066,36 @@ public final class Broker {
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}
+		
 		Combox callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
 			POPAccessPoint accessPoint = new POPAccessPoint(callbackString);
-			if (accessPoint.size() > 0) {
+			for (int i = 0; i < accessPoint.size(); i++) {
 				// use factory to determine which combox to use
 				ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 				// get protocol from accessPoint
-				String protocol = accessPoint.toString().split("://")[0];
+				String protocol = accessPoint.get(i).getProtocol();
 				ComboxFactory factory = finder.findFactory(protocol);
+				
+				// skip to next protocol
+				if (factory == null) {
+					continue;
+				}
 				
 				// create callback
 				callback = factory.createClientCombox(accessPoint, 0);
 				
 				if (!callback.connect()) {
-					LogWriter.writeDebugInfo(String.format(
-							"-Error: fail to connect to callback:%s",
-							accessPoint.toString()));
+					LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",
+							accessPoint.toString());
 					System.exit(1);
-				} else {
-						LogWriter.writeDebugInfo("Connected to callback socket");
 				}
+				// 
+				LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
+				break;
 			}
-
 		} else {
-			LogWriter.writeDebugInfo("-Error: callback is null");
+			LogWriter.writeDebugInfo("[Broker] Error: callback is null");
 			System.exit(1);
 		}
 		
@@ -959,7 +1118,7 @@ public final class Broker {
 			POPBuffer buffer = new BufferXDR();
 			buffer.setHeader(messageHeader);
 			buffer.putInt(status);
-			LogWriter.writeDebugInfo("Broker can be accessed at "+broker.getAccessPoint().toString());
+			LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 			broker.getAccessPoint().serialize(buffer);
 			callback.send(buffer);
 		}
@@ -968,7 +1127,7 @@ public final class Broker {
 			broker.treatRequests();
 		}
 		
-		LogWriter.writeDebugInfo("End broker life : "+objectName);
+		LogWriter.writeDebugInfo("[Broker] End broker life : "+objectName);
 		System.exit(0);
 	}
 

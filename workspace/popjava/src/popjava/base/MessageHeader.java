@@ -156,11 +156,8 @@ public class MessageHeader {
 	 */
 	@Override
     public String toString() {
-		String info = String
-				.format(
-						"MessageHeaderInfo: RequestType=%s,ClassId=%d,MethodId=%d,Sematics=%d,ErrorCode=%d",
+		return String.format("MessageHeaderInfo: RequestType=%s,ClassId=%d,MethodId=%d,Sematics=%d,ErrorCode=%d",
 						getRequestTypeName(getRequestType()), getClassId(), getMethodId(), getSenmatics(), getExceptionCode());
-		return info;
 
 	}
 

@@ -1,22 +1,22 @@
-POP-Java 1.0
-===========
+POP-Java 1.5
+============
 
-Version 1.0 is under development, use it at your own risk.
+Version 1.5 is under development, use it at your own risk.
 
 COMPILE POP-Java SOURCE CODE
----------------------------
+----------------------------
 
 .. code::
 
-  user@computer$ ant
+  $ ant
 
 
 INSTALLING POP-Java
-------------------
+-------------------
 
 .. code::
 
-  user@computer$ ./install
+  $ ./install
 
 You might use sudo or to be root tu execute "make install" if you do not have the right to write in the destination folder.
 
@@ -27,7 +27,7 @@ The installation script will ask you several questions. Here they are:
 If unsure leave the answer blank to keep the default setting.
 
 STARTING POP-Java
-----------------
+-----------------
 
 **Do not forget to add these lines to your .bashrc file or equivalent :**
 If you have kept the default options this should give you something like:
@@ -39,6 +39,10 @@ If you have kept the default options this should give you something like:
   POPJAVA_JAVA=/usr/bin/java
   export POPJAVA_JAVA
   PATH=$PATH:$POPJAVA_LOCATION/bin
+
+LICENCE
+-------
+POP-Java is licenced under LGPL v3
 
 RESOURCES
 ---------

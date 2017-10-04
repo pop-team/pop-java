@@ -3,6 +3,7 @@ package popjava.broker;
 import popjava.base.Semantic;
 import popjava.buffer.*;
 import popjava.combox.*;
+import popjava.util.POPRemoteCaller;
 /**
  * This class symbolize a request between the interface-side and the broker-side.
  *
@@ -24,29 +25,14 @@ public class Request {
 	protected ComboxReceiveRequest receivedCombox;
 	protected Combox combox;	
 	protected int status;
+	
+	protected POPRemoteCaller remoteCaller;
 
 	/**
 	 * Creating a new pending request
 	 */
 	public Request() {
 		status = PENDING;
-	}
-
-	/**
-	 * Creating a new specific request
-	 * @param classId	Class identifier for this request
-	 * @param methodId	Method identifier for this request
-	 * @param semantics	Semantics used for this methods
-	 * @param broker	Broker associated with this request
-	 * @param combox	Combox associated with this request
-	 */
-	public Request(int classId, int methodId, int semantics, Broker broker, Combox combox) {
-		this.classId = classId;
-		this.methodId = methodId;
-		this.semantics = semantics;
-		this.broker = broker;
-		status = PENDING;
-		this.combox = combox;
 	}
 	
 	/**
@@ -223,5 +209,25 @@ public class Request {
 	 */
 	public boolean isSequential(){
 		return !isConcurrent() && !isMutex();
+	}
+
+	/**
+	 * Return from where the call to this request come from
+	 * @return 
+	 */
+	public POPRemoteCaller getRemoteCaller() {
+		return remoteCaller;
+	}
+
+	public void setRemoteCaller(POPRemoteCaller callSource) {
+		this.remoteCaller = callSource;
+	}
+
+	boolean isLocalhost() {
+		return (getSenmatics() & Semantic.LOCALHOST) != 0;
+	}
+	
+	public RequestQueue getRequestQueue() {
+		return this.receivedCombox.getRequestQueue();
 	}
 }

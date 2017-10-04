@@ -5,7 +5,7 @@ import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
@@ -30,6 +30,7 @@ import popjava.util.Util;
 public class POPConnectorJobManager extends POPConnectorBase implements POPConnectorSearchNodeInterface {
 	
 	public static final String IDENTITY = "jobmanager";
+	private final Configuration conf = Configuration.getInstance();
 
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
@@ -63,15 +64,16 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 		}
 		// size? not implemented
 		if (od.getSearchMaxSize() > 0) {
-			;
+
 		}
-		int timeout = Configuration.SEARCH_TIMEOUT;
+		int timeout = conf.getSearchNodeSearchTimeout();
 		if (od.getSearchWaitTime() >= 0) {
 			timeout = od.getSearchWaitTime();
 		}
 		if (!od.getPlatform().isEmpty()) {
 			request.setOS(od.getPlatform());
 		}
+		// TODO get appId from AppService
 		String appId = "", reqId = "";
 
 		// send request
@@ -91,7 +93,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 
 			// failed requests
 			if (resIDs[jobIdx] == 0) {
-				LogWriter.writeDebugInfo(String.format("[JM] Usable to reserve on %s", jm.getAccessPoint()));
+				LogWriter.writeDebugInfo("[JM] Usable to reserve on %s", jm.getAccessPoint());
 				// failed creation
 				failed++;
 				jobIdx--;
@@ -146,7 +148,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 			}
 		}
 
-		LogWriter.writeDebugInfo(String.format("Object count=%d, require=%d", started, howmany));
+		LogWriter.writeDebugInfo("[JM] Object count=%d, require=%d", started, howmany);
 		// created all objects
 		if (started >= howmany) {
 			return 0;
@@ -160,7 +162,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[i]);
 				jm.exit();
 			} catch (POPException e) {
-				LogWriter.writeDebugInfo(String.format("Exception while killing objects: %s", e.getMessage()));
+				LogWriter.writeDebugInfo("[JM] Exception while killing objects: %s", e.getMessage());
 			}
 		}
 

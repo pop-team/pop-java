@@ -14,7 +14,7 @@ import popjava.util.LogWriter;
 /**
  * This class is responsible to receive the new request for the associated combox
  */
-public abstract class ComboxReceiveRequest implements Runnable {
+public final class ComboxReceiveRequest implements Runnable {
 
     //TODO: use enum
 	static public final int RUNNING = 0;
@@ -48,14 +48,18 @@ public abstract class ComboxReceiveRequest implements Runnable {
 		setStatus(RUNNING);
 		while (getStatus() == RUNNING) {
 			Request popRequest = new Request();
+			popRequest.setRemoteCaller(combox.getRemoteCaller());
 			try {
 				if (!receiveRequest(popRequest)) {
 					setStatus(EXIT);
 					break;
 				}
-		
+				
 				// add request to fifo list
 				if (broker != null && !broker.popCall(popRequest)) {
+					// replace buffer sent information using local annotation (if possible)
+					broker.finalizeRequest(popRequest);
+				
 					requestQueue.add(popRequest);					
 				}
 			} catch (Exception e) {
@@ -124,6 +128,14 @@ public abstract class ComboxReceiveRequest implements Runnable {
 		BufferFactoryFinder finder = BufferFactoryFinder.getInstance();
 		BufferFactory factory = finder.findFactory(bufferType);		
 		combox.setBufferFactory(factory);		
+	}
+
+	/**
+	 * Get server socket request queue
+	 * @return 
+	 */
+	public RequestQueue getRequestQueue() {
+		return requestQueue;
 	}
 
 	/**

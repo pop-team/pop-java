@@ -20,11 +20,12 @@ import testsuite.integer.Integer;
 public class POPCPPJobmanagerTest {
 
 	private static boolean popcppConnect;
+	private static final Configuration conf = Configuration.getInstance();
 	
 	@BeforeClass
 	public static void setup(){
-		popcppConnect = Configuration.CONNECT_TO_POPCPP;
-		Configuration.CONNECT_TO_POPCPP = true;
+		popcppConnect = conf.isConnectToPOPcpp();
+		conf.setConnectToPOPcpp(true);
 	}
 	
 	@Test
@@ -42,6 +43,6 @@ public class POPCPPJobmanagerTest {
 	
 	@AfterClass
 	public static void finish(){
-		Configuration.CONNECT_TO_POPCPP = popcppConnect;
+		conf.setConnectToPOPcpp(popcppConnect);
 	}
 }

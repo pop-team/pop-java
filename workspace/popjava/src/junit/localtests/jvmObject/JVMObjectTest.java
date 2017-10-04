@@ -88,7 +88,7 @@ public class JVMObjectTest {
 		
 		assertFalse(remote.getAccessPoint().toString().isEmpty());
 		
-		Set<String> accessPoints = new HashSet<String>();
+		Set<String> accessPoints = new HashSet<>();
 		
 		for(int i = 0; i < objs.length; i++){
 			objs[i] = PopJava.newActive(LocalObject.class, new Double(1));
@@ -160,7 +160,7 @@ public class JVMObjectTest {
 	
 	@Test
 	public void multipleConnections(){
-		Configuration.DEBUG = true;
+		Configuration.getInstance().setDebug(true);
 		LocalObject local1 = PopJava.newActive(LocalObject.class, new Double(1));
 		
 		LocalObject remote = PopJava.newActive(LocalObject.class, PopJava.getThis(local1).getAccessPoint());

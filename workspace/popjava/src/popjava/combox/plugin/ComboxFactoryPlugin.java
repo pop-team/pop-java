@@ -1,10 +1,14 @@
-package popjava.combox;
+package popjava.combox.plugin;
 
 
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
+import popjava.combox.ComboxAllocate;
+import popjava.combox.ComboxFactory;
+import popjava.combox.ComboxServer;
 /**
  * This class defined the interface for new combox factory plug-in
  */
@@ -44,7 +48,7 @@ public class ComboxFactoryPlugin extends ComboxFactory {
 
 	@Override
 	public boolean isAvailable() {
-		return false;
+		return super.isAvailable();
 	}
 
 }

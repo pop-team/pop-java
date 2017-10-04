@@ -1,12 +1,6 @@
-/**
- * Interface.java 
- * 
- */
-
 package popjava.interfacebase;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,11 +23,12 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxAllocate;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.service.jobmanager.POPJavaAppService;
 import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.service.jobmanager.connector.POPConnectorDirect;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
@@ -57,6 +52,8 @@ public class Interface {
 	protected ObjectDescription od = new ObjectDescription();
 
 	private AtomicInteger requestID = new AtomicInteger(10000);
+	
+	private static final Configuration conf = Configuration.getInstance();
 	
 	/**
 	 * Default Interface constructor
@@ -110,7 +107,7 @@ public class Interface {
 				bind(popAccessPoint);
 			} catch (POPException e) {
 				result = false;
-				LogWriter.writeDebugInfo("Deserialize. Cannot bind to " + popAccessPoint.toString());
+				LogWriter.writeDebugInfo("[Interface] Deserialize. Cannot bind to " + popAccessPoint.toString());
 				e.printStackTrace();
 			}
 			if (result){
@@ -204,7 +201,7 @@ public class Interface {
             POPAccessPoint[] remotejobscontact) {
         // ask the job manager to allocate the broker
         String platforms = od.getPlatform();
-
+			
         if (platforms.isEmpty()) {
         	AppService appCoreService = null;
         	appCoreService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
@@ -231,20 +228,29 @@ public class Interface {
 
         if (jobContact.isEmpty()) {
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-			String protocol = Configuration.DEFAULT_PROTOCOL;
-			jobContact.setAccessString(String.format("%s://%s:%d", 
-				protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
+			String[] jmProtocols = conf.getJobManagerProtocols();
+			for (int i = 0; i < jmProtocols.length; i++) {
+				String protocol = jmProtocols[i];
+				ComboxFactory factory = finder.findFactory(protocol);
+				if (factory != null) {
+					jobContact.setAccessString(String.format("%s://%s:%d", 
+						factory.getComboxName(), 
+						POPSystem.getHostIP(),
+						conf.getJobManagerPorts()[i]));
+					break;
+				}
+			}
         }
 
         POPJobService jobManager = null;
         try{
 			// XXX There are some method not found error if we use the generic
-        	//if(Configuration.CONNECT_TO_POPCPP || Configuration.START_JOBMANAGER){
+        	//if(conf.CONNECT_TO_POPCPP || conf.START_JOBMANAGER){
         	//	jobManager = PopJava.newActive(POPJobService.class, jobContact);
         	//}
-			if (Configuration.CONNECT_TO_POPCPP)
+			if (conf.isConnectToPOPcpp())
         		jobManager = PopJava.newActive(POPJobManager.class, jobContact);
-			else if (Configuration.CONNECT_TO_JAVA_JOBMANAGER)
+			else if (conf.isConnectToJavaJobmanager())
         		jobManager = PopJava.newActive(POPJavaJobManager.class, jobContact);
 			else
         		jobManager = PopJava.newActive(POPJobService.class, jobContact);
@@ -270,10 +276,12 @@ public class Interface {
         	}
         }
 
+		// XXX What does this really do?
         for (int i = 0; i < allocatedAccessPoint.length; i++) {
         	if(allocatedAccessPoint[0].size() >= 1 && (
-        			allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") || 
+        			allocatedAccessPoint[0].get(0).getHost().equals("127.0.0.1") ||
         			allocatedAccessPoint[0].get(0).getHost().equals("127.0.1.1"))){
+
         		allocatedAccessPoint[0].get(0).setHost(remotejobscontact[0].get(0).getHost());
         	}
         }
@@ -291,7 +299,7 @@ public class Interface {
 	protected boolean bind(POPAccessPoint accesspoint) throws POPException {
 
 		if (accesspoint == null || accesspoint.isEmpty()){
-			POPException.throwAccessPointNotAvailableException(accesspoint);
+			throw POPException.throwAccessPointNotAvailableException(accesspoint);
 		}
 		
 		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
@@ -299,17 +307,25 @@ public class Interface {
 		if (combox != null){
 			combox.close();
 		}
-		combox = finder.findFactory(od.getProtocol())
-				.createClientCombox(accesspoint);
 		
-		if (combox.connect(accesspoint, Configuration.CONNECTION_TIMEOUT)) {
+		for (int i = 0; i < accesspoint.size(); i++) {
+			String protocol = accesspoint.get(i).getProtocol();
+			ComboxFactory factory = finder.findFactory(protocol);
+			// choose the first available protocol
+			if (factory != null) {
+				combox = factory.createClientCombox(accesspoint);
+				break;
+			}
+		}
+		
+		if (combox.connect(accesspoint, conf.getConnectionTimeout())) {
 
 			BindStatus bindStatus = new BindStatus();
 			bindStatus(bindStatus);
 			switch (bindStatus.getCode()) {
 			case BindStatus.BIND_OK:
 				this.getOD().setPlatform(bindStatus.getPlatform());
-				negotiateEncoding(Configuration.SELECTED_ENCODING, bindStatus
+				negotiateEncoding(conf.getSelectedEncoding(), bindStatus
 						.getPlatform());
 				return true;
 			case BindStatus.BIND_FORWARD_SESSION:
@@ -332,7 +348,7 @@ public class Interface {
 	 */
 	private void bindStatus(BindStatus bindStatus) throws POPException {
 		if (combox == null){
-			POPException.throwComboxNotAvailableException();
+			throw POPException.throwComboxNotAvailableException();
 		}
 
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
@@ -364,13 +380,13 @@ public class Interface {
 	private void negotiateEncoding(String info, String platform)
 			throws POPException {
 		if (combox == null){
-			POPException.throwComboxNotAvailableException();
+			throw POPException.throwComboxNotAvailableException();
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
 		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
-		popBuffer.putString(Configuration.SELECTED_ENCODING);
+		popBuffer.putString(conf.getSelectedEncoding());
 
 		popDispatch(popBuffer);
 
@@ -380,7 +396,7 @@ public class Interface {
 		popResponse(responseBuffer, messageHeader.getRequestID());
 		result = responseBuffer.getBoolean();
 		if (result) {
-			BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(Configuration.SELECTED_ENCODING);
+			BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(conf.getSelectedEncoding());
 			combox.setBufferFactory(bufferFactory);
 			
 			//TODO: Check out why this was done
@@ -475,7 +491,6 @@ public class Interface {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer, messageHeader.getRequestID());
 		} catch (POPException e) {
-			return;
 		}
 	}
 
@@ -488,7 +503,7 @@ public class Interface {
 	 */
 	public static boolean tryLocal(String objectName, POPAccessPoint accesspoint, ObjectDescription od)
 			throws POPException {
-	//	String hostname = "";
+		//String hostname = "";
 		String joburl ="";
 		String codeFile = "";
 		// Get ClassName
@@ -504,10 +519,10 @@ public class Interface {
 			return false;
 		}*/
 		
-		if(joburl == null || joburl.length() == 0){
+		if(joburl == null || joburl.isEmpty()){
 			return false;
 		}
-		LogWriter.writeDebugInfo("Joburl "+joburl+" "+objectName);
+		LogWriter.writeDebugInfo("[Interface] Joburl "+joburl+" "+objectName);
 
 		codeFile = od.getCodeFile();
 		
@@ -520,20 +535,100 @@ public class Interface {
 			}
 		}
 
-		String rport = "";
-		int index = joburl.lastIndexOf(":");
-		if (index > 0) {
-			rport = joburl.substring(index + 1);
-			joburl = joburl.substring(0, index);
+		// parameters for localExec
+		String[] rports = null;
+		String[] protocols = null;	
+		
+		// object port in od.url
+		int urlPortIndex = joburl.lastIndexOf(":");
+		if (urlPortIndex > 0) {
+			rports = new String[] { joburl.substring(urlPortIndex + 1) };
+			joburl = joburl.substring(0, urlPortIndex);
 		}
 		
-		int status = localExec(joburl, codeFile, objectName, rport,
-				POPSystem.jobService, POPSystem.appServiceAccessPoint, accesspoint,
-				od);
+		// object protocol(s) with port(s), may be empty
+		int nbProtocols = od.getProtocols().length;
 		
+		
+		// empty protocol in od, all or default
+		if (nbProtocols == 1 && od.getProtocols()[0].isEmpty()) {			
+			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+			ComboxFactory[] protocolsFactories = finder.getAvailableFactories();
+			int protocolsCount = protocolsFactories.length;
+			
+			// use default protocol if a port is set in url
+			if (rports != null) {
+				protocols = new String[] { conf.getDefaultProtocol() };
+			}
+			// use all other protocols otherwise
+			else {
+				protocols = new String[protocolsCount];
+				rports = new String[protocolsCount];
+				for (int i = 0; i < protocolsCount; i++) {
+					protocols[i] = protocolsFactories[i].getComboxName();
+					rports[i] = "0";
+				}
+			}
+		}
+		// multiple protocols
+		else if (nbProtocols >= 1) {
+			// missmatch between number of choosen protocols and previously set ports (1 from od.host)
+			if (rports != null && nbProtocols != rports.length) {
+				throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "You can't specify a port in the url and have multiple protocols.");
+			}
+			
+			// if we have to set ports or check that we don't set them multiuple times
+			boolean setPorts = rports == null;
+			if (setPorts) {
+				rports = new String[nbProtocols];
+			}
+			protocols = new String[nbProtocols];
+			
+			for (int i = 0; i < nbProtocols; i++) {
+				String protocol = od.getProtocols()[i];
+				String port = null;
+				
+				// look for port in protocol
+				int portIdx = protocol.lastIndexOf(":");
+				if (portIdx > 0) {
+					port = protocol.substring(portIdx + 1);
+					protocol = protocol.substring(0, portIdx);
+				}
+				
+				// can't set ports multiple times
+				if (!setPorts && port != null) {
+					throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "You can't specify ports multiple times");
+				}
+				// set port array
+				if (setPorts) {
+					if (port == null) {
+						rports[i] = "0";
+					} else {
+						rports[i] = port;
+					}
+				}
+				
+				protocols[i] = protocol;
+			}
+		}
+		// no protocols, error
+		else {
+			throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "At least one protocol should be specified");
+		}
+		
+		// has custom app service
+		POPAccessPoint appService = POPSystem.appServiceAccessPoint;
+		if (od.getOriginAppService() != null) {
+			appService = od.getOriginAppService();
+		}
+		
+		int status = localExec(joburl, codeFile, objectName, protocols, rports,
+				POPSystem.jobService, appService, accesspoint,
+				od);
+
 		if (status != 0) {
 			// Throw exception
-			LogWriter.writeDebugInfo("Could not create "+objectName+" on "+joburl);
+			LogWriter.writeDebugInfo("[Interface] Could not create "+objectName+" on "+joburl);
 		}
 		
 		return (status == 0);
@@ -545,17 +640,15 @@ public class Interface {
 	 * @return
 	 */
 	private static String getRemoteCodeFile(String objectName){
-		if(objectName.equals(POPAppService.class.getName()) ||
-				objectName.equals(POPJavaAppService.class.getName())
-				){
+		if (objectName.equals(POPAppService.class.getName())
+			|| objectName.equals(POPJavaAppService.class.getName())) {
 			return getPOPCodeFile();
 		}
-		
+
 		AppService appCoreService = getAppcoreService();
 		
 		if(appCoreService != null){
-			String codeFile = getCodeFile(appCoreService, objectName);
-			return codeFile;
+			return getCodeFile(appCoreService, objectName);
 		}
 		
 		return getPOPCodeFile();
@@ -564,13 +657,13 @@ public class Interface {
 	public static AppService getAppcoreService(){
 	    AppService appCoreService = null;
 	    if(!POPSystem.appServiceAccessPoint.isEmpty()){
-            if(Configuration.CONNECT_TO_POPCPP){
+            if(conf.isConnectToPOPcpp()){
                 try{
                 	POPAppService tempService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
                 	tempService.unregisterService("");
                     appCoreService = tempService;
                 }catch(Exception e){
-                	LogWriter.writeDebugInfo("Running app service is not from POP-C++, fall back to POP-Java");
+                	LogWriter.writeDebugInfo("[Interface] Running app service is not from POP-C++, fall back to POP-Java");
                     appCoreService = null;
                 }
             }
@@ -580,7 +673,7 @@ public class Interface {
                     appCoreService = PopJava.newActive(
                     		POPJavaAppService.class, POPSystem.appServiceAccessPoint);
                 }catch(POPException e){
-                    LogWriter.writeDebugInfo("Could not contact Appservice to recover code file");
+                    LogWriter.writeDebugInfo("[Interface] Could not contact Appservice to recover code file");
                 }
             }
         }else{
@@ -633,16 +726,18 @@ public class Interface {
 	 * @param hostname	Hostname to create the object
 	 * @param codeFile	Path of the executable code file
 	 * @param classname	Name of the Class of the parallel object
-	 * @param rport		port
+	 * @param rports		port
 	 * @param jobserv	jobMgr service access point
 	 * @param appserv	Application service access point
 	 * @param objaccess	Output arguments - Access point to the object
 	 * @return -1 if the local execution failed 
 	 */
 	private static int localExec(String hostname, String codeFile,
-			String classname, String rport, POPAccessPoint jobserv,
+			String classname, String[] protocols, String[] rports, POPAccessPoint jobserv,
 			POPAccessPoint appserv, POPAccessPoint objaccess,
 			ObjectDescription od) {
+		
+		assert protocols.length == rports.length;
 		
 		boolean isLocal = Util.isLocal(hostname);
 		/*if (!isLocal) {
@@ -653,7 +748,7 @@ public class Interface {
 		}
 		codeFile = codeFile.trim();
 
-		ArrayList<String> argvList = new ArrayList<String>();
+		ArrayList<String> argvList = new ArrayList<>();
 
 		ArrayList<String> codeList = Util.splitTheCommand(codeFile);
 		argvList.addAll(codeList);
@@ -665,7 +760,7 @@ public class Interface {
 			argvList.add(1, "-Xmx"+od.getMemoryReq()+"m");
 		}*/
 		
-		if(codeFile.startsWith("java") && Configuration.ACTIVATE_JMX){
+		if(codeFile.startsWith("java") && conf.isActivateJmx()){
 			argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
 			argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
 			argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");
@@ -678,9 +773,17 @@ public class Interface {
 			}
 		}
 		
-		String protocol = od.getProtocol();
-		ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
-		ComboxAllocate allocateCombox = factory.createAllocateCombox();
+		ComboxAllocate allocateCombox = null;
+		for (String protocol : protocols) {
+			ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
+			if (factory != null && factory.isAvailable()) {
+				allocateCombox = factory.createAllocateCombox();
+				break;
+			}
+		}
+		if (allocateCombox == null) {
+			return -1;
+		}
 		
 		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox.getUrl());
 		argvList.add(callbackString);
@@ -697,30 +800,16 @@ public class Interface {
 			argvList.add(jobString);
 		}
 		
-		// if no port was specified we let the system decide
-		if (rport == null || rport.isEmpty()) {
-			rport = "0";
-		}
-		// if specified a port but no protocol, automatically set the default one
-		else {
-			if (od.getProtocol() == null || od.getProtocol().isEmpty()) {
-				od.setProtocol(Configuration.DEFAULT_PROTOCOL);
-			}
-		}
-
-		// if no protocol was specified we use all of them
-		if (od.getProtocol() == null || od.getProtocol().isEmpty()) {
-			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-			for (int i = 0; i < finder.getFactoryCount(); i++) {
-				String portString = String.format("-%s_port=%s", finder.get(i).getComboxName(), rport);
+		for (int i = 0; i < protocols.length; i++) {
+			String protocol = protocols[i];
+			String port = rports[i];
+			ComboxFactory wantedProtocol = ComboxFactoryFinder.getInstance().findFactory(protocol);
+			if (wantedProtocol != null) {
+				String portString = String.format("-%s_port=%s", wantedProtocol.getComboxName(), port);
 				argvList.add(portString);
+			} else {
+				LogWriter.writeDebugInfo("[Interface] specified protocol '%s' can't be found.", protocol);
 			}
-		}
-		// if we specified a protocol, we send only the wanted one
-		else {
-			ComboxFactory wantedProtocol = ComboxFactoryFinder.getInstance().findFactory(od.getProtocol());
-			String portString = String.format("-%s_port=%s", wantedProtocol.getComboxName(), rport);
-			argvList.add(portString);
 		}
 		
 		int ret = -1;
@@ -730,37 +819,42 @@ public class Interface {
 			hostname = "localhost";
 		}
 		
-		// XXX To start localhost calls
-		String potentialPort = od.getValue("port");
-		if(isLocal && potentialPort.equals("")){
-			ret = SystemUtil.runCmd(argvList);
+		// XXX Move this to regular OD?
+		String potentialServicePort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
+		// We want to use SSH locally if we force a port
+		if(isLocal && potentialServicePort.isEmpty()){
+			if (conf.isUsingUserConfig()) {
+				// add config file, system or local
+				argvList.add(Broker.POPJAVA_CONFIG_PREFIX + conf.getUserConfig().toString());
+			}
+			ret = SystemUtil.runCmd(argvList, od.getDirectory(), od.getHostuser());
 		}else{
-			//String potentialPort = od.getValue("port");
+			//String potentialPort = od.getValue(POPConnectorDirect.OD_SERVICE_PORT);
 			switch(od.getConnectionType()){
 			case ANY:
 			case SSH:
 				// add port to host if specified
-				if (!potentialPort.equals(""))
-					ret = SystemUtil.runRemoteCmd(hostname, potentialPort, argvList);
-				else
+				if (!potentialServicePort.isEmpty()) {
+					ret = SystemUtil.runRemoteCmd(hostname, potentialServicePort, argvList);
+				} else {
 					ret = SystemUtil.runRemoteCmd(hostname, argvList);
+				}
 				break;
-			case DEAMON:
+			case DAEMON:
 				POPJavaDeamonConnector connector;
 				try {
 					// if manually specified port
-					if (potentialPort.equals(""))
+					if (potentialServicePort.equals(""))
 						connector = new POPJavaDeamonConnector(hostname);
 					else
-						connector = new POPJavaDeamonConnector(hostname, Integer.parseInt(potentialPort));
+						connector = new POPJavaDeamonConnector(hostname, Integer.parseInt(potentialServicePort));
 					if(connector.sendCommand(od.getConnectionSecret(), argvList)){
 						ret = 0;
 					}
-				} catch (UnknownHostException e) {
-					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				break;
 			}
 		}
 
@@ -771,7 +865,7 @@ public class Interface {
 		allocateCombox.startToAcceptOneConnection();
 		
 		if(!allocateCombox.isComboxConnected()){
-			LogWriter.writeDebugInfo("Could not connect broker");
+			LogWriter.writeDebugInfo("[Interface] Could not connect broker");
 			return -1;
 		}
 		
@@ -847,5 +941,4 @@ public class Interface {
 		}
 
 	}
-
 }

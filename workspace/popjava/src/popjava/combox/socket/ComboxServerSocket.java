@@ -1,14 +1,14 @@
 
 
-package popjava.combox;
+package popjava.combox.socket;
 
 import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
-import popjava.system.POPSystem;
 
 import java.net.*;
 import java.io.*;
+import popjava.combox.ComboxServer;
 /**
  * This class is an implementation of the combox with the protocol socket for the server side.
  */

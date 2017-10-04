@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -41,7 +41,7 @@ public final class Util {
 		
 		String[] allDestHost = dest.split("[ \t\r\n]");
 		for (String str : allDestHost) {
-			if (source.indexOf(str) >= 0){
+			if (source.contains(str)){
 				return true;
 			}
 		}
@@ -55,15 +55,13 @@ public final class Util {
 	 * @return	true if the contact string is the local host
 	 */
 	public static boolean isLocal(String hostname) {
-		String myhost = POPSystem.getHostIP();
-		
-		boolean isLocal = (hostname == null || hostname.length() == 0
-				|| popjava.util.Util.sameContact(myhost, hostname)
+		String myHost = POPSystem.getHostIP();
+
+		return (hostname == null || hostname.length() == 0
+				|| sameContact(myHost, hostname)
 				|| hostname.equals("localhost") ||
 				hostname.equals("127.0.0.1") ||
 				hostname.equals("127.0.1.1"));
-		
-		return isLocal;
 	}
 
 	/**
@@ -95,9 +93,7 @@ public final class Util {
 	 * @return	true if the strings are equal
 	 */
 	public static boolean isStringEqual(String s1, String s2) {
-		if (s1 == null || s2 == null)
-			return false;
-		return s1.equals(s2);
+		return s1 != null && s2 != null && s1.equals(s2);
 
 	}
 
@@ -108,14 +104,42 @@ public final class Util {
 	 * @return	true if the strings are equal
 	 */
 	public static boolean isNoCaseStringEqual(String s1, String s2) {
-		if (s1 == null || s2 == null){
-			return false;
-		}
-		
-		return s1.equalsIgnoreCase(s2);
+		return s1 != null && s2 != null && s1.equalsIgnoreCase(s2);
 
 	}
-
+	
+	/**
+	 * Join an array of String
+	 * @param delimiter Separator of each string
+	 * @param join What we want to join
+	 * @return 
+	 */
+	public static String join(String delimiter, String... join) {
+		Objects.requireNonNull(join);
+		
+		StringBuilder sb = null;
+		for (String s : join) {
+			if (sb != null) {
+				sb.append(delimiter);
+			} else {
+				sb = new StringBuilder();
+			}
+			
+			sb.append(s);
+		}
+		return sb != null ? sb.toString() : null;
+	}
+	
+	/**
+	 * Join a list of String
+	 * @param delimiter Separator of each string
+	 * @param join What we want to join
+	 * @return 
+	 */
+	public static String join(String delimiter, List<String> join) {
+		return join(delimiter, join.toArray(new String[join.size()]));
+	}
+	
 	/**
 	 * Generate a random string of the given length
 	 * @param length	Length of the generated string
@@ -145,7 +169,7 @@ public final class Util {
 	 * @return	The split command as an array list
 	 */
 	public static ArrayList<String> splitTheCommand(String command) {
-		return new ArrayList<String>(Arrays.asList(command.trim().split(" ")));
+		return new ArrayList<>(Arrays.asList(command.trim().split(" ")));
 	}
 
 	/**
@@ -203,7 +227,7 @@ public final class Util {
 		return false;
 	}
 	
-	public static boolean isParameterUseable(Annotation [] annotations){
+	public static boolean isParameterUsable(Annotation [] annotations){
         for(Annotation annotation: annotations){
             if(annotation.annotationType() == POPParameter.class){
                 POPParameter popParameter = (POPParameter) annotation;

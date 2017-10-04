@@ -3,7 +3,6 @@ package popjava.baseobject;
 import java.util.ArrayList;
 
 import popjava.buffer.POPBuffer;
-import popjava.combox.ComboxSocketFactory;
 import popjava.dataswaper.IPOPBase;
 import popjava.system.POPSystem;
 
@@ -22,7 +21,7 @@ public class POPAccessPoint implements IPOPBase {
 	/**
 	 * The list of the different access points
 	 */
-	protected ArrayList<AccessPoint> accessPoints = new ArrayList<AccessPoint>();
+	protected ArrayList<AccessPoint> accessPoints = new ArrayList<>();
 
 	/**
 	 * Create a new POPAccessPoint()
@@ -37,10 +36,7 @@ public class POPAccessPoint implements IPOPBase {
 	 */
 	public POPAccessPoint(boolean initialize) {
 		if (initialize) {
-			String localAddress = POPSystem.getHostIP();
-
-			String accessString = String.format("socket://%s://%s:0", ComboxSocketFactory.PROTOCOL, localAddress);
-			setAccessString(accessString);
+			accessPoints.addAll(POPSystem.getDefaultAccessPoint().accessPoints);
 		}
 	}
 
@@ -137,12 +133,12 @@ public class POPAccessPoint implements IPOPBase {
 	 */
 	@Override
     public String toString() {
-		String accessString = "";
-		for (int index = 0; index < accessPoints.size(); index++) {
-			accessString += accessPoints.get(index).toString() + " ";
+		StringBuilder accessString = new StringBuilder();
+		for (AccessPoint accessPoint : accessPoints) {
+			accessString.append(accessPoint.toString()).append(" ");
 		}
-		accessString = accessString.trim();
-		return accessString;
+		accessString = new StringBuilder(accessString.toString().trim());
+		return accessString.toString();
 	}
 
 	/**

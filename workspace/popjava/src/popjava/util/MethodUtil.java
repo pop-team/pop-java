@@ -1,5 +1,6 @@
 package popjava.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import popjava.annotation.POPAsyncConc;
@@ -88,6 +89,38 @@ public class MethodUtil {
             return id;
         }
 	    return defaultID;
+	}
+	
+	/**
+	 * Check if an array of annotations contains a specific type of annotation
+	 * 
+	 * @param annotations
+	 * @param clazz
+	 * @return 
+	 */
+	public static boolean hasAnnotation(Annotation[] annotations, Class<? extends Annotation> clazz) {
+		return getAnnotation(annotations, clazz) != null;
+	}
+	
+	/**
+	 * Get the annotation we are looking for
+	 * 
+	 * @param <T>
+	 * @param annotations
+	 * @param clazz
+	 * @return 
+	 */
+	@SuppressWarnings("unchecked")
+	public static<T extends Annotation> T getAnnotation(Annotation[] annotations, Class<T> clazz) {
+		if (annotations == null || clazz == null) {
+			return null;
+		}
+		for (Annotation annotation : annotations) {
+			if (annotation.annotationType().equals(clazz)) {
+				return (T) annotation;
+			}
+		}
+		return null;
 	}
 	
 	/**

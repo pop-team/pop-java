@@ -7,8 +7,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import popjava.util.LogWriter;
-
 /**
  * This class represents the request queue used in the broker-side
  * Every requests are put into this request queue and are served in FIFO order
@@ -20,16 +18,16 @@ public class RequestQueue {
 	private final Condition canPeek = lock.newCondition();
 	private final Condition canInsert = lock.newCondition();
 	
-	private List<Request> requestsConc = new ArrayList<Request>();
-	private List<Request> requestsSeq = new ArrayList<Request>();
-	private List<Request> requestsMutex = new ArrayList<Request>();
+	private List<Request> requestsConc = new ArrayList<>();
+	private List<Request> requestsSeq = new ArrayList<>();
+	private List<Request> requestsMutex = new ArrayList<>();
 	
 	private int requestType = 0;
-	private List<List<Request>> requests = new ArrayList<List<Request>>();
+	private List<List<Request>> requests = new ArrayList<>();
 	
 	private Request servingMutex = null;
 	private Request servingSequential = null;
-	private ArrayList<Request> servingConcurrent = new ArrayList<Request>();
+	private ArrayList<Request> servingConcurrent = new ArrayList<>();
 	
 	private Request availableRequest = null;
 	
@@ -270,11 +268,9 @@ public class RequestQueue {
 			
 			if(request.isMutex()){
 				//Dont serve mutex request if any concurrent request is running
-				for (int i = 0; i < servingConcurrent.size(); i++) {
-					Request currentRequest = servingConcurrent.get(i);
-					
+				for (Request currentRequest : servingConcurrent) {
 					//TODO: is the trailing isMutex check necessary? or even wrong?
-					if (currentRequest.getStatus() == Request.SERVING && currentRequest.isMutex()){
+					if (currentRequest.getStatus() == Request.SERVING && currentRequest.isMutex()) {
 						return false;
 					}
 				}

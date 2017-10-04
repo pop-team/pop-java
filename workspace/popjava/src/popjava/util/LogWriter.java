@@ -16,6 +16,7 @@ public class LogWriter {
 	
 	private static final String LOG_FOLDER_NAME = "logFolder";
 	private static final String DEFAULT_LOCATION = "/usr/local/popj/"+LOG_FOLDER_NAME;
+	private static final Configuration conf = Configuration.getInstance();
 
 	/**
 	 * Process identifier
@@ -33,13 +34,15 @@ public class LogWriter {
 	public static String prefix = "pop-java-";
 
 	static {
-		String pidTemp = ManagementFactory.getRuntimeMXBean()
-				.getName();
+		String pidTemp = ManagementFactory.getRuntimeMXBean().getName();
+		StringBuilder pidSb = new StringBuilder();
 		for (int index = 0; index < pidTemp.length(); index++) {
-			if (Character.isLetterOrDigit(pidTemp.charAt(index))){
-				pid += pidTemp.charAt(index);
+			char c = pidTemp.charAt(index);
+			if (Character.isLetterOrDigit(c)){
+				pidSb.append(c);
 			}
 		}
+		pid = pidSb.toString();
 		
 		String popLocation = POPJavaConfiguration.getPopJavaLocation();
 		
@@ -68,7 +71,7 @@ public class LogWriter {
 	}
 
 	public static synchronized void printDebug(String message){
-		if (Configuration.DEBUG) {
+		if (conf.isDebug()) {
 			System.out.println(message);
 		}
 	}
@@ -79,7 +82,7 @@ public class LogWriter {
 	 */
 	public synchronized static void writeDebugInfo(String info) {
 		
-		if (Configuration.DEBUG) {
+		if (conf.isDebug()) {
 			System.out.println(info);
 			logInfo(info);
 		}
@@ -92,7 +95,7 @@ public class LogWriter {
 	 */
 	public synchronized static void writeDebugInfo(String format, Object... args) {
 		
-		if (Configuration.DEBUG) {
+		if (conf.isDebug()) {
 			String formattedInfo = String.format(format, args);
 			System.out.println(formattedInfo);
 			logInfo(formattedInfo);
@@ -100,7 +103,7 @@ public class LogWriter {
 	}
 	
 	private static void logInfo(String info){
-		if (Configuration.DEBUG) {
+		if (conf.isDebug()) {
 			info = pid + "-" + (new Date()).toString()+":"+System.currentTimeMillis() + "-" + info;
 			info += "\r\n";
 			String path = String.format("%s%s%s.txt", logFolder, File.separator, prefix);
@@ -114,13 +117,13 @@ public class LogWriter {
 	 * @param e The exception to be logged
 	 */
 	public static void writeExceptionLog(Throwable e){
-		if(Configuration.DEBUG){
+		if(conf.isDebug()){
 			e.printStackTrace();
 		}
 		logInfo("Exception "+ e.getClass().getName()+" "+e.getMessage());
-        for(int i = 0; i < e.getStackTrace().length; i++){
-        	logInfo(e.getStackTrace()[i].getClassName()+" "+e.getStackTrace()[i].getLineNumber());
-        }
+		for (StackTraceElement trace : e.getStackTrace()) {
+			logInfo(trace.getClassName() + " " + trace.getLineNumber());
+		}
 	}
 
 	/**
@@ -155,8 +158,8 @@ public class LogWriter {
 	public static boolean deleteLogDir() {
 		File dir = new File(logFolder);
 		String[] children = dir.list();
-		for (int i = 0; i < children.length; i++) {
-			new File(dir, children[i]).delete();
+		for (String child : children) {
+			new File(dir, child).delete();
 		}
 		return true;
 	}

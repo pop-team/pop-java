@@ -2,7 +2,7 @@ package popjava.service.jobmanager.search;
 
 import java.security.cert.Certificate;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
 
 /**

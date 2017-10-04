@@ -5,9 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.InvalidParameterException;
+import java.util.Random;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -16,10 +15,11 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import popjava.combox.ssl.KeyStoreOptions;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.KeyStoreCreationOptions;
+import popjava.util.ssl.SSLUtils;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.ssl.KeyStoreDetails.KeyStoreFormat;
 
 /**
  *
@@ -29,71 +29,71 @@ public class CreateKeyStoreTest {
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optAlias() {
-		KeyStoreOptions option = new KeyStoreOptions(null, "123456", "123456", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions(null, "123456", "123456", new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optStorePassShort() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123", "123456", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123", "123456", new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void optStorePassNull() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", null, "123456", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", null, "123456", new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optKeyPassShort() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123", new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void optKeyPassNull() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", null, "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", null, new File("1"));
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optFileNull() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123456", null);
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123456", null);
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optPKCS12Pass() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "654321", "1");
-		option.setKeyStoreFormat("PKCS12");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "654321", new File("1"));
+		option.setKeyStoreFormat(KeyStoreFormat.PKCS12);
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optEmpty() {
-		KeyStoreOptions option = new KeyStoreOptions();
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions();
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optExpiration() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123456", "1");
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123456", new File("1"));
 		option.setValidUntil(null);
 		option.validate();
 	}
 	
 	@Test(expected = InvalidParameterException.class)
 	public void optKeySize() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123456", "1");
-		option.setKeySize(512);
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123456", new File("1"));
+		option.setPrivateKeySize(512);
 		option.validate();
 	}
 	
 	@Test
 	public void optFull() {
-		KeyStoreOptions option = new KeyStoreOptions("alias", "123456", "123456", "1");
-		option.setKeySize(4096);
+		KeyStoreCreationOptions option = new KeyStoreCreationOptions("alias", "123456", "123456", new File("1"));
+		option.setPrivateKeySize(4096);
 		option.setValidFor(90);
 		option.validate();
 	}
@@ -110,19 +110,20 @@ public class CreateKeyStoreTest {
 		String alias = "myself";
 		String storepass = "mypass";
 		String keypass = "mykeypass";
-		String keyStoreFile = tmpKS.getAbsolutePath(); 
+		File keyStoreFile = tmpKS; 
 		
 		LogWriter.writeDebugInfo("Creating KeyStore");
-		KeyStoreOptions options = new KeyStoreOptions(alias, storepass, keypass, keyStoreFile);
+		KeyStoreCreationOptions options = new KeyStoreCreationOptions(alias, storepass, keypass, keyStoreFile);
 		SSLUtils.generateKeyStore(options);
 		
 		LogWriter.writeDebugInfo("Setting up environment");
-		Configuration.KEY_STORE = keyStoreFile;
-		Configuration.KEY_STORE_PWD = storepass;
-		Configuration.KEY_STORE_FORMAT = "JKS";
-		Configuration.KEY_STORE_PK_PWD = keypass;
-		Configuration.KEY_STORE_PK_ALIAS = alias;
-		Configuration.TRUST_TEMP_STORE_DIR = tmpDir.getAbsolutePath();
+		Configuration conf = Configuration.getInstance();
+		conf.setSSLKeyStoreFile(keyStoreFile);
+		conf.setSSLKeyStorePassword(storepass);
+		conf.setSSLKeyStoreFormat(KeyStoreFormat.JKS);
+		conf.setSSLKeyStorePrivateKeyPassword(keypass);
+		conf.setSSLKeyStoreLocalAlias(alias);
+		conf.setSSLTemporaryCertificateDirectory(tmpDir);
 		
 		LogWriter.writeDebugInfo("Starting SSL Context");
 		// test create context
@@ -137,7 +138,9 @@ public class CreateKeyStoreTest {
 		serverSocket.setNeedClientAuth(true);
 		
 		// expected message
-		final byte[] expecteds = new byte[]{ 1, 2, 3, 2, 1 };
+		Random rnd = new Random();
+		final byte[] expecteds = new byte[1024 + rnd.nextInt(1024)];
+		rnd.nextBytes(expecteds);
 		
 		new Thread(new Runnable() {
 			@Override
@@ -152,14 +155,14 @@ public class CreateKeyStoreTest {
 		LogWriter.writeDebugInfo("Connecting client");
 		try (Socket server = socketFactory.createSocket(serverSocket.getInetAddress(), serverSocket.getLocalPort());
 			InputStream in = server.getInputStream()) {
-			byte[] actuals = new byte[5];
+			byte[] actuals = new byte[expecteds.length];
 			in.read(actuals);
 			
 			Assert.assertArrayEquals(expecteds, actuals);
 		}
 		
 		serverSocket.close();
-			
+		
 		LogWriter.writeDebugInfo("Cleanup");
 		testDir.delete();
 	}

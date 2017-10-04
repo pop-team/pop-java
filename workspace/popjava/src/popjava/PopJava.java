@@ -7,13 +7,15 @@ import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
+import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ComboxFactoryFinder;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
-import popjava.serviceadapter.POPJobManager;
+import popjava.service.jobmanager.network.AbstractNodeJobManager;
+import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
+import popjava.util.POPRemoteCaller;
 
 /**
  * 
@@ -21,9 +23,10 @@ import popjava.util.Configuration;
  *
  */
 public class PopJava {
+	
+	private static final Configuration conf = Configuration.getInstance();
 
-	/** Creates a new instance of PopJava */
-	public PopJava() {
+	private PopJava() {
 	}
 	
 	/**
@@ -34,16 +37,17 @@ public class PopJava {
 	 * @return references to the parallel object created
 	 * @throws POPException 
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass,
 			ObjectDescription objectDescription, Object ... argvs)
 			throws POPException {
-	    POPSystem.start();
+		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T)factoryProxy.newPOPObject(objectDescription, argvs);
+		return (T) factoryProxy.newPOPObject(objectDescription, argvs);
 	}
 	
 	public static Object newActive(String targetClass, Object... argvs) throws POPException, ClassNotFoundException{
-	    return newActive(Class.forName(targetClass), argvs);
+		return newActive(Class.forName(targetClass), argvs);
 	}
 	
 	/**
@@ -53,11 +57,12 @@ public class PopJava {
 	 * @return references to the parallel object created
 	 * @throws POPException
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass, Object... argvs)
 			throws POPException {
-	    POPSystem.start();
+		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T)factoryProxy.newPOPObject(argvs);
+		return (T) factoryProxy.newPOPObject(argvs);
 	}
 
 	/**
@@ -67,11 +72,12 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass,
 			POPAccessPoint accessPoint) throws POPException {
-	    POPSystem.start();
+		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T)factoryProxy.bindPOPObject(accessPoint);
+		return (T) factoryProxy.bindPOPObject(accessPoint);
 	}
 
 	/**
@@ -81,11 +87,12 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T newActiveFromBuffer(Class<T> targetClass, POPBuffer buffer)
 			throws POPException {
-	    POPSystem.start();
+		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T)factoryProxy.newActiveFromBuffer(buffer);
+		return (T) factoryProxy.newActiveFromBuffer(buffer);
 	}
 	
 	/**
@@ -134,16 +141,41 @@ public class PopJava {
 	}
 	
 	/**
+	 * Return the 
+	 * 
+	 * @param targetClass
+	 * @param networkName
+	 * @param node
+	 * @return 
+	 */
+	public static POPAccessPoint[] newTFCSearchOn(Class targetClass, String networkName, POPNetworkNode node) {
+		POPAccessPoint[] aps = new POPAccessPoint[0];
+		if (!(node instanceof AbstractNodeJobManager)) {
+			return aps;
+		}
+		
+		// cast node and connect to remote job manager
+		AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
+		POPJavaJobManager jobManager = jmNode.getJobManager();
+		
+		// make local reserach on node
+		aps = jobManager.localTFCSearch(networkName, targetClass.getCanonicalName());
+		
+		// exit since the node keep connection alives
+		jobManager.exit();
+		
+		return aps;
+	}
+	
+	/**
 	 * Open a connection to the local JobManager, this connection need to be closed with a call to .exit()
 	 * @return 
 	 */
 	private static POPJavaJobManager getLocalJobManager() {
-		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-		String protocol = Configuration.DEFAULT_PROTOCOL;
+		String protocol = conf.getDefaultProtocol();
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", 
-				protocol, POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT));
-		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);
-		return jm;
+				protocol, POPSystem.getHostIP(), conf.getJobManagerPorts()[0]));
+		return PopJava.newActive(POPJavaJobManager.class, jma);
 	}
 	
 	public static POPAccessPoint getAccessPoint(Object object){
@@ -151,16 +183,20 @@ public class PopJava {
 			throw new NullPointerException("Reference to POPJava object was null");
 		}
 		
-	    if(object instanceof POPObject){
-	        POPObject temp = (POPObject) object;
-	        return temp.getAccessPoint();
-	    }
-	    
-	    throw new RuntimeException("Object was not of type "+POPObject.class.getName());
+		if(object instanceof POPObject){
+			POPObject temp = (POPObject) object;
+			return temp.getAccessPoint();
+		}
+		
+		throw new RuntimeException("Object was not of type "+POPObject.class.getName());
 	}
 	
-	public static <T extends Object> T getThis(T object){
-	    return (T) ((POPObject) object).getThis(object.getClass());
+	@SuppressWarnings("unchecked")
+	public static <T> T getThis(T object){
+		if (object instanceof POPObject) {
+			return (T) ((POPObject) object).getThis(object.getClass());
+		}
+		return null;
 	}
 	
 	/**
@@ -188,12 +224,20 @@ public class PopJava {
 	 * @return
 	 */
 	public static boolean isPOPJavaActive(){
-	    try {
-	        popjava.javaagent.POPJavaAgent.getInstance();
-	    } catch (Exception e) {
-	        return false;
-	    }
-	    
-	    return true;
+		try {
+			popjava.javaagent.POPJavaAgent.getInstance();
+		} catch (Exception e) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Return the remote source for the call to this method
+	 * @return 
+	 */
+	public static POPRemoteCaller getRemoteCaller() {
+		return Broker.getRemoteCaller();
 	}
 }

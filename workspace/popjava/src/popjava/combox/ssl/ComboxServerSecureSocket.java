@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import popjava.util.ssl.SSLUtils;
 import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;

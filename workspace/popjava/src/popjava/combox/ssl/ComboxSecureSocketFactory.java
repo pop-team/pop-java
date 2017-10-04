@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import popjava.util.ssl.SSLUtils;
 import javax.net.ssl.SSLContext;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ConnectionProtocol;
@@ -56,6 +57,9 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 
 	@Override
 	public boolean isAvailable() {
+		if (!super.isAvailable()) {
+			return false;
+		}
 		try {
 			SSLContext context = SSLUtils.getSSLContext();
 			return true;

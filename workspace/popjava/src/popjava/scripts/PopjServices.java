@@ -19,8 +19,9 @@ public class PopjServices {
 
 	public static void main(String[] args) throws InterruptedException {
 
-		int port = 2711;
-		String config = Configuration.DEFAULT_JM_CONFIG_FILE;
+		Configuration conf = Configuration.getInstance();
+		Integer port = null;
+		String config = conf.getSystemJobManagerConfig().getAbsolutePath();
 
 		List<String> argl = new ArrayList<>(Arrays.asList(args));
 		for (Iterator<String> itr = argl.iterator(); itr.hasNext();) {
@@ -48,8 +49,18 @@ public class PopjServices {
 		}
 
 		try {
-			final POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, "localhost:" + port, config);
-			final POPAccessPoint jm_ap = PopJava.getAccessPoint(jm);
+			POPJavaJobManager jm;
+			if (port != null) {
+				jm = PopJava.newActive(POPJavaJobManager.class, "localhost:" + port, config);
+			} else {
+				String[] protocols = conf.getJobManagerProtocols();
+				int[] ports = conf.getJobManagerPorts();
+				for (int i = 0; i < protocols.length; i++) {
+					protocols[i] = protocols[i] + ":" + ports[i];
+				}
+				jm = PopJava.newActive(POPJavaJobManager.class, "localhost", protocols);
+			}
+			POPAccessPoint jm_ap = PopJava.getAccessPoint(jm);
 			System.out.println("[JM] " + jm_ap.toString());
 			jm.start();
 			jm.stayAlive();

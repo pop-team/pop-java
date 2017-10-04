@@ -1,12 +1,12 @@
-package popjava.combox;
+package popjava.combox.socket;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 
 import popjava.buffer.POPBuffer;
+import popjava.combox.ComboxAllocate;
 import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 

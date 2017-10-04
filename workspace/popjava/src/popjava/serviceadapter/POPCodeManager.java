@@ -1,13 +1,10 @@
 package popjava.serviceadapter;
-import java.util.HashMap;
-import java.util.Map;
 
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
-import popjava.base.Semantic;
 import popjava.dataswaper.POPString;
-import popjava.util.LogWriter;
+
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the CodeMgr parallel object of POP-C++

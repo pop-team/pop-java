@@ -7,8 +7,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Enumeration;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,6 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import popjava.combox.socket.ComboxSocketFactory;
 import popjava.combox.ssl.ComboxSecureSocketFactory;
 import popjava.system.POPJavaConfiguration;
 import popjava.system.XMLWorker;
@@ -31,12 +36,14 @@ import popjava.util.LogWriter;
  */
 
 public class ComboxFactoryFinder {
-	private ConcurrentHashMap<String, ComboxFactory> comboxFactoryList = new ConcurrentHashMap<String, ComboxFactory>();
+	private final Map<String, ComboxFactory> comboxFactoryList = new HashMap<>();
 	private URLClassLoader urlClassLoader = null;
 	private static ComboxFactoryFinder currentInstance = null;
 	private final String PackageNodeName = "Package";
 	private final String JarAttributeName = "JarFile";
 	private final String ComboxFactoryNodeName = "ComboxFactory";
+	
+	private final Configuration conf = Configuration.getInstance();
 
 	/**
 	 * Default constructor
@@ -46,12 +53,8 @@ public class ComboxFactoryFinder {
 		ComboxSocketFactory comboxSocketFactory = new ComboxSocketFactory();
 		ComboxSecureSocketFactory comboxSecureSocketFactory = new ComboxSecureSocketFactory();
 		
-		if (comboxSocketFactory.isAvailable()) {
-			comboxFactoryList.put(comboxSocketFactory.getComboxName(), comboxSocketFactory);
-		}
-		if (comboxSecureSocketFactory.isAvailable()) {
-			comboxFactoryList.put(comboxSecureSocketFactory.getComboxName(), comboxSecureSocketFactory);
-		}
+		comboxFactoryList.put(comboxSocketFactory.getComboxName(), comboxSocketFactory);
+		comboxFactoryList.put(comboxSecureSocketFactory.getComboxName(), comboxSecureSocketFactory);
 		
 		String pluginLocation = POPJavaConfiguration.getPopPluginLocation();
 		if (pluginLocation.length() > 0) {
@@ -125,14 +128,10 @@ public class ComboxFactoryFinder {
 					}
 				}
 			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (ParserConfigurationException | IOException | SAXException e) {
 			e.printStackTrace();
 		}
-	}
+    }
 
 	/**
 	 * Find a specific factory with the given name
@@ -141,10 +140,12 @@ public class ComboxFactoryFinder {
 	 */
 	public ComboxFactory findFactory(String factoryName) {
 		if (factoryName == null || factoryName.isEmpty())
-			factoryName = Configuration.DEFAULT_PROTOCOL;
+			factoryName = conf.getDefaultProtocol();
 		factoryName = factoryName.toLowerCase();
-		if (comboxFactoryList.containsKey(factoryName)) {
-			return comboxFactoryList.get(factoryName);
+		
+		ComboxFactory factory = comboxFactoryList.get(factoryName);
+		if (factory != null && factory.isAvailable()) {
+			return factory;
 		}
 		return null;
 	}
@@ -156,6 +157,20 @@ public class ComboxFactoryFinder {
 	public int getFactoryCount() {
 		return comboxFactoryList.size();
 	}
+	
+	/**
+	 * Get all available factories at a given instant
+	 * @return An array containing all available factories
+	 */
+	public ComboxFactory[] getAvailableFactories() {
+		List<ComboxFactory> factories = new ArrayList<>();
+		for (ComboxFactory factory : comboxFactoryList.values()) {
+			if (factory.isAvailable()) {
+				factories.add(factory);
+			}
+		}
+		return factories.toArray(new ComboxFactory[0]);
+	}
 
 	/**
 	 * Get the factory at the specified index
@@ -165,12 +180,11 @@ public class ComboxFactoryFinder {
 	public ComboxFactory get(int index) {
 		if (index < 0 || index >= getFactoryCount())
 			return null;
-		Enumeration<String> keys = comboxFactoryList.keys();
+		Set<String> keys = comboxFactoryList.keySet();
 		String key = "";
 		int currentIndex = 0;
-		while (keys.hasMoreElements() && currentIndex <= index) {
-			currentIndex++;
-			key = keys.nextElement();
+		for (Iterator<String> iterator = keys.iterator(); iterator.hasNext() && currentIndex <= index; currentIndex++) {
+			key = iterator.next();
 		}
 		return comboxFactoryList.get(key);
 	}
@@ -195,20 +209,9 @@ public class ComboxFactoryFinder {
 						comboxFactory);
 			}
 			
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+		} catch (ClassNotFoundException | IllegalArgumentException | InstantiationException 
+			| IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
+			LogWriter.writeExceptionLog(e);
 		}
 
 		return comboxFactory;

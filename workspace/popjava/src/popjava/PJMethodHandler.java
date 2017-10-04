@@ -23,11 +23,10 @@ import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
-import popjava.broker.Broker;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ssl.POPTrustManager;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
@@ -50,8 +49,10 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 
 	private AtomicBoolean setup = new AtomicBoolean(false);
 	
-	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<Method, Annotation[][]>();
+	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<>();
 
+	private final Configuration conf = Configuration.getInstance();
+	
 	/**
 	 * Associate an POPObject with this handler
 	 * @param popObject	The POPObject to associate
@@ -104,7 +105,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					Annotation [][] annotations = constructor.getParameterAnnotations();
 					for (int index = 0; index < argvs.length; index++) {
 						if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) && 
-						        Util.isParameterUseable(annotations[index])){
+								Util.isParameterUsable(annotations[index])){
 							popBuffer.putValue(argvs[index], parameterTypes[index]);
 						}
 					}
@@ -115,7 +116,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					
 					for (int index = 0; index < parameterTypes.length; index++) {
 						if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-						        Util.isParameterUseable(annotations[index])
+								Util.isParameterUsable(annotations[index])
 								&&
 								!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 							responseBuffer.deserializeReferenceObject(parameterTypes[index],
@@ -141,7 +142,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		
 		POPClass annotation = targetClass.getAnnotation(POPClass.class);
 		
-		if(Configuration.ASYNC_CONSTRUCTOR && (annotation == null || annotation.useAsyncConstructor())){
+		if(conf.isAsyncConstructor() && (annotation == null || annotation.useAsyncConstructor())){
 			POPSystem.startAsyncConstructor(constructorRunnable);
 		}else{
 			constructorRunnable.run();
@@ -169,11 +170,11 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @param m			The method to be called
 	 * @param proceed	The method to proceed the call
 	 * @param argvs		Arguments of the methods
-	 * @return	Any object if the method has a return value
-	 * @throws	Throw any exception if the method throws any exception
+	 * @return Any object if the method has a return value
+	 * @throws Throwable Throw any exception if the method throws any exception
 	 */
 	@Override
-    public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
+	public Object invoke(Object self, Method m, Method proceed, Object[] argvs)
 			throws Throwable {
 		//TODO: Busy waiting, bad, remove with lock?
 		while(!setup.get()){
@@ -200,7 +201,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		MethodInfo info = popObjectInfo.getMethodInfo(m);
 		
 		if(info.getClassId() == 0 && info.getMethodId() == 0){
-		    throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "The methods "+m.getName()+" has no POP annotation");
+			throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "The methods "+m.getName()+" has no POP annotation");
 		}
 
 		m.setAccessible(true);
@@ -221,7 +222,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		
 		for (int index = 0; index < argvs.length; index++) {
 			if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.OUT) &&
-			        Util.isParameterUseable(annotations[index])){
+					Util.isParameterUsable(annotations[index])){
 				popBuffer.putValue(argvs[index], parameterTypes[index]);
 			}
 		}
@@ -230,13 +231,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		if ((methodSemantics & Semantic.SYNCHRONOUS) != 0) {
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			
-		    popResponse(responseBuffer, messageHeader.getRequestID());
+			popResponse(responseBuffer, messageHeader.getRequestID());
 			
 			//Recover the data from the calling method. The called method can
 			//Modify the content of an array and it gets copied back in here
 			for (int index = 0; index < parameterTypes.length; index++) {
 				if(Util.isParameterNotOfDirection(annotations[index], POPParameter.Direction.IN) &&
-				        Util.isParameterUseable(annotations[index])
+						Util.isParameterUsable(annotations[index])
 						&&
 						!(argvs[index] instanceof POPObject && !Util.isParameterOfAnyDirection(annotations[index]))){
 					responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
@@ -263,13 +264,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				}
 			}
 		}
-		
-		
-		for (int index = 0; index < argvs.length; index++) {
-			if(argvs[index] instanceof POPObject){
-				POPObject object = (POPObject)argvs[index];
+
+
+		for (Object argv : argvs) {
+			if (argv instanceof POPObject) {
+				POPObject object = (POPObject) argv;
 				LogWriter.writeDebugInfo("Closing POPObject again");
-				if(object.isTemporary()){
+				if (object.isTemporary()) {
 					object.exit();
 				}
 			}
@@ -311,15 +312,15 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	}
 
 	private int hashMethod(Method m){
-		String hash = m.getName();
+		StringBuilder hash = new StringBuilder(m.getName());
 		for(Class<?> type: m.getParameterTypes()){
-			hash += type.getName();
+			hash.append(type.getName());
 		}
 		
-		return hash.hashCode();
+		return hash.toString().hashCode();
 	}
 	
-	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<Integer, Method>();
+	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<>();
 	private Set<Integer> methodMisses = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
 	
 	/**
@@ -404,7 +405,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * Format a string of this object
 	 */
 	@Override
-    public String toString() {
+	public String toString() {
 		return getClass().getName() + ":" + popAccessPoint.toString();
 	}
 }

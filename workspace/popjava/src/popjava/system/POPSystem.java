@@ -7,11 +7,11 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -32,14 +32,12 @@ import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
-import popjava.combox.ComboxSocketFactory;
 import popjava.service.jobmanager.POPJavaAppService;
-import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.serviceadapter.POPAppService;
-import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.RuntimeDirectoryThread;
 import popjava.util.SystemUtil;
 import popjava.util.Util;
 import popjava.util.Util.OSType;
@@ -69,8 +67,10 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint appServiceAccessPoint = new POPAccessPoint();
 	
+	private static final Configuration conf = Configuration.getInstance();
+	
 	public static void writeLog(String log){
-		if(!Configuration.DEBUG){
+		if(!conf.isDebug()){
 			System.out.println(log);
 		}
 		LogWriter.writeDebugInfo(log);
@@ -195,7 +195,7 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint getDefaultAccessPoint() {
 		POPAccessPoint parrocAccessPoint = new POPAccessPoint();
-		parrocAccessPoint.setAccessString(String.format("socket://%s://127.0.0.1:0", ComboxSocketFactory.PROTOCOL));
+		parrocAccessPoint.setAccessString(String.format("%s://%s:0", conf.getDefaultProtocol(), getHostIP()));
 		return parrocAccessPoint;
 	}
 
@@ -204,8 +204,7 @@ public class POPSystem {
 	 * @return	a new empty object description
 	 */
 	public static ObjectDescription getDefaultOD() {
-		ObjectDescription od = new ObjectDescription();
-		return od;
+		return new ObjectDescription();
 	}
 
 	/**
@@ -246,21 +245,18 @@ public class POPSystem {
 	
 	/**
 	 * Entry point for the application scope initialization
-	 * @param argvs	Any arguments to pass to the initialization
+	 * @param args	Any arguments to pass to the initialization
 	 * @return	true if the initialization is succeed
 	 * @throws POPException thrown is any problems occurred during the initialization
 	 */
-	public static String[] initialize(String ... args){
+	public static String[] initialize(String... args){
 		asyncConstructorExecutor = Executors.newFixedThreadPool(20);
-		ArrayList<String> argvList = new ArrayList<String>();
-		
-		for (String str : args){
-			argvList.add(str);
-		}
+		ArrayList<String> argvList = new ArrayList<>();
+		argvList.addAll(Arrays.asList(args));
 		
 		initialize(argvList);
 		
-		return argvList.toArray(new String[0]);
+		return argvList.toArray(new String[argvList.size()]);
 	}
 	
 	private static boolean isStarted = false;
@@ -305,7 +301,7 @@ public class POPSystem {
                 POPJavaConfiguration.getPopJavaJar(),
                 getNeededClasspath());
         
-        if(Configuration.CONNECT_TO_JAVA_JOBMANAGER){
+        if(conf.isConnectToJavaJobmanager()){
         	//jobmanager = PopJava.newActive(POPJavaJobManager.class, new POPAccessPoint("localhost:"+POPJobManager.DEFAULT_PORT));
         }
         
@@ -327,7 +323,7 @@ public class POPSystem {
         }
     }    
 
-	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), POPJobManager.DEFAULT_PORT);
+	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), conf.getJobManagerPorts()[0]);
 	private static String codeconf;
 	private static String appservicecode;
 	private static String proxy;
@@ -346,10 +342,25 @@ public class POPSystem {
 			jobservice = tempJobservice;
 		}
 		
-		codeconf = Util.removeStringFromList(argvList, "-codeconf=");		
+		codeconf = Util.removeStringFromList(argvList, "-codeconf=");
 		appservicecode = Util.removeStringFromList(argvList, "-appservicecode=");
 		proxy = Util.removeStringFromList(argvList, "-proxy=");
         appservicecontact = Util.removeStringFromList(argvList, "-appservicecontact=");
+		
+		String userConfig = Util.removeStringFromList(argvList, "-configfile=");
+		if (userConfig != null) {
+			File config = new File(userConfig);
+			try {
+				conf.load(config);
+			} catch(IOException e) {
+				LogWriter.writeDebugInfo("[Init] can't access user config '%s'", config.getAbsolutePath());
+			}
+		}
+		
+		// like Broker, the main has its own directory
+		// create directories and setup their cleanup
+		RuntimeDirectoryThread runtimeCleanup = new RuntimeDirectoryThread(Util.generateUUID());
+		runtimeCleanup.addCleanupHook();
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){
@@ -364,7 +375,7 @@ public class POPSystem {
 				url = String.format("%s -proxy=%s", appservicecode, proxy);
 			}
 			
-			if(Configuration.CONNECT_TO_POPCPP && 
+			if(conf.isConnectToPOPcpp() && 
 			        (appservicecode.contains(" ") || new File(appservicecode).exists())){
 				try{
 					return createAppCoreService(url);
@@ -405,9 +416,14 @@ public class POPSystem {
 		fileconf = fileconf.trim();
 		XMLWorker xw = new XMLWorker();
 		
-		if(!new File(POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd").exists()){
-			LogWriter.printDebug("Could not open objectmap.xsd at "+POPJavaConfiguration.getPopJavaLocation());
-			return false;
+		String mapXsd = POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd";
+		
+		if(!new File(mapXsd).exists()) {
+			mapXsd = "etc/objectmap.xsd";
+			if (!new File(mapXsd).exists()) {
+				LogWriter.printDebug("Could not open objectmap.xsd at "+mapXsd);
+				return false;
+			}
 		}
 		
 		// check if file exists, if we do this we won't abord uselessly
@@ -416,7 +432,7 @@ public class POPSystem {
 			return false;
 		}
 		
-		if(!xw.isValid(fileconf, POPJavaConfiguration.getPopJavaLocation()+"/etc/objectmap.xsd")){
+		if(!xw.isValid(fileconf, mapXsd)){
 			throw new POPException(0, "Object map not valid");
 		}
 		
@@ -469,11 +485,7 @@ public class POPSystem {
 					appCoreService.registerCode(objectname, platform, codefile);
 				}
 			}
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (ParserConfigurationException | IOException | SAXException e) {
 			e.printStackTrace();
 		}
 		return true;
@@ -491,19 +503,17 @@ public class POPSystem {
 		int maxUsignedByte = 255;
 		byte[] bytes = new byte[255];
 		random.nextBytes(bytes);
-		String randString = "";
+		StringBuilder randString = new StringBuilder();
 		for (int i = 0; i < 255; i++) {
 			char randChar = (char) (((double) (bytes[i] + 128) / maxUsignedByte) * 25 + 97);
-			randString += Character.toString(randChar);
+			randString.append(randChar);
 		}
 
 		ObjectDescription objectDescription = POPSystem.getDefaultOD();
 		objectDescription.setHostname(POPSystem.getHostIP());
 		objectDescription.setCodeFile(codelocation);
-		
-		POPAppService appService = PopJava.newActive(POPAppService.class, objectDescription, randString, false, codelocation);
-				
-		return appService;
+
+		return PopJava.newActive(POPAppService.class, objectDescription, randString.toString(), false, codelocation);
 	}
 	
 	public static void end(){

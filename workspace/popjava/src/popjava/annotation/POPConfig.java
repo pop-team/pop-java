@@ -9,12 +9,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface POPConfig {
 
-	public enum Type{
+	enum Type{
 		URL,
 		CONNECTION,
 		CONNECTION_PWD,
 		ACCESS_POINT,
-		LOCAL_JVM
+		LOCAL_JVM,
+		PROTOCOLS
 	}
 	
 	Type value();

@@ -1,7 +1,8 @@
 package popjava.util;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -15,31 +16,39 @@ import java.util.List;
  */
 public class WatchDirectory implements Runnable {
 
-	public static abstract class WatchMethod {
+	public static class WatchMethod {
 		public void create(String s) {}
 		public void delete(String s) {}
 		public void modify(String s) {}
 	}
 	
-	private Path myDir;
+	public static WatchMethod EMPTY = new WatchMethod();
+	
+	private Path watchedDir;
 	private WatchService watcher;
 	private WatchMethod method;
 	
 	private boolean running = true;
 	
-	public WatchDirectory(String path, WatchMethod method) {
+	public WatchDirectory(Path path, WatchMethod method) {
 		try {
-			myDir = Paths.get(path);
-			watcher = myDir.getFileSystem().newWatchService();
-			myDir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, 
+			watchedDir = path;
+			watcher = watchedDir.getFileSystem().newWatchService();
+			watchedDir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, 
 				StandardWatchEventKinds.ENTRY_DELETE,
 				StandardWatchEventKinds.ENTRY_MODIFY);
 			this.method = method;
+			LogWriter.writeDebugInfo("[WatchDirectory] Watching '%s'.", path);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogWriter.writeDebugInfo("[WatchDirectory] Failed to start watcher services: %s", e.getMessage());
 		}
 	}
 
+	public Path getWatchedDir() {
+		return watchedDir;
+	}
+
+	@Override
 	public void run() {
 		while (running) {
 			try {
@@ -60,6 +69,19 @@ public class WatchDirectory implements Runnable {
 			} catch (Exception e) {
 				LogWriter.writeDebugInfo("[WatchDirectory] Error: " + e.toString());
 			}
+		}
+	}
+	
+	public void stop() {
+		running = false;
+		method = WatchDirectory.EMPTY;
+		// unlock watcher event listener
+		try {
+			LogWriter.writeDebugInfo("[WatchDirectory] Stopped watching '%s'.", watchedDir.toString());
+			Path stopWatcher = Files.createTempFile(watchedDir, "stopwatcher.", ".tmp");
+			Files.deleteIfExists(stopWatcher);
+		} catch(IOException e) {
+			LogWriter.writeDebugInfo("[WatchDirectory] Thread may have not stopped correctly: %s", e.toString());
 		}
 	}
 }

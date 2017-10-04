@@ -271,3 +271,4 @@ repository. In order to build, commit, and publish a new version of the API
 reference, it suffices to execute it with no arguments::
 
    ./scripts/api-reference
+

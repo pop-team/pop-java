@@ -43,7 +43,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
      */
     private final ClassPool classPool;
     
-    private final Set<String> IGNORED = new HashSet<String>();
+    private final Set<String> IGNORED = new HashSet<>();
     
     /**
      * Constructor of the POPJavaAgent,
@@ -371,12 +371,10 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     return isPOPClass(superClass);
                 }
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }catch (NotFoundException e) {
+        } catch (ClassNotFoundException | NotFoundException e) {
             e.printStackTrace();
         }
-        
+
         return false;
     }
     
@@ -391,19 +389,17 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     return isPOPClass(superClass);
                 }
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }catch (NotFoundException e) {
+        } catch (ClassNotFoundException | NotFoundException e) {
             e.printStackTrace();
         }
-        
+
         return false;
     }
     
     /**
      * Returns true if this class has the @POPClass annotation and its super class
      * is the java.lang.Object class
-     * @param cc
+     * @param rawClass
      * @return
      */
     private boolean classNeedsSuperclass(final CtClass rawClass){

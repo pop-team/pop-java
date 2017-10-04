@@ -20,7 +20,6 @@ import java.util.concurrent.Executors;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -28,6 +27,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import popjava.system.POPJavaConfiguration;
+import popjava.util.Configuration;
 import popjava.util.SystemUtil;
 
 /**
@@ -41,7 +41,6 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	private static final String salt = "POPSALT";
 	
 	public static final String SUCCESS = "OK";
-	public static final int POP_JAVA_DEAMON_PORT = 43424;
 	private ServerSocket serverSocket;
 	private int port;
 	private String password = "";
@@ -63,7 +62,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	/**
 	 * Mode has is Cipher.ENCRYPT_MODE o 
 	 * @param password
-	 * @param mode
+	 * @param encrypt
 	 * @return
 	 */
 	public static Cipher createKey(String salt, String password, boolean encrypt){
@@ -86,7 +85,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	}
 	
 	public POPJavaDeamon(String password){
-		this(password, POP_JAVA_DEAMON_PORT);
+		this(password, Configuration.getInstance().getPopJavaDeamonPort());
 	}
 	
 	public POPJavaDeamon(String password, int port){
@@ -110,13 +109,13 @@ public class POPJavaDeamon implements Runnable, Closeable{
 		}
 		
 		private String createSecret(){
-			String secret = "";
+			StringBuilder secret = new StringBuilder();
 			
 			for(int i = 0;i < SALT_LENGTH; i++){
-				secret += (char)(rand.nextInt(26) + 'a');
+				secret.append((char) (rand.nextInt(26) + 'a'));
 			}
 			
-			return secret;
+			return secret.toString();
 		}
 		
 		@Override
@@ -163,7 +162,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 				
 				int commandLength = Integer.parseInt(reader.readLine());
 								
-				List<String> commands = new ArrayList<String>();
+				List<String> commands = new ArrayList<>();
 				
 				System.out.println("Get commands "+commandLength);
 				

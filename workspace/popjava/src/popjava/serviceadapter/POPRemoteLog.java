@@ -20,7 +20,7 @@ public class POPRemoteLog extends POPServiceBase {
 	
 	/**
 	 * Constructor of POPAppService with parameters
-	 * @param challange	Challenge string to stop the service
+	 * @param challenge	Challenge string to stop the service
 	 */
 	@POPObjectDescription(id = 11)
 	public POPRemoteLog(String challenge) {

@@ -18,4 +18,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface POPAsyncSeq {
     int id() default -1;
+	boolean localhost() default false;
 }

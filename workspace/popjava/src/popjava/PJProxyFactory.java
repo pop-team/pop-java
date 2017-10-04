@@ -8,7 +8,6 @@ import javassist.util.proxy.ProxyObject;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.base.POPObject;
-import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
@@ -154,11 +153,11 @@ public class PJProxyFactory extends ProxyFactory {
 				Class<?> c = createClass();
 				Object result = c.newInstance();
 				((ProxyObject) result).setHandler(methodHandler);
-								
+				
 				return result;
 			}
 		} catch(POPException e){
-		    throw e;
+			throw e;
 		} catch (Exception e) {
 			LogWriter.writeExceptionLog(e);
 		}
@@ -207,7 +206,7 @@ public class PJProxyFactory extends ProxyFactory {
 			this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
 			result = (POPObject) c.newInstance();
-			((ProxyObject) result).setHandler(methodHandler);			
+			((ProxyObject) result).setHandler(methodHandler);	
 			if (!result.deserialize(buffer)) {
 				LogWriter.writeDebugInfo("bad deserialize");
 				POPException.throwObjectBindException(methodHandler

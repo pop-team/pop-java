@@ -4,20 +4,18 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import popjava.baseobject.ConnectionProtocol;
 
 import popjava.baseobject.ConnectionType;
-import popjava.util.Configuration;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)
 public @interface POPObjectDescription {
 	
-	public static final String LOCAL_DEBUG_URL = "localhost-debug";
+	String LOCAL_DEBUG_URL = "localhost-debug";
 	
 	/**
 	 * <url> or <url>:<port> where the object should be.
-	 * If multiple procol are active you should also define {@link #protocol()}
+	 * If multiple procol are active you should also define {@link #protocols()}
 	 * @return 
 	 */
 	String url() default "";
@@ -42,10 +40,19 @@ public @interface POPObjectDescription {
 	boolean localJVM() default false;
 	
 	/**
-	 * Set the protocol for this connection.
+	 * Protocols this object should use.
+	 * Options:
+	 *   ""
+	 *   "protocol"
+	 *   "protocol:port"
+	 *   {"protocol1", "protocol2"}
+	 *   {"protocol1:port1", "protocol2"}
+	 *   {"protocol1:port1", "protocol2:port2"}
+	 * 
+	 * If nothing is specified all available protocols will be used.
 	 * @return 
 	 */
-	ConnectionProtocol protocol() default ConnectionProtocol.ALL;
+	String[] protocols() default "";
 	
 	/**
 	 * A network available on this machine
@@ -59,7 +66,7 @@ public @interface POPObjectDescription {
 	 *  direct: connect directly (ex SSH) to the remote machine
 	 * @return 
 	 */
-	String connector() default Configuration.DEFAULT_CONNECTOR;
+	String connector() default "";
 	
 	/**
 	 * Power requested

@@ -19,14 +19,19 @@ import junit.localtests.parameters.ParameterTests;
 import junit.localtests.readerWriter.ReaderWriterTest;
 import junit.localtests.referencePassing.ReferenceTest;
 import junit.localtests.security.CreateKeyStoreTest;
+import junit.localtests.security.MethodAccessTest;
 import junit.localtests.subclassReturns.SubclassingTest;
+import junit.localtests.protocols.ProtocolsTests;
+import junit.localtests.serializable.JavaSerializableTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses( { CallBackTest.class, IntegerTest.class, AnnotationsTest.class, ReaderWriterTest.class,
 	TestConcurrency.class, DeamonTest.class, EnumTests.class,
 	ArraysTest.class, ParameterTests.class,
 	BigDataTests.class, SubclassingTest.class, ReferenceTest.class, JVMObjectTest.class, NestedPOPCreation.class,
-	CreateKeyStoreTest.class, POPJavaJobManagerConfigurationTest.class, POPJavaJobManagerLiveConfigurationTest.class})
+	CreateKeyStoreTest.class, MethodAccessTest.class,
+	POPJavaJobManagerConfigurationTest.class, POPJavaJobManagerLiveConfigurationTest.class,
+	ProtocolsTests.class, JavaSerializableTest.class})
 public class LocalTests {
 
 }

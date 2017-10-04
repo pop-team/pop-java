@@ -7,10 +7,10 @@ package popjava.baseobject;
  */
 public enum ConnectionType {
 	SSH("SSH"),
-	DEAMON("POP-Java deamon"),
+	DAEMON("POP-Java daemon"),
 	ANY("Any");
-	
-	private ConnectionType(String name){
+
+	ConnectionType(String name){
 		this.name = name;
 	}	
 	

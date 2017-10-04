@@ -15,6 +15,7 @@ import popjava.service.jobmanager.network.NodeDirect;
 public class POPConnectorDirect extends POPConnectorBase {
 
 	public static final String IDENTITY = "direct";
+	public static final String OD_SERVICE_PORT = "_service-port";
 
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
@@ -26,12 +27,12 @@ public class POPConnectorDirect extends POPConnectorBase {
 
 		// set od hostname to connect directly
 		od.setHostname(node.getHost());
-		od.setValue("port", node.getPort() + "");
+		od.setValue(OD_SERVICE_PORT, node.getPort() + "");
 		od.setConnectionType(ConnectionType.SSH);
 		od.setConnectionSecret(node.getDaemonSecret());
 		// use daemon if necessary
 		if (node.isDaemon()) {
-			od.setConnectionType(ConnectionType.DEAMON);
+			od.setConnectionType(ConnectionType.DAEMON);
 		}
 
 		// do n times on the same node

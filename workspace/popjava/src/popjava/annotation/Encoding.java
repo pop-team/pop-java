@@ -13,7 +13,7 @@ public enum Encoding {
     
     private String name;
     
-    private Encoding(String name){
+    Encoding(String name){
         this.name = name;
     }
     

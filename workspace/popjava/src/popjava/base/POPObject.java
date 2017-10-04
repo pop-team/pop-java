@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 import javassist.util.proxy.ProxyObject;
-import popjava.PJMethodHandler;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
@@ -26,9 +25,8 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ssl.SSLUtils;
+import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
-import popjava.interfacebase.Interface;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
@@ -45,9 +43,9 @@ public class POPObject implements IPOPBase {
 	protected ObjectDescription od = new ObjectDescription();
 	private String className = "";
 	private final int startMethodIndex = 10;
-	private ConcurrentHashMap<MethodInfo, Integer> semantics = new ConcurrentHashMap<MethodInfo, Integer>();
-	private ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<MethodInfo, Method>();
-	private ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<MethodInfo, Constructor<?>>();
+	private final ConcurrentHashMap<MethodInfo, Integer> semantics = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<>();
 
 	private boolean temporary = false;
 	
@@ -65,7 +63,8 @@ public class POPObject implements IPOPBase {
 		loadClassAnnotations();
 		initializePOPObject();
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	private Class<? extends POPObject> getRealClass(){
 		if(this instanceof ProxyObject){
 			return (Class<? extends POPObject>) getClass().getSuperclass();
@@ -101,7 +100,7 @@ public class POPObject implements IPOPBase {
 			od.setConnectionType(objectDescription.connection());
 			od.setConnectionSecret(objectDescription.connectionSecret());
 			od.setEncoding(objectDescription.encoding().toString());
-			od.setProtocol(objectDescription.protocol().getName());
+			od.setProtocols(objectDescription.protocols());
 			od.setNetwork(objectDescription.network());
 			od.setConnector(objectDescription.connector());
 			od.setPower(objectDescription.power(), objectDescription.minPower());
@@ -164,6 +163,18 @@ public class POPObject implements IPOPBase {
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
 									" was not of type Boolean for Annotation LOCAL_JVM");
+						}
+						break;
+					case PROTOCOLS:
+						if (argvs[i] instanceof String) {
+							od.setProtocols(new String[] { (String) argvs[i] });
+						}
+						else if (argvs[i] instanceof String[]) {
+							od.setProtocols((String[]) argvs[i]);
+						}
+						else {
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
+									" was not of type String or String[] for Annotation PROTOCOLS");
 						}
 						break;
 					}
@@ -243,7 +254,6 @@ public class POPObject implements IPOPBase {
 
 	/**
 	 * Initialize the method identifiers of a POPObject
-	 * @param c	the class to initialize
 	 */
 	protected final void initializePOPObject() {
 		if (generateClassId){
@@ -359,14 +369,13 @@ public class POPObject implements IPOPBase {
 	 * @throws NoSuchMethodException	thrown is the method is not found
 	 */
 	public Method getMethodByInfo(MethodInfo info) throws NoSuchMethodException {
-		Method method = null;
-		for(MethodInfo key : methodInfos.keySet()){
-			if (key.equals(info)) {
-				method = findSuperMethod(methodInfos.get(key));
-				break;
-			}
-		}
-		if (method == null){
+		Method method = methodInfos.get(info);
+		
+		/*if (method != null) {
+			method = findSuperMethod(method);
+		}*/
+		
+		if (method == null) {
 			for(MethodInfo key : methodInfos.keySet()){
 				System.out.println(key.getClassId()+" "+key.getMethodId()+" "+methodInfos.get(key).getName());
 			}
@@ -377,12 +386,13 @@ public class POPObject implements IPOPBase {
 		return method;
 	}
 
-	/**
+	// XXX What does this actually do?!
+	/*
 	 * Retrieve a specific method in the super class
 	 * @param method	informations about the method to retrieve
 	 * @return	A method object that represent the method found in the parallel class or null
 	 */
-	private Method findSuperMethod(Method method) {
+	/*private Method findSuperMethod(Method method) {
 		String findingSign = ClassUtil.getMethodSign(method);
 		Class<?> findingClass = method.getDeclaringClass();
 		Method result = method;
@@ -399,7 +409,7 @@ public class POPObject implements IPOPBase {
 			}
 		}
 		return result;
-	}
+	}*/
 
 	/**
 	 * Retrieve a constructor by its informations
@@ -642,9 +652,7 @@ public class POPObject implements IPOPBase {
 				semantics.put(methodInfo, semanticId);
 			}
 			
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
 	}
@@ -665,9 +673,7 @@ public class POPObject implements IPOPBase {
 			semantics.put(info, Semantic.CONSTRUCTOR
 					| Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
 			
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
 	}
@@ -757,27 +763,33 @@ public class POPObject implements IPOPBase {
 	public void makeTemporary(){
 		temporary = true;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public <T extends POPObject> T makePermanent(){
 		temporary = false;
-		return (T)this;
+		return (T) this;
 	}
 	
 	public void setBroker(Broker broker){
 	    this.broker = broker;
 	}
-	
-	public <T extends Object> T getThis(Class<T> myClass){
+
+	public <T> T getThis(Class<T> myClass){
+		return getThis();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getThis(){
 		if(me == null){
 			me = PopJava.newActive(getClass(), getAccessPoint());
-			
+
 			//After establishing connection with self, artificially decrease connection by one
 			//This is to avoid the issue of never closing objects with reference to itself
 			if(me != null && broker != null){
-			    broker.onCloseConnection("SelfReference");
+				broker.onCloseConnection("SelfReference");
 			}
 		}
-		
+
 		return (T) me;
 	}
 	

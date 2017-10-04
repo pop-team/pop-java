@@ -4,7 +4,6 @@ import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
-import popjava.system.POPSystem;
 
 @POPClass(isDistributable = false)
 public class TestJobMgr {

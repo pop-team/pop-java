@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import popjava.base.POPObject;
 
 public class JARReader {
 	private String file;
@@ -23,7 +22,7 @@ public class JARReader {
 	 */
 	public ArrayList<String> getParclassFromJar() throws IOException,
 			ClassNotFoundException {
-		ArrayList<String> parclasses = new ArrayList<String>();
+		ArrayList<String> parclasses = new ArrayList<>();
 		JarFile jf = new JarFile(file);
 		Enumeration<JarEntry> e = jf.entries();
 		while (e.hasMoreElements()) {

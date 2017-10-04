@@ -18,11 +18,11 @@ public class PJMethodFilter implements MethodFilter {
 	 */
 	private static final Set<String> filterMethodList = new HashSet<>();
 
-	/**
+	/*
 	 * Create a filter list of not handled method
 	 */
 	static {
-		Set<String> notFilterMethodList = new HashSet<String>();
+		Set<String> notFilterMethodList = new HashSet<>();
 		notFilterMethodList.add("serialize");
 		notFilterMethodList.add("deserialize");
 		notFilterMethodList.add("getAccessPoint");

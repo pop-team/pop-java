@@ -11,26 +11,26 @@ public class POPJObjectMap {
 	private static String strFile;
 	
 	public static void main(String[] args){
-		files = new ArrayList<String>();
+		files = new ArrayList<>();
 		if(args.length < 2){
 			printUsage();
 			System.exit(1);
 		}
-		
-		
-		for (int i = 0; i < args.length; i++) {
-			if(args[i].equals("-append")){
+
+
+		for (String arg : args) {
+			if (arg.equals("-append")) {
 				append = true;
-				xmlFile = args[i].substring(args[i].indexOf("=")+1);	
-				if(!xmlFile.endsWith(".xml")){
-					System.err.println(xmlFile+" is not an xml file.");
+				xmlFile = arg.substring(arg.indexOf("=") + 1);
+				if (!xmlFile.endsWith(".xml")) {
+					System.err.println(xmlFile + " is not an xml file.");
 					System.exit(1);
 				}
-			} else if (args[i].startsWith("-file=")){
-				strFile = args[i].substring(args[i].indexOf("=")+1);
-			} else if (args[i].startsWith("-cwd=")){
-				cwd = args[i].substring(args[i].indexOf("=")+1);
-				if(!PathWorker.isHandlePath(cwd)){
+			} else if (arg.startsWith("-file=")) {
+				strFile = arg.substring(arg.indexOf("=") + 1);
+			} else if (arg.startsWith("-cwd=")) {
+				cwd = arg.substring(arg.indexOf("=") + 1);
+				if (!PathWorker.isHandlePath(cwd)) {
 					System.err.println("This program does not handle ./ and ../ in path");
 					System.exit(1);
 				}

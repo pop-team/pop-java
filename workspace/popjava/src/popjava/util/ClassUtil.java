@@ -247,7 +247,7 @@ public class ClassUtil {
 		if (c == double.class)
 			return new Double(0);
 		if (c == boolean.class)
-			return new Boolean(false);
+			return Boolean.FALSE;
 		if (c == char.class)
 			return new Character((char) 0);
 

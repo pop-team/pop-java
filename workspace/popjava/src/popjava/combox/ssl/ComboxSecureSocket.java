@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import popjava.util.ssl.SSLUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.security.cert.Certificate;
 import javax.net.ssl.SSLContext;
@@ -17,11 +17,12 @@ import javax.net.ssl.SSLSocketFactory;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
+import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
-import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 
 /**
  * This combox implement the protocol ssl
@@ -33,7 +34,7 @@ public class ComboxSecureSocket extends Combox {
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
-	private final int STREAM_BUFER_SIZE = 8 * 1024 * 1024; //8MB
+	private final int STREAM_BUFFER_SIZE = 8 * 1024 * 1024; //8MB
 	
 	/**
 	 * NOTE: this is used by ServerCombox (server)
@@ -44,8 +45,8 @@ public class ComboxSecureSocket extends Combox {
 	public ComboxSecureSocket(Socket socket) throws IOException {
 		peerConnection = socket;		
 		receivedBuffer = new byte[BUFFER_LENGTH];
-		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFER_SIZE);
-		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFER_SIZE);
+		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
+		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
 		extractFingerprint();
 	}
 
@@ -131,10 +132,6 @@ public class ComboxSecureSocket extends Combox {
 					extractFingerprint();
 					
 					available = true;
-				} catch (UnknownHostException e) {
-					available = false;
-				} catch (SocketTimeoutException e) {
-					available = false;
 				} catch (IOException e) {
 					available = false;
 				}
@@ -227,9 +224,9 @@ public class ComboxSecureSocket extends Combox {
 
 			int headerLength = MessageHeader.HEADER_LENGTH;
 			if (result < headerLength) {
-				if (Configuration.DEBUG_COMBOBOX) {
+				if (conf.isDebugCombox()) {
 					String logInfo = String.format(
-							"%s.failed to receive header. receivedLength= %d < %d Message length %d",
+							"%s.failed to receive header. receivedLength= %d, Message length %d",
 							this.getClass().getName(), result, headerLength);
 					LogWriter.writeDebugInfo(logInfo);
 				}
@@ -240,7 +237,7 @@ public class ComboxSecureSocket extends Combox {
 			
 			return result;
 		} catch (Exception e) {
-			if (Configuration.DEBUG_COMBOBOX){
+			if (conf.isDebugCombox()){
 				LogWriter.writeDebugInfo("ComboxServerSocket Error while receiving data:"
 								+ e.getMessage());
 			}
@@ -264,7 +261,7 @@ public class ComboxSecureSocket extends Combox {
 			
 			return length;
 		} catch (IOException e) {
-			if (Configuration.DEBUG_COMBOBOX){
+			if (conf.isDebugCombox()){
 				e.printStackTrace();
 				LogWriter.writeDebugInfo(this.getClass().getName()
 						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
@@ -273,7 +270,7 @@ public class ComboxSecureSocket extends Combox {
 		}
 	}
 
-	private void extractFingerprint() {
+	private void extractFingerprint() {		
 		try {
 			// set the fingerprint in the accesspoint for all to know
 			// this time we have to look which it is
@@ -283,6 +280,16 @@ public class ComboxSecureSocket extends Combox {
 				if (POPTrustManager.getInstance().isCertificateKnown(cert)) {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
+					
+					// set global access to those information
+					String network = POPTrustManager.getInstance().getNetworkFromCertificate(fingerprint);
+					
+					remoteCaller = new POPRemoteCaller(
+						peerConnection.getInetAddress(), 
+						ConnectionProtocol.SSL, 
+						fingerprint, 
+						network
+					);					
 					break;
 				}
 			}

@@ -1,7 +1,8 @@
-package popjava.combox.ssl;
+package popjava.util.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.bc.BcContentSignerBuilder;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
+import popjava.combox.ssl.POPTrustManager;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -63,8 +65,12 @@ public class SSLUtils {
 	
 	/** Single instance of SSLContext for each process */
 	private static SSLContext sslContextInstance = null;
+	/** Keep track of the keystore location so we can reload it */
+	private static File keyStoreLocation = null;
 	/** Factory to create X.509 certificate from RSA text input */
 	private static CertificateFactory certFactory;
+	
+	private static final Configuration conf = Configuration.getInstance();
 
 	
 	// static initialization of objects
@@ -77,6 +83,36 @@ public class SSLUtils {
 	}
 	
 	private SSLUtils() {
+	}
+	
+	/**
+	 * Load the KeyStore with the parameters from {@link Configuration#getSSLKeyStoreOptions()}
+	 * 
+	 * @return
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 * @throws CertificateException
+	 * @throws KeyStoreException 
+	 */
+	private static KeyStore loadKeyStore() throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
+		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+		keyStore.load(new FileInputStream(conf.getSSLKeyStoreFile()), conf.getSSLKeyStorePassword().toCharArray());
+		return keyStore;
+	}
+	
+	/**
+	 * Save the KeyStore with the parameters from {@link Configuration#getSSLKeyStoreOptions()}
+	 * 
+	 * @param keyStore
+	 * @throws KeyStoreException
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 * @throws CertificateException
+	 * @throws Exception 
+	 */
+	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, Exception {
+		keyStore.store(new FileOutputStream(conf.getSSLKeyStoreFile()), conf.getSSLKeyStorePassword().toCharArray());
+		POPTrustManager.getInstance().reloadTrustManager();
 	}
 	
 	/**
@@ -93,16 +129,19 @@ public class SSLUtils {
 	public static SSLContext getSSLContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, 
 		CertificateException, UnrecoverableKeyException, KeyManagementException {
 		// init SSLContext once
-		if (sslContextInstance == null) {
+		if (sslContextInstance == null || !conf.getSSLTemporaryCertificateLocation().equals(keyStoreLocation)) {
 			// load private key
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
+			keyStoreLocation = conf.getSSLTemporaryCertificateLocation();
+			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, Configuration.KEY_STORE_PK_PWD.toCharArray());
+			keyManagerFactory.init(keyStore, conf.getSSLKeyStorePrivateKeyPassword().toCharArray());
 			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
 
+			// create the context the first time, and update it when necessary
+			if (sslContextInstance == null) {
+				sslContextInstance = SSLContext.getInstance(conf.getSSLProtocolVersion());
+			}
 			// init ssl context with everything
-			sslContextInstance = SSLContext.getInstance(Configuration.SSL_PROTOCOL_VERSION);
 			sslContextInstance.init(keyManagerFactory.getKeyManagers(), trustManagers, new SecureRandom());
 		}
 
@@ -110,13 +149,15 @@ public class SSLUtils {
 	}
 	
 	/**
-	 * A constant hash String identifier from a node
+	 * A constant hash String identifier from a node.
+	 * NOTE: aliases seems to be all lowercase
 	 * 
 	 * @param node
+	 * @param networkName 
 	 * @return 
 	 */
-	private static String confidenceLinkHash(POPNetworkNode node) {
-		return String.format("%x", node.hashCode());
+	private static String confidenceLinkAlias(POPNetworkNode node, String networkName) {
+		return String.format("%x@%s", node.hashCode(), networkName.toLowerCase());
 	}
 	
 	/**
@@ -124,32 +165,31 @@ public class SSLUtils {
 	 * 
 	 * @param node
 	 * @param certificate
+	 * @param networkName 
 	 * @param mode false if we want to add the certificate, true if we want to replace it
 	 * @throws IOException 
 	 */
-	private static void addConfidenceLink(POPNetworkNode node, Certificate certificate, boolean mode) throws IOException {
+	private static void addConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName, boolean mode) throws IOException {
 		try {
 			// load the already existing keystore
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
+			KeyStore keyStore = loadKeyStore();
 
 			// node identifier
-			String nodeHash = confidenceLinkHash(node);
+			String nodeAlias = confidenceLinkAlias(node, networkName);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
 			// if `mode' is true the certificate must be present
 			// if `mode' is false the certificate must NOT be present
-			if (aliases.contains(nodeHash) ^ mode) {
+			if (aliases.contains(nodeAlias) ^ mode) {
 				return;
 			} else {
 				// add/replace a new entry
-				keyStore.setCertificateEntry(nodeHash, certificate);
+				keyStore.setCertificateEntry(nodeAlias, certificate);
 			}
 
 			// override the existing keystore
-			keyStore.store(new FileOutputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
-			POPTrustManager.getInstance().reloadTrustManager();
+			storeKeyStore(keyStore);
 		} catch(Exception e) {
 			throw new IOException("Failed to save Confidence Link in KeyStore.");
 		}
@@ -161,10 +201,11 @@ public class SSLUtils {
 	 * 
 	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
+	 * @param networkName The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void addConfidenceLink(POPNetworkNode node, Certificate certificate) throws IOException {
-		addConfidenceLink(node, certificate, false);
+	public static void addConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName) throws IOException {
+		addConfidenceLink(node, certificate, networkName, false);
 	}
 	
 	/**
@@ -173,10 +214,11 @@ public class SSLUtils {
 	 * 
 	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
+	 * @param networkName The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void replaceConfidenceLink(POPNetworkNode node, Certificate certificate) throws IOException {
-		addConfidenceLink(node, certificate, true);
+	public static void replaceConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName) throws IOException {
+		addConfidenceLink(node, certificate, networkName, true);
 	}
 	
 	/**
@@ -186,27 +228,25 @@ public class SSLUtils {
 	 * @param node A node created somehow, directly or with the factory
 	 * @throws IOException Many
 	 */
-	public static void removeConfidenceLink(POPNetworkNode node) throws IOException {
+	public static void removeConfidenceLink(POPNetworkNode node, String networkName) throws IOException {
 		try {
 			// load the already existing keystore
-			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(new FileInputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
+			KeyStore keyStore = loadKeyStore();
 
 			// node identifier
-			String nodeHash = confidenceLinkHash(node);
+			String nodeAlias = confidenceLinkAlias(node, networkName);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
-			if (!aliases.contains(nodeHash)) {
+			if (!aliases.contains(nodeAlias)) {
 				return;
 			}
 
 			// add a new entry
-			keyStore.deleteEntry(nodeHash);
+			keyStore.deleteEntry(nodeAlias);
 
 			// override the existing keystore
-			keyStore.store(new FileOutputStream(Configuration.KEY_STORE), Configuration.KEY_STORE_PWD.toCharArray());
-			POPTrustManager.getInstance().reloadTrustManager();
+			storeKeyStore(keyStore);
 		} catch(Exception e) {
 			throw new IOException("Failed to save Confidence Link in KeyStore.");
 		}
@@ -269,9 +309,25 @@ public class SSLUtils {
 	}
 	
 	/**
+	 * Transform a certificate byte array to a real certificate.
+	 * 
+	 * @param certificate A byte array in PEM format
+	 * @return The certificate or null
+	 * @throws IOException
+	 * @throws CertificateException 
+	 */
+	public static Certificate certificateFromBytes(byte[] certificate) throws IOException, CertificateException {
+		Certificate cert;
+		try (ByteArrayInputStream fi = new ByteArrayInputStream(certificate)) {
+			cert = certFactory.generateCertificate(fi);
+		}
+		return cert;
+	}
+	
+	/**
 	 * The local public certificate
 	 * 
-	 * @return null or a certificate that can be transformed with {@link #getCertificateBytes}
+	 * @return null or a certificate that can be transformed with {@link #certificateBytes(Certificate)}
 	 */
 	public static Certificate getLocalPublicCertificate() {
 		return POPTrustManager.getLocalPublicCertificate();
@@ -301,15 +357,13 @@ public class SSLUtils {
 	 */
 	public static void addCertToTempStore(byte[] certificate, boolean reload) {
 		MethodUtil.grant(
-			"popjava.combox.ssl.SSLUtils.addCertToTempStore",
+			"popjava.util.ssl.SSLUtils.addCertToTempStore",
 			"popjava.base.POPObject.PopRegisterFutureConnectorCertificate",
 			"popjava.interfacebase.Interface.deserialize"
 		);
-		try {
+		try {			
 			// load it
-			ByteArrayInputStream fi = new ByteArrayInputStream(certificate);
-			Certificate cert = certFactory.generateCertificate(fi);
-			fi.close();
+			Certificate cert = certificateFromBytes(certificate);
 			
 			// stop if already loaded
 			POPTrustManager trustManager = POPTrustManager.getInstance();
@@ -322,16 +376,16 @@ public class SSLUtils {
 			String outName = fingerprint + ".cer";
 			
 			// certificates temprary path
-			Path path = Paths.get(Configuration.TRUST_TEMP_STORE_DIR, outName);
+			Path path = Paths.get(conf.getSSLTemporaryCertificateLocation().toString(), outName);
 			// move to local directory
 			Files.write(path, certificate);
 			
 			// handle local reload
 			if (reload) {
-				POPTrustManager.getInstance().reloadTrustManager();
+				trustManager.reloadTrustManager();
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			LogWriter.writeDebugInfo("[SSLUtils] failed to save certificate: ", ex.getMessage());
 		}
 	}
 	
@@ -341,10 +395,10 @@ public class SSLUtils {
 	 * @param options 
 	 * @return true if we were able to create the keystore
 	 */
-	public static boolean generateKeyStore(KeyStoreOptions options) {
+	public static boolean generateKeyStore(KeyStoreCreationOptions options) {
 		// something the key generated seems to be invalid (invalidated by bouncycastle)
 		// we retry for a while in that case
-		int limit = 15;
+		int limit = 20;
 		boolean generated;
 		do {
 			generated = generateKeyStoreOnce(options);
@@ -364,7 +418,7 @@ public class SSLUtils {
 	 * @param options
 	 * @return 
 	 */
-	private static boolean generateKeyStoreOnce(KeyStoreOptions options) {
+	private static boolean generateKeyStoreOnce(KeyStoreCreationOptions options) {
 		options.validate();
 		
 		try {
@@ -372,7 +426,7 @@ public class SSLUtils {
 
 			// generate keys
 			KeyPairGenerator pairGenerator = KeyPairGenerator.getInstance("RSA");
-			pairGenerator.initialize(options.getKeySize());
+			pairGenerator.initialize(options.getPrivateKeySize());
 			KeyPair pair = pairGenerator.generateKeyPair();
 
 			// public certificate setup
@@ -390,10 +444,9 @@ public class SSLUtils {
 				nameBuilder.addRDN(entry.getKey(), entry.getValue());
 			}
 
-			// sign ourself
+			// sign ourselves
 			X500Name subjectName = nameBuilder.build();
-			X500Name issuerName = subjectName;
-			X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(issuerName, BigInteger.valueOf(sr.nextInt()), 
+			X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(subjectName, BigInteger.valueOf(sr.nextInt()),
 				GregorianCalendar.getInstance().getTime(), options.getValidUntil(), subjectName, pubKey);
 
 			// signature for the certificate
@@ -413,25 +466,25 @@ public class SSLUtils {
 
 
 			// initialize a keystore
-			KeyStore ks = KeyStore.getInstance(options.getKeyStoreFormat());
+			KeyStore ks = KeyStore.getInstance(options.getKeyStoreFormat().name());
 			ks.load(null);
 
 			// add private key to the new keystore
 			KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(rsaPrivateKey, new Certificate[]{x509Certificate});
-			KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(options.getKeyPass());
+			KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(options.getPrivateKeyPassword().toCharArray());
 
-			ks.setEntry(options.getAlias(), privateKeyEntry, passwordProtection);
+			ks.setEntry(options.getLocalAlias(), privateKeyEntry, passwordProtection);
 
 			// write to memory
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			ks.store(out, options.getStorePass());
+			ks.store(out, options.getKeyStorePassword().toCharArray());
 			out.close();
 			
 			// load a "clean" version and save to disk
 			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-			KeyStore ksout = KeyStore.getInstance(options.getKeyStoreFormat());
-			ksout.load(in, options.getStorePass());
-			ksout.store(new FileOutputStream(options.getKeyStoreFile()), options.getStorePass());
+			KeyStore ksout = KeyStore.getInstance(options.getKeyStoreFormat().name());
+			ksout.load(in, options.getKeyStorePassword().toCharArray());
+			ksout.store(new FileOutputStream(options.getKeyStoreFile()), options.getKeyStorePassword().toCharArray());
 			return true;
 		} catch(Exception e) {
 			LogWriter.writeDebugInfo("[KeyStore] Generation failed with message: %s. Retrying.", e.getMessage());

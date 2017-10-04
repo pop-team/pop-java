@@ -8,11 +8,11 @@ public class MethodInfo {
 	/**
 	 * Method unqiue identifier
 	 */
-	private int methodId;
+	private final int methodId;
 	/**
 	 * Class unique identifier
 	 */
-	private int classId;
+	private final int classId;
 
 	/**
 	 * Create a new MethodInfo with the given values
@@ -73,6 +73,7 @@ public class MethodInfo {
 
 	/**
 	 * Format the MethodInfo as a string value
+	 * @return 
 	 */
 	@Override
     public String toString() {
