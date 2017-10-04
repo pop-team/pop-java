@@ -204,18 +204,25 @@ New attribute
 Adding a new attribute require the modification of the Configuration class, this is because we grant access to attributes via ``get`` and ``set`` methods.
 The process is done 4 steps.
 
-1. Choose the name of the attribute and add it to the ``Settable`` enumerator. ::
+1. Choose the name of the attribute and add it to the ``Settable`` enumerator.
+
+.. code-block:: java
 
     private enum Settable {
         MY_NEW_ATTRIBUTE,
         ...
     }
 
-2. Add a class attribute which will be used to store the value. ::
+2. Add a class attribute which will be used to store the value.
+
+
+.. code-block:: java
 
     private String myNewAttribute = "";
 
-3. Create getter and setter methods. ::
+3. Create getter and setter methods.
+
+.. code-block:: java
 
     public String getMyNewAttribute() {
         return myNewAttribute;
@@ -227,7 +234,9 @@ The process is done 4 steps.
 
 .. note:: Using ``USER_PROPERTIES`` enable us to save only the changed information if the User call ``store()``.
 
-4. Add the parsing rules in ``load``. ::
+4. Add the parsing rules in ``load``.
+
+.. code-block:: java
 
     switch(keyEnum) {
         case MY_NEW_ATTRIBUTE: myNewAttribute = value; break;

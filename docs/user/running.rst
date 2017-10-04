@@ -14,7 +14,7 @@ pass through the whole process.
 
 
 POP-Java compilation
----------------------
+--------------------
 
 POP-Java uses the standard Java compiler and can easily be integrated into an existing compilation process.
 As POP-Java java files use features from the POP-Java library, the POP-Java jar file needs to be included in the classpath during the compilation process.
@@ -111,6 +111,7 @@ classes. The following code snippet shows the parallel class implementation:
 .. _testintegerclass:
 .. code-block:: java
    :linenos:
+
    import popjava.annotation.*;
    
    @POPClass
@@ -151,6 +152,7 @@ parallel class. The following code snippet shows the code of the main class:
 .. _testintegermain:
 .. code-block:: java
    :linenos:
+
    import popjava.annotation.*;
 
    @POPClass(isDistributable = false)
@@ -207,7 +209,7 @@ save this file, we redirect the output in a file named objmap.xml. This file
 contains the following XML code (the path specified in the element CodeFile
 will be different on your computer):
 
-.. example-objectmap:
+.. _example-objectmap:
 .. code-block:: xml
 
    <CodeInfoList>
