@@ -1,11 +1,14 @@
 package junit.localtests.jvmObject;
 
+import java.util.concurrent.TimeUnit;
 import popjava.PopJava;
+import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
 import popjava.annotation.POPConfig.Type;
+import popjava.annotation.POPSyncConc;
 import popjava.base.POPObject;
 
 @POPClass
@@ -69,5 +72,22 @@ public class LocalObject extends POPObject{
 		}else{
 			reference = PopJava.newActive(LocalObject.class, url);
 		}
+	}
+	
+	private int asyncVal;
+	@POPSyncConc
+	public void setAsyncVal(int n) {
+		asyncVal = n;
+	}
+	
+	@POPSyncConc
+	public int getAsyncVal() {
+		return asyncVal;
+	}
+	
+	@POPAsyncConc
+	public void asyncCheck(int m) throws Exception {
+		TimeUnit.MILLISECONDS.sleep(500);
+		org.junit.Assert.assertEquals(m, asyncVal);
 	}
 }
