@@ -14,7 +14,7 @@ import popjava.util.LogWriter;
 /**
  * This class is responsible to receive the new request for the associated combox
  */
-public abstract class ComboxReceiveRequest implements Runnable {
+public final class ComboxReceiveRequest implements Runnable {
 
     //TODO: use enum
 	static public final int RUNNING = 0;

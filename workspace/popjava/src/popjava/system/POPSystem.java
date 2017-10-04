@@ -32,7 +32,6 @@ import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
-import popjava.combox.ComboxSocketFactory;
 import popjava.service.jobmanager.POPJavaAppService;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
@@ -196,7 +195,7 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint getDefaultAccessPoint() {
 		POPAccessPoint parrocAccessPoint = new POPAccessPoint();
-		parrocAccessPoint.setAccessString(String.format("socket://%s://127.0.0.1:0", ComboxSocketFactory.PROTOCOL));
+		parrocAccessPoint.setAccessString(String.format("%s://%s:0", conf.getDefaultProtocol(), getHostIP()));
 		return parrocAccessPoint;
 	}
 

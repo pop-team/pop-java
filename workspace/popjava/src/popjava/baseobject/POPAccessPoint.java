@@ -3,7 +3,6 @@ package popjava.baseobject;
 import java.util.ArrayList;
 
 import popjava.buffer.POPBuffer;
-import popjava.combox.ComboxSocketFactory;
 import popjava.dataswaper.IPOPBase;
 import popjava.system.POPSystem;
 
@@ -37,10 +36,7 @@ public class POPAccessPoint implements IPOPBase {
 	 */
 	public POPAccessPoint(boolean initialize) {
 		if (initialize) {
-			String localAddress = POPSystem.getHostIP();
-
-			String accessString = String.format("socket://%s://%s:0", ComboxSocketFactory.PROTOCOL, localAddress);
-			setAccessString(accessString);
+			accessPoints.addAll(POPSystem.getDefaultAccessPoint().accessPoints);
 		}
 	}
 

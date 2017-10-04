@@ -1,10 +1,14 @@
-package popjava.combox;
+package popjava.combox.socket;
 
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
+import popjava.combox.ComboxAllocate;
+import popjava.combox.ComboxFactory;
+import popjava.combox.ComboxServer;
 
 /**
  * This class is the factory for all combox socket

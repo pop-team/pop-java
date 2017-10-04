@@ -1,6 +1,7 @@
-package popjava.combox;
+package popjava.combox.plugin;
 
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
 
 /**
  * This class defined the interface for each new combox plug-in

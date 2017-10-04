@@ -1,4 +1,4 @@
-package popjava.combox;
+package popjava.combox.socket;
 
 import popjava.broker.Broker;
 import popjava.broker.RequestQueue;
@@ -8,6 +8,7 @@ import java.net.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.io.*;
+import popjava.combox.ComboxReceiveRequest;
 
 /**
  * This class is responsible to accept the new connection for the associated server combox socket
@@ -54,7 +55,7 @@ public class ComboxAcceptSocket implements Runnable {
 					concurentConnections.add(connection);
 				}
 
-				Runnable runnable = new ComboxReceiveRequestSocket(broker, requestQueue, connection);
+				Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, new ComboxSocket(connection));
 				Thread thread = new Thread(runnable, "Combox request acceptance");
 				thread.start();
 			} catch (IOException e) {				

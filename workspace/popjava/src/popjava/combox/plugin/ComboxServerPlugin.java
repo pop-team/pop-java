@@ -1,8 +1,9 @@
-package popjava.combox;
+package popjava.combox.plugin;
 
 import popjava.baseobject.AccessPoint;
 import popjava.broker.Broker;
 import popjava.broker.RequestQueue;
+import popjava.combox.ComboxServer;
 
 /**
  * This class defined the interface for all new combox server plug-in

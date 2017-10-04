@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import popjava.combox.socket.ComboxSocketFactory;
 import popjava.combox.ssl.ComboxSecureSocketFactory;
 import popjava.system.POPJavaConfiguration;
 import popjava.system.XMLWorker;

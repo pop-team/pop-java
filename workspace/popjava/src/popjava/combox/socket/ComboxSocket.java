@@ -1,4 +1,4 @@
-package popjava.combox;
+package popjava.combox.socket;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -15,6 +15,7 @@ import popjava.baseobject.AccessPoint;
 import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
 

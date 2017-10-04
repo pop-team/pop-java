@@ -7,6 +7,7 @@ import popjava.util.LogWriter;
 import java.net.*;
 import java.util.LinkedList;
 import java.io.*;
+import popjava.combox.ComboxReceiveRequest;
 
 /**
  * This class is responsible to accept the new connection for the associated server combox socket
@@ -53,7 +54,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 					concurentConnections.add(connection);
 				}
 
-				Runnable runnable = new ComboxReceiveRequestSecureSocket(broker, requestQueue, connection);
+				Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, new ComboxSecureSocket(connection));
 				Thread thread = new Thread(runnable, "Combox request acceptance");
 				thread.start();
 			} catch (IOException e) {				
