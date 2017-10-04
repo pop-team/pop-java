@@ -136,11 +136,12 @@ public class ComboxFactoryFinder {
 	/**
 	 * Find a specific factory with the given name
 	 * @param factoryName	Name of the factory
-	 * @return	The combox factory or null if not found
+	 * @return	The combox factory or null if not found, if empty or null the default protocol factory
 	 */
 	public ComboxFactory findFactory(String factoryName) {
-		if (factoryName == null || factoryName.isEmpty())
+		if (factoryName == null || factoryName.isEmpty()) {
 			factoryName = conf.getDefaultProtocol();
+		}
 		factoryName = factoryName.toLowerCase();
 		
 		ComboxFactory factory = comboxFactoryList.get(factoryName);
@@ -148,6 +149,22 @@ public class ComboxFactoryFinder {
 			return factory;
 		}
 		return null;
+	}
+	
+	/**
+	 * Check if a factory protocol is secure or not.
+	 * @param factoryName The name of the factory
+	 * @return true if secure, false if not found or not secure
+	 */
+	public boolean isFactorySecure(String factoryName) {
+		if (factoryName == null || factoryName.isEmpty()) {
+			return false;
+		}
+		factoryName = factoryName.toLowerCase();
+		
+		ComboxFactory factory = comboxFactoryList.get(factoryName);
+		
+		return factory != null && factory.isSecure();
 	}
 
 	/**

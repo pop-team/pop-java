@@ -1,7 +1,6 @@
 package popjava.combox.socket;
 
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
@@ -17,7 +16,7 @@ public class ComboxSocketFactory extends ComboxFactory {
 	/**
 	 * Name of the implemented protocol
 	 */
-	public static final String PROTOCOL = ConnectionProtocol.SOCKET.getName();
+	public static final String PROTOCOL = "socket";
 
 	@Override
 	public String getComboxName() {
@@ -54,6 +53,11 @@ public class ComboxSocketFactory extends ComboxFactory {
 	@Override
 	public boolean isAvailable() {
 		return super.isAvailable();
+	}
+
+	@Override
+	public boolean isSecure() {
+		return false;
 	}
 
 }

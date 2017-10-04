@@ -51,4 +51,9 @@ public class ComboxFactoryPlugin extends ComboxFactory {
 		return super.isAvailable();
 	}
 
+	@Override
+	public boolean isSecure() {
+		return false;
+	}
+
 }

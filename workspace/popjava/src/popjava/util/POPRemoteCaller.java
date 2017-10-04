@@ -1,7 +1,6 @@
 package popjava.util;
 
 import java.net.InetAddress;
-import popjava.baseobject.ConnectionProtocol;
 import popjava.combox.ssl.POPTrustManager;
 
 /**
@@ -12,16 +11,22 @@ import popjava.combox.ssl.POPTrustManager;
 public class POPRemoteCaller {
 	
 	private final InetAddress remote;
-	private final ConnectionProtocol protocol;
+	private final String protocol;
+	private final boolean secure;
 	
 	private final String fingerprint;
 	private final String network;
 
-	public POPRemoteCaller(InetAddress remote, ConnectionProtocol protocol, String fingerprint, String network) {
+	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String fingerprint, String network) {
 		this.remote = remote;
 		this.protocol = protocol;
+		this.secure = secure;
 		this.fingerprint = fingerprint;
 		this.network = network;
+	}
+
+	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure) {
+		this(remote, protocol, secure, null, null);
 	}
 
 	/**
@@ -38,8 +43,17 @@ public class POPRemoteCaller {
 	 * 
 	 * @return 
 	 */
-	public ConnectionProtocol getProtocol() {
+	public String getProtocol() {
 		return protocol;
+	}
+
+	/**
+	 * Is {@link #getProtocol() } secure or not.
+	 * 
+	 * @return 
+	 */
+	public boolean isSecure() {
+		return secure;
 	}
 
 	/**

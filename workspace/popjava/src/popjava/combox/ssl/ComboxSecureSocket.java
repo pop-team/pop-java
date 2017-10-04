@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
 import java.security.cert.Certificate;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -17,10 +16,10 @@ import javax.net.ssl.SSLSocketFactory;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
+import popjava.combox.ComboxFactory;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
 
@@ -35,6 +34,8 @@ public class ComboxSecureSocket extends Combox {
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
 	private final int STREAM_BUFFER_SIZE = 8 * 1024 * 1024; //8MB
+	
+	private static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
 	
 	/**
 	 * NOTE: this is used by ServerCombox (server)
@@ -286,7 +287,8 @@ public class ComboxSecureSocket extends Combox {
 					
 					remoteCaller = new POPRemoteCaller(
 						peerConnection.getInetAddress(), 
-						ConnectionProtocol.SSL, 
+						MY_FACTORY.getComboxName(),
+						MY_FACTORY.isSecure(),
 						fingerprint, 
 						network
 					);					

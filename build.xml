@@ -68,7 +68,7 @@
         </javac>
 </target>
 
-<target name="make-junit" depends="jar-popjava" description="build popjava's junit tests">
+<target name="make-junit" depends="jar-popjava, make-testsuite-java" description="build popjava's junit tests">
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${junit.src}"
                 destdir="${classes.dir}"

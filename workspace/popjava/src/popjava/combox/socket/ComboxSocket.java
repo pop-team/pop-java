@@ -8,14 +8,13 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.ConnectionProtocol;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
+import popjava.combox.ComboxFactory;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
 
@@ -31,6 +30,8 @@ public class ComboxSocket extends Combox {
 	protected OutputStream outputStream = null;
 	private final int STREAM_BUFFER_SIZE = 8 * 1024 * 1024; //8MB
 
+	private static final ComboxFactory MY_FACTORY = new ComboxSocketFactory();
+	
 	@Override
 	public String toString(){
 		if(peerConnection != null){
@@ -260,10 +261,9 @@ public class ComboxSocket extends Combox {
 
 	private void exportConnectionInfo() {
 		remoteCaller = new POPRemoteCaller(
-			peerConnection.getInetAddress(), 
-			ConnectionProtocol.SOCKET, 
-			null, 
-			null
+			peerConnection.getInetAddress(),
+			MY_FACTORY.getComboxName(),
+			MY_FACTORY.isSecure()
 		);					
 	}
 

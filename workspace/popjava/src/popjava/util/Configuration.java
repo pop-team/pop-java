@@ -16,7 +16,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import popjava.baseobject.ConnectionProtocol;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.util.ssl.KeyStoreDetails;
 import popjava.util.ssl.KeyStoreDetails.KeyStoreFormat;
@@ -423,7 +422,7 @@ public final class Configuration {
 
 	public void setDefaultProtocol(String defaultProtocol) {
 		USER_PROPERTIES.setProperty(Settable.DEFAULT_PROTOCOL.name(), defaultProtocol);
-		this.defaultProtocol = ConnectionProtocol.valueOf(defaultProtocol.toUpperCase()).getName();
+		this.defaultProtocol = defaultProtocol.toUpperCase();
 	}
 
 	public void setAsyncConstructor(boolean asyncConstructor) {
@@ -616,7 +615,7 @@ public final class Configuration {
 						case TFC_SEARCH_TIMEOUT:                 tfcSearchTimeout = Integer.parseInt(value); break;
 						case DEFAULT_ENCODING:                   defaultEncoding = value; break;
 						case SELECTED_ENCODING:                  selectedEncoding = value; break;
-						case DEFAULT_PROTOCOL:                   defaultProtocol = ConnectionProtocol.valueOf(value.toUpperCase()).getName(); break;
+						case DEFAULT_PROTOCOL:                   defaultProtocol = value.toUpperCase(); break;
 						case PROTOCOLS_WHITELIST:
 							protocolsWhitelist.clear();
 							protocolsWhitelist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));

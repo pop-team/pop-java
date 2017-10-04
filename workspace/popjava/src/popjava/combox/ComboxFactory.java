@@ -61,6 +61,12 @@ public abstract class ComboxFactory {
 	public abstract String getComboxName();
 	
 	/**
+	 * Mark if the protocol used by this Combox is secure or not
+	 * @return 
+	 */
+	public abstract boolean isSecure();
+	
+	/**
 	 * Check if this combox is usable.
 	 * When overriding call super.isAvailable to appy the white/black lists.
 	 * NB: If an item is in both white and black lists, the blacklist will take precedence
