@@ -9,6 +9,7 @@ import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
 import popjava.annotation.POPConfig.Type;
 import popjava.annotation.POPSyncConc;
+import popjava.base.POPException;
 import popjava.base.POPObject;
 
 @POPClass
@@ -75,6 +76,7 @@ public class LocalObject extends POPObject{
 	}
 	
 	private int asyncVal;
+	private boolean report;
 	@POPSyncConc
 	public void setAsyncVal(int n) {
 		asyncVal = n;
@@ -86,8 +88,15 @@ public class LocalObject extends POPObject{
 	}
 	
 	@POPAsyncConc
-	public void asyncCheck(int m) throws Exception {
+	public void asyncCheck(int m) throws POPException, Exception {
 		TimeUnit.MILLISECONDS.sleep(500);
 		org.junit.Assert.assertEquals(m, asyncVal);
+		report = m == asyncVal;
+	}
+	
+	@POPSyncSeq
+	public boolean getAsyncReport() {
+		System.out.println(asyncVal);
+		return report;
 	}
 }

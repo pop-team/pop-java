@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -210,6 +211,9 @@ public class JVMObjectTest {
 		local.setAsyncVal(n);
 		local.asyncCheck(m);
 		local.setAsyncVal(m);
+		assertFalse(local.getAsyncReport());
+		TimeUnit.MILLISECONDS.sleep(500);
+		assertTrue(local.getAsyncReport());
 	}
 	
 	@Test
@@ -222,5 +226,8 @@ public class JVMObjectTest {
 		local.setAsyncVal(n);
 		local.asyncCheck(m);
 		local.setAsyncVal(m);
+		assertFalse(local.getAsyncReport());
+		TimeUnit.MILLISECONDS.sleep(500);
+		assertTrue(local.getAsyncReport());
 	}
 }
