@@ -273,8 +273,8 @@ public class JobManagerConfig {
 		POPNetworkNode[] nodes = new POPNetworkNode[networkNodes.length];
 		// make them real
 		int i = 0;
-		for (String[] networkNode : networkNodes) {
-			List<String> nodeParams = new ArrayList<>(Arrays.asList(networkNode));
+		for (int j = 0; j < nodes.length; j++) {
+			List<String> nodeParams = new ArrayList<>(Arrays.asList(networkNodes[j]));
 			nodes[i] = POPNetworkNodeFactory.makeNode(nodeParams);
 		}
 		
