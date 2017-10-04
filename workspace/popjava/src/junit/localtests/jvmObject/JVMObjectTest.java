@@ -211,4 +211,16 @@ public class JVMObjectTest {
 		local.asyncCheck(m);
 		local.setAsyncVal(m);
 	}
+	
+	@Test
+	public void testAsyncCallWithThis() throws Exception {
+		LocalObject local = PopJava.getThis(PopJava.newActive(LocalObject.class, 2d));
+		
+		int n = 3;
+		int m = 5;
+		
+		local.setAsyncVal(n);
+		local.asyncCheck(m);
+		local.setAsyncVal(m);
+	}
 }
