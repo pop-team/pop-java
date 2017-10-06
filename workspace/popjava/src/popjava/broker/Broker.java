@@ -843,13 +843,10 @@ public final class Broker {
 	public void treatRequests() throws InterruptedException { 
 		setState(State.Running);
 		while (getState() == State.Running) {
-			for (ComboxServer comboxServer : comboxServers) {
-				Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
-						TimeUnit.MILLISECONDS);
-
-				if (request != null) {
-					serveRequest(request);
-				}
+			Request request = requestQueue.peek(REQUEST_QUEUE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+			
+			if (request != null) {
+				serveRequest(request);
 			}
 		}
 		LogWriter.writeDebugInfo("[Broker] Close broker "+popInfo.getClassName());
