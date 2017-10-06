@@ -2,7 +2,6 @@ package popjava.combox.plugin;
 
 import popjava.baseobject.AccessPoint;
 import popjava.broker.Broker;
-import popjava.broker.RequestQueue;
 import popjava.combox.ComboxServer;
 
 /**
@@ -19,14 +18,6 @@ public class ComboxServerPlugin extends ComboxServer {
 	public ComboxServerPlugin(AccessPoint accessPoint, int timeout,
 			Broker broker) {
 		super(accessPoint, timeout, broker);
-	}
-	
-	/**
-	 * Get the associated request queue
-	 * @return The associated request queue
-	 */
-	public RequestQueue getRequestQueue() {
-		return requestQueue;
 	}
 
 }

@@ -60,7 +60,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 			
 			serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
 			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));
-			serverCombox = new ComboxAcceptSecureSocket(broker, requestQueue, serverSocket);
+			serverCombox = new ComboxAcceptSecureSocket(broker, getRequestQueue(), serverSocket);
 			serverCombox.setStatus(RUNNING);
 			Thread thread = new Thread(serverCombox, "Server combox acception thread");
 			thread.start();
