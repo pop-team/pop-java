@@ -91,6 +91,11 @@ public final class Broker {
 	// thread unique callers
 	private static ThreadLocal<POPRemoteCaller> remoteCaller = new InheritableThreadLocal<>();
 	
+	/**
+	 * Request queue shared by all comboxes of this broker
+	 */
+	private final RequestQueue requestQueue = new RequestQueue();
+	
 	private State state;
 	private ComboxServer[] comboxServers;
 	private POPBuffer buffer;
@@ -844,8 +849,6 @@ public final class Broker {
 
 				if (request != null) {
 					serveRequest(request);
-				}else {
-					Thread.sleep(100);
 				}
 			}
 		}
@@ -1178,5 +1181,9 @@ public final class Broker {
 			return this.getClass().getName() + "."
 					+ popInfo.getClass().getName() + ":";
 		}
+	}
+
+	public RequestQueue getRequestQueue() {
+		return requestQueue;
 	}
 }

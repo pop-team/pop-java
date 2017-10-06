@@ -13,7 +13,6 @@ public abstract class ComboxServer {
 	static public final int ABORT = 2;
 	
 	protected int status = EXIT;
-	protected RequestQueue requestQueue = new RequestQueue();
 	protected Broker broker;
 	protected int timeOut = 0;
 	protected AccessPoint accessPoint;
@@ -35,7 +34,7 @@ public abstract class ComboxServer {
 	 * @return	The associated request queue
 	 */
 	public RequestQueue getRequestQueue() {
-		return requestQueue;
-	}	
+		return broker.getRequestQueue();
+	}
 
 }
