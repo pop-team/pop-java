@@ -128,7 +128,7 @@ public class POPException extends RuntimeException implements IPOPBase {
 	 */
 	public static POPException throwBufferNotAvailableException()
 			throws POPException {
-		throw new POPException(POPErrorCode.POP_BUFFER_NOT_AVAILABLE,
+		return new POPException(POPErrorCode.POP_BUFFER_NOT_AVAILABLE,
 				"The buffer hasn't been initialized");
 	}
 
@@ -139,7 +139,7 @@ public class POPException extends RuntimeException implements IPOPBase {
 	 */
 	public static POPException throwComboxNotAvailableException()
 			throws POPException {
-		throw new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE,
+		return new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE,
 				"The combox hasn't been initialized");
 	}
 	
@@ -156,7 +156,7 @@ public class POPException extends RuntimeException implements IPOPBase {
 	        info = accesspoint.toString();
 	    }
 	    
-		throw new POPException(POPErrorCode.POP_ACCESSPOINT_NOT_AVAILABLE,
+		return new POPException(POPErrorCode.POP_ACCESSPOINT_NOT_AVAILABLE,
 				"The accesspoint hasn't been initialized: "+info);
 	}
 	
@@ -166,7 +166,7 @@ public class POPException extends RuntimeException implements IPOPBase {
 	 * @throws POPException exception thrown by this method
 	 */
 	public static POPException throwNullObjectNotAllowException() throws POPException {
-			throw new POPException(POPErrorCode.NOT_ALLOW_PUT_NULL_OBJECT_TP_BUFFER,
+			return new POPException(POPErrorCode.NOT_ALLOW_PUT_NULL_OBJECT_TP_BUFFER,
 					"Not allowed to put null object to buffer except a null array");
 	}
 	

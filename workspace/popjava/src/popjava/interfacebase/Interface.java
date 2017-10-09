@@ -325,8 +325,7 @@ public class Interface {
 			switch (bindStatus.getCode()) {
 			case BindStatus.BIND_OK:
 				this.getOD().setPlatform(bindStatus.getPlatform());
-				negotiateEncoding(conf.getSelectedEncoding(), bindStatus
-						.getPlatform());
+				negotiateEncoding(conf.getSelectedEncoding(), bindStatus.getPlatform());
 				return true;
 			case BindStatus.BIND_FORWARD_SESSION:
 			case BindStatus.BIND_FORWARD_PERMANENT:
@@ -337,7 +336,7 @@ public class Interface {
 		} else {
 			POPException.throwObjectBindException(accesspoint);
 		}
-
+		
 		return true;
 	}
 
@@ -362,7 +361,6 @@ public class Interface {
 		POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 		popResponse(responseBuffer, messageHeader.getRequestID());
 		errorcode = responseBuffer.getInt();
-
 		bindStatus.setCode(errorcode);
 		String platform = responseBuffer.getString();
 		String info = responseBuffer.getString();
@@ -895,7 +893,10 @@ public class Interface {
 	 * @param buffer	Buffer to send
 	 */
 	protected void popDispatch(POPBuffer buffer) {
-		combox.send(buffer);
+		int length = combox.send(buffer);
+		if (length < 0) {
+			throw POPException.throwComboxNotAvailableException();
+		}
 	}
 
 	/**

@@ -251,9 +251,9 @@ public class ComboxSocket extends Combox {
 			return length;
 		} catch (IOException e) {
 			if (conf.isDebugCombox()){
-				e.printStackTrace();
 				LogWriter.writeDebugInfo(this.getClass().getName()
 						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
+				LogWriter.writeExceptionLog(e);
 			}
 			return -1;
 		}

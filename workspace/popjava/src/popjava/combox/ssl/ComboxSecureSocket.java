@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.security.cert.Certificate;
 import javax.net.ssl.SSLContext;
@@ -28,7 +27,7 @@ import popjava.util.POPRemoteCaller;
  */
 public class ComboxSecureSocket extends Combox {
 	
-	protected Socket peerConnection = null;
+	protected SSLSocket peerConnection = null;
 	protected byte[] receivedBuffer;
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
@@ -43,7 +42,7 @@ public class ComboxSecureSocket extends Combox {
 	 * @param socket	The socket to create the combox 
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
-	public ComboxSecureSocket(Socket socket) throws IOException {
+	public ComboxSecureSocket(SSLSocket socket) throws IOException {
 		peerConnection = socket;		
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
@@ -84,12 +83,14 @@ public class ComboxSecureSocket extends Combox {
 		}finally{
 			try {
 				outputStream.close();
+			} catch (IOException e) {}
+			try {
 				inputStream.close();
-				if(peerConnection != null){
+			} catch (IOException e) {}
+			if(peerConnection != null){
+				try {
 				    peerConnection.close();
-				}
-			} catch (IOException e) {
-				LogWriter.writeExceptionLog(e);
+				} catch (IOException e) {}
 			}
 		}
 	}
@@ -119,13 +120,13 @@ public class ComboxSecureSocket extends Combox {
 					if (timeOut > 0) {
 						SocketAddress sockaddress = new InetSocketAddress(host,
 								port);
-						peerConnection = factory.createSocket();
+						peerConnection = (SSLSocket) factory.createSocket();
 						peerConnection.connect(sockaddress, timeOut);
 
 						//LogWriter.writeExceptionLog(new Exception());
 						//LogWriter.writeExceptionLog(new Exception("Open connection to "+host+":"+port+" remote: "+peerConnection.getLocalPort()));
 					} else {
-						peerConnection = factory.createSocket(host, port);
+						peerConnection = (SSLSocket) factory.createSocket(host, port);
 					}
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());

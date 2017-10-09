@@ -3,11 +3,12 @@ package popjava.combox.ssl;
 import popjava.broker.Broker;
 import popjava.broker.RequestQueue;
 import popjava.util.LogWriter;
-
-import java.net.*;
-import java.util.LinkedList;
-import java.io.*;
 import popjava.combox.ComboxReceiveRequest;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
 
 /**
  * This class is responsible to accept the new connection for the associated server combox socket
@@ -21,19 +22,19 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	
 	protected Broker broker;
 	protected RequestQueue requestQueue;
-	protected ServerSocket serverSocket;
+	protected SSLServerSocket serverSocket;
 	protected int status = EXIT;
-	protected final LinkedList<Socket> concurentConnections = new LinkedList<>();
+	protected final LinkedList<SSLSocket> concurentConnections = new LinkedList<>();
 
 	/**
 	 * Create a new instance of the ComboxAccept socket
 	 * @param broker		The associated broker
 	 * @param requestQueue	The associated request queue
-	 * @param socket		The associated combox socket
+	 * @param serverSocket		The associated combox socket
 	 */
 	public ComboxAcceptSecureSocket(Broker broker, RequestQueue requestQueue,
-			ServerSocket socket) {
-		serverSocket = socket;
+			SSLServerSocket serverSocket) {
+		this.serverSocket = serverSocket;
 		this.broker = broker;
 		this.requestQueue = requestQueue;
 	}
@@ -43,13 +44,17 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	 */
 	public void run() {
 		while (status != EXIT) {
-			Socket connection = null;
+			SSLSocket connection = null;
 			try {
-				connection = serverSocket.accept();
-				LogWriter.writeDebugInfo("Connection accepted "+connection.getLocalPort()+" local:"+connection.getPort());	
+				connection = (SSLSocket) serverSocket.accept();
+				LogWriter.writeDebugInfo("[SSL Accept] Connection accepted "+connection.getLocalPort()+" local:"+connection.getPort());	
 				if(broker != null){
 					broker.onNewConnection();
 				}
+				
+				// force srart of handshake from server side
+				connection.startHandshake();
+				
 				synchronized (concurentConnections) {
 					concurentConnections.add(connection);
 				}
@@ -57,12 +62,13 @@ public class ComboxAcceptSecureSocket implements Runnable {
 				Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, new ComboxSecureSocket(connection));
 				Thread thread = new Thread(runnable, "Combox request acceptance");
 				thread.start();
-			} catch (IOException e) {				
+			} catch (IOException e) {
+				LogWriter.writeDebugInfo("[SSL Accept] Error while setting up connection: %s", e.getMessage());
 				break;
 			}
 		}
 		
-		LogWriter.writeDebugInfo("Combox Server finished");
+		LogWriter.writeDebugInfo("[SSL Accept] Combox Server finished");
 		this.close();
 	}
 
@@ -70,7 +76,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	 * Close the current connection
 	 */
 	public void close() {
-		for (Socket s : concurentConnections) {
+		for (SSLSocket s : concurentConnections) {
 			try {
 				s.close();
 			} catch (IOException e) {

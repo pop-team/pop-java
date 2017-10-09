@@ -1,7 +1,7 @@
 package popjava.combox.ssl;
 
-import popjava.util.ssl.SSLUtils;
 import javax.net.ssl.SSLContext;
+import popjava.util.ssl.SSLUtils;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
@@ -10,6 +10,7 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxAllocate;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxServer;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 /**
@@ -21,6 +22,7 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	 * Name of the implemented protocol
 	 */
 	public static final String PROTOCOL = "ssl";
+	private static final Configuration conf = Configuration.getInstance();
 
 	@Override
 	public String getComboxName() {
@@ -29,7 +31,7 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 
 	@Override
 	public Combox createClientCombox(POPAccessPoint accessPoint) {
-		return new ComboxSecureSocket(accessPoint, 0);
+		return createClientCombox(accessPoint, conf.getConnectionTimeout());
 	}
 
 	@Override
@@ -40,7 +42,7 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	@Override
 	public ComboxServer createServerCombox(AccessPoint accessPoint,
 			POPBuffer buffer, Broker broker) {
-		return new ComboxServerSecureSocket(accessPoint, 0, buffer, broker);
+		return createServerCombox(accessPoint, conf.getConnectionTimeout(), buffer, broker);
 	}
 
 	@Override

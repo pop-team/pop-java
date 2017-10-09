@@ -268,9 +268,7 @@ public final class Broker {
 				
 				POPClass annotation = popObject.getClass().getAnnotation(POPClass.class);
 				if(annotation != null){
-					for (ComboxServer comboxServer : comboxServers) {
-						comboxServer.getRequestQueue().setMaxQueue(annotation.maxRequestQueue());
-					}
+					requestQueue.setMaxQueue(annotation.maxRequestQueue());
 				}
 			} catch (Exception e) {
 				exception = POPException.createReflectException(
@@ -978,7 +976,7 @@ public final class Broker {
 			}
 		}
 		
-		comboxServers = liveServers.toArray(new ComboxServer[0]);
+		comboxServers = liveServers.toArray(new ComboxServer[liveServers.size()]);
 		return true;
 	}
 

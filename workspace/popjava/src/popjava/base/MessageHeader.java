@@ -6,18 +6,18 @@ package popjava.base;
  */
 public class MessageHeader {
 
-	static public final int REQUEST = 0;
-	static public final int RESPONSE = 1;
-	static public final int EXCEPTION = 2;
+	public static final int REQUEST = 0;
+	public static final int RESPONSE = 1;
+	public static final int EXCEPTION = 2;
 	
-	static public final int BIND_STATUS_CALL = 0;
-	static public final int ADD_REF_CALL = 1;
-	static public final int DEC_REF_CALL = 2;
-	static public final int GET_ENCODING_CALL = 3;
-	static public final int KILL_ALL = 4;
-	static public final int OBJECT_ALIVE_CALL = 5;
+	public static final int BIND_STATUS_CALL = 0;
+	public static final int ADD_REF_CALL = 1;
+	public static final int DEC_REF_CALL = 2;
+	public static final int GET_ENCODING_CALL = 3;
+	public static final int KILL_ALL = 4;
+	public static final int OBJECT_ALIVE_CALL = 5;
 
-	static public final int HEADER_LENGTH = 24;
+	public static final int HEADER_LENGTH = 24;
 
 	protected int requestType;
 	protected int classId;
