@@ -178,31 +178,31 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 			return;
 		}
 		
-		LogWriter.writeDebugInfo("[TFC] handling request");
+		LogWriter.writeDebugInfo("[TFC] handling;%s;%s", request.getUID(), tfcObject);
 		
-		// we look in the network if we have the requested object
-		List<TFCResource> requestObjects = tfcObjects.get(tfcObject);
-		
-		// we answer the origin jobManager with all the discovered objects
-		if (requestObjects != null && requestObjects.size() > 0) {
-			LogWriter.writeDebugInfo("[TFC] found %d object(s)", requestObjects.size());
-		
-			List<TFCResource> resources = getAliveTFCResources(tfcObject);
-			for (TFCResource tfcResource : resources) {
-				// send an answer to the origin
-				SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(), POPSystem.getPlatform(), new Resource());
-				// add custom TFC parameter
-				nodeinfo.setValue(TFC_RES_ACCESS_POINT, tfcResource.getAccessPoint().toString());
-				SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
+		List<TFCResource> resources = getAliveTFCResources(tfcObject);
+		if (resources == null) {
+			LogWriter.writeDebugInfo("[TFC] no resource found for %s", tfcObject);
+			return;
+		}
+		LogWriter.writeDebugInfo("[TFC] found %d object(s)", resources.size());
 
-				// if we want to answer we save the certificate if there is any
-				if (request.getPublicCertificate().length > 0) {
-					SSLUtils.addCertToTempStore(request.getPublicCertificate());
-				}
+		for (TFCResource tfcResource : resources) {
+			// send an answer to the origin
+			SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(), POPSystem.getPlatform(), new Resource());
+			// add custom TFC parameter
+			String resourceString = tfcResource.getAccessPoint().toString();
+			nodeinfo.setValue(TFC_RES_ACCESS_POINT, resourceString);
+			SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
 
-				// route response to the original JM
-				jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));				
+			// if we want to answer we save the certificate if there is any
+			if (request.getPublicCertificate().length > 0) {
+				SSLUtils.addCertToTempStore(request.getPublicCertificate());
 			}
+
+			LogWriter.writeDebugInfo("[TFC] aswering request %s of %s with %s.", request.getUID(), tfcObject, resourceString);
+			// route response to the original JM
+			jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));				
 		}
 	}
 }

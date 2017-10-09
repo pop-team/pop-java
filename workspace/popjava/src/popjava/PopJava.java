@@ -23,8 +23,6 @@ import popjava.util.POPRemoteCaller;
  *
  */
 public class PopJava {
-	
-	private static final Configuration conf = Configuration.getInstance();
 
 	private PopJava() {
 	}
@@ -112,7 +110,7 @@ public class PopJava {
 			return new POPAccessPoint[0];
 		}
 		// we must ask for at least one instance
-		if (maxInstances == 0) {
+		if (maxInstances <= 0) {
 			return new POPAccessPoint[0];
 		}
 		
@@ -123,7 +121,12 @@ public class PopJava {
 		}
 		
 		// connect to local job manager
-		POPJavaJobManager jm = getLocalJobManager();
+		Configuration conf = Configuration.getInstance();
+		String protocol = conf.getJobManagerProtocols()[0];
+		int port = conf.getJobManagerPorts()[0];
+		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
+			protocol, POPSystem.getHostIP(), port));
+		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);
 		
 		// we use create object in combination with a TFC connector
 		// this will get us a varing number of access points registered on the network
@@ -165,17 +168,6 @@ public class PopJava {
 		jobManager.exit();
 		
 		return aps;
-	}
-	
-	/**
-	 * Open a connection to the local JobManager, this connection need to be closed with a call to .exit()
-	 * @return 
-	 */
-	private static POPJavaJobManager getLocalJobManager() {
-		String protocol = conf.getDefaultProtocol();
-		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", 
-				protocol, POPSystem.getHostIP(), conf.getJobManagerPorts()[0]));
-		return PopJava.newActive(POPJavaJobManager.class, jma);
 	}
 	
 	public static POPAccessPoint getAccessPoint(Object object){
