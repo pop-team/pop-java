@@ -91,6 +91,11 @@ public final class Broker {
 	// thread unique callers
 	private static ThreadLocal<POPRemoteCaller> remoteCaller = new InheritableThreadLocal<>();
 	
+	/**
+	 * Request queue shared by all comboxes of this broker
+	 */
+	private final RequestQueue requestQueue = new RequestQueue();
+	
 	private State state;
 	private ComboxServer[] comboxServers;
 	private POPBuffer buffer;
@@ -838,15 +843,10 @@ public final class Broker {
 	public void treatRequests() throws InterruptedException { 
 		setState(State.Running);
 		while (getState() == State.Running) {
-			for (ComboxServer comboxServer : comboxServers) {
-				Request request = comboxServer.getRequestQueue().peek(REQUEST_QUEUE_TIMEOUT_MS,
-						TimeUnit.MILLISECONDS);
-
-				if (request != null) {
-					serveRequest(request);
-				}else {
-					Thread.sleep(100);
-				}
+			Request request = requestQueue.peek(REQUEST_QUEUE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+			
+			if (request != null) {
+				serveRequest(request);
 			}
 		}
 		LogWriter.writeDebugInfo("[Broker] Close broker "+popInfo.getClassName());
@@ -1178,5 +1178,9 @@ public final class Broker {
 			return this.getClass().getName() + "."
 					+ popInfo.getClass().getName() + ":";
 		}
+	}
+
+	public RequestQueue getRequestQueue() {
+		return requestQueue;
 	}
 }
