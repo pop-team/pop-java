@@ -91,7 +91,10 @@ public abstract class ComboxFactory {
 	 */
 	public boolean isAvailable() {
 		Configuration conf = Configuration.getInstance();
-		return (conf.getProtocolsWhitelist().isEmpty() || conf.getProtocolsWhitelist().contains(getComboxName())
-			&& !conf.getProtocolsBlacklist().contains(getComboxName()));
+		return 
+			(   conf.getProtocolsWhitelist().isEmpty() 
+			 || conf.getProtocolsWhitelist().contains(getComboxName())
+			)
+			&& !conf.getProtocolsBlacklist().contains(getComboxName());
 	}
 }
