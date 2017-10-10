@@ -114,6 +114,7 @@ public class MethodAccessTest {
 		Files.deleteIfExists(trustFolder.toPath());	
 		Files.deleteIfExists(configTrusted);
 		Files.deleteIfExists(configTemporary);
+		Configuration.getInstance().setUserConfig(null);
 	}
 	
 	@Before

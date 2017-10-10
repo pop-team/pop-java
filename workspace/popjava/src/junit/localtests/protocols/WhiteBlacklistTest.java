@@ -54,6 +54,9 @@ public class WhiteBlacklistTest {
 	public static void cleanup() {
 		userConfig.deleteOnExit();
 		keystore.deleteOnExit();
+		conf.setProtocolsBlacklist(Collections.EMPTY_SET);
+		conf.setProtocolsWhitelist(Collections.EMPTY_SET);
+		conf.setUserConfig(null);
 	}
 	
 	@Before
@@ -100,27 +103,28 @@ public class WhiteBlacklistTest {
 	@Test
 	public void useWhitelist() {
 		conf.setProtocolsBlacklist(Collections.EMPTY_SET);
-		conf.setProtocolsWhitelist(new HashSet<>(Arrays.asList(new String[] { "ssl" })));
+		conf.setProtocolsWhitelist(new HashSet<>(Arrays.asList(new String[] { "socket" })));
 		System.out.println("Whitelist:");
-		int size = startAndCheck().size();
-		assertEquals("only socket should be visible", 1, size);
+		Set<String> got = startAndCheck();
+		assertEquals("only socket should be visible", 1, got.size());
+		assertFalse("ssl is blacklisted", got.contains("ssl"));
 	}
 	
 	@Test
 	public void useBlacklist() {
-		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList(new String[] { "socket" })));
+		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList(new String[] { "ssl" })));
 		conf.setProtocolsWhitelist(Collections.EMPTY_SET);
 		System.out.println("Blacklist:");
 		Set<String> got = startAndCheck();
-		assertFalse("socket is blacklisted", got.contains("socket"));
+		assertFalse("ssl is blacklisted", got.contains("ssl"));
 	}
 	
 	@Test
 	public void useBothLists() {
-		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList(new String[] { "socket" })));
+		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList(new String[] { "ssl" })));
 		conf.setProtocolsWhitelist(new HashSet<>(Arrays.asList(new String[] { "ssl", "socket" })));
 		System.out.println("Both lists:");
 		Set<String> got = startAndCheck();
-		assertFalse("socket is blacklisted", got.contains("socket"));
+		assertFalse("ssl is blacklisted", got.contains("ssl"));
 	}
 }

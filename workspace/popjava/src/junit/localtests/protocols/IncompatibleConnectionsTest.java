@@ -48,6 +48,7 @@ public class IncompatibleConnectionsTest {
 	public static void cleanup() {
 		userConfig.deleteOnExit();
 		keystore.deleteOnExit();
+		Configuration.getInstance().setUserConfig(null);
 	}
 	
 	@Before
