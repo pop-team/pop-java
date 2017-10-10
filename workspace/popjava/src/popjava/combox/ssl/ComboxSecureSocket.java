@@ -117,17 +117,17 @@ public class ComboxSecureSocket extends Combox {
 				int port = ap.getPort();
 				try {
 					// Create an unbound socket
+					SocketAddress sockaddress = new InetSocketAddress(host, port);
 					if (timeOut > 0) {
-						SocketAddress sockaddress = new InetSocketAddress(host,
-								port);
 						peerConnection = (SSLSocket) factory.createSocket();
-						peerConnection.connect(sockaddress, timeOut);
 
 						//LogWriter.writeExceptionLog(new Exception());
 						//LogWriter.writeExceptionLog(new Exception("Open connection to "+host+":"+port+" remote: "+peerConnection.getLocalPort()));
 					} else {
-						peerConnection = (SSLSocket) factory.createSocket(host, port);
-					}
+						peerConnection = (SSLSocket) factory.createSocket();
+						timeOut = 0;
+					}					
+					peerConnection.connect(sockaddress);
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 					

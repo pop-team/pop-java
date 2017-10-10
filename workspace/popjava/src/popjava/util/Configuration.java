@@ -118,8 +118,8 @@ public final class Configuration {
 	private String selectedEncoding = "raw";
 	private String defaultProtocol = "socket";
 	
-	private Set<String> protocolsWhitelist = new HashSet<>();
-	private Set<String> protocolsBlacklist = new HashSet<>();
+	private final Set<String> protocolsWhitelist = new HashSet<>();
+	private final Set<String> protocolsBlacklist = new HashSet<>();
 
 	private boolean asyncConstructor = true;
 	private boolean activateJmx = false;
@@ -332,7 +332,7 @@ public final class Configuration {
 
 	public void setUserConfig(File userConfig) {
 		this.userConfig = userConfig;
-		usingUserConfig = true;
+		usingUserConfig = userConfig != null;
 	}
 
 	public void setDebug(boolean debug) {
@@ -514,12 +514,14 @@ public final class Configuration {
 
 	public void setProtocolsWhitelist(Set<String> protocolsWhitelist) {
 		USER_PROPERTIES.setProperty(Settable.PROTOCOLS_WHITELIST.name(), protocolsWhitelist.toString());
-		this.protocolsWhitelist = new HashSet<>(protocolsWhitelist);
+		this.protocolsWhitelist.clear();
+		this.protocolsWhitelist.addAll(protocolsWhitelist);
 	}
 
 	public void setProtocolsBlacklist(Set<String> protocolsBlacklist) {
 		USER_PROPERTIES.setProperty(Settable.PROTOCOLS_BLACKLIST.name(), protocolsBlacklist.toString());
-		this.protocolsBlacklist = new HashSet<>(protocolsBlacklist);
+		this.protocolsBlacklist.clear();
+		this.protocolsBlacklist.addAll(protocolsBlacklist);
 	}
 	
 	
@@ -619,9 +621,11 @@ public final class Configuration {
 						case PROTOCOLS_WHITELIST:
 							protocolsWhitelist.clear();
 							protocolsWhitelist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));
+							break;
 						case PROTOCOLS_BLACKLIST:
 							protocolsBlacklist.clear();
 							protocolsBlacklist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));
+							break;
 						case ASYNC_CONSTRUCTOR:                  asyncConstructor = Boolean.parseBoolean(value); break;
 						case ACTIVATE_JMX:                       activateJmx = Boolean.parseBoolean(value); break;
 						case CONNECT_TO_POPCPP:                  connectToPOPcpp = Boolean.parseBoolean(value); break;

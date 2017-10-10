@@ -1068,9 +1068,9 @@ public final class Broker {
 		Combox callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
 			POPAccessPoint accessPoint = new POPAccessPoint(callbackString);
+			// use factory to determine which combox to use
+			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 			for (int i = 0; i < accessPoint.size(); i++) {
-				// use factory to determine which combox to use
-				ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 				// get protocol from accessPoint
 				String protocol = accessPoint.get(i).getProtocol();
 				ComboxFactory factory = finder.findFactory(protocol);
@@ -1092,7 +1092,9 @@ public final class Broker {
 				LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
 				break;
 			}
-		} else {
+		}
+		
+		if (callback == null) {
 			LogWriter.writeDebugInfo("[Broker] Error: callback is null");
 			System.exit(1);
 		}
@@ -1111,17 +1113,15 @@ public final class Broker {
 		}
 		
 		//Send info back to callback
-		if (callback != null) {
-			MessageHeader messageHeader = new MessageHeader();
-			POPBuffer buffer = new BufferXDR();
-			buffer.setHeader(messageHeader);
-			buffer.putInt(status);
-			LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
-			broker.getAccessPoint().serialize(buffer);
-			callback.send(buffer);
-		}
+		MessageHeader messageHeader = new MessageHeader();
+		POPBuffer buffer = new BufferXDR();
+		buffer.setHeader(messageHeader);
+		buffer.putInt(status);
+		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
+		broker.getAccessPoint().serialize(buffer);
+		callback.send(buffer);
 
-		if (status == 0 && broker != null){
+		if (status == 0){
 			broker.treatRequests();
 		}
 		

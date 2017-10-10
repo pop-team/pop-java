@@ -186,7 +186,7 @@ public class ComboxFactoryFinder {
 				factories.add(factory);
 			}
 		}
-		return factories.toArray(new ComboxFactory[0]);
+		return factories.toArray(new ComboxFactory[factories.size()]);
 	}
 
 	/**
