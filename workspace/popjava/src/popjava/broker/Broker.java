@@ -139,7 +139,33 @@ public final class Broker {
 		
 		connectionCount++;
 		
-		initialize(java.util.Collections.EMPTY_LIST);
+		String[] protocols = popObject.getOd().getProtocols();
+		List<String> initProtocols = java.util.Collections.EMPTY_LIST;
+		if (protocols != null && protocols.length > 0) {
+			initProtocols = new ArrayList<>();
+			
+			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+				
+			for (String protocol : protocols) {
+				String[] split = protocol.split(":");
+
+				ComboxFactory factory = finder.findFactory(split[0]);
+				
+				int port = 0;
+				if (split.length == 2) {
+					try {
+						port = Integer.parseInt(split[1]);
+					} catch (Exception e) {
+					}
+				}
+
+				if (factory != null) {
+					initProtocols.add(String.format("%s_port=%d", factory.getComboxName(), port));
+				}
+			}
+		}
+		
+		initialize(initProtocols);
 		popInfo = object;
 		
 		new Thread(new Runnable() {
@@ -964,9 +990,7 @@ public final class Broker {
 			}
 		}
 		
-		//If no protocol was specified, fall back to default protocol
-		//TODO: LocalJVM objects need a way to specifiy the protocol(s), maybe as an annotation?
-		//TODO: Handle case where a port was specified, but the protocol is unavailable, throw exception
+		// If no protocol was specified, fall back to default protocol
 		if(liveServers.isEmpty()){
 			for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
 				AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
