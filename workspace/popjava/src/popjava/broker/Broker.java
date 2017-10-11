@@ -160,7 +160,7 @@ public final class Broker {
 				}
 
 				if (factory != null) {
-					initProtocols.add(String.format("%s_port=%d", factory.getComboxName(), port));
+					initProtocols.add(String.format("-%s_port=%d", factory.getComboxName(), port));
 				}
 			}
 		}

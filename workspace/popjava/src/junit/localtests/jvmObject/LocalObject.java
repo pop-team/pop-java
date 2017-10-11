@@ -38,6 +38,11 @@ public class LocalObject extends POPObject{
 	public LocalObject(@POPConfig(Type.LOCAL_JVM) boolean useLocalVM, @POPConfig(Type.URL)String url, String test){
 		value = (int)(Math.random() * 10000);
 	}
+	
+	@POPObjectDescription(localJVM = true, protocols = { "socket:14000", "socket" })
+	public LocalObject(boolean localDouble) {
+		value = 500;
+	}
 
 	@POPObjectDescription(localJVM = true)
 	public LocalObject(Long fake){

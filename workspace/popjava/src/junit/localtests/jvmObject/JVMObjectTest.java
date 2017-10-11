@@ -230,4 +230,15 @@ public class JVMObjectTest {
 		TimeUnit.MILLISECONDS.sleep(500);
 		assertTrue(local.getAsyncReport());
 	}
+	
+	@Test
+	public void testProtocolsSpecificObject() {
+		LocalObject localDoubleSocket = PopJava.getThis(PopJava.newActive(LocalObject.class, true));
+		assertEquals(500, localDoubleSocket.getValue());
+		
+		POPAccessPoint ap = localDoubleSocket.getAccessPoint();
+		System.out.println("AP: " + ap);
+		assertEquals(2, ap.size());
+		assertEquals(14000, ap.get(0).getPort());
+	}
 }
