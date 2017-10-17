@@ -10,4 +10,5 @@ import popjava.service.jobmanager.search.SNRequest;
  */
 public interface POPConnectorSearchNodeInterface {
 	void askResourcesDiscoveryAction(SNRequest request, POPAccessPoint sender, SNExploration oldExplorationList);
+	boolean broadcastPresence();
 }

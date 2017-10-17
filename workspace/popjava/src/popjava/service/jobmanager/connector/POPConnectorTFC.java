@@ -205,4 +205,9 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 			jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));				
 		}
 	}
+
+	@Override
+	public boolean broadcastPresence() {
+		return false;
+	}
 }

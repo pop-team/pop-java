@@ -943,6 +943,12 @@ public class POPJavaJobManager extends POPJobService {
 						continue;
 					}
 					
+					// skip we the connector is configured not to broadcast
+					POPConnectorSearchNodeInterface jmConnector = (POPConnectorSearchNodeInterface) connector;
+					if (!jmConnector.broadcastPresence()) {
+						continue;
+					}
+					
 					// all nodes
 					List<POPNetworkNode> nodes = network.getMembers(connector.getClass());
 
@@ -978,8 +984,11 @@ public class POPJavaJobManager extends POPJobService {
 	@POPAsyncConc
 	private void registerRemoteAsync(String network, AbstractNodeJobManager node) {
 		try {
-			POPJavaJobManager jm = node.getJobManager();			
-			jm.registerNode(network, node.getCreationParams());
+			// TODO send self, we should in some way generate a POPNetworkNode of ourselves in the right format
+			// a way could be by modifying the parameters we get from node.getParameters(), we know host=??, 
+			// port=?? and protocol=?? should be there
+			/*POPJavaJobManager jm = node.getJobManager();			
+			jm.registerNode(network, );*/
 		} catch (POPException e) {
 		}
 	}

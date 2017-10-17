@@ -200,4 +200,9 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 			jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));
 		}
 	}
+
+	@Override
+	public boolean broadcastPresence() {
+		return true;
+	}
 }
