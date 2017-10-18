@@ -9,7 +9,7 @@ package popjava.service.jobmanager.connector;
  */
 public class POPConnectorFactory {
 
-	public static POPConnectorBase makeConnector(String name) {
+	public static POPConnector makeConnector(String name) {
 		switch (name.toLowerCase()) {
 			// network and job manager are passed manually afterwards
 			case POPConnectorJobManager.IDENTITY: return new POPConnectorJobManager();
@@ -20,7 +20,7 @@ public class POPConnectorFactory {
 		}
 	}
 
-	public static Class<? extends POPConnectorBase> getConnectorClass(String name) {
+	public static Class<? extends POPConnector> getConnectorClass(String name) {
 		switch (name.toLowerCase()) {
 			// network and job manager are passed manually afterwards
 			case POPConnectorJobManager.IDENTITY: return POPConnectorJobManager.class;

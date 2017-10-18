@@ -1,13 +1,15 @@
 package popjava.service.jobmanager.network;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.connector.POPConnectorBase;
+import popjava.service.jobmanager.connector.POPConnector;
 import popjava.service.jobmanager.connector.POPConnectorFactory;
+import popjava.util.Util;
 
 /**
  * Describe a POP Network, made of POP Connector with relative members to of a POP COnnector.
@@ -16,34 +18,43 @@ import popjava.service.jobmanager.connector.POPConnectorFactory;
  */
 public class POPNetwork {
 
-	private final String name;
-	private final Map<Class<? extends POPConnectorBase>, POPConnectorBase> connectors;
-	private final Map<Class<? extends POPConnectorBase>, List<POPNetworkNode>> members;
+	private final String uuid;
+	private final String frendlyName;
+	private final Map<String, POPConnector> connectors;
 	private final POPJavaJobManager jobManager;
 
-	public POPNetwork(String name, POPJavaJobManager jobManager) {
-		this.name = name;
+	public POPNetwork(String frendlyName, POPJavaJobManager jobManager) {
+		this(Util.generateUUID(), frendlyName, jobManager);
+	}
+	
+	public POPNetwork(String uuid, String frendlyName, POPJavaJobManager jobManager) {
+		this.uuid = uuid;
+		this.frendlyName = frendlyName;
 		this.connectors = new HashMap<>();
-		this.members = new HashMap<>();
 		this.jobManager = jobManager;
 	}
 
-	public String getName() {
-		return name;
+	public String getFrendlyName() {
+		return frendlyName;
 	}
 
-	public POPConnectorBase[] getConnectors() {
-		return connectors.values().toArray(new POPConnectorBase[0]);
+	public String getUUID() {
+		return uuid;
+	}
+
+	public POPConnector[] getConnectors() {
+		Collection<POPConnector> conns = connectors.values();
+		return conns.toArray(new POPConnector[conns.size()]);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends POPConnectorBase> T getConnector(Class<T> connector) {
+	public <T extends POPConnector> T getConnector(String connector) {
 		return (T) connectors.get(connector);
 	}
 
 	public int size() {
 		int size = 0;
-		for (List<POPNetworkNode> l : members.values()) {
+		for (POPConnector l : getConnectors()) {
 			size += l.size();
 		}
 		return size;
@@ -57,7 +68,7 @@ public class POPNetwork {
 	 * @return An immutable set we can loop through
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends POPNetworkNode> List<T> getMembers(Class<? extends POPConnectorBase> connector) {
+	public <T extends POPNetworkNode> List<T> getMembers(Class<? extends POPConnector> connector) {
 		List<POPNetworkNode> nodes = members.get(connector);
 		if (nodes == null) {
 			return new ArrayList<>();
@@ -74,7 +85,7 @@ public class POPNetwork {
 	@SuppressWarnings("unchecked")
 	public boolean add(POPNetworkNode node) {
 		// connector
-		POPConnectorBase connector = connectors.get(node.getConnectorClass());
+		POPConnector connector = connectors.get(node.getConnectorClass());
 		if (connector == null) {
 			connector = POPConnectorFactory.makeConnector(node.getConnectorName());
 			connector.setJobManager(jobManager);
@@ -104,7 +115,7 @@ public class POPNetwork {
 	 */
 	public boolean remove(POPNetworkNode o) {
 		// connector
-		POPConnectorBase connector = connectors.get(o.getConnectorClass());
+		POPConnector connector = connectors.get(o.getConnectorClass());
 		if (connector == null) {
 			return false;
 		}
@@ -124,7 +135,7 @@ public class POPNetwork {
 	@Override
 	public int hashCode() {
 		int hash = 7;
-		hash = 89 * hash + Objects.hashCode(this.name);
+		hash = 89 * hash + Objects.hashCode(this.frendlyName);
 		return hash;
 	}
 
@@ -140,7 +151,7 @@ public class POPNetwork {
 			return false;
 		}
 		final POPNetwork other = (POPNetwork) obj;
-		if (!Objects.equals(this.name, other.name)) {
+		if (!Objects.equals(this.frendlyName, other.frendlyName)) {
 			return false;
 		}
 		if (!Objects.equals(this.members, other.members)) {

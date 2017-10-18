@@ -1,14 +1,14 @@
 package popjava.service.jobmanager.network;
 
 import java.util.Arrays;
-import popjava.service.jobmanager.connector.POPConnectorBase;
+import popjava.service.jobmanager.connector.POPConnector;
 
 /**
  *
  * @author Davide Mazzoleni
  * @param <T> The class type for this node
  */
-public abstract class POPNetworkNode<T extends POPConnectorBase> {
+public abstract class POPNetworkNode<T extends POPConnector> {
 
 	protected String host;
 	protected final Class<T> connectorClass;

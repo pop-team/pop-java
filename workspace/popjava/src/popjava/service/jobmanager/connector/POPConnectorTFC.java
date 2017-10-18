@@ -30,7 +30,7 @@ import popjava.util.Util;
  *
  * @author Dosky
  */
-public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSearchNodeInterface {
+public class POPConnectorTFC extends POPConnector implements POPConnectorSearchNodeInterface {
 	
 	public static final String IDENTITY = "tfc";
 	private final Configuration conf = Configuration.getInstance();
@@ -43,7 +43,7 @@ public class POPConnectorTFC extends POPConnectorBase implements POPConnectorSea
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), new Resource(), new Resource(), network.getName(), IDENTITY, null);
+		SNRequest request = new SNRequest(Util.generateUUID(), new Resource(), new Resource(), network.getFrendlyName(), IDENTITY, null);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {

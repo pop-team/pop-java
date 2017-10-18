@@ -27,7 +27,7 @@ import popjava.util.Util;
  *
  * @author Davide Mazzoleni
  */
-public class POPConnectorJobManager extends POPConnectorBase implements POPConnectorSearchNodeInterface {
+public class POPConnectorJobManager extends POPConnector implements POPConnectorSearchNodeInterface {
 	
 	public static final String IDENTITY = "jobmanager";
 	private final Configuration conf = Configuration.getInstance();
@@ -56,7 +56,7 @@ public class POPConnectorJobManager extends POPConnectorBase implements POPConne
 		String appServiceFingerprint = localservice.getFingerprint();
 		
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getName(), IDENTITY, appServiceFingerprint);
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getFrendlyName(), IDENTITY, appServiceFingerprint);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {

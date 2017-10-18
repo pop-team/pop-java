@@ -12,7 +12,7 @@ import popjava.service.jobmanager.network.NodeDirect;
  *
  * @author Davide Mazzoleni
  */
-public class POPConnectorDirect extends POPConnectorBase {
+public class POPConnectorDirect extends POPConnector {
 
 	public static final String IDENTITY = "direct";
 	public static final String OD_SERVICE_PORT = "_service-port";

@@ -4,7 +4,7 @@ import popjava.PopJava;
 import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.POPString;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.connector.POPConnectorBase;
+import popjava.service.jobmanager.connector.POPConnector;
 
 /**
  * Nodes using the Job Manager should extend this class instead
@@ -12,7 +12,7 @@ import popjava.service.jobmanager.connector.POPConnectorBase;
  * @author Davide Mazzoleni
  * @param <T> A POP Connector implementation
  */
-public abstract class AbstractNodeJobManager<T extends POPConnectorBase> extends POPNetworkNode<T> {
+public abstract class AbstractNodeJobManager<T extends POPConnector> extends POPNetworkNode<T> {
 
 	protected POPAccessPoint jobManagerAccessPoint;
 	private POPJavaJobManager jm;

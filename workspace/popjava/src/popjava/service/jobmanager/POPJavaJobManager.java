@@ -48,7 +48,7 @@ import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.network.POPNetwork;
 import popjava.service.jobmanager.network.POPNetworkNode;
 import popjava.service.jobmanager.network.POPNetworkNodeFactory;
-import popjava.service.jobmanager.connector.POPConnectorBase;
+import popjava.service.jobmanager.connector.POPConnector;
 import popjava.service.jobmanager.connector.POPConnectorFactory;
 import popjava.service.jobmanager.connector.POPConnectorSearchNodeInterface;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
@@ -411,7 +411,7 @@ public class POPJavaJobManager extends POPJobService {
 			String networkString = od.getNetwork();
 			// use default if not set
 			if (networkString.isEmpty()) {
-				networkString = defaultNetwork.getName();
+				networkString = defaultNetwork.getFrendlyName();
 			}
 			// get real network
 			POPNetwork network = networks.get(networkString);
@@ -423,7 +423,7 @@ public class POPJavaJobManager extends POPJobService {
 
 			// get the job manager connector specified in the od
 			Class connectorClass = POPConnectorFactory.getConnectorClass(od.getConnector());
-			POPConnectorBase connectorImpl = network.getConnector(connectorClass);
+			POPConnector connectorImpl = network.getConnector(connectorClass);
 			
 			if (connectorImpl == null) {
 				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
@@ -744,12 +744,12 @@ public class POPJavaJobManager extends POPJobService {
 			for (Map.Entry<String, POPNetwork> entry : networks.entrySet()) {
 				String k = entry.getKey();
 				POPNetwork net = entry.getValue();
-				POPConnectorBase[] connectors = net.getConnectors();
-				out.println(String.format("[%s]", net.getName()));
+				POPConnector[] connectors = net.getConnectors();
+				out.println(String.format("[%s]", net.getFrendlyName()));
 				out.println(String.format("connectors=%s", Arrays.toString(connectors)));
 				out.println(String.format("members=%d", net.size()));
-				for (POPConnectorBase connector : connectors) {
-					out.println(String.format("[%s.%s]", net.getName(), connector.getClass().getCanonicalName()));
+				for (POPConnector connector : connectors) {
+					out.println(String.format("[%s.%s]", net.getFrendlyName(), connector.getClass().getCanonicalName()));
 					for (POPNetworkNode node : net.getMembers(connector.getClass())) {
 						out.println(String.format("node=%s", node.toString()));
 					}
@@ -935,9 +935,9 @@ public class POPJavaJobManager extends POPJobService {
 			Collection<POPNetwork> nets = networks.values();
 			for (POPNetwork network : nets) {
 				// all connectors in network
-				POPConnectorBase[] connectors = network.getConnectors();
+				POPConnector[] connectors = network.getConnectors();
 
-				for (POPConnectorBase connector : connectors) {
+				for (POPConnector connector : connectors) {
 					// use connector with nodes who define a job manager
 					if (!(connector instanceof POPConnectorSearchNodeInterface)) {
 						continue;
@@ -957,7 +957,7 @@ public class POPJavaJobManager extends POPJobService {
 						if (node instanceof AbstractNodeJobManager) {
 							// connect to remove jm
 							AbstractNodeJobManager jmnode = (AbstractNodeJobManager) node;
-							registerRemoteAsync(network.getName(), jmnode);
+							registerRemoteAsync(network.getFrendlyName(), jmnode);
 						}
 					}
 				}
@@ -1090,7 +1090,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPSyncConc
 	public void registerNode(String... params) {
-		registerNode(defaultNetwork.getName(), params);
+		registerNode(defaultNetwork.getFrendlyName(), params);
 	}
 
 	/**
@@ -1100,7 +1100,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String... params) {
-		unregisterNode(defaultNetwork.getName(), params);
+		unregisterNode(defaultNetwork.getFrendlyName(), params);
 	}
 	
 	/**
@@ -1302,7 +1302,7 @@ public class POPJavaJobManager extends POPJobService {
 			ps.println("# networks with nodes");
 			for (POPNetwork network : networks.values()) {
 				// name
-				ps.print("network " + network.getName());
+				ps.print("network " + network.getFrendlyName());
 				// add default marker if needed
 				if (network.equals(defaultNetwork)) {
 					ps.print(" default");
@@ -1310,7 +1310,7 @@ public class POPJavaJobManager extends POPJobService {
 				ps.println();
 				
 				// nodes ordered by connector
-				for (POPConnectorBase connector : network.getConnectors()) {
+				for (POPConnector connector : network.getConnectors()) {
 					ps.println("# nodes for connector " + connector.getClass().getCanonicalName());
 					
 					for (POPNetworkNode node : network.getMembers(connector.getClass())) {
@@ -1409,7 +1409,7 @@ public class POPJavaJobManager extends POPJobService {
 		
 		String[][] nodes = new String[network.size()][];
 		int i = 0;
-		for (POPConnectorBase connector : network.getConnectors()) {
+		for (POPConnector connector : network.getConnectors()) {
 			for (POPNetworkNode member : network.getMembers(connector.getClass())) {
 				nodes[i++] = member.getCreationParams();
 			}
@@ -1552,7 +1552,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Start a discovery in a POP Network
 	 * 
-	 * @param request The request generated by {@link POPConnectorBase#createObject}
+	 * @param request The request generated by {@link POPConnector#createObject}
 	 * @param timeout How much time do we wait before proceeding, in case of 0 the first answer is the one we use
 	 * @return All the nodes that answered our request
 	 */
@@ -1652,8 +1652,8 @@ public class POPJavaJobManager extends POPJobService {
 			}
 			
 			// connector we are using
-			Class<? extends POPConnectorBase> connectorUsed = POPConnectorFactory.getConnectorClass(request.getConnector());
-			POPConnectorBase connector = network.getConnector(connectorUsed);
+			Class<? extends POPConnector> connectorUsed = POPConnectorFactory.getConnectorClass(request.getConnector());
+			POPConnector connector = network.getConnector(connectorUsed);
 			
 			// connector won't work with the SearchNode
 			if (!(connector instanceof POPConnectorSearchNodeInterface)) {

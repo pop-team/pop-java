@@ -1,5 +1,7 @@
 package popjava.service.jobmanager.connector;
 
+import java.util.ArrayList;
+import java.util.List;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.POPJavaJobManager;
@@ -10,10 +12,12 @@ import popjava.service.jobmanager.network.POPNetworkNode;
  *
  * @author Davide Mazzoleni
  */
-public abstract class POPConnectorBase {
+public abstract class POPConnector {
 
 	protected POPNetwork network;
 	protected POPJavaJobManager jobManager;
+	
+	protected final List<POPNetworkNode> nodes = new ArrayList<>();
 
 	/**
 	 * Protocol specific createObject
@@ -34,14 +38,45 @@ public abstract class POPConnectorBase {
 			int howmany, POPAccessPoint[] objcontacts,
 			int howmany2, POPAccessPoint[] remotejobcontacts);
 
-	/**
-	 * Protocol need to check if a node is valid and can handle it
-	 *
-	 * @param node The node to check
-	 * @return true if it can be handle, false otherwise
-	 */
-	public abstract boolean isValidNode(POPNetworkNode node);
 
+	public boolean isEmpty() {
+		return nodes.isEmpty();
+	}
+
+	public POPNetworkNode get(int i) {
+		return nodes.get(i);
+	}
+	
+
+	/**
+	 * Add a new network node to this connector
+	 *
+	 * @param node The node to add
+	 * @return true if it's added, false otherwise
+	 */
+	public boolean add(POPNetworkNode node) {
+		return nodes.add(node);
+	}
+
+	/**
+	 * Remove a network node from this connector
+	 *
+	 * @param node The node to remove
+	 * @return true if it's added, false otherwise
+	 */
+	public boolean remove(POPNetworkNode node) {	
+		return nodes.remove(node);
+	}
+
+	/**
+	 * The number of nodes contained in this connector
+	 *
+	 * @return how many nodes are contained in this node
+	 */
+	public int size() {
+		return nodes.size();
+	}
+	
 	/**
 	 * Set this protocol network of influence, will be used by its children
 	 *
