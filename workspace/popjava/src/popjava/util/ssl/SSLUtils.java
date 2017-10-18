@@ -111,8 +111,11 @@ public class SSLUtils {
 	 * @throws Exception 
 	 */
 	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, Exception {
-		keyStore.store(new FileOutputStream(conf.getSSLKeyStoreFile()), conf.getSSLKeyStorePassword().toCharArray());
-		POPTrustManager.getInstance().reloadTrustManager();
+		try (FileOutputStream fos = new FileOutputStream(conf.getSSLKeyStoreFile())) {
+			keyStore.store(fos, conf.getSSLKeyStorePassword().toCharArray());
+		} finally {
+			POPTrustManager.getInstance().reloadTrustManager();
+		}
 	}
 	
 	/**
