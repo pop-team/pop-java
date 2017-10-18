@@ -96,11 +96,19 @@ public class POPTrustManager implements X509TrustManager {
 	
 	@Override
 	public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+		System.out.println("[CHECKING CLIENT CERTIFICATE]");
+		for (X509Certificate cert : chain) {
+			System.out.println(SSLUtils.certificateFingerprint(cert));
+		}
 		trustManager.checkClientTrusted(chain, authType);
 	}
 
 	@Override
 	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+		System.out.println("[CHECKING SERVER CERTIFICATE]");
+		for (X509Certificate cert : chain) {
+			System.out.println(SSLUtils.certificateFingerprint(cert));
+		}
 		trustManager.checkServerTrusted(chain, authType);
 	}
 
