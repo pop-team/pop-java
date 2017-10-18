@@ -59,7 +59,6 @@ public class ComboxAcceptSocket implements Runnable {
 				Thread thread = new Thread(runnable, "Combox request acceptance");
 				thread.start();
 			} catch (IOException e) {				
-				break;
 			}
 		}
 		

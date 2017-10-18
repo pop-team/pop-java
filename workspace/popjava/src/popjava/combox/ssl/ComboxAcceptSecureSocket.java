@@ -64,7 +64,6 @@ public class ComboxAcceptSecureSocket implements Runnable {
 				thread.start();
 			} catch (IOException e) {
 				LogWriter.writeDebugInfo("[SSL Accept] Error while setting up connection: %s", e.getMessage());
-				break;
 			}
 		}
 		
