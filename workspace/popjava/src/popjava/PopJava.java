@@ -10,6 +10,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.service.jobmanager.connector.POPConnector;
 import popjava.service.jobmanager.connector.POPConnectorTFC;
 import popjava.service.jobmanager.network.AbstractNodeJobManager;
 import popjava.service.jobmanager.network.POPNetworkNode;
@@ -103,7 +104,7 @@ public class PopJava {
 	public static POPAccessPoint[] newTFCSearch(Class targetClass, int maxInstances, ObjectDescription od) {
 		POPSystem.start();
 		// we ARE in a TFC environment
-		od.setConnector(POPConnectorTFC.IDENTITY);
+		od.setConnector(POPConnector.Name.TFC.getGlobalName());
 		
 		// we must specify a network
 		if (od.getNetwork().isEmpty()) {

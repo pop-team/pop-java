@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import popjava.service.jobmanager.connector.POPConnector;
 import popjava.service.jobmanager.connector.POPConnectorJobManager;
 import popjava.util.ssl.KeyStoreDetails;
 import popjava.util.ssl.KeyStoreDetails.KeyStoreFormat;
@@ -100,7 +101,7 @@ public final class Configuration {
 	
 	private int jobManagerUpdateInterval = 10000;
 	private int jobManagerSelfRegisterInterval = 43_200_000;
-	private String jobManagerDefaultConnector = POPConnectorJobManager.IDENTITY;
+	private String jobManagerDefaultConnector = POPConnector.Name.JOBMANAGER.getGlobalName();
 	private int searchNodeUnlockTimeout = 10000;
 	private int searchNodeSearchTimeout = 0;
 	private int tfcSearchTimeout = 5000;

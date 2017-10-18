@@ -1,5 +1,7 @@
 package popjava.service.jobmanager.connector;
 
+import popjava.util.LogWriter;
+
 /**
  * Create a Protocol to createObject in the JobManager, this method should only be called when creating a Network
  *
@@ -8,26 +10,23 @@ package popjava.service.jobmanager.connector;
  * @author Davide Mazzoleni
  */
 public class POPConnectorFactory {
-
-	public static POPConnector makeConnector(String name) {
-		switch (name.toLowerCase()) {
-			// network and job manager are passed manually afterwards
-			case POPConnectorJobManager.IDENTITY: return new POPConnectorJobManager();
-			case POPConnectorDirect.IDENTITY: return new POPConnectorDirect();
-			case POPConnectorTFC.IDENTITY: return new POPConnectorTFC();
-			default: // TODO look for other classes or factory with reflection
-				return null;
+	public static POPConnector makeConnector(String connectorName) {
+		try {
+			POPConnector.Name connector = POPConnector.Name.from(connectorName);
+			return makeConnector(connector);
+		} catch(IllegalArgumentException e) {
+			LogWriter.writeDebugInfo("[Connector Factory] unknown connector '%s'", connectorName);
 		}
+		return null;
 	}
-
-	public static Class<? extends POPConnector> getConnectorClass(String name) {
-		switch (name.toLowerCase()) {
+	
+	public static POPConnector makeConnector(POPConnector.Name connector) {
+		switch (connector) {
 			// network and job manager are passed manually afterwards
-			case POPConnectorJobManager.IDENTITY: return POPConnectorJobManager.class;
-			case POPConnectorDirect.IDENTITY: return POPConnectorDirect.class;
-			case POPConnectorTFC.IDENTITY: return POPConnectorTFC.class;
-			default: // TODO look for other classes or factory with reflection
-				return null;
+			case JOBMANAGER: return new POPConnectorJobManager();
+			case DIRECT: return new POPConnectorDirect();
+			case TFC: return new POPConnectorTFC();
 		}
+		return null;
 	}
 }

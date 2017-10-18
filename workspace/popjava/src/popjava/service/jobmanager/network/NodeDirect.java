@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import popjava.service.jobmanager.connector.POPConnector;
 import popjava.service.jobmanager.connector.POPConnectorDirect;
 import popjava.util.Configuration;
 import popjava.util.Util;
@@ -13,7 +14,7 @@ import popjava.util.Util;
  *
  * @author Davide Mazzoleni
  */
-public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
+public class NodeDirect extends POPNetworkNode {
 
 	private int port;
 	private boolean daemon;
@@ -28,7 +29,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	 * @param daemonSecret 
 	 */
 	public NodeDirect(String host, int port, String daemonSecret) {
-		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
+		super(POPConnector.Name.DIRECT);
 		this.host = host;
 		this.port = port;
 		this.daemon = true;
@@ -44,7 +45,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	 * @param port 
 	 */
 	public NodeDirect(String host, int port) {
-		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
+		super(POPConnector.Name.DIRECT);
 		this.host = host;
 		this.port = port;
 		this.daemon = false;
@@ -54,7 +55,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	}
 
 	NodeDirect(List<String> params) {
-		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
+		super(POPConnector.Name.DIRECT);
 
 		// get potential params
 		String host = Util.removeStringFromList(params, "host=");
@@ -98,10 +99,6 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 			paramsSet.add("secret=" + daemonSecret);
 		}
 		creationParams = paramsSet.toArray(new String[paramsSet.size()]);
-	}
-
-	public String getHost() {
-		return host;
 	}
 
 	public int getPort() {
@@ -159,7 +156,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 
 	@Override
 	public String toString() {
-		return String.format("host=%s port=%d connector=%s protocol=%s %s", host, port, connectorName,
+		return String.format("host=%s port=%d connector=%s protocol=%s %s", host, port, name.getGlobalName(),
 				daemon ? "daemon" : "ssh",
 				daemonSecret == null ? "" : "secret=" + daemonSecret).trim();
 	}

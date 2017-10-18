@@ -11,8 +11,6 @@ import popjava.dataswaper.POPString;
 import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
-import popjava.service.jobmanager.network.POPNetworkNode;
-import popjava.service.jobmanager.network.NodeJobManager;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
@@ -29,9 +27,12 @@ import popjava.util.Util;
  */
 public class POPConnectorJobManager extends POPConnector implements POPConnectorSearchNodeInterface {
 	
-	public static final String IDENTITY = "jobmanager";
 	private final Configuration conf = Configuration.getInstance();
 
+	public POPConnectorJobManager() {
+		super(Name.JOBMANAGER);
+	}
+	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
@@ -56,7 +57,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		String appServiceFingerprint = localservice.getFingerprint();
 		
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getFrendlyName(), IDENTITY, appServiceFingerprint);
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getFriendlyName(), name.getGlobalName(), appServiceFingerprint);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {
@@ -167,11 +168,6 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		}
 
 		return POPErrorCode.POP_EXEC_FAIL;
-	}
-
-	@Override
-	public boolean isValidNode(POPNetworkNode node) {
-		return node instanceof NodeJobManager && ((NodeJobManager) node).isInitialized();
 	}
 
 	@Override

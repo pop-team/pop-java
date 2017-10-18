@@ -1,7 +1,7 @@
 package popjava.service.jobmanager.network;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,39 +19,82 @@ import popjava.util.Util;
 public class POPNetwork {
 
 	private final String uuid;
-	private final String frendlyName;
-	private final Map<String, POPConnector> connectors;
+	private final String friendlyName;
+	private final Map<POPConnector.Name, POPConnector> connectors;
 	private final POPJavaJobManager jobManager;
 
+	/**
+	 * Create a new network from 0, it will generate a new UUID for it.
+	 * 
+	 * @param frendlyName A local name for the network.
+	 * @param jobManager The job manager it is assigned to.
+	 */
 	public POPNetwork(String frendlyName, POPJavaJobManager jobManager) {
 		this(Util.generateUUID(), frendlyName, jobManager);
 	}
 	
-	public POPNetwork(String uuid, String frendlyName, POPJavaJobManager jobManager) {
+	/**
+	 * Initialize a POP Network from a previously existing UUID.
+	 * 
+	 * @param uuid The previously generated UUID.
+	 * @param friendlyName 
+	 * @param jobManager 
+	 */
+	public POPNetwork(String uuid, String friendlyName, POPJavaJobManager jobManager) {
 		this.uuid = uuid;
-		this.frendlyName = frendlyName;
+		this.friendlyName = friendlyName;
 		this.connectors = new HashMap<>();
 		this.jobManager = jobManager;
 	}
 
-	public String getFrendlyName() {
-		return frendlyName;
+	/**
+	 * The friendly name of the network, can change.
+	 * 
+	 * @return 
+	 */
+	public String getFriendlyName() {
+		return friendlyName;
 	}
 
+	/**
+	 * The unique identifier across nodes of this network.
+	 * 
+	 * @return 
+	 */
 	public String getUUID() {
 		return uuid;
 	}
 
+	/**
+	 * All the connectors in this network
+	 * 
+	 * @return 
+	 */
 	public POPConnector[] getConnectors() {
 		Collection<POPConnector> conns = connectors.values();
 		return conns.toArray(new POPConnector[conns.size()]);
 	}
 	
+	/**
+	 * Get an already casted connector from its string.
+	 * Warning: Responsibility on the user to use the right return.
+	 * 
+	 * Use ``POPConnector conector = network.getConnector(...)`` if the return is unknown.
+	 * 
+	 * @param <T> How to cast the connector
+	 * @param connector Name of the connector
+	 * @return 
+	 */
 	@SuppressWarnings("unchecked")
-	public <T extends POPConnector> T getConnector(String connector) {
+	public <T extends POPConnector> T getConnector(POPConnector.Name connector) {
 		return (T) connectors.get(connector);
 	}
 
+	/**
+	 * How many nodes are present in this node.
+	 * 
+	 * @return 
+	 */
 	public int size() {
 		int size = 0;
 		for (POPConnector l : getConnectors()) {
@@ -63,17 +106,16 @@ public class POPNetwork {
 	/**
 	 * Get NetworkNode already casted to correct type
 	 *
-	 * @param <T> The type we want the set of NetworkNode
-	 * @param connector Which connector we are using
+	 * @param connectorName Which connector we are using
 	 * @return An immutable set we can loop through
 	 */
-	@SuppressWarnings("unchecked")
-	public <T extends POPNetworkNode> List<T> getMembers(Class<? extends POPConnector> connector) {
-		List<POPNetworkNode> nodes = members.get(connector);
-		if (nodes == null) {
-			return new ArrayList<>();
+	public List<POPNetworkNode> getMembers(POPConnector.Name connectorName) {
+		POPConnector connector = connectors.get(connectorName);
+		if (connector == null) {
+			return Collections.EMPTY_LIST;
 		}
-		return (List<T>) new ArrayList(nodes);
+		
+		return connectors.get(connectorName).getNodes();
 	}
 
 	/**
@@ -85,49 +127,31 @@ public class POPNetwork {
 	@SuppressWarnings("unchecked")
 	public boolean add(POPNetworkNode node) {
 		// connector
-		POPConnector connector = connectors.get(node.getConnectorClass());
+		POPConnector connector = connectors.get(node.getConnectorName());
 		if (connector == null) {
 			connector = POPConnectorFactory.makeConnector(node.getConnectorName());
 			connector.setJobManager(jobManager);
 			connector.setNetwork(this);
-			connectors.put(node.getConnectorClass(), connector);
+			connectors.put(connector.getName(), connector);
 		}
-		// members
-		List<POPNetworkNode> connectorMembers = members.get(connector.getClass());
-		if (connectorMembers == null) {
-			connectorMembers = new ArrayList<>();
-			members.put(node.getConnectorClass(), connectorMembers);
-		}
-		if (connectorMembers.contains(node)) {
-			return true;
-		}
-		if (connector.isValidNode(node)) {
-			return connectorMembers.add(node);
-		}
-		return false;
+		return connector.add(node);
 	}
 
 	/**
 	 * Remove a node from this Network
 	 *
-	 * @param o The node
+	 * @param node The node
 	 * @return true if the Node is remove, false otherwise
 	 */
-	public boolean remove(POPNetworkNode o) {
+	public boolean remove(POPNetworkNode node) {
 		// connector
-		POPConnector connector = connectors.get(o.getConnectorClass());
+		POPConnector connector = connectors.get(node.getConnectorName());
 		if (connector == null) {
 			return false;
 		}
-		// members
-		List<POPNetworkNode> mem = members.get(connector.getClass());
-		if (mem == null) {
-			return false;
-		}
-		boolean status = mem.remove(o);
-		if (mem.isEmpty()) {
-			members.remove(connector.getClass());
-			connectors.remove(connector.getClass());
+		boolean status = connector.remove(node);
+		if (connector.isEmpty()) {
+			connectors.remove(connector.getName());
 		}
 		return status;
 	}
@@ -135,7 +159,7 @@ public class POPNetwork {
 	@Override
 	public int hashCode() {
 		int hash = 7;
-		hash = 89 * hash + Objects.hashCode(this.frendlyName);
+		hash = 89 * hash + Objects.hashCode(this.friendlyName);
 		return hash;
 	}
 
@@ -151,10 +175,7 @@ public class POPNetwork {
 			return false;
 		}
 		final POPNetwork other = (POPNetwork) obj;
-		if (!Objects.equals(this.frendlyName, other.frendlyName)) {
-			return false;
-		}
-		if (!Objects.equals(this.members, other.members)) {
+		if (!Objects.equals(this.uuid, other.uuid)) {
 			return false;
 		}
 		if (!Objects.equals(this.jobManager, other.jobManager)) {

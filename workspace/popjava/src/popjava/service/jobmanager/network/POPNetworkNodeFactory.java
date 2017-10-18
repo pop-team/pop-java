@@ -3,10 +3,9 @@ package popjava.service.jobmanager.network;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import popjava.service.jobmanager.connector.POPConnectorJobManager;
-import popjava.service.jobmanager.connector.POPConnectorDirect;
-import popjava.service.jobmanager.connector.POPConnectorTFC;
+import popjava.service.jobmanager.connector.POPConnector;
 import popjava.util.Configuration;
+import popjava.util.LogWriter;
 import popjava.util.Util;
 
 /**
@@ -22,17 +21,23 @@ public class POPNetworkNodeFactory {
 	}
 
 	public static POPNetworkNode makeNode(List<String> other) {
-		String connector = Util.removeStringFromList(other, "connector=");
+		String connectorName = Util.removeStringFromList(other, "connector=");
 		// use job manager if nothing is specified
-		if (connector == null) {
-			connector = conf.getJobManagerDefaultConnector();
+		if (connectorName == null) {
+			connectorName = conf.getJobManagerDefaultConnector();
 		}
 
-		switch (connector.toLowerCase()) {
-			case POPConnectorJobManager.IDENTITY: return new NodeJobManager(other);
-			case POPConnectorDirect.IDENTITY: return new NodeDirect(other);
-			case POPConnectorTFC.IDENTITY: return new NodeTFC(other);
-			default: return null;
+		try {
+			POPConnector.Name connector = POPConnector.Name.from(connectorName);
+			switch (connector) {
+				case JOBMANAGER: return new NodeJobManager(other);
+				case DIRECT: return new NodeDirect(other);
+				case TFC: return new NodeTFC(other);
+			}
+		} catch(IllegalArgumentException e) {
+			LogWriter.writeDebugInfo("[Node Factory] unknown connector specified '%s'", connectorName);
 		}
+		
+		return null;
 	}
 }
