@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.connector;
+package popjava.service.jobmanager.network;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +30,22 @@ import popjava.util.Util;
  */
 public class POPConnectorTFC extends POPConnector implements POPConnectorSearchNodeInterface {
 	
+	private static class DescriptorMethodImpl implements POPNetworkDescriptorMethod {
+		@Override
+		public POPConnector createConnector() {
+			return new POPConnectorTFC();
+		}
+
+		@Override
+		public POPNode createNode(List<String> params) {
+			return new POPNodeTFC(params);
+		}
+	}
+	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("tfc", new DescriptorMethodImpl());
+	static {
+		System.out.println(DESCRIPTOR);
+	}
+	
 	private final Configuration conf = Configuration.getInstance();
 	
 	private static final String TFC_REQ_OBJECT = "_tfc_object";
@@ -38,13 +54,13 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 	private final Map<String, List<TFCResource>> tfcObjects = new HashMap<>();
 
 	public POPConnectorTFC() {
-		super(Name.TFC);
+		super(DESCRIPTOR);
 	}
 	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), new Resource(), new Resource(), network.getFriendlyName(), getName().getGlobalName(), null);
+		SNRequest request = new SNRequest(Util.generateUUID(), new Resource(), new Resource(), network.getFriendlyName(), getDescriptor().getGlobalName(), null);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {

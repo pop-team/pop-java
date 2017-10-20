@@ -8,7 +8,6 @@ import popjava.PopJava;
 import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.POPString;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.connector.POPConnector;
 import popjava.util.Configuration;
 import popjava.util.Util;
 
@@ -17,7 +16,7 @@ import popjava.util.Util;
  * 
  * @author Davide Mazzoleni
  */
-public abstract class AbstractNodeJobManager extends POPNetworkNode {
+public abstract class POPNodeAJobManager extends POPNode {
 
 	protected POPAccessPoint jobManagerAccessPoint;
 	protected POPJavaJobManager jm;
@@ -25,8 +24,8 @@ public abstract class AbstractNodeJobManager extends POPNetworkNode {
 	protected String protocol;
 	protected boolean initialized = true;
 
-	public AbstractNodeJobManager(POPConnector.Name name, String host, int port, String protocol) {
-		super(name);
+	public POPNodeAJobManager(POPNetworkDescriptor descriptor, String host, int port, String protocol) {
+		super(descriptor);
 		this.host = host;
 		this.port = port;
 		this.protocol = protocol;
@@ -34,8 +33,8 @@ public abstract class AbstractNodeJobManager extends POPNetworkNode {
 		init();
 	}
 	
-	public AbstractNodeJobManager(POPConnector.Name name, List<String> params) {
-		super(name);
+	public POPNodeAJobManager(POPNetworkDescriptor descriptor, List<String> params) {
+		super(descriptor);
 		
 		// get potential params
 		host = Util.removeStringFromList(params, "host=");
@@ -72,7 +71,7 @@ public abstract class AbstractNodeJobManager extends POPNetworkNode {
 		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
 
 		Set<String> paramsSet = new HashSet<>();
-		paramsSet.add("connector=" + name.getGlobalName());
+		paramsSet.add("connector=" + descriptor.getGlobalName());
 		paramsSet.add("host=" + host);
 		paramsSet.add("port=" + port);
 		paramsSet.add("protocol=" + protocol);
@@ -106,7 +105,7 @@ public abstract class AbstractNodeJobManager extends POPNetworkNode {
 	public int hashCode() {
 		int hash = 7;
 		hash = 67 * hash + Objects.hashCode(this.host);
-		hash = 67 * hash + Objects.hashCode(this.name);
+		hash = 67 * hash + Objects.hashCode(this.descriptor);
 		hash = 67 * hash + this.port;
 		hash = 67 * hash + Objects.hashCode(this.protocol);
 		return hash;
@@ -123,7 +122,7 @@ public abstract class AbstractNodeJobManager extends POPNetworkNode {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final AbstractNodeJobManager other = (AbstractNodeJobManager) obj;
+		final POPNodeAJobManager other = (POPNodeAJobManager) obj;
 		if (this.port != other.port) {
 			return false;
 		}
@@ -133,7 +132,7 @@ public abstract class AbstractNodeJobManager extends POPNetworkNode {
 		if (!Objects.equals(this.protocol, other.protocol)) {
 			return false;
 		}
-		if (this.name != other.name) {
+		if (this.descriptor != other.descriptor) {
 			return false;
 		}
 		return true;
@@ -141,6 +140,6 @@ public abstract class AbstractNodeJobManager extends POPNetworkNode {
 	
 	@Override
 	public String toString() {
-		return String.format("host=%s port=%s connector=%s protocol=%s", host, port, name.getGlobalName(), protocol);
+		return String.format("host=%s port=%s connector=%s protocol=%s", host, port, descriptor.getGlobalName(), protocol);
 	}
 }

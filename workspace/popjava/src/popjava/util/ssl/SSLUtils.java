@@ -51,7 +51,7 @@ import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.bc.BcContentSignerBuilder;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import popjava.combox.ssl.POPTrustManager;
-import popjava.service.jobmanager.network.POPNetworkNode;
+import popjava.service.jobmanager.network.POPNode;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
@@ -156,7 +156,7 @@ public class SSLUtils {
 	 * @param networkName 
 	 * @return 
 	 */
-	private static String confidenceLinkAlias(POPNetworkNode node, String networkName) {
+	private static String confidenceLinkAlias(POPNode node, String networkName) {
 		return String.format("%x@%s", node.hashCode(), networkName.toLowerCase());
 	}
 	
@@ -169,7 +169,7 @@ public class SSLUtils {
 	 * @param mode false if we want to add the certificate, true if we want to replace it
 	 * @throws IOException 
 	 */
-	private static void addConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName, boolean mode) throws IOException {
+	private static void addConfidenceLink(POPNode node, Certificate certificate, String networkName, boolean mode) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = loadKeyStore();
@@ -204,7 +204,7 @@ public class SSLUtils {
 	 * @param networkName The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void addConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName) throws IOException {
+	public static void addConfidenceLink(POPNode node, Certificate certificate, String networkName) throws IOException {
 		addConfidenceLink(node, certificate, networkName, false);
 	}
 	
@@ -217,7 +217,7 @@ public class SSLUtils {
 	 * @param networkName The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void replaceConfidenceLink(POPNetworkNode node, Certificate certificate, String networkName) throws IOException {
+	public static void replaceConfidenceLink(POPNode node, Certificate certificate, String networkName) throws IOException {
 		addConfidenceLink(node, certificate, networkName, true);
 	}
 	
@@ -228,7 +228,7 @@ public class SSLUtils {
 	 * @param node A node created somehow, directly or with the factory
 	 * @throws IOException Many
 	 */
-	public static void removeConfidenceLink(POPNetworkNode node, String networkName) throws IOException {
+	public static void removeConfidenceLink(POPNode node, String networkName) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = loadKeyStore();
@@ -340,12 +340,12 @@ public class SSLUtils {
 	 * @param certificate 
 	 */
 	public static void addCertToTempStore(byte[] certificate) {
-		MethodUtil.grant(
+		/*MethodUtil.grant(
 			"popjava.service.jobmanager.POPJavaJobManager.askResourcesDiscovery",
 			"popjava.service.jobmanager.POPJavaJobManager.callbackResult",
-			"popjava.service.jobmanager.connector.POPConnectorJobManager.askResourcesDiscoveryAction",
-			"popjava.service.jobmanager.connector.POPConnectorTFC.askResourcesDiscoveryAction"
-		);
+			"popjava.service.jobmanager.network.POPConnectorJobManager.askResourcesDiscoveryAction",
+			"popjava.service.jobmanager.network.POPConnectorTFC.askResourcesDiscoveryAction"
+		);*/
 		addCertToTempStore(certificate, false);
 	}
 	
@@ -356,11 +356,11 @@ public class SSLUtils {
 	 * @param reload 
 	 */
 	public static void addCertToTempStore(byte[] certificate, boolean reload) {
-		MethodUtil.grant(
+		/*MethodUtil.grant(
 			"popjava.util.ssl.SSLUtils.addCertToTempStore",
 			"popjava.base.POPObject.PopRegisterFutureConnectorCertificate",
 			"popjava.interfacebase.Interface.deserialize"
-		);
+		);*/
 		try {			
 			// load it
 			Certificate cert = certificateFromBytes(certificate);

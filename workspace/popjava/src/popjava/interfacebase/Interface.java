@@ -28,7 +28,7 @@ import popjava.dataswaper.POPString;
 import popjava.service.deamon.POPJavaDeamonConnector;
 import popjava.service.jobmanager.POPJavaAppService;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.connector.POPConnectorDirect;
+import popjava.service.jobmanager.network.POPConnectorDirect;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;

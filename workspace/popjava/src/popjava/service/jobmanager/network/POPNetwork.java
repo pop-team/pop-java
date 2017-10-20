@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.connector.POPConnector;
-import popjava.service.jobmanager.connector.POPConnectorFactory;
 import popjava.util.Util;
 
 /**
@@ -20,7 +18,7 @@ public class POPNetwork {
 
 	private final String uuid;
 	private final String friendlyName;
-	private final Map<POPConnector.Name, POPConnector> connectors;
+	private final Map<POPNetworkDescriptor, POPConnector> connectors;
 	private final POPJavaJobManager jobManager;
 
 	/**
@@ -86,7 +84,7 @@ public class POPNetwork {
 	 * @return 
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends POPConnector> T getConnector(POPConnector.Name connector) {
+	public <T extends POPConnector> T getConnector(POPNetworkDescriptor connector) {
 		return (T) connectors.get(connector);
 	}
 
@@ -109,7 +107,7 @@ public class POPNetwork {
 	 * @param connectorName Which connector we are using
 	 * @return An immutable set we can loop through
 	 */
-	public List<POPNetworkNode> getMembers(POPConnector.Name connectorName) {
+	public List<POPNode> getMembers(POPNetworkDescriptor connectorName) {
 		POPConnector connector = connectors.get(connectorName);
 		if (connector == null) {
 			return Collections.EMPTY_LIST;
@@ -125,16 +123,16 @@ public class POPNetwork {
 	 * @return true if the Node is added, false if not or not compatible
 	 */
 	@SuppressWarnings("unchecked")
-	public boolean add(POPNetworkNode node) {
+	public boolean add(POPNode node) {
 		// connector
-		POPConnector connector = connectors.get(node.getConnectorName());
+		POPConnector connector = connectors.get(node.getConnectorDescriptor());
 		if (connector == null) {
-			connector = POPConnectorFactory.makeConnector(node.getConnectorName());
+			connector = node.getConnectorDescriptor().createConnector();
 			connector.setJobManager(jobManager);
 			connector.setNetwork(this);
-			connectors.put(connector.getName(), connector);
+			connectors.put(connector.getDescriptor(), connector);
 		}
-		return connector.add(node);
+		return connector.addNode(node);
 	}
 
 	/**
@@ -143,15 +141,15 @@ public class POPNetwork {
 	 * @param node The node
 	 * @return true if the Node is remove, false otherwise
 	 */
-	public boolean remove(POPNetworkNode node) {
+	public boolean remove(POPNode node) {
 		// connector
-		POPConnector connector = connectors.get(node.getConnectorName());
+		POPConnector connector = connectors.get(node.getConnectorDescriptor());
 		if (connector == null) {
 			return false;
 		}
-		boolean status = connector.remove(node);
+		boolean status = connector.removeNode(node);
 		if (connector.isEmpty()) {
-			connectors.remove(connector.getName());
+			connectors.remove(connector.getDescriptor());
 		}
 		return status;
 	}

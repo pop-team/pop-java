@@ -1,25 +1,23 @@
 package popjava.service.jobmanager.network;
 
 import java.util.Arrays;
-import popjava.dataswaper.IPOPBase;
-import popjava.service.jobmanager.connector.POPConnector;
 
 /**
  * A generic node which will be assigned to a specific POP Connector.
  * 
  * @author Davide Mazzoleni
  */
-public abstract class POPNetworkNode {
+public abstract class POPNode {
 
 	protected String host;
 	protected String[] creationParams;
 	
-	protected final POPConnector.Name name;
+	protected final POPNetworkDescriptor descriptor;
 	
 	protected boolean temporary = false;
 
-	public POPNetworkNode(POPConnector.Name name) {
-		this.name = name;
+	public POPNode(POPNetworkDescriptor descriptor) {
+		this.descriptor = descriptor;
 	}
 
 	/**
@@ -27,8 +25,8 @@ public abstract class POPNetworkNode {
 	 *
 	 * @return
 	 */
-	public POPConnector.Name getConnectorName() {
-		return name;
+	public POPNetworkDescriptor getConnectorDescriptor() {
+		return descriptor;
 	}
 
 	/**
@@ -67,7 +65,7 @@ public abstract class POPNetworkNode {
 	public abstract String toString();
 
 	/**
-	 * The necessary parameters to create this node via {@link POPNetworkNodeFactory#makeNode}
+	 * The necessary parameters to create this node via {@link POPNodeFactory#makeNode}
 	 *
 	 * @return
 	 */

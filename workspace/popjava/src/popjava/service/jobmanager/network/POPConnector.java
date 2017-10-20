@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.connector;
+package popjava.service.jobmanager.network;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,53 +6,26 @@ import java.util.List;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.network.POPNetwork;
-import popjava.service.jobmanager.network.POPNetworkNode;
 
 /**
  *
  * @author Davide Mazzoleni
  */
 public abstract class POPConnector {
-	
-	public enum Name {
-		JOBMANAGER("jobmanager"),
-		TFC("tfc"),
-		DIRECT("direct");
-		
-		private final String globalName;
-
-		private Name(String globalName) {
-			this.globalName = globalName;
-		}
-
-		public String getGlobalName() {
-			return globalName;
-		}
-		
-		public static Name from(String global) {
-			for (Name name : values()) {
-				if (name.getGlobalName().toLowerCase().equals(global.toLowerCase())) {
-					return name;
-				}
-			}
-			throw new IllegalArgumentException("unknown enum for enum");
-		}
-	}
 
 	protected POPNetwork network;
 	protected POPJavaJobManager jobManager;
 	
-	protected final Name name;
-	protected final List<POPNetworkNode> nodes = new ArrayList<>();
+	protected final POPNetworkDescriptor descriptor;
+	protected final List<POPNode> nodes = new ArrayList<>();
 
 	/**
 	 * The constructor define the name of the connector.
 	 * 
 	 * @param name 
 	 */
-	public POPConnector(Name name) {
-		this.name = name;
+	public POPConnector(POPNetworkDescriptor name) {
+		this.descriptor = name;
 	}
 	
 	/**
@@ -75,12 +48,12 @@ public abstract class POPConnector {
 			int howmany2, POPAccessPoint[] remotejobcontacts);
 
 	/**
-	 * The enum identifying this class.
+	 * The descriptor identifying this class.
 	 * 
 	 * @return 
 	 */
-	public Name getName() {
-		return name;
+	public POPNetworkDescriptor getDescriptor() {
+		return descriptor;
 	}
 
 	/**
@@ -98,8 +71,8 @@ public abstract class POPConnector {
 	 * @param node The node to add
 	 * @return true if it's added, false otherwise
 	 */
-	public boolean add(POPNetworkNode node) {
-		return nodes.contains(node) || nodes.add(node);
+	boolean addNode(POPNode node) {
+		return node.getConnectorDescriptor() == descriptor && nodes.contains(node) || nodes.add(node);
 	}
 
 	/**
@@ -108,7 +81,7 @@ public abstract class POPConnector {
 	 * @param node The node to remove
 	 * @return true if it's added, false otherwise
 	 */
-	public boolean remove(POPNetworkNode node) {	
+	boolean removeNode(POPNode node) {	
 		return nodes.remove(node);
 	}
 
@@ -126,7 +99,7 @@ public abstract class POPConnector {
 	 * 
 	 * @return 
 	 */
-	public List<POPNetworkNode> getNodes() {
+	List<POPNode> getNodes() {
 		return Collections.unmodifiableList(nodes);
 	}
 	
@@ -135,7 +108,7 @@ public abstract class POPConnector {
 	 *
 	 * @param network
 	 */
-	public void setNetwork(POPNetwork network) {
+	void setNetwork(POPNetwork network) {
 		this.network = network;
 	}
 
@@ -144,7 +117,7 @@ public abstract class POPConnector {
 	 *
 	 * @param jobManager
 	 */
-	public void setJobManager(POPJavaJobManager jobManager) {
+	void setJobManager(POPJavaJobManager jobManager) {
 		this.jobManager = jobManager;
 	}
 }
