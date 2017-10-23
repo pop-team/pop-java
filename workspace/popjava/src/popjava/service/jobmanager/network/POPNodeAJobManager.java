@@ -4,24 +4,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import popjava.PopJava;
 import popjava.baseobject.POPAccessPoint;
-import popjava.service.jobmanager.connector.POPConnectorTFC;
+import popjava.dataswaper.POPString;
+import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.util.Configuration;
 import popjava.util.Util;
 
 /**
- * A TFC node, identical to Job Manager one, different function
+ * Nodes using the Job Manager should extend this class instead
  * 
  * @author Davide Mazzoleni
  */
-public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
+public abstract class POPNodeAJobManager extends POPNode {
 
-	private int port;
-	private String protocol;
-	private boolean initialized = true;
+	protected POPAccessPoint jobManagerAccessPoint;
+	protected POPJavaJobManager jm;
+	protected int port;
+	protected String protocol;
+	protected boolean initialized = true;
 
-	public NodeTFC(String host, int port, String protocol) {
-		super(POPConnectorTFC.IDENTITY, POPConnectorTFC.class);
+	public POPNodeAJobManager(POPNetworkDescriptor descriptor, String host, int port, String protocol) {
+		super(descriptor);
 		this.host = host;
 		this.port = port;
 		this.protocol = protocol;
@@ -29,12 +33,8 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 		init();
 	}
 	
-	/**
-	 * 
-	 * @param params List of parameters
-	 */
-	NodeTFC(List<String> params) {
-		super(POPConnectorTFC.IDENTITY, POPConnectorTFC.class);
+	public POPNodeAJobManager(POPNetworkDescriptor descriptor, List<String> params) {
+		super(descriptor);
 		
 		// get potential params
 		host = Util.removeStringFromList(params, "host=");
@@ -71,27 +71,43 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
 
 		Set<String> paramsSet = new HashSet<>();
-		paramsSet.add("connector=" + POPConnectorTFC.IDENTITY);
+		paramsSet.add("connector=" + descriptor.getGlobalName());
 		paramsSet.add("host=" + host);
 		paramsSet.add("port=" + port);
 		paramsSet.add("protocol=" + protocol);
 		creationParams = paramsSet.toArray(new String[paramsSet.size()]);
 	}
-
-	@Override
-	public POPAccessPoint getJobManagerAccessPoint() {
+	
+    public final POPAccessPoint getJobManagerAccessPoint() {
 		return jobManagerAccessPoint;
 	}
 
-	public boolean isInitialized() {
+	public final boolean isInitialized() {
 		return initialized;
+	}
+
+	public final POPJavaJobManager getJobManager() {
+		// create connection if it doesn't exists
+		if (jm == null) {
+			jm = PopJava.newActive(POPJavaJobManager.class, getJobManagerAccessPoint());
+		}
+		// test connection
+		try {
+			POPString val = new POPString();
+			jm.query("power", val);
+		} catch (Exception e) {
+			jm = PopJava.newActive(POPJavaJobManager.class, getJobManagerAccessPoint());
+		}
+		return jm;
 	}
 
 	@Override
 	public int hashCode() {
-		int hash = 5;
-		hash = 97 * hash + Objects.hashCode(this.host);
-		hash = 97 * hash + this.port;
+		int hash = 7;
+		hash = 67 * hash + Objects.hashCode(this.host);
+		hash = 67 * hash + Objects.hashCode(this.descriptor);
+		hash = 67 * hash + this.port;
+		hash = 67 * hash + Objects.hashCode(this.protocol);
 		return hash;
 	}
 
@@ -106,18 +122,24 @@ public class NodeTFC extends AbstractNodeJobManager<POPConnectorTFC> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final NodeTFC other = (NodeTFC) obj;
+		final POPNodeAJobManager other = (POPNodeAJobManager) obj;
 		if (this.port != other.port) {
 			return false;
 		}
 		if (!Objects.equals(this.host, other.host)) {
 			return false;
 		}
+		if (!Objects.equals(this.protocol, other.protocol)) {
+			return false;
+		}
+		if (this.descriptor != other.descriptor) {
+			return false;
+		}
 		return true;
 	}
-
+	
 	@Override
 	public String toString() {
-		return String.format("host=%s port=%s connector=%s protocol=%s", host, port, connectorName, protocol);
+		return String.format("host=%s port=%s connector=%s protocol=%s", host, port, descriptor.getGlobalName(), protocol);
 	}
 }

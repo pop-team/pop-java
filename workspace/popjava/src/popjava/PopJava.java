@@ -10,9 +10,10 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.connector.POPConnectorTFC;
-import popjava.service.jobmanager.network.AbstractNodeJobManager;
-import popjava.service.jobmanager.network.POPNetworkNode;
+import popjava.service.jobmanager.network.POPConnector;
+import popjava.service.jobmanager.network.POPConnectorTFC;
+import popjava.service.jobmanager.network.POPNodeAJobManager;
+import popjava.service.jobmanager.network.POPNode;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.POPRemoteCaller;
@@ -103,7 +104,7 @@ public class PopJava {
 	public static POPAccessPoint[] newTFCSearch(Class targetClass, int maxInstances, ObjectDescription od) {
 		POPSystem.start();
 		// we ARE in a TFC environment
-		od.setConnector(POPConnectorTFC.IDENTITY);
+		od.setConnector("tfc");
 		
 		// we must specify a network
 		if (od.getNetwork().isEmpty()) {
@@ -151,14 +152,14 @@ public class PopJava {
 	 * @param node
 	 * @return 
 	 */
-	public static POPAccessPoint[] newTFCSearchOn(Class targetClass, String networkName, POPNetworkNode node) {
+	public static POPAccessPoint[] newTFCSearchOn(Class targetClass, String networkName, POPNode node) {
 		POPAccessPoint[] aps = new POPAccessPoint[0];
-		if (!(node instanceof AbstractNodeJobManager)) {
+		if (!(node instanceof POPNodeAJobManager)) {
 			return aps;
 		}
 		
 		// cast node and connect to remote job manager
-		AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
+		POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 		POPJavaJobManager jobManager = jmNode.getJobManager();
 		
 		// make local reserach on node

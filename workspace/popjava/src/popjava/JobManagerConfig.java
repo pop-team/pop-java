@@ -11,11 +11,12 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.util.ssl.SSLUtils;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
-import popjava.service.jobmanager.network.POPNetworkNode;
-import popjava.service.jobmanager.network.POPNetworkNodeFactory;
+import popjava.service.jobmanager.network.POPNetworkDescriptor;
+import popjava.service.jobmanager.network.POPNode;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.Util;
 import popjava.util.ssl.KeyStoreCreationOptions;
 
 /**
@@ -72,7 +73,7 @@ public class JobManagerConfig {
 	 * @param network The name of the network
 	 * @param node A network node implementation
 	 */
-	public void registerNode(String network, POPNetworkNode node) {
+	public void registerNode(String network, POPNode node) {
 		jobManager.registerPermanentNode(network, node.getCreationParams());
 	}
 	
@@ -84,7 +85,7 @@ public class JobManagerConfig {
 	 * @param certificate The certificate to use
 	 * @return 
 	 */
-	public boolean registerNode(String network, POPNetworkNode node, Certificate certificate) {
+	public boolean registerNode(String network, POPNode node, Certificate certificate) {
 		try {
 			SSLUtils.addConfidenceLink(node, certificate, network);
 			jobManager.registerPermanentNode(network, node.getCreationParams());
@@ -103,7 +104,7 @@ public class JobManagerConfig {
 	 * @param certificate The certificate to use
 	 * @return 
 	 */
-	public boolean assignCertificate(String network, POPNetworkNode node, Certificate certificate) {
+	public boolean assignCertificate(String network, POPNode node, Certificate certificate) {
 		try {
 			SSLUtils.addConfidenceLink(node, certificate, network);
 			return true;
@@ -121,7 +122,7 @@ public class JobManagerConfig {
 	 * @param certificate The certificate to load
 	 * @return 
 	 */
-	public boolean replaceCertificate(String network, POPNetworkNode node, Certificate certificate) {
+	public boolean replaceCertificate(String network, POPNode node, Certificate certificate) {
 		try {
 			SSLUtils.replaceConfidenceLink(node, certificate, network);
 			return true;
@@ -139,7 +140,7 @@ public class JobManagerConfig {
 	 * @param node The node to add
 	 * @return 
 	 */
-	public boolean removeCertificate(String network, POPNetworkNode node) {
+	public boolean removeCertificate(String network, POPNode node) {
 		try {
 			SSLUtils.removeConfidenceLink(node, network);
 			return true;
@@ -155,7 +156,7 @@ public class JobManagerConfig {
 	 * @param network The name of the network
 	 * @param node A network node implementation
 	 */
-	public void unregisterNode(String network, POPNetworkNode node) {
+	public void unregisterNode(String network, POPNode node) {
 		jobManager.unregisterPermanentNode(network, node.getCreationParams());
 		// try remove
 		try {
@@ -257,25 +258,29 @@ public class JobManagerConfig {
 	
 	/**
 	 * All the node available in a network
-	 * Use {@link POPNetworkNode#getConnectorName()} or {@link POPNetworkNode#getConnectorClass()} to know which type you are working with.
+	 * Use {@link POPNode#getConnectorDescriptor()} or {@link POPNode#getConnectorClass()} to know which type you are working with.
 	 * 
 	 * @param networkName
 	 * @return 
 	 */
-	public POPNetworkNode[] networkNodes(String networkName) {
+	public POPNode[] networkNodes(String networkName) {
 		// get nodes
 		String[][] networkNodes = jobManager.getNetworkNodes(networkName);
 		
 		// no results
 		if (networkNodes == null) {
-			return new POPNetworkNode[0];
+			return new POPNode[0];
 		}
 		
-		POPNetworkNode[] nodes = new POPNetworkNode[networkNodes.length];
+		POPNode[] nodes = new POPNode[networkNodes.length];
 		// make them real
 		for (int i = 0; i < nodes.length; i++) {
 			List<String> nodeParams = new ArrayList<>(Arrays.asList(networkNodes[i]));
-			nodes[i] = POPNetworkNodeFactory.makeNode(nodeParams);
+			String connector = Util.removeStringFromList(nodeParams, "connector=");
+			POPNetworkDescriptor descriptor = POPNetworkDescriptor.from(connector);
+			if (descriptor != null) {
+				nodes[i] = descriptor.createNode(nodeParams);
+			}
 		}
 		
 		return nodes;

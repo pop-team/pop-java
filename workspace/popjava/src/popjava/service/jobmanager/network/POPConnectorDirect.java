@@ -1,29 +1,42 @@
-package popjava.service.jobmanager.connector;
+package popjava.service.jobmanager.network;
 
 import java.util.List;
 import popjava.baseobject.ConnectionType;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.interfacebase.Interface;
-import popjava.service.jobmanager.network.POPNetworkNode;
-import popjava.service.jobmanager.network.NodeDirect;
 
 /**
  *
  * @author Davide Mazzoleni
  */
-public class POPConnectorDirect extends POPConnectorBase {
+public class POPConnectorDirect extends POPConnector {
+	
+	private static class DescriptorMethodImpl implements POPNetworkDescriptorMethod {
+		@Override
+		public POPConnector createConnector() {
+			return new POPConnectorDirect();
+		}
 
-	public static final String IDENTITY = "direct";
+		@Override
+		public POPNode createNode(List<String> params) {
+			return new POPNodeDirect(params);
+		}
+	}
+	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("direct", new DescriptorMethodImpl());
+
 	public static final String OD_SERVICE_PORT = "_service-port";
 
+	public POPConnectorDirect() {
+		super(DESCRIPTOR);
+	}
+	
 	@Override
 	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
 			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// node in network
-		List<NodeDirect> nodes = network.getMembers(this.getClass());
 		// get a random node
-		NodeDirect node = nodes.get((int) (Math.random() * nodes.size()));
+		POPNodeDirect node = (POPNodeDirect) nodes.get((int) (Math.random() * nodes.size()));
 
 		// set od hostname to connect directly
 		od.setHostname(node.getHost());
@@ -41,10 +54,4 @@ public class POPConnectorDirect extends POPConnectorBase {
 		}
 		return 0;
 	}
-
-	@Override
-	public boolean isValidNode(POPNetworkNode node) {
-		return node instanceof NodeDirect && ((NodeDirect) node).isInitialized();
-	}
-
 }

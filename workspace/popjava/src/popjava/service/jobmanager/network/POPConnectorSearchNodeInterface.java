@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.connector;
+package popjava.service.jobmanager.network;
 
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.search.SNExploration;

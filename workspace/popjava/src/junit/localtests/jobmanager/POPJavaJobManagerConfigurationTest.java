@@ -3,6 +3,7 @@ package junit.localtests.jobmanager;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,12 +16,13 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
-import popjava.service.jobmanager.network.NodeDirect;
-import popjava.service.jobmanager.network.NodeJobManager;
-import popjava.service.jobmanager.network.NodeTFC;
-import popjava.service.jobmanager.network.POPNetworkNode;
-import popjava.service.jobmanager.network.POPNetworkNodeFactory;
+import popjava.service.jobmanager.network.POPNetworkDescriptor;
+import popjava.service.jobmanager.network.POPNodeDirect;
+import popjava.service.jobmanager.network.POPNodeJobManager;
+import popjava.service.jobmanager.network.POPNodeTFC;
+import popjava.service.jobmanager.network.POPNode;
 import popjava.system.POPSystem;
+import popjava.util.Util;
 
 /**
  *
@@ -94,19 +96,19 @@ public class POPJavaJobManagerConfigurationTest {
 	
 	@Test
 	public void networks() throws IOException {
-		Map<String,POPNetworkNode[]> networks = new HashMap<>();
-		networks.put("1", new POPNetworkNode[]{ new NodeDirect("1", 0), new NodeJobManager("0", 0, "ssl") });
-		networks.put("2", new POPNetworkNode[]{ new NodeDirect("3", 0, "daemon"), new NodeJobManager("2", 0, "ssl") });
-		networks.put("3", new POPNetworkNode[]{ new NodeTFC("4", 0, "ssl") });
+		Map<String,POPNode[]> networks = new HashMap<>();
+		networks.put("1", new POPNode[]{ new POPNodeDirect("1", 0), new POPNodeJobManager("0", 0, "ssl") });
+		networks.put("2", new POPNode[]{ new POPNodeDirect("3", 0, "daemon"), new POPNodeJobManager("2", 0, "ssl") });
+		networks.put("3", new POPNode[]{ new POPNodeTFC("4", 0, "ssl") });
 		
 		File jmConfig = tf.newFile();
 		try (PrintWriter out = new PrintWriter(jmConfig)) {
-			for (Map.Entry<String, POPNetworkNode[]> entry : networks.entrySet()) {
+			for (Map.Entry<String, POPNode[]> entry : networks.entrySet()) {
 				String network = entry.getKey();
-				POPNetworkNode[] nodes = entry.getValue();
+				POPNode[] nodes = entry.getValue();
 				
 				out.println("network " + network);
-				for (POPNetworkNode node : nodes) {
+				for (POPNode node : nodes) {
 					out.print("node ");
 					for (String el : node.getCreationParams()) {
 						out.print(el + " ");
@@ -125,12 +127,15 @@ public class POPJavaJobManagerConfigurationTest {
 		
 		for (String network : networks.keySet()) {
 			String[][] networkStringNodes = jm.getNetworkNodes(network);
-			Set<POPNetworkNode> networkNodes = new HashSet<>();
+			Set<POPNode> networkNodes = new HashSet<>();
 			for (int i = 0; i < networkStringNodes.length; i++) {
-				networkNodes.add(POPNetworkNodeFactory.makeNode(networkStringNodes[i]));
+				ArrayList<String> params = new ArrayList<>(Arrays.asList(networkStringNodes[i]));
+				String connector = Util.removeStringFromList(params, "connector=");
+				POPNetworkDescriptor descriptor = POPNetworkDescriptor.from(connector);
+				networkNodes.add(descriptor.createNode(params));
 			}
 			
-			Set<POPNetworkNode> original = new HashSet<>(Arrays.asList(networks.get(network)));
+			Set<POPNode> original = new HashSet<>(Arrays.asList(networks.get(network)));
 			
 			Assert.assertEquals(original, networkNodes);
 		}

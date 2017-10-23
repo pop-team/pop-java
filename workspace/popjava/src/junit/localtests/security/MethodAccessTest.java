@@ -18,7 +18,7 @@ import org.junit.Test;
 import popjava.PopJava;
 import popjava.combox.ssl.ComboxSecureSocketFactory;
 import popjava.combox.ssl.POPTrustManager;
-import popjava.service.jobmanager.network.NodeTFC;
+import popjava.service.jobmanager.network.POPNodeTFC;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.ssl.KeyStoreCreationOptions;
@@ -40,13 +40,12 @@ public class MethodAccessTest {
 	static File tempFolder;
 	static File trustFolder;
 	
-	static NodeTFC node = new NodeTFC("localhost", 2711, "socket");
-	
 	Configuration conf = Configuration.getInstance();
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException {
 		try {
+			POPNodeTFC node = new POPNodeTFC("localhost", 2711, "socket");
 			// init
 			Configuration conf = Configuration.getInstance();
 			conf.setDebug(true);

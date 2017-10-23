@@ -39,21 +39,21 @@ import popjava.annotation.POPParameter;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
+import popjava.baseobject.AccessPoint;
 import popjava.codemanager.AppService;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
 import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
-import popjava.service.jobmanager.network.NodeJobManager;
+import popjava.service.jobmanager.network.POPNodeJobManager;
 import popjava.service.jobmanager.network.POPNetwork;
-import popjava.service.jobmanager.network.POPNetworkNode;
-import popjava.service.jobmanager.network.POPNetworkNodeFactory;
-import popjava.service.jobmanager.connector.POPConnectorBase;
-import popjava.service.jobmanager.connector.POPConnectorFactory;
-import popjava.service.jobmanager.connector.POPConnectorSearchNodeInterface;
-import popjava.service.jobmanager.connector.POPConnectorTFC;
-import popjava.service.jobmanager.network.AbstractNodeJobManager;
-import popjava.service.jobmanager.network.NodeTFC;
+import popjava.service.jobmanager.network.POPNode;
+import popjava.service.jobmanager.network.POPConnector;
+import popjava.service.jobmanager.network.POPNetworkDescriptor;
+import popjava.service.jobmanager.network.POPConnectorSearchNodeInterface;
+import popjava.service.jobmanager.network.POPConnectorTFC;
+import popjava.service.jobmanager.network.POPNodeAJobManager;
+import popjava.service.jobmanager.network.POPNodeTFC;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
 import popjava.service.jobmanager.search.SNRequest;
@@ -194,188 +194,194 @@ public class POPJavaJobManager extends POPJobService {
 			String line;
 			String[] token;
 			while ((line = br.readLine()) != null) {
-				// split line for reading
-				token = line.trim().split("\\s+");
+				try {
+					// split line for reading
+					token = line.trim().split("\\s+");
 
-				// skip only key or empty lines
-				if (token.length < 2) {
-					continue;
-				}
-				// skip commented lines
-				if (token[0].startsWith("#")) {
-					continue;
-				}
+					// skip only key or empty lines
+					if (token.length < 2) {
+						continue;
+					}
+					// skip commented lines
+					if (token[0].startsWith("#")) {
+						continue;
+					}
 
-				// handle first token
-				switch (token[0]) {
-					// create network
-					// format: network <name> [default] [...]
-					case "network":
-						String networkName = token[1];
-						// not enough elements, [0] = network, [1] = name, [2] = default
-						if (token.length < 2) {
-							LogWriter.writeDebugInfo(String.format("[JM] Network %s not enough parameters supplied", networkName));
-							continue;
-						}
-
-						// check if exists
-						if (networks.containsKey(networkName)) {
-							LogWriter.writeDebugInfo(String.format("[JM] Network %s already exists", networkName));
-							continue;
-						}
-
-						String[] other = Arrays.copyOfRange(token, 2, token.length);
-
+					// handle first token
+					switch (token[0]) {
 						// create network
-						POPNetwork network = new POPNetwork(networkName, this);
+						// format: network <name> [default] [...]
+						case "network":
+							String networkName = token[1];
+							// not enough elements, [0] = network, [1] = name, [2] = default
+							if (token.length < 2) {
+								LogWriter.writeDebugInfo(String.format("[JM] Network %s not enough parameters supplied", networkName));
+								continue;
+							}
 
-						// set as last added network, this is used when defining nodes
-						if (!networkName.equals(lastNetwork)) {
-							lastNetwork = networkName;
-						}
+							// check if exists
+							if (networks.containsKey(networkName)) {
+								LogWriter.writeDebugInfo(String.format("[JM] Network %s already exists", networkName));
+								continue;
+							}
 
-						// set as default network the first network
-						// or change it if other tell us they are the default network
-						if (defaultNetwork == null || Arrays.asList(other).contains("default")) {
-							defaultNetwork = network;
-						}
+							String[] other = Arrays.copyOfRange(token, 2, token.length);
 
-						// add to map
-						LogWriter.writeDebugInfo(String.format("[JM] Network %s created", networkName));
-						networks.put(networkName, network);
-						break;
+							// create network
+							POPNetwork network = new POPNetwork(networkName, this);
 
-					// handle node in network
-					// format: node host=<host> <params...>
-					case "node":
-						// not enough elements
-						if (token.length < 2) {
-							LogWriter.writeDebugInfo(String.format("[JM] Node not enough parameters supplied: %s", line));
-							continue;
-						}
+							// set as last added network, this is used when defining nodes
+							if (!networkName.equals(lastNetwork)) {
+								lastNetwork = networkName;
+							}
 
-						// params for node, at least one
-						other = Arrays.copyOfRange(token, 1, token.length);
-						// asList only wrap the array making it unmodifiable, we work on the list 
-						List<String> params = new ArrayList<>(Arrays.asList(other));
+							// set as default network the first network
+							// or change it if other tell us they are the default network
+							if (defaultNetwork == null || Arrays.asList(other).contains("default")) {
+								defaultNetwork = network;
+							}
 
-						// get specified network or use default
-						String networkString = Util.removeStringFromList(params, "network=");
-						if (networkString == null) {
-							networkString = lastNetwork;
-						}
-						// check again and throw error if no network was previously set
-						if (networkString == null) {
-							throw new RuntimeException(String.format("[JM Config] Setting up `node' before any network. %s", Arrays.toString(token)));
-						}
+							// add to map
+							LogWriter.writeDebugInfo(String.format("[JM] Network %s created", networkName));
+							networks.put(networkName, network);
+							break;
 
-						// get network from know networks
-						network = networks.get(networkString);
-						// if no network exists, abort
-						if (network == null) {
-							LogWriter.writeDebugInfo(String.format("[JM] Node, network %s not found for node %s", token[1], Arrays.toString(token)));
-							continue;
-						}
+						// handle node in network
+						// format: node host=<host> <params...>
+						case "node":
+							// not enough elements
+							if (token.length < 2) {
+								LogWriter.writeDebugInfo(String.format("[JM] Node not enough parameters supplied: %s", line));
+								continue;
+							}
 
-						// create the node for the network
-						POPNetworkNode node = POPNetworkNodeFactory.makeNode(params);
-						// add it to the network
-						LogWriter.writeDebugInfo(String.format("[JM] Node [%s] added to %s", node.toString(), networkString));
-						network.add(node);
-						break;
+							// params for node, at least one
+							other = Arrays.copyOfRange(token, 1, token.length);
+							// asList only wrap the array making it unmodifiable, we work on the list 
+							List<String> params = new ArrayList<>(Arrays.asList(other));
 
-					// set available resources
-					// format: resource <power|memory|bandwidth> <value>
-					case "resource":
-						if (token.length < 3) {
-							LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, not enough parameters: %s", line));
-							continue;
-						}
+							// get specified network or use default
+							String networkString = Util.removeStringFromList(params, "network=");
+							if (networkString == null) {
+								networkString = lastNetwork;
+							}
+							// check again and throw error if no network was previously set
+							if (networkString == null) {
+								throw new RuntimeException(String.format("[JM Config] Setting up `node' before any network. %s", Arrays.toString(token)));
+							}
 
-						// type of set <power|memory|bandwidth>
-						switch (token[1]) {
-							case "power":
-								try {
-									available.setFlops(Float.parseFloat(token[2]));
-									total.setFlops(available.getFlops());
-								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, power value: %s", token[2]));
-								}
-								break;
-							case "memory":
-								try {
-									available.setMemory(Float.parseFloat(token[2]));
-									total.setMemory(available.getMemory());
-								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, memory value: %s", token[2]));
-								}
-								break;
-							case "bandwidth":
-								try {
-									available.setBandwidth(Float.parseFloat(token[2]));
-									total.setBandwidth(available.getBandwidth());
-								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, bandwidth value: %s", token[2]));
-								}
-								break;
-							default:
-								LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, unknow resource: %s", token[1]));
-						}
-						break;
+							// get network from know networks
+							network = networks.get(networkString);
+							// if no network exists, abort
+							if (network == null) {
+								LogWriter.writeDebugInfo(String.format("[JM] Node, network %s not found for node %s", token[1], Arrays.toString(token)));
+								continue;
+							}
 
-					// set jobs limit, resources and number
-					// format: job <limit|power|memory|bandwidth> <value>
-					case "job":
-						if (token.length < 3) {
-							LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, not enough parameters: %s", line));
-							continue;
-						}
-						// type of set <limit|power|memory|bandwidth>
-						switch (token[1]) {
-							case "limit":
-								try {
-									maxJobs = Integer.parseInt(token[2]);
-								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, limit value: %s", token[2]));
-								}
-								break;
-							case "power":
-								try {
-									jobLimit.setFlops(Float.parseFloat(token[2]));
-								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, ram value: %s", token[2]));
-								}
-								break;
-							case "memory":
-								try {
-									jobLimit.setMemory(Float.parseFloat(token[2]));
-								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, memory value: %s", token[2]));
-								}
-								break;
-							case "bandwidth":
-								try {
-									jobLimit.setBandwidth(Float.parseFloat(token[2]));
-								} catch (NumberFormatException e) {
-									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, bandwidth value: %s", token[2]));
-								}
-								break;
-							default:
-								LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, unknow resource: %s", token[1]));
-						}
-						break;
+							// create the node for the network
+							String connector = Util.removeStringFromList(params, "connector=");
+							POPNetworkDescriptor descriptor = POPNetworkDescriptor.from(connector);
+							POPNode node = descriptor.createNode(params);
+							// add it to the network
+							LogWriter.writeDebugInfo(String.format("[JM] Node [%s] added to %s", node.toString(), networkString));
+							network.add(node);
+							break;
 
-					// any other value is store in a map for possible future use
-					default:
-						// get or create and add to map
-						List<String> val = nodeExtra.get(token[0]);
-						if (val == null) {
-							val = new ArrayList<>();
-							nodeExtra.put(token[0], val);
-						}
-						// add extra value
-						val.add(line.substring(token[0].length()));
-						break;
+						// set available resources
+						// format: resource <power|memory|bandwidth> <value>
+						case "resource":
+							if (token.length < 3) {
+								LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, not enough parameters: %s", line));
+								continue;
+							}
+
+							// type of set <power|memory|bandwidth>
+							switch (token[1]) {
+								case "power":
+									try {
+										available.setFlops(Float.parseFloat(token[2]));
+										total.setFlops(available.getFlops());
+									} catch (NumberFormatException e) {
+										LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, power value: %s", token[2]));
+									}
+									break;
+								case "memory":
+									try {
+										available.setMemory(Float.parseFloat(token[2]));
+										total.setMemory(available.getMemory());
+									} catch (NumberFormatException e) {
+										LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, memory value: %s", token[2]));
+									}
+									break;
+								case "bandwidth":
+									try {
+										available.setBandwidth(Float.parseFloat(token[2]));
+										total.setBandwidth(available.getBandwidth());
+									} catch (NumberFormatException e) {
+										LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, bandwidth value: %s", token[2]));
+									}
+									break;
+								default:
+									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, unknow resource: %s", token[1]));
+							}
+							break;
+
+						// set jobs limit, resources and number
+						// format: job <limit|power|memory|bandwidth> <value>
+						case "job":
+							if (token.length < 3) {
+								LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, not enough parameters: %s", line));
+								continue;
+							}
+							// type of set <limit|power|memory|bandwidth>
+							switch (token[1]) {
+								case "limit":
+									try {
+										maxJobs = Integer.parseInt(token[2]);
+									} catch (NumberFormatException e) {
+										LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, limit value: %s", token[2]));
+									}
+									break;
+								case "power":
+									try {
+										jobLimit.setFlops(Float.parseFloat(token[2]));
+									} catch (NumberFormatException e) {
+										LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, ram value: %s", token[2]));
+									}
+									break;
+								case "memory":
+									try {
+										jobLimit.setMemory(Float.parseFloat(token[2]));
+									} catch (NumberFormatException e) {
+										LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, memory value: %s", token[2]));
+									}
+									break;
+								case "bandwidth":
+									try {
+										jobLimit.setBandwidth(Float.parseFloat(token[2]));
+									} catch (NumberFormatException e) {
+										LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, bandwidth value: %s", token[2]));
+									}
+									break;
+								default:
+									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, unknow resource: %s", token[1]));
+							}
+							break;
+
+						// any other value is store in a map for possible future use
+						default:
+							// get or create and add to map
+							List<String> val = nodeExtra.get(token[0]);
+							if (val == null) {
+								val = new ArrayList<>();
+								nodeExtra.put(token[0], val);
+							}
+							// add extra value
+							val.add(line.substring(token[0].length()));
+							break;
+					}
+				} catch(Exception e) {
+					LogWriter.writeDebugInfo("[JM] configuration failed: %s", e.getMessage());
 				}
 			}
 		} catch (IOException e) {
@@ -411,22 +417,29 @@ public class POPJavaJobManager extends POPJobService {
 			String networkString = od.getNetwork();
 			// use default if not set
 			if (networkString.isEmpty()) {
-				networkString = defaultNetwork.getName();
+				networkString = defaultNetwork.getFriendlyName();
 			}
 			// get real network
 			POPNetwork network = networks.get(networkString);
 
 			// throw exception if no network is found
 			if (network == null) {
-				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
+				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString + " not found.");
 			}
 
 			// get the job manager connector specified in the od
-			Class connectorClass = POPConnectorFactory.getConnectorClass(od.getConnector());
-			POPConnectorBase connectorImpl = network.getConnector(connectorClass);
+			POPNetworkDescriptor connector = null;
+			try {
+				connector = POPNetworkDescriptor.from(od.getConnector());
+			} catch(IllegalArgumentException e) {
+				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, 
+					od.getConnector() + " in " + networkString + " unknown.");
+			}
+			POPConnector connectorImpl = network.getConnector(connector);
 			
 			if (connectorImpl == null) {
-				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, networkString);
+				throw new POPException(POPErrorCode.POP_JOBSERVICE_FAIL, 
+					od.getConnector() + " in " + networkString + " not found.");
 			}
 
 			// call the protocol specific createObject
@@ -599,61 +612,7 @@ public class POPJavaJobManager extends POPJobService {
 			mutex.lock();
 
 			// if we have an od
-			if (!od.isEmpty()) {
-				float require, min;
-
-				// power
-				require = od.getPowerReq();
-				min = od.getPowerMin();
-				if (require > 0) {
-					if (min < 0) {
-						min = require;
-					}
-
-					if (require > available.getFlops() || require > jobLimit.getFlops()) {
-						flops = Math.min(available.getFlops(), jobLimit.getFlops());
-						fitness = flops / require;
-					} else {
-						flops = require;
-						fitness = Math.min(available.getFlops(), jobLimit.getFlops()) / require;
-					}
-					if (fitness < iofitness.getValue()) {
-						return 0;
-					}
-				}
-
-				// memory
-				require = od.getMemoryReq();
-				min = od.getMemoryMin();
-				if (require > 0) {
-					LogWriter.writeDebugInfo(String.format("[JM] Require memory %f, at least: %f (available: %f)", require, min, available.getMemory()));
-					if (min < 0) {
-						min = require;
-					}
-					if (min > available.getMemory()) {
-						LogWriter.writeDebugInfo("[JM] Local Match Failed (reason: memory)");
-						return 0;
-					}
-					float fitness1;
-					if (require > available.getMemory()) {
-						mem = available.getMemory();
-						fitness1 = mem / require;
-					} else {
-						mem = require;
-						fitness1 = mem / available.getMemory();
-					}
-					if (fitness1 < fitness) {
-						if (fitness1 < iofitness.getValue()) {
-							return 0;
-						}
-						fitness = fitness1;
-					}
-				}
-
-				// TODO? walltime; 
-				// TODO bandwidth; not in POPC
-				weighted = new Resource(flops, mem, bandwidth);
-			}
+			if (!od.isEmpty()) 
 
 			// output fitness
 			iofitness.setValue(fitness);
@@ -748,13 +707,13 @@ public class POPJavaJobManager extends POPJobService {
 			for (Map.Entry<String, POPNetwork> entry : networks.entrySet()) {
 				String k = entry.getKey();
 				POPNetwork net = entry.getValue();
-				POPConnectorBase[] connectors = net.getConnectors();
-				out.println(String.format("[%s]", net.getName()));
+				POPConnector[] connectors = net.getConnectors();
+				out.println(String.format("[%s]", net.getFriendlyName()));
 				out.println(String.format("connectors=%s", Arrays.toString(connectors)));
 				out.println(String.format("members=%d", net.size()));
-				for (POPConnectorBase connector : connectors) {
-					out.println(String.format("[%s.%s]", net.getName(), connector.getClass().getCanonicalName()));
-					for (POPNetworkNode node : net.getMembers(connector.getClass())) {
+				for (POPConnector connector : connectors) {
+					out.println(String.format("[%s.%s]", net.getFriendlyName(), connector.getClass().getCanonicalName()));
+					for (POPNode node : net.getMembers(connector.getDescriptor())) {
 						out.println(String.format("node=%s", node.toString()));
 					}
 				}
@@ -939,9 +898,9 @@ public class POPJavaJobManager extends POPJobService {
 			Collection<POPNetwork> nets = networks.values();
 			for (POPNetwork network : nets) {
 				// all connectors in network
-				POPConnectorBase[] connectors = network.getConnectors();
+				POPConnector[] connectors = network.getConnectors();
 
-				for (POPConnectorBase connector : connectors) {
+				for (POPConnector connector : connectors) {
 					// use connector with nodes who define a job manager
 					if (!(connector instanceof POPConnectorSearchNodeInterface)) {
 						continue;
@@ -954,14 +913,14 @@ public class POPJavaJobManager extends POPJobService {
 					}
 					
 					// all nodes
-					List<POPNetworkNode> nodes = network.getMembers(connector.getClass());
+					List<POPNode> nodes = network.getMembers(connector.getDescriptor());
 
-					for (POPNetworkNode node : nodes) {
+					for (POPNode node : nodes) {
 						// only contact JM types of nodes
-						if (node instanceof AbstractNodeJobManager) {
+						if (node instanceof POPNodeAJobManager) {
 							// connect to remove jm
-							AbstractNodeJobManager jmnode = (AbstractNodeJobManager) node;
-							registerRemoteAsync(network.getName(), jmnode);
+							POPNodeAJobManager jmnode = (POPNodeAJobManager) node;
+							registerRemoteAsync(network.getFriendlyName(), jmnode);
 						}
 					}
 				}
@@ -986,7 +945,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param node
 	 */
 	@POPAsyncConc
-	private void registerRemoteAsync(String network, AbstractNodeJobManager node) {
+	private void registerRemoteAsync(String network, POPNodeAJobManager node) {
 		try {
 			// TODO send self, we should in some way generate a POPNetworkNode of ourselves in the right format
 			// a way could be by modifying the parameters we get from node.getParameters(), we know host=??, 
@@ -1051,7 +1010,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * Register node to a network by supplying an array of string matching the format in the configuration file
 	 *
 	 * @param networkName The name of an existing network in this JM
-	 * @param params An array of String that will be processed by {@link POPNetworkNodeFactory#makeNode(String...)}
+	 * @param params An array of String that will be processed by {@link POPNodeFactory#makeNode(String[])}
 	 */
 	@POPSyncConc
 	public void registerNode(String networkName, String... params) {
@@ -1062,17 +1021,19 @@ public class POPJavaJobManager extends POPJobService {
 			return;
 		}
 
-		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), networkName);
-		POPNetworkNode node = POPNetworkNodeFactory.makeNode(params);
+		List<String> listparams = new ArrayList<>(Arrays.asList(params));
+		String connector = Util.removeStringFromList(listparams, "connector=");
+		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
 		node.setTemporary(true);
 		network.add(node);
+		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), networkName);
 	}
 
 	/**
 	 * Remove a node from a network
 	 *
 	 * @param networkName The name of an existing network in this JM
-	 * @param params An array of String that will be processed to {@link POPNetworkNodeFactory#makeNode}
+	 * @param params An array of String that will be processed to {@link POPNodeFactory#makeNode}
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String networkName, String... params) {
@@ -1083,8 +1044,10 @@ public class POPJavaJobManager extends POPJobService {
 			return;
 		}
 
+		List<String> listparams = new ArrayList<>(Arrays.asList(params));
+		String connector = Util.removeStringFromList(listparams, "connector=");
+		network.remove(POPNetworkDescriptor.from(connector).createNode(listparams));
 		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
-		network.remove(POPNetworkNodeFactory.makeNode(params));
 	}
 
 	/**
@@ -1094,7 +1057,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPSyncConc
 	public void registerNode(String... params) {
-		registerNode(defaultNetwork.getName(), params);
+		registerNode(defaultNetwork.getFriendlyName(), params);
 	}
 
 	/**
@@ -1104,7 +1067,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String... params) {
-		unregisterNode(defaultNetwork.getName(), params);
+		unregisterNode(defaultNetwork.getFriendlyName(), params);
 	}
 	
 	/**
@@ -1121,9 +1084,11 @@ public class POPJavaJobManager extends POPJobService {
 			return;
 		}
 
-		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), network);
-		network.add(POPNetworkNodeFactory.makeNode(params));
+		List<String> listparams = new ArrayList<>(Arrays.asList(params));
+		String connector = Util.removeStringFromList(listparams, "connector=");
+		network.add(POPNetworkDescriptor.from(connector).createNode(listparams));
 		writeConfigurationFile();
+		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), network);
 	}
 	
 	/**
@@ -1140,8 +1105,10 @@ public class POPJavaJobManager extends POPJobService {
 			return;
 		}
 
+		List<String> listparams = new ArrayList<>(Arrays.asList(params));
+		String connector = Util.removeStringFromList(listparams, "connector=");
+		network.remove(POPNetworkDescriptor.from(connector).createNode(listparams));
 		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
-		network.remove(POPNetworkNodeFactory.makeNode(params));
 		writeConfigurationFile();
 	}
 
@@ -1306,7 +1273,7 @@ public class POPJavaJobManager extends POPJobService {
 			ps.println("# networks with nodes");
 			for (POPNetwork network : networks.values()) {
 				// name
-				ps.print("network " + network.getName());
+				ps.print("network " + network.getFriendlyName());
 				// add default marker if needed
 				if (network.equals(defaultNetwork)) {
 					ps.print(" default");
@@ -1314,10 +1281,10 @@ public class POPJavaJobManager extends POPJobService {
 				ps.println();
 				
 				// nodes ordered by connector
-				for (POPConnectorBase connector : network.getConnectors()) {
+				for (POPConnector connector : network.getConnectors()) {
 					ps.println("# nodes for connector " + connector.getClass().getCanonicalName());
 					
-					for (POPNetworkNode node : network.getMembers(connector.getClass())) {
+					for (POPNode node : network.getMembers(connector.getDescriptor())) {
 						if (node.isTemporary()) {
 							continue;
 						}
@@ -1413,9 +1380,9 @@ public class POPJavaJobManager extends POPJobService {
 		
 		String[][] nodes = new String[network.size()][];
 		int i = 0;
-		for (POPConnectorBase connector : network.getConnectors()) {
-			for (POPNetworkNode member : network.getMembers(connector.getClass())) {
-				nodes[i++] = member.getCreationParams();
+		for (POPConnector connector : network.getConnectors()) {
+			for (POPNode node : network.getMembers(connector.getDescriptor())) {
+				nodes[i++] = node.getCreationParams();
 			}
 		}
 		return nodes;
@@ -1462,15 +1429,17 @@ public class POPJavaJobManager extends POPJobService {
 		}
 		
 		// get network's TFC connector to add the object or add a local one
-		POPConnectorTFC tfc = network.getConnector(POPConnectorTFC.class);
+		POPConnectorTFC tfc = network.getConnector(POPNetworkDescriptor.from("tfc"));
 		if (tfc == null) {
 			// add a local node, this will also add the connector
-			String protocol = getAccessPoint().get(0).getProtocol();
-			int port = getAccessPoint().get(0).getPort();
-			POPNetworkNode newNode = new NodeTFC("localhost", port, protocol);
-			this.registerPermanentNode(networkName, newNode.getCreationParams());
+			AccessPoint myself = getAccessPoint().get(0);
+			String protocol = myself.getProtocol();
+			int port = myself.getPort();
+			POPNode newNode = new POPNodeTFC("localhost", port, protocol);
+			this.registerNode(networkName, newNode.getCreationParams());
+			writeConfigurationFile();
 			
-			tfc = network.getConnector(POPConnectorTFC.class);
+			tfc = network.getConnector(POPNetworkDescriptor.from("tfc"));
 		}
 		
 		// create resource
@@ -1495,7 +1464,7 @@ public class POPJavaJobManager extends POPJobService {
 		}
 		
 		// get network's TFC connector to add the object
-		POPConnectorTFC tfc = network.getConnector(POPConnectorTFC.class);
+		POPConnectorTFC tfc = network.getConnector(POPNetworkDescriptor.from("tfc"));
 		if (tfc == null) {
 			return;
 		}
@@ -1522,7 +1491,7 @@ public class POPJavaJobManager extends POPJobService {
 		}
 		
 		// get network's TFC connector to add the object
-		POPConnectorTFC tfc = network.getConnector(POPConnectorTFC.class);
+		POPConnectorTFC tfc = network.getConnector(POPNetworkDescriptor.from("tfc"));
 		if (tfc == null) {
 			return aps;
 		}
@@ -1556,7 +1525,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Start a discovery in a POP Network
 	 * 
-	 * @param request The request generated by {@link POPConnectorBase#createObject}
+	 * @param request The request generated by {@link POPConnector#createObject}
 	 * @param timeout How much time do we wait before proceeding, in case of 0 the first answer is the one we use
 	 * @return All the nodes that answered our request
 	 */
@@ -1656,20 +1625,25 @@ public class POPJavaJobManager extends POPJobService {
 			}
 			
 			// connector we are using
-			Class<? extends POPConnectorBase> connectorUsed = POPConnectorFactory.getConnectorClass(request.getConnector());
-			POPConnectorBase connector = network.getConnector(connectorUsed);
-			
-			// connector won't work with the SearchNode
-			if (!(connector instanceof POPConnectorSearchNodeInterface)) {
+			POPNetworkDescriptor descriptor = null;
+			try {
+				descriptor = POPNetworkDescriptor.from(od.getConnector());
+			} catch(IllegalArgumentException e) {
 				return;
 			}
-			POPConnectorSearchNodeInterface snEnableConnector = (POPConnectorSearchNodeInterface) connector;
+			POPConnector connectorImpl = network.getConnector(descriptor);
+			
+			// connector won't work with the SearchNode
+			if (!(connectorImpl instanceof POPConnectorSearchNodeInterface)) {
+				return;
+			}
+			POPConnectorSearchNodeInterface snEnableConnector = (POPConnectorSearchNodeInterface) connectorImpl;
 			
 			// add all network neighbors to explorations list
-			for (POPNetworkNode node : network.getMembers(connectorUsed)) {
+			for (POPNode node : network.getMembers(connectorImpl.getDescriptor())) {
 				// only JM items and children
-				if (node instanceof AbstractNodeJobManager) {
-					AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
+				if (node instanceof POPNodeAJobManager) {
+					POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 					// add to exploration list
 					explorationList.add(jmNode.getJobManagerAccessPoint());
 				}
@@ -1681,10 +1655,10 @@ public class POPJavaJobManager extends POPJobService {
 				// check if we can continue discovering
 				if (request.getRemainingHops() >= 0 || request.getRemainingHops() == conf.getSearchNodeUnlimitedHops()) {
 					// propagate to all neighbors
-					for (POPNetworkNode node : network.getMembers(connectorUsed)) {
+					for (POPNode node : network.getMembers(connectorImpl.getDescriptor())) {
 						// only JM items and children
-						if (node instanceof NodeJobManager) {
-							AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
+						if (node instanceof POPNodeJobManager) {
+							POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 
 							// contact if it has not been contacted before by someone else
 							if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
@@ -1728,9 +1702,9 @@ public class POPJavaJobManager extends POPJobService {
 				// add current node do wayback
 				request.getWayback().push(getAccessPoint());
 				// request to all members of the network
-				for (POPNetworkNode node : network.getMembers(connectorUsed)) {
-					if (node instanceof AbstractNodeJobManager) {
-						AbstractNodeJobManager jmNode = (AbstractNodeJobManager) node;
+				for (POPNode node : network.getMembers(connectorImpl.getDescriptor())) {
+					if (node instanceof POPNodeAJobManager) {
+						POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 						// contact if it's a new node
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 							try {

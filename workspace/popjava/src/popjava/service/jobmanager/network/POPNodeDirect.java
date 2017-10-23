@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import popjava.service.jobmanager.connector.POPConnectorDirect;
 import popjava.util.Configuration;
 import popjava.util.Util;
 
@@ -13,7 +12,7 @@ import popjava.util.Util;
  *
  * @author Davide Mazzoleni
  */
-public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
+public class POPNodeDirect extends POPNode {
 
 	private int port;
 	private boolean daemon;
@@ -27,8 +26,8 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	 * @param port
 	 * @param daemonSecret 
 	 */
-	public NodeDirect(String host, int port, String daemonSecret) {
-		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
+	public POPNodeDirect(String host, int port, String daemonSecret) {
+		super(POPConnectorDirect.DESCRIPTOR);
 		this.host = host;
 		this.port = port;
 		this.daemon = true;
@@ -43,8 +42,8 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	 * @param host
 	 * @param port 
 	 */
-	public NodeDirect(String host, int port) {
-		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
+	public POPNodeDirect(String host, int port) {
+		super(POPConnectorDirect.DESCRIPTOR);
 		this.host = host;
 		this.port = port;
 		this.daemon = false;
@@ -53,8 +52,8 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 		init();
 	}
 
-	NodeDirect(List<String> params) {
-		super(POPConnectorDirect.IDENTITY, POPConnectorDirect.class);
+	public POPNodeDirect(List<String> params) {
+		super(POPConnectorDirect.DESCRIPTOR);
 
 		// get potential params
 		String host = Util.removeStringFromList(params, "host=");
@@ -90,7 +89,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 	private void init() {
 		// set parameters again for future creation and sharing, keep posible extra values
 		Set<String> paramsSet = new HashSet<>();
-		paramsSet.add("connector=" + POPConnectorDirect.IDENTITY);
+		paramsSet.add("connector=" + descriptor.getGlobalName());
 		paramsSet.add("host=" + this.host);
 		paramsSet.add("port=" + this.port);
 		paramsSet.add("protocol=" + (this.daemon ? "daemon" : "ssh"));
@@ -98,10 +97,6 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 			paramsSet.add("secret=" + daemonSecret);
 		}
 		creationParams = paramsSet.toArray(new String[paramsSet.size()]);
-	}
-
-	public String getHost() {
-		return host;
 	}
 
 	public int getPort() {
@@ -141,7 +136,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final NodeDirect other = (NodeDirect) obj;
+		final POPNodeDirect other = (POPNodeDirect) obj;
 		if (this.port != other.port) {
 			return false;
 		}
@@ -159,7 +154,7 @@ public class NodeDirect extends POPNetworkNode<POPConnectorDirect> {
 
 	@Override
 	public String toString() {
-		return String.format("host=%s port=%d connector=%s protocol=%s %s", host, port, connectorName,
+		return String.format("host=%s port=%d connector=%s protocol=%s %s", host, port, descriptor.getGlobalName(),
 				daemon ? "daemon" : "ssh",
 				daemonSecret == null ? "" : "secret=" + daemonSecret).trim();
 	}
