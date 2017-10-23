@@ -42,9 +42,6 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("tfc", new DescriptorMethodImpl());
-	static {
-		System.out.println(DESCRIPTOR);
-	}
 	
 	private final Configuration conf = Configuration.getInstance();
 	

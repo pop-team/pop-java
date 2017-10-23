@@ -40,13 +40,12 @@ public class MethodAccessTest {
 	static File tempFolder;
 	static File trustFolder;
 	
-	static POPNodeTFC node = new POPNodeTFC("localhost", 2711, "socket");
-	
 	Configuration conf = Configuration.getInstance();
 	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException {
 		try {
+			POPNodeTFC node = new POPNodeTFC("localhost", 2711, "socket");
 			// init
 			Configuration conf = Configuration.getInstance();
 			conf.setDebug(true);

@@ -10,7 +10,6 @@ import java.util.Objects;
  */
 public final class POPNetworkDescriptor {
 	
-	private static final POPNetworkDescriptorFinder finder = POPNetworkDescriptorFinder.getInstance();
 	/**
 	 * Shorthand for {@link POPNetworkDescriptorFinder#find(java.lang.String) }
 	 * 
@@ -18,7 +17,8 @@ public final class POPNetworkDescriptor {
 	 * @return 
 	 */
 	public static POPNetworkDescriptor from(String globalName) {
-		return finder.find(globalName);
+		// NOTE do not make this a static attribute, it may create a initialization loop
+		return POPNetworkDescriptorFinder.getInstance().find(globalName);
 	}
 	
 	private final String globalName;
