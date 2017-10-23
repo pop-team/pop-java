@@ -17,7 +17,7 @@ import popjava.util.Util;
 public class POPNetwork {
 
 	private final String uuid;
-	private final String friendlyName;
+	private String friendlyName;
 	private final Map<POPNetworkDescriptor, POPConnector> connectors;
 	private final POPJavaJobManager jobManager;
 
@@ -52,6 +52,15 @@ public class POPNetwork {
 	 */
 	public String getFriendlyName() {
 		return friendlyName;
+	}
+
+	/**
+	 * The new friendly name
+	 * 
+	 * @param friendlyName 
+	 */
+	public void setFriendlyName(String friendlyName) {
+		this.friendlyName = friendlyName;
 	}
 
 	/**
@@ -157,7 +166,7 @@ public class POPNetwork {
 	@Override
 	public int hashCode() {
 		int hash = 7;
-		hash = 89 * hash + Objects.hashCode(this.friendlyName);
+		hash = 89 * hash + Objects.hashCode(this.uuid);
 		return hash;
 	}
 

@@ -210,29 +210,29 @@ public class POPJavaJobManager extends POPJobService {
 					// handle first token
 					switch (token[0]) {
 						// create network
-						// format: network <name> [default] [...]
+						// format: network <uuid> [default] <friendly name>
 						case "network":
-							String networkName = token[1];
-							// not enough elements, [0] = network, [1] = name, [2] = default
+							String networkUUID = token[1];
+							// not enough elements, [0] = network, [1] = uuid, [2] = default, [3..n] friendly name
 							if (token.length < 2) {
-								LogWriter.writeDebugInfo(String.format("[JM] Network %s not enough parameters supplied", networkName));
+								LogWriter.writeDebugInfo(String.format("[JM] Network %s not enough parameters supplied", networkUUID));
 								continue;
 							}
 
 							// check if exists
-							if (networks.containsKey(networkName)) {
-								LogWriter.writeDebugInfo(String.format("[JM] Network %s already exists", networkName));
+							if (networks.containsKey(networkUUID)) {
+								LogWriter.writeDebugInfo(String.format("[JM] Network %s already exists", networkUUID));
 								continue;
 							}
 
 							String[] other = Arrays.copyOfRange(token, 2, token.length);
 
 							// create network
-							POPNetwork network = new POPNetwork(networkName, this);
+							POPNetwork network = new POPNetwork(networkUUID, this);
 
 							// set as last added network, this is used when defining nodes
-							if (!networkName.equals(lastNetwork)) {
-								lastNetwork = networkName;
+							if (!networkUUID.equals(lastNetwork)) {
+								lastNetwork = networkUUID;
 							}
 
 							// set as default network the first network
@@ -242,8 +242,8 @@ public class POPJavaJobManager extends POPJobService {
 							}
 
 							// add to map
-							LogWriter.writeDebugInfo(String.format("[JM] Network %s created", networkName));
-							networks.put(networkName, network);
+							LogWriter.writeDebugInfo(String.format("[JM] Network %s created", networkUUID));
+							networks.put(networkUUID, network);
 							break;
 
 						// handle node in network
@@ -417,7 +417,7 @@ public class POPJavaJobManager extends POPJobService {
 			String networkString = od.getNetwork();
 			// use default if not set
 			if (networkString.isEmpty()) {
-				networkString = defaultNetwork.getFriendlyName();
+				networkString = defaultNetwork.getUUID();
 			}
 			// get real network
 			POPNetwork network = networks.get(networkString);
@@ -708,11 +708,11 @@ public class POPJavaJobManager extends POPJobService {
 				String k = entry.getKey();
 				POPNetwork net = entry.getValue();
 				POPConnector[] connectors = net.getConnectors();
-				out.println(String.format("[%s]", net.getFriendlyName()));
+				out.println(String.format("[%s]", net.getUUID()));
 				out.println(String.format("connectors=%s", Arrays.toString(connectors)));
 				out.println(String.format("members=%d", net.size()));
 				for (POPConnector connector : connectors) {
-					out.println(String.format("[%s.%s]", net.getFriendlyName(), connector.getClass().getCanonicalName()));
+					out.println(String.format("[%s.%s]", net.getUUID(), connector.getClass().getCanonicalName()));
 					for (POPNode node : net.getMembers(connector.getDescriptor())) {
 						out.println(String.format("node=%s", node.toString()));
 					}
@@ -920,7 +920,7 @@ public class POPJavaJobManager extends POPJobService {
 						if (node instanceof POPNodeAJobManager) {
 							// connect to remove jm
 							POPNodeAJobManager jmnode = (POPNodeAJobManager) node;
-							registerRemoteAsync(network.getFriendlyName(), jmnode);
+							registerRemoteAsync(network.getUUID(), jmnode);
 						}
 					}
 				}
@@ -959,24 +959,24 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Create a new network and write the Job Manager configuration file anew
 	 *
-	 * @param name A unique name of the network
+	 * @param friendlyName A unique name of the network
 	 * @return true if created or already exists, false if already exists but use a different protocol
 	 */
 	@POPSyncConc(localhost = true)
-	public boolean createNetwork(String name) {
+	public boolean createNetwork(String friendlyName) {
 		try {
 			// check if exists already
-			POPNetwork network = networks.get(name);
+			POPNetwork network = networks.get(friendlyName);
 			if (network != null) {
 				return true;
 			}
 
 			// create the new network
-			POPNetwork newNetwork = new POPNetwork(name, this);
+			POPNetwork newNetwork = new POPNetwork(friendlyName, this);
 
 			// add new network
-			LogWriter.writeDebugInfo("[JM] Network %s added", name);
-			networks.put(name, newNetwork);
+			LogWriter.writeDebugInfo("[JM] Network %s added", friendlyName);
+			networks.put(friendlyName, newNetwork);
 
 			// write all current configurations to a file
 			writeConfigurationFile();
@@ -1057,7 +1057,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPSyncConc
 	public void registerNode(String... params) {
-		registerNode(defaultNetwork.getFriendlyName(), params);
+		registerNode(defaultNetwork.getUUID(), params);
 	}
 
 	/**
@@ -1067,7 +1067,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String... params) {
-		unregisterNode(defaultNetwork.getFriendlyName(), params);
+		unregisterNode(defaultNetwork.getUUID(), params);
 	}
 	
 	/**
@@ -1273,7 +1273,7 @@ public class POPJavaJobManager extends POPJobService {
 			ps.println("# networks with nodes");
 			for (POPNetwork network : networks.values()) {
 				// name
-				ps.print("network " + network.getFriendlyName());
+				ps.print("network " + network.getUUID());
 				// add default marker if needed
 				if (network.equals(defaultNetwork)) {
 					ps.print(" default");

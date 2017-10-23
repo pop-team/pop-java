@@ -71,7 +71,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		String appServiceFingerprint = localservice.getFingerprint();
 		
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getFriendlyName(), descriptor.getGlobalName(), appServiceFingerprint);
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getUUID(), descriptor.getGlobalName(), appServiceFingerprint);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {
