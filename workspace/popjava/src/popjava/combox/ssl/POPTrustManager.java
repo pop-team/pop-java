@@ -99,6 +99,11 @@ public class POPTrustManager implements X509TrustManager {
 		System.out.println("[CHECKING CLIENT CERTIFICATE]");
 		for (X509Certificate cert : chain) {
 			System.out.println(SSLUtils.certificateFingerprint(cert));
+			System.out.println(authType);
+		}
+		System.out.println("  [ALL CERTS]");
+		for (X509Certificate acceptedIssuer : getAcceptedIssuers()) {
+			System.out.println("  " + SSLUtils.certificateFingerprint(acceptedIssuer));
 		}
 		trustManager.checkClientTrusted(chain, authType);
 	}
@@ -108,6 +113,11 @@ public class POPTrustManager implements X509TrustManager {
 		System.out.println("[CHECKING SERVER CERTIFICATE]");
 		for (X509Certificate cert : chain) {
 			System.out.println(SSLUtils.certificateFingerprint(cert));
+			System.out.println(authType);
+		}
+		System.out.println("  [ALL CERTS]");
+		for (X509Certificate acceptedIssuer : getAcceptedIssuers()) {
+			System.out.println("  " + SSLUtils.certificateFingerprint(acceptedIssuer));
 		}
 		trustManager.checkServerTrusted(chain, authType);
 	}
