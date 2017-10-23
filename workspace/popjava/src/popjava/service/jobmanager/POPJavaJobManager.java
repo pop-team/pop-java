@@ -510,10 +510,14 @@ public class POPJavaJobManager extends POPJobService {
 					
 					// create directory if it doesn't exists and set OD.cwd
 					Path objectAppCwd = Paths.get(conf.getJobManagerExecutionBaseDirectory(), appId).toAbsolutePath();
-					// XXX Find a working solution with Files.setOwner(..)?
-					// TODO user a SystemUtil.something to create the directory, Windows doesn't support -m
-					String[] cmd = { "mkdir", "-m=775", objectAppCwd.toAbsolutePath().toString() };
+					// TODO Find a working solution with Files.setOwner(..)?
+					// TODO use a SystemUtil.something to create the directory, Windows doesn't support -m
+					String[] cmd = { "mkdir", "-m=775", objectAppCwd.toString() };
 					SystemUtil.runCmd(Arrays.asList(cmd), null, hostuser);
+					// ensure the directory is there, 200ms 
+					for (int j = 0; !Files.exists(objectAppCwd) && j < 20; j++) {
+						Thread.sleep(10);
+					}
 					
 					od.setDirectory(objectAppCwd.toString());
 					res.setAppDirectory(objectAppCwd);
