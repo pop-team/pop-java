@@ -1,5 +1,6 @@
 package popjava.service.jobmanager.network;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +39,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 
 		@Override
 		public POPNode createNode(List<String> params) {
-			return new POPNodeTFC(params);
+			return new POPNodeTFC(new ArrayList(params));
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("tfc", new DescriptorMethodImpl());

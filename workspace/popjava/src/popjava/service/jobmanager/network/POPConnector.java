@@ -3,9 +3,11 @@ package popjava.service.jobmanager.network;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.service.jobmanager.yaml.YamlConnector;
 
 /**
  *
@@ -119,5 +121,19 @@ public abstract class POPConnector {
 	 */
 	void setJobManager(POPJavaJobManager jobManager) {
 		this.jobManager = jobManager;
+	}
+
+	YamlConnector toYamlResource() {
+		YamlConnector yamlConnector = new YamlConnector();
+		yamlConnector.setType(descriptor.getGlobalName());
+		
+		List<Map<String, Object>> nodesParams = new ArrayList<>(nodes.size());
+		yamlConnector.setNodes(nodesParams);
+		
+		for (POPNode node : nodes) {
+			nodesParams.add(node.toYamlResource());
+		}
+		
+		return yamlConnector;
 	}
 }

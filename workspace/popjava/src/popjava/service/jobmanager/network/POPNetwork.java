@@ -1,5 +1,6 @@
 package popjava.service.jobmanager.network;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.service.jobmanager.yaml.YamlConnector;
+import popjava.service.jobmanager.yaml.YamlNetwork;
 import popjava.util.Util;
 
 /**
@@ -189,6 +192,20 @@ public class POPNetwork {
 			return false;
 		}
 		return true;
+	}
+
+	public YamlNetwork toYamlResource() {
+		YamlNetwork yamlNetwork = new YamlNetwork();
+		yamlNetwork.setUuid(uuid);
+		yamlNetwork.setFriendlyName(friendlyName);
+		
+		List<YamlConnector> yamlConnectors = new ArrayList<>(connectors.size());
+		yamlNetwork.setConnectors(yamlConnectors);
+		for (POPConnector connector : connectors.values()) {
+			yamlConnectors.add(connector.toYamlResource());
+		}
+		
+		return yamlNetwork;
 	}
 
 }

@@ -3,6 +3,7 @@ package popjava.service.jobmanager;
 import popjava.baseobject.ObjectDescription;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
+import popjava.service.jobmanager.yaml.YamlResource;
 
 /**
  * This is a generic resource for the Job Manager
@@ -91,6 +92,14 @@ public class Resource implements IPOPBase {
 		canHandle &= memory >= resource.memory;
 		canHandle &= bandwidth >= resource.bandwidth;
 		return canHandle;
+	}
+	
+	public YamlResource toYamlResource() {
+		YamlResource res = new YamlResource();
+		res.setFlops(flops);
+		res.setBandwidth(bandwidth);
+		res.setMemory(memory);
+		return res;
 	}
 
 	@Override
