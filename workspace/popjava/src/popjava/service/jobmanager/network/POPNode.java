@@ -1,6 +1,8 @@
 package popjava.service.jobmanager.network;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A generic node which will be assigned to a specific POP Connector.
@@ -71,5 +73,17 @@ public abstract class POPNode {
 	 */
 	public String[] getCreationParams() {
 		return Arrays.copyOf(creationParams, creationParams.length);
+	}
+
+	public Map<String, Object> toYamlResource() {
+		Map<String, Object> mapParams = new HashMap<>();
+		
+		for (String param : creationParams) {
+			String key = param.substring(0, param.indexOf("="));
+			String value = param.substring(param.indexOf("=") + 1);
+			mapParams.put(key, value);
+		}
+		
+		return mapParams;
 	}
 }

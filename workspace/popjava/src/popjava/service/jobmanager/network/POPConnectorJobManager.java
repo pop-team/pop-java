@@ -1,5 +1,6 @@
 package popjava.service.jobmanager.network;
 
+import java.util.ArrayList;
 import java.util.List;
 import popjava.PopJava;
 import popjava.base.POPErrorCode;
@@ -36,7 +37,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 
 		@Override
 		public POPNode createNode(List<String> params) {
-			return new POPNodeJobManager(params);
+			return new POPNodeJobManager(new ArrayList(params));
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("jobmanager", new DescriptorMethodImpl());

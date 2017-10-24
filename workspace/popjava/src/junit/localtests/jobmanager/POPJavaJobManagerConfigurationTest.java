@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.After;
@@ -14,6 +15,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.nodes.Tag;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.network.POPNetworkDescriptor;
@@ -21,6 +25,9 @@ import popjava.service.jobmanager.network.POPNodeDirect;
 import popjava.service.jobmanager.network.POPNodeJobManager;
 import popjava.service.jobmanager.network.POPNodeTFC;
 import popjava.service.jobmanager.network.POPNode;
+import popjava.service.jobmanager.yaml.YamlConnector;
+import popjava.service.jobmanager.yaml.YamlJobManager;
+import popjava.service.jobmanager.yaml.YamlNetwork;
 import popjava.system.POPSystem;
 import popjava.util.Util;
 
@@ -67,13 +74,11 @@ public class POPJavaJobManagerConfigurationTest {
 		int setMaxJobs = 1000;
 		
 		String[] file = {
-			"resource power " + setInitial.getFlops(),
-			"resource memory " + setInitial.getMemory(),
-			"resource bandwidth " + setInitial.getBandwidth(),
-			"job limit " + setMaxJobs,
-			"job power " + setLimit.getFlops(),
-			"job memory " + setLimit.getMemory(),
-			"job bandwidth " + setLimit.getBandwidth()
+			String.format("machineResources: {memory: %f, flops: %f, bandwidth: %f}",
+				setInitial.getMemory(), setInitial.getFlops(), setInitial.getBandwidth()),
+			String.format("jobResources: {memory: %f, flops: %f, bandwidth: %f}",
+				setLimit.getMemory(), setLimit.getFlops(), setLimit.getBandwidth()),
+			"jobLimit: " + setMaxJobs
 		};
 		
 		File jmConfig = tf.newFile();
@@ -97,25 +102,40 @@ public class POPJavaJobManagerConfigurationTest {
 	@Test
 	public void networks() throws IOException {
 		Map<String,POPNode[]> networks = new HashMap<>();
-		networks.put("1", new POPNode[]{ new POPNodeDirect("1", 0), new POPNodeJobManager("0", 0, "ssl") });
-		networks.put("2", new POPNode[]{ new POPNodeDirect("3", 0, "daemon"), new POPNodeJobManager("2", 0, "ssl") });
-		networks.put("3", new POPNode[]{ new POPNodeTFC("4", 0, "ssl") });
+		networks.put("n1", new POPNode[]{ new POPNodeDirect("1", 0), new POPNodeJobManager("0", 0, "ssl") });
+		networks.put("n2", new POPNode[]{ new POPNodeDirect("3", 0, "daemon"), new POPNodeJobManager("2", 0, "ssl") });
+		networks.put("n3", new POPNode[]{ new POPNodeTFC("4", 0, "ssl") });
 		
+		YamlJobManager yamlJm = new YamlJobManager();
+		List<YamlNetwork> yamlNetworks = new ArrayList<>();
+		yamlJm.setNetworks(yamlNetworks);
 		File jmConfig = tf.newFile();
 		try (PrintWriter out = new PrintWriter(jmConfig)) {
 			for (Map.Entry<String, POPNode[]> entry : networks.entrySet()) {
-				String network = entry.getKey();
-				POPNode[] nodes = entry.getValue();
+				YamlNetwork yamlNetwork = new YamlNetwork();
+				yamlNetwork.setUuid(entry.getKey());
+				yamlNetwork.setFriendlyName(entry.getKey());
 				
-				out.println("network " + network);
+				List<YamlConnector> connectors = new ArrayList<>();
+				yamlNetwork.setConnectors(connectors);
+				
+				POPNode[] nodes = entry.getValue();
 				for (POPNode node : nodes) {
-					out.print("node ");
-					for (String el : node.getCreationParams()) {
-						out.print(el + " ");
-					}
-					out.println();
+					YamlConnector yamlConnector = new YamlConnector();
+					yamlConnector.setType(node.toYamlResource().get("connector").toString());
+					ArrayList<Map<String,Object>> yamlNodes = new ArrayList<>();
+					yamlNodes.add(node.toYamlResource());
+					yamlConnector.setNodes(yamlNodes);
+					connectors.add(yamlConnector);
 				}
+				
+				yamlNetworks.add(yamlNetwork);
 			}
+			
+			Yaml yaml = new Yaml();
+			String output = yaml.dumpAs(yamlJm, Tag.MAP, DumperOptions.FlowStyle.AUTO);
+			System.out.println(output);
+			out.print(output);
 		}
 		
 		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", jmConfig.getAbsolutePath());

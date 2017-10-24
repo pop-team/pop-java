@@ -2,12 +2,10 @@ package popjava.service.jobmanager;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,6 +22,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncSeq;
@@ -60,6 +62,11 @@ import popjava.service.jobmanager.search.SNRequest;
 import popjava.service.jobmanager.search.SNResponse;
 import popjava.service.jobmanager.search.SNWayback;
 import popjava.service.jobmanager.tfc.TFCResource;
+import popjava.service.jobmanager.yaml.YamlJobManager;
+import popjava.service.jobmanager.yaml.YamlConnector;
+import popjava.service.jobmanager.yaml.YamlNetwork;
+import popjava.service.jobmanager.yaml.YamlResource;
+import popjava.service.jobmanager.yaml.PropertyReverser;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPJavaConfiguration;
@@ -75,7 +82,7 @@ public class POPJavaJobManager extends POPJobService {
 	private final Configuration conf = Configuration.getInstance();
 	
 	/** The configuration file location */
-	protected String configurationFile;
+	protected File configurationFile;
 
 	/** Currently used resources of a node */
 	protected final Resource available = new Resource();
@@ -97,8 +104,8 @@ public class POPJavaJobManager extends POPJobService {
 	/** Networks saved in this JobManager */
 	protected Map<String,POPNetwork> networks = new HashMap<>();
 
-	/** Default network */
-	protected POPNetwork defaultNetwork = null;
+	/** Default network UUID */
+	protected String defaultNetwork = null;
 
 	/** Last network added */
 	protected String lastNetwork = null;
@@ -129,59 +136,58 @@ public class POPJavaJobManager extends POPJobService {
 	@POPObjectDescription(url = "localhost", jvmParameters = "-Xmx512m")
 	public POPJavaJobManager() {
 		//init(conf.DEFAULT_JM_CONFIG_FILE);
-		configurationFile = conf.getSystemJobManagerConfig().toString();
+		configurationFile = conf.getSystemJobManagerConfig();
 	}
 
 	// may also want to use  -XX:MaxHeapFreeRatio=?? -XX:MinHeapFreeRatio=??  if fine tuned
 	@POPObjectDescription(jvmParameters = "-Xmx512m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url) {
-		configurationFile = conf.getSystemJobManagerConfig().toString();
-		init(conf.getSystemJobManagerConfig().toString());
+		configurationFile = conf.getSystemJobManagerConfig();
+		init(conf.getSystemJobManagerConfig());
 	}
 	
 	@POPObjectDescription(jvmParameters = "-Xmx512m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url, @POPConfig(Type.PROTOCOLS) String[] protocols) {
-		configurationFile = conf.getSystemJobManagerConfig().toString();
-		init(conf.getSystemJobManagerConfig().toString());
+		configurationFile = conf.getSystemJobManagerConfig();
+		init(conf.getSystemJobManagerConfig());
 	}
 	
 	@POPObjectDescription(jvmParameters = "-Xmx512m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url, @POPConfig(Type.PROTOCOLS) String[] protocols, String conf) {
-		configurationFile = conf;
-		init(conf);
+		configurationFile = new File(conf);
+		init(configurationFile);
 	}
 
 	@POPObjectDescription(jvmParameters = "-Xmx512m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url, String conf) {
-		configurationFile = conf;
-		init(conf);
+		configurationFile = new File(conf);
+		init(configurationFile);
 	}
 
 	/**
 	 * Read configuration file and setup system Has some sane defaults
 	 *
-	 * @param confFile Path to configuration file
+	 * @param configFileString Configuration file
 	 */
-	private void init(String confFile) {
-		File config = new File(confFile);
+	private void init(File configFile) {
 
 		// early exit
-		if (!config.exists()) {
-			LogWriter.writeDebugInfo("[JM] Open config file [%s] fail, trying to create", confFile);
+		if (!configFile.exists()) {
+			LogWriter.writeDebugInfo("[JM] Open config file [%s] fail, trying to create", configFile);
 			
 			try {
-				config.createNewFile();
+				configFile.createNewFile();
 			} catch (IOException e) {
-				LogWriter.writeDebugInfo("[JM] can't create job manager file %s", confFile);
+				LogWriter.writeDebugInfo("[JM] can't create job manager file %s", configFile);
 			}
 		}
-		LogWriter.writeDebugInfo("[JM] Using %s as config file", config.getAbsoluteFile().toString());
+		LogWriter.writeDebugInfo("[JM] Using %s as config file", configFile.getAbsoluteFile().toString());
 
 		// default num of jobs
-		maxJobs = 100;
+		maxJobs = 200;
 
 		// set resource by default hoping for the best
-		available.add(new Resource(30000, 8192, 1e6f));
+		available.add(new Resource(30000, 8192, 102400f));
 		// no restrictions on default limit
 		jobLimit.add(available);
 		// total is the same as available for now
@@ -189,203 +195,96 @@ public class POPJavaJobManager extends POPJobService {
 		
 		// TODO run benchmark power (maybe memory and bandwidth if needed)
 
+		Yaml yaml = new Yaml();
+		YamlJobManager config;
 		// config file is read line by line, information is extracted as see fit
-		try (BufferedReader br = new BufferedReader(new FileReader(config))) {
-			String line;
-			String[] token;
-			while ((line = br.readLine()) != null) {
-				try {
-					// split line for reading
-					token = line.trim().split("\\s+");
-
-					// skip only key or empty lines
-					if (token.length < 2) {
-						continue;
-					}
-					// skip commented lines
-					if (token[0].startsWith("#")) {
-						continue;
-					}
-
-					// handle first token
-					switch (token[0]) {
-						// create network
-						// format: network <uuid> [default] <friendly name>
-						case "network":
-							String networkUUID = token[1];
-							// not enough elements, [0] = network, [1] = uuid, [2] = default, [3..n] friendly name
-							if (token.length < 2) {
-								LogWriter.writeDebugInfo(String.format("[JM] Network %s not enough parameters supplied", networkUUID));
-								continue;
-							}
-
-							// check if exists
-							if (networks.containsKey(networkUUID)) {
-								LogWriter.writeDebugInfo(String.format("[JM] Network %s already exists", networkUUID));
-								continue;
-							}
-
-							String[] other = Arrays.copyOfRange(token, 2, token.length);
-
-							// create network
-							POPNetwork network = new POPNetwork(networkUUID, this);
-
-							// set as last added network, this is used when defining nodes
-							if (!networkUUID.equals(lastNetwork)) {
-								lastNetwork = networkUUID;
-							}
-
-							// set as default network the first network
-							// or change it if other tell us they are the default network
-							if (defaultNetwork == null || Arrays.asList(other).contains("default")) {
-								defaultNetwork = network;
-							}
-
-							// add to map
-							LogWriter.writeDebugInfo(String.format("[JM] Network %s created", networkUUID));
-							networks.put(networkUUID, network);
-							break;
-
-						// handle node in network
-						// format: node host=<host> <params...>
-						case "node":
-							// not enough elements
-							if (token.length < 2) {
-								LogWriter.writeDebugInfo(String.format("[JM] Node not enough parameters supplied: %s", line));
-								continue;
-							}
-
-							// params for node, at least one
-							other = Arrays.copyOfRange(token, 1, token.length);
-							// asList only wrap the array making it unmodifiable, we work on the list 
-							List<String> params = new ArrayList<>(Arrays.asList(other));
-
-							// get specified network or use default
-							String networkString = Util.removeStringFromList(params, "network=");
-							if (networkString == null) {
-								networkString = lastNetwork;
-							}
-							// check again and throw error if no network was previously set
-							if (networkString == null) {
-								throw new RuntimeException(String.format("[JM Config] Setting up `node' before any network. %s", Arrays.toString(token)));
-							}
-
-							// get network from know networks
-							network = networks.get(networkString);
-							// if no network exists, abort
-							if (network == null) {
-								LogWriter.writeDebugInfo(String.format("[JM] Node, network %s not found for node %s", token[1], Arrays.toString(token)));
-								continue;
-							}
-
-							// create the node for the network
-							String connector = Util.removeStringFromList(params, "connector=");
-							POPNetworkDescriptor descriptor = POPNetworkDescriptor.from(connector);
-							POPNode node = descriptor.createNode(params);
-							// add it to the network
-							LogWriter.writeDebugInfo(String.format("[JM] Node [%s] added to %s", node.toString(), networkString));
-							network.add(node);
-							break;
-
-						// set available resources
-						// format: resource <power|memory|bandwidth> <value>
-						case "resource":
-							if (token.length < 3) {
-								LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, not enough parameters: %s", line));
-								continue;
-							}
-
-							// type of set <power|memory|bandwidth>
-							switch (token[1]) {
-								case "power":
-									try {
-										available.setFlops(Float.parseFloat(token[2]));
-										total.setFlops(available.getFlops());
-									} catch (NumberFormatException e) {
-										LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, power value: %s", token[2]));
-									}
-									break;
-								case "memory":
-									try {
-										available.setMemory(Float.parseFloat(token[2]));
-										total.setMemory(available.getMemory());
-									} catch (NumberFormatException e) {
-										LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, memory value: %s", token[2]));
-									}
-									break;
-								case "bandwidth":
-									try {
-										available.setBandwidth(Float.parseFloat(token[2]));
-										total.setBandwidth(available.getBandwidth());
-									} catch (NumberFormatException e) {
-										LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, bandwidth value: %s", token[2]));
-									}
-									break;
-								default:
-									LogWriter.writeDebugInfo(String.format("[JM] Resource set fail, unknow resource: %s", token[1]));
-							}
-							break;
-
-						// set jobs limit, resources and number
-						// format: job <limit|power|memory|bandwidth> <value>
-						case "job":
-							if (token.length < 3) {
-								LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, not enough parameters: %s", line));
-								continue;
-							}
-							// type of set <limit|power|memory|bandwidth>
-							switch (token[1]) {
-								case "limit":
-									try {
-										maxJobs = Integer.parseInt(token[2]);
-									} catch (NumberFormatException e) {
-										LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, limit value: %s", token[2]));
-									}
-									break;
-								case "power":
-									try {
-										jobLimit.setFlops(Float.parseFloat(token[2]));
-									} catch (NumberFormatException e) {
-										LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, ram value: %s", token[2]));
-									}
-									break;
-								case "memory":
-									try {
-										jobLimit.setMemory(Float.parseFloat(token[2]));
-									} catch (NumberFormatException e) {
-										LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, memory value: %s", token[2]));
-									}
-									break;
-								case "bandwidth":
-									try {
-										jobLimit.setBandwidth(Float.parseFloat(token[2]));
-									} catch (NumberFormatException e) {
-										LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, bandwidth value: %s", token[2]));
-									}
-									break;
-								default:
-									LogWriter.writeDebugInfo(String.format("[JM] Limit set fail, unknow resource: %s", token[1]));
-							}
-							break;
-
-						// any other value is store in a map for possible future use
-						default:
-							// get or create and add to map
-							List<String> val = nodeExtra.get(token[0]);
-							if (val == null) {
-								val = new ArrayList<>();
-								nodeExtra.put(token[0], val);
-							}
-							// add extra value
-							val.add(line.substring(token[0].length()));
-							break;
-					}
-				} catch(Exception e) {
-					LogWriter.writeDebugInfo("[JM] configuration failed: %s", e.getMessage());
-				}
-			}
+		try (BufferedReader br = new BufferedReader(new FileReader(configFile))) {
+			config = yaml.loadAs(br, YamlJobManager.class);
 		} catch (IOException e) {
 			throw new POPException(0, e.getMessage());
+		}
+		
+		// abort init early, nothing to configure
+		if (config == null) {
+			return;
+		}
+	
+		// root single params
+		// number of job running at the same time
+		maxJobs = config.getJobLimit() > 0 ? config.getJobLimit() : maxJobs;
+		// default network UUID
+		defaultNetwork = config.getDefaultNetwork();
+
+
+
+		// set machine max resource usage
+		YamlResource machineResources = config.getMachineResources();
+		if (machineResources != null && machineResources.getFlops() > 0f) {
+				available.setFlops(machineResources.getFlops());
+				total.setFlops(machineResources.getFlops());
+				LogWriter.writeDebugInfo("[JM] setting maximim flops to [%f]", machineResources.getFlops());
+		}
+		if (machineResources != null && machineResources.getBandwidth() > 0f) {
+				available.setBandwidth(machineResources.getBandwidth());
+				total.setBandwidth(machineResources.getBandwidth());
+				LogWriter.writeDebugInfo("[JM] setting maximim bandwidth to [%f]", machineResources.getBandwidth());
+		}
+		if (machineResources != null && machineResources.getMemory() > 0f) {
+				available.setMemory(machineResources.getMemory());
+				total.setMemory(machineResources.getMemory());
+				LogWriter.writeDebugInfo("[JM] setting maximim memory to [%f]", machineResources.getMemory());
+		}
+
+		// set single job limit
+		YamlResource jobResources = config.getJobResources();
+		if (jobResources != null && jobResources.getFlops() > 0f) {
+				jobLimit.setFlops(jobResources.getFlops());
+				LogWriter.writeDebugInfo("[JM] setting job limit flops to [%f]", jobResources.getFlops());
+		}
+		if (jobResources != null && jobResources.getBandwidth() > 0f) {
+				jobLimit.setBandwidth(jobResources.getBandwidth());
+				LogWriter.writeDebugInfo("[JM] setting job limit bandwidth to [%f]", jobResources.getBandwidth());
+		}
+		if (jobResources != null && jobResources.getMemory() > 0f) {
+				jobLimit.setMemory(jobResources.getMemory());
+				LogWriter.writeDebugInfo("[JM] setting job limit memory to [%f]", jobResources.getMemory());
+		}
+
+
+
+		// networks
+		for (YamlNetwork ymlNetwork : config.getNetworks()) {
+			String uuid = ymlNetwork.getUuid();
+			String friendlyName = ymlNetwork.getFriendlyName();
+			
+			// not default set, use first
+			if (defaultNetwork == null) {
+				defaultNetwork = uuid;
+			}
+
+			// create the network
+			POPNetwork network = new POPNetwork(uuid, friendlyName, this);
+			networks.put(uuid, network);
+			LogWriter.writeDebugInfo("[JM] added network [%s] (%s)", friendlyName, uuid);
+
+			for (YamlConnector ymlConnector : ymlNetwork.getConnectors()) {
+				String connectorType = ymlConnector.getType();
+				// get connector descriptor from name
+				POPNetworkDescriptor descriptor = POPNetworkDescriptor.from(connectorType);
+				// skip if we don't have the connector
+				if (descriptor == null) {
+					LogWriter.writeDebugInfo("[JM] couldn't find implementation of [%s] POPConnector", connectorType);
+					continue;
+				}
+
+				for (List<String> listNode : ymlConnector.asPOPNodeParams()) {
+					POPNode node = descriptor.createNode(listNode);						
+					// add to network
+					network.add(node);
+					LogWriter.writeDebugInfo("[JM] node [%s] added to [%s] (%s)", node.toString(), friendlyName, uuid);
+
+				}
+			}
 		}
 	}
 
@@ -417,7 +316,7 @@ public class POPJavaJobManager extends POPJobService {
 			String networkString = od.getNetwork();
 			// use default if not set
 			if (networkString.isEmpty()) {
-				networkString = defaultNetwork.getUUID();
+				networkString = defaultNetwork;
 			}
 			// get real network
 			POPNetwork network = networks.get(networkString);
@@ -1057,7 +956,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPSyncConc
 	public void registerNode(String... params) {
-		registerNode(defaultNetwork.getUUID(), params);
+		registerNode(defaultNetwork, params);
 	}
 
 	/**
@@ -1067,7 +966,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String... params) {
-		unregisterNode(defaultNetwork.getUUID(), params);
+		unregisterNode(defaultNetwork, params);
 	}
 	
 	/**
@@ -1244,72 +1143,32 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	private void writeConfigurationFile() {
 		try {
-			File config = new File(configurationFile);
 			// create a new one if missing
-			if (!config.exists()) {
-				config.createNewFile();
+			if (!configurationFile.exists()) {
+				configurationFile.createNewFile();
 			}
 			
-			// lock file
-			FileChannel channel = new RandomAccessFile(config, "rw").getChannel();
-			FileLock lock = channel.lock();
+			YamlJobManager yamlJobManager = new YamlJobManager();
+			yamlJobManager.setDefaultNetwork(defaultNetwork);
+			yamlJobManager.setJobLimit(maxJobs);
+			yamlJobManager.setMachineResources(total.toYamlResource());
+			yamlJobManager.setJobResources(jobLimit.toYamlResource());
 			
-			PrintStream ps = new PrintStream(config);
-			
-			// resource power|memory|bandwidth
-			ps.println("# available resources for this job manager");
-			ps.println("resource power " + total.getFlops());
-			ps.println("resource memory " + total.getMemory());
-			ps.println("resource bandwidth " + total.getBandwidth());
-			
-			// job limit|power|memory|bandwidth
-			ps.println("# limit max for single job");
-			ps.println("job limit " + maxJobs);
-			ps.println("job power " + jobLimit.getFlops());
-			ps.println("job memory " + jobLimit.getMemory());
-			ps.println("job bandwidth " + jobLimit.getBandwidth());
-			
-			// networks
-			ps.println("# networks with nodes");
+			List<YamlNetwork> yamlNetworks = new ArrayList<>(networks.size());
+			yamlJobManager.setNetworks(yamlNetworks);
 			for (POPNetwork network : networks.values()) {
-				// name
-				ps.print("network " + network.getUUID());
-				// add default marker if needed
-				if (network.equals(defaultNetwork)) {
-					ps.print(" default");
-				}
-				ps.println();
-				
-				// nodes ordered by connector
-				for (POPConnector connector : network.getConnectors()) {
-					ps.println("# nodes for connector " + connector.getClass().getCanonicalName());
-					
-					for (POPNode node : network.getMembers(connector.getDescriptor())) {
-						if (node.isTemporary()) {
-							continue;
-						}
-						// chain creation parameters
-						ps.print("node ");
-						for (String param : node.getCreationParams()) {
-							ps.print(param + " ");
-						}
-						ps.println();
-					}
-				}
+				yamlNetworks.add(network.toYamlResource());
 			}
 			
-			// extra information present in a manually generated file
-			ps.println("# extra information");
-			for (String token0 : nodeExtra.keySet()) {
-				for (String line : nodeExtra.get(token0)) {
-					ps.print(token0);
-					ps.println(line);
-				}
+			Representer representer = new Representer();
+			representer.setPropertyUtils(new PropertyReverser());
+			Yaml yaml = new Yaml(representer);
+			String output = yaml.dumpAs(yamlJobManager, Tag.MAP, DumperOptions.FlowStyle.AUTO);
+
+			// write updated configration file
+			try (FileOutputStream fos = new FileOutputStream(configurationFile)) {
+				fos.write(output.getBytes());
 			}
-			
-			// write and close
-			ps.close();
-			lock.release();
 		} catch(IOException e) {
 			LogWriter.writeDebugInfo("[JM] Failed to write current configuration to disk");
 		} finally {
@@ -1350,7 +1209,7 @@ public class POPJavaJobManager extends POPJobService {
 	 */
 	@POPAsyncConc(localhost = true)
 	public void setConfigurationFile(String configurationFile) {
-		this.configurationFile = configurationFile;
+		this.configurationFile = new File(configurationFile);
 		writeConfigurationFile();
 	}	
 	

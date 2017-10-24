@@ -1,5 +1,6 @@
 package popjava.service.jobmanager.network;
 
+import java.util.ArrayList;
 import java.util.List;
 import popjava.baseobject.ConnectionType;
 import popjava.baseobject.ObjectDescription;
@@ -20,7 +21,7 @@ public class POPConnectorDirect extends POPConnector {
 
 		@Override
 		public POPNode createNode(List<String> params) {
-			return new POPNodeDirect(params);
+			return new POPNodeDirect(new ArrayList(params));
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("direct", new DescriptorMethodImpl());

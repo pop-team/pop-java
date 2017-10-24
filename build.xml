@@ -14,7 +14,8 @@
         <property name="javassist.jar" value="dependencies/javassist.jar"/>
         <property name="sshj.jar" value="dependencies/sshj-0.21.1-with-dependencies.jar"/>
         <property name="log4j.jar" value="dependencies/slf4j-nop-1.7.2.jar"/>
-	    <property name="junit.jar" value="dependencies/junit-4.10.jar"/>
+        <property name="yaml.jar" value="dependencies/snakeyaml-1.19.jar"/>
+	<property name="junit.jar" value="dependencies/junit-4.10.jar"/>
         <property name="junit-benchmark.jar" value="dependencies/junit-benchmarks-0.7.2.jar"/>
         
         <property name="popjava.jar" value="popjava.jar"/>
@@ -46,7 +47,7 @@
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${popjava.src}"
                 destdir="${classes.dir}"
-                classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}:${junit-benchmark.jar}"
+                classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}:${junit-benchmark.jar}:${yaml.jar}"
                 debug="true" debuglevel="lines,vars,source"
                 target="8"
                 source="8"
@@ -101,6 +102,7 @@
             <zipgroupfileset dir="." includes="${javassist.jar}"/>
             <zipgroupfileset dir="." includes="${sshj.jar}"/>
             <zipgroupfileset dir="." includes="${log4j.jar}"/>
+            <zipgroupfileset dir="." includes="${yaml.jar}"/>
         	<service type="javax.annotation.processing.Processor" provider="popjava.annotation.processors.POPClassProcessor" /> 
         </jar>
 </target>
