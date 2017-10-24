@@ -75,7 +75,7 @@ public abstract class POPNode {
 		return Arrays.copyOf(creationParams, creationParams.length);
 	}
 
-	Map<String, Object> toYamlResource() {
+	public Map<String, Object> toYamlResource() {
 		Map<String, Object> mapParams = new HashMap<>();
 		
 		for (String param : creationParams) {

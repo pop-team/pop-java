@@ -204,8 +204,9 @@ public class POPJavaJobManager extends POPJobService {
 			throw new POPException(0, e.getMessage());
 		}
 		
+		// abort init early, nothing to configure
 		if (config == null) {
-			throw new POPException(0, "Couldn't load YAML configuration file.");
+			return;
 		}
 	
 		// root single params

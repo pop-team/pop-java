@@ -1,5 +1,6 @@
 package popjava.service.jobmanager.yaml;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -55,7 +56,7 @@ public class YamlJobManager {
 
 	private String defaultNetwork;
 
-	private List<YamlNetwork> networks;
+	private List<YamlNetwork> networks = Collections.EMPTY_LIST;
 
 	/**
 	 * The maximum amount of resources that the Job Manager can allocate.
