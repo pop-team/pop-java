@@ -26,6 +26,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -287,8 +288,11 @@ public class SSLUtils {
 			byte[] der = cert.getEncoded();
 			md.update(der);
 			byte[] digest = md.digest();
-			// TODO is there a better way to do this?
-			return javax.xml.bind.DatatypeConverter.printHexBinary(digest);
+			final StringBuilder builder = new StringBuilder();
+			for(byte b : digest) {
+				builder.append(String.format("%02X", b));
+			}
+			return builder.toString();
 		} catch (NoSuchAlgorithmException | CertificateEncodingException ex) {
 		}
 		return null;
@@ -304,7 +308,7 @@ public class SSLUtils {
 		StringBuilder sb = new StringBuilder();
 		try {
 			sb.append("-----BEGIN CERTIFICATE-----\n");
-			sb.append(javax.xml.bind.DatatypeConverter.printBase64Binary(cert.getEncoded())).append("\n");
+			sb.append(Base64.getEncoder().encode(cert.getEncoded())).append("\n");
 			sb.append("-----END CERTIFICATE-----\n");
 		} catch(CertificateEncodingException e) {
 		}
