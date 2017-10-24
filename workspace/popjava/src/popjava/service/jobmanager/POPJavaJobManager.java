@@ -67,6 +67,7 @@ import popjava.service.jobmanager.yaml.YamlConnector;
 import popjava.service.jobmanager.yaml.YamlNetwork;
 import popjava.service.jobmanager.yaml.YamlResource;
 import popjava.service.jobmanager.yaml.PropertyReverser;
+import popjava.service.jobmanager.external.POPNetworkDetails;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPJavaConfiguration;
@@ -840,11 +841,11 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Register to remote network and locally
 	 *
-	 * @param network
+	 * @param networkUUID
 	 * @param node
 	 */
 	@POPAsyncConc
-	private void registerRemoteAsync(String network, POPNodeAJobManager node) {
+	private void registerRemoteAsync(String networkUUID, POPNodeAJobManager node) {
 		try {
 			// TODO send self, we should in some way generate a POPNetworkNode of ourselves in the right format
 			// a way could be by modifying the parameters we get from node.getParameters(), we know host=??, 
@@ -862,12 +863,12 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return true if created or already exists, false if already exists but use a different protocol
 	 */
 	@POPSyncConc(localhost = true)
-	public boolean createNetwork(String friendlyName) {
+	public POPNetworkDetails createNetwork(String friendlyName) {
 		try {
 			// check if exists already
 			POPNetwork network = networks.get(friendlyName);
 			if (network != null) {
-				return true;
+				return new POPNetworkDetails(network);
 			}
 
 			// create the new network
@@ -875,31 +876,31 @@ public class POPJavaJobManager extends POPJobService {
 
 			// add new network
 			LogWriter.writeDebugInfo("[JM] Network %s added", friendlyName);
-			networks.put(friendlyName, newNetwork);
+			networks.put(newNetwork.getUUID(), newNetwork);
 
 			// write all current configurations to a file
 			writeConfigurationFile();
-			return true;
+			return new POPNetworkDetails(newNetwork);
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
-			return false;
+			return null;
 		}
 	}
 
 	/**
 	 * Remove a network and write the Job Manager configuration file anew
 	 *
-	 * @param name The unique name of the network
+	 * @param networkUUID The unique name of the network
 	 */
 	@POPAsyncConc(localhost = true)
-	public void removeNetwork(String name) {
-		if (!networks.containsKey(name)) {
-			LogWriter.writeDebugInfo("[JM] Network %s not removed, not found", name);
+	public void removeNetwork(String networkUUID) {
+		if (!networks.containsKey(networkUUID)) {
+			LogWriter.writeDebugInfo("[JM] Network %s not removed, not found", networkUUID);
 			return;
 		}
 		
-		LogWriter.writeDebugInfo("[JM] Network %s removed", name);
-		networks.remove(name);
+		LogWriter.writeDebugInfo("[JM] Network %s removed", networkUUID);
+		networks.remove(networkUUID);
 		
 		// write all current configurations to a file
 		writeConfigurationFile();
@@ -908,15 +909,15 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Register node to a network by supplying an array of string matching the format in the configuration file
 	 *
-	 * @param networkName The name of an existing network in this JM
+	 * @param networkUUID The name of an existing network in this JM
 	 * @param params An array of String that will be processed by {@link POPNodeFactory#makeNode(String[])}
 	 */
 	@POPSyncConc
-	public void registerNode(String networkName, String... params) {
+	public void registerNode(String networkUUID, String... params) {
 		// get network
-		POPNetwork network = networks.get(networkName);
+		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
-			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), networkName);
+			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), networkUUID);
 			return;
 		}
 
@@ -925,19 +926,19 @@ public class POPJavaJobManager extends POPJobService {
 		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
 		node.setTemporary(true);
 		network.add(node);
-		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), networkName);
+		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), networkUUID);
 	}
 
 	/**
 	 * Remove a node from a network
 	 *
-	 * @param networkName The name of an existing network in this JM
+	 * @param networkUUID The name of an existing network in this JM
 	 * @param params An array of String that will be processed to {@link POPNodeFactory#makeNode}
 	 */
 	@POPAsyncConc
-	public void unregisterNode(String networkName, String... params) {
+	public void unregisterNode(String networkUUID, String... params) {
 		// get network
-		POPNetwork network = networks.get(networkName);
+		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
 			LogWriter.writeDebugInfo("[JM] Node %s not removed, network not found", Arrays.toString(params));
 			return;
@@ -971,13 +972,13 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Register a node and write it in the configuration file
-	 * @param networkName
+	 * @param networkUUID
 	 * @param params
 	 */
 	@POPSyncConc(localhost = true)
-	public void registerPermanentNode(String networkName, String... params) {
+	public void registerPermanentNode(String networkUUID, String... params) {
 		// get network
-		POPNetwork network = networks.get(networkName);
+		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
 			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network);
 			return;
@@ -992,13 +993,13 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Unregister a node and write it in the configuration file
-	 * @param networkName
+	 * @param networkUUID
 	 * @param params
 	 */
 	@POPSyncConc(localhost = true)
-	public void unregisterPermanentNode(String networkName, String... params) {
+	public void unregisterPermanentNode(String networkUUID, String... params) {
 		// get network
-		POPNetwork network = networks.get(networkName);
+		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
 			LogWriter.writeDebugInfo("[JM] Node %s not removed, network not found", Arrays.toString(params));
 			return;
@@ -1219,20 +1220,26 @@ public class POPJavaJobManager extends POPJobService {
 	 * @return 
 	 */
 	@POPSyncConc(localhost = true)
-	public String[] getAvailableNetworks() {
-		int size = networks.keySet().size();
-		return networks.keySet().toArray(new String[size]);
+	public POPNetworkDetails[] getAvailableNetworks() {
+		List<POPNetwork> nets = new ArrayList<>(networks.values());
+		int size = nets.size();
+		POPNetworkDetails[] netsDetails = new POPNetworkDetails[size];
+		int i = 0;
+		for (POPNetwork net : nets) {
+			netsDetails[i++] = new POPNetworkDetails(net);
+		}
+		return netsDetails;
 	}
 	
 	/**
 	 * All the nodes in a network
 	 * 
-	 * @param networkName
+	 * @param networkUUID
 	 * @return 
 	 */
 	@POPSyncConc(localhost = true)
-	public String[][] getNetworkNodes(String networkName) {
-		POPNetwork network = networks.get(networkName);
+	public String[][] getNetworkNodes(String networkUUID) {
+		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
 			return new String[0][0];
 		}
@@ -1273,16 +1280,16 @@ public class POPJavaJobManager extends POPJobService {
 	////
 	/**
 	 * Register a new object that will be available for connection over TFC
-	 * @param networkName The network that will contain the object
+	 * @param networkUUID The network that will contain the object
 	 * @param objectName The class of the object
 	 * @param accessPoint Where to find the object on the machine
 	 * @param secret A secret to remove the object
 	 * @return true if we could add the object successfully
 	 */
 	@POPSyncConc(localhost = true)
-	public boolean registerTFCObject(String networkName, String objectName, POPAccessPoint accessPoint, String secret) {
+	public boolean registerTFCObject(String networkUUID, String objectName, POPAccessPoint accessPoint, String secret) {
 		// get registerer network
-		POPNetwork network = networks.get(networkName);
+		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
 			return false;
 		}
@@ -1295,7 +1302,7 @@ public class POPJavaJobManager extends POPJobService {
 			String protocol = myself.getProtocol();
 			int port = myself.getPort();
 			POPNode newNode = new POPNodeTFC("localhost", port, protocol);
-			this.registerNode(networkName, newNode.getCreationParams());
+			this.registerNode(networkUUID, newNode.getCreationParams());
 			writeConfigurationFile();
 			
 			tfc = network.getConnector(POPNetworkDescriptor.from("tfc"));
@@ -1309,15 +1316,15 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Register a new object that will be available for connection over TFC
-	 * @param networkName The network that will contain the object
+	 * @param networkUUID The network that will contain the object
 	 * @param objectName The class of the object
 	 * @param accessPoint Where to find the object on the machine
 	 * @param secret A secret to remove the object
 	 */
 	@POPSyncConc(localhost = true)
-	public void unregisterTFCObject(String networkName, String objectName, POPAccessPoint accessPoint, String secret) {
+	public void unregisterTFCObject(String networkUUID, String objectName, POPAccessPoint accessPoint, String secret) {
 		// get registerer network
-		POPNetwork network = networks.get(networkName);
+		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
 			return;
 		}
@@ -1336,15 +1343,15 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Looks for live TFC objects in a POP Network on this node.
-	 * @param networkName
+	 * @param networkUUID
 	 * @param objectName
 	 * @return The POPAccessPoint(s) of lives TFC Objects registered on this Job Manager.
 	 */
 	@POPSyncConc
-	public POPAccessPoint[] localTFCSearch(String networkName, String objectName) {
+	public POPAccessPoint[] localTFCSearch(String networkUUID, String objectName) {
 		POPAccessPoint[] aps = new POPAccessPoint[0];
 		// get registerer network
-		POPNetwork network = networks.get(networkName);
+		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
 			return aps;
 		}
@@ -1471,7 +1478,7 @@ public class POPJavaJobManager extends POPJobService {
 			SNExploration explorationList = request.getExplorationList();
 			SNExploration oldExplorationList = new SNExploration(request.getExplorationList());
 			// get request network
-			POPNetwork network = networks.get(request.getNetworkName());
+			POPNetwork network = networks.get(request.getNetworkUUID());
 
 			// do nothing if we don't have the network
 			if (network == null) {

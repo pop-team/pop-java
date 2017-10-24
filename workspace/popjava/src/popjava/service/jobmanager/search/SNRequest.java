@@ -25,7 +25,7 @@ public class SNRequest implements IPOPBase {
 	private SNExploration explorationNodes;
 	private SNWayback wayback;
 
-	private String network;
+	private String networkUUID;
 	private String connector;
 	
 	private boolean endRequest = false;
@@ -41,14 +41,14 @@ public class SNRequest implements IPOPBase {
 	}
 	
 	// TODO get appservice certificate and fill appServiceCertificate
-	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String network, String connector, String appServiceFingerprint) {
+	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String networkUUID, String connector, String appServiceFingerprint) {
 		this.requestId = nodeId;
 		this.os = POPSystem.getPlatform();
 		this.minResource = minResource;
 		this.reqResource = reqResource;
 		this.explorationNodes = new SNExploration();
 		this.wayback = new SNWayback();
-		this.network = network;
+		this.networkUUID = networkUUID;
 		this.connector = connector;
 		
 		// this node certificate
@@ -80,8 +80,8 @@ public class SNRequest implements IPOPBase {
 		return explorationNodes;
 	}
 
-	public String getNetworkName() {
-		return network;
+	public String getNetworkUUID() {
+		return networkUUID;
 	}
 
 	public void setHopLimit(int hops) {
@@ -148,7 +148,7 @@ public class SNRequest implements IPOPBase {
 		buffer.putValue(reqResource, Resource.class);
 		buffer.putValue(explorationNodes, SNExploration.class);
 		buffer.putValue(wayback, SNWayback.class);
-		buffer.putString(network);
+		buffer.putString(networkUUID);
 		buffer.putBoolean(endRequest);
 		buffer.putInt(hops);
 		buffer.putInt(popAppId);
@@ -172,7 +172,7 @@ public class SNRequest implements IPOPBase {
 		reqResource = (Resource) buffer.getValue(Resource.class);
 		explorationNodes = (SNExploration) buffer.getValue(SNExploration.class);
 		wayback = (SNWayback) buffer.getValue(SNWayback.class);
-		network = buffer.getString();
+		networkUUID = buffer.getString();
 		endRequest = buffer.getBoolean();
 		hops = buffer.getInt();
 		popAppId = buffer.getInt();

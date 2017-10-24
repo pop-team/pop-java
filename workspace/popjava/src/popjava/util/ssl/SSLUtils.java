@@ -157,11 +157,11 @@ public class SSLUtils {
 	 * NOTE: aliases seems to be all lowercase
 	 * 
 	 * @param node
-	 * @param networkName 
+	 * @param networkUUID 
 	 * @return 
 	 */
-	private static String confidenceLinkAlias(POPNode node, String networkName) {
-		return String.format("%x@%s", node.hashCode(), networkName.toLowerCase());
+	private static String confidenceLinkAlias(POPNode node, String networkUUID) {
+		return String.format("%x@%s", node.hashCode(), networkUUID.toLowerCase());
 	}
 	
 	/**
@@ -169,17 +169,17 @@ public class SSLUtils {
 	 * 
 	 * @param node
 	 * @param certificate
-	 * @param networkName 
+	 * @param networkUUID 
 	 * @param mode false if we want to add the certificate, true if we want to replace it
 	 * @throws IOException 
 	 */
-	private static void addConfidenceLink(POPNode node, Certificate certificate, String networkName, boolean mode) throws IOException {
+	private static void addConfidenceLink(POPNode node, Certificate certificate, String networkUUID, boolean mode) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = loadKeyStore();
 
 			// node identifier
-			String nodeAlias = confidenceLinkAlias(node, networkName);
+			String nodeAlias = confidenceLinkAlias(node, networkUUID);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
@@ -205,11 +205,11 @@ public class SSLUtils {
 	 * 
 	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
-	 * @param networkName The network associated to this certificate
+	 * @param networkUUID The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void addConfidenceLink(POPNode node, Certificate certificate, String networkName) throws IOException {
-		addConfidenceLink(node, certificate, networkName, false);
+	public static void addConfidenceLink(POPNode node, Certificate certificate, String networkUUID) throws IOException {
+		addConfidenceLink(node, certificate, networkUUID, false);
 	}
 	
 	/**
@@ -218,11 +218,11 @@ public class SSLUtils {
 	 * 
 	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
-	 * @param networkName The network associated to this certificate
+	 * @param networkUUID The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void replaceConfidenceLink(POPNode node, Certificate certificate, String networkName) throws IOException {
-		addConfidenceLink(node, certificate, networkName, true);
+	public static void replaceConfidenceLink(POPNode node, Certificate certificate, String networkUUID) throws IOException {
+		addConfidenceLink(node, certificate, networkUUID, true);
 	}
 	
 	/**
@@ -232,13 +232,13 @@ public class SSLUtils {
 	 * @param node A node created somehow, directly or with the factory
 	 * @throws IOException Many
 	 */
-	public static void removeConfidenceLink(POPNode node, String networkName) throws IOException {
+	public static void removeConfidenceLink(POPNode node, String networkUUID) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = loadKeyStore();
 
 			// node identifier
-			String nodeAlias = confidenceLinkAlias(node, networkName);
+			String nodeAlias = confidenceLinkAlias(node, networkUUID);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());

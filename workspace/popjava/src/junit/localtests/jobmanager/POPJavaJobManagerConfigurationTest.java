@@ -20,6 +20,8 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
+import popjava.service.jobmanager.external.POPNetworkDetails;
+import popjava.service.jobmanager.network.POPNetwork;
 import popjava.service.jobmanager.network.POPNetworkDescriptor;
 import popjava.service.jobmanager.network.POPNodeDirect;
 import popjava.service.jobmanager.network.POPNodeJobManager;
@@ -106,6 +108,12 @@ public class POPJavaJobManagerConfigurationTest {
 		networks.put("n2", new POPNode[]{ new POPNodeDirect("3", 0, "daemon"), new POPNodeJobManager("2", 0, "ssl") });
 		networks.put("n3", new POPNode[]{ new POPNodeTFC("4", 0, "ssl") });
 		
+		POPNetworkDetails[] expectedNetworks = {
+			new POPNetworkDetails(new POPNetwork("n1", "n1", null)),
+			new POPNetworkDetails(new POPNetwork("n2", "n2", null)),
+			new POPNetworkDetails(new POPNetwork("n3", "n3", null))
+		};
+		
 		YamlJobManager yamlJm = new YamlJobManager();
 		List<YamlNetwork> yamlNetworks = new ArrayList<>();
 		yamlJm.setNetworks(yamlNetworks);
@@ -134,16 +142,14 @@ public class POPJavaJobManagerConfigurationTest {
 			
 			Yaml yaml = new Yaml();
 			String output = yaml.dumpAs(yamlJm, Tag.MAP, DumperOptions.FlowStyle.AUTO);
-			System.out.println(output);
 			out.print(output);
 		}
 		
 		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", jmConfig.getAbsolutePath());
 		
-		String[] availableNetworks = jm.getAvailableNetworks();
-		String[] configNetworks = networks.keySet().toArray(new String[0]);
+		POPNetworkDetails[] availableNetworks = jm.getAvailableNetworks();
 		
-		Assert.assertArrayEquals(configNetworks, availableNetworks);
+		Assert.assertArrayEquals(expectedNetworks, availableNetworks);
 		
 		for (String network : networks.keySet()) {
 			String[][] networkStringNodes = jm.getNetworkNodes(network);

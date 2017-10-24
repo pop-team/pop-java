@@ -11,6 +11,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.util.ssl.SSLUtils;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.Resource;
+import popjava.service.jobmanager.external.POPNetworkDetails;
 import popjava.service.jobmanager.network.POPNetworkDescriptor;
 import popjava.service.jobmanager.network.POPNode;
 import popjava.system.POPSystem;
@@ -41,14 +42,14 @@ public class JobManagerConfig {
 	 * Register a POPObject and make it available for discovery in a network
 	 *
 	 * @param object
-	 * @param tfcNetwork
+	 * @param tfcNetworkUUID
 	 * @param secret
 	 * @return
 	 */
-	public boolean publishTFCObject(Object object, String tfcNetwork, String secret) {
+	public boolean publishTFCObject(Object object, String tfcNetworkUUID, String secret) {
 		if (object instanceof POPObject) {
 			POPObject temp = (POPObject) object;
-			return jobManager.registerTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
+			return jobManager.registerTFCObject(tfcNetworkUUID, temp.getClassName(), temp.getAccessPoint(), secret);
 		}
 		return false;
 	}
@@ -57,38 +58,38 @@ public class JobManagerConfig {
 	 * Unregister a POPObject from the local JobManager
 	 *
 	 * @param object
-	 * @param tfcNetwork
+	 * @param tfcNetworkUUID
 	 * @param secret
 	 */
-	public void withdrawnTFCObject(Object object, String tfcNetwork, String secret) {
+	public void withdrawnTFCObject(Object object, String tfcNetworkUUID, String secret) {
 		if (object instanceof POPObject) {
 			POPObject temp = (POPObject) object;
-			jobManager.unregisterTFCObject(tfcNetwork, temp.getClassName(), temp.getAccessPoint(), secret);
+			jobManager.unregisterTFCObject(tfcNetworkUUID, temp.getClassName(), temp.getAccessPoint(), secret);
 		}
 	}
 
 	/**
 	 * Add a new Node/Friend to a network
 	 *
-	 * @param network The name of the network
+	 * @param networksUUID The name of the network
 	 * @param node A network node implementation
 	 */
-	public void registerNode(String network, POPNode node) {
-		jobManager.registerPermanentNode(network, node.getCreationParams());
+	public void registerNode(String networksUUID, POPNode node) {
+		jobManager.registerPermanentNode(networksUUID, node.getCreationParams());
 	}
 	
 	/**
 	 * Register a new node with a certificate associated to it
 	 * 
-	 * @param network Name of the network
+	 * @param networkUUID Name of the network
 	 * @param node The node to add
 	 * @param certificate The certificate to use
 	 * @return 
 	 */
-	public boolean registerNode(String network, POPNode node, Certificate certificate) {
+	public boolean registerNode(String networkUUID, POPNode node, Certificate certificate) {
 		try {
-			SSLUtils.addConfidenceLink(node, certificate, network);
-			jobManager.registerPermanentNode(network, node.getCreationParams());
+			SSLUtils.addConfidenceLink(node, certificate, networkUUID);
+			jobManager.registerPermanentNode(networkUUID, node.getCreationParams());
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -99,14 +100,14 @@ public class JobManagerConfig {
 	/**
 	 * Add a confidence link to a previously added node
 	 * 
-	 * @param network Name of the network
+	 * @param networkUUID Name of the network
 	 * @param node The node to add
 	 * @param certificate The certificate to use
 	 * @return 
 	 */
-	public boolean assignCertificate(String network, POPNode node, Certificate certificate) {
+	public boolean assignCertificate(String networkUUID, POPNode node, Certificate certificate) {
 		try {
-			SSLUtils.addConfidenceLink(node, certificate, network);
+			SSLUtils.addConfidenceLink(node, certificate, networkUUID);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -117,14 +118,14 @@ public class JobManagerConfig {
 	/**
 	 * Add a confidence link to a previously added node
 	 * 
-	 * @param network Name of the network
+	 * @param networkUUID Name of the network
 	 * @param node The node to add
 	 * @param certificate The certificate to load
 	 * @return 
 	 */
-	public boolean replaceCertificate(String network, POPNode node, Certificate certificate) {
+	public boolean replaceCertificate(String networkUUID, POPNode node, Certificate certificate) {
 		try {
-			SSLUtils.replaceConfidenceLink(node, certificate, network);
+			SSLUtils.replaceConfidenceLink(node, certificate, networkUUID);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -136,13 +137,13 @@ public class JobManagerConfig {
 	 * Remove a confidence link to a previously added node, preserve the node.
 	 * Use {@link #unregisterNode} to remove both node and certificate.
 	 * 
-	 * @param network Name of the network
+	 * @param networkUUID Name of the network
 	 * @param node The node to add
 	 * @return 
 	 */
-	public boolean removeCertificate(String network, POPNode node) {
+	public boolean removeCertificate(String networkUUID, POPNode node) {
 		try {
-			SSLUtils.removeConfidenceLink(node, network);
+			SSLUtils.removeConfidenceLink(node, networkUUID);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -153,35 +154,36 @@ public class JobManagerConfig {
 	/**
 	 * Remove a Node/Friend from a network
 	 *
-	 * @param network The name of the network
+	 * @param networkUUID The name of the network
 	 * @param node A network node implementation
 	 */
-	public void unregisterNode(String network, POPNode node) {
-		jobManager.unregisterPermanentNode(network, node.getCreationParams());
+	public void unregisterNode(String networkUUID, POPNode node) {
+		jobManager.unregisterPermanentNode(networkUUID, node.getCreationParams());
 		// try remove
 		try {
-			SSLUtils.removeConfidenceLink(node, network);
+			SSLUtils.removeConfidenceLink(node, networkUUID);
 		} catch(IOException e) {
 			// too bad
 		}
 	}
 
 	/**
-	 * Create a new network of interest
+	 * Create a new network of interest, return the details with UUID
 	 * 
-	 * @param networkName 
+	 * @param friendlyName 
+	 * @return  
 	 */
-	public void createNetwork(String networkName) {
-		jobManager.createNetwork(networkName);
+	public POPNetworkDetails createNetwork(String friendlyName) {
+		return jobManager.createNetwork(friendlyName);
 	}
 
 	/**
 	 * Remove a network of interest with all its members
 	 * 
-	 * @param networkName 
+	 * @param networkUUID 
 	 */
-	public void removeNetwork(String networkName) {
-		jobManager.removeNetwork(networkName);
+	public void removeNetwork(String networkUUID) {
+		jobManager.removeNetwork(networkUUID);
 	}
 
 	/**
@@ -252,20 +254,20 @@ public class JobManagerConfig {
 	 * 
 	 * @return 
 	 */
-	public String[] availableNetworks() {
+	public POPNetworkDetails[] availableNetworks() {
 		return jobManager.getAvailableNetworks();
 	}
 	
 	/**
 	 * All the node available in a network
-	 * Use {@link POPNode#getConnectorDescriptor()} or {@link POPNode#getConnectorClass()} to know which type you are working with.
+	 * Use {@link POPNode#getConnectorDescriptor()} to know which type you are working with.
 	 * 
-	 * @param networkName
+	 * @param networkUUID
 	 * @return 
 	 */
-	public POPNode[] networkNodes(String networkName) {
+	public POPNode[] networkNodes(String networkUUID) {
 		// get nodes
-		String[][] networkNodes = jobManager.getNetworkNodes(networkName);
+		String[][] networkNodes = jobManager.getNetworkNodes(networkUUID);
 		
 		// no results
 		if (networkNodes == null) {

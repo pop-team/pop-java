@@ -10,8 +10,6 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.network.POPConnector;
-import popjava.service.jobmanager.network.POPConnectorTFC;
 import popjava.service.jobmanager.network.POPNodeAJobManager;
 import popjava.service.jobmanager.network.POPNode;
 import popjava.system.POPSystem;
@@ -148,11 +146,11 @@ public class PopJava {
 	 * Return the 
 	 * 
 	 * @param targetClass
-	 * @param networkName
+	 * @param networkUUID
 	 * @param node
 	 * @return 
 	 */
-	public static POPAccessPoint[] newTFCSearchOn(Class targetClass, String networkName, POPNode node) {
+	public static POPAccessPoint[] newTFCSearchOn(Class targetClass, String networkUUID, POPNode node) {
 		POPAccessPoint[] aps = new POPAccessPoint[0];
 		if (!(node instanceof POPNodeAJobManager)) {
 			return aps;
@@ -163,7 +161,7 @@ public class PopJava {
 		POPJavaJobManager jobManager = jmNode.getJobManager();
 		
 		// make local reserach on node
-		aps = jobManager.localTFCSearch(networkName, targetClass.getCanonicalName());
+		aps = jobManager.localTFCSearch(networkUUID, targetClass.getCanonicalName());
 		
 		// exit since the node keep connection alives
 		jobManager.exit();
