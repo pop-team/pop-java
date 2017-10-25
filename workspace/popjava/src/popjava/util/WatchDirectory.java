@@ -40,7 +40,7 @@ public class WatchDirectory implements Runnable {
 				StandardWatchEventKinds.ENTRY_MODIFY
 			};
 		}
-		try {
+		try {			
 			watchedDir = path;
 			watcher = watchedDir.getFileSystem().newWatchService();
 			watchedDir.register(watcher, eventsKind);
@@ -57,25 +57,26 @@ public class WatchDirectory implements Runnable {
 
 	@Override
 	public void run() {
-		while (running) {
-			try {
-				WatchKey watchKey = watcher.take();
-				List<WatchEvent<?>> events = watchKey.pollEvents();
-				for (WatchEvent<?> event : events) {
-					if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-						method.create(event.context().toString());
+		try {
+			while (running) {
+					WatchKey watchKey = watcher.take();
+					List<WatchEvent<?>> events = watchKey.pollEvents();
+					for (WatchEvent<?> event : events) {
+						if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+							method.create(event.context().toString());
+						}
+						else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
+							method.delete(event.context().toString());
+						}
+						else if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+							method.modify(event.context().toString());
+						}
 					}
-					else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-						method.delete(event.context().toString());
-					}
-					else if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-						method.modify(event.context().toString());
-					}
-				}
-				watchKey.reset();
-			} catch (Exception e) {
-				LogWriter.writeDebugInfo("[WatchDirectory] Error: " + e.toString());
+					watchKey.reset();
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			LogWriter.writeDebugInfo("[WatchDirectory] Error: " + e.toString());
 		}
 	}
 	
