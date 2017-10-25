@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
@@ -30,13 +31,19 @@ public class WatchDirectory implements Runnable {
 	
 	private boolean running = true;
 	
-	public WatchDirectory(Path path, WatchMethod method) {
+	public WatchDirectory(Path path, WatchMethod method, Kind... eventsKind) {
+		// no kind specified, look for 3 standard events
+		if (eventsKind.length == 0) {
+			eventsKind = new Kind[] { 
+				StandardWatchEventKinds.ENTRY_CREATE, 
+				StandardWatchEventKinds.ENTRY_DELETE,
+				StandardWatchEventKinds.ENTRY_MODIFY
+			};
+		}
 		try {
 			watchedDir = path;
 			watcher = watchedDir.getFileSystem().newWatchService();
-			watchedDir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, 
-				StandardWatchEventKinds.ENTRY_DELETE,
-				StandardWatchEventKinds.ENTRY_MODIFY);
+			watchedDir.register(watcher, eventsKind);
 			this.method = method;
 			LogWriter.writeDebugInfo("[WatchDirectory] Watching '%s'.", path);
 		} catch (Exception e) {

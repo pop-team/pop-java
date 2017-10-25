@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
@@ -30,8 +32,7 @@ import popjava.util.WatchDirectory;
  */
 public class POPTrustManager implements X509TrustManager {
 	
-	private class WatcherMethods extends WatchDirectory.WatchMethod {
-		
+	private class TemporaryDirectoryWatcher extends WatchDirectory.WatchMethod {
 		@Override
 		public void create(String file) {
 			if (file.endsWith(".cer")) {
@@ -54,6 +55,26 @@ public class POPTrustManager implements X509TrustManager {
 		}
 	}
 	
+	private class KeyStoreWatcher extends WatchDirectory.WatchMethod {
+		private final Path keyStore;
+		public KeyStoreWatcher(Path keyStore) {
+			this.keyStore = keyStore;
+		}
+		@Override
+		public void modify(String s) {
+			// filter to handle only the keystore
+			if (keyStore.equals(keyStore.getParent().resolve(s))) {
+				reload();
+			}
+		}
+		private void reload() {
+			try {
+				// reload certificates
+				reloadTrustManager();
+			} catch(Exception e) {}
+		}
+	}
+	
 	private final Configuration conf = Configuration.getInstance();
 	
 	// certificates stores
@@ -66,7 +87,8 @@ public class POPTrustManager implements X509TrustManager {
 	private Map<String,String> certificatesNetwork = new HashMap<>();
 	
 	// reload and add new certificates
-	private WatchDirectory watcher;
+	private WatchDirectory temporaryWatcher;
+	private WatchDirectory keyStoreWatcher;
 	
 	// easy access
 	private static Certificate publicCertificate;
@@ -216,22 +238,49 @@ public class POPTrustManager implements X509TrustManager {
 			if (tempCertDir.canRead()) {
 				// stop previous watcher
 				boolean createWatcher = true;
-				if (watcher != null) {
-					if (tempCertDir.toPath().equals(watcher.getWatchedDir())) {
+				if (temporaryWatcher != null) {
+					if (tempCertDir.toPath().equals(temporaryWatcher.getWatchedDir())) {
 						createWatcher = false;
 					}
 					// change of directory
 					else {
-						watcher.stop();
+						temporaryWatcher.stop();
 					}
 				}
 
 				if (createWatcher) {
-					watcher = new WatchDirectory(tempCertDir.toPath(), new WatcherMethods());
-					Thread dirWatcher = new Thread(watcher, "TrustStore temporary folder watcher");
+					temporaryWatcher = new WatchDirectory(tempCertDir.toPath(), new TemporaryDirectoryWatcher(),
+						StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
+					Thread dirWatcher = new Thread(temporaryWatcher, "TrustStore temporary folder watcher");
 					dirWatcher.setDaemon(true);
 					dirWatcher.start();
 				}
+			}
+		}
+		
+		// watch keystore
+		File keyStoreFile = conf.getSSLKeyStoreFile();
+		if (keyStoreFile != null && keyStoreFile.canRead()) {
+			Path keyStorePath = keyStoreFile.toPath();
+			
+			// stop previous watcher
+			boolean createWatcher = true;
+			if (keyStoreWatcher != null) {
+				if (keyStorePath.getParent().equals(keyStoreWatcher.getWatchedDir())) {
+					createWatcher = false;
+				}
+				// change of directory
+				else {
+					keyStoreWatcher.stop();
+				}
+			}
+
+			if (createWatcher) {
+				keyStoreWatcher = new WatchDirectory(keyStorePath.getParent(), new KeyStoreWatcher(keyStorePath), 
+					StandardWatchEventKinds.ENTRY_MODIFY);
+				Thread keyWatcher = new Thread(keyStoreWatcher, "KeyStore changes watcher");
+				keyWatcher.setDaemon(true);
+				keyWatcher.start();
 			}
 		}
 		
