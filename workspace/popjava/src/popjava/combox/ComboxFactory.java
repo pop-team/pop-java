@@ -1,5 +1,6 @@
 package popjava.combox;
 
+import java.io.IOException;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.baseobject.AccessPoint;
@@ -15,17 +16,19 @@ public abstract class ComboxFactory {
 	 * Create a new client combox with the given access point
 	 * @param accessPoint	The access point to connect the combox
 	 * @return	The combox created
+	 * @throws java.io.IOException
 	 */
-	public abstract Combox createClientCombox(POPAccessPoint accessPoint);
+	public abstract Combox createClientCombox(POPAccessPoint accessPoint) throws IOException;
 
 	/**
 	 * Create a new client combox with the given access point and a specified timeout
 	 * @param accessPoint	The access point to connect the combox
 	 * @param timeout		The connection timeout
 	 * @return	The combox created
+	 * @throws java.io.IOException
 	 */
 	public abstract Combox createClientCombox(POPAccessPoint accessPoint,
-			int timeout);
+			int timeout) throws IOException;
 
 	/**
 	 * Create a new server combox with the given access point, buffer and broker
@@ -33,9 +36,10 @@ public abstract class ComboxFactory {
 	 * @param buffer		The buffer for sending and receiving
 	 * @param broker		The broker associated with this combox
 	 * @return	The combox server created	
+	 * @throws java.io.IOException	
 	 */
 	public abstract ComboxServer createServerCombox(AccessPoint accessPoint,
-			POPBuffer buffer, Broker broker);
+			POPBuffer buffer, Broker broker) throws IOException;
 
 	/**
 	 * Create a new server combox with the given access point, buffer and broker and a connection timeout
@@ -44,15 +48,17 @@ public abstract class ComboxFactory {
 	 * @param buffer		The buffer for sending and receiving
 	 * @param broker		The broker associated with this combox
 	 * @return	The combox server created	
+	 * @throws java.io.IOException	
 	 */
 	public abstract ComboxServer createServerCombox(AccessPoint accessPoint,
-			int timeout, POPBuffer buffer, Broker broker);
+			int timeout, POPBuffer buffer, Broker broker) throws IOException;
 
 	/**
 	 * Create and allocation combox when instantiating a new remote object
 	 * @return 
+	 * @throws java.io.IOException 
 	 */
-	public abstract ComboxAllocate createAllocateCombox();
+	public abstract ComboxAllocate createAllocateCombox() throws IOException;
 	
 	/**
 	 * Get the combox name

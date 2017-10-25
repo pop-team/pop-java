@@ -955,53 +955,57 @@ public final class Broker {
 	 * @return true if the initialization process succeed
 	 */
 	public boolean initialize(List<String> argvs) {
-		
-		accessPoint = new POPAccessPoint();
-		
-		buffer = new BufferXDR();
-		ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
-		ComboxFactory[] comboxFactories = finder.getAvailableFactories();
-		
-		List<ComboxServer> liveServers = new ArrayList<>();
-		for (ComboxFactory factory : comboxFactories) {
-			String prefix = String.format("-%s_port=", factory.getComboxName());
-			
-			// hadle multiple times the same protocol
-			String port;
-			while ((port = Util.removeStringFromList(argvs, prefix)) != null) {
-				// if we don't have a port, abort
-				if (port == null) {
-					continue;
-				}
+		try {
+			accessPoint = new POPAccessPoint();
 
-				int iPort = 0;
-				if (port.length() > 0) {
-					try {
-						iPort = Integer.parseInt(port);
-					} catch (NumberFormatException e) {
+			buffer = new BufferXDR();
+			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
+			ComboxFactory[] comboxFactories = finder.getAvailableFactories();
 
+			List<ComboxServer> liveServers = new ArrayList<>();
+			for (ComboxFactory factory : comboxFactories) {
+				String prefix = String.format("-%s_port=", factory.getComboxName());
+
+				// hadle multiple times the same protocol
+				String port;
+				while ((port = Util.removeStringFromList(argvs, prefix)) != null) {
+					// if we don't have a port, abort
+					if (port == null) {
+						continue;
 					}
+
+					int iPort = 0;
+					if (port.length() > 0) {
+						try {
+							iPort = Integer.parseInt(port);
+						} catch (NumberFormatException e) {
+
+						}
+					}
+
+					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
+					accessPoint.addAccessPoint(ap);
+
+					liveServers.add(factory.createServerCombox(ap, buffer, this));
 				}
-
-				AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
-				accessPoint.addAccessPoint(ap);
-
-				liveServers.add(factory.createServerCombox(ap, buffer, this));
 			}
-		}
-		
-		// If no protocol was specified, fall back to default protocol
-		if(liveServers.isEmpty()){
-			for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
-				AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
-				accessPoint.addAccessPoint(ap);
 
-				liveServers.add(factory.createServerCombox(ap, buffer, this));
+			// If no protocol was specified, fall back to default protocol
+			if(liveServers.isEmpty()){
+				for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
+					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
+					accessPoint.addAccessPoint(ap);
+
+					liveServers.add(factory.createServerCombox(ap, buffer, this));
+				}
 			}
+
+			comboxServers = liveServers.toArray(new ComboxServer[liveServers.size()]);
+			return true;
+		} catch(Exception e) {
+			LogWriter.writeExceptionLog(e);
+			return false;
 		}
-		
-		comboxServers = liveServers.toArray(new ComboxServer[liveServers.size()]);
-		return true;
 	}
 
 	/**
@@ -1105,15 +1109,20 @@ public final class Broker {
 				}
 				
 				// create callback
-				callback = factory.createClientCombox(accessPoint, 0);
-				
-				if (!callback.connect()) {
-					LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",
-							accessPoint.toString());
-					System.exit(1);
+				try {
+					callback = factory.createClientCombox(accessPoint, 0);
+
+					if (callback.connect()) {
+						LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
+					} else {
+						LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",
+								accessPoint.toString());
+					}
+				} catch(IOException e) {
+					LogWriter.writeExceptionLog(e);
+					LogWriter.writeDebugInfo("[Broker] Failed to connect to callback socket");
+					continue;
 				}
-				// 
-				LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
 				break;
 			}
 		}

@@ -51,6 +51,7 @@ public class WhiteBlacklistTest {
 	}
 	
 	@AfterClass
+	@SuppressWarnings("unchecked")
 	public static void cleanup() {
 		userConfig.deleteOnExit();
 		keystore.deleteOnExit();
@@ -93,6 +94,7 @@ public class WhiteBlacklistTest {
 	}
 	
 	@Test
+	@SuppressWarnings("unchecked")
 	public void emptyLists() {
 		conf.setProtocolsBlacklist(Collections.EMPTY_SET);
 		conf.setProtocolsWhitelist(Collections.EMPTY_SET);
@@ -101,6 +103,7 @@ public class WhiteBlacklistTest {
 	}
 	
 	@Test
+	@SuppressWarnings("unchecked")
 	public void useWhitelist() {
 		conf.setProtocolsBlacklist(Collections.EMPTY_SET);
 		conf.setProtocolsWhitelist(new HashSet<>(Arrays.asList(new String[] { "socket" })));
@@ -111,6 +114,7 @@ public class WhiteBlacklistTest {
 	}
 	
 	@Test
+	@SuppressWarnings("unchecked")
 	public void useBlacklist() {
 		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList(new String[] { "ssl" })));
 		conf.setProtocolsWhitelist(Collections.EMPTY_SET);

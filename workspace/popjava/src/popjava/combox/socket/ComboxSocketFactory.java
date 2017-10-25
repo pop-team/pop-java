@@ -1,5 +1,6 @@
 package popjava.combox.socket;
 
+import java.io.IOException;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
@@ -37,13 +38,13 @@ public class ComboxSocketFactory extends ComboxFactory {
 
 	@Override
 	public ComboxServer createServerCombox(AccessPoint accessPoint,
-			POPBuffer buffer, Broker broker) {
+			POPBuffer buffer, Broker broker) throws IOException {
 		return createServerCombox(accessPoint, conf.getConnectionTimeout(), buffer, broker);
 	}
 
 	@Override
 	public ComboxServer createServerCombox(AccessPoint accessPoint,
-			int timeout, POPBuffer buffer, Broker broker) {
+			int timeout, POPBuffer buffer, Broker broker) throws IOException {
 		return new ComboxServerSocket(accessPoint, timeout, buffer, broker);
 	}
 

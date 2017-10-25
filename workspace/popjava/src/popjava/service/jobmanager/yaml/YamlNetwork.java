@@ -12,6 +12,7 @@ public class YamlNetwork {
 
 	private String uuid;
 	private String friendlyName;
+	@SuppressWarnings("unchecked")
 	private List<YamlConnector> connectors = Collections.EMPTY_LIST;
 
 	/**

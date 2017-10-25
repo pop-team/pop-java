@@ -56,6 +56,7 @@ public class YamlJobManager {
 
 	private String defaultNetwork;
 
+	@SuppressWarnings("unchecked")
 	private List<YamlNetwork> networks = Collections.EMPTY_LIST;
 
 	/**

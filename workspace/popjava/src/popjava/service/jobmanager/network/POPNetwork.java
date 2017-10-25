@@ -119,6 +119,7 @@ public class POPNetwork {
 	 * @param connectorName Which connector we are using
 	 * @return An immutable set we can loop through
 	 */
+	@SuppressWarnings("unchecked")
 	public List<POPNode> getMembers(POPNetworkDescriptor connectorName) {
 		POPConnector connector = connectors.get(connectorName);
 		if (connector == null) {

@@ -202,6 +202,7 @@ public class POPJavaJobManager extends POPJobService {
 		try (BufferedReader br = new BufferedReader(new FileReader(configFile))) {
 			config = yaml.loadAs(br, YamlJobManager.class);
 		} catch (IOException e) {
+			LogWriter.writeExceptionLog(e);
 			throw new POPException(0, e.getMessage());
 		}
 		

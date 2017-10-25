@@ -22,6 +22,7 @@ import java.util.Map;
 public class YamlConnector {
 
 	private String type;
+	@SuppressWarnings("unchecked")
 	private List<Map<String, Object>> nodes = Collections.EMPTY_LIST;
 
 	/**

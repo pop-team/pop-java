@@ -37,7 +37,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 
 		@Override
 		public POPNode createNode(List<String> params) {
-			return new POPNodeJobManager(new ArrayList(params));
+			return new POPNodeJobManager(new ArrayList<>(params));
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("jobmanager", new DescriptorMethodImpl());

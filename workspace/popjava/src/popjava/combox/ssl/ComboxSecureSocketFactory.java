@@ -1,5 +1,6 @@
 package popjava.combox.ssl;
 
+import java.io.IOException;
 import javax.net.ssl.SSLContext;
 import popjava.util.ssl.SSLUtils;
 import popjava.baseobject.AccessPoint;
@@ -41,13 +42,13 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 
 	@Override
 	public ComboxServer createServerCombox(AccessPoint accessPoint,
-			POPBuffer buffer, Broker broker) {
+			POPBuffer buffer, Broker broker) throws IOException {
 		return createServerCombox(accessPoint, conf.getConnectionTimeout(), buffer, broker);
 	}
 
 	@Override
 	public ComboxServer createServerCombox(AccessPoint accessPoint,
-			int timeout, POPBuffer buffer, Broker broker) {
+			int timeout, POPBuffer buffer, Broker broker) throws IOException {
 		return new ComboxServerSecureSocket(accessPoint, timeout, buffer, broker);
 	}
 

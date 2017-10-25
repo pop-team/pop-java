@@ -313,12 +313,17 @@ public class Interface {
 			ComboxFactory factory = finder.findFactory(protocol);
 			// choose the first available protocol
 			if (factory != null) {
-				combox = factory.createClientCombox(accesspoint);
+				try {
+					combox = factory.createClientCombox(accesspoint);
+				} catch(IOException e) {
+					LogWriter.writeExceptionLog(e);
+					continue;
+				}
 				break;
 			}
 		}
 		
-		if (combox.connect(accesspoint, conf.getConnectionTimeout())) {
+		if (combox != null && combox.connect(accesspoint, conf.getConnectionTimeout())) {
 
 			BindStatus bindStatus = new BindStatus();
 			bindStatus(bindStatus);
@@ -775,7 +780,12 @@ public class Interface {
 		for (String protocol : protocols) {
 			ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
 			if (factory != null && factory.isAvailable()) {
-				allocateCombox = factory.createAllocateCombox();
+				try {
+					allocateCombox = factory.createAllocateCombox();
+				} catch(IOException e) {
+					LogWriter.writeExceptionLog(e);
+					continue;
+				}
 				break;
 			}
 		}

@@ -1,10 +1,16 @@
 package popjava.combox.ssl;
 
+import java.io.IOException;
 import popjava.util.ssl.SSLUtils;
 import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
 import java.net.*;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -30,9 +36,10 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	 * @param timeout	Connection timeout
 	 * @param buffer	Buffer associated with this combox
 	 * @param broker	Broker associated with this combox
+	 * @throws java.io.IOException
 	 */
 	public ComboxServerSecureSocket(AccessPoint accessPoint, int timeout,
-			POPBuffer buffer, Broker broker) {
+			POPBuffer buffer, Broker broker) throws IOException {
 		super(accessPoint, timeout, broker);
 		createServer();
 	}
@@ -49,26 +56,28 @@ public class ComboxServerSecureSocket extends ComboxServer {
 
 	/**
 	 * Create and start the combox server
+	 * @throws java.io.IOException
 	 */
-	public void createServer() {
+	public final void createServer() throws IOException {
+		SSLContext sslContext;
 		try {
-			SSLContext sslContext = SSLUtils.getSSLContext();
-			
-			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
-			serverSocket = (SSLServerSocket) factory.createServerSocket();
-			serverSocket.setNeedClientAuth(true);
-			
-			serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
-			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));
-			serverCombox = new ComboxAcceptSecureSocket(broker, getRequestQueue(), serverSocket);
-			serverCombox.setStatus(RUNNING);
-			Thread thread = new Thread(serverCombox, "Server combox acception thread");
-			thread.start();
-			accessPoint.setProtocol(ComboxSecureSocketFactory.PROTOCOL);
-			accessPoint.setHost(accessPoint.getHost());
-			accessPoint.setPort(serverSocket.getLocalPort());
-		} catch (Exception e) {
-			e.printStackTrace();
+			sslContext = SSLUtils.getSSLContext();
+		} catch(CertificateException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException | KeyManagementException e) {
+			throw new IOException(e);
 		}
+
+		SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
+		serverSocket = (SSLServerSocket) factory.createServerSocket();
+		serverSocket.setNeedClientAuth(true);
+
+		serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
+		serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));
+		serverCombox = new ComboxAcceptSecureSocket(broker, getRequestQueue(), serverSocket);
+		serverCombox.setStatus(RUNNING);
+		Thread thread = new Thread(serverCombox, "Server combox acception thread");
+		thread.start();
+		accessPoint.setProtocol(ComboxSecureSocketFactory.PROTOCOL);
+		accessPoint.setHost(accessPoint.getHost());
+		accessPoint.setPort(serverSocket.getLocalPort());
 	}
 }

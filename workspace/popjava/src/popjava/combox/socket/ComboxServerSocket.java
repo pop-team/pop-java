@@ -26,9 +26,10 @@ public class ComboxServerSocket extends ComboxServer {
 	 * @param timeout		Connection timeout
 	 * @param buffer		Buffer associated with this combox
 	 * @param broker		Broker associated with this combox
+	 * @throws java.io.IOException
 	 */
 	public ComboxServerSocket(AccessPoint accessPoint, int timeout,
-			POPBuffer buffer, Broker broker) {
+			POPBuffer buffer, Broker broker) throws IOException {
 		super(accessPoint, timeout, broker);
 		createServer();
 	}
@@ -44,21 +45,19 @@ public class ComboxServerSocket extends ComboxServer {
 
 	/**
 	 * Create and start the combox server
+	 * @throws java.io.IOException
 	 */
-	public void createServer() {
-		try {
-			serverSocket = new ServerSocket();
-            serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
-			serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));			
-			serverCombox = new ComboxAcceptSocket(broker, getRequestQueue(),
-					serverSocket);
-			serverCombox.setStatus(RUNNING);
-			Thread thread = new Thread(serverCombox, "Server combox acception thread");
-			thread.start();
-			accessPoint.setProtocol(ComboxSocketFactory.PROTOCOL);
-			accessPoint.setHost(accessPoint.getHost());
-			accessPoint.setPort(serverSocket.getLocalPort());
-		} catch (IOException e) {
-		}
+	public final void createServer() throws IOException {
+		serverSocket = new ServerSocket();
+		serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
+		serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));			
+		serverCombox = new ComboxAcceptSocket(broker, getRequestQueue(),
+				serverSocket);
+		serverCombox.setStatus(RUNNING);
+		Thread thread = new Thread(serverCombox, "Server combox acception thread");
+		thread.start();
+		accessPoint.setProtocol(ComboxSocketFactory.PROTOCOL);
+		accessPoint.setHost(accessPoint.getHost());
+		accessPoint.setPort(serverSocket.getLocalPort());
 	}
 }
