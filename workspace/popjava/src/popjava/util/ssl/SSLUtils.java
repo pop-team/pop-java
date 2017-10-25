@@ -151,7 +151,7 @@ public class SSLUtils {
 			// init ssl context with everything
 			sslContextInstance.init(keyManagerFactory.getKeyManagers(), trustManagers, new SecureRandom());
 		}
-		
+
 		return sslContextInstance;
 	}
 	

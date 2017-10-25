@@ -170,11 +170,22 @@ public class JobManagerConfig {
 	/**
 	 * Create a new network of interest, return the details with UUID
 	 * 
-	 * @param friendlyName 
-	 * @return  
+	 * @param friendlyName A friendly name to identify the network locally.
+	 * @return An object containing a generated UUID and the friendly name.
 	 */
 	public POPNetworkDetails createNetwork(String friendlyName) {
 		return jobManager.createNetwork(friendlyName);
+	}
+
+	/**
+	 * Create a new network of interest, return the details with UUID
+	 * 
+	 * @param networkUUID The UUID the network will use
+	 * @param friendlyName A friendly name to identify the network locally.
+	 * @return An object containing the UUID and the friendly name.
+	 */
+	public POPNetworkDetails createNetwork(String networkUUID, String friendlyName) {
+		return jobManager.createNetwork(networkUUID, friendlyName);
 	}
 
 	/**

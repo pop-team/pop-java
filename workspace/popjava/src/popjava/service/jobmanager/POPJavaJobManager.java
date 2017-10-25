@@ -859,20 +859,47 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Create a new network and write the Job Manager configuration file anew
 	 *
-	 * @param friendlyName A unique name of the network
+	 * @param friendlyName A name for this network
 	 * @return true if created or already exists, false if already exists but use a different protocol
 	 */
 	@POPSyncConc(localhost = true)
 	public POPNetworkDetails createNetwork(String friendlyName) {
 		try {
+			// create the new network
+			POPNetwork newNetwork = new POPNetwork(friendlyName, this);
+
+			// add new network
+			LogWriter.writeDebugInfo("[JM] Network %s added", friendlyName);
+			networks.put(newNetwork.getUUID(), newNetwork);
+
+			// write all current configurations to a file
+			writeConfigurationFile();
+			return new POPNetworkDetails(newNetwork);
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Create a new network and write the Job Manager configuration file anew.
+	 * The network is create with the specified UUID.
+	 *
+	 * @param networkUUID A machine unique identifier for this network
+	 * @param friendlyName A name for this network
+	 * @return true if created or already exists, false if already exists but use a different protocol
+	 */
+	@POPSyncConc(localhost = true)
+	public POPNetworkDetails createNetwork(String networkUUID, String friendlyName) {
+		try {
 			// check if exists already
-			POPNetwork network = networks.get(friendlyName);
+			POPNetwork network = networks.get(networkUUID);
 			if (network != null) {
 				return new POPNetworkDetails(network);
 			}
 
 			// create the new network
-			POPNetwork newNetwork = new POPNetwork(friendlyName, this);
+			POPNetwork newNetwork = new POPNetwork(networkUUID, friendlyName, this);
 
 			// add new network
 			LogWriter.writeDebugInfo("[JM] Network %s added", friendlyName);
