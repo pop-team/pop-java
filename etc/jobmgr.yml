@@ -1,0 +1,25 @@
+networks:
+- uuid: 6ff6b4d0-97bb-468d-99c5-2a4d042471e2             # don't use this one
+  friendlyName: myDefaultNetwork
+  connectors:
+  - type: jobmanager
+    nodes:
+    - {host: 127.0.0.1, port: 2711, protocol: socket}
+
+  - type: direct
+    - {host: 127.0.0.1, port: 22}
+    - {host: 127.0.0.1, port: 4999, protocol: daemon, secret: daemonSecret}
+
+  - type: tfc
+    nodes:
+    - {host: localhost, port: 2713, protocol: ssl}
+
+- uuid: b4f06ff4-39c7-4a62-a510-12421da9e96c
+  friendlyName: a second network
+  connectors: [ ]    # it's empty
+
+machineResources: {memory: 8000.0, flops: 170000.0, bandwidth: 100.0}
+jobResources: {memory: 500.0, flops: 200.0, bandwidth: 10.0}
+
+jobLimit: 100
+defaultNetwork: 6ff6b4d0-97bb-468d-99c5-2a4d042471e2

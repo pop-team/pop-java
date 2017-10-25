@@ -101,6 +101,24 @@ public class POPJavaJobManagerConfigurationTest {
 		Assert.assertEquals(setMaxJobs, maxJobs);
 	}
 	
+	@Test(expected = Exception.class)
+	public void wronglyWrittenConfigFile() throws IOException {
+		String[] file = {
+			"machineResources: {memory: 1233, flops: 4333, bandwidth: 343}",
+			"thisIsAnUnknownParameter",
+			"networks: {}"
+		};
+		
+		File jmConfig = tf.newFile();
+		try (PrintWriter out = new PrintWriter(jmConfig)) {
+			for (String line : file) {
+				out.println(line);
+			}
+		}
+		
+		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", jmConfig.getAbsolutePath());
+	}
+	
 	@Test
 	public void networks() throws IOException {
 		Map<String,POPNode[]> networks = new HashMap<>();

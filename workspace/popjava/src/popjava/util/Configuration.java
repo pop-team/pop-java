@@ -82,7 +82,7 @@ public final class Configuration {
 	
 	// config files
 	private static final File SYSTEM_CONFIG = Paths.get(POPJAVA_LOCATION, "etc", "popjava.properties").toFile();
-	private File systemJobManagerConfig = Paths.get(POPJAVA_LOCATION, "etc", "jobmgr.conf").toFile();
+	private File systemJobManagerConfig = Paths.get(POPJAVA_LOCATION, "etc", "jobmgr.yml").toFile();
 	
 	// properties set by the user are found here
 	private File userConfig = null;
