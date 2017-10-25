@@ -28,11 +28,14 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.TrustManager;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -148,8 +151,32 @@ public class SSLUtils {
 			// init ssl context with everything
 			sslContextInstance.init(keyManagerFactory.getKeyManagers(), trustManagers, new SecureRandom());
 		}
-
+		
 		return sslContextInstance;
+	}
+	
+	/**
+	 * Invalidate all open SSL Sessions because there was a change in certificate somewhere.
+	 */
+	public static void invalidateSSLSessions() {
+		if (sslContextInstance == null) {
+			return;
+		}
+		invalidateSSLSessions(sslContextInstance.getClientSessionContext());
+		invalidateSSLSessions(sslContextInstance.getServerSessionContext());
+	}
+	
+	/**
+	 * Given a SessionContext, it invalidate all of its tokens.
+	 * 
+	 * @param context 
+	 */
+	private static void invalidateSSLSessions(SSLSessionContext context) {
+		for (Enumeration<byte[]> sessionEnum = context.getIds(); sessionEnum.hasMoreElements();) {
+			byte[] id = sessionEnum.nextElement();
+			SSLSession session = context.getSession(id);
+			session.invalidate();
+		}
 	}
 	
 	/**

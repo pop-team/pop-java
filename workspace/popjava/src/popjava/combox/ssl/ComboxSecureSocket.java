@@ -43,7 +43,7 @@ public class ComboxSecureSocket extends Combox {
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
 	public ComboxSecureSocket(SSLSocket socket) throws IOException {
-		peerConnection = socket;		
+		peerConnection = socket;
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
 		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);

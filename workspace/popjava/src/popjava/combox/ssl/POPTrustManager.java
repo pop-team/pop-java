@@ -185,6 +185,7 @@ public class POPTrustManager implements X509TrustManager {
 
 	public final void reloadTrustManager() throws Exception {
 		long start = System.currentTimeMillis();
+		SSLUtils.invalidateSSLSessions();
 		// load keystore from specified cert store (or default)
 		KeyStore trustedKS = KeyStore.getInstance(conf.getSSLKeyStoreFormat().name());
 		try (InputStream trustedStore = new FileInputStream(conf.getSSLKeyStoreFile())) {
