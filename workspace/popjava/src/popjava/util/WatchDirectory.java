@@ -47,6 +47,7 @@ public class WatchDirectory implements Runnable {
 			this.method = method;
 			LogWriter.writeDebugInfo("[WatchDirectory] Watching '%s'.", path);
 		} catch (Exception e) {
+			running = false;
 			LogWriter.writeDebugInfo("[WatchDirectory] Failed to start watcher services: %s", e.getMessage());
 		}
 	}
@@ -75,7 +76,6 @@ public class WatchDirectory implements Runnable {
 					watchKey.reset();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			LogWriter.writeDebugInfo("[WatchDirectory] Error: " + e.toString());
 		}
 	}

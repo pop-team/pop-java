@@ -262,7 +262,7 @@ public class POPTrustManager implements X509TrustManager {
 		// watch keystore
 		File keyStoreFile = conf.getSSLKeyStoreFile();
 		if (keyStoreFile != null && keyStoreFile.canRead()) {
-			Path keyStorePath = keyStoreFile.toPath();
+			Path keyStorePath = keyStoreFile.toPath().toAbsolutePath();
 			
 			// stop previous watcher
 			boolean createWatcher = true;
