@@ -55,7 +55,6 @@ import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.bc.BcContentSignerBuilder;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import popjava.combox.ssl.POPTrustManager;
-import popjava.service.jobmanager.network.POPNode;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
@@ -183,30 +182,28 @@ public class SSLUtils {
 	 * A constant hash String identifier from a node.
 	 * NOTE: aliases seems to be all lowercase
 	 * 
-	 * @param node
 	 * @param networkUUID 
 	 * @return 
 	 */
-	private static String confidenceLinkAlias(POPNode node, String networkUUID) {
-		return String.format("%x@%s", node.hashCode(), networkUUID.toLowerCase());
+	private static String confidenceLinkAlias(String networkUUID) {
+		return networkUUID.toLowerCase();
 	}
 	
 	/**
 	 * Add or Replace confidence link
 	 * 
-	 * @param node
 	 * @param certificate
 	 * @param networkUUID 
 	 * @param mode false if we want to add the certificate, true if we want to replace it
 	 * @throws IOException 
 	 */
-	private static void addConfidenceLink(POPNode node, Certificate certificate, String networkUUID, boolean mode) throws IOException {
+	private static void addConfidenceLink(Certificate certificate, String networkUUID, boolean mode) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = loadKeyStore();
 
 			// node identifier
-			String nodeAlias = confidenceLinkAlias(node, networkUUID);
+			String nodeAlias = confidenceLinkAlias(networkUUID);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
@@ -230,42 +227,40 @@ public class SSLUtils {
 	 * Add a new certificate to the keystore, this will be written anew on disk.
 	 * We use the node's hash as alias to identify the match.
 	 * 
-	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
 	 * @param networkUUID The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void addConfidenceLink(POPNode node, Certificate certificate, String networkUUID) throws IOException {
-		addConfidenceLink(node, certificate, networkUUID, false);
+	public static void addConfidenceLink(Certificate certificate, String networkUUID) throws IOException {
+		addConfidenceLink(certificate, networkUUID, false);
 	}
 	
 	/**
 	 * Add a new certificate to the keystore, this will be written anew on disk.
 	 * We use the node's hash as alias to identify the match.
 	 * 
-	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
 	 * @param networkUUID The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void replaceConfidenceLink(POPNode node, Certificate certificate, String networkUUID) throws IOException {
-		addConfidenceLink(node, certificate, networkUUID, true);
+	public static void replaceConfidenceLink(Certificate certificate, String networkUUID) throws IOException {
+		addConfidenceLink(certificate, networkUUID, true);
 	}
 	
 	/**
 	 * Remove an entry from the keystore, this will be written anew on disk.
 	 * We use the node's hash as alias to identify the match.
 	 * 
-	 * @param node A node created somehow, directly or with the factory
+	 * @param networkUUID The uuid of the network.
 	 * @throws IOException Many
 	 */
-	public static void removeConfidenceLink(POPNode node, String networkUUID) throws IOException {
+	public static void removeConfidenceLink(String networkUUID) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = loadKeyStore();
 
 			// node identifier
-			String nodeAlias = confidenceLinkAlias(node, networkUUID);
+			String nodeAlias = confidenceLinkAlias(networkUUID);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());

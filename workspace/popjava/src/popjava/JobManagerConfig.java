@@ -21,7 +21,7 @@ import popjava.util.Util;
 import popjava.util.ssl.KeyStoreCreationOptions;
 
 /**
- * Proxy to Job Manager for user use of the complexity
+ * Proxy to localhost Job Manager
  *
  * @author Davide Mazzoleni
  */
@@ -79,17 +79,15 @@ public class JobManagerConfig {
 	}
 	
 	/**
-	 * Register a new node with a certificate associated to it
+	 * Add a confidence link to a previously added node
 	 * 
 	 * @param networkUUID Name of the network
-	 * @param node The node to add
 	 * @param certificate The certificate to use
 	 * @return 
 	 */
-	public boolean registerNode(String networkUUID, POPNode node, Certificate certificate) {
+	public boolean assignCertificate(String networkUUID, Certificate certificate) {
 		try {
-			SSLUtils.addConfidenceLink(node, certificate, networkUUID);
-			jobManager.registerPermanentNode(networkUUID, node.getCreationParams());
+			SSLUtils.addConfidenceLink(certificate, networkUUID);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -101,31 +99,12 @@ public class JobManagerConfig {
 	 * Add a confidence link to a previously added node
 	 * 
 	 * @param networkUUID Name of the network
-	 * @param node The node to add
-	 * @param certificate The certificate to use
-	 * @return 
-	 */
-	public boolean assignCertificate(String networkUUID, POPNode node, Certificate certificate) {
-		try {
-			SSLUtils.addConfidenceLink(node, certificate, networkUUID);
-			return true;
-		} catch(IOException e) {
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
-	}
-	
-	/**
-	 * Add a confidence link to a previously added node
-	 * 
-	 * @param networkUUID Name of the network
-	 * @param node The node to add
 	 * @param certificate The certificate to load
 	 * @return 
 	 */
-	public boolean replaceCertificate(String networkUUID, POPNode node, Certificate certificate) {
+	public boolean replaceCertificate(String networkUUID, Certificate certificate) {
 		try {
-			SSLUtils.replaceConfidenceLink(node, certificate, networkUUID);
+			SSLUtils.replaceConfidenceLink(certificate, networkUUID);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -138,12 +117,11 @@ public class JobManagerConfig {
 	 * Use {@link #unregisterNode} to remove both node and certificate.
 	 * 
 	 * @param networkUUID Name of the network
-	 * @param node The node to add
 	 * @return 
 	 */
-	public boolean removeCertificate(String networkUUID, POPNode node) {
+	public boolean removeCertificate(String networkUUID) {
 		try {
-			SSLUtils.removeConfidenceLink(node, networkUUID);
+			SSLUtils.removeConfidenceLink(networkUUID);
 			return true;
 		} catch(IOException e) {
 			LogWriter.writeExceptionLog(e);
@@ -159,16 +137,10 @@ public class JobManagerConfig {
 	 */
 	public void unregisterNode(String networkUUID, POPNode node) {
 		jobManager.unregisterPermanentNode(networkUUID, node.getCreationParams());
-		// try remove
-		try {
-			SSLUtils.removeConfidenceLink(node, networkUUID);
-		} catch(IOException e) {
-			// too bad
-		}
 	}
 
 	/**
-	 * Create a new network of interest, return the details with UUID
+	 * Create a new network of interest, return the details with UUID.
 	 * 
 	 * @param friendlyName A friendly name to identify the network locally.
 	 * @return An object containing a generated UUID and the friendly name.
@@ -178,7 +150,7 @@ public class JobManagerConfig {
 	}
 
 	/**
-	 * Create a new network of interest, return the details with UUID
+	 * Create a new network of interest, return the details with UUID.
 	 * 
 	 * @param networkUUID The UUID the network will use
 	 * @param friendlyName A friendly name to identify the network locally.
@@ -189,12 +161,42 @@ public class JobManagerConfig {
 	}
 
 	/**
+	 * Create a new network of interest, return the details with UUID.
+	 * Also add the specified certificate to the System Key Store.
+	 * 
+	 * @param friendlyName A friendly name to identify the network locally.
+	 * @param certificate The certificate to connect to this network.
+	 * @return An object containing a generated UUID and the friendly name.
+	 */
+	public POPNetworkDetails createNetwork(String friendlyName, Certificate certificate) {
+		POPNetworkDetails details = createNetwork(friendlyName);
+		assignCertificate(details.getUUID(), certificate);
+		return details;
+	}
+
+	/**
+	 * Create a new network of interest, return the details with UUID.
+	 * Also add the specified certificate to the System Key Store.
+	 * 
+	 * @param networkUUID The UUID the network will use
+	 * @param friendlyName A friendly name to identify the network locally.
+	 * @param certificate The certificate to connect to this network.
+	 * @return An object containing the UUID and the friendly name.
+	 */
+	public POPNetworkDetails createNetwork(String networkUUID, String friendlyName, Certificate certificate) {
+		POPNetworkDetails details = createNetwork(networkUUID, friendlyName);
+		assignCertificate(networkUUID, certificate);
+		return details;
+	}
+
+	/**
 	 * Remove a network of interest with all its members
 	 * 
 	 * @param networkUUID 
 	 */
 	public void removeNetwork(String networkUUID) {
 		jobManager.removeNetwork(networkUUID);
+		removeCertificate(networkUUID);
 	}
 
 	/**

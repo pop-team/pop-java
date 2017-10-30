@@ -42,6 +42,9 @@ public class MethodAccessTest {
 	
 	Configuration conf = Configuration.getInstance();
 	
+	public static final String NETA = "myUUID1";
+	public static final String NETB = "myUUID2";
+	
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException {
 		try {
@@ -50,10 +53,10 @@ public class MethodAccessTest {
 			Configuration conf = Configuration.getInstance();
 			conf.setDebug(true);
 			
-			optionsTemporary = new KeyStoreCreationOptions(String.format("%x@mynet", node.hashCode()), "mypass", "keypass", new File("test_store1.jks"));
+			optionsTemporary = new KeyStoreCreationOptions(NETA, "mypass", "keypass", new File("test_store1.jks"));
 			tempFolder = new File("temp1");
 			
-			optionsTrusted = new KeyStoreCreationOptions(String.format("%x@mynet2", node.hashCode()), "mypass", "keypass", new File("test_store2.jks"));
+			optionsTrusted = new KeyStoreCreationOptions(NETB, "mypass", "keypass", new File("test_store2.jks"));
 			trustFolder = new File("temp2");
 			
 			// remove possible leftovers
@@ -85,7 +88,7 @@ public class MethodAccessTest {
 			Files.write(p, certificateBytes, StandardOpenOption.APPEND);
 
 			// remove own certificate from keystore
-			SSLUtils.removeConfidenceLink(node, "mynet");
+			SSLUtils.removeConfidenceLink(NETA);
 			conf.setUserConfig(configTemporary.toFile());
 			conf.store();
 			

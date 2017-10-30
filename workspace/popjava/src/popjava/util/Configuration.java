@@ -74,9 +74,9 @@ public final class Configuration {
 	static {
 		String env = System.getenv("POPJAVA_LOCATION");
 		if (env == null) {
-			POPJAVA_LOCATION = "./";
+			POPJAVA_LOCATION = new File("./").getAbsolutePath();
 		} else {
-			POPJAVA_LOCATION = env;
+			POPJAVA_LOCATION = new File(env).getAbsolutePath();
 		}
 	}
 	
@@ -574,12 +574,13 @@ public final class Configuration {
 		for (Object prop : ALL_PROPERTIES.keySet()) {
 			if (prop instanceof String) {
 				String key = (String) prop;
+				String[] keys = key.split("\\.");
 				String value = ALL_PROPERTIES.getProperty(key);
 				
 				// get enum
 				Settable keyEnum;
 				try {
-					keyEnum = Settable.valueOf(key.toUpperCase());
+					keyEnum = Settable.valueOf(keys[0].toUpperCase());
 				} catch(IllegalArgumentException e) {
 					if (debug) {
 						System.out.format("[Configuration] unknown key '%s'\n", key);
