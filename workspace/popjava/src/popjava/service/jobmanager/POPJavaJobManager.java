@@ -9,6 +9,11 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -76,6 +81,8 @@ import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 import popjava.util.SystemUtil;
+import popjava.util.ssl.KeyPairDetails;
+import popjava.util.ssl.KeyStoreDetails;
 
 @POPClass
 public class POPJavaJobManager extends POPJobService {
@@ -867,15 +874,26 @@ public class POPJavaJobManager extends POPJobService {
 	public POPNetworkDetails createNetwork(String friendlyName) {
 		try {
 			// create the new network
-			POPNetwork newNetwork = new POPNetwork(friendlyName, this);
+			POPNetwork network = new POPNetwork(friendlyName, this);
 
 			// add new network
 			LogWriter.writeDebugInfo("[JM] Network %s added", friendlyName);
-			networks.put(newNetwork.getUUID(), newNetwork);
+			networks.put(network.getUUID(), network);
+			
+			// generate network key
+			try {
+				KeyStoreDetails keyStoreDetails = conf.getSSLKeyStoreOptions();
+				KeyPairDetails keyPairDetails = new KeyPairDetails(network.getUUID());
+				KeyStore.PrivateKeyEntry generateKeyPair = SSLUtils.generateKeyPair(keyPairDetails);
+				
+				SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
+			} catch(Exception e) {
+				LogWriter.writeDebugInfo("[JM] Failed to generate Key add it to KeyStore with message: %s", e.getMessage());
+			}
 
 			// write all current configurations to a file
 			writeConfigurationFile();
-			return new POPNetworkDetails(newNetwork);
+			return new POPNetworkDetails(network);
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
 			return null;
@@ -905,6 +923,17 @@ public class POPJavaJobManager extends POPJobService {
 			// add new network
 			LogWriter.writeDebugInfo("[JM] Network %s added", friendlyName);
 			networks.put(newNetwork.getUUID(), newNetwork);
+			
+			// generate network key
+			try {
+				KeyStoreDetails keyStoreDetails = conf.getSSLKeyStoreOptions();
+				KeyPairDetails keyPairDetails = new KeyPairDetails(newNetwork.getUUID());
+				KeyStore.PrivateKeyEntry generateKeyPair = SSLUtils.generateKeyPair(keyPairDetails);
+				
+				SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
+			} catch(Exception e) {
+				LogWriter.writeDebugInfo("[JM] Failed to generate Key add it to KeyStore with message: %s", e.getMessage());
+			}
 
 			// write all current configurations to a file
 			writeConfigurationFile();
@@ -925,6 +954,19 @@ public class POPJavaJobManager extends POPJobService {
 		if (!networks.containsKey(networkUUID)) {
 			LogWriter.writeDebugInfo("[JM] Network %s not removed, not found", networkUUID);
 			return;
+		}
+		
+		POPNetwork network = networks.get(networkUUID);
+		for (POPConnector connector : network.getConnectors()) {
+			for (POPNode member : network.getMembers(connector.getDescriptor())) {
+				unregisterNode(networkUUID, member.getCreationParams());
+			}
+		}
+		
+		try {
+			SSLUtils.removeAlias(networkUUID);
+		} catch(IOException e) {
+			
 		}
 		
 		LogWriter.writeDebugInfo("[JM] Network %s removed", networkUUID);
@@ -974,7 +1016,14 @@ public class POPJavaJobManager extends POPJobService {
 
 		List<String> listparams = new ArrayList<>(Arrays.asList(params));
 		String connector = Util.removeStringFromList(listparams, "connector=");
-		network.remove(POPNetworkDescriptor.from(connector).createNode(listparams));
+		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
+		network.remove(node);
+		
+		try {
+			SSLUtils.removeConfidenceLink(node, networkUUID);
+		} catch(Exception e) {
+			
+		}
 		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
 	}
 
@@ -1020,6 +1069,36 @@ public class POPJavaJobManager extends POPJobService {
 	}
 	
 	/**
+	 * Register a new node and add its certificate to the Key Store
+	 * @param networkUUID
+	 * @param certificate
+	 * @param params 
+	 */
+	@POPSyncConc(localhost = true)
+	public void registerPermanentNode(String networkUUID, byte[] certificate, String... params) {
+		// get network
+		POPNetwork network = networks.get(networkUUID);
+		if (network == null) {
+			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network);
+			return;
+		}
+
+		List<String> listparams = new ArrayList<>(Arrays.asList(params));
+		String connector = Util.removeStringFromList(listparams, "connector=");
+		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
+		network.add(node);
+		
+		try {
+			SSLUtils.addConfidenceLink(node, SSLUtils.certificateFromBytes(certificate), networkUUID);
+		} catch(Exception e) {
+			
+		}
+		
+		writeConfigurationFile();
+		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), network);
+	}
+	
+	/**
 	 * Unregister a node and write it in the configuration file
 	 * @param networkUUID
 	 * @param params
@@ -1035,7 +1114,15 @@ public class POPJavaJobManager extends POPJobService {
 
 		List<String> listparams = new ArrayList<>(Arrays.asList(params));
 		String connector = Util.removeStringFromList(listparams, "connector=");
-		network.remove(POPNetworkDescriptor.from(connector).createNode(listparams));
+		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
+		network.remove(node);
+		
+		try {
+			SSLUtils.removeConfidenceLink(node, networkUUID);
+		} catch(IOException e) {
+			
+		}
+		
 		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
 		writeConfigurationFile();
 	}

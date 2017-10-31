@@ -203,7 +203,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 			// add custom TFC parameter
 			String resourceString = tfcResource.getAccessPoint().toString();
 			nodeinfo.setValue(TFC_RES_ACCESS_POINT, resourceString);
-			SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
+			SNResponse response = new SNResponse(request.getUID(), request.getNetworkUUID(), request.getExplorationList(), nodeinfo);
 
 			// if we want to answer we save the certificate if there is any
 			if (request.getPublicCertificate().length > 0) {

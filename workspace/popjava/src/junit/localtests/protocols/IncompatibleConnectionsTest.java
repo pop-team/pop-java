@@ -12,7 +12,8 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.Util;
-import popjava.util.ssl.KeyStoreCreationOptions;
+import popjava.util.ssl.KeyPairDetails;
+import popjava.util.ssl.KeyStoreDetails;
 import popjava.util.ssl.SSLUtils;
 
 /**
@@ -26,19 +27,21 @@ public class IncompatibleConnectionsTest {
 	
 	static File keystore;
 	static File userConfig;
-	static KeyStoreCreationOptions options;
+	static KeyPairDetails keyDetails;
+	static KeyStoreDetails ksDetails;
 	
 	@BeforeClass
 	public static void setup() throws IOException {
 		userConfig = File.createTempFile("popjunit", ".properties");
 		keystore = new File(String.format("popjunit-%s.jks", Util.generateUUID()));
-		options = new KeyStoreCreationOptions("myTest", "storepass", "keypass", keystore);
+		keyDetails = new KeyPairDetails("myTest");
+		ksDetails = new KeyStoreDetails("storepass", "keypass", keystore);
 		
 		Configuration conf = Configuration.getInstance();
 		conf.setDebug(true);
 		
-		SSLUtils.generateKeyStore(options);
-		conf.setSSLKeyStoreOptions(options);
+		SSLUtils.generateKeyStore(ksDetails, keyDetails);
+		conf.setSSLKeyStoreOptions(ksDetails);
 		conf.setUserConfig(userConfig);
 		
 		conf.store();

@@ -52,7 +52,7 @@ public class SNRequest implements IPOPBase {
 		this.connector = connector;
 		
 		// this node certificate
-		Certificate localPublicCertificate = SSLUtils.getLocalPublicCertificate();
+		Certificate localPublicCertificate = SSLUtils.getCertificateFromAlias(networkUUID);
 		if (localPublicCertificate != null) {
 			publicCertificate = SSLUtils.certificateBytes(localPublicCertificate);
 		}

@@ -21,12 +21,12 @@ public class SNResponse implements IPOPBase {
 	public SNResponse() {
 	}
 
-	public SNResponse(String uid, SNExploration explorationList, SNNodesInfo.Node nodeinfo) {
+	public SNResponse(String uid, String networkUUID, SNExploration explorationList, SNNodesInfo.Node nodeinfo) {
 		this.uid = uid;
 		this.explorationList = explorationList;
 		this.nodeinfo = nodeinfo;
 		
-		Certificate localPublicCertificate = SSLUtils.getLocalPublicCertificate();
+		Certificate localPublicCertificate = SSLUtils.getCertificateFromAlias(networkUUID);
 		if (localPublicCertificate != null) {
 			publicCertificate = SSLUtils.certificateBytes(localPublicCertificate);
 		}

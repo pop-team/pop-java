@@ -18,7 +18,8 @@ import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
-import popjava.util.ssl.KeyStoreCreationOptions;
+import popjava.util.ssl.KeyPairDetails;
+import popjava.util.ssl.KeyStoreDetails;
 
 /**
  * Proxy to localhost Job Manager
@@ -79,54 +80,15 @@ public class JobManagerConfig {
 	}
 	
 	/**
-	 * Add a confidence link to a previously added node
+	 * Register a new node with a certificate associated to it
 	 * 
 	 * @param networkUUID Name of the network
+	 * @param node The node to add
 	 * @param certificate The certificate to use
 	 * @return 
 	 */
-	public boolean assignCertificate(String networkUUID, Certificate certificate) {
-		try {
-			SSLUtils.addConfidenceLink(certificate, networkUUID);
-			return true;
-		} catch(IOException e) {
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
-	}
-	
-	/**
-	 * Add a confidence link to a previously added node
-	 * 
-	 * @param networkUUID Name of the network
-	 * @param certificate The certificate to load
-	 * @return 
-	 */
-	public boolean replaceCertificate(String networkUUID, Certificate certificate) {
-		try {
-			SSLUtils.replaceConfidenceLink(certificate, networkUUID);
-			return true;
-		} catch(IOException e) {
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
-	}
-	
-	/**
-	 * Remove a confidence link to a previously added node, preserve the node.
-	 * Use {@link #unregisterNode} to remove both node and certificate.
-	 * 
-	 * @param networkUUID Name of the network
-	 * @return 
-	 */
-	public boolean removeCertificate(String networkUUID) {
-		try {
-			SSLUtils.removeConfidenceLink(networkUUID);
-			return true;
-		} catch(IOException e) {
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
+	public void registerNode(String networkUUID, POPNode node, Certificate certificate) {
+		jobManager.registerPermanentNode(networkUUID, node.getCreationParams());
 	}
 	
 	/**
@@ -170,7 +132,6 @@ public class JobManagerConfig {
 	 */
 	public POPNetworkDetails createNetwork(String friendlyName, Certificate certificate) {
 		POPNetworkDetails details = createNetwork(friendlyName);
-		assignCertificate(details.getUUID(), certificate);
 		return details;
 	}
 
@@ -185,7 +146,6 @@ public class JobManagerConfig {
 	 */
 	public POPNetworkDetails createNetwork(String networkUUID, String friendlyName, Certificate certificate) {
 		POPNetworkDetails details = createNetwork(networkUUID, friendlyName);
-		assignCertificate(networkUUID, certificate);
 		return details;
 	}
 
@@ -196,7 +156,6 @@ public class JobManagerConfig {
 	 */
 	public void removeNetwork(String networkUUID) {
 		jobManager.removeNetwork(networkUUID);
-		removeCertificate(networkUUID);
 	}
 
 	/**
@@ -305,11 +264,11 @@ public class JobManagerConfig {
 	 * Generate a KeyStore with private key and certificate.
 	 * Proxy for {@link SSLUtils#generateKeyStore(KeyStoreCreationOptions)}
 	 * 
-	 * @param options
+	 * @param keyDetails
 	 * @return 
 	 */
-	public boolean generateKeyStore(KeyStoreCreationOptions options) {
-		return SSLUtils.generateKeyStore(options);
+	public boolean generateKeyStore(KeyStoreDetails ksDetails, KeyPairDetails keyDetails) {
+		return SSLUtils.generateKeyStore(ksDetails, keyDetails);
 	}
 	
 	/**

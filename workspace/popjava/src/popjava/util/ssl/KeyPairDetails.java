@@ -14,8 +14,9 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
  * 
  * @author Davide Mazzoleni
  */
-public class KeyStoreCreationOptions extends KeyStoreDetails {
+public class KeyPairDetails {
 	
+	protected String alias;
 	protected Date validUntil;
 	protected int privateKeySize;
 	protected final Map<ASN1ObjectIdentifier, String> rdn = new HashMap<>();
@@ -26,7 +27,7 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 	/**
 	 * Empty constructor
 	 */
-	public KeyStoreCreationOptions() {
+	public KeyPairDetails() {
 	}
 	
 	/**
@@ -34,8 +35,8 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 	 * 
 	 * @param other 
 	 */
-	public KeyStoreCreationOptions(KeyStoreCreationOptions other) {
-		super(other);
+	public KeyPairDetails(KeyPairDetails other) {
+		this.alias = other.alias;
 		this.validUntil = other.validUntil;
 		this.privateKeySize = other.privateKeySize;
 		this.rdn.putAll(other.rdn);
@@ -46,38 +47,48 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 	 * Full constructor
 	 * 
 	 * @param alias The alias of this node, used to find its own public certificate
-	 * @param keyStorePass The main password for the KeyStore, protect from tempering with the file
-	 * @param privateKeyPass The password of the primate key, used to extract it
-	 * @param keyStoreFile Where to save the file
-	 * @param keyStoreFormat Which format to save the KeyStore: JKS, PKCS12 (may have issue)
 	 * @param validUntil Until when the certificate should be valid
 	 * @param privateKeySize The complexity of the RSA key, must be greater than 1024 bits
 	 */
-	public KeyStoreCreationOptions(String alias, String keyStorePass, String privateKeyPass, File keyStoreFile, KeyStoreFormat keyStoreFormat, Date validUntil, int privateKeySize) {
-		super(alias, keyStorePass, privateKeyPass, keyStoreFile, keyStoreFormat);
+	public KeyPairDetails(String alias, Date validUntil, int privateKeySize) {
+		this.alias = alias;
 		this.rdn.put(BCStyle.OU, "PopJava");
 		this.rdn.put(BCStyle.CN, alias);
 		this.validUntil = validUntil;
 		this.privateKeySize = privateKeySize;
 		hasName = true;
 	}
+
 	
 	/**
 	 * Parameters to create a KeyStore with sane defaults.
 	 * Consider using {@link #setValidFor(int)}
 	 * Defaults are: 
-	 *  keyStoreFormat := JKS 
 	 *  validity := 365 days
 	 *  keySize := 2048 bits
 	 *
 	 * @param alias The alias of this node, used to find its own public certificate
-	 * @param storepass The main password for the KeyStore, protect from tempering with the file
-	 * @param keypass The password of the primate key, used to extract it
-	 * @param keyStoreFile Where to save the file
 	 */
-	public KeyStoreCreationOptions(String alias, String storepass, String keypass, File keyStoreFile) {
-		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS,
-				new Date(System.currentTimeMillis() + 31536000_000l), 2048);
+	public KeyPairDetails(String alias) {
+		this(alias, new Date(System.currentTimeMillis() + 31536000_000l), 2048);
+	}
+	
+	/**
+	 * The alias of the certificate
+	 * 
+	 * @return 
+	 */
+	public String getAlias() {
+		return alias;
+	}
+
+	/**
+	 * Set the alias of the certificate
+	 * 
+	 * @param alias 
+	 */
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 	/**
@@ -155,9 +166,13 @@ public class KeyStoreCreationOptions extends KeyStoreDetails {
 		return Collections.unmodifiableMap(rdn);
 	}
 
-	@Override
+	/**
+	 * Check that the parameters are valid
+	 */
 	public void validate() {
-		super.validate();
+		if (alias == null || alias.isEmpty()) {
+			throw new InvalidParameterException("An alias must be given and not empty");
+		}
 		if (rdn.isEmpty()) {
 			throw new InvalidParameterException("At least one argument of the RDN must be provided");
 		}

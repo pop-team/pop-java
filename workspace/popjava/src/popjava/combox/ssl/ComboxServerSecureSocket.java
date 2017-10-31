@@ -1,19 +1,11 @@
 package popjava.combox.ssl;
 
 import java.io.IOException;
-import popjava.util.ssl.SSLUtils;
 import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
 import java.net.*;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ServerSocketFactory;
 import popjava.combox.ComboxServer;
 
 /**
@@ -24,7 +16,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	public static final int BUFFER_LENGTH = 1024;
 	private final int RECEIVE_BUFFER_SIZE = 1024 * 8 * 500;
 
-	protected SSLServerSocket serverSocket = null;
+	protected ServerSocket serverSocket = null;
 
 	// we use the simple socker implementation of this since it beahve the same way
 	private ComboxAcceptSecureSocket serverCombox = null;
@@ -58,17 +50,9 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	 * Create and start the combox server
 	 * @throws java.io.IOException
 	 */
-	public final void createServer() throws IOException {
-		SSLContext sslContext;
-		try {
-			sslContext = SSLUtils.getSSLContext();
-		} catch(CertificateException | KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException | KeyManagementException e) {
-			throw new IOException(e);
-		}
-
-		SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
-		serverSocket = (SSLServerSocket) factory.createServerSocket();
-		serverSocket.setNeedClientAuth(true);
+	public final void createServer() throws IOException {		
+		ServerSocketFactory plainServerFactory = ServerSocketFactory.getDefault();
+		serverSocket = plainServerFactory.createServerSocket();
 
 		serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
 		serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));

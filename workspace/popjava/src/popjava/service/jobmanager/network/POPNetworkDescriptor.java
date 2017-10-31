@@ -17,7 +17,7 @@ public final class POPNetworkDescriptor {
 	 * @return 
 	 */
 	public static POPNetworkDescriptor from(String globalName) {
-		// NOTE do not make this a static attribute, it may create a initialization loop
+		// NOTE do not make this a static attribute, it will create an initialization loop
 		return POPNetworkDescriptorFinder.getInstance().find(globalName);
 	}
 	

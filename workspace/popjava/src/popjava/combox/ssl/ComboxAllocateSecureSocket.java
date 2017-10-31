@@ -3,10 +3,12 @@ package popjava.combox.ssl;
 import popjava.util.ssl.SSLUtils;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import popjava.buffer.POPBuffer;
 import popjava.combox.ComboxAllocate;
@@ -20,8 +22,9 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	
 	private static final int SOCKET_TIMEOUT_MS = 30000;
 	
-	protected SSLServerSocket serverSocket = null;	
-	private ComboxSecureSocket combox = null;
+	protected ServerSocket serverSocket = null;	
+	protected ComboxSecureSocket combox = null;
+	protected SSLSocketFactory sslFactory = null;
 	
 	/**
 	 * Create a new instance of the ComboxAllocateSocket
@@ -29,13 +32,14 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	public ComboxAllocateSecureSocket() {		
 		try {
 			SSLContext sslContext = SSLUtils.getSSLContext();
-			SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
+			sslFactory = sslContext.getSocketFactory();
+			
+			ServerSocketFactory plainFactory = ServerSocketFactory.getDefault();
 			
 			InetSocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);
-			serverSocket = (SSLServerSocket) factory.createServerSocket();
-			serverSocket.setNeedClientAuth(true);
-			serverSocket.bind(sockAddr);
+			serverSocket = plainFactory.createServerSocket();
 			serverSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
+			serverSocket.bind(sockAddr);
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
@@ -47,8 +51,11 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	@Override
 	public void startToAcceptOneConnection() {
 		try {
-			SSLSocket peerConnection = (SSLSocket) serverSocket.accept();
-			combox = new ComboxSecureSocket(peerConnection);
+			Socket plainConnection = serverSocket.accept();
+			SSLSocket sslConnection = (SSLSocket) sslFactory.createSocket(plainConnection, plainConnection.getInputStream(), true);
+			sslConnection.setUseClientMode(false);
+			sslConnection.setNeedClientAuth(true);
+			combox = new ComboxSecureSocket(sslConnection);
 		} catch (IOException e) {
 			e.printStackTrace();
 			LogWriter.writeExceptionLog(e);

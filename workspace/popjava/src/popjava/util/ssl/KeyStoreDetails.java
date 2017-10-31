@@ -15,7 +15,6 @@ public class KeyStoreDetails {
 		PKCS12
 	}
 
-	protected String localAlias;
 	protected String keyStorePassword;
 	protected String privateKeyPassword;
 	protected File keyStoreFile;
@@ -32,7 +31,6 @@ public class KeyStoreDetails {
 	 * @param other 
 	 */
 	public KeyStoreDetails(KeyStoreDetails other) {
-		this.localAlias = other.localAlias;
 		this.keyStorePassword = other.keyStorePassword;
 		this.privateKeyPassword = other.privateKeyPassword;
 		this.keyStoreFile = other.keyStoreFile;
@@ -42,14 +40,12 @@ public class KeyStoreDetails {
 	/**
 	 * Full constructor
 	 * 
-	 * @param alias The alias of this node, used to find its own public certificate
 	 * @param storepass The main password for the KeyStore, protect from tempering with the file
 	 * @param keypass The password of the primate key, used to extract it
 	 * @param keyStoreFile Where to save the file
 	 * @param keyStoreFormat Which format to save the KeyStore: JKS, PKCS12 (may have issue)
 	 */
-	public KeyStoreDetails(String alias, String storepass, String keypass, File keyStoreFile, KeyStoreFormat keyStoreFormat) {
-		this.localAlias = alias;
+	public KeyStoreDetails(String storepass, String keypass, File keyStoreFile, KeyStoreFormat keyStoreFormat) {
 		this.keyStorePassword = storepass;
 		this.privateKeyPassword = keypass;
 		this.keyStoreFile = keyStoreFile;
@@ -59,31 +55,12 @@ public class KeyStoreDetails {
 	/**
 	 * Parameters to create a KeyStore with JKS as default keystore
 	 *
-	 * @param alias The alias of this node, used to find its own public certificate
 	 * @param storepass The main password for the KeyStore, protect from tempering with the file
 	 * @param keypass The password of the primate key, used to extract it
 	 * @param keyStoreFile Where to save the file
 	 */
-	public KeyStoreDetails(String alias, String storepass, String keypass, File keyStoreFile) {
-		this(alias, storepass, keypass, keyStoreFile, KeyStoreFormat.JKS);
-	}
-
-	/**
-	 * The alias of the public certificate in the keystore
-	 * 
-	 * @return 
-	 */
-	public String getLocalAlias() {
-		return localAlias;
-	}
-
-	/**
-	 * Set the alias of the local node
-	 * 
-	 * @param alias 
-	 */
-	public void setLocalAlias(String alias) {
-		this.localAlias = alias;
+	public KeyStoreDetails(String storepass, String keypass, File keyStoreFile) {
+		this(storepass, keypass, keyStoreFile, KeyStoreFormat.JKS);
 	}
 
 	public String getKeyStorePassword() {
@@ -99,6 +76,11 @@ public class KeyStoreDetails {
 		this.keyStorePassword = storepass;
 	}
 
+	/**
+	 * The password used to encrypt the private keys.
+	 * 
+	 * @return 
+	 */
 	public String getPrivateKeyPassword() {
 		return privateKeyPassword;
 	}
@@ -153,9 +135,6 @@ public class KeyStoreDetails {
 	 * @throws InvalidParameterException when something is set incorrectly for creating a new KeyStore
 	 */
 	public void validate() {
-		if (localAlias == null || localAlias.isEmpty()) {
-			throw new InvalidParameterException("An alias must be given and not empty");
-		}
 		if (keyStorePassword == null || keyStorePassword.length() < 6) {
 			throw new InvalidParameterException("Store password must be set and at least 6 character long");
 		}

@@ -32,7 +32,7 @@ import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
@@ -52,9 +52,12 @@ import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcContentSignerBuilder;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
+import popjava.combox.ssl.POPKeyManager;
 import popjava.combox.ssl.POPTrustManager;
+import popjava.service.jobmanager.network.POPNode;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
@@ -70,12 +73,18 @@ public class SSLUtils {
 	private static SSLContext sslContextInstance = null;
 	/** Single instance of POPTrustManager */
 	private static POPTrustManager trustManager = null;
-	/** Keep track of the keystore location so we can reload it */
-	private static File keyStoreLocation = null;
+	/** Single instance of POPKeyManager */
+	private static POPKeyManager keyManager = null;
 	/** Factory to create X.509 certificate from RSA text input */
 	private static CertificateFactory certFactory;
+
+	/** Keep track of the keystore location so we can reload it */
+	private static File keyStoreLocation = null;
 	
 	private static final Configuration conf = Configuration.getInstance();
+	
+	/** A secure random for the whole class */
+	private static final SecureRandom RANDOM = new SecureRandom();
 
 	
 	// static initialization of objects
@@ -100,7 +109,7 @@ public class SSLUtils {
 	 * @throws KeyStoreException 
 	 */
 	private static KeyStore loadKeyStore() throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
-		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+		KeyStore keyStore = KeyStore.getInstance(conf.getSSLKeyStoreFormat().name());
 		keyStore.load(new FileInputStream(conf.getSSLKeyStoreFile()), conf.getSSLKeyStorePassword().toCharArray());
 		return keyStore;
 	}
@@ -118,8 +127,6 @@ public class SSLUtils {
 	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, Exception {
 		try (FileOutputStream fos = new FileOutputStream(conf.getSSLKeyStoreFile())) {
 			keyStore.store(fos, conf.getSSLKeyStorePassword().toCharArray());
-		} finally {
-			trustManager.reloadTrustManager();
 		}
 	}
 	
@@ -138,20 +145,24 @@ public class SSLUtils {
 		CertificateException, UnrecoverableKeyException, KeyManagementException {
 		// init SSLContext once
 		if (sslContextInstance == null || !conf.getSSLTemporaryCertificateLocation().equals(keyStoreLocation)) {
-			// load private key
 			keyStoreLocation = conf.getSSLTemporaryCertificateLocation();
-			KeyStore keyStore = loadKeyStore();
-			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			keyManagerFactory.init(keyStore, conf.getSSLKeyStorePrivateKeyPassword().toCharArray());
-			trustManager = new POPTrustManager();
-			TrustManager[] trustManagers = new TrustManager[]{ trustManager };
+			// custom POP managers
+			if (trustManager == null) {
+				trustManager = new POPTrustManager();
+				keyManager = new POPKeyManager();
+				TrustManager[] trustManagers = new TrustManager[]{ trustManager };
+				KeyManager[] keyManagers = new KeyManager[] { keyManager };
 
-			// create the context the first time, and update it when necessary
-			if (sslContextInstance == null) {
-				sslContextInstance = SSLContext.getInstance(conf.getSSLProtocolVersion());
+				// create the context the first time, and update it when necessary
+				if (sslContextInstance == null) {
+					sslContextInstance = SSLContext.getInstance(conf.getSSLProtocolVersion());
+				}
+				// init ssl context with everything
+				sslContextInstance.init(keyManagers, trustManagers, RANDOM);
+			} else {
+				trustManager.reloadTrustManager();
+				keyManager.reloadKeyManager();
 			}
-			// init ssl context with everything
-			sslContextInstance.init(keyManagerFactory.getKeyManagers(), trustManagers, new SecureRandom());
 		}
 
 		return sslContextInstance;
@@ -185,28 +196,30 @@ public class SSLUtils {
 	 * A constant hash String identifier from a node.
 	 * NOTE: aliases seems to be all lowercase
 	 * 
+	 * @param node
 	 * @param networkUUID 
 	 * @return 
 	 */
-	private static String confidenceLinkAlias(String networkUUID) {
-		return networkUUID.toLowerCase();
+	private static String confidenceLinkAlias(POPNode node, String networkUUID) {
+		return String.format("%x@%s", node.hashCode(), networkUUID.toLowerCase());
 	}
 	
 	/**
 	 * Add or Replace confidence link
 	 * 
+	 * @param node
 	 * @param certificate
 	 * @param networkUUID 
 	 * @param mode false if we want to add the certificate, true if we want to replace it
 	 * @throws IOException 
 	 */
-	private static void addConfidenceLink(Certificate certificate, String networkUUID, boolean mode) throws IOException {
+	private static void addConfidenceLink(POPNode node, Certificate certificate, String networkUUID, boolean mode) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = loadKeyStore();
 
 			// node identifier
-			String nodeAlias = confidenceLinkAlias(networkUUID);
+			String nodeAlias = confidenceLinkAlias(node, networkUUID);
 
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
@@ -230,54 +243,66 @@ public class SSLUtils {
 	 * Add a new certificate to the keystore, this will be written anew on disk.
 	 * We use the node's hash as alias to identify the match.
 	 * 
+	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
 	 * @param networkUUID The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void addConfidenceLink(Certificate certificate, String networkUUID) throws IOException {
-		addConfidenceLink(certificate, networkUUID, false);
+	public static void addConfidenceLink(POPNode node, Certificate certificate, String networkUUID) throws IOException {
+		addConfidenceLink(node, certificate, networkUUID, false);
 	}
 	
 	/**
 	 * Add a new certificate to the keystore, this will be written anew on disk.
 	 * We use the node's hash as alias to identify the match.
 	 * 
+	 * @param node A node created somehow, directly or with the factory
 	 * @param certificate The certificate we want to add as a confidence link
 	 * @param networkUUID The network associated to this certificate
 	 * @throws IOException If we were not able to write to file
 	 */
-	public static void replaceConfidenceLink(Certificate certificate, String networkUUID) throws IOException {
-		addConfidenceLink(certificate, networkUUID, true);
+	public static void replaceConfidenceLink(POPNode node, Certificate certificate, String networkUUID) throws IOException {
+		addConfidenceLink(node, certificate, networkUUID, true);
 	}
 	
 	/**
 	 * Remove an entry from the keystore, this will be written anew on disk.
 	 * We use the node's hash as alias to identify the match.
 	 * 
-	 * @param networkUUID The uuid of the network.
+	 * @param node A node created somehow, directly or with the factory
+	 * @param networkUUID The ID of the network
 	 * @throws IOException Many
 	 */
-	public static void removeConfidenceLink(String networkUUID) throws IOException {
+	public static void removeConfidenceLink(POPNode node, String networkUUID) throws IOException {
+		// node identifier
+		String nodeAlias = confidenceLinkAlias(node, networkUUID);
+		removeAlias(nodeAlias);
+	}
+	
+	/**
+	 * Remove form the KeyStore the specified alias.
+	 * 
+	 * @param alias
+	 * @throws java.io.IOException
+	 */
+	public static void removeAlias(String alias) throws IOException {
 		try {
 			// load the already existing keystore
 			KeyStore keyStore = loadKeyStore();
 
-			// node identifier
-			String nodeAlias = confidenceLinkAlias(networkUUID);
-
 			// exit if already have the node, use replaceConfidenceLink if you want to change certificate
 			List<String> aliases = Collections.list(keyStore.aliases());
-			if (!aliases.contains(nodeAlias)) {
+			if (!aliases.contains(alias)) {
 				return;
 			}
 
 			// add a new entry
-			keyStore.deleteEntry(nodeAlias);
+			keyStore.deleteEntry(alias);
 
 			// override the existing keystore
 			storeKeyStore(keyStore);
 		} catch(Exception e) {
-			throw new IOException("Failed to save Confidence Link in KeyStore.");
+			throw new IOException("Failed to remove alias [" + alias + "] from KeyStore.");
 		}
 	}
 	
@@ -345,13 +370,14 @@ public class SSLUtils {
 	 * 
 	 * @param certificate A byte array in PEM format
 	 * @return The certificate or null
-	 * @throws IOException
 	 * @throws CertificateException 
 	 */
-	public static Certificate certificateFromBytes(byte[] certificate) throws IOException, CertificateException {
-		Certificate cert;
+	public static Certificate certificateFromBytes(byte[] certificate) throws CertificateException {
+		Certificate cert = null;
 		try (ByteArrayInputStream fi = new ByteArrayInputStream(certificate)) {
 			cert = certFactory.generateCertificate(fi);
+		} catch(IOException e) {
+			LogWriter.writeDebugInfo("[SSLUtils] invalid array for certificate conversion: %s", e.getMessage());
 		}
 		return cert;
 	}
@@ -387,6 +413,16 @@ public class SSLUtils {
 	}
 
 	/**
+	 * Given a UUID it will return the matching local public certificate for this network.
+	 * 
+	 * @param uuid
+	 * @return 
+	 */
+	public static Certificate getCertificateFromAlias(String uuid) {
+		return trustManager.getCertificateFromAlias(uuid);
+	}
+
+	/**
 	 * Return if a given fingerprint certificate is part of the Confidence Link group.
 	 * 
 	 * @param fingerprint
@@ -395,18 +431,9 @@ public class SSLUtils {
 	public static boolean isConfidenceLink(String fingerprint) {
 		return trustManager.isConfidenceLink(fingerprint);
 	}
-	
-	/**
-	 * The local public certificate
-	 * 
-	 * @return null or a certificate that can be transformed with {@link #certificateBytes(Certificate)}
-	 */
-	public static Certificate getLocalPublicCertificate() {
-		return trustManager.getLocalPublicCertificate();
-	}
 
 	/**
-	 * Add a new certificate to the temporary storerage
+	 * Add a new certificate to the temporary storage
 	 * 
 	 * @see #addCertToTempStore(byte[], boolean) 
 	 * @param certificate 
@@ -463,103 +490,135 @@ public class SSLUtils {
 	/**
 	 * Create a new KeyStore with a new Private Key and Certificate
 	 * 
-	 * @param options 
+	 * @param ksOptions details on the key store
+	 * @param keyOptions  details on the key we want to generate
 	 * @return true if we were able to create the keystore
 	 */
-	public static boolean generateKeyStore(KeyStoreCreationOptions options) {
+	public static boolean generateKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions) {
 		// something the key generated seems to be invalid (invalidated by bouncycastle)
 		// we retry for a while in that case
-		int limit = 20;
-		boolean generated;
+		int limit = 30;
+		boolean generated = false;
+		KeyStore.PrivateKeyEntry privateKeyEntry = null;
 		do {
-			generated = generateKeyStoreOnce(options);
+			try {
+				privateKeyEntry = generateKeyPair(keyOptions);
+				generated = true;
+			} catch(Exception e) {
+				LogWriter.writeDebugInfo("[KeyStore] Secure Private Key generation problem. Retrying after message: %s.", e.getMessage());
+			}
 			
 			if (limit-- <= 0) {
-				break;
+				return false;
 			}
 		} while (!generated);
+		
+		try {
+			addKeyEntryToKeyStore(ksOptions, keyOptions, privateKeyEntry);
+			generated = true;
+		} catch(IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
+			LogWriter.writeDebugInfo("[KeyStore] Generation failed with message: %s.", e.getMessage());
+			generated = false;
+		}
 		
 		return generated;
 	}
 	
 	/**
-	 * Generation of keys and certificate and save into keystore.
+	 * Given the keystore information, the key pair details and a real Priva Key / Certificate pair, add it to the keystore.
 	 * 
-	 * @see https://github.com/xdtianyu/android-4.2_r1/blob/master/tools/motodev/src/plugins/certmanager/src/com/motorolamobility/studio/android/certmanager/core/KeyStoreUtils.java
-	 * @param options
-	 * @return 
+	 * @param ksOptions
+	 * @param keyOptions
+	 * @param privateKeyEntry
+	 * @throws IOException
+	 * @throws KeyStoreException
+	 * @throws NoSuchAlgorithmException
+	 * @throws CertificateException 
+	 * @throws java.security.UnrecoverableKeyException 
 	 */
-	private static boolean generateKeyStoreOnce(KeyStoreCreationOptions options) {
+	public static void addKeyEntryToKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions, KeyStore.PrivateKeyEntry privateKeyEntry) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
+		// initialize a keystore
+		KeyStore ks = KeyStore.getInstance(ksOptions.getKeyStoreFormat().name());
+		ks.load(null);
+
+		// add private key to the new keystore
+		KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(ksOptions.getPrivateKeyPassword().toCharArray());
+		ks.setEntry(keyOptions.getAlias(), privateKeyEntry, passwordProtection);
+
+		// write to memory
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ks.store(out, ksOptions.getKeyStorePassword().toCharArray());
+		out.close();
+
+		// load a "clean" version and save to disk
+		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+		KeyStore ksout = KeyStore.getInstance(ksOptions.getKeyStoreFormat().name());
+		ksout.load(in, ksOptions.getKeyStorePassword().toCharArray());
+		ksout.store(new FileOutputStream(ksOptions.getKeyStoreFile()), ksOptions.getKeyStorePassword().toCharArray());
+		
+		if (trustManager != null) {
+			trustManager.reloadTrustManager();
+			keyManager.reloadKeyManager();
+		}
+	}
+	
+	/**
+	 * Generate a Private Key and a corresponding public certificate.
+	 * This process may fail if bouncycastle consider the generate key not to be secure.
+	 * 
+	 * @param options
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
+	 * @throws OperatorCreationException
+	 * @throws CertificateException 
+	 */
+	public static KeyStore.PrivateKeyEntry generateKeyPair(KeyPairDetails options) throws NoSuchAlgorithmException, IOException, OperatorCreationException, CertificateException, IllegalArgumentException {		
 		options.validate();
 		
-		try {
-			SecureRandom sr = new SecureRandom();
+		// generate keys
+		KeyPairGenerator pairGenerator = KeyPairGenerator.getInstance("RSA");
+		pairGenerator.initialize(options.getPrivateKeySize());
+		KeyPair pair = pairGenerator.generateKeyPair();
 
-			// generate keys
-			KeyPairGenerator pairGenerator = KeyPairGenerator.getInstance("RSA");
-			pairGenerator.initialize(options.getPrivateKeySize());
-			KeyPair pair = pairGenerator.generateKeyPair();
-
-			// public certificate setup
-			RSAPublicKey rsaPublicKey = (RSAPublicKey) pair.getPublic();
-			RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) pair.getPrivate();
-			
-
-			// generate certificate from key pair
-			ASN1InputStream asn1InputStream	= new ASN1InputStream(new ByteArrayInputStream(rsaPublicKey.getEncoded()));
-			SubjectPublicKeyInfo pubKey = new SubjectPublicKeyInfo((ASN1Sequence) asn1InputStream.readObject());
-
-			// name of the certificate (RDN) -> OU=Group,O=Org,CN=Myself
-			X500NameBuilder nameBuilder = new X500NameBuilder(new BCStrictStyle());
-			for (Map.Entry<ASN1ObjectIdentifier, String> entry : options.getRDN().entrySet()) {
-				nameBuilder.addRDN(entry.getKey(), entry.getValue());
-			}
-
-			// sign ourselves
-			X500Name subjectName = nameBuilder.build();
-			X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(subjectName, BigInteger.valueOf(sr.nextInt()),
-				GregorianCalendar.getInstance().getTime(), options.getValidUntil(), subjectName, pubKey);
-
-			// signature for the certificate
-			AlgorithmIdentifier sigAlgId = new DefaultSignatureAlgorithmIdentifierFinder().find("SHA1withRSA");
-			AlgorithmIdentifier digAlgId = new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
-			BcContentSignerBuilder sigGen = new BcRSAContentSignerBuilder(sigAlgId, digAlgId);
-
-			// create RSAKeyParameters, the private key format expected by Bouncy Castle
-			RSAKeyParameters keyParams = new RSAKeyParameters(true, rsaPrivateKey.getPrivateExponent(), rsaPrivateKey.getModulus());
-
-			ContentSigner contentSigner = sigGen.build(keyParams);
-			X509CertificateHolder certificateHolder = certBuilder.build(contentSigner);
-
-			// convert the X509Certificate from BouncyCastle format to the java.security format
-			JcaX509CertificateConverter certConverter = new JcaX509CertificateConverter();
-			X509Certificate x509Certificate = certConverter.getCertificate(certificateHolder);
+		// public certificate setup
+		RSAPublicKey rsaPublicKey = (RSAPublicKey) pair.getPublic();
+		RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) pair.getPrivate();
 
 
-			// initialize a keystore
-			KeyStore ks = KeyStore.getInstance(options.getKeyStoreFormat().name());
-			ks.load(null);
+		// generate certificate from key pair
+		ASN1InputStream asn1InputStream	= new ASN1InputStream(new ByteArrayInputStream(rsaPublicKey.getEncoded()));
+		SubjectPublicKeyInfo pubKey = new SubjectPublicKeyInfo((ASN1Sequence) asn1InputStream.readObject());
 
-			// add private key to the new keystore
-			KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(rsaPrivateKey, new Certificate[]{x509Certificate});
-			KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(options.getPrivateKeyPassword().toCharArray());
-
-			ks.setEntry(options.getLocalAlias(), privateKeyEntry, passwordProtection);
-
-			// write to memory
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			ks.store(out, options.getKeyStorePassword().toCharArray());
-			out.close();
-			
-			// load a "clean" version and save to disk
-			ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-			KeyStore ksout = KeyStore.getInstance(options.getKeyStoreFormat().name());
-			ksout.load(in, options.getKeyStorePassword().toCharArray());
-			ksout.store(new FileOutputStream(options.getKeyStoreFile()), options.getKeyStorePassword().toCharArray());
-			return true;
-		} catch(Exception e) {
-			LogWriter.writeDebugInfo("[KeyStore] Generation failed with message: %s. Retrying.", e.getMessage());
-			return false;
+		// name of the certificate (RDN) -> OU=Group,O=Org,CN=Myself
+		X500NameBuilder nameBuilder = new X500NameBuilder(new BCStrictStyle());
+		for (Map.Entry<ASN1ObjectIdentifier, String> entry : options.getRDN().entrySet()) {
+			nameBuilder.addRDN(entry.getKey(), entry.getValue());
 		}
+
+		// sign ourselves
+		X500Name subjectName = nameBuilder.build();
+		X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(subjectName, BigInteger.valueOf(RANDOM.nextInt()),
+			GregorianCalendar.getInstance().getTime(), options.getValidUntil(), subjectName, pubKey);
+
+		// signature for the certificate
+		AlgorithmIdentifier sigAlgId = new DefaultSignatureAlgorithmIdentifierFinder().find("SHA1withRSA");
+		AlgorithmIdentifier digAlgId = new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
+		BcContentSignerBuilder sigGen = new BcRSAContentSignerBuilder(sigAlgId, digAlgId);
+
+		// create RSAKeyParameters, the private key format expected by Bouncy Castle
+		RSAKeyParameters keyParams = new RSAKeyParameters(true, rsaPrivateKey.getPrivateExponent(), rsaPrivateKey.getModulus());
+
+		ContentSigner contentSigner = sigGen.build(keyParams);
+		X509CertificateHolder certificateHolder = certBuilder.build(contentSigner);
+
+		// convert the X509Certificate from BouncyCastle format to the java.security format
+		JcaX509CertificateConverter certConverter = new JcaX509CertificateConverter();
+		X509Certificate x509Certificate = certConverter.getCertificate(certificateHolder);
+		
+		// keyStore entry for private key, Key and Certificate
+		KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(rsaPrivateKey, new Certificate[]{x509Certificate});
+
+		return privateKeyEntry;
 	}
 }

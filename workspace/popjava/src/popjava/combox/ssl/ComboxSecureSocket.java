@@ -9,7 +9,12 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -126,8 +131,24 @@ public class ComboxSecureSocket extends Combox {
 					} else {
 						peerConnection = (SSLSocket) factory.createSocket();
 						timeOut = 0;
-					}					
+					}
+					peerConnection.setUseClientMode(true);
+					
+					// setup SNI
+					SNIServerName network = new SNIHostName("some.network"); //TODO set correct network
+					List<SNIServerName> nets = new ArrayList<>(1);
+					nets.add(network);
+
+					// set SNI as part of the parameters
+					SSLParameters parameters = peerConnection.getSSLParameters();
+					parameters.setServerNames(nets);
+					peerConnection.setSSLParameters(parameters);
+
+					// connect and start handshake
 					peerConnection.connect(sockaddress);
+					peerConnection.startHandshake();
+					
+					// setup communication buffers
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 					

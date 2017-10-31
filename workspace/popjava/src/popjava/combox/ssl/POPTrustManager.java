@@ -3,11 +3,13 @@ package popjava.combox.ssl;
 import popjava.util.ssl.SSLUtils;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -77,55 +79,36 @@ public class POPTrustManager implements X509TrustManager {
 	
 	private final Configuration conf = Configuration.getInstance();
 	
-	// certificates stores
+	// certificates store
 	private X509TrustManager trustManager;
-	// Map(Fingerprint,Certificate)
+	// Map[Fingerprint, Certificate]
 	private Map<String,Certificate> loadedCertificates = new HashMap<>();
-	// Set(Fingerprints)
+	// Set[Fingerprint]
 	private Set<String> confidenceCertificates = new HashSet<>();
-	// Map<Fingerprint,Network>
+	// Map[Fingerprint, Network]
 	private Map<String,String> certificatesNetwork = new HashMap<>();
+	// Map[Alias, Certificate]
+	private Map<String,Certificate> aliasCertificates = new HashMap<>();
 	
 	// reload and add new certificates
 	private WatchDirectory temporaryWatcher;
 	private WatchDirectory keyStoreWatcher;
 	
-	// easy access
-	private Certificate publicCertificate;
-	
 	public POPTrustManager() {
 		try {
 			reloadTrustManager();
 		} catch (Exception ex) {
-			LogWriter.writeDebugInfo("[KeyStore] can't initialize TrustManager: %s", ex.getMessage());
+			LogWriter.writeDebugInfo("[TrustManager] can't initialize TrustManager: %s", ex.getMessage());
 		}
 	}
 	
 	@Override
 	public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-		System.out.println("[CHECKING CLIENT CERTIFICATE]");
-		for (X509Certificate cert : chain) {
-			System.out.println(SSLUtils.certificateFingerprint(cert));
-			System.out.println(authType);
-		}
-		System.out.println("  [ALL CERTS]");
-		for (X509Certificate acceptedIssuer : getAcceptedIssuers()) {
-			System.out.println("  " + SSLUtils.certificateFingerprint(acceptedIssuer));
-		}
 		trustManager.checkClientTrusted(chain, authType);
 	}
 
 	@Override
 	public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-		System.out.println("[CHECKING SERVER CERTIFICATE]");
-		for (X509Certificate cert : chain) {
-			System.out.println(SSLUtils.certificateFingerprint(cert));
-			System.out.println(authType);
-		}
-		System.out.println("  [ALL CERTS]");
-		for (X509Certificate acceptedIssuer : getAcceptedIssuers()) {
-			System.out.println("  " + SSLUtils.certificateFingerprint(acceptedIssuer));
-		}
 		trustManager.checkServerTrusted(chain, authType);
 	}
 
@@ -168,7 +151,7 @@ public class POPTrustManager implements X509TrustManager {
 		loadedCertificates.putAll(temp);
 	}
 
-	public final void reloadTrustManager() throws Exception {
+	public final void reloadTrustManager() throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
 		long start = System.currentTimeMillis();
 		SSLUtils.invalidateSSLSessions();
 		// load keystore from specified cert store (or default)
@@ -186,17 +169,17 @@ public class POPTrustManager implements X509TrustManager {
 			String fingerprint = SSLUtils.certificateFingerprint(cert);
 			confidenceCertificates.add(fingerprint);
 			
-			// extract network
+			// extract network or leave the alias as the fingerprint
 			int atLocation = alias.indexOf('@');
 			if (atLocation >= 0) {
 				String network = alias.substring(atLocation + 1);
 				certificatesNetwork.put(fingerprint, network);
+			} else {
+				certificatesNetwork.put(fingerprint, alias);
 			}
 			
-			// save public certificate
-			if (alias.equals(conf.getSSLKeyStoreLocalAlias())) {
-				publicCertificate = cert;
-			}
+			// save for the alias -> certificate matcher
+			aliasCertificates.put(alias, cert);
 		}
 		
 		// add temporary certificates
@@ -264,7 +247,7 @@ public class POPTrustManager implements X509TrustManager {
 			if (createWatcher) {
 				keyStoreWatcher = new WatchDirectory(keyStorePath.getParent(), new KeyStoreWatcher(keyStorePath), 
 					StandardWatchEventKinds.ENTRY_MODIFY);
-				Thread keyWatcher = new Thread(keyStoreWatcher, "KeyStore changes watcher");
+				Thread keyWatcher = new Thread(keyStoreWatcher, "KeyStore changes watcher (TrustManager)");
 				keyWatcher.setDaemon(true);
 				keyWatcher.start();
 			}
@@ -275,7 +258,7 @@ public class POPTrustManager implements X509TrustManager {
 		tmf.init(trustedKS);
 		
 		long end = System.currentTimeMillis();
-		LogWriter.writeDebugInfo(String.format("[KeyStore] initiated in %d ms", end - start));
+		LogWriter.writeDebugInfo(String.format("[TrustManager] initiated in %d ms", end - start));
 
 		// acquire X509 trust manager from factory
 		TrustManager tms[] = tmf.getTrustManagers();
@@ -301,15 +284,6 @@ public class POPTrustManager implements X509TrustManager {
 	}
 	
 	/**
-	 * Public certificate from the ones loaded
-	 * 
-	 * @return 
-	 */
-	public Certificate getLocalPublicCertificate() {
-		return publicCertificate;
-	}
-	
-	/**
 	 * Any certificate from the local Trust manager
 	 * 
 	 * @param fingerprint
@@ -317,5 +291,15 @@ public class POPTrustManager implements X509TrustManager {
 	 */
 	public Certificate getCertificate(String fingerprint) {
 		return loadedCertificates.get(fingerprint);
+	}
+
+	/**
+	 * The certificate of a specified alias
+	 * 
+	 * @param uuid
+	 * @return 
+	 */
+	public Certificate getCertificateFromAlias(String uuid) {
+		return aliasCertificates.get(uuid);
 	}
 }

@@ -195,7 +195,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 				available.canHandle(request.getMinResourceNeeded())) {
 			// build response and give it back to the original sender
 			SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(), POPSystem.getPlatform(), available);
-			SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
+			SNResponse response = new SNResponse(request.getUID(), request.getNetworkUUID(), request.getExplorationList(), nodeinfo);
 
 			// we want to save the requester's certificate if there is one
 			if (request.getPublicCertificate().length > 0) {

@@ -62,7 +62,6 @@ public final class Configuration {
 		SSL_KEY_STORE_FILE,
 		SSL_KEY_STORE_PASSWORD,
 		SSL_KEY_STORE_PRIVATE_KEY_PASSWORD,
-		SSL_KEY_STORE_LOCAL_ALIAS,
 		SSL_KEY_STORE_FORMAT,
 	}
 	
@@ -289,10 +288,6 @@ public final class Configuration {
 		return SSLKeyStoreOptions.getPrivateKeyPassword();
 	}
 
-	public String getSSLKeyStoreLocalAlias() {
-		return SSLKeyStoreOptions.getLocalAlias();
-	}
-
 	public KeyStoreFormat getSSLKeyStoreFormat() {
 		return SSLKeyStoreOptions.getKeyStoreFormat();
 	}
@@ -474,11 +469,6 @@ public final class Configuration {
 		SSLKeyStoreOptions.setPrivateKeyPassword(val);
 	}
 
-	public void setSSLKeyStoreLocalAlias(String val) {
-		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_LOCAL_ALIAS.name(), val);
-		SSLKeyStoreOptions.setLocalAlias(val);
-	}
-
 	public void setSSLKeyStoreFormat(KeyStoreFormat val) {
 		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FORMAT.name(), val.name());
 		SSLKeyStoreOptions.setKeyStoreFormat(val);
@@ -491,7 +481,6 @@ public final class Configuration {
 	public void setSSLKeyStoreOptions(KeyStoreDetails options) {
 		setSSLKeyStoreFile(options.getKeyStoreFile());
 		setSSLKeyStoreFormat(options.getKeyStoreFormat());
-		setSSLKeyStoreLocalAlias(options.getLocalAlias());
 		setSSLKeyStorePassword(options.getKeyStorePassword());
 		setSSLKeyStorePrivateKeyPassword(options.getPrivateKeyPassword());
 	}
@@ -636,7 +625,6 @@ public final class Configuration {
 						case SSL_KEY_STORE_FILE:                 SSLKeyStoreOptions.setKeyStoreFile(new File(value)); break;
 						case SSL_KEY_STORE_PASSWORD:             SSLKeyStoreOptions.setKeyStorePassword(value); break;
 						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSLKeyStoreOptions.setPrivateKeyPassword(value); break;
-						case SSL_KEY_STORE_LOCAL_ALIAS:          SSLKeyStoreOptions.setLocalAlias(value); break;
 						case SSL_KEY_STORE_FORMAT:               SSLKeyStoreOptions.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
 					}
 				} catch(NumberFormatException e) {
