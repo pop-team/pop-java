@@ -575,12 +575,12 @@ public final class Broker {
 								String originFingerprint = objAp.getFingerprint();
 								if (originFingerprint != null) {
 									// add to access point for the connector
-									Certificate originCert = POPTrustManager.getInstance().getCertificate(originFingerprint);
+									Certificate originCert = SSLUtils.getCertificate(originFingerprint);
 									objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
 
 									// send connector certificate to object's node
 									String destinationFingerprint = request.getCombox().getAccessPoint().getFingerprint();
-									Certificate destCert = POPTrustManager.getInstance().getCertificate(destinationFingerprint);
+									Certificate destCert = SSLUtils.getCertificate(destinationFingerprint);
 									// send caller' certificate to object origin node
 									returnObject.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
 								}

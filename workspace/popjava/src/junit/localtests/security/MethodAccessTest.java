@@ -133,7 +133,7 @@ public class MethodAccessTest {
 	@Test
 	public void sslComboxWorking() throws Exception {
 		conf.load(configTemporary.toFile());
-		POPTrustManager.getInstance().reloadTrustManager();
+		//POPTrustManager.getInstance().reloadTrustManager();
 		
 		ComboxSecureSocketFactory factory = new ComboxSecureSocketFactory();
 		assertTrue(factory.isAvailable());
@@ -143,19 +143,19 @@ public class MethodAccessTest {
 	@Ignore
 	public void testTemporaryConfidenceLink() throws Exception {
 		conf.load(configTemporary.toFile());
-		POPTrustManager.getInstance().reloadTrustManager();
+		//POPTrustManager.getInstance().reloadTrustManager();
 		
-		X509Certificate[] certs = POPTrustManager.getInstance().getAcceptedIssuers();
+		/*X509Certificate[] certs = POPTrustManager.getInstance().getAcceptedIssuers();
 		for (X509Certificate cert : certs) {
 			String f = SSLUtils.certificateFingerprint(cert);
-			assertFalse(POPTrustManager.getInstance().isConfidenceLink(f));
-		}
+			assertFalse(SSLUtils.isConfidenceLink(f));
+		}*/
 	}
 	
 	@Test
 	public void testTrustedConnection() throws Exception {
 		conf.load(configTrusted.toFile());
-		POPTrustManager.getInstance().reloadTrustManager();
+		//POPTrustManager.getInstance().reloadTrustManager();
 		
 		A a = PopJava.newActive(A.class);
 		a.sync();

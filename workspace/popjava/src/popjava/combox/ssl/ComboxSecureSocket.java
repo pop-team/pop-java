@@ -279,12 +279,12 @@ public class ComboxSecureSocket extends Combox {
 			SSLSocket sslPeer = (SSLSocket) peerConnection;
 			Certificate[] certs = sslPeer.getSession().getPeerCertificates();
 			for (Certificate cert : certs) {
-				if (POPTrustManager.getInstance().isCertificateKnown(cert)) {
+				if (SSLUtils.isCertificateKnown(cert)) {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
 					
 					// set global access to those information
-					String network = POPTrustManager.getInstance().getNetworkFromCertificate(fingerprint);
+					String network = SSLUtils.getNetworkFromCertificate(fingerprint);
 					
 					remoteCaller = new POPRemoteCaller(
 						peerConnection.getInetAddress(), 

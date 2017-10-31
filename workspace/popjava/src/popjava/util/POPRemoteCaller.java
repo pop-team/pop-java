@@ -2,6 +2,7 @@ package popjava.util;
 
 import java.net.InetAddress;
 import popjava.combox.ssl.POPTrustManager;
+import popjava.util.ssl.SSLUtils;
 
 /**
  * Information on the remote caller available to a method
@@ -80,7 +81,7 @@ public class POPRemoteCaller {
 	 * @return 
 	 */
 	public boolean isUsingConfidenceLink() {
-		return POPTrustManager.getInstance().isConfidenceLink(fingerprint);
+		return SSLUtils.isConfidenceLink(fingerprint);
 	}
 	
 	/**

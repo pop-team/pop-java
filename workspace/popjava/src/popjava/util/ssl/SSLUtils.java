@@ -68,6 +68,8 @@ public class SSLUtils {
 	
 	/** Single instance of SSLContext for each process */
 	private static SSLContext sslContextInstance = null;
+	/** Single instance of POPTrustManager */
+	private static POPTrustManager trustManager = null;
 	/** Keep track of the keystore location so we can reload it */
 	private static File keyStoreLocation = null;
 	/** Factory to create X.509 certificate from RSA text input */
@@ -117,7 +119,7 @@ public class SSLUtils {
 		try (FileOutputStream fos = new FileOutputStream(conf.getSSLKeyStoreFile())) {
 			keyStore.store(fos, conf.getSSLKeyStorePassword().toCharArray());
 		} finally {
-			POPTrustManager.getInstance().reloadTrustManager();
+			trustManager.reloadTrustManager();
 		}
 	}
 	
@@ -141,7 +143,8 @@ public class SSLUtils {
 			KeyStore keyStore = loadKeyStore();
 			KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			keyManagerFactory.init(keyStore, conf.getSSLKeyStorePrivateKeyPassword().toCharArray());
-			TrustManager[] trustManagers = new TrustManager[]{ POPTrustManager.getInstance() };
+			trustManager = new POPTrustManager();
+			TrustManager[] trustManagers = new TrustManager[]{ trustManager };
 
 			// create the context the first time, and update it when necessary
 			if (sslContextInstance == null) {
@@ -352,6 +355,46 @@ public class SSLUtils {
 		}
 		return cert;
 	}
+
+	/**
+	 * Check if the given certificate is inside the Trust Manager.
+	 * 
+	 * @param certificate
+	 * @return 
+	 */
+	public static boolean isCertificateKnown(Certificate certificate) {
+		return trustManager.isCertificateKnown(certificate);
+	}
+
+	/**
+	 * Try to extract the network certificate from the fingerprint, and the alias inside the KeyStore.
+	 * 
+	 * @param fingerprint
+	 * @return 
+	 */
+	public static String getNetworkFromCertificate(String fingerprint) {
+		return trustManager.getNetworkFromCertificate(fingerprint);
+	}
+
+	/**
+	 * Given a fingerprint (SHA1) it will return the Public Key associated with it.
+	 * 
+	 * @param fingerprint
+	 * @return 
+	 */
+	public static Certificate getCertificate(String fingerprint) {
+		return trustManager.getCertificate(fingerprint);
+	}
+
+	/**
+	 * Return if a given fingerprint certificate is part of the Confidence Link group.
+	 * 
+	 * @param fingerprint
+	 * @return 
+	 */
+	public static boolean isConfidenceLink(String fingerprint) {
+		return trustManager.isConfidenceLink(fingerprint);
+	}
 	
 	/**
 	 * The local public certificate
@@ -359,7 +402,7 @@ public class SSLUtils {
 	 * @return null or a certificate that can be transformed with {@link #certificateBytes(Certificate)}
 	 */
 	public static Certificate getLocalPublicCertificate() {
-		return POPTrustManager.getLocalPublicCertificate();
+		return trustManager.getLocalPublicCertificate();
 	}
 
 	/**
@@ -395,7 +438,6 @@ public class SSLUtils {
 			Certificate cert = certificateFromBytes(certificate);
 			
 			// stop if already loaded
-			POPTrustManager trustManager = POPTrustManager.getInstance();
 			if (trustManager.isCertificateKnown(cert)) {
 				return;
 			}

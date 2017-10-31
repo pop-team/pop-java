@@ -59,7 +59,7 @@ public class SNRequest implements IPOPBase {
 		
 		// app service certificate
 		if (appServiceFingerprint != null) {
-			Certificate appServiceCert = POPTrustManager.getInstance().getCertificate(appServiceFingerprint);
+			Certificate appServiceCert = SSLUtils.getCertificate(appServiceFingerprint);
 			appServiceCertificate = SSLUtils.certificateBytes(appServiceCert);
 		}
 	}

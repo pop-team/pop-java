@@ -91,29 +91,14 @@ public class POPTrustManager implements X509TrustManager {
 	private WatchDirectory keyStoreWatcher;
 	
 	// easy access
-	private static Certificate publicCertificate;
-	private static final POPTrustManager instance;
-        
-	// static initializations
-	static {
-		instance = new POPTrustManager();
-	}
+	private Certificate publicCertificate;
 	
-	private POPTrustManager() {
+	public POPTrustManager() {
 		try {
 			reloadTrustManager();
 		} catch (Exception ex) {
 			LogWriter.writeDebugInfo("[KeyStore] can't initialize TrustManager: %s", ex.getMessage());
 		}
-	}
-
-	/**
-	 * The TrustManager instance 
-	 * 
-	 * @return 
-	 */
-	public static POPTrustManager getInstance() {
-		return instance;
 	}
 	
 	@Override
@@ -320,7 +305,7 @@ public class POPTrustManager implements X509TrustManager {
 	 * 
 	 * @return 
 	 */
-	public static Certificate getLocalPublicCertificate() {
+	public Certificate getLocalPublicCertificate() {
 		return publicCertificate;
 	}
 	
