@@ -321,7 +321,11 @@ public class Interface {
 			// choose the first available protocol
 			if (factory != null) {
 				try {
-					combox = factory.createClientCombox(accesspoint);
+					String networkUUID = od.getNetwork();
+					if (networkUUID == null || networkUUID.isEmpty()) {
+						networkUUID = conf.getDefaultNetwork();
+					}
+					combox = factory.createClientCombox(accesspoint, networkUUID);
 				} catch(IOException e) {
 					LogWriter.writeExceptionLog(e);
 					continue;
@@ -508,6 +512,7 @@ public class Interface {
 	 * Try a local execution for the associated parallel object
 	 * @param objectName	Name of the object
 	 * @param accesspoint	Output parameter - Access point of the object
+	 * @param od
 	 * @return true if the local execution succeed
 	 * @throws POPException thrown if any exception occurred during the creation process
 	 */
@@ -800,20 +805,27 @@ public class Interface {
 			return -1;
 		}
 		
-		String callbackString = String.format(Broker.CALLBACK_PREFIX+"%s", allocateCombox.getUrl());
+		String callbackString = Broker.CALLBACK_PREFIX+allocateCombox.getUrl();
 		argvList.add(callbackString);
 		if (classname != null && classname.length() > 0) {
-			String objectString = String.format(Broker.OBJECT_NAME_PREFIX+"%s", classname);
+			String objectString = Broker.OBJECT_NAME_PREFIX+classname;
 			argvList.add(objectString);
 		}
 		if (appserv != null && !appserv.isEmpty()) {
-			String appString = String.format(Broker.APPSERVICE_PREFIX+"%s", appserv.toString());
+			String appString = Broker.APPSERVICE_PREFIX+appserv.toString();
 			argvList.add(appString);
 		}
 		if (jobserv != null && !jobserv.isEmpty()) {
-			String jobString = String.format("-jobservice=%s", jobserv.toString());
+			String jobString = Broker.JOB_SERVICE + jobserv.toString();
 			argvList.add(jobString);
 		}
+		
+		String networkUUID = od.getNetwork();
+		if (networkUUID == null || networkUUID.isEmpty()) {
+			networkUUID = conf.getDefaultNetwork();
+		}
+		String networkArg = Broker.NETWORK_UUID + networkUUID;
+		argvList.add(networkArg);
 		
 		for (int i = 0; i < protocols.length; i++) {
 			String protocol = protocols[i];

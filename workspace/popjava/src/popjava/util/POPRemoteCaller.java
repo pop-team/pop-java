@@ -92,4 +92,9 @@ public class POPRemoteCaller {
 	public boolean isLocalHost() {
 		return Util.isLocal(remote.getHostAddress());
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s://%s [%s]", protocol, remote.getHostAddress(), network);
+	}
 }

@@ -18,25 +18,29 @@ public abstract class Combox {
 	protected boolean available = false;
 	protected BufferFactory bufferFactory;
 	
+	protected String networkUUID;
+	
 	protected POPRemoteCaller remoteCaller;
 	
 	protected final Configuration conf = Configuration.getInstance();
-	
+
 	/**
 	 * Default constructor
 	 */
 	public Combox() {
-		this(new POPAccessPoint(), 0);
+		this(new POPAccessPoint(), "", 0);
 	}
 
 	/**
 	 * Constructor with given values
 	 * @param accesspoint	Access point to create the combox
+	 * @param networkUUID	The network UUID that will be send to the other end
 	 * @param timeout		Connection time out
 	 */
-	public Combox(POPAccessPoint accesspoint, int timeout) {
+	public Combox(POPAccessPoint accesspoint, String networkUUID, int timeout) {
 		accessPoint = accesspoint;
 		timeOut = timeout;
+		this.networkUUID = networkUUID;
 		bufferFactory = BufferFactoryFinder.getInstance().findFactory(conf.getDefaultEncoding());
 	}
 
@@ -108,5 +112,13 @@ public abstract class Combox {
 	 */
 	public POPRemoteCaller getRemoteCaller() {
 		return remoteCaller;
+	}
+
+	/**
+	 * The network we are connecting or are connected to.
+	 * @return 
+	 */
+	public String getNetworkUUID() {
+		return networkUUID;
 	}
 }

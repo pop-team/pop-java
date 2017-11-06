@@ -376,7 +376,7 @@ public class SSLUtils {
 		StringBuilder sb = new StringBuilder();
 		try {
 			sb.append("-----BEGIN CERTIFICATE-----\n");
-			sb.append(Base64.getEncoder().encode(cert.getEncoded())).append("\n");
+			sb.append(Base64.getEncoder().encodeToString(cert.getEncoded())).append("\n");
 			sb.append("-----END CERTIFICATE-----\n");
 		} catch(CertificateEncodingException e) {
 		}

@@ -15,20 +15,22 @@ public abstract class ComboxFactory {
 	/**
 	 * Create a new client combox with the given access point
 	 * @param accessPoint	The access point to connect the combox
+	 * @param networkUUID	The network we are using
 	 * @return	The combox created
 	 * @throws java.io.IOException
 	 */
-	public abstract Combox createClientCombox(POPAccessPoint accessPoint) throws IOException;
+	public abstract Combox createClientCombox(POPAccessPoint accessPoint, String networkUUID) throws IOException;
 
 	/**
 	 * Create a new client combox with the given access point and a specified timeout
 	 * @param accessPoint	The access point to connect the combox
+	 * @param networkUUID	The network we are using
 	 * @param timeout		The connection timeout
 	 * @return	The combox created
 	 * @throws java.io.IOException
 	 */
 	public abstract Combox createClientCombox(POPAccessPoint accessPoint,
-			int timeout) throws IOException;
+			String networkUUID, int timeout) throws IOException;
 
 	/**
 	 * Create a new server combox with the given access point, buffer and broker

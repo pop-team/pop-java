@@ -55,8 +55,8 @@ public class ComboxSocket extends Combox {
 	}
 
 	
-	public ComboxSocket(POPAccessPoint accesspoint, int timeout) {
-		super(accesspoint, timeout);
+	public ComboxSocket(POPAccessPoint accesspoint, String networkUUID, int timeout) {
+		super(accesspoint, networkUUID, timeout);
 		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
 

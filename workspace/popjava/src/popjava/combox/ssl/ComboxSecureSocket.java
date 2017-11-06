@@ -59,10 +59,11 @@ public class ComboxSecureSocket extends Combox {
 	 * NOTE: this is used by Combox (client)
 	 * Create a combox on a given accesspoint
 	 * @param accesspoint
+	 * @param networkUUID
 	 * @param timeout 
 	 */
-	public ComboxSecureSocket(POPAccessPoint accesspoint, int timeout) {
-		super(accesspoint, timeout);
+	public ComboxSecureSocket(POPAccessPoint accesspoint, String networkUUID, int timeout) {
+		super(accesspoint, networkUUID, timeout);
 		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
 
@@ -135,7 +136,7 @@ public class ComboxSecureSocket extends Combox {
 					peerConnection.setUseClientMode(true);
 					
 					// setup SNI
-					SNIServerName network = new SNIHostName("some.network"); //TODO set correct network
+					SNIServerName network = new SNIHostName(networkUUID);
 					List<SNIServerName> nets = new ArrayList<>(1);
 					nets.add(network);
 
@@ -318,7 +319,7 @@ public class ComboxSecureSocket extends Combox {
 				}
 			}
 		} catch (Exception e) {
-			
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 }
