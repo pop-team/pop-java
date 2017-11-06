@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -189,6 +190,23 @@ public class SSLUtils {
 			byte[] id = sessionEnum.nextElement();
 			SSLSession session = context.getSession(id);
 			session.invalidate();
+		}
+	}
+
+	/**
+	 * Forcefully reload the Trust and Key Managers if they exists.
+	 */
+	public static void reloadPOPManagers() {
+		try {
+			if (trustManager != null) {
+				trustManager.reloadTrustManager();
+			}
+			if (keyManager != null) {
+				keyManager.reloadKeyManager();
+			}
+		} catch(Exception e) {
+			LogWriter.writeDebugInfo("[SSLUtils] Failed to reload Managers: %s", e.getCause());
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 	
@@ -389,6 +407,7 @@ public class SSLUtils {
 	 * @return 
 	 */
 	public static boolean isCertificateKnown(Certificate certificate) {
+		ensureManagerCreation();
 		return trustManager.isCertificateKnown(certificate);
 	}
 
@@ -399,6 +418,7 @@ public class SSLUtils {
 	 * @return 
 	 */
 	public static String getNetworkFromCertificate(String fingerprint) {
+		ensureManagerCreation();
 		return trustManager.getNetworkFromCertificate(fingerprint);
 	}
 
@@ -409,6 +429,7 @@ public class SSLUtils {
 	 * @return 
 	 */
 	public static Certificate getCertificate(String fingerprint) {
+		ensureManagerCreation();
 		return trustManager.getCertificate(fingerprint);
 	}
 
@@ -419,6 +440,7 @@ public class SSLUtils {
 	 * @return 
 	 */
 	public static Certificate getCertificateFromAlias(String uuid) {
+		ensureManagerCreation();
 		return trustManager.getCertificateFromAlias(uuid);
 	}
 
@@ -429,6 +451,7 @@ public class SSLUtils {
 	 * @return 
 	 */
 	public static boolean isConfidenceLink(String fingerprint) {
+		ensureManagerCreation();
 		return trustManager.isConfidenceLink(fingerprint);
 	}
 
@@ -460,6 +483,7 @@ public class SSLUtils {
 			"popjava.base.POPObject.PopRegisterFutureConnectorCertificate",
 			"popjava.interfacebase.Interface.deserialize"
 		);*/
+		ensureManagerCreation();
 		try {			
 			// load it
 			Certificate cert = certificateFromBytes(certificate);
@@ -485,6 +509,15 @@ public class SSLUtils {
 		} catch (Exception ex) {
 			LogWriter.writeDebugInfo("[SSLUtils] failed to save certificate: ", ex.getMessage());
 		}
+	}
+	
+	/**
+	 * Call {@link #getSSLContext() } and create the two manager if they don't exists.
+	 */
+	private static void ensureManagerCreation() {
+		try {
+			getSSLContext();
+		} catch(Exception e) {}
 	}
 	
 	/**
@@ -514,7 +547,7 @@ public class SSLUtils {
 		} while (!generated);
 		
 		try {
-			addKeyEntryToKeyStore(ksOptions, keyOptions, privateKeyEntry);
+			addKeyEntryToKeyStore(ksOptions, keyOptions, privateKeyEntry, false);
 			generated = true;
 		} catch(IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
 			LogWriter.writeDebugInfo("[KeyStore] Generation failed with message: %s.", e.getMessage());
@@ -522,6 +555,21 @@ public class SSLUtils {
 		}
 		
 		return generated;
+	}
+	
+	/**
+	 * Given the keystore information, the key pair details and a real Priva Key / Certificate pair, add it to the keystore.
+	 * @param ksOptions
+	 * @param keyOptions
+	 * @param privateKeyEntry
+	 * @throws IOException
+	 * @throws KeyStoreException
+	 * @throws NoSuchAlgorithmException
+	 * @throws CertificateException
+	 * @throws UnrecoverableKeyException 
+	 */
+	public static void addKeyEntryToKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions, KeyStore.PrivateKeyEntry privateKeyEntry) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
+		addKeyEntryToKeyStore(ksOptions, keyOptions, privateKeyEntry, true);
 	}
 	
 	/**
@@ -536,7 +584,7 @@ public class SSLUtils {
 	 * @throws CertificateException 
 	 * @throws java.security.UnrecoverableKeyException 
 	 */
-	public static void addKeyEntryToKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions, KeyStore.PrivateKeyEntry privateKeyEntry) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
+	private static void addKeyEntryToKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions, KeyStore.PrivateKeyEntry privateKeyEntry, boolean reload) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
 		// initialize a keystore
 		KeyStore ks = KeyStore.getInstance(ksOptions.getKeyStoreFormat().name());
 		ks.load(null);
@@ -556,7 +604,7 @@ public class SSLUtils {
 		ksout.load(in, ksOptions.getKeyStorePassword().toCharArray());
 		ksout.store(new FileOutputStream(ksOptions.getKeyStoreFile()), ksOptions.getKeyStorePassword().toCharArray());
 		
-		if (trustManager != null) {
+		if (reload && trustManager != null) {
 			trustManager.reloadTrustManager();
 			keyManager.reloadKeyManager();
 		}
@@ -587,8 +635,11 @@ public class SSLUtils {
 
 
 		// generate certificate from key pair
-		ASN1InputStream asn1InputStream	= new ASN1InputStream(new ByteArrayInputStream(rsaPublicKey.getEncoded()));
-		SubjectPublicKeyInfo pubKey = new SubjectPublicKeyInfo((ASN1Sequence) asn1InputStream.readObject());
+		SubjectPublicKeyInfo pubKey;
+		try (InputStream der = new ByteArrayInputStream(rsaPublicKey.getEncoded());
+				ASN1InputStream asn1InputStream	= new ASN1InputStream(der)) {
+			pubKey = SubjectPublicKeyInfo.getInstance((ASN1Sequence) asn1InputStream.readObject());
+		}
 
 		// name of the certificate (RDN) -> OU=Group,O=Org,CN=Myself
 		X500NameBuilder nameBuilder = new X500NameBuilder(new BCStrictStyle());

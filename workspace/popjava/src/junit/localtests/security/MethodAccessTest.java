@@ -78,7 +78,8 @@ public class MethodAccessTest {
 			conf.setSSLKeyStoreOptions(ksTemporary);
 			conf.setSSLTemporaryCertificateDirectory(tempFolder);
 			SSLUtils.generateKeyStore(ksTemporary, keyTemporary);
-
+			SSLUtils.reloadPOPManagers();
+			
 			// setup first keystore
 			Certificate opt1Pub = SSLUtils.getCertificateFromAlias(keyTemporary.getAlias());
 
@@ -101,6 +102,7 @@ public class MethodAccessTest {
 			conf.setSSLKeyStoreOptions(ksTrusted);
 			conf.setSSLTemporaryCertificateDirectory(trustFolder);
 			SSLUtils.generateKeyStore(ksTrusted, keyTrusted);
+			SSLUtils.reloadPOPManagers();
 			Path temp2 = trustFolder.toPath();
 			if (!temp2.toFile().exists()) {
 				Files.createDirectory(temp2);
@@ -138,7 +140,7 @@ public class MethodAccessTest {
 	@Test
 	public void sslComboxWorking() throws Exception {
 		conf.load(configTemporary.toFile());
-		//POPTrustManager.getInstance().reloadTrustManager();
+		SSLUtils.reloadPOPManagers();
 		
 		ComboxSecureSocketFactory factory = new ComboxSecureSocketFactory();
 		assertTrue(factory.isAvailable());
@@ -160,7 +162,7 @@ public class MethodAccessTest {
 	@Test
 	public void testTrustedConnection() throws Exception {
 		conf.load(configTrusted.toFile());
-		//POPTrustManager.getInstance().reloadTrustManager();
+		SSLUtils.reloadPOPManagers();
 		
 		A a = PopJava.newActive(A.class);
 		a.sync();

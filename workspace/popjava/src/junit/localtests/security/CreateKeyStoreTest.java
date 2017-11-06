@@ -128,13 +128,16 @@ public class CreateKeyStoreTest {
 		try {
 			SSLUtils.generateKeyStore(ksDetails, keyDetails);
 		} catch(Exception e) {
-			e.printStackTrace();
 			LogWriter.writeDebugInfo("Failed to generate key Store: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 		}
 		
 		LogWriter.writeDebugInfo("Setting up environment");
 		Configuration conf = Configuration.getInstance();
 		conf.setSSLKeyStoreOptions(ksDetails);
+
+		// force reload with new keystore
+		SSLUtils.reloadPOPManagers();
 		
 		LogWriter.writeDebugInfo("Starting SSL Context");
 		// test create context

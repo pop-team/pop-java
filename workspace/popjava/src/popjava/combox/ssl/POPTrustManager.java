@@ -18,6 +18,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -300,6 +301,7 @@ public class POPTrustManager implements X509TrustManager {
 	 * @return 
 	 */
 	public Certificate getCertificateFromAlias(String uuid) {
-		return aliasCertificates.get(uuid);
+		Objects.requireNonNull(uuid);
+		return aliasCertificates.get(uuid.toLowerCase());
 	}
 }
