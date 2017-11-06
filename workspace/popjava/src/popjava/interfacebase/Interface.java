@@ -262,9 +262,16 @@ public class Interface {
             return false;
         }
 		
-        int createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, od, allocatedAccessPoint.length, 
-        		allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
-        jobManager.exit();
+		int createdCode;
+		try {
+			createdCode = jobManager.createObject(POPSystem.appServiceAccessPoint, objectName, od, allocatedAccessPoint.length, 
+					allocatedAccessPoint, remotejobscontact.length, remotejobscontact);
+		} catch (Exception e) {
+			createdCode = POPErrorCode.POP_EXEC_FAIL;
+			LogWriter.writeDebugInfo("[Interface] Exception while calling job manager: %s", e.getCause());
+		} finally {
+			jobManager.exit();
+		}
         if (createdCode != 0) {
         	switch (createdCode) {
         		case POPErrorCode.POP_EXEC_FAIL:
