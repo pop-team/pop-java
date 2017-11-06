@@ -14,6 +14,7 @@ import popjava.service.jobmanager.network.POPNodeAJobManager;
 import popjava.service.jobmanager.network.POPNode;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
+import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
 
 /**
@@ -129,8 +130,13 @@ public class PopJava {
 		
 		// we use create object in combination with a TFC connector
 		// this will get us a varing number of access points registered on the network
-		jm.createObject(POPSystem.appServiceAccessPoint, targetClass.getName(), od, instances.length, instances, 0, new POPAccessPoint[0]);
-		jm.exit();
+		try {
+			jm.createObject(POPSystem.appServiceAccessPoint, targetClass.getName(), od, instances.length, instances, 0, new POPAccessPoint[0]);
+		} catch(Exception e) {
+			LogWriter.writeDebugInfo("[TFC] Can't look for resources: %s", e.getCause());
+		} finally {
+			jm.exit();
+		}
 		
 		// return only active access points
 		List<POPAccessPoint> actives = new ArrayList<>();
