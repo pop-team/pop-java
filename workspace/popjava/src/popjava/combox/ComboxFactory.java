@@ -8,7 +8,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.util.Configuration;
 
 /**
- * This abstract class regroup the method needed by a ComboxFactory
+ * This abstract class regroups the methods needed by a ComboxFactory
  */
 public abstract class ComboxFactory {
 
@@ -77,7 +77,7 @@ public abstract class ComboxFactory {
 	 * When overriding call super.isAvailable to appy the white/black lists.
 	 * NB: If an item is in both white and black lists, the blacklist will take precedence
 	 * 
-	 * Expression applyied: (a V b) Λ ¬c 
+	 * Expression applied: (a V b) Λ ¬c 
 	 *  a = whitelist is empty
 	 *  b = is in whitelist
 	 *  c = is in blacklist
