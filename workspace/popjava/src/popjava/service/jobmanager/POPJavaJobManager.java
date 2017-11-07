@@ -881,14 +881,16 @@ public class POPJavaJobManager extends POPJobService {
 			networks.put(network.getUUID(), network);
 			
 			// generate network key
-			try {
-				KeyStoreDetails keyStoreDetails = conf.getSSLKeyStoreOptions();
-				KeyPairDetails keyPairDetails = new KeyPairDetails(network.getUUID());
-				KeyStore.PrivateKeyEntry generateKeyPair = SSLUtils.generateKeyPair(keyPairDetails);
-				
-				SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
-			} catch(Exception e) {
-				LogWriter.writeDebugInfo("[JM] Failed to generate Key add it to KeyStore with message: %s", e.getMessage());
+			KeyStoreDetails keyStoreDetails = conf.getSSLKeyStoreOptions();
+			if (keyStoreDetails.getKeyStoreFile() != null) {
+				try {
+					KeyPairDetails keyPairDetails = new KeyPairDetails(network.getUUID());
+					KeyStore.PrivateKeyEntry generateKeyPair = ensureKeyPairGeneration(keyPairDetails);
+
+					SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
+				} catch(Exception e) {
+					LogWriter.writeDebugInfo("[JM] Failed to generate Key add it to KeyStore with message: %s", e.getMessage());
+				}
 			}
 
 			// write all current configurations to a file
@@ -925,14 +927,16 @@ public class POPJavaJobManager extends POPJobService {
 			networks.put(newNetwork.getUUID(), newNetwork);
 			
 			// generate network key
-			try {
-				KeyStoreDetails keyStoreDetails = conf.getSSLKeyStoreOptions();
-				KeyPairDetails keyPairDetails = new KeyPairDetails(newNetwork.getUUID());
-				KeyStore.PrivateKeyEntry generateKeyPair = SSLUtils.generateKeyPair(keyPairDetails);
-				
-				SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
-			} catch(Exception e) {
-				LogWriter.writeDebugInfo("[JM] Failed to generate Key add it to KeyStore with message: %s", e.getMessage());
+			KeyStoreDetails keyStoreDetails = conf.getSSLKeyStoreOptions();
+			if (keyStoreDetails.getKeyStoreFile() != null) {
+				try {
+					KeyPairDetails keyPairDetails = new KeyPairDetails(newNetwork.getUUID());
+					KeyStore.PrivateKeyEntry generateKeyPair = ensureKeyPairGeneration(keyPairDetails);
+
+					SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
+				} catch(Exception e) {
+					LogWriter.writeDebugInfo("[JM] Failed to generate Key add it to KeyStore with message: %s", e.getMessage());
+				}
 			}
 
 			// write all current configurations to a file
@@ -958,7 +962,8 @@ public class POPJavaJobManager extends POPJobService {
 		
 		POPNetwork network = networks.get(networkUUID);
 		for (POPConnector connector : network.getConnectors()) {
-			for (POPNode member : network.getMembers(connector.getDescriptor())) {
+			List<POPNode> copy = new ArrayList<>(network.getMembers(connector.getDescriptor()));
+			for (POPNode member : copy) {
 				unregisterNode(networkUUID, member.getCreationParams());
 			}
 		}
@@ -1290,6 +1295,25 @@ public class POPJavaJobManager extends POPJobService {
 		} finally {
 			
 		}
+	}
+
+	/**
+	 * Given a KeyPairDetails it generate a real Key Pair
+	 * @param keyPairDetails
+	 * @return 
+	 */
+	private KeyStore.PrivateKeyEntry ensureKeyPairGeneration(KeyPairDetails keyPairDetails) {
+		boolean retry = true;
+		KeyStore.PrivateKeyEntry key = null;
+		do {
+			try {
+				key = SSLUtils.generateKeyPair(keyPairDetails);
+				retry = false;
+			} catch(Exception e) {
+				LogWriter.writeDebugInfo("[JM] Generating Key Pair failed, retrying.");
+			}
+		} while(retry);
+		return key;
 	}
 	
 	/**

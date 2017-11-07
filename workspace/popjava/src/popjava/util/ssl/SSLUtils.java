@@ -587,11 +587,9 @@ public class SSLUtils {
 	private static void addKeyEntryToKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions, KeyStore.PrivateKeyEntry privateKeyEntry, boolean reload) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
 		// initialize a keystore
 		KeyStore ks = KeyStore.getInstance(ksOptions.getKeyStoreFormat().name());
-		if (ksOptions.keyStoreFile != null && ksOptions.keyStoreFile.exists()) {
-			try (InputStream in = new FileInputStream(ksOptions.keyStoreFile)) {
-				ks.load(in, ksOptions.keyStorePassword.toCharArray());
-			}
-		} else {
+		try (InputStream in = new FileInputStream(ksOptions.getKeyStoreFile())) {
+			ks.load(in, ksOptions.getKeyStorePassword().toCharArray());
+		} catch(Exception e) {
 			ks.load(null);
 		}
 

@@ -126,7 +126,7 @@ public class POPNetwork {
 			return Collections.EMPTY_LIST;
 		}
 		
-		return connectors.get(connectorName).getNodes();
+		return connector.getNodes();
 	}
 
 	/**

@@ -64,7 +64,8 @@ public class PopJava {
 	}
 
 	/**
-	 * Static method used to create a parallel object from an existing access point
+	 * Static method used to connect to an already existing parallel object
+	 * TODO rename as connect?
 	 * @param targetClass	the parallel class to be created
 	 * @param accessPoint	access point of the living object
 	 * @return references to the parallel object
@@ -76,6 +77,20 @@ public class PopJava {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T) factoryProxy.bindPOPObject(accessPoint);
+	}
+
+	/**
+	 * Static method used to connect to an already existing parallel object with a custom network
+	 * @param targetClass	the parallel class to be created
+	 * @param networkUUID	the network that we will try to connect to
+	 * @param accessPoint	access point of the living object
+	 * @return references to the parallel object
+	 * @throws POPException
+	 */
+	public static <T> T connect(Class<T> targetClass, String networkUUID, POPAccessPoint accessPoint) {
+		POPSystem.start();
+		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
+		return (T) factoryProxy.bindPOPObject(accessPoint, networkUUID);
 	}
 
 	/**

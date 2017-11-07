@@ -125,11 +125,8 @@ public class CreateKeyStoreTest {
 		LogWriter.writeDebugInfo("Creating KeyStore working SNI");
 		KeyPairDetails keyDetails = new KeyPairDetails(alias);
 		KeyStoreDetails ksDetails = new KeyStoreDetails(storepass, keypass, keyStoreFile);
-		try {
-			SSLUtils.generateKeyStore(ksDetails, keyDetails);
-		} catch(Exception e) {
-			LogWriter.writeDebugInfo("Failed to generate key Store: %s", e.getMessage());
-			LogWriter.writeExceptionLog(e);
+		if (!SSLUtils.generateKeyStore(ksDetails, keyDetails)) {
+			throw new Exception("Failed to create custom keystore");
 		}
 		
 		LogWriter.writeDebugInfo("Setting up environment");
@@ -214,11 +211,8 @@ public class CreateKeyStoreTest {
 		LogWriter.writeDebugInfo("Creating KeyStore wrong SNI");
 		KeyPairDetails keyDetails = new KeyPairDetails(alias);
 		KeyStoreDetails ksDetails = new KeyStoreDetails(storepass, keypass, keyStoreFile);
-		try {
-			SSLUtils.generateKeyStore(ksDetails, keyDetails);
-		} catch(Exception e) {
-			e.printStackTrace();
-			LogWriter.writeDebugInfo("Failed to generate key Store: %s", e.getMessage());
+		if (!SSLUtils.generateKeyStore(ksDetails, keyDetails)) {
+			throw new Exception("Failed to create custom keystore");
 		}
 		
 		LogWriter.writeDebugInfo("Setting up environment");
