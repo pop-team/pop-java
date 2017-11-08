@@ -29,9 +29,8 @@ import popjava.util.POPRemoteCaller;
 /**
  * This combox implement the protocol ssl
  */
-public class ComboxSecureSocket extends Combox {
+public class ComboxSecureSocket extends Combox<SSLSocket> {
 	
-	protected SSLSocket peerConnection = null;
 	protected byte[] receivedBuffer;
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
@@ -41,23 +40,20 @@ public class ComboxSecureSocket extends Combox {
 	private static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
 	
 	/**
-	 * NOTE: this is used by ServerCombox (server)
-	 * Create a new combox on the given socket
-	 * @param socket	The socket to create the combox 
+	 * This is used by ServerCombox (server).
+	 * Create a new combox from a server.
+	 * Call {@link #serverAccept(java.lang.Object)   } to let the client connect.
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
-	public ComboxSecureSocket(SSLSocket socket) throws IOException {
-		super(null);
-		peerConnection = socket;
+	public ComboxSecureSocket() throws IOException {
+		super();
 		receivedBuffer = new byte[BUFFER_LENGTH];
-		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
-		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
-		extractFingerprint();
 	}
 
 	/**
-	 * NOTE: this is used by Combox (client)
-	 * Create a combox on a given accesspoint
+	 * This is used by Combox (client).
+	 * Create a combox for a client.
+	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
 	 * @param networkUUID
 	 */
 	public ComboxSecureSocket(String networkUUID) {
@@ -99,12 +95,24 @@ public class ComboxSecureSocket extends Combox {
 		}
 	}
 
+	@Override
+	protected boolean serverAccept() {
+		try {
+			inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
+			outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
+			return true;
+		} catch(IOException e) {
+			LogWriter.writeDebugInfo("[ComboxServerSocket] Couldn't open streams on the server side.");
+			return false;
+		}
+	}
+
 	/**
 	 * A client connect to a server, Combox -> ComboxServer
 	 * @return 
 	 */
 	@Override
-	protected boolean connect() {
+	protected boolean connectToServer() {
 		try {			
 			SSLContext sslContext = SSLUtils.getSSLContext();
 			SSLSocketFactory factory = sslContext.getSocketFactory();
@@ -151,8 +159,6 @@ public class ComboxSecureSocket extends Combox {
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 					
-					extractFingerprint();
-					
 					available = true;
 				} catch (IOException e) {
 					available = false;
@@ -161,6 +167,24 @@ public class ComboxSecureSocket extends Combox {
 		} catch (Exception e) {}
 		
 		return available;
+	}
+
+	/**
+	 * Done in {@link #exportConnectionInfo() } via TLS SNI
+	 * @return true
+	 */
+	@Override
+	protected boolean sendNetworkName() {
+		return true;
+	}
+
+	/**
+	 * Done in {@link #exportConnectionInfo() } via TLS SNI
+	 * @return true
+	 */
+	@Override
+	protected boolean receiveNetworkName() {
+		return true;
 	}
 	
 	@Override
@@ -248,8 +272,8 @@ public class ComboxSecureSocket extends Combox {
 			if (result < headerLength) {
 				if (conf.isDebugCombox()) {
 					String logInfo = String.format(
-							"%s.failed to receive header. receivedLength= %d, Message length %d",
-							this.getClass().getName(), result, headerLength);
+							"[ComboxServerSocket] failed to receive header. receivedLength= %d, Message length %d",
+							result, headerLength);
 					LogWriter.writeDebugInfo(logInfo);
 				}
 				close();
@@ -260,7 +284,7 @@ public class ComboxSecureSocket extends Combox {
 			return result;
 		} catch (Exception e) {
 			if (conf.isDebugCombox()){
-				LogWriter.writeDebugInfo("ComboxServerSocket Error while receiving data:"
+				LogWriter.writeDebugInfo("[ComboxServerSocket] Error while receiving data:"
 								+ e.getMessage());
 			}
 			close();
@@ -284,40 +308,41 @@ public class ComboxSecureSocket extends Combox {
 			return length;
 		} catch (IOException e) {
 			if (conf.isDebugCombox()){
-				e.printStackTrace();
-				LogWriter.writeDebugInfo(this.getClass().getName()
-						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
+				LogWriter.writeDebugInfo(
+					"[ComboxServerSocket] -Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
+				LogWriter.writeExceptionLog(e);
 			}
 			return -1;
 		}
 	}
 
-	private void extractFingerprint() {		
+	@Override
+	protected boolean exportConnectionInfo() {		
 		try {
 			// set the fingerprint in the accesspoint for all to know
 			// this time we have to look which it is
-			SSLSocket sslPeer = (SSLSocket) peerConnection;
-			Certificate[] certs = sslPeer.getSession().getPeerCertificates();
+			Certificate[] certs = peerConnection.getSession().getPeerCertificates();
 			for (Certificate cert : certs) {
 				if (SSLUtils.isCertificateKnown(cert)) {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
 					
 					// set global access to those information
-					String network = SSLUtils.getNetworkFromCertificate(fingerprint);
+					networkUUID = SSLUtils.getNetworkFromCertificate(fingerprint);
 					
 					remoteCaller = new POPRemoteCaller(
 						peerConnection.getInetAddress(), 
 						MY_FACTORY.getComboxName(),
 						MY_FACTORY.isSecure(),
 						fingerprint, 
-						network
-					);					
-					break;
+						networkUUID
+					);
+					return true;
 				}
 			}
 		} catch (Exception e) {
 			LogWriter.writeExceptionLog(e);
 		}
+		return false;
 	}
 }

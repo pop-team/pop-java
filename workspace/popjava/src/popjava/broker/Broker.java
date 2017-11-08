@@ -992,7 +992,7 @@ public final class Broker {
 				}
 			}
 
-			// If no protocol was specified, fall back to default protocol
+			// If no protocol was specified, fall back to available protocols
 			if(liveServers.isEmpty()){
 				for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
 					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
@@ -1121,7 +1121,7 @@ public final class Broker {
 				try {
 					callback = factory.createClientCombox(network);
 
-					if (callback.connect(accessPoint, 0)) {
+					if (callback.connectToServer(accessPoint, 0)) {
 						LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
 					} else {
 						LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",
@@ -1159,9 +1159,9 @@ public final class Broker {
 		POPBuffer buffer = new BufferXDR();
 		buffer.setHeader(messageHeader);
 		buffer.putInt(status);
-		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 		broker.getAccessPoint().serialize(buffer);
 		callback.send(buffer);
+		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 
 		if (status == 0){
 			broker.treatRequests();

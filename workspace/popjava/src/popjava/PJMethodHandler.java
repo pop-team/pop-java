@@ -25,7 +25,6 @@ import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ssl.POPTrustManager;
 import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.system.POPSystem;

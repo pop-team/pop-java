@@ -2,7 +2,6 @@ package popjava.combox.socket;
 
 import java.io.IOException;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;

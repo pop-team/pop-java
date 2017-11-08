@@ -47,22 +47,27 @@ public class ComboxAcceptSocket implements Runnable {
 			Socket connection = null;
 			try {
 				connection = serverSocket.accept();
-				LogWriter.writeDebugInfo("Connection accepted "+connection.getLocalPort()+" local:"+connection.getPort());	
+				LogWriter.writeDebugInfo("[Socket Accept] Connection accepted "+connection.getLocalPort()+" local:"+connection.getPort());	
 				if(broker != null){
 					broker.onNewConnection();
 				}
+				
 				synchronized (concurentConnections) {
 					concurentConnections.add(connection);
 				}
 
-				Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, new ComboxSocket(connection));
-				Thread thread = new Thread(runnable, "Combox request acceptance");
-				thread.start();
-			} catch (IOException e) {				
+				ComboxSocket serverClient = new ComboxSocket();
+				if (serverClient.serverAccept(connection)) {
+					Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, serverClient);
+					Thread thread = new Thread(runnable, "Combox request acceptance");
+					thread.start();
+				}
+			} catch (IOException e) {
+				LogWriter.writeDebugInfo("[Socket Accept] Error while setting up connection: %s", e.getMessage());
 			}
 		}
 		
-		LogWriter.writeDebugInfo("Combox Server finished");
+		LogWriter.writeDebugInfo("[Socket Accept] Combox Server finished");
 		this.close();
 	}
 

@@ -334,7 +334,7 @@ public class Interface {
 			}
 		}
 		
-		if (combox != null && combox.connect(accesspoint, conf.getConnectionTimeout())) {
+		if (combox != null && combox.connectToServer(accesspoint, conf.getConnectionTimeout())) {
 
 			BindStatus bindStatus = new BindStatus();
 			bindStatus(bindStatus);

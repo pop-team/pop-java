@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -380,7 +381,7 @@ public class SSLUtils {
 			sb.append("-----END CERTIFICATE-----\n");
 		} catch(CertificateEncodingException e) {
 		}
-		return sb.toString().getBytes();
+		return sb.toString().getBytes(StandardCharsets.UTF_8);
 	}
 	
 	/**

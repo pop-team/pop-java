@@ -116,7 +116,7 @@ public final class Configuration {
 	private String defaultEncoding = "xdr";
 	private String selectedEncoding = "raw";
 	private String defaultProtocol = "socket";
-	private String defaultNetwork = null;
+	private String defaultNetwork = "";
 	
 	private final Set<String> protocolsWhitelist = new HashSet<>();
 	private final Set<String> protocolsBlacklist = new HashSet<>();

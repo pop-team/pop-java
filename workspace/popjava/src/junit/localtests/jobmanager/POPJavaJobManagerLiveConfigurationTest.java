@@ -158,8 +158,6 @@ public class POPJavaJobManagerLiveConfigurationTest {
 		} finally {
 			userConfig.deleteOnExit();
 			keystore.deleteOnExit();
-			conf.setProtocolsBlacklist(Collections.EMPTY_SET);
-			conf.setProtocolsWhitelist(Collections.EMPTY_SET);
 			conf.setUserConfig(null);
 		}
 	}

@@ -5,9 +5,13 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Random;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
@@ -20,9 +24,8 @@ import popjava.util.POPRemoteCaller;
 /**
  * This combox implement the protocol Socket
  */
-public class ComboxSocket extends Combox {
+public class ComboxSocket extends Combox<Socket> {
 	
-	protected Socket peerConnection = null;
 	protected byte[] receivedBuffer;
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
@@ -41,20 +44,22 @@ public class ComboxSocket extends Combox {
 	}
 	
 	/**
-	 * Create a new combox on the given socket
-	 * @param socket	The socket to create the combox 
+	 * This is used by ServerCombox (server).
+	 * Create a new combox from a server.
+	 * Call {@link #serverAccept(java.lang.Object)   } to let the client connect.
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
-	public ComboxSocket(Socket socket) throws IOException {
-		super(null);
-		peerConnection = socket;
+	public ComboxSocket() throws IOException {
+		super();
 		receivedBuffer = new byte[BUFFER_LENGTH];
-		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
-		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
-		exportConnectionInfo();
 	}
 
-	
+	/**
+	 * This is used by Combox (client).
+	 * Create a combox for a client.
+	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
+	 * @param networkUUID 
+	 */
 	public ComboxSocket(String networkUUID) {
 		super(networkUUID);
 		receivedBuffer = new byte[BUFFER_LENGTH];
@@ -94,8 +99,19 @@ public class ComboxSocket extends Combox {
 	}
 
 	@Override
-	protected boolean connect() {
-		
+	protected boolean serverAccept() {
+		try {
+			inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
+			outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
+			return true;
+		} catch(IOException e) {
+			LogWriter.writeDebugInfo("[ComboxSocket] Couldn't open streams on the server side.");
+			return false;
+		}
+	}
+	
+	@Override
+	protected boolean connectToServer() {
 		available = false;
 		int accessPointSize = accessPoint.size();
 		for (int i = 0; i < accessPointSize && !available; i++) {
@@ -121,13 +137,51 @@ public class ComboxSocket extends Combox {
 				}
 				inputStream = new BufferedInputStream(peerConnection.getInputStream());
 				outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
-				exportConnectionInfo();
 				available = true;
 			} catch (IOException e) {
 				available = false;
 			}
 		}
 		return available;
+	}
+
+	@Override
+	protected boolean sendNetworkName() {
+		byte[] networkNameUTF8 = networkUUID.getBytes(StandardCharsets.UTF_8);
+		
+		// to send buffer
+		ByteBuffer intBuffer = ByteBuffer.allocate(Integer.BYTES);
+		intBuffer.putInt(networkNameUTF8.length);
+		
+		// send it
+		try {
+			outputStream.write(intBuffer.array());
+			outputStream.write(networkNameUTF8);
+			outputStream.flush();
+			
+			return true;
+		} catch (IOException e) {
+			LogWriter.writeDebugInfo("[ComboxSocket] Couldn't send network name");
+			return false;
+		}
+	}
+
+	@Override
+	protected boolean receiveNetworkName() {
+		try {
+			byte[] sizeBytes = new byte[Integer.BYTES];
+			inputStream.read(sizeBytes);
+			int size = ByteBuffer.wrap(sizeBytes).getInt();
+
+			byte[] networkNameBytes = new byte[size];
+			inputStream.read(networkNameBytes);
+			networkUUID = new String(networkNameBytes, StandardCharsets.UTF_8);
+			
+			return true;
+		} catch (IOException e) {
+			LogWriter.writeDebugInfo("[ComboxSocket] Couldn't read network name");
+			return false;
+		}
 	}
 	
 	@Override
@@ -242,7 +296,7 @@ public class ComboxSocket extends Combox {
 			final int length = buffer.size();
 			final byte[] dataSend = buffer.array();
 						
-			//System.out.println("Write "+length+" bytes to socket");			
+			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {
     			outputStream.write(dataSend, 0, length);
     			outputStream.flush();
@@ -259,12 +313,14 @@ public class ComboxSocket extends Combox {
 		}
 	}
 
-	private void exportConnectionInfo() {
+	@Override
+	protected boolean exportConnectionInfo() {
 		remoteCaller = new POPRemoteCaller(
 			peerConnection.getInetAddress(),
 			MY_FACTORY.getComboxName(),
 			MY_FACTORY.isSecure()
-		);					
+		);
+		return true;
 	}
 
 }

@@ -55,7 +55,8 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 			SSLSocket sslConnection = (SSLSocket) sslFactory.createSocket(plainConnection, plainConnection.getInputStream(), true);
 			sslConnection.setUseClientMode(false);
 			sslConnection.setNeedClientAuth(true);
-			combox = new ComboxSecureSocket(sslConnection);
+			combox = new ComboxSecureSocket();
+			combox.serverAccept(sslConnection);
 		} catch (IOException e) {
 			e.printStackTrace();
 			LogWriter.writeExceptionLog(e);
@@ -77,41 +78,14 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	 */
 	@Override
 	public void close() {
+		super.close();
 		try {
-			if(combox != null){
-				combox.close();
-			}
 			if (serverSocket != null && !serverSocket.isClosed()) {
 				serverSocket.close();
 			}
 
 		} catch (IOException e) {
 		}
-	}
-
-	/**
-	 * Send a message to the other-side
-	 * @param buffer	Buffer to be send
-	 * @return	Number of byte sent
-	 */
-	@Override
-	public int send(POPBuffer buffer) {
-		return combox.send(buffer);
-	}
-
-	/**
-	 * Receive a new message from the other-side
-	 * @param buffer	Buffer to receive the message
-	 * @return	Number of byte read
-	 */
-	@Override
-	public int receive(POPBuffer buffer) {
-		return combox.receive(buffer, -1);
-	}
-	
-	@Override
-	public boolean isComboxConnected(){
-		return combox != null;
 	}
 
 }

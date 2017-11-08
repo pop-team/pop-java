@@ -6,14 +6,11 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1288,7 +1285,7 @@ public class POPJavaJobManager extends POPJobService {
 
 			// write updated configration file
 			try (FileOutputStream fos = new FileOutputStream(configurationFile)) {
-				fos.write(output.getBytes());
+				fos.write(output.getBytes(StandardCharsets.UTF_8));
 			}
 		} catch(IOException e) {
 			LogWriter.writeDebugInfo("[JM] Failed to write current configuration to disk");

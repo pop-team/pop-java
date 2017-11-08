@@ -15,15 +15,7 @@ import popjava.util.LogWriter;
  * This class is a RAW implementation of the buffer abstract class
  */
 public class BufferRaw extends POPBuffer {
-
-	// XXX: The following constants are create since we target Java 7 and, ex, Float.BYTES start from Java 8
-	private static final int BYTE_BYTES    = 1;
-	private static final int SHORT_BYTES   = 2;
-	private static final int INTEGER_BYTES = 4;
-	private static final int FLOAT_BYTES   = 4;
-	private static final int LONG_BYTES    = 8;
-	private static final int DOUBLE_BYTES  = 8;
-
+	
 	/**
 	 * Size of the buffer
 	 */
@@ -231,13 +223,13 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public void putFloat(float value) {
-		resize(FLOAT_BYTES);
+		resize(Float.BYTES);
 		buffer.putFloat(value);
 	}
 
 	@Override
 	public void putInt(int value) {
-		resize(INTEGER_BYTES);
+		resize(Integer.BYTES);
 		buffer.putInt(value);
 	}
 	
@@ -247,19 +239,19 @@ public class BufferRaw extends POPBuffer {
 	 * @param value	the int value to be inserted
 	 */
 	public void putInt(int index, int value) {
-		resize(index, INTEGER_BYTES);
+		resize(index, Integer.BYTES);
 		buffer.putInt(index, value);
 	}
 
 	@Override
 	public void putDouble(double value) {
-		resize(DOUBLE_BYTES);
+		resize(Double.BYTES);
 		buffer.putDouble(value);
 	}
 
 	@Override
 	public void putLong(long value) {
-		resize(LONG_BYTES);
+		resize(Long.BYTES);
 		buffer.putLong(value);
 	}
 	
@@ -294,7 +286,7 @@ public class BufferRaw extends POPBuffer {
             }
 			
 			//Integrate putInt code so that resize is called only once
-			resize(stringLength + INTEGER_BYTES + padding);
+			resize(stringLength + Integer.BYTES + padding);
 			buffer.putInt(stringLength);
 			buffer.put(datas);
 			//buffer.put((byte) 0);//0 terminated
@@ -462,10 +454,10 @@ public class BufferRaw extends POPBuffer {
 		putInt(arrayLength);
 		if(arrayLength>0)
 		{
-			resize(arrayLength * DOUBLE_BYTES);
+			resize(arrayLength * Double.BYTES);
 			DoubleBuffer doubleBuffer=buffer.asDoubleBuffer();
 			doubleBuffer.put(value);
-			position(position()+arrayLength * DOUBLE_BYTES);
+			position(position()+arrayLength * Double.BYTES);
 		}
 	}
 
@@ -480,10 +472,10 @@ public class BufferRaw extends POPBuffer {
 		
 		if(arrayLength > 0)
 		{
-			resize(arrayLength * BYTE_BYTES);
+			resize(arrayLength * Byte.BYTES);
 			FloatBuffer floatBuffer = buffer.asFloatBuffer();
 			floatBuffer.put(value);
-			position(position() + arrayLength * FLOAT_BYTES);
+			position(position() + arrayLength * Float.BYTES);
 		}
 	}
 
@@ -498,11 +490,11 @@ public class BufferRaw extends POPBuffer {
 		putInt(arrayLength);
 		
 		if(arrayLength > 0) {
-			resize(arrayLength * INTEGER_BYTES);
+			resize(arrayLength * Integer.BYTES);
 			IntBuffer intBuffer = buffer.asIntBuffer();
 			intBuffer.put(value);
 			
-			position(position() + arrayLength * INTEGER_BYTES);
+			position(position() + arrayLength * Integer.BYTES);
 		}
 	}
 
@@ -517,10 +509,10 @@ public class BufferRaw extends POPBuffer {
 		
 		if(arrayLength>0)
 		{
-			resize(arrayLength * LONG_BYTES);
+			resize(arrayLength * Long.BYTES);
 			LongBuffer longBuffer = buffer.asLongBuffer();
 			longBuffer.put(value);
-			position(position() + arrayLength * LONG_BYTES);
+			position(position() + arrayLength * Long.BYTES);
 		}		
 	}
 
@@ -564,7 +556,7 @@ public class BufferRaw extends POPBuffer {
 	    if(length > 0){
 	        DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
 	        doubleBuffer.get(result);       
-	        position(position()+length*DOUBLE_BYTES);
+	        position(position()+length*Double.BYTES);
 	    }
 	    
 		return result;
@@ -577,7 +569,7 @@ public class BufferRaw extends POPBuffer {
 		if(length > 0){
 		    FloatBuffer floatBuffer=buffer.asFloatBuffer();
 	        floatBuffer.get(result);
-	        position(position()+length* FLOAT_BYTES);
+	        position(position()+length* Float.BYTES);
 		}
 		
 		return result;
@@ -590,7 +582,7 @@ public class BufferRaw extends POPBuffer {
 		if(length > 0){
 		    IntBuffer intBuffer = buffer.asIntBuffer();
 	        intBuffer.get(result);
-	        position(position()+ length*INTEGER_BYTES);
+	        position(position()+ length*Integer.BYTES);
 		}
 		
 		return result;
@@ -602,7 +594,7 @@ public class BufferRaw extends POPBuffer {
 		if(length > 0){
 		    LongBuffer longBuffer=buffer.asLongBuffer();
 	        longBuffer.get(result);
-	        position(position()+length*LONG_BYTES);
+	        position(position()+length*Long.BYTES);
 		}
 		
 		return result;
@@ -663,7 +655,7 @@ public class BufferRaw extends POPBuffer {
 
 	@Override
 	public void putShort(short value) {
-		resize(SHORT_BYTES);
+		resize(Short.BYTES);
 		buffer.putShort(value);
 	}
 
@@ -672,7 +664,7 @@ public class BufferRaw extends POPBuffer {
 		short [] result = new short[length];
 		ShortBuffer shortBuffer = buffer.asShortBuffer();
 		shortBuffer.get(result);
-		position(position() + length * SHORT_BYTES);
+		position(position() + length * Short.BYTES);
 		return result;
 	}
 
@@ -685,10 +677,10 @@ public class BufferRaw extends POPBuffer {
 		
 		putInt(arrayLength);
 		if(arrayLength>0){
-			resize(arrayLength * SHORT_BYTES);
+			resize(arrayLength * Short.BYTES);
 			ShortBuffer shortBuffer = buffer.asShortBuffer();
 			shortBuffer.put(value);
-			position(position() + arrayLength * SHORT_BYTES);
+			position(position() + arrayLength * Short.BYTES);
 		}
 		
 	}
