@@ -25,22 +25,12 @@ public abstract class Combox {
 	protected final Configuration conf = Configuration.getInstance();
 
 	/**
-	 * Default constructor
-	 */
-	public Combox() {
-		this(new POPAccessPoint(), "", 0);
-	}
-
-	/**
-	 * Constructor with given values
-	 * @param accesspoint	Access point to create the combox
+	 * Constructor for client Combox
 	 * @param networkUUID	The network UUID that will be send to the other end
-	 * @param timeout		Connection time out
 	 */
-	public Combox(POPAccessPoint accesspoint, String networkUUID, int timeout) {
-		accessPoint = accesspoint;
-		timeOut = timeout;
+	public Combox(String networkUUID) {
 		this.networkUUID = networkUUID;
+		this.accessPoint = new POPAccessPoint();
 		bufferFactory = BufferFactoryFinder.getInstance().findFactory(conf.getDefaultEncoding());
 	}
 
@@ -50,11 +40,12 @@ public abstract class Combox {
 	 * @param timeout		Connection time out
 	 * @return true if the connection is established
 	 */
-	public boolean connect(POPAccessPoint accesspoint, int timeout)
-	{
+	public final boolean connect(POPAccessPoint accesspoint, int timeout) {
 		this.accessPoint = accesspoint;
 		this.timeOut = timeout;
-		return connect();
+		boolean status = connect();
+		
+		return status;
 	}
 
 	/**
@@ -80,7 +71,7 @@ public abstract class Combox {
 	 * Connect to the other side
 	 * @return	true if the connection succeed
 	 */
-	public abstract boolean connect();
+	protected abstract boolean connect();
 
 	/**
 	 * Associate a buffer factory to the combox

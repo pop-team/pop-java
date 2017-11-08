@@ -15,12 +15,7 @@ import popjava.combox.ComboxServer;
 public class ComboxFactoryPlugin extends ComboxFactory {
 
 	@Override
-	public Combox createClientCombox(POPAccessPoint accessPoint, String networkUUID) {
-		return null;
-	}
-
-	@Override
-	public Combox createClientCombox(POPAccessPoint accessPoint, String networkUUID, int timeout) {
+	public Combox createClientCombox(String networkUUID) {
 		return null;
 	}
 

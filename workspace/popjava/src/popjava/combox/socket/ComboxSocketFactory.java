@@ -25,15 +25,10 @@ public class ComboxSocketFactory extends ComboxFactory {
 	public String getComboxName() {
 		return PROTOCOL;
 	}
-
+	
 	@Override
-	public Combox createClientCombox(POPAccessPoint accessPoint, String networkUUID) {
-		return createClientCombox(accessPoint, networkUUID, conf.getConnectionTimeout());
-	}
-
-	@Override
-	public Combox createClientCombox(POPAccessPoint accessPoint, String networkUUID, int timeout) {
-		return new ComboxSocket(accessPoint, networkUUID, timeout);
+	public Combox createClientCombox(String networkUUID) {
+		return new ComboxSocket(networkUUID);
 	}
 
 	@Override

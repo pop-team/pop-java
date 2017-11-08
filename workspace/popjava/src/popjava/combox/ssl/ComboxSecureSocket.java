@@ -20,7 +20,6 @@ import javax.net.ssl.SSLSocketFactory;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
@@ -48,6 +47,7 @@ public class ComboxSecureSocket extends Combox {
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
 	public ComboxSecureSocket(SSLSocket socket) throws IOException {
+		super(null);
 		peerConnection = socket;
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
@@ -58,12 +58,10 @@ public class ComboxSecureSocket extends Combox {
 	/**
 	 * NOTE: this is used by Combox (client)
 	 * Create a combox on a given accesspoint
-	 * @param accesspoint
 	 * @param networkUUID
-	 * @param timeout 
 	 */
-	public ComboxSecureSocket(POPAccessPoint accesspoint, String networkUUID, int timeout) {
-		super(accesspoint, networkUUID, timeout);
+	public ComboxSecureSocket(String networkUUID) {
+		super(networkUUID);
 		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
 
@@ -106,7 +104,7 @@ public class ComboxSecureSocket extends Combox {
 	 * @return 
 	 */
 	@Override
-	public boolean connect() {
+	protected boolean connect() {
 		try {			
 			SSLContext sslContext = SSLUtils.getSSLContext();
 			SSLSocketFactory factory = sslContext.getSocketFactory();

@@ -11,7 +11,6 @@ import java.net.SocketAddress;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
@@ -47,6 +46,7 @@ public class ComboxSocket extends Combox {
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
 	public ComboxSocket(Socket socket) throws IOException {
+		super(null);
 		peerConnection = socket;
 		receivedBuffer = new byte[BUFFER_LENGTH];
 		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
@@ -55,8 +55,8 @@ public class ComboxSocket extends Combox {
 	}
 
 	
-	public ComboxSocket(POPAccessPoint accesspoint, String networkUUID, int timeout) {
-		super(accesspoint, networkUUID, timeout);
+	public ComboxSocket(String networkUUID) {
+		super(networkUUID);
 		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
 
@@ -94,7 +94,7 @@ public class ComboxSocket extends Combox {
 	}
 
 	@Override
-	public boolean connect() {
+	protected boolean connect() {
 		
 		available = false;
 		int accessPointSize = accessPoint.size();

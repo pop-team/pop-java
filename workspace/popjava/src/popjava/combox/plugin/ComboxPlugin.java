@@ -8,13 +8,17 @@ import popjava.combox.Combox;
  */
 public class ComboxPlugin extends Combox {
 
+	public ComboxPlugin() {
+		super(null);
+	}
+
 	@Override
 	public void close() {
 
 	}
 
 	@Override
-	public boolean connect() {
+	protected boolean connect() {
 		return false;
 	}
 

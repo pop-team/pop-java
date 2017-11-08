@@ -1119,9 +1119,9 @@ public final class Broker {
 				
 				// create callback
 				try {
-					callback = factory.createClientCombox(accessPoint, network, 0);
+					callback = factory.createClientCombox(network);
 
-					if (callback.connect()) {
+					if (callback.connect(accessPoint, 0)) {
 						LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
 					} else {
 						LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",

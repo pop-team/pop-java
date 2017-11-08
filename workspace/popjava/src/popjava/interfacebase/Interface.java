@@ -325,7 +325,7 @@ public class Interface {
 					if (networkUUID == null || networkUUID.isEmpty()) {
 						networkUUID = conf.getDefaultNetwork();
 					}
-					combox = factory.createClientCombox(accesspoint, networkUUID);
+					combox = factory.createClientCombox(networkUUID);
 				} catch(IOException e) {
 					LogWriter.writeExceptionLog(e);
 					continue;
