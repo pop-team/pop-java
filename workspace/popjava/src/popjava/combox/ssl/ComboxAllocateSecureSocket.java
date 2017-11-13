@@ -23,7 +23,6 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	private static final int SOCKET_TIMEOUT_MS = 30000;
 	
 	protected ServerSocket serverSocket = null;	
-	protected ComboxSecureSocket combox = null;
 	protected SSLSocketFactory sslFactory = null;
 	
 	/**
