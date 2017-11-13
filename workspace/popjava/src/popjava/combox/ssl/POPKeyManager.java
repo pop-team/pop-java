@@ -64,12 +64,8 @@ public class POPKeyManager implements X509KeyManager {
 	// reload and add new certificates
 	private WatchDirectory keyStoreWatcher;
 
-	public POPKeyManager() {
-		try {
-			reloadKeyManager();
-		} catch (Exception e) {
-			LogWriter.writeDebugInfo("[KeyManager] can't initialize KeyManager: %s", e.getMessage());
-		}
+	public POPKeyManager() throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
+		reloadKeyManager();
 	}
 	
 	public final void reloadKeyManager() throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {

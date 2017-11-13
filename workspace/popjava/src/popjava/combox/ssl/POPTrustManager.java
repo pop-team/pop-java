@@ -95,12 +95,8 @@ public class POPTrustManager implements X509TrustManager {
 	private WatchDirectory temporaryWatcher;
 	private WatchDirectory keyStoreWatcher;
 	
-	public POPTrustManager() {
-		try {
-			reloadTrustManager();
-		} catch (Exception ex) {
-			LogWriter.writeDebugInfo("[TrustManager] can't initialize TrustManager: %s", ex.getMessage());
-		}
+	public POPTrustManager() throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
+		reloadTrustManager();
 	}
 	
 	@Override
