@@ -179,13 +179,20 @@ public class PopJava {
 		
 		// cast node and connect to remote job manager
 		POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
-		POPJavaJobManager jobManager = jmNode.getJobManager();
-		
-		// make local reserach on node
-		aps = jobManager.localTFCSearch(networkUUID, targetClass.getCanonicalName());
-		
-		// exit since the node keep connection alives
-		jobManager.exit();
+		try {
+			// make local reserach on node
+			POPJavaJobManager jobManager = jmNode.getJobManager(networkUUID);
+			
+			try {
+				aps = jobManager.localTFCSearch(networkUUID, targetClass.getCanonicalName());
+			} catch (Exception e) { throw e; }
+			finally {
+				// exit since the node keep connection alives
+				jobManager.exit();
+			}
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo("[TFC] Can't connect to [%s].", node);
+		}
 		
 		return aps;
 	}
