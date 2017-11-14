@@ -94,7 +94,7 @@ public class POPJavaConfiguration {
                     return finalUrl;
                 }
 	        }
-		}else{
+		}else{//Java 9+
 	        
 	        if(me.getClass().getProtectionDomain() != null){
 	            if(me.getClass().getProtectionDomain().getCodeSource() != null){
@@ -165,19 +165,23 @@ public class POPJavaConfiguration {
 	
 	public static String getClassPath(){
 	    StringBuilder popJar = new StringBuilder();
-	    
-	    URL [] urls = ((URLClassLoader)POPAppService.class.getClassLoader()).getURLs();
-        
         Set<String> paths = new HashSet<>();
-        for(int i = 0; i < urls.length; i++){
-            URL url = urls[i];
-            try {
-                String path = new File(url.toURI()).getAbsolutePath();
-                paths.add(path);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
+	    
+	    if(POPAppService.class.getClassLoader() instanceof URLClassLoader) {
+	    	URL [] urls = ((URLClassLoader)POPAppService.class.getClassLoader()).getURLs();
+	        
+	        for(int i = 0; i < urls.length; i++){
+	            URL url = urls[i];
+	            try {
+	                String path = new File(url.toURI()).getAbsolutePath();
+	                paths.add(path);
+	            } catch (URISyntaxException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    }else {
+	    	
+	    }
         
         List<String> pathList = new ArrayList<>(paths);
         
