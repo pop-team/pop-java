@@ -1088,14 +1088,14 @@ public class POPJavaJobManager extends POPJobService {
 		List<String> listparams = new ArrayList<>(Arrays.asList(params));
 		String connector = Util.removeStringFromList(listparams, "connector=");
 		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
-		network.add(node);
 		
 		try {
 			SSLUtils.addConfidenceLink(node, SSLUtils.certificateFromBytes(certificate), networkUUID);
 		} catch(Exception e) {
-			
+			throw new POPException(20, "Job Manager couldn't add certificate to Key Store");
 		}
 		
+		network.add(node);
 		writeConfigurationFile();
 		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), network);
 	}
@@ -1117,14 +1117,13 @@ public class POPJavaJobManager extends POPJobService {
 		List<String> listparams = new ArrayList<>(Arrays.asList(params));
 		String connector = Util.removeStringFromList(listparams, "connector=");
 		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
-		network.remove(node);
 		
 		try {
 			SSLUtils.removeConfidenceLink(node, networkUUID);
 		} catch(IOException e) {
-			
 		}
 		
+		network.remove(node);
 		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
 		writeConfigurationFile();
 	}
