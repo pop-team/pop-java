@@ -85,10 +85,9 @@ public class JobManagerConfig {
 	 * @param networkUUID Name of the network
 	 * @param node The node to add
 	 * @param certificate The certificate to use
-	 * @return 
 	 */
 	public void registerNode(String networkUUID, POPNode node, Certificate certificate) {
-		jobManager.registerPermanentNode(networkUUID, node.getCreationParams());
+		jobManager.registerPermanentNode(networkUUID, SSLUtils.certificateBytes(certificate), node.getCreationParams());
 	}
 	
 	/**
