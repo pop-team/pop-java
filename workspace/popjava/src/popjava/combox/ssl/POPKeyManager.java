@@ -145,11 +145,13 @@ public class POPKeyManager implements X509KeyManager {
 
 	@Override
 	public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
+		System.out.println("=== Choosing server key from keystore ===");
 		return chooseSNIAlias(socket);
 	}
 
 	@Override
 	public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
+		System.out.println("=== Choosing client key from keystore ===");
 		return chooseSNIAlias(socket);
 	}
 
@@ -162,6 +164,7 @@ public class POPKeyManager implements X509KeyManager {
 	private String chooseSNIAlias(Socket socket) {
 		// we can only accept SSL Sockets
 		if (!(socket instanceof SSLSocket)) {
+			System.out.println("=== Not an SSL Socket ===");
 			return null;
 		}
 
@@ -170,6 +173,7 @@ public class POPKeyManager implements X509KeyManager {
 
 		// we need that the handshake is there
 		if (handshakeSession == null) {
+			System.out.println("=== Can't find SSL Handshake ===");
 			return null;
 		}
 
@@ -181,6 +185,7 @@ public class POPKeyManager implements X509KeyManager {
 				break;
 			}
 		}
+		System.out.println("=== Using " + returns + " ===");
 		return returns == null ? null : returns.toLowerCase();
 	}
 }
