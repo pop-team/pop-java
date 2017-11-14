@@ -1666,7 +1666,7 @@ public class POPJavaJobManager extends POPJobService {
 							if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 								try {
 									// send request to other JM
-									POPJavaJobManager jm = jmNode.getJobManager();
+									POPJavaJobManager jm = jmNode.getJobManager(request.getNetworkUUID());
 									jm.askResourcesDiscovery(request, getAccessPoint());		
 								} catch(Exception e) {
 									LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s", jmNode.getJobManagerAccessPoint(), e.getMessage());
@@ -1711,7 +1711,7 @@ public class POPJavaJobManager extends POPJobService {
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 							try {
 								// send request to other JM
-								POPJavaJobManager jm = jmNode.getJobManager();
+								POPJavaJobManager jm = jmNode.getJobManager(request.getNetworkUUID());
 								jm.askResourcesDiscovery(request, getAccessPoint());
 							} catch(Exception e) {
 								LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s", jmNode.getJobManagerAccessPoint(), e.getMessage());
