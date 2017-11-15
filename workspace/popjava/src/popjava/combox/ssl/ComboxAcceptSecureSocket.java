@@ -13,7 +13,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -33,7 +35,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	protected RequestQueue requestQueue;
 	protected ServerSocket serverSocket;
 	protected int status = EXIT;
-	protected final LinkedList<SSLSocket> concurentConnections = new LinkedList<>();
+	protected final List<SSLSocket> concurentConnections = Collections.synchronizedList(new LinkedList<>());
 	
 	protected final SSLContext sslContext;
 
@@ -76,16 +78,13 @@ public class ComboxAcceptSecureSocket implements Runnable {
 				if(broker != null){
 					broker.onNewConnection();
 				}
-				
-				synchronized (concurentConnections) {
-					concurentConnections.add(sslConnection);
-				}
 
 				ComboxSecureSocket combox = new ComboxSecureSocket();
 				if (combox.serverAccept(sslConnection)) {
 					Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, combox);
 					Thread thread = new Thread(runnable, "Combox request acceptance");
 					thread.start();
+					concurentConnections.add(sslConnection);
 				}
 			} catch (IOException e) {
 				LogWriter.writeDebugInfo("[SSL Accept] Error while setting up connection: %s", e.getMessage());

@@ -146,13 +146,13 @@ public class POPKeyManager implements X509KeyManager {
 	@Override
 	public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
 		System.out.println("=== Choosing server key from keystore ===");
-		return chooseSNIAlias(socket);
+		return chooseSNIAlias(true, issuers, socket, keyType);
 	}
 
 	@Override
 	public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
 		System.out.println("=== Choosing client key from keystore ===");
-		return chooseSNIAlias(socket);
+		return chooseSNIAlias(false, issuers, socket, keyTypes);
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class POPKeyManager implements X509KeyManager {
 	 * @param socket
 	 * @return 
 	 */
-	private String chooseSNIAlias(Socket socket) {
+	private String chooseSNIAlias(boolean server, Principal[] issuers, Socket socket, String... keyTypes) {
 		// we can only accept SSL Sockets
 		if (!(socket instanceof SSLSocket)) {
 			System.out.println("=== Not an SSL Socket ===");
@@ -185,7 +185,14 @@ public class POPKeyManager implements X509KeyManager {
 				break;
 			}
 		}
+		// if we don't have the requested alias, ask the default keymanager
+		PrivateKey pk = keyManager.getPrivateKey(returns);
 		System.out.println("=== Using " + returns + " ===");
+		if (pk == null) {
+			System.out.println("=== alias not found, falling back to default keymanager ===");
+			if (server) return keyManager.chooseServerAlias(keyTypes[0], issuers, socket);
+			else keyManager.chooseClientAlias(keyTypes, issuers, socket);
+		}
 		return returns == null ? null : returns.toLowerCase();
 	}
 }
