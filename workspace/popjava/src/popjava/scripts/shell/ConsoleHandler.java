@@ -1,6 +1,7 @@
 package popjava.scripts.shell;
 
 import java.io.Console;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -31,7 +32,8 @@ public class ConsoleHandler {
 	}
 
 	public CommandInfo readCommand() {
-		return new CommandInfo(readLine());
+		String line = readLine();
+		return line == null ? null : new CommandInfo(line);
 	}
 	
 	public String readPassword() {
@@ -43,21 +45,12 @@ public class ConsoleHandler {
 	}
 	
 	public String readLine() {
+		String line;
 		if (hasConsole) {
-			return console.readLine();
+			line = console.readLine();
 		} else {
-			return scanner.nextLine();
+			line = scanner.nextLine();
 		}
-	}
-
-	public void write(String format, Object... values) {
-		if (format == null || format.trim().isEmpty()) {
-			format = "";
-		}
-		if (hasConsole) {
-			console.printf(format, values);
-		} else {
-			System.out.format(format, values);
-		}
+		return line == null || line.trim().isEmpty() ? null : line;
 	}
 }

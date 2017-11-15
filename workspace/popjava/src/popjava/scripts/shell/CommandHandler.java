@@ -38,7 +38,7 @@ public class CommandHandler {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Available options:\n");
 		for (ICommand com : comm) {
-			sb.append(String.format("  %s  \t  %s\n", com.keyword(), com.description()));
+			sb.append(String.format("  %-20s  %s\n", com.keyword(), com.description()));
 		}
 		return sb.toString();
 	}

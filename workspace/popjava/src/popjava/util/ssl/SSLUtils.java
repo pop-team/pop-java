@@ -529,23 +529,8 @@ public class SSLUtils {
 	 * @return true if we were able to create the keystore
 	 */
 	public static boolean generateKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions) {
-		// something the key generated seems to be invalid (invalidated by bouncycastle)
-		// we retry for a while in that case
-		int limit = 30;
-		boolean generated = false;
-		KeyStore.PrivateKeyEntry privateKeyEntry = null;
-		do {
-			try {
-				privateKeyEntry = generateKeyPair(keyOptions);
-				generated = true;
-			} catch(Exception e) {
-				LogWriter.writeDebugInfo("[KeyStore] Secure Private Key generation problem. Retrying after message: %s.", e.getMessage());
-			}
-			
-			if (limit-- <= 0) {
-				return false;
-			}
-		} while (!generated);
+		boolean generated;
+		KeyStore.PrivateKeyEntry privateKeyEntry = ensureKeyPairGeneration(keyOptions);
 		
 		try {
 			addKeyEntryToKeyStore(ksOptions, keyOptions, privateKeyEntry, false);
@@ -616,6 +601,27 @@ public class SSLUtils {
 	}
 	
 	/**
+	 * Call {@link #generateKeyPair(popjava.util.ssl.KeyPairDetails) } until the operation does not fail.
+	 * 
+	 * @param options
+	 * @return
+	 */
+	public static KeyStore.PrivateKeyEntry ensureKeyPairGeneration(KeyPairDetails options) {
+		boolean retry = true;
+		KeyStore.PrivateKeyEntry key = null;
+		do {
+			try {
+				key = SSLUtils.generateKeyPair(options);
+				retry = false;
+			} catch(IOException | IllegalArgumentException | NoSuchAlgorithmException | CertificateException | OperatorCreationException e) {
+				LogWriter.writeDebugInfo("[KeyStore] Secure Private Key generation problem. Retrying after message: %s.", e.getMessage());
+			}
+		} while(retry);
+		return key;
+
+	}
+	
+	/**
 	 * Generate a Private Key and a corresponding public certificate.
 	 * This process may fail if bouncycastle consider the generate key not to be secure.
 	 * 
@@ -626,7 +632,7 @@ public class SSLUtils {
 	 * @throws OperatorCreationException
 	 * @throws CertificateException 
 	 */
-	public static KeyStore.PrivateKeyEntry generateKeyPair(KeyPairDetails options) throws NoSuchAlgorithmException, IOException, OperatorCreationException, CertificateException, IllegalArgumentException {		
+	public static KeyStore.PrivateKeyEntry generateKeyPair(KeyPairDetails options) throws NoSuchAlgorithmException, IOException, OperatorCreationException, CertificateException, IllegalArgumentException {
 		options.validate();
 		
 		// generate keys

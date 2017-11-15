@@ -45,6 +45,18 @@ public class Parameter {
 			}
 		}
 	}
+	
+	public String get(String param, Object returnOnNull) {
+		ParameterInfo pi = raw.get(param);
+		if (pi == null) {
+			return null;
+		}
+		String r = params.get(param);
+		if (r == null && returnOnNull != null) {
+			r = returnOnNull.toString();
+		}
+		return r;
+	}
 
 	public String get(String param) {
 		ParameterInfo pi = raw.get(param);
@@ -54,7 +66,7 @@ public class Parameter {
 		String out = params.get(param);
 		if (out == null && pi.hasArgument()) {
 			ConsoleHandler ch = ConsoleHandler.getInstance();
-			ch.write("missing value for '%s': ", pi.getAlias());
+			System.out.format("missing value for '%s': ", pi.getAlias());
 			out = pi.isMasked() ? ch.readPassword() : ch.readLine();
 		}
 		return out;
