@@ -57,6 +57,7 @@ public abstract class Combox<T> {
 	public final boolean connectToServer(POPAccessPoint accesspoint, int timeout) {
 		this.accessPoint = accesspoint;
 		this.timeOut = timeout;
+		System.out.println("=== Combox will send SNI = '"+ networkUUID +"'");
 		boolean status = connectToServer();
 		status &= sendNetworkName();
 		status &= exportConnectionInfo();
