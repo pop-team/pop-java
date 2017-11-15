@@ -45,6 +45,7 @@ public class CJobManager implements ICommand {
 		commandHandler.add(new Start());
 		commandHandler.add(new Stop());
 		commandHandler.add(new Network());
+		commandHandler.add(new Node());
 	}
 
 	@Override
@@ -87,6 +88,8 @@ public class CJobManager implements ICommand {
 		}
 		return jobManagerConfig;
 	}
+	
+	
 	
 	private class Start implements ICommand {
 
@@ -268,7 +271,7 @@ public class CJobManager implements ICommand {
 
 		@Override
 		public String help() {
-			return "usage: jm create [OPTIONS]\n" +
+			return "usage: jm netowrk create [OPTIONS]\n" +
 				description() +
 				"\n" +
 				"Available options:\n" +
@@ -330,7 +333,7 @@ public class CJobManager implements ICommand {
 
 		@Override
 		public String help() {
-			return "usage: jm remove [OPTIONS]\n" +
+			return "usage: jm netowrk remove [OPTIONS]\n" +
 				description() +
 				"\n" +
 				"Available options:\n" +
@@ -362,59 +365,176 @@ public class CJobManager implements ICommand {
 			
 			JobManagerConfig jmc = getJobManagerConfig();
 			
-			// print network list
-			if (!info.canAdvance()) {
-				System.out.println("Note that networks are identified by their UUID.");
+			System.out.println("Note that networks are identified by their UUID.");
+			System.out.println("+------------------------------------------+--------------------------------+");
+			System.out.println("| UUID                                     | Friendly name                  |");
+			System.out.println("+==========================================+================================+");
+
+			POPNetworkDetails[] networks = jmc.availableNetworks();
+
+			for (POPNetworkDetails network : networks) {
+				System.out.format("| %-40s | %-30s |\n", network.getUUID(), network.getFriendlyName());
 				System.out.println("+------------------------------------------+--------------------------------+");
-				System.out.println("| UUID                                     | Friendly name                  |");
-				System.out.println("+==========================================+================================+");
-
-				POPNetworkDetails[] networks = jmc.availableNetworks();
-
-				for (POPNetworkDetails network : networks) {
-					System.out.format("| %-40s | %-30s |\n", network.getUUID(), network.getFriendlyName());
-					System.out.println("+------------------------------------------+--------------------------------+");
-				}
-
-				return 0;
 			}
-			
-			// network info
-			else {
-				Parameter params = info.extractParameter(
-					new ParameterInfo("uuid", "--uuid", "-u")
-				);
 
-				String uuid = params.get("uuid", null);
+			return 0;
+		}
 
-				if (uuid == null && info.canAdvance()) {
-					uuid = info.getParams()[0];
-				} else {
-					uuid = params.get("uuid");
-				}
-				
-				// TODO nice print
-				POPNode[] nodes = jmc.networkNodes(uuid);
-				for (POPNode node : nodes) {
-					System.out.println(node.getConnectorDescriptor().getGlobalName() + " - " + node.getHost());
-				}
-				
-				return 0;
+		@Override
+		public String help() {
+			return "usage: jm netowrk list\n" +
+				description();
+		}
+
+		@Override
+		public String description() {
+			return "list all networks in the jobmanager";
+		}
+	}
+	
+	
+
+	private class Node implements ICommand {
+
+		private final CommandHandler commandNodeHandler = new CommandHandler();
+		
+		public Node() {
+			initNodeCommands();
+		}
+
+		private void initNodeCommands() {
+			commandNodeHandler.add(new NodeAdd());
+			commandNodeHandler.add(new NodeRemove());
+			commandNodeHandler.add(new NodeList());
+		}
+
+		@Override
+		public String keyword() {
+			return "node";
+		}
+
+		@Override
+		public int execute(CommandInfo info) {
+			if (info.canAdvance()) {
+				return commandNodeHandler.execute(info.advance());
+			} else {
+				System.out.println(help());
+				return 1;
 			}
 		}
 
 		@Override
 		public String help() {
-			return "usage: jm list [OPTIONS]\n" +
-				description() +
-				"\n" +
-				"Available options:\n" +
-				"  --uuid, -u          The UUID of the network to remove";
+			return commandNodeHandler.help();
 		}
 
 		@Override
 		public String description() {
-			return "list all current available networks in the jobmanager";
+			return "operation on the job manager nodes";
+		}
+	}
+
+	private class NodeAdd implements ICommand {
+
+		public NodeAdd() {
+		}
+
+		@Override
+		public String keyword() {
+			return "add";
+		}
+
+		@Override
+		public int execute(CommandInfo info) {
+			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		}
+
+		@Override
+		public String help() {
+			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		}
+
+		@Override
+		public String description() {
+			return "add a new node to a network";
+		}
+	}
+
+	private class NodeRemove implements ICommand {
+
+		public NodeRemove() {
+		}
+
+		@Override
+		public String keyword() {
+			return "remove";
+		}
+
+		@Override
+		public int execute(CommandInfo info) {
+			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		}
+
+		@Override
+		public String help() {
+			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		}
+
+		@Override
+		public String description() {
+			return "remove a node from a network";
+		}
+	}
+
+	private class NodeList implements ICommand {
+
+		public NodeList() {
+		}
+
+		@Override
+		public String keyword() {
+			return "list";
+		}
+
+		@Override
+		public int execute(CommandInfo info) {
+			if (!isJobManagerRunning()) {
+				System.err.println("The Job Manager is not running");
+				return 1;
+			}
+			
+			Parameter params = info.extractParameter(
+				new ParameterInfo("uuid", "--uuid", "-u")
+			);
+			
+			JobManagerConfig jmc = getJobManagerConfig();
+
+			String uuid = params.get("uuid", null);
+
+			if (uuid == null && info.canAdvance()) {
+				uuid = info.getParams()[0];
+			} else {
+				commandHandler.execute(new CommandInfo("network list"));
+				uuid = params.get("uuid");
+			}
+
+			// TODO nice print
+			POPNode[] nodes = jmc.networkNodes(uuid);
+			for (POPNode node : nodes) {
+				System.out.println(node.getConnectorDescriptor().getGlobalName() + " - " + node.getHost());
+			}
+
+			return 0;
+		}
+
+		@Override
+		public String help() {
+			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		}
+
+		@Override
+		public String description() {
+			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 		}
 	}
 	
