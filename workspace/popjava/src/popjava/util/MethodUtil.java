@@ -88,7 +88,8 @@ public class MethodUtil {
         if(id >= 0){
             return id;
         }
-	    return defaultID;
+        
+	    return Math.abs(method.toGenericString().hashCode());
 	}
 	
 	/**

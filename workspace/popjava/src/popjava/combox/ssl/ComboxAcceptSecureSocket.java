@@ -35,7 +35,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	protected RequestQueue requestQueue;
 	protected ServerSocket serverSocket;
 	protected int status = EXIT;
-	protected final List<SSLSocket> concurentConnections = Collections.synchronizedList(new LinkedList<>());
+	protected final List<SSLSocket> concurentConnections = Collections.synchronizedList(new LinkedList<SSLSocket>());
 	
 	protected final SSLContext sslContext;
 
