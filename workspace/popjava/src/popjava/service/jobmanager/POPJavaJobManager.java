@@ -1709,7 +1709,6 @@ public class POPJavaJobManager extends POPJobService {
 						// contact if it's a new node
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 							try {
-								System.out.println("$$$$ contacting jm " + jmNode.getJobManagerAccessPoint());
 								// send request to other JM
 								POPJavaJobManager jm = jmNode.getJobManager(request.getNetworkUUID());
 								jm.askResourcesDiscovery(request, getAccessPoint());
