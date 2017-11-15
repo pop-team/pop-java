@@ -73,6 +73,18 @@ public class Interface {
 	}
 
 	/**
+	 * Create an Interface by giving the access point of the parallel object
+	 * @param accessPoint	Access point of the parallel object
+	 * @param od A custom OD for specifying possible connection parameters
+	 * @throws POPException	thrown of the interface cannot be bind with the parallel object
+	 */
+	public Interface(POPAccessPoint accessPoint, ObjectDescription od) throws POPException {
+		popAccessPoint = accessPoint;
+		this.od.merge(od);
+		bind(accessPoint);
+	}
+
+	/**
 	 * Serialization of the Interface into the buffer
 	 * @param buffer	Buffer to serialize in
 	 * @return	true if the serialization is finished without any problems

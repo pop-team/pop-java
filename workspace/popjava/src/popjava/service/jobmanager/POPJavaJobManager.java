@@ -1628,7 +1628,7 @@ public class POPJavaJobManager extends POPJobService {
 			// connector we are using
 			POPNetworkDescriptor descriptor = null;
 			try {
-				descriptor = POPNetworkDescriptor.from(od.getConnector());
+				descriptor = POPNetworkDescriptor.from(request.getConnector());
 			} catch(IllegalArgumentException e) {
 				return;
 			}
@@ -1709,6 +1709,7 @@ public class POPJavaJobManager extends POPJobService {
 						// contact if it's a new node
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 							try {
+								System.out.println("$$$$ contacting jm " + jmNode.getJobManagerAccessPoint());
 								// send request to other JM
 								POPJavaJobManager jm = jmNode.getJobManager(request.getNetworkUUID());
 								jm.askResourcesDiscovery(request, getAccessPoint());
