@@ -616,8 +616,9 @@ public class POPObject implements IPOPBase {
 					if(constructor.isAnnotationPresent(POPObjectDescription.class)){
 				        id = constructor.getAnnotation(POPObjectDescription.class).id();
 			        }
+					
 					if(id == -1){
-						id = index;
+						id = Math.abs(constructor.toGenericString().hashCode());
 					}
 					
 					MethodInfo info = new MethodInfo(getClassId(), id);
