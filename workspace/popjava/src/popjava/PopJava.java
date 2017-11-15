@@ -149,6 +149,7 @@ public class PopJava {
 			jm.createObject(POPSystem.appServiceAccessPoint, targetClass.getName(), od, instances.length, instances, 0, new POPAccessPoint[0]);
 		} catch(Exception e) {
 			LogWriter.writeDebugInfo("[TFC] Can't look for resources: %s", e.getCause());
+			LogWriter.writeExceptionLog(e);
 		} finally {
 			jm.exit();
 		}
@@ -184,7 +185,7 @@ public class PopJava {
 			POPJavaJobManager jobManager = jmNode.getJobManager(networkUUID);
 			
 			try {
-				aps = jobManager.localTFCSearch(networkUUID, targetClass.getCanonicalName());
+				aps = jobManager.localTFCSearch(networkUUID, targetClass.getName());
 			} catch (Exception e) { throw e; }
 			finally {
 				// exit since the node keep connection alives

@@ -160,8 +160,10 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 		for (Iterator<TFCResource> iterator = resources.iterator(); iterator.hasNext();) {
 			TFCResource tfcResource = iterator.next();
 			try {
+				ObjectDescription od = new ObjectDescription();
+				od.setNetwork(network.getUUID());
 				// test if object is actually alive
-				Interface aliveTest = new Interface(tfcResource.getAccessPoint());
+				Interface aliveTest = new Interface(tfcResource.getAccessPoint(), od);
 				aliveTest.close();
 			} catch(Exception e) {
 				// failed to connect, dead object, remove from list
