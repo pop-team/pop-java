@@ -885,7 +885,7 @@ public class POPJavaJobManager extends POPJobService {
 			if (keyStoreDetails.getKeyStoreFile() != null) {
 				try {
 					KeyPairDetails keyPairDetails = new KeyPairDetails(network.getUUID());
-					KeyStore.PrivateKeyEntry generateKeyPair = ensureKeyPairGeneration(keyPairDetails);
+					KeyStore.PrivateKeyEntry generateKeyPair = SSLUtils.ensureKeyPairGeneration(keyPairDetails);
 
 					SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
 				} catch(Exception e) {
@@ -894,8 +894,13 @@ public class POPJavaJobManager extends POPJobService {
 			}
 
 			// write all current configurations to a file
+			POPNetworkDetails d = new POPNetworkDetails(network);
+			if (defaultNetwork == null || defaultNetwork.isEmpty()) {
+				defaultNetwork = d.getUUID();
+			}
+			
 			writeConfigurationFile();
-			return new POPNetworkDetails(network);
+			return d;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
 			return null;
@@ -931,7 +936,7 @@ public class POPJavaJobManager extends POPJobService {
 			if (keyStoreDetails.getKeyStoreFile() != null) {
 				try {
 					KeyPairDetails keyPairDetails = new KeyPairDetails(newNetwork.getUUID());
-					KeyStore.PrivateKeyEntry generateKeyPair = ensureKeyPairGeneration(keyPairDetails);
+					KeyStore.PrivateKeyEntry generateKeyPair = SSLUtils.ensureKeyPairGeneration(keyPairDetails);
 
 					SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
 				} catch(Exception e) {
@@ -940,8 +945,13 @@ public class POPJavaJobManager extends POPJobService {
 			}
 
 			// write all current configurations to a file
+			POPNetworkDetails d = new POPNetworkDetails(newNetwork);
+			if (defaultNetwork == null || defaultNetwork.isEmpty()) {
+				defaultNetwork = d.getUUID();
+			}
+			
 			writeConfigurationFile();
-			return new POPNetworkDetails(newNetwork);
+			return d;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
 			return null;
@@ -1294,25 +1304,6 @@ public class POPJavaJobManager extends POPJobService {
 		} finally {
 			
 		}
-	}
-
-	/**
-	 * Given a KeyPairDetails it generate a real Key Pair
-	 * @param keyPairDetails
-	 * @return 
-	 */
-	private KeyStore.PrivateKeyEntry ensureKeyPairGeneration(KeyPairDetails keyPairDetails) {
-		boolean retry = true;
-		KeyStore.PrivateKeyEntry key = null;
-		do {
-			try {
-				key = SSLUtils.generateKeyPair(keyPairDetails);
-				retry = false;
-			} catch(Exception e) {
-				LogWriter.writeDebugInfo("[JM] Generating Key Pair failed, retrying.");
-			}
-		} while(retry);
-		return key;
 	}
 	
 	/**

@@ -34,9 +34,9 @@ public class JobManagerConfig {
 		Configuration conf = Configuration.getInstance();
 		String protocol = conf.getJobManagerProtocols()[0];
 		int port = conf.getJobManagerPorts()[0];
-		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
-			protocol, POPSystem.getHostIP(), port));
-		jobManager = PopJava.newActive(POPJavaJobManager.class, jma);
+		String accessString = String.format("%s://%s:%d", protocol, POPSystem.getHostIP(), port);
+		POPAccessPoint jma = new POPAccessPoint(accessString);
+		jobManager = PopJava.connect(POPJavaJobManager.class, conf.getDefaultNetwork(), jma);
 	}
 
 	/**
@@ -119,33 +119,6 @@ public class JobManagerConfig {
 	 */
 	public POPNetworkDetails createNetwork(String networkUUID, String friendlyName) {
 		return jobManager.createNetwork(networkUUID, friendlyName);
-	}
-
-	/**
-	 * Create a new network of interest, return the details with UUID.
-	 * Also add the specified certificate to the System Key Store.
-	 * 
-	 * @param friendlyName A friendly name to identify the network locally.
-	 * @param certificate The certificate to connect to this network.
-	 * @return An object containing a generated UUID and the friendly name.
-	 */
-	public POPNetworkDetails createNetwork(String friendlyName, Certificate certificate) {
-		POPNetworkDetails details = createNetwork(friendlyName);
-		return details;
-	}
-
-	/**
-	 * Create a new network of interest, return the details with UUID.
-	 * Also add the specified certificate to the System Key Store.
-	 * 
-	 * @param networkUUID The UUID the network will use
-	 * @param friendlyName A friendly name to identify the network locally.
-	 * @param certificate The certificate to connect to this network.
-	 * @return An object containing the UUID and the friendly name.
-	 */
-	public POPNetworkDetails createNetwork(String networkUUID, String friendlyName, Certificate certificate) {
-		POPNetworkDetails details = createNetwork(networkUUID, friendlyName);
-		return details;
 	}
 
 	/**

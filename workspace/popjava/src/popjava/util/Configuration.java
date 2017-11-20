@@ -303,11 +303,11 @@ public final class Configuration {
 	}
 
 	public int[] getJobManagerPorts() {
-		return jobManagerPorts;
+		return Arrays.copyOf(jobManagerPorts, jobManagerPorts.length);
 	}
 
 	public String[] getJobManagerProtocols() {
-		return jobManagerProtocols;
+		return Arrays.copyOf(jobManagerProtocols, jobManagerProtocols.length);
 	}
 
 	public int getPopJavaDeamonPort() {
@@ -498,12 +498,12 @@ public final class Configuration {
 
 	public void setJobManagerPorts(int[] jobManagerPorts) {
 		setUserProp(Settable.JOBMANAGER_PORTS, Arrays.toString(jobManagerPorts));
-		this.jobManagerPorts = jobManagerPorts;
+		this.jobManagerPorts = Arrays.copyOf(jobManagerPorts, jobManagerPorts.length);
 	}
 
 	public void setJobManagerProtocols(String[] jobManagerProtocols) {
 		setUserProp(Settable.JOBMANAGER_PROTOCOLS, Arrays.toString(jobManagerProtocols));
-		this.jobManagerProtocols = jobManagerProtocols;
+		this.jobManagerProtocols = Arrays.copyOf(jobManagerProtocols, jobManagerProtocols.length);
 	}
 
 	public void setPopJavaDeamonPort(int popJavaDeamonPort) {
