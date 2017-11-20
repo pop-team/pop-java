@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -76,6 +77,7 @@ import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 import popjava.util.Util;
 import popjava.util.SystemUtil;
 import popjava.util.ssl.KeyPairDetails;
@@ -323,6 +325,7 @@ public class POPJavaJobManager extends POPJobService {
 			// use default if not set
 			if (networkString.isEmpty()) {
 				networkString = defaultNetwork;
+				od.setNetwork(networkString);
 			}
 			// get real network
 			POPNetwork network = networks.get(networkString);
@@ -1497,8 +1500,15 @@ public class POPJavaJobManager extends POPJobService {
 			return aps;
 		}
 		
+		// get remote certificate
+		POPRemoteCaller remote = PopJava.getRemoteCaller();
+		Certificate cert = null;
+		if (remote.isSecure() && !remote.isUsingConfidenceLink()) {
+			cert = SSLUtils.getCertificate(remote.getFingerprint());
+		}
+		
 		// research in TFC Connector, only alive
-		List<TFCResource> resources = tfc.getObjects(objectName);
+		List<TFCResource> resources = tfc.getObjects(objectName, cert);
 		if (resources == null || resources.isEmpty()) {
 			return aps;
 		}

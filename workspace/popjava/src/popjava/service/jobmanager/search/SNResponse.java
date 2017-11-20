@@ -29,6 +29,7 @@ public class SNResponse implements IPOPBase {
 		Certificate localPublicCertificate = SSLUtils.getCertificateFromAlias(networkUUID);
 		if (localPublicCertificate != null) {
 			publicCertificate = SSLUtils.certificateBytes(localPublicCertificate);
+			nodeinfo.setCertificate(publicCertificate);
 		}
 	}
 

@@ -80,6 +80,8 @@ public class SNNodesInfo implements IPOPBase {
 		private String os;
 		private Resource resources;
 		private Map<String,String> customParams = new HashMap<>();
+		
+		private byte[] certificate = new byte[0];
 
 		public Node() {
 		}
@@ -131,12 +133,21 @@ public class SNNodesInfo implements IPOPBase {
 			return customParams.get(key);
 		}
 
+		public void setCertificate(byte[] certificate) {
+			this.certificate = certificate;
+		}
+
+		public byte[] getCertificate() {
+			return certificate;
+		}
+
 		@Override
 		public boolean serialize(POPBuffer buffer) {
 			buffer.putString(nodeID);
 			buffer.putValue(jobManager, POPAccessPoint.class);
 			buffer.putString(os);
 			buffer.putValue(resources, Resource.class);
+			buffer.putByteArray(certificate);
 			buffer.putInt(customParams.size());
 			for (Map.Entry<String, String> entry : customParams.entrySet()) {
 				String key = entry.getKey();
@@ -153,6 +164,8 @@ public class SNNodesInfo implements IPOPBase {
 			jobManager = (POPAccessPoint) buffer.getValue(POPAccessPoint.class);
 			os = buffer.getString();
 			resources = (Resource) buffer.getValue(Resource.class);
+			int certSize = buffer.getInt();
+			certificate = buffer.getByteArray(certSize);
 			int mapSize = buffer.getInt();
 			for (int i = 0; i < mapSize; i++) {
 				customParams.put(buffer.getString(), buffer.getString());

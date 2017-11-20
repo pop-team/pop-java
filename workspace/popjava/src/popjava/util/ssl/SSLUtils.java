@@ -469,7 +469,7 @@ public class SSLUtils {
 			"popjava.service.jobmanager.network.POPConnectorJobManager.askResourcesDiscoveryAction",
 			"popjava.service.jobmanager.network.POPConnectorTFC.askResourcesDiscoveryAction"
 		);*/
-		addCertToTempStore(certificate, false);
+		addCertToTempStore(certificate, true);
 	}
 	
 	/**

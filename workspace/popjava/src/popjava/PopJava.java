@@ -16,6 +16,7 @@ import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
+import popjava.util.ssl.SSLUtils;
 
 /**
  * 
@@ -159,6 +160,11 @@ public class PopJava {
 		for (POPAccessPoint instance : instances) {
 			if (!instance.isEmpty()) {
 				actives.add(instance);
+				
+				byte[] cert = instance.getX509certificate();
+				if (cert != null && cert.length > 0) {
+					SSLUtils.addCertToTempStore(cert);
+				}
 			}
 		}
 		return actives.toArray(new POPAccessPoint[actives.size()]);

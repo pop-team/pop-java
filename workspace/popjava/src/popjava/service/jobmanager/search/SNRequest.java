@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.security.cert.Certificate;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ssl.POPTrustManager;
 import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.Resource;
