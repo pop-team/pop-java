@@ -48,8 +48,8 @@ public class Parameter {
 	
 	public String get(String param, Object returnOnNull) {
 		ParameterInfo pi = raw.get(param);
-		if (pi == null) {
-			return null;
+		if (pi == null && returnOnNull != null) {
+			return returnOnNull.toString();
 		}
 		String r = params.get(param);
 		if (r == null && returnOnNull != null) {

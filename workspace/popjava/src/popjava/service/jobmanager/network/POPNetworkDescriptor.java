@@ -1,5 +1,6 @@
 package popjava.service.jobmanager.network;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,20 +25,43 @@ public final class POPNetworkDescriptor {
 	private final String globalName;
 	private final POPNetworkDescriptorMethod methods;
 
+	/**
+	 * Create a new descriptor with its creation behavior
+	 * 
+	 * @param globalName
+	 * @param methods 
+	 */
 	public POPNetworkDescriptor(String globalName, POPNetworkDescriptorMethod methods) {
 		this.globalName = globalName;
 		this.methods = methods;
 	}
 
+	/**
+	 * Name of the descriptor
+	 * 
+	 * @return 
+	 */
 	public String getGlobalName() {
 		return globalName;
 	}
 	
+	/**
+	 * Create a new connector which will be added to a POPNetwork
+	 * 
+	 * @return 
+	 */
 	public POPConnector createConnector() {
 		return methods.createConnector();
 	}
 	
+	/**
+	 * Create a new node based on the given paramters.
+	 * 
+	 * @param params
+	 * @return 
+	 */
 	public POPNode createNode(List<String> params) {
+		params = new ArrayList<>(params);
 		return methods.createNode(params);
 	}
 

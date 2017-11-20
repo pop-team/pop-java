@@ -5,13 +5,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import popjava.JobManagerConfig;
 import popjava.PopJava;
 import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
+import popjava.combox.ComboxFactory;
+import popjava.combox.ComboxFactoryFinder;
 import popjava.dataswaper.POPString;
 import popjava.scripts.POPJShell;
 import popjava.scripts.shell.CommandHandler;
@@ -21,6 +25,8 @@ import popjava.scripts.shell.Parameter;
 import popjava.scripts.shell.ParameterInfo;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.external.POPNetworkDetails;
+import popjava.service.jobmanager.network.POPNetworkDescriptor;
+import popjava.service.jobmanager.network.POPNetworkDescriptorFinder;
 import popjava.service.jobmanager.network.POPNode;
 import popjava.util.Configuration;
 import popjava.util.ssl.SSLUtils;
@@ -446,12 +452,124 @@ public class CJobManager implements ICommand {
 
 		@Override
 		public int execute(CommandInfo info) {
-			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+			if (!isJobManagerRunning()) {
+				System.err.println("The Job Manager is not running");
+				return 1;
+			}
+
+			Parameter params = info.extractParameter(
+				new ParameterInfo("type", "--type", "-t"),
+				new ParameterInfo("uuid", "--uuid", "-u"),
+				new ParameterInfo("host", "--host", "-H"),
+				// potential parameters (all)
+				new ParameterInfo("port", "--port", "-p"),
+				new ParameterInfo("protocol", "--protocol", "-P"),
+				new ParameterInfo("certificate", "--certificate", "-c"),
+				// param (direct)
+				new ParameterInfo("secret", "--secret", "-s")
+			);
+			
+			String type = params.get("type");
+			String uuid = params.get("uuid");
+			
+			// abort if we don't know which node it want to create
+			// TODO use the POPNetworkDescriptor in POPConnectorXYZ? (currently package access)
+			POPNetworkDescriptor descriptor = POPNetworkDescriptor.from(type);
+			if (descriptor == null) {
+				System.err.format("unknown node for type '%s'.\n", type);
+				System.err.format("Available descriptors: %s\n", Arrays.toString(POPNetworkDescriptorFinder.getInstance().all()));
+				return 2;
+			}
+			
+			// check network
+			List<POPNetworkDetails> networks = Arrays.asList(jobManager.getAvailableNetworks());
+			boolean hasNetwork = networks.stream()
+				.filter(d -> d.getUUID().equalsIgnoreCase(uuid))
+				.count() == 1;
+			if (!hasNetwork) {
+				System.err.format("Can't find network with id '%s'", uuid);
+				System.err.println("Available IDs:");
+				for (POPNetworkDetails network : networks) {
+					System.err.println("  " + network.getUUID());
+				}
+				return 3;
+			}
+			
+			// handle parameters
+			String host = params.get("host");
+			String port = params.get("port");
+			switch (descriptor.getGlobalName()) {
+				case "jobmanager":
+				case "tfc": {
+					String protocol = params.get("protocol");
+					String certificate = params.get("certificate");
+					ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
+					if (factory == null) {
+						System.err.format("protocol '%s' not found, node not added\n", protocol);
+						return 4;
+					}
+					
+					if (!factory.isAvailable()) {
+						System.out.println("Warning: this factory seems not to be available or disabled.");
+					}
+					
+					Certificate cert = null;
+					if (certificate != null && !certificate.isEmpty()) {
+						try {
+							byte[] bytes = Files.readAllBytes(Paths.get(certificate));
+							cert = SSLUtils.certificateFromBytes(bytes);
+						} catch (IOException ex) {
+							System.err.println("Can't read certificate.");
+							return 5;
+						} catch (CertificateException ex) {
+							System.err.println("Given file doesn't seems to be a X.501 certificate.");
+							return 6;
+						}
+					}
+					
+					String[] nodeParams = {
+						"host=" + host,
+						"port=" + port,
+						"protocol=" + protocol
+					};
+					POPNode node = descriptor.createNode(Arrays.asList(nodeParams));
+					
+					JobManagerConfig jmc = getJobManagerConfig();
+					
+					if (cert == null) {
+						jmc.registerNode(uuid, node);
+					} else {
+						jmc.registerNode(uuid, node, cert);
+					}
+					System.out.format("Node added to network '%s'\n", uuid);
+					return 0;
+				}
+				case "direct": {
+					String protocol = params.get("protocol");
+					if (protocol == null || protocol.isEmpty()) {
+						protocol = "ssh";
+					}
+					
+					
+					return 0;
+				}
+			}
+			return 1;
 		}
 
 		@Override
 		public String help() {
-			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+			return "usage: jm node add [OPTIONS]\n" +
+				description() +
+				"\n" +
+				"Available options:\n" +
+				"  --type, -t          The type of node we are working with (jobmanager, tfc, direct)" +
+				"  --uuid, -u          The UUID of the network to add the node into" +
+				"  --host, -H          The destination host of the node" +
+				"  --port, -p          The destination port of the node" +
+				"  --protocol, -P      The node specific protocol (socket, ssl, daemon)" +
+				"  --certificate, -c      The node specific protocol (socket, ssl, daemon)" +
+				"Node specific options will be asked.";
 		}
 
 		@Override
@@ -472,12 +590,73 @@ public class CJobManager implements ICommand {
 
 		@Override
 		public int execute(CommandInfo info) {
-			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+			if (!isJobManagerRunning()) {
+				System.err.println("The Job Manager is not running");
+				return 1;
+			}
+
+			Parameter params = info.extractParameter(
+				new ParameterInfo("uuid", "--uuid", "-u"),
+				new ParameterInfo("id", "--id", "-I")
+			);
+			
+			String uuid = params.get("uuid");
+			// check network
+			List<POPNetworkDetails> networks = Arrays.asList(jobManager.getAvailableNetworks());
+			boolean hasNetwork = networks.stream()
+				.filter(d -> d.getUUID().equalsIgnoreCase(uuid))
+				.count() == 1;
+			if (!hasNetwork) {
+				System.err.format("Can't find network with id '%s'", uuid);
+				System.err.println("Available IDs:");
+				for (POPNetworkDetails network : networks) {
+					System.err.println("  " + network.getUUID());
+				}
+				return 3;
+			}
+			
+			JobManagerConfig jmc = getJobManagerConfig();
+
+			// available nodes
+			POPNode[] nodes = jmc.networkNodes(uuid);
+			
+			String sid = params.get("id", null);
+			
+			if (sid == null || sid.isEmpty()) {
+				System.out.println("Choose a node:");
+				for (int i = 0; i < nodes.length; i++) {
+					System.out.format(" [%d] %s\n", i, nodes[i].toString());
+				}
+				sid = params.get("id");
+			}
+			
+			try {
+				int id = Integer.parseInt(sid);
+				if (id >= nodes.length || id < 0) {
+					System.err.println("Given ID is not valid.");
+					return 4;
+				}
+				
+				POPNode node = nodes[id];
+				jmc.unregisterNode(uuid, node);
+				
+				System.out.println("Node removed.");
+			} catch(NumberFormatException e) {
+				System.out.println("Given ID is not a number.");
+				return 5;
+			}
+
+			return 0;
 		}
 
 		@Override
 		public String help() {
-			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+			return "usage: jm node remove [OPTIONS]\n" +
+				description() +
+				"\n" +
+				"Available options:\n" +
+				"  --uuid, -u          The UUID of the network" +
+				"  --id, -I            The id of the node";
 		}
 
 		@Override
@@ -513,7 +692,8 @@ public class CJobManager implements ICommand {
 
 			if (uuid == null && info.canAdvance()) {
 				uuid = info.getParams()[0];
-			} else {
+			}
+			else if (uuid == null) {
 				commandHandler.execute(new CommandInfo("network list"));
 				uuid = params.get("uuid");
 			}
@@ -521,7 +701,7 @@ public class CJobManager implements ICommand {
 			// TODO nice print
 			POPNode[] nodes = jmc.networkNodes(uuid);
 			for (POPNode node : nodes) {
-				System.out.println(node.getConnectorDescriptor().getGlobalName() + " - " + node.getHost());
+				System.out.println(node.getConnectorDescriptor().getGlobalName() + " @ " + node);
 			}
 
 			return 0;
@@ -529,12 +709,13 @@ public class CJobManager implements ICommand {
 
 		@Override
 		public String help() {
-			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+			return "usage: jm node list\n" +
+				description();
 		}
 
 		@Override
 		public String description() {
-			throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+			return "list all nodes in a network";
 		}
 	}
 	

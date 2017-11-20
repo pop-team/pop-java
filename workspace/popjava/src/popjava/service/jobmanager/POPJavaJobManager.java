@@ -942,8 +942,7 @@ public class POPJavaJobManager extends POPJobService {
 			}
 
 			// write all current configurations to a file
-			writeConfigurationFile();
-			POPNetworkDetails d = new POPNetworkDetails(network);
+			POPNetworkDetails d = new POPNetworkDetails(newNetwork);
 			if (defaultNetwork == null || defaultNetwork.isEmpty()) {
 				defaultNetwork = d.getUUID();
 			}

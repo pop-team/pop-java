@@ -61,7 +61,7 @@ public class CKeystore implements ICommand {
 	}
 	
 	
-	public class Create implements ICommand {
+	private class Create implements ICommand {
 
 		@Override
 		public String keyword() {

@@ -39,7 +39,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 
 		@Override
 		public POPNode createNode(List<String> params) {
-			return new POPNodeTFC(new ArrayList<>(params));
+			return new POPNodeTFC(params);
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("tfc", new DescriptorMethodImpl());

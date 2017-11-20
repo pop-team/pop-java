@@ -36,7 +36,7 @@ public class JobManagerConfig {
 		int port = conf.getJobManagerPorts()[0];
 		String accessString = String.format("%s://%s:%d", protocol, POPSystem.getHostIP(), port);
 		POPAccessPoint jma = new POPAccessPoint(accessString);
-		jobManager = PopJava.newActive(POPJavaJobManager.class, jma);
+		jobManager = PopJava.connect(POPJavaJobManager.class, conf.getDefaultNetwork(), jma);
 	}
 
 	/**
@@ -85,10 +85,9 @@ public class JobManagerConfig {
 	 * @param networkUUID Name of the network
 	 * @param node The node to add
 	 * @param certificate The certificate to use
-	 * @return 
 	 */
 	public void registerNode(String networkUUID, POPNode node, Certificate certificate) {
-		jobManager.registerPermanentNode(networkUUID, node.getCreationParams());
+		jobManager.registerPermanentNode(networkUUID, SSLUtils.certificateBytes(certificate), node.getCreationParams());
 	}
 	
 	/**
