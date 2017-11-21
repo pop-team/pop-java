@@ -563,12 +563,12 @@ public class CJobManager implements ICommand {
 				description() +
 				"\n" +
 				"Available options:\n" +
-				"  --type, -t          The type of node we are working with (jobmanager, tfc, direct)" +
-				"  --uuid, -u          The UUID of the network to add the node into" +
-				"  --host, -H          The destination host of the node" +
-				"  --port, -p          The destination port of the node" +
-				"  --protocol, -P      The node specific protocol (socket, ssl, daemon)" +
-				"  --certificate, -c      The node specific protocol (socket, ssl, daemon)" +
+				"  --type, -t          The type of node we are working with (jobmanager, tfc, direct)\n" +
+				"  --uuid, -u          The UUID of the network to add the node into\n" +
+				"  --host, -H          The destination host of the node\n" +
+				"  --port, -p          The destination port of the node\n" +
+				"  --protocol, -P      The node specific protocol (socket, ssl, daemon)\n" +
+				"  --certificate, -c   The node specific protocol (socket, ssl, daemon)\n" +
 				"Node specific options will be asked.";
 		}
 
@@ -655,8 +655,8 @@ public class CJobManager implements ICommand {
 				description() +
 				"\n" +
 				"Available options:\n" +
-				"  --uuid, -u          The UUID of the network" +
-				"  --id, -I            The id of the node";
+				"  --uuid, -u          The UUID of the network\n" +
+				"  --id, -I            The id of the node\n";
 		}
 
 		@Override

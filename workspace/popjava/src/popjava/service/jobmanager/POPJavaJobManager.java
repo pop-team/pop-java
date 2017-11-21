@@ -404,6 +404,7 @@ public class POPJavaJobManager extends POPJobService {
 					POPString codeFile = new POPString();
 					String appId = "unknown";
 					AppService service;
+					// TODO need to save the working network at the start of the request
 					try {
 						service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
 						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
@@ -1772,7 +1773,7 @@ public class POPJavaJobManager extends POPJobService {
 				LogWriter.writeDebugInfo("[PSN] REROUTE;%s;DEST;%s", response.getUID(), wayback.toString());
 				// get next node to contact
 				POPAccessPoint jm = wayback.pop();
-				POPJavaJobManager njm = PopJava.newActive(POPJavaJobManager.class, jm);
+				POPJavaJobManager njm = PopJava.connect(POPJavaJobManager.class, response.getNetworkUUID(), jm);
 				// route request through it
 				njm.rerouteResponse(response, wayback);
 				njm.exit();
