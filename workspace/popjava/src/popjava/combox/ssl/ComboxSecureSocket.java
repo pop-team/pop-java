@@ -104,7 +104,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 			outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
 			return true;
 		} catch(IOException e) {
-			LogWriter.writeDebugInfo("[ComboxServerSocket] Couldn't open streams on the server side.");
+			LogWriter.writeDebugInfo("[ComboxSecureSocket] Couldn't open streams on the server side.");
 			return false;
 		}
 	}
@@ -155,7 +155,6 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 
 					// connect and start handshake
 					peerConnection.connect(sockaddress);
-					peerConnection.startHandshake();
 					
 					// setup communication buffers
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
@@ -171,22 +170,33 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 		return available;
 	}
 
-	/**
-	 * Done in {@link #exportConnectionInfo() } via TLS SNI
-	 * @return true
-	 */
 	@Override
 	protected boolean sendNetworkName() {
-		return true;
+		try {
+			peerConnection.startHandshake();
+			return true;
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo("[ComboxSecureSocket] Client handshake failed. Message: %s", e.getMessage());
+			return false;
+		}
 	}
 
-	/**
-	 * Done in {@link #exportConnectionInfo() } via TLS SNI
-	 * @return true
-	 */
 	@Override
 	protected boolean receiveNetworkName() {
-		return true;
+		// extract network from handshake
+		ExtendedSSLSession handshakeSession = (ExtendedSSLSession) peerConnection.getSession();
+
+		// we need that the handshake is there
+		if (handshakeSession != null) {
+			// extract the SNI from the extended handshake
+			for (SNIServerName sniNetwork : handshakeSession.getRequestedServerNames()) {
+				if (sniNetwork.getType() == StandardConstants.SNI_HOST_NAME) {
+					networkUUID = ((SNIHostName) sniNetwork).getAsciiName();
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	@Override
@@ -274,7 +284,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 			if (result < headerLength) {
 				if (conf.isDebugCombox()) {
 					String logInfo = String.format(
-							"[ComboxServerSocket] failed to receive header. receivedLength= %d, Message length %d",
+							"[ComboxSecureSocket] failed to receive header. receivedLength= %d, Message length %d",
 							result, headerLength);
 					LogWriter.writeDebugInfo(logInfo);
 				}
@@ -286,7 +296,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 			return result;
 		} catch (Exception e) {
 			if (conf.isDebugCombox()){
-				LogWriter.writeDebugInfo("[ComboxServerSocket] Error while receiving data:"
+				LogWriter.writeDebugInfo("[ComboxSecureSocket] Error while receiving data:"
 								+ e.getMessage());
 			}
 			close();
@@ -311,7 +321,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 		} catch (Exception e) {
 			if (conf.isDebugCombox()){
 				LogWriter.writeDebugInfo(
-					"[ComboxServerSocket] -Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
+					"[ComboxSecureSocket] -Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
 				LogWriter.writeExceptionLog(e);
 			}
 			return -1;
@@ -320,7 +330,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 
 	@Override
 	protected boolean exportConnectionInfo() {		
-		try {
+		try {			
 			// set the fingerprint in the accesspoint for all to know
 			// this time we have to look which it is
 			Certificate[] certs = peerConnection.getSession().getPeerCertificates();
@@ -328,16 +338,9 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 				if (SSLUtils.isCertificateKnown(cert)) {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
-
-					// extract network from handshake
-					ExtendedSSLSession handshakeSession = (ExtendedSSLSession) peerConnection.getHandshakeSession();
-
-					// extract the SNI from the extended handshake
-					for (SNIServerName sniNetwork : handshakeSession.getRequestedServerNames()) {
-						if (sniNetwork.getType() == StandardConstants.SNI_HOST_NAME) {
-							networkUUID = ((SNIHostName) sniNetwork).getAsciiName();
-							break;
-						}
+					
+					if (networkUUID == null) {
+						networkUUID = SSLUtils.getNetworkFromCertificate(fingerprint);
 					}
 					
 					System.out.format("=== Extracting network from handshake '%s' ===\n", networkUUID);
