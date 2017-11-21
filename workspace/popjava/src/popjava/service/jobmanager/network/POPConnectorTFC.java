@@ -178,6 +178,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 			} catch(Exception e) {
 				// failed to connect, dead object, remove from list
 				iterator.remove();
+				e.printStackTrace();
 				LogWriter.writeDebugInfo("[TFC] unavailable %s removed ", tfcResource);
 			}
 		}
@@ -185,7 +186,11 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 	}
 	
 	public List<TFCResource> getObjects(String tfcObject, Certificate cert) {
-		List<TFCResource> resources = getAliveTFCResources(tfcObject, SSLUtils.certificateBytes(cert));
+		byte[] bytes = null;
+		if (cert != null) {
+			bytes = SSLUtils.certificateBytes(cert);
+		}
+		List<TFCResource> resources = getAliveTFCResources(tfcObject, bytes);
 		if (resources == null) {
 			return null;
 		}

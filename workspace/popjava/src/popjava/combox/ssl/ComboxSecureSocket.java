@@ -306,7 +306,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 			}
 			
 			return length;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			if (conf.isDebugCombox()){
 				LogWriter.writeDebugInfo(
 					"[ComboxServerSocket] -Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
