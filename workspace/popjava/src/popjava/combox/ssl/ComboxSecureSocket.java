@@ -11,12 +11,14 @@ import java.net.SocketAddress;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.StandardConstants;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
@@ -326,9 +328,17 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 				if (SSLUtils.isCertificateKnown(cert)) {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
-					
-					// set global access to those information
-					networkUUID = SSLUtils.getNetworkFromCertificate(fingerprint);
+
+					// extract network from handshake
+					ExtendedSSLSession handshakeSession = (ExtendedSSLSession) peerConnection.getHandshakeSession();
+
+					// extract the SNI from the extended handshake
+					for (SNIServerName sniNetwork : handshakeSession.getRequestedServerNames()) {
+						if (sniNetwork.getType() == StandardConstants.SNI_HOST_NAME) {
+							networkUUID = ((SNIHostName) sniNetwork).getAsciiName();
+							break;
+						}
+					}
 					
 					System.out.format("=== Extracting network from handshake '%s' ===\n", networkUUID);
 					
