@@ -15,7 +15,6 @@ import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.util.ssl.SSLUtils;
-import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
@@ -178,7 +177,6 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 			} catch(Exception e) {
 				// failed to connect, dead object, remove from list
 				iterator.remove();
-				e.printStackTrace();
 				LogWriter.writeDebugInfo("[TFC] unavailable %s removed ", tfcResource);
 			}
 		}

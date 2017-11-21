@@ -120,7 +120,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 				if (failed == remoteJobMngs.size()) {
 					// cancel previous registrations on remote jms
 					for (int k = 0; k < jobIdx; k++) {
-						jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[k]);
+						jm = PopJava.connect(POPJavaJobManager.class, od.getNetwork(), chosenRemoteJobM[k]);
 						jm.cancelReservation(new int[] { resIDs[k] }, 1);
 						jm.exit();
 					}
