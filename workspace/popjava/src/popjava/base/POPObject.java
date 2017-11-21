@@ -5,9 +5,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
@@ -257,17 +259,15 @@ public class POPObject implements IPOPBase {
 	 */
 	protected final void initializePOPObject() {
 		if (generateClassId){
-			classId++;
+			classId++; // = Math.abs(getRealClass().getName().hashCode());
 		}
 		
 		Class<?> c = getRealClass();
-		if (!c.equals(POPObject.class)) {
-			int startIndex = initializeConstructorInfo(c, startMethodIndex);
-			if (hasDestructor) {
-				startIndex++;
-			}
-			initializeMethodInfo(c, startIndex);
+		int startIndex = initializeConstructorInfo(c, startMethodIndex);
+		if (hasDestructor) {
+			startIndex++;
 		}
+		initializeMethodInfo(c, startIndex);
 	}
 	
 	/**
