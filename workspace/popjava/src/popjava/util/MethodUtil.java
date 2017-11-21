@@ -58,7 +58,7 @@ public class MethodUtil {
 		return false;
 	}
 	
-	public static int methodId(Method method, int defaultID){
+	public static int methodId(Method method){
 	    int id = -1;
 	    
 		if(method.isAnnotationPresent(POPSyncConc.class)){
@@ -89,6 +89,7 @@ public class MethodUtil {
             return id;
         }
         
+		// TODO generate a POP Java specific ID
 	    return Math.abs(method.toGenericString().hashCode());
 	}
 	

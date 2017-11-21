@@ -5,11 +5,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
@@ -44,7 +42,6 @@ public class POPObject implements IPOPBase {
 	private boolean hasDestructor = false;	
 	protected ObjectDescription od = new ObjectDescription();
 	private String className = "";
-	private final int startMethodIndex = 10;
 	private final ConcurrentHashMap<MethodInfo, Integer> semantics = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<>();
@@ -259,15 +256,13 @@ public class POPObject implements IPOPBase {
 	 */
 	protected final void initializePOPObject() {
 		if (generateClassId){
-			classId++; // = Math.abs(getRealClass().getName().hashCode());
+			// TODO generate a POP Java specific ID
+			classId = Math.abs(getRealClass().getName().hashCode());
 		}
 		
 		Class<?> c = getRealClass();
-		int startIndex = initializeConstructorInfo(c, startMethodIndex);
-		if (hasDestructor) {
-			startIndex++;
-		}
-		initializeMethodInfo(c, startIndex);
+		initializeConstructorInfo(c);
+		initializeMethodInfo(c);
 	}
 	
 	/**
@@ -371,9 +366,9 @@ public class POPObject implements IPOPBase {
 	public Method getMethodByInfo(MethodInfo info) throws NoSuchMethodException {
 		Method method = methodInfos.get(info);
 		
-		/*if (method != null) {
+		if (method != null) {
 			method = findSuperMethod(method);
-		}*/
+		}
 		
 		if (method == null) {
 			for(MethodInfo key : methodInfos.keySet()){
@@ -386,13 +381,12 @@ public class POPObject implements IPOPBase {
 		return method;
 	}
 
-	// XXX What does this actually do?!
 	/*
 	 * Retrieve a specific method in the super class
 	 * @param method	informations about the method to retrieve
 	 * @return	A method object that represent the method found in the parallel class or null
 	 */
-	/*private Method findSuperMethod(Method method) {
+	private Method findSuperMethod(Method method) {
 		String findingSign = ClassUtil.getMethodSign(method);
 		Class<?> findingClass = method.getDeclaringClass();
 		Method result = method;
@@ -409,7 +403,7 @@ public class POPObject implements IPOPBase {
 			}
 		}
 		return result;
-	}*/
+	}
 
 	/**
 	 * Retrieve a constructor by its informations
@@ -547,42 +541,37 @@ public class POPObject implements IPOPBase {
 			throw new java.lang.NoSuchMethodException(errorMessage);
 		}
 	}
-
+	
 	/**
 	 * Initialize the method identifier for all the methods in a class
-	 * @param c				class to initialize
-	 * @param startIndex	index of the first method
+	 * @param c	class to initialize
 	 */
-	protected void initializeMethodInfo(Class<?> c, int startIndex) {
+	protected void initializeMethodInfo(Class<?> c) {
 		if (!definedMethodId) {
-			Method[] allMethods = c.getMethods();
-			
-			Arrays.sort(allMethods, new Comparator<Method>() {
-				@Override
-                public int compare(Method first, Method second) {
-					String firstSign = ClassUtil.getMethodSign(first);
-					String secondSign = ClassUtil.getMethodSign(second);
-					return firstSign.compareTo(secondSign);
+			// to every all class until Object (exluded)
+			while (c != Object.class) {
+				// get the new declared methods (this include overrided ones)
+				Method[] allMethods = c.getDeclaredMethods();
+				// add all method containing POP annotations to mathodInfos
+				for (Method m : allMethods) {
+					Class<?> declaringClass = m.getDeclaringClass();
+					POPClass popClassAnnotation = declaringClass.getAnnotation(POPClass.class);
+					if ((popClassAnnotation != null || declaringClass.equals(POPObject.class))
+							&& Modifier.isPublic(m.getModifiers()) && MethodUtil.isMethodPOPAnnotated(m)) {
+						int methodId = MethodUtil.methodId(m);
+						int id = popClassAnnotation == null ? -1 : popClassAnnotation.classId();
+
+						if(id == -1){
+							// TODO generate a POP Java specific ID
+							id = Math.abs(c.getName().hashCode());
+						}
+						MethodInfo methodInfo = new MethodInfo(id, methodId);
+
+						methodInfos.put(methodInfo, m);
+					}
 				}
-			});
-			
-			int index = startIndex;
-			for (Method m : allMethods) {
-				Class<?> declaringClass = m.getDeclaringClass();
-				POPClass popClassAnnotation = declaringClass.getAnnotation(POPClass.class);
-				if ((popClassAnnotation != null || declaringClass.equals(POPObject.class))
-						&& Modifier.isPublic(m.getModifiers()) && MethodUtil.isMethodPOPAnnotated(m)) {
-				    int methodId = MethodUtil.methodId(m,index);
-				    int id = popClassAnnotation == null ? -1 : popClassAnnotation.classId();
-				    
-				    if(id == -1){
-				    	id = getClassId();
-				    }
-					MethodInfo methodInfo = new MethodInfo(id, methodId);
-					
-					methodInfos.put(methodInfo, m);
-					index++;
-				}
+				// map super class
+				c = c.getSuperclass();
 			}
 		}
 	}
@@ -590,11 +579,8 @@ public class POPObject implements IPOPBase {
 	/**
 	 * Initialize the constructor identifier and the semantic
 	 * @param c				class to initialize
-	 * @param startIndex	index of the first constructor
-	 * @return	next index to be used for the methods
 	 */
-	protected int initializeConstructorInfo(Class<?> c, int startIndex) {
-		int index = startIndex;
+	protected void initializeConstructorInfo(Class<?> c) {
 		if (!definedMethodId) {
 			// initializeMethodId
 			Constructor<?>[] allConstructors = c.getDeclaredConstructors();
@@ -618,6 +604,7 @@ public class POPObject implements IPOPBase {
 			        }
 					
 					if(id == -1){
+						// TODO generate a POP Java specific ID
 						id = Math.abs(constructor.toGenericString().hashCode());
 					}
 					
@@ -625,11 +612,9 @@ public class POPObject implements IPOPBase {
 					constructorInfos.put(info, constructor);
 					semantics.put(info, Semantic.CONSTRUCTOR
 							| Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
-					index++;
 				}
 			}
 		}
-		return index;
 	}
 	
 	/**
