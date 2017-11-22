@@ -1,4 +1,4 @@
-package junit.localtests.subclassReturns;
+package junit.localtests.subclasses;
 
 public interface A {
 

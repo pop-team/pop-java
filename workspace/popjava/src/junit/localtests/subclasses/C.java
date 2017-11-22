@@ -1,4 +1,4 @@
-package junit.localtests.subclassReturns;
+package junit.localtests.subclasses;
 
 import popjava.PopJava;
 import popjava.annotation.POPClass;

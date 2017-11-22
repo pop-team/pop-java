@@ -257,7 +257,7 @@ public class POPObject implements IPOPBase {
 	protected final void initializePOPObject() {
 		if (generateClassId){
 			// TODO generate a POP Java specific ID
-			classId = Math.abs(getRealClass().getName().hashCode());
+			classId = ClassUtil.classId(getRealClass());
 		}
 		
 		Class<?> c = getRealClass();
@@ -366,9 +366,9 @@ public class POPObject implements IPOPBase {
 	public Method getMethodByInfo(MethodInfo info) throws NoSuchMethodException {
 		Method method = methodInfos.get(info);
 		
-		if (method != null) {
+		/*if (method != null) {
 			method = findSuperMethod(method);
-		}
+		}*/
 		
 		if (method == null) {
 			for(MethodInfo key : methodInfos.keySet()){
@@ -386,7 +386,7 @@ public class POPObject implements IPOPBase {
 	 * @param method	informations about the method to retrieve
 	 * @return	A method object that represent the method found in the parallel class or null
 	 */
-	private Method findSuperMethod(Method method) {
+	/*private Method findSuperMethod(Method method) {
 		String findingSign = ClassUtil.getMethodSign(method);
 		Class<?> findingClass = method.getDeclaringClass();
 		Method result = method;
@@ -399,11 +399,12 @@ public class POPObject implements IPOPBase {
 				if (findingClass.isAssignableFrom(m.getDeclaringClass())) {
 					findingClass = m.getDeclaringClass();
 					result = m;
+					break;
 				}
 			}
 		}
 		return result;
-	}
+	}*/
 
 	/**
 	 * Retrieve a constructor by its informations
@@ -548,9 +549,9 @@ public class POPObject implements IPOPBase {
 	 */
 	protected void initializeMethodInfo(Class<?> c) {
 		if (!definedMethodId) {
-			// to every all class until Object (exluded)
+			// to every all class until Object (excluded)
 			while (c != Object.class) {
-				// get the new declared methods (this include overrided ones)
+				// get the new declared methods (this include overrode ones)
 				Method[] allMethods = c.getDeclaredMethods();
 				// add all method containing POP annotations to mathodInfos
 				for (Method m : allMethods) {
@@ -562,8 +563,7 @@ public class POPObject implements IPOPBase {
 						int id = popClassAnnotation == null ? -1 : popClassAnnotation.classId();
 
 						if(id == -1){
-							// TODO generate a POP Java specific ID
-							id = Math.abs(c.getName().hashCode());
+							id = ClassUtil.classId(c);
 						}
 						MethodInfo methodInfo = new MethodInfo(id, methodId);
 
@@ -604,8 +604,7 @@ public class POPObject implements IPOPBase {
 			        }
 					
 					if(id == -1){
-						// TODO generate a POP Java specific ID
-						id = Math.abs(constructor.toGenericString().hashCode());
+						id = MethodUtil.constructorId(constructor);
 					}
 					
 					MethodInfo info = new MethodInfo(getClassId(), id);

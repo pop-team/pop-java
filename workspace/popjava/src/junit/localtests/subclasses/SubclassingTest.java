@@ -1,4 +1,4 @@
-package junit.localtests.subclassReturns;
+package junit.localtests.subclasses;
 
 import static org.junit.Assert.*;
 

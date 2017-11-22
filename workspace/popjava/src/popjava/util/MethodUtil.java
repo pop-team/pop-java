@@ -1,6 +1,7 @@
 package popjava.util;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import popjava.annotation.POPAsyncConc;
@@ -58,6 +59,12 @@ public class MethodUtil {
 		return false;
 	}
 	
+	/**
+	 * Generate an ID or use the one specified
+	 * 
+	 * @param method
+	 * @return 
+	 */
 	public static int methodId(Method method){
 	    int id = -1;
 	    
@@ -89,8 +96,19 @@ public class MethodUtil {
             return id;
         }
         
-		// TODO generate a POP Java specific ID
-	    return Math.abs(method.toGenericString().hashCode());
+		String methodSign = ClassUtil.getMethodSign(method);
+	    return Math.abs(methodSign.hashCode());
+	}
+	
+	/**
+	 * Generate an ID
+	 * 
+	 * @param constructor
+	 * @return 
+	 */
+	public static int constructorId(Constructor constructor){
+		String constructorSign = ClassUtil.getMethodSign(constructor);
+	    return Math.abs(constructorSign.hashCode());
 	}
 	
 	/**

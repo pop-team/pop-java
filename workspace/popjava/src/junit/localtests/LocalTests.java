@@ -21,7 +21,8 @@ import junit.localtests.readerWriter.ReaderWriterTest;
 import junit.localtests.referencePassing.ReferenceTest;
 import junit.localtests.security.CreateKeyStoreTest;
 import junit.localtests.security.MethodAccessTest;
-import junit.localtests.subclassReturns.SubclassingTest;
+import junit.localtests.subclasses.SubclassingTest;
+import junit.localtests.subclasses.CallFromSubClassTest;
 import junit.localtests.protocols.ProtocolsTests;
 import junit.localtests.protocols.IncompatibleConnectionsTest;
 import junit.localtests.protocols.WhiteBlacklistTest;
@@ -40,7 +41,8 @@ import junit.localtests.serializable.JavaSerializableTest;
 	ArraysTest.class, 
 	ParameterTests.class,
 	BigDataTests.class, 
-	SubclassingTest.class, 
+	SubclassingTest.class,
+	CallFromSubClassTest.class,
 	ReferenceTest.class, 
 	JVMObjectTest.class, 
 	NestedPOPCreation.class,
