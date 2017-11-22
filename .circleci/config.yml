@@ -1,0 +1,11 @@
+## CircleCI configuration
+
+version: 2
+jobs:
+  build:
+    docker:
+    - image: circleci/java:8
+    steps:
+    - checkout
+    - run: ant jar-popjava
+    - run: ant run-tests

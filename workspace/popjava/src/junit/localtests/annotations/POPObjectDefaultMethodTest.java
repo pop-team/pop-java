@@ -1,12 +1,15 @@
 package junit.localtests.annotations;
 
 import java.util.Random;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import popjava.PopJava;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPObject;
 import popjava.baseobject.POPAccessPoint;
+import popjava.system.POPSystem;
 
 /**
  *
@@ -84,6 +87,16 @@ public class POPObjectDefaultMethodTest {
 		'\n', '-', '-', '-', '-', '-', 'E', 'N', 'D', ' ', 'C', 'E', 'R', 'T', 'I', 'F',
 		'I', 'C', 'A', 'T', 'E', '-', '-', '-', '-', '-',
 	};
+	
+	@Before
+	public void b() {
+		POPSystem.initialize();
+	}
+	
+	@After
+	public void a() {
+		POPSystem.end();
+	}
 	
 	@Test
 	public void addCertificateToRandomPOPObject() {
