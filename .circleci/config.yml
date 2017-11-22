@@ -1,7 +1,7 @@
 ## CircleCI configuration
 version: 2
 jobs:
-  build:
+  java8:
     docker:
       - image: circleci/openjdk:8
       
@@ -12,7 +12,7 @@ jobs:
       - store_test_results:
           path: ~/project/build/
           
-  test:
+  java9:
     docker:
       - image: circleci/openjdk:9
       
@@ -24,8 +24,8 @@ jobs:
           path: ~/project/build/
 workflows:
   version: 2
-  build_and_test:
+  build_8-9:
     jobs:
-      - build
-      - test
+      - java8
+      - java9
 
