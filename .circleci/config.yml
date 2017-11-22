@@ -11,3 +11,21 @@ jobs:
       - run: ant run-tests
       - store_test_results:
           path: ~/project/build/
+          
+  test:
+    docker:
+      - image: circleci/openjdk:9
+      
+    steps:
+      - checkout
+      - run: ant jar-popjava
+      - run: ant run-tests
+      - store_test_results:
+          path: ~/project/build/
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
+
