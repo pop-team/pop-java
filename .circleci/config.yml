@@ -9,3 +9,6 @@ jobs:
     - checkout
     - run: ant jar-popjava
     - run: ant run-tests
+    - store_test_results:
+      path: build/TEST-junit.AllTests.xml
+
