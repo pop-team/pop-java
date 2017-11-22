@@ -1,14 +1,15 @@
 ## CircleCI configuration
-
 version: 2
 jobs:
   build:
     docker:
-    - image: circleci/java:8
+      - image: circleci/java:8
+      
+    working_directory: ~/
+    
     steps:
-    - checkout
-    - run: ant jar-popjava
-    - run: ant run-tests
-    - store_test_results:
-      path: build/TEST-junit.AllTests.xml
-
+      - checkout
+      - run: ant jar-popjava
+      - run: ant run-tests
+      - store_test_results:
+          path: ~/pop-java/build/
