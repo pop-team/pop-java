@@ -133,6 +133,7 @@
         haltonerror="false"
         haltonfailure="false"
         tempdir="${build.dir}"
+        forkmode="perTest"
     >
         <classpath>
             <pathelement location="${classes.dir}"/>

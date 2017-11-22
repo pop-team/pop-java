@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import popjava.PopJava;
 import popjava.baseobject.POPAccessPoint;
@@ -67,6 +68,7 @@ public class IncompatibleConnectionsTest {
 	}
 	
 	@Test(timeout = 1000, expected = Exception.class)
+	@Ignore
 	public void sslToSocket() {
 		POPAccessPoint socketAP = socket.getAccessPoint();
 		POPAccessPoint socketAsSSL = new POPAccessPoint(socketAP.toString());

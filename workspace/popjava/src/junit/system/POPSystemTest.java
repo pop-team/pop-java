@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import popjava.interfacebase.Interface;
@@ -40,6 +41,7 @@ public class POPSystemTest {
 	}
 	
     @Test
+    @Ignore
     public void testWildcard(){
         POPSystem.registerCode("asdf", "*");
         
