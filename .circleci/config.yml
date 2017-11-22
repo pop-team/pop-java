@@ -11,6 +11,8 @@ jobs:
       - run: ant run-tests
       - store_test_results:
           path: ~/project/build/
+      - store_artifacts:
+          path: ~/project/build/jar/popjava.jar
           
   java9:
     docker:
@@ -22,6 +24,9 @@ jobs:
       - run: ant run-tests
       - store_test_results:
           path: ~/project/build/
+      - store_artifacts:
+          path: ~/project/build/jar/popjava.jar
+          
 workflows:
   version: 2
   build_8-9:
