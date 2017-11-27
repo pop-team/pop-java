@@ -24,6 +24,8 @@
 /.idea
 /.settings
 /nbproject
+/.nb-gradle
+/.gradle
 
 #files
 .classpath

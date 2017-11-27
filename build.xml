@@ -39,50 +39,6 @@
         <os family="windows" />
     </condition>
 
-<target name="clean" description="clean build directory">
-    <delete dir="${build.dir}"/>
-    <delete dir="${release.dir}"/>
-</target>
-
-<target name="make-popjava" description="build the popjava library">
-        <mkdir dir="${classes.dir}"/>
-        <javac srcdir="${popjava.src}"
-            destdir="${classes.dir}"
-            classpath="${javassist.jar}:${sshj.jar}:${log4j.jar}:${junit.jar}:${junit-benchmark.jar}:${yaml.jar}"
-            debug="true" debuglevel="lines,vars,source"
-            target="8"
-            source="8"
-        >
-          <compilerarg value="-Xlint:deprecation,unchecked"/>
-        </javac>
-</target>
-
-<target name="make-testsuite-java" depends="jar-popjava" description="build the the popjava testsuite">
-        <mkdir dir="${classes.dir}"/>
-        <javac srcdir="${testsuite.src}"
-            destdir="${classes.dir}"
-            classpath="${jar.dir}/${popjava.jar}"
-            debug="true" debuglevel="lines,vars,source"
-            target="8"
-            source="8"
-        >
-          <compilerarg value="-Xlint:deprecation,unchecked"/>
-        </javac>
-</target>
-
-<target name="make-junit" depends="jar-popjava, make-testsuite-java" description="build popjava's junit tests">
-        <mkdir dir="${classes.dir}"/>
-        <javac srcdir="${junit.src}"
-            destdir="${classes.dir}"
-            classpath="${jar.dir}/${popjava.jar}:${junit.jar}:${junit-benchmark.jar}"
-            debug="true" debuglevel="lines,vars,source"
-            target="8"
-            source="8"
-        >
-            <compilerarg value="-Xlint:deprecation,unchecked"/>
-        </javac>
-</target>
-
 <target name="make-testsuite-popc" depends="" unless="isWindows" description="build the the popjava testsuite">
     <exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
     <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>

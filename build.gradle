@@ -1,0 +1,69 @@
+apply plugin: 'java'
+
+version = 1.5
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['workspace/popjava/src']
+        }
+        resources {
+            srcDirs = ['etc']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['workspace/popjava/test']
+        }
+    }
+}
+
+dependencies {
+    compile group: 'org.javassist', name: 'javassist', version: '3.+'
+    compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.+'
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.+'
+    compile group: 'com.hierynomus', name: 'sshj', version: '0.21.1'
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.58'
+    
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+    testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
+}
+
+test {
+    useTestNG()
+    useJUnit()
+    
+    testLogging.showStandardStreams = true
+    
+    // TODO make it work with JUnit Suite
+    include '**'
+    
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+
+    // listen to standard out and standard error of the test JVM(s)
+    onOutput { descriptor, event ->
+        logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
+    }
+}
+
+task fatJar(type: Jar, overwrite: true) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+            'Implementation-Version': version,
+            'Premain-Class': 'popjava.javaagent.POPJavaAgent',
+            'Can-Redefine-Classes': true,
+            'Can-Retransform-Classes': true,
+            'Can-Set-Native-Method-Prefix': true
+    }
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
