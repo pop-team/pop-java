@@ -790,6 +790,52 @@ public class POPObject implements IPOPBase {
 		SSLUtils.addCertToTempStore(cert, true);
 	}
 	
+	/**
+	 * Get the tracked user list.
+	 * 
+	 * @return 
+	 */
+	@POPSyncSeq(localhost = true)
+	public Object getTrackedUsers() {
+		
+		
+		return null;
+	}
+	
+	/**
+	 * Get the resources used by an user.
+	 * 
+	 * @param user
+	 * @return 
+	 */
+	@POPSyncSeq(localhost = true)
+	public Object getTracked(Object user) {
+		
+		
+		return null;
+	}
+	
+	/**
+	 * Get the resources used until now by myself.
+	 * 
+	 * @return 
+	 */
+	@POPSyncSeq(localhost = true)
+	public Object getTracked() {
+		
+		
+		return null;
+	}
+	
+	/**
+	 * Is tracking enabled on the remote object.
+	 * @return 
+	 */
+	@POPSyncConc
+	public boolean isTracking() {
+		return broker.isTraking();
+	}
+	
 	@Override
     protected void finalize() throws Throwable {
 		super.finalize();

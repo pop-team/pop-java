@@ -54,6 +54,7 @@ public class ObjectDescription implements IPOPBase {
 	protected String connectionSecret;
 	
 	protected Boolean useLocalJVM = null;
+	protected boolean tracking = false;
 
 	private final ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<>();
 
@@ -631,6 +632,14 @@ public class ObjectDescription implements IPOPBase {
 		this.originAppService = originAppService;
 	}
 
+	public void setTracking(boolean tracking) {
+		this.tracking = tracking;
+	}
+
+	public boolean isTracking() {
+		return tracking;
+	}
+
 	/**
 	 * Check if the current object is empty
 	 * @return true if empty
@@ -804,6 +813,7 @@ public class ObjectDescription implements IPOPBase {
 		if (getConnector() == null || getConnector().isEmpty()) {
 			setConnector(od.getConnector());
 		}
+		this.tracking = od.tracking;
 	}
 
 	/**

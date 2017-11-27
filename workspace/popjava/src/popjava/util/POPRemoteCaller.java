@@ -1,6 +1,7 @@
 package popjava.util;
 
 import java.net.InetAddress;
+import java.util.Objects;
 import popjava.combox.ssl.POPTrustManager;
 import popjava.util.ssl.SSLUtils;
 
@@ -96,5 +97,41 @@ public class POPRemoteCaller {
 	@Override
 	public String toString() {
 		return String.format("%s://%s [%s]", protocol, remote.getHostAddress(), network);
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 5;
+		hash = 67 * hash + Objects.hashCode(this.remote);
+		hash = 67 * hash + Objects.hashCode(this.protocol);
+		hash = 67 * hash + Objects.hashCode(this.fingerprint);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final POPRemoteCaller other = (POPRemoteCaller) obj;
+		if (!Objects.equals(this.protocol, other.protocol)) {
+			return false;
+		}
+		if (!Objects.equals(this.fingerprint, other.fingerprint)) {
+			return false;
+		}
+		if (!Objects.equals(this.network, other.network)) {
+			return false;
+		}
+		if (!Objects.equals(this.remote, other.remote)) {
+			return false;
+		}
+		return true;
 	}
 }
