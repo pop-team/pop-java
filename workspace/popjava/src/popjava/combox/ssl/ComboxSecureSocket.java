@@ -348,9 +348,9 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 					remoteCaller = new POPRemoteCaller(
 						peerConnection.getInetAddress(),
 						MY_FACTORY.getComboxName(),
+						networkUUID,
 						MY_FACTORY.isSecure(),
-						fingerprint, 
-						networkUUID
+						fingerprint
 					);
 					return true;
 				}

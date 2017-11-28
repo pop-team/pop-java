@@ -16,15 +16,15 @@ public class POPRemoteCaller implements IPOPBase {
 	
 	private InetAddress remote;
 	private String protocol;
+	private String network;
 	private boolean secure;
 	
 	private String fingerprint;
-	private String network;
 
 	public POPRemoteCaller() {
 	}
 
-	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String fingerprint, String network) {
+	public POPRemoteCaller(InetAddress remote, String protocol, String network, boolean secure, String fingerprint) {
 		this.remote = remote;
 		this.protocol = protocol;
 		this.secure = secure;
@@ -32,8 +32,8 @@ public class POPRemoteCaller implements IPOPBase {
 		this.network = network;
 	}
 
-	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure) {
-		this(remote, protocol, secure, null, null);
+	public POPRemoteCaller(InetAddress remote, String protocol, String network, boolean secure) {
+		this(remote, protocol, network, secure, null);
 	}
 
 	/**

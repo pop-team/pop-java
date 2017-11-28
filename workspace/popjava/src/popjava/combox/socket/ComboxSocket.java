@@ -316,6 +316,7 @@ public class ComboxSocket extends Combox<Socket> {
 		remoteCaller = new POPRemoteCaller(
 			peerConnection.getInetAddress(),
 			MY_FACTORY.getComboxName(),
+			networkUUID,
 			MY_FACTORY.isSecure()
 		);
 		return true;
