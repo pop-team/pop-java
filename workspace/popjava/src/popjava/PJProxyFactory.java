@@ -190,6 +190,32 @@ public class PJProxyFactory extends ProxyFactory {
 	}
 
 	/**
+	 * Bind an Interface to her parallel object (her associated Broker) on a custom network
+	 * @param accessPoint : The accesspoint of the broker
+	 * @param networkUUID The network that will be requested to the server
+	 * @return ProxyObject which represent the Interface side
+	 * @throws POPException : if anything goes wrong
+	 */
+	public Object bindPOPObject(POPAccessPoint accessPoint, String networkUUID) throws POPException {
+		try {
+			Constructor<?> constructor = targetClass.getConstructor();
+			POPObject popObject = (POPObject) constructor.newInstance();
+			popObject.loadPOPAnnotations(constructor);
+			
+			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
+			methodHandler.getOD().setNetwork(networkUUID);
+			methodHandler.bindObject(accessPoint);
+			this.setHandler(methodHandler);
+			Class<?> c = this.createClass();
+			Object result = c.newInstance();
+			((ProxyObject) result).setHandler(methodHandler);
+			return result;
+		} catch (Exception e) {
+			throw new POPException(0, e.getMessage());
+		}
+	}
+
+	/**
 	 * Recover a parallel object from the buffer
 	 * @param buffer : buffer from which the object is recovered 
 	 * @return the object recovered

@@ -42,7 +42,6 @@ public class POPObject implements IPOPBase {
 	private boolean hasDestructor = false;	
 	protected ObjectDescription od = new ObjectDescription();
 	private String className = "";
-	private final int startMethodIndex = 10;
 	private final ConcurrentHashMap<MethodInfo, Integer> semantics = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<>();
@@ -257,17 +256,13 @@ public class POPObject implements IPOPBase {
 	 */
 	protected final void initializePOPObject() {
 		if (generateClassId){
-			classId++;
+			// TODO generate a POP Java specific ID
+			classId = ClassUtil.classId(getRealClass());
 		}
 		
 		Class<?> c = getRealClass();
-		if (!c.equals(POPObject.class)) {
-			int startIndex = initializeConstructorInfo(c, startMethodIndex);
-			if (hasDestructor) {
-				startIndex++;
-			}
-			initializeMethodInfo(c, startIndex);
-		}
+		initializeConstructorInfo(c);
+		initializeMethodInfo(c);
 	}
 	
 	/**
@@ -386,7 +381,6 @@ public class POPObject implements IPOPBase {
 		return method;
 	}
 
-	// XXX What does this actually do?!
 	/*
 	 * Retrieve a specific method in the super class
 	 * @param method	informations about the method to retrieve
@@ -405,6 +399,7 @@ public class POPObject implements IPOPBase {
 				if (findingClass.isAssignableFrom(m.getDeclaringClass())) {
 					findingClass = m.getDeclaringClass();
 					result = m;
+					break;
 				}
 			}
 		}
@@ -547,42 +542,36 @@ public class POPObject implements IPOPBase {
 			throw new java.lang.NoSuchMethodException(errorMessage);
 		}
 	}
-
+	
 	/**
 	 * Initialize the method identifier for all the methods in a class
-	 * @param c				class to initialize
-	 * @param startIndex	index of the first method
+	 * @param c	class to initialize
 	 */
-	protected void initializeMethodInfo(Class<?> c, int startIndex) {
+	protected void initializeMethodInfo(Class<?> c) {
 		if (!definedMethodId) {
-			Method[] allMethods = c.getMethods();
-			
-			Arrays.sort(allMethods, new Comparator<Method>() {
-				@Override
-                public int compare(Method first, Method second) {
-					String firstSign = ClassUtil.getMethodSign(first);
-					String secondSign = ClassUtil.getMethodSign(second);
-					return firstSign.compareTo(secondSign);
+			// to every all class until Object (excluded)
+			while (c != Object.class) {
+				// get the new declared methods (this include overrode ones)
+				Method[] allMethods = c.getDeclaredMethods();
+				// add all method containing POP annotations to mathodInfos
+				for (Method m : allMethods) {
+					Class<?> declaringClass = m.getDeclaringClass();
+					POPClass popClassAnnotation = declaringClass.getAnnotation(POPClass.class);
+					if ((popClassAnnotation != null || declaringClass.equals(POPObject.class))
+							&& Modifier.isPublic(m.getModifiers()) && MethodUtil.isMethodPOPAnnotated(m)) {
+						int methodId = MethodUtil.methodId(m);
+						int id = popClassAnnotation == null ? -1 : popClassAnnotation.classId();
+
+						if(id == -1){
+							id = ClassUtil.classId(c);
+						}
+						MethodInfo methodInfo = new MethodInfo(id, methodId);
+
+						methodInfos.put(methodInfo, m);
+					}
 				}
-			});
-			
-			int index = startIndex;
-			for (Method m : allMethods) {
-				Class<?> declaringClass = m.getDeclaringClass();
-				POPClass popClassAnnotation = declaringClass.getAnnotation(POPClass.class);
-				if ((popClassAnnotation != null || declaringClass.equals(POPObject.class))
-						&& Modifier.isPublic(m.getModifiers()) && MethodUtil.isMethodPOPAnnotated(m)) {
-				    int methodId = MethodUtil.methodId(m,index);
-				    int id = popClassAnnotation == null ? -1 : popClassAnnotation.classId();
-				    
-				    if(id == -1){
-				    	id = getClassId();
-				    }
-					MethodInfo methodInfo = new MethodInfo(id, methodId);
-					
-					methodInfos.put(methodInfo, m);
-					index++;
-				}
+				// map super class
+				c = c.getSuperclass();
 			}
 		}
 	}
@@ -590,11 +579,8 @@ public class POPObject implements IPOPBase {
 	/**
 	 * Initialize the constructor identifier and the semantic
 	 * @param c				class to initialize
-	 * @param startIndex	index of the first constructor
-	 * @return	next index to be used for the methods
 	 */
-	protected int initializeConstructorInfo(Class<?> c, int startIndex) {
-		int index = startIndex;
+	protected void initializeConstructorInfo(Class<?> c) {
 		if (!definedMethodId) {
 			// initializeMethodId
 			Constructor<?>[] allConstructors = c.getDeclaredConstructors();
@@ -616,19 +602,18 @@ public class POPObject implements IPOPBase {
 					if(constructor.isAnnotationPresent(POPObjectDescription.class)){
 				        id = constructor.getAnnotation(POPObjectDescription.class).id();
 			        }
+					
 					if(id == -1){
-						id = index;
+						id = MethodUtil.constructorId(constructor);
 					}
 					
 					MethodInfo info = new MethodInfo(getClassId(), id);
 					constructorInfos.put(info, constructor);
 					semantics.put(info, Semantic.CONSTRUCTOR
 							| Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
-					index++;
 				}
 			}
 		}
-		return index;
 	}
 	
 	/**

@@ -31,6 +31,11 @@ public class POPNetworkDescriptorFinder {
 		// TODO from some file read and add class
 	}
 	
+	/**
+	 * Add a new descriptor description
+	 * 
+	 * @param descriptor 
+	 */
 	public void register(POPNetworkDescriptor descriptor) {
 		if (!descriptors.containsKey(descriptor.getGlobalName())) {
 			descriptors.put(descriptor.getGlobalName(), descriptor);
@@ -44,6 +49,12 @@ public class POPNetworkDescriptorFinder {
 		return instance;
 	}
 	
+	/**
+	 * Find a descriptor based on its global name.
+	 * 
+	 * @param globalName
+	 * @return 
+	 */
 	public POPNetworkDescriptor find(String globalName) {
 		if (globalName == null || globalName.isEmpty()) {
 			globalName = Configuration.getInstance().getJobManagerDefaultConnector();
@@ -51,4 +62,11 @@ public class POPNetworkDescriptorFinder {
 		return descriptors.get(globalName);
 	}
 	
+	/**
+	 * All available descriptors
+	 * @return 
+	 */
+	public POPNetworkDescriptor[] all() {
+		return descriptors.values().toArray(new POPNetworkDescriptor[descriptors.size()]);
+	}
 }

@@ -8,17 +8,15 @@ import java.net.Socket;
 import popjava.buffer.POPBuffer;
 import popjava.combox.ComboxAllocate;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 /**
  * This class is responsible to send an receive message on the server combox socket
  */
-public class ComboxAllocateSocket extends ComboxAllocate  {
+public class ComboxAllocateSocket extends ComboxAllocate<ComboxSocket> {
 	
-	private static final int SOCKET_TIMEOUT_MS = 30000;
-	
-	protected ServerSocket serverSocket = null;	
-	private ComboxSocket combox = null;
+	protected ServerSocket serverSocket = null;
 	
 	/**
 	 * Create a new instance of the ComboxAllocateSocket
@@ -28,9 +26,9 @@ public class ComboxAllocateSocket extends ComboxAllocate  {
 			InetSocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);
 			serverSocket = new ServerSocket();
 			serverSocket.bind(sockAddr);
-			serverSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
+			serverSocket.setSoTimeout(Configuration.getInstance().getConnectionTimeout());
 		} catch (IOException e) {
-		    e.printStackTrace();
+		    LogWriter.writeExceptionLog(e);
 		}
 	}
 
@@ -41,9 +39,9 @@ public class ComboxAllocateSocket extends ComboxAllocate  {
 	public void startToAcceptOneConnection() {
 		try {
 			Socket peerConnection = serverSocket.accept();
-			combox = new ComboxSocket(peerConnection);
+			combox = new ComboxSocket();
+			combox.serverAccept(peerConnection);
 		} catch (IOException e) {
-			e.printStackTrace();
 			LogWriter.writeExceptionLog(e);
 		}
 	}
@@ -63,41 +61,12 @@ public class ComboxAllocateSocket extends ComboxAllocate  {
 	 */
 	@Override
 	public void close() {
+		super.close();
 		try {
-			if(combox != null){
-				combox.close();
-			}
 			if (serverSocket != null && !serverSocket.isClosed()) {
 				serverSocket.close();
 			}
-
 		} catch (IOException e) {
 		}
 	}
-
-	/**
-	 * Send a message to the other-side
-	 * @param buffer	Buffer to be send
-	 * @return	Number of byte sent
-	 */
-	@Override
-	public int send(POPBuffer buffer) {
-		return combox.send(buffer);
-	}
-
-	/**
-	 * Receive a new message from the other-side
-	 * @param buffer	Buffer to receive the message
-	 * @return	Number of byte read
-	 */
-	@Override
-	public int receive(POPBuffer buffer) {
-		return combox.receive(buffer, -1);
-	}
-	
-	@Override
-	public boolean isComboxConnected(){
-		return combox != null;
-	}
-
 }

@@ -50,6 +50,7 @@ public final class Configuration {
 		DEFAULT_ENCODING,
 		SELECTED_ENCODING,
 		DEFAULT_PROTOCOL,
+		DEFAULT_NETWORK,
 		PROTOCOLS_WHITELIST,
 		PROTOCOLS_BLACKLIST,
 		ASYNC_CONSTRUCTOR,
@@ -62,7 +63,6 @@ public final class Configuration {
 		SSL_KEY_STORE_FILE,
 		SSL_KEY_STORE_PASSWORD,
 		SSL_KEY_STORE_PRIVATE_KEY_PASSWORD,
-		SSL_KEY_STORE_LOCAL_ALIAS,
 		SSL_KEY_STORE_FORMAT,
 	}
 	
@@ -74,9 +74,9 @@ public final class Configuration {
 	static {
 		String env = System.getenv("POPJAVA_LOCATION");
 		if (env == null) {
-			POPJAVA_LOCATION = "./";
+			POPJAVA_LOCATION = new File("./").getAbsolutePath();
 		} else {
-			POPJAVA_LOCATION = env;
+			POPJAVA_LOCATION = new File(env).getAbsolutePath();
 		}
 	}
 	
@@ -116,6 +116,7 @@ public final class Configuration {
 	private String defaultEncoding = "xdr";
 	private String selectedEncoding = "raw";
 	private String defaultProtocol = "socket";
+	private String defaultNetwork = "";
 	
 	private final Set<String> protocolsWhitelist = new HashSet<>();
 	private final Set<String> protocolsBlacklist = new HashSet<>();
@@ -245,6 +246,10 @@ public final class Configuration {
 		return defaultProtocol;
 	}
 
+	public String getDefaultNetwork() {
+		return defaultNetwork;
+	}
+
 	public boolean isAsyncConstructor() {
 		return asyncConstructor;
 	}
@@ -289,10 +294,6 @@ public final class Configuration {
 		return SSLKeyStoreOptions.getPrivateKeyPassword();
 	}
 
-	public String getSSLKeyStoreLocalAlias() {
-		return SSLKeyStoreOptions.getLocalAlias();
-	}
-
 	public KeyStoreFormat getSSLKeyStoreFormat() {
 		return SSLKeyStoreOptions.getKeyStoreFormat();
 	}
@@ -302,11 +303,11 @@ public final class Configuration {
 	}
 
 	public int[] getJobManagerPorts() {
-		return jobManagerPorts;
+		return Arrays.copyOf(jobManagerPorts, jobManagerPorts.length);
 	}
 
 	public String[] getJobManagerProtocols() {
-		return jobManagerProtocols;
+		return Arrays.copyOf(jobManagerProtocols, jobManagerProtocols.length);
 	}
 
 	public int getPopJavaDeamonPort() {
@@ -325,7 +326,7 @@ public final class Configuration {
 	
 	
 	public void setSystemJobManagerConfig(File systemJobManagerConfig) {
-		USER_PROPERTIES.setProperty(Settable.SYSTEM_JOBMANAGER_CONFIG.name(), systemJobManagerConfig.toString());
+		setUserProp(Settable.SYSTEM_JOBMANAGER_CONFIG, systemJobManagerConfig);
 		this.systemJobManagerConfig = systemJobManagerConfig;
 	}
 
@@ -335,152 +336,152 @@ public final class Configuration {
 	}
 
 	public void setDebug(boolean debug) {
-		USER_PROPERTIES.setProperty(Settable.DEBUG.name(), String.valueOf(debug));
+		setUserProp(Settable.DEBUG, debug);
 		this.debug = debug;
 	}
 
 	public void setDebugCombox(boolean debugCombox) {
-		USER_PROPERTIES.setProperty(Settable.DEBUG_COMBOBOX.name(), String.valueOf(debugCombox));
+		setUserProp(Settable.DEBUG_COMBOBOX, debugCombox);
 		this.debugCombox = debugCombox;
 	}
 
 	public void setReserveTimeout(int reserveTimeout) {
-		USER_PROPERTIES.setProperty(Settable.RESERVE_TIMEOUT.name(), String.valueOf(reserveTimeout));
+		setUserProp(Settable.RESERVE_TIMEOUT, reserveTimeout);
 		this.reserveTimeout = reserveTimeout;
 	}
 
 	public void setAllocTimeout(int allocTimeout) {
-		USER_PROPERTIES.setProperty(Settable.ALLOC_TIMEOUT.name(), String.valueOf(allocTimeout));
+		setUserProp(Settable.ALLOC_TIMEOUT, allocTimeout);
 		this.allocTimeout = allocTimeout;
 	}
 
 	public void setConnectionTimeout(int connectionTimeout) {
-		USER_PROPERTIES.setProperty(Settable.CONNECTION_TIMEOUT.name(), String.valueOf(connectionTimeout));
+		setUserProp(Settable.CONNECTION_TIMEOUT, connectionTimeout);
 		this.connectionTimeout = connectionTimeout;
 	}
 
 	public void setJobManagerUpdateInterval(int jobManagerUpdateInterval) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_UPDATE_INTERVAL.name(), String.valueOf(jobManagerUpdateInterval));
+		setUserProp(Settable.JOBMANAGER_UPDATE_INTERVAL, jobManagerUpdateInterval);
 		this.jobManagerUpdateInterval = jobManagerUpdateInterval;
 	}
 
 	public void setJobManagerSelfRegisterInterval(int jobManagerSelfRegisterInterval) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_SELF_REGISTER_INTERVAL.name(), String.valueOf(jobManagerSelfRegisterInterval));
+		setUserProp(Settable.JOBMANAGER_SELF_REGISTER_INTERVAL, jobManagerSelfRegisterInterval);
 		this.jobManagerSelfRegisterInterval = jobManagerSelfRegisterInterval;
 	}
 
 	public void setJobManagerDefaultConnector(String jobManagerDefaultConnector) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_DEFAULT_CONNECTOR.name(), jobManagerDefaultConnector);
+		setUserProp(Settable.JOBMANAGER_DEFAULT_CONNECTOR, jobManagerDefaultConnector);
 		this.jobManagerDefaultConnector = jobManagerDefaultConnector;
 	}
 
 	public void setJobManagerExecutionBaseDirectory(String jobManagerExecutionBaseDirectory) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_EXECUTION_BASE_DIRECTORY.name(), jobManagerExecutionBaseDirectory);
+		setUserProp(Settable.JOBMANAGER_EXECUTION_BASE_DIRECTORY, jobManagerExecutionBaseDirectory);
 		this.jobManagerExecutionBaseDirectory = jobManagerExecutionBaseDirectory;
 	}
 
 	public void setJobmanagerExecutionUser(String jobmanagerExecutionUser) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_EXECUTION_USER.name(), jobmanagerExecutionUser);
+		setUserProp(Settable.JOBMANAGER_EXECUTION_USER, jobmanagerExecutionUser);
 		this.jobmanagerExecutionUser = jobmanagerExecutionUser;
 	}
 
 	public void setSearchNodeUnlockTimeout(int searchNodeUnlockTimeout) {
-		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_UNLOCK_TIMEOUT.name(), String.valueOf(searchNodeUnlockTimeout));
+		setUserProp(Settable.SEARCH_NODE_UNLOCK_TIMEOUT, searchNodeUnlockTimeout);
 		this.searchNodeUnlockTimeout = searchNodeUnlockTimeout;
 	}
 
 	public void setSearchNodeSearchTimeout(int searchNodeSearchTimeout) {
-		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_SEARCH_TIMEOUT.name(), String.valueOf(searchNodeSearchTimeout));
+		setUserProp(Settable.SEARCH_NODE_SEARCH_TIMEOUT, searchNodeSearchTimeout);
 		this.searchNodeSearchTimeout = searchNodeSearchTimeout;
 	}
 
 	public void setTFCSearchTimeout(int tfcSearchTimeout) {
-		USER_PROPERTIES.setProperty(Settable.TFC_SEARCH_TIMEOUT.name(), String.valueOf(tfcSearchTimeout));
+		setUserProp(Settable.TFC_SEARCH_TIMEOUT, tfcSearchTimeout);
 		this.tfcSearchTimeout = tfcSearchTimeout;
 	}
 
 	public void setSearchNodeMaxRequests(int searchNodeMaxRequests) {
-		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_MAX_REQUESTS.name(), String.valueOf(searchNodeMaxRequests));
+		setUserProp(Settable.SEARCH_NODE_MAX_REQUESTS, searchNodeMaxRequests);
 		this.searchNodeMaxRequests = searchNodeMaxRequests;
 	}
 
 	public void setSearchNodeExplorationQueueSize(int searchNodeExplorationQueueSize) {
-		USER_PROPERTIES.setProperty(Settable.SEARCH_NODE_EXPLORATION_QUEUE_SIZE.name(), String.valueOf(searchNodeExplorationQueueSize));
+		setUserProp(Settable.SEARCH_NODE_EXPLORATION_QUEUE_SIZE, searchNodeExplorationQueueSize);
 		this.searchNodeExplorationQueueSize = searchNodeExplorationQueueSize;
 	}
 
 	public void setDefaultEncoding(String defaultEncoding) {
-		USER_PROPERTIES.setProperty(Settable.DEFAULT_ENCODING.name(), defaultEncoding);
+		setUserProp(Settable.DEFAULT_ENCODING, defaultEncoding);
 		this.defaultEncoding = defaultEncoding;
 	}
 
 	public void setSelectedEncoding(String selectedEncoding) {
-		USER_PROPERTIES.setProperty(Settable.SELECTED_ENCODING.name(), selectedEncoding);
+		setUserProp(Settable.SELECTED_ENCODING, selectedEncoding);
 		this.selectedEncoding = selectedEncoding;
 	}
 
 	public void setDefaultProtocol(String defaultProtocol) {
-		USER_PROPERTIES.setProperty(Settable.DEFAULT_PROTOCOL.name(), defaultProtocol);
+		setUserProp(Settable.DEFAULT_PROTOCOL, defaultProtocol);
 		this.defaultProtocol = defaultProtocol.toUpperCase();
 	}
 
+	public void setDefaultNetwork(String systemDefaultNetwork) {
+		setUserProp(Settable.DEFAULT_NETWORK, systemDefaultNetwork);
+		this.defaultNetwork = systemDefaultNetwork;
+	}
+
 	public void setAsyncConstructor(boolean asyncConstructor) {
-		USER_PROPERTIES.setProperty(Settable.ASYNC_CONSTRUCTOR.name(), String.valueOf(asyncConstructor));
+		setUserProp(Settable.ASYNC_CONSTRUCTOR, asyncConstructor);
 		this.asyncConstructor = asyncConstructor;
 	}
 
 	public void setActivateJmx(boolean activateJmx) {
-		USER_PROPERTIES.setProperty(Settable.ACTIVATE_JMX.name(), String.valueOf(activateJmx));
+		setUserProp(Settable.ACTIVATE_JMX, activateJmx);
 		this.activateJmx = activateJmx;
 	}
 
 	public void setConnectToPOPcpp(boolean connectToPOPcpp) {
-		USER_PROPERTIES.setProperty(Settable.CONNECT_TO_POPCPP.name(), String.valueOf(connectToPOPcpp));
+		setUserProp(Settable.CONNECT_TO_POPCPP, connectToPOPcpp);
 		this.connectToPOPcpp = connectToPOPcpp;
 	}
 
 	public void setConnectToJavaJobmanager(boolean connectToJavaJobmanager) {
-		USER_PROPERTIES.setProperty(Settable.CONNECT_TO_JAVA_JOBMANAGER.name(), String.valueOf(connectToJavaJobmanager));
+		setUserProp(Settable.CONNECT_TO_JAVA_JOBMANAGER, connectToJavaJobmanager);
 		this.connectToJavaJobmanager = connectToJavaJobmanager;
 	}
 
 	public void setRedirectOutputToRoot(boolean redirectOutputToRoot) {
-		USER_PROPERTIES.setProperty(Settable.REDIRECT_OUTPUT_TO_ROOT.name(), String.valueOf(redirectOutputToRoot));
+		setUserProp(Settable.REDIRECT_OUTPUT_TO_ROOT, redirectOutputToRoot);
 		this.redirectOutputToRoot = redirectOutputToRoot;
 	}
 
 	public void setUseNativeSSHifPossible(boolean useNativeSSHifPossible) {
-		USER_PROPERTIES.setProperty(Settable.USE_NATIVE_SSH_IF_POSSIBLE.name(), String.valueOf(useNativeSSHifPossible));
+		setUserProp(Settable.USE_NATIVE_SSH_IF_POSSIBLE, useNativeSSHifPossible);
 		this.useNativeSSHifPossible = useNativeSSHifPossible;
 	}
 
 	public void setSSLProtocolVersion(String SSLProtocolVersion) {
-		USER_PROPERTIES.setProperty(Settable.SSL_PROTOCOL_VERSION.name(), SSLProtocolVersion);
+		setUserProp(Settable.SSL_PROTOCOL_VERSION, SSLProtocolVersion);
 		this.SSLProtocolVersion = SSLProtocolVersion;
 	}
 
 	public void setSSLKeyStoreFile(File file) {
-		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FILE.name(), file.toString());
+		setUserProp(Settable.SSL_KEY_STORE_FILE, file);
 		SSLKeyStoreOptions.setKeyStoreFile(file);
 	}
 
 	public void setSSLKeyStorePassword(String val) {
-		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_PASSWORD.name(), val);
+		setUserProp(Settable.SSL_KEY_STORE_PASSWORD, val);
 		SSLKeyStoreOptions.setKeyStorePassword(val);
 	}
 
 	public void setSSLKeyStorePrivateKeyPassword(String val) {
-		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_PRIVATE_KEY_PASSWORD.name(), val);
+		setUserProp(Settable.SSL_KEY_STORE_PRIVATE_KEY_PASSWORD, val);
 		SSLKeyStoreOptions.setPrivateKeyPassword(val);
 	}
 
-	public void setSSLKeyStoreLocalAlias(String val) {
-		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_LOCAL_ALIAS.name(), val);
-		SSLKeyStoreOptions.setLocalAlias(val);
-	}
-
 	public void setSSLKeyStoreFormat(KeyStoreFormat val) {
-		USER_PROPERTIES.setProperty(Settable.SSL_KEY_STORE_FORMAT.name(), val.name());
+		setUserProp(Settable.SSL_KEY_STORE_FORMAT, val);
 		SSLKeyStoreOptions.setKeyStoreFormat(val);
 	}
 
@@ -491,38 +492,44 @@ public final class Configuration {
 	public void setSSLKeyStoreOptions(KeyStoreDetails options) {
 		setSSLKeyStoreFile(options.getKeyStoreFile());
 		setSSLKeyStoreFormat(options.getKeyStoreFormat());
-		setSSLKeyStoreLocalAlias(options.getLocalAlias());
 		setSSLKeyStorePassword(options.getKeyStorePassword());
 		setSSLKeyStorePrivateKeyPassword(options.getPrivateKeyPassword());
 	}
 
 	public void setJobManagerPorts(int[] jobManagerPorts) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_PORTS.name(), Arrays.toString(jobManagerPorts));
-		this.jobManagerPorts = jobManagerPorts;
+		setUserProp(Settable.JOBMANAGER_PORTS, Arrays.toString(jobManagerPorts));
+		this.jobManagerPorts = Arrays.copyOf(jobManagerPorts, jobManagerPorts.length);
 	}
 
 	public void setJobManagerProtocols(String[] jobManagerProtocols) {
-		USER_PROPERTIES.setProperty(Settable.JOBMANAGER_PROTOCOLS.name(), Arrays.toString(jobManagerProtocols));
-		this.jobManagerProtocols = jobManagerProtocols;
+		setUserProp(Settable.JOBMANAGER_PROTOCOLS, Arrays.toString(jobManagerProtocols));
+		this.jobManagerProtocols = Arrays.copyOf(jobManagerProtocols, jobManagerProtocols.length);
 	}
 
 	public void setPopJavaDeamonPort(int popJavaDeamonPort) {
-		USER_PROPERTIES.setProperty(Settable.POP_JAVA_DEAMON_PORT.name(), String.valueOf(popJavaDeamonPort));
+		setUserProp(Settable.POP_JAVA_DEAMON_PORT, popJavaDeamonPort);
 		this.popJavaDeamonPort = popJavaDeamonPort;
 	}
 
 	public void setProtocolsWhitelist(Set<String> protocolsWhitelist) {
-		USER_PROPERTIES.setProperty(Settable.PROTOCOLS_WHITELIST.name(), protocolsWhitelist.toString());
+		setUserProp(Settable.PROTOCOLS_WHITELIST, protocolsWhitelist);
 		this.protocolsWhitelist.clear();
 		this.protocolsWhitelist.addAll(protocolsWhitelist);
 	}
 
 	public void setProtocolsBlacklist(Set<String> protocolsBlacklist) {
-		USER_PROPERTIES.setProperty(Settable.PROTOCOLS_BLACKLIST.name(), protocolsBlacklist.toString());
+		setUserProp(Settable.PROTOCOLS_BLACKLIST, protocolsBlacklist);
 		this.protocolsBlacklist.clear();
 		this.protocolsBlacklist.addAll(protocolsBlacklist);
 	}
 	
+	private<T> void setUserProp(Settable prop, T value) {
+		if (value == null) {
+			USER_PROPERTIES.remove(prop.name());
+		} else {
+			USER_PROPERTIES.put(prop.name(), String.valueOf(value));
+		}
+	}
 	
 	/**
 	 * Load a custom configuration file on top of the system and defaults one.
@@ -574,12 +581,13 @@ public final class Configuration {
 		for (Object prop : ALL_PROPERTIES.keySet()) {
 			if (prop instanceof String) {
 				String key = (String) prop;
+				String[] keys = key.split("\\.");
 				String value = ALL_PROPERTIES.getProperty(key);
 				
 				// get enum
 				Settable keyEnum;
 				try {
-					keyEnum = Settable.valueOf(key.toUpperCase());
+					keyEnum = Settable.valueOf(keys[0].toUpperCase());
 				} catch(IllegalArgumentException e) {
 					if (debug) {
 						System.out.format("[Configuration] unknown key '%s'\n", key);
@@ -617,6 +625,7 @@ public final class Configuration {
 						case DEFAULT_ENCODING:                   defaultEncoding = value; break;
 						case SELECTED_ENCODING:                  selectedEncoding = value; break;
 						case DEFAULT_PROTOCOL:                   defaultProtocol = value.toUpperCase(); break;
+						case DEFAULT_NETWORK:                    defaultNetwork = value.toLowerCase(); break;
 						case PROTOCOLS_WHITELIST:
 							protocolsWhitelist.clear();
 							protocolsWhitelist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));
@@ -635,7 +644,6 @@ public final class Configuration {
 						case SSL_KEY_STORE_FILE:                 SSLKeyStoreOptions.setKeyStoreFile(new File(value)); break;
 						case SSL_KEY_STORE_PASSWORD:             SSLKeyStoreOptions.setKeyStorePassword(value); break;
 						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSLKeyStoreOptions.setPrivateKeyPassword(value); break;
-						case SSL_KEY_STORE_LOCAL_ALIAS:          SSLKeyStoreOptions.setLocalAlias(value); break;
 						case SSL_KEY_STORE_FORMAT:               SSLKeyStoreOptions.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
 					}
 				} catch(NumberFormatException e) {
@@ -662,6 +670,19 @@ public final class Configuration {
 		
 		try (PrintStream out = new PrintStream(file)) {
 			USER_PROPERTIES.store(out, "Automatically generated by POP-Java");
+		}
+	}
+	
+	/**
+	 * Dump configuration to system location, may not work if rights block writing.
+	 * @throws java.io.IOException
+	 */
+	public void writeSystemConfiguration() throws IOException {
+		Properties dump = new Properties();
+		dump.putAll(ALL_PROPERTIES);
+		dump.putAll(USER_PROPERTIES);
+		try (PrintStream out = new PrintStream(SYSTEM_CONFIG)) {
+			dump.store(out, "Automatically generated by POP-Java");
 		}
 	}
 	

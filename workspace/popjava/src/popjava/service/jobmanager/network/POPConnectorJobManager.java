@@ -1,10 +1,11 @@
 package popjava.service.jobmanager.network;
 
-import java.util.ArrayList;
+import java.security.cert.Certificate;
 import java.util.List;
 import popjava.PopJava;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
+import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.util.ssl.SSLUtils;
@@ -21,6 +22,7 @@ import popjava.service.jobmanager.search.SNWayback;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 import popjava.util.Util;
 
 /**
@@ -37,7 +39,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 
 		@Override
 		public POPNode createNode(List<String> params) {
-			return new POPNodeJobManager(new ArrayList<>(params));
+			return new POPNodeJobManager(params);
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("jobmanager", new DescriptorMethodImpl());
@@ -118,7 +120,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 				if (failed == remoteJobMngs.size()) {
 					// cancel previous registrations on remote jms
 					for (int k = 0; k < jobIdx; k++) {
-						jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[k]);
+						jm = PopJava.connect(POPJavaJobManager.class, od.getNetwork(), chosenRemoteJobM[k]);
 						jm.cancelReservation(new int[] { resIDs[k] }, 1);
 						jm.exit();
 					}
@@ -136,7 +138,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		int started = 0;
 		for (int i = 0; i < howmany; i++) {
 			if (!chosenRemoteJobM[i].isEmpty()) {
-				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[i]);
+				POPJavaJobManager jm = PopJava.connect(POPJavaJobManager.class, od.getNetwork(), chosenRemoteJobM[i]);
 				try {
 					// execution
 					POPString pobjname = new POPString(objname);
@@ -153,13 +155,22 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 						jm.cancelReservation(localRIDs, 1);
 						return POPErrorCode.OBJECT_NO_RESOURCE;
 					}
-					jm.exit();
+					
+					// add certificate to newly created object temporary store
+					POPRemoteCaller remote = PopJava.getRemoteCaller();
+					if (remote != null && remote.isSecure() && !remote.isUsingConfidenceLink()) {
+						POPObject object = PopJava.connect(POPObject.class, od.getNetwork(), objcontacts[i]);
+						Certificate cert = SSLUtils.getCertificate(remote.getFingerprint());
+						object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(cert));
+						object.exit();
+					}
 				}
 				// cancel remote registration
 				catch (Exception e) {
 					jm.cancelReservation(new int[] { resIDs[i] }, 1);
-					jm.exit();
 					return POPErrorCode.POP_JOBSERVICE_FAIL;
+				} finally {
+					jm.exit();
 				}
 			}
 		}
@@ -175,8 +186,6 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 			try {
 				Interface obj = new Interface(objcontacts[i]);
 				obj.kill();
-				POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, chosenRemoteJobM[i]);
-				jm.exit();
 			} catch (POPException e) {
 				LogWriter.writeDebugInfo("[JM] Exception while killing objects: %s", e.getMessage());
 			}
@@ -195,7 +204,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 				available.canHandle(request.getMinResourceNeeded())) {
 			// build response and give it back to the original sender
 			SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(), POPSystem.getPlatform(), available);
-			SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
+			SNResponse response = new SNResponse(request.getUID(), request.getNetworkUUID(), request.getExplorationList(), nodeinfo);
 
 			// we want to save the requester's certificate if there is one
 			if (request.getPublicCertificate().length > 0) {

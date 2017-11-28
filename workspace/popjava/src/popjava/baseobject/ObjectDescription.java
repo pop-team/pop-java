@@ -575,10 +575,16 @@ public class ObjectDescription implements IPOPBase {
 	 * @param value	value for this attribute
 	 */
 	public void setValue(String key, String value) {
-		if (attributes.containsKey(key))
-			attributes.replace(key, value);
-		else
+		if (attributes.containsKey(key)) {
+			if (value == null) {
+				attributes.remove(key);
+			} else {
+				attributes.replace(key, value);
+			}
+		}
+		else {
 			attributes.put(key, value);
+		}
 	}
 
 	/**

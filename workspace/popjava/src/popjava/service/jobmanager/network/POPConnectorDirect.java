@@ -21,7 +21,7 @@ public class POPConnectorDirect extends POPConnector {
 
 		@Override
 		public POPNode createNode(List<String> params) {
-			return new POPNodeDirect(new ArrayList<>(params));
+			return new POPNodeDirect(params);
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("direct", new DescriptorMethodImpl());

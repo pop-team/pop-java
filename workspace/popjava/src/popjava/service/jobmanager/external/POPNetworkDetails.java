@@ -1,18 +1,24 @@
 package popjava.service.jobmanager.external;
 
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.util.Objects;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.network.POPNetwork;
+import popjava.util.ssl.SSLUtils;
 
 /**
- *
- * @author dosky
+ * Details on a network.
+ * Global UUID, local friendly name, network 
+ * 
+ * @author Davide Mazzoleni
  */
 public class POPNetworkDetails implements IPOPBase {
 
 	private String uuid;
 	private String friendlyName;
+	private Certificate certificate;
 	
 	public POPNetworkDetails() {
 	}
@@ -20,6 +26,7 @@ public class POPNetworkDetails implements IPOPBase {
 	public POPNetworkDetails(POPNetwork network) {
 		this.uuid = network.getUUID();
 		this.friendlyName = network.getFriendlyName();
+		this.certificate = SSLUtils.getCertificateFromAlias(uuid);
 	}
 
 	public String getUUID() {
@@ -30,10 +37,19 @@ public class POPNetworkDetails implements IPOPBase {
 		return friendlyName;
 	}
 
+	public Certificate getCertificate() {
+		return certificate;
+	}
+
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putString(uuid);
 		buffer.putString(friendlyName);
+		boolean hasCertificate = certificate != null;
+		buffer.putBoolean(hasCertificate);
+		if (hasCertificate) {
+			buffer.putByteArray(SSLUtils.certificateBytes(certificate));
+		}
 		return true;
 	}
 
@@ -41,7 +57,15 @@ public class POPNetworkDetails implements IPOPBase {
 	public boolean deserialize(POPBuffer buffer) {
 		uuid = buffer.getString();
 		friendlyName = buffer.getString();
-		return true;
+		boolean hasCertificate = buffer.getBoolean();
+		if (hasCertificate) {
+			int certLength = buffer.getInt();
+			try {
+				certificate = SSLUtils.certificateFromBytes(buffer.getByteArray(certLength));
+			} catch(CertificateException e) {
+			}
+		}
+ 		return true;
 	}
 
 	@Override

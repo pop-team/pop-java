@@ -2,7 +2,6 @@ package popjava.combox.socket;
 
 import java.io.IOException;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
@@ -25,15 +24,10 @@ public class ComboxSocketFactory extends ComboxFactory {
 	public String getComboxName() {
 		return PROTOCOL;
 	}
-
+	
 	@Override
-	public Combox createClientCombox(POPAccessPoint accessPoint) {
-		return createClientCombox(accessPoint, conf.getConnectionTimeout());
-	}
-
-	@Override
-	public Combox createClientCombox(POPAccessPoint accessPoint, int timeout) {
-		return new ComboxSocket(accessPoint, timeout);
+	public Combox createClientCombox(String networkUUID) {
+		return new ComboxSocket(networkUUID);
 	}
 
 	@Override

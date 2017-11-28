@@ -15,20 +15,23 @@ public class SNResponse implements IPOPBase {
 	private String uid;
 	private SNExploration explorationList;
 	private SNNodesInfo.Node nodeinfo;
+	private String networkUUID;
 	
 	private byte[] publicCertificate = new byte[0];
 
 	public SNResponse() {
 	}
 
-	public SNResponse(String uid, SNExploration explorationList, SNNodesInfo.Node nodeinfo) {
+	public SNResponse(String uid, String networkUUID, SNExploration explorationList, SNNodesInfo.Node nodeinfo) {
 		this.uid = uid;
 		this.explorationList = explorationList;
 		this.nodeinfo = nodeinfo;
+		this.networkUUID = networkUUID;
 		
-		Certificate localPublicCertificate = SSLUtils.getLocalPublicCertificate();
+		Certificate localPublicCertificate = SSLUtils.getCertificateFromAlias(networkUUID);
 		if (localPublicCertificate != null) {
 			publicCertificate = SSLUtils.certificateBytes(localPublicCertificate);
+			nodeinfo.setCertificate(publicCertificate);
 		}
 	}
 
@@ -42,6 +45,10 @@ public class SNResponse implements IPOPBase {
 
 	public byte[] getPublicCertificate() {
 		return publicCertificate;
+	}
+
+	public String getNetworkUUID() {
+		return networkUUID;
 	}
 
 	@Override

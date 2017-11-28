@@ -25,7 +25,6 @@ import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
-import popjava.combox.ssl.POPTrustManager;
 import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.system.POPSystem;
@@ -297,12 +296,12 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				String originFingerprint = objAp.getFingerprint();
 				if (originFingerprint != null) {
 					// add to access point for the connector
-					Certificate originCert = POPTrustManager.getInstance().getCertificate(originFingerprint);
+					Certificate originCert = SSLUtils.getCertificate(originFingerprint);
 					objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
 					
 					// send connector certificate to object's node
 					String destinationFingerprint = popAccessPoint.getFingerprint();
-					Certificate destCert = POPTrustManager.getInstance().getCertificate(destinationFingerprint);
+					Certificate destCert = SSLUtils.getCertificate(destinationFingerprint);
 					// send caller certificate to origin node
 					object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
 				}

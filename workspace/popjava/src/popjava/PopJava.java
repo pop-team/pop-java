@@ -16,6 +16,7 @@ import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
+import popjava.util.ssl.SSLUtils;
 
 /**
  * 
@@ -64,7 +65,8 @@ public class PopJava {
 	}
 
 	/**
-	 * Static method used to create a parallel object from an existing access point
+	 * Static method used to connect to an already existing parallel object
+	 * TODO rename as connect?
 	 * @param targetClass	the parallel class to be created
 	 * @param accessPoint	access point of the living object
 	 * @return references to the parallel object
@@ -76,6 +78,20 @@ public class PopJava {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		return (T) factoryProxy.bindPOPObject(accessPoint);
+	}
+
+	/**
+	 * Static method used to connect to an already existing parallel object with a custom network
+	 * @param targetClass	the parallel class to be created
+	 * @param networkUUID	the network that we will try to connect to
+	 * @param accessPoint	access point of the living object
+	 * @return references to the parallel object
+	 * @throws POPException
+	 */
+	public static <T> T connect(Class<T> targetClass, String networkUUID, POPAccessPoint accessPoint) {
+		POPSystem.start();
+		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
+		return (T) factoryProxy.bindPOPObject(accessPoint, networkUUID);
 	}
 
 	/**
@@ -134,6 +150,7 @@ public class PopJava {
 			jm.createObject(POPSystem.appServiceAccessPoint, targetClass.getName(), od, instances.length, instances, 0, new POPAccessPoint[0]);
 		} catch(Exception e) {
 			LogWriter.writeDebugInfo("[TFC] Can't look for resources: %s", e.getCause());
+			LogWriter.writeExceptionLog(e);
 		} finally {
 			jm.exit();
 		}
@@ -143,6 +160,11 @@ public class PopJava {
 		for (POPAccessPoint instance : instances) {
 			if (!instance.isEmpty()) {
 				actives.add(instance);
+				
+				byte[] cert = instance.getX509certificate();
+				if (cert != null && cert.length > 0) {
+					SSLUtils.addCertToTempStore(cert);
+				}
 			}
 		}
 		return actives.toArray(new POPAccessPoint[actives.size()]);
@@ -164,13 +186,20 @@ public class PopJava {
 		
 		// cast node and connect to remote job manager
 		POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
-		POPJavaJobManager jobManager = jmNode.getJobManager();
-		
-		// make local reserach on node
-		aps = jobManager.localTFCSearch(networkUUID, targetClass.getCanonicalName());
-		
-		// exit since the node keep connection alives
-		jobManager.exit();
+		try {
+			// make local reserach on node
+			POPJavaJobManager jobManager = jmNode.getJobManager(networkUUID);
+			
+			try {
+				aps = jobManager.localTFCSearch(networkUUID, targetClass.getName());
+			} catch (Exception e) { throw e; }
+			finally {
+				// exit since the node keep connection alives
+				jobManager.exit();
+			}
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo("[TFC] Can't connect to [%s].", node);
+		}
 		
 		return aps;
 	}

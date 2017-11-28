@@ -86,17 +86,17 @@ public abstract class POPNodeAJobManager extends POPNode {
 		return initialized;
 	}
 
-	public final POPJavaJobManager getJobManager() {
+	public final POPJavaJobManager getJobManager(String networkUUID) {
 		// create connection if it doesn't exists
 		if (jm == null) {
-			jm = PopJava.newActive(POPJavaJobManager.class, getJobManagerAccessPoint());
+			jm = PopJava.connect(POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());
 		}
 		// test connection
 		try {
 			POPString val = new POPString();
 			jm.query("power", val);
 		} catch (Exception e) {
-			jm = PopJava.newActive(POPJavaJobManager.class, getJobManagerAccessPoint());
+			jm = PopJava.connect(POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());
 		}
 		return jm;
 	}

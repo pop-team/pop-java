@@ -86,19 +86,43 @@ public class POPJavaConfiguration {
 	private static URL getMyJar(){
 		POPJavaConfiguration me = new POPJavaConfiguration();
 		
-        for(URL url: ((URLClassLoader)me.getClass().getClassLoader()).getURLs()){
-            boolean exists = false;
-            try{ //WIndows hack
-                exists = new File(url.toURI()).exists();
-            }catch(Exception e){
-                exists = new File(url.getPath()).exists();
-            }
-            if(url.getFile().endsWith(Popjavac.POP_JAVA_JAR_FILE) && exists){
-                return url;
-            }
-        }
+		if(me.getClass().getClassLoader() instanceof URLClassLoader){
+	        for(URL url: ((URLClassLoader)me.getClass().getClassLoader()).getURLs()){
+                URL finalUrl = checkJarURL(url);
+                
+                if(finalUrl != null){
+                    return finalUrl;
+                }
+	        }
+		}else{//Java 9+
+	        
+	        if(me.getClass().getProtectionDomain() != null){
+	            if(me.getClass().getProtectionDomain().getCodeSource() != null){
+	                URL url = checkJarURL(me.getClass().getProtectionDomain().getCodeSource().getLocation());
+	                
+	                if(url != null){
+	                    return url;
+	                }
+	            }
+	        }
+	    }
+		
         return null;
     }
+	
+	private static URL checkJarURL(URL url) {
+		boolean exists = false;
+        try{ //WIndows hack
+            exists = new File(url.toURI()).exists();
+        }catch(Exception e){
+            exists = new File(url.getPath()).exists();
+        }
+        if(url.getFile().endsWith(Popjavac.POP_JAVA_JAR_FILE) && exists){
+            return url;
+        }
+        
+        return null;
+	}
 	
 	/**
 	 * Retrieve the POP-Java plugin location
@@ -141,19 +165,23 @@ public class POPJavaConfiguration {
 	
 	public static String getClassPath(){
 	    StringBuilder popJar = new StringBuilder();
-	    
-	    URL [] urls = ((URLClassLoader)POPAppService.class.getClassLoader()).getURLs();
-        
         Set<String> paths = new HashSet<>();
-        for(int i = 0; i < urls.length; i++){
-            URL url = urls[i];
-            try {
-                String path = new File(url.toURI()).getAbsolutePath();
-                paths.add(path);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
+	    
+	    if(POPAppService.class.getClassLoader() instanceof URLClassLoader) {
+	    	URL [] urls = ((URLClassLoader)POPAppService.class.getClassLoader()).getURLs();
+	        
+	        for(int i = 0; i < urls.length; i++){
+	            URL url = urls[i];
+	            try {
+	                String path = new File(url.toURI()).getAbsolutePath();
+	                paths.add(path);
+	            } catch (URISyntaxException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    }else {
+	    	
+	    }
         
         List<String> pathList = new ArrayList<>(paths);
         

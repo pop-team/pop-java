@@ -18,10 +18,11 @@ import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
-import popjava.util.ssl.KeyStoreCreationOptions;
+import popjava.util.ssl.KeyPairDetails;
+import popjava.util.ssl.KeyStoreDetails;
 
 /**
- * Proxy to Job Manager for user use of the complexity
+ * Proxy to localhost Job Manager
  *
  * @author Davide Mazzoleni
  */
@@ -33,9 +34,9 @@ public class JobManagerConfig {
 		Configuration conf = Configuration.getInstance();
 		String protocol = conf.getJobManagerProtocols()[0];
 		int port = conf.getJobManagerPorts()[0];
-		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
-			protocol, POPSystem.getHostIP(), port));
-		jobManager = PopJava.newActive(POPJavaJobManager.class, jma);
+		String accessString = String.format("%s://%s:%d", protocol, POPSystem.getHostIP(), port);
+		POPAccessPoint jma = new POPAccessPoint(accessString);
+		jobManager = PopJava.connect(POPJavaJobManager.class, conf.getDefaultNetwork(), jma);
 	}
 
 	/**
@@ -84,71 +85,9 @@ public class JobManagerConfig {
 	 * @param networkUUID Name of the network
 	 * @param node The node to add
 	 * @param certificate The certificate to use
-	 * @return 
 	 */
-	public boolean registerNode(String networkUUID, POPNode node, Certificate certificate) {
-		try {
-			SSLUtils.addConfidenceLink(node, certificate, networkUUID);
-			jobManager.registerPermanentNode(networkUUID, node.getCreationParams());
-			return true;
-		} catch(IOException e) {
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
-	}
-	
-	/**
-	 * Add a confidence link to a previously added node
-	 * 
-	 * @param networkUUID Name of the network
-	 * @param node The node to add
-	 * @param certificate The certificate to use
-	 * @return 
-	 */
-	public boolean assignCertificate(String networkUUID, POPNode node, Certificate certificate) {
-		try {
-			SSLUtils.addConfidenceLink(node, certificate, networkUUID);
-			return true;
-		} catch(IOException e) {
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
-	}
-	
-	/**
-	 * Add a confidence link to a previously added node
-	 * 
-	 * @param networkUUID Name of the network
-	 * @param node The node to add
-	 * @param certificate The certificate to load
-	 * @return 
-	 */
-	public boolean replaceCertificate(String networkUUID, POPNode node, Certificate certificate) {
-		try {
-			SSLUtils.replaceConfidenceLink(node, certificate, networkUUID);
-			return true;
-		} catch(IOException e) {
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
-	}
-	
-	/**
-	 * Remove a confidence link to a previously added node, preserve the node.
-	 * Use {@link #unregisterNode} to remove both node and certificate.
-	 * 
-	 * @param networkUUID Name of the network
-	 * @param node The node to add
-	 * @return 
-	 */
-	public boolean removeCertificate(String networkUUID, POPNode node) {
-		try {
-			SSLUtils.removeConfidenceLink(node, networkUUID);
-			return true;
-		} catch(IOException e) {
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
+	public void registerNode(String networkUUID, POPNode node, Certificate certificate) {
+		jobManager.registerPermanentNode(networkUUID, SSLUtils.certificateBytes(certificate), node.getCreationParams());
 	}
 	
 	/**
@@ -159,16 +98,10 @@ public class JobManagerConfig {
 	 */
 	public void unregisterNode(String networkUUID, POPNode node) {
 		jobManager.unregisterPermanentNode(networkUUID, node.getCreationParams());
-		// try remove
-		try {
-			SSLUtils.removeConfidenceLink(node, networkUUID);
-		} catch(IOException e) {
-			// too bad
-		}
 	}
 
 	/**
-	 * Create a new network of interest, return the details with UUID
+	 * Create a new network of interest, return the details with UUID.
 	 * 
 	 * @param friendlyName A friendly name to identify the network locally.
 	 * @return An object containing a generated UUID and the friendly name.
@@ -178,7 +111,7 @@ public class JobManagerConfig {
 	}
 
 	/**
-	 * Create a new network of interest, return the details with UUID
+	 * Create a new network of interest, return the details with UUID.
 	 * 
 	 * @param networkUUID The UUID the network will use
 	 * @param friendlyName A friendly name to identify the network locally.
@@ -303,11 +236,11 @@ public class JobManagerConfig {
 	 * Generate a KeyStore with private key and certificate.
 	 * Proxy for {@link SSLUtils#generateKeyStore(KeyStoreCreationOptions)}
 	 * 
-	 * @param options
+	 * @param keyDetails
 	 * @return 
 	 */
-	public boolean generateKeyStore(KeyStoreCreationOptions options) {
-		return SSLUtils.generateKeyStore(options);
+	public boolean generateKeyStore(KeyStoreDetails ksDetails, KeyPairDetails keyDetails) {
+		return SSLUtils.generateKeyStore(ksDetails, keyDetails);
 	}
 	
 	/**

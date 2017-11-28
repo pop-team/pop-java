@@ -6,9 +6,12 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,8 +77,11 @@ import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 import popjava.util.Util;
 import popjava.util.SystemUtil;
+import popjava.util.ssl.KeyPairDetails;
+import popjava.util.ssl.KeyStoreDetails;
 
 @POPClass
 public class POPJavaJobManager extends POPJobService {
@@ -319,6 +325,7 @@ public class POPJavaJobManager extends POPJobService {
 			// use default if not set
 			if (networkString.isEmpty()) {
 				networkString = defaultNetwork;
+				od.setNetwork(networkString);
 			}
 			// get real network
 			POPNetwork network = networks.get(networkString);
@@ -397,6 +404,7 @@ public class POPJavaJobManager extends POPJobService {
 					POPString codeFile = new POPString();
 					String appId = "unknown";
 					AppService service;
+					// TODO need to save the working network at the start of the request
 					try {
 						service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
 						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
@@ -867,15 +875,33 @@ public class POPJavaJobManager extends POPJobService {
 	public POPNetworkDetails createNetwork(String friendlyName) {
 		try {
 			// create the new network
-			POPNetwork newNetwork = new POPNetwork(friendlyName, this);
+			POPNetwork network = new POPNetwork(friendlyName, this);
 
 			// add new network
 			LogWriter.writeDebugInfo("[JM] Network %s added", friendlyName);
-			networks.put(newNetwork.getUUID(), newNetwork);
+			networks.put(network.getUUID(), network);
+			
+			// generate network key
+			KeyStoreDetails keyStoreDetails = conf.getSSLKeyStoreOptions();
+			if (keyStoreDetails.getKeyStoreFile() != null) {
+				try {
+					KeyPairDetails keyPairDetails = new KeyPairDetails(network.getUUID());
+					KeyStore.PrivateKeyEntry generateKeyPair = SSLUtils.ensureKeyPairGeneration(keyPairDetails);
+
+					SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
+				} catch(Exception e) {
+					LogWriter.writeDebugInfo("[JM] Failed to generate Key add it to KeyStore with message: %s", e.getMessage());
+				}
+			}
 
 			// write all current configurations to a file
+			POPNetworkDetails d = new POPNetworkDetails(network);
+			if (defaultNetwork == null || defaultNetwork.isEmpty()) {
+				defaultNetwork = d.getUUID();
+			}
+			
 			writeConfigurationFile();
-			return new POPNetworkDetails(newNetwork);
+			return d;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
 			return null;
@@ -905,10 +931,28 @@ public class POPJavaJobManager extends POPJobService {
 			// add new network
 			LogWriter.writeDebugInfo("[JM] Network %s added", friendlyName);
 			networks.put(newNetwork.getUUID(), newNetwork);
+			
+			// generate network key
+			KeyStoreDetails keyStoreDetails = conf.getSSLKeyStoreOptions();
+			if (keyStoreDetails.getKeyStoreFile() != null) {
+				try {
+					KeyPairDetails keyPairDetails = new KeyPairDetails(newNetwork.getUUID());
+					KeyStore.PrivateKeyEntry generateKeyPair = SSLUtils.ensureKeyPairGeneration(keyPairDetails);
+
+					SSLUtils.addKeyEntryToKeyStore(keyStoreDetails, keyPairDetails, generateKeyPair);
+				} catch(Exception e) {
+					LogWriter.writeDebugInfo("[JM] Failed to generate Key add it to KeyStore with message: %s", e.getMessage());
+				}
+			}
 
 			// write all current configurations to a file
+			POPNetworkDetails d = new POPNetworkDetails(newNetwork);
+			if (defaultNetwork == null || defaultNetwork.isEmpty()) {
+				defaultNetwork = d.getUUID();
+			}
+			
 			writeConfigurationFile();
-			return new POPNetworkDetails(newNetwork);
+			return d;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
 			return null;
@@ -925,6 +969,20 @@ public class POPJavaJobManager extends POPJobService {
 		if (!networks.containsKey(networkUUID)) {
 			LogWriter.writeDebugInfo("[JM] Network %s not removed, not found", networkUUID);
 			return;
+		}
+		
+		POPNetwork network = networks.get(networkUUID);
+		for (POPConnector connector : network.getConnectors()) {
+			List<POPNode> copy = new ArrayList<>(network.getMembers(connector.getDescriptor()));
+			for (POPNode member : copy) {
+				unregisterNode(networkUUID, member.getCreationParams());
+			}
+		}
+		
+		try {
+			SSLUtils.removeAlias(networkUUID);
+		} catch(IOException e) {
+			
 		}
 		
 		LogWriter.writeDebugInfo("[JM] Network %s removed", networkUUID);
@@ -974,7 +1032,14 @@ public class POPJavaJobManager extends POPJobService {
 
 		List<String> listparams = new ArrayList<>(Arrays.asList(params));
 		String connector = Util.removeStringFromList(listparams, "connector=");
-		network.remove(POPNetworkDescriptor.from(connector).createNode(listparams));
+		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
+		network.remove(node);
+		
+		try {
+			SSLUtils.removeConfidenceLink(node, networkUUID);
+		} catch(Exception e) {
+			
+		}
 		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
 	}
 
@@ -1020,6 +1085,36 @@ public class POPJavaJobManager extends POPJobService {
 	}
 	
 	/**
+	 * Register a new node and add its certificate to the Key Store
+	 * @param networkUUID
+	 * @param certificate
+	 * @param params 
+	 */
+	@POPSyncConc(localhost = true)
+	public void registerPermanentNode(String networkUUID, byte[] certificate, String... params) {
+		// get network
+		POPNetwork network = networks.get(networkUUID);
+		if (network == null) {
+			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network);
+			return;
+		}
+
+		List<String> listparams = new ArrayList<>(Arrays.asList(params));
+		String connector = Util.removeStringFromList(listparams, "connector=");
+		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
+		
+		try {
+			SSLUtils.addConfidenceLink(node, SSLUtils.certificateFromBytes(certificate), networkUUID);
+		} catch(Exception e) {
+			throw new POPException(20, "Job Manager couldn't add certificate to Key Store");
+		}
+		
+		network.add(node);
+		writeConfigurationFile();
+		LogWriter.writeDebugInfo("[JM] Node %s added to %s", Arrays.toString(params), network);
+	}
+	
+	/**
 	 * Unregister a node and write it in the configuration file
 	 * @param networkUUID
 	 * @param params
@@ -1035,7 +1130,14 @@ public class POPJavaJobManager extends POPJobService {
 
 		List<String> listparams = new ArrayList<>(Arrays.asList(params));
 		String connector = Util.removeStringFromList(listparams, "connector=");
-		network.remove(POPNetworkDescriptor.from(connector).createNode(listparams));
+		POPNode node = POPNetworkDescriptor.from(connector).createNode(listparams);
+		
+		try {
+			SSLUtils.removeConfidenceLink(node, networkUUID);
+		} catch(IOException e) {
+		}
+		
+		network.remove(node);
 		LogWriter.writeDebugInfo("[JM] Node %s removed", Arrays.toString(params));
 		writeConfigurationFile();
 	}
@@ -1196,7 +1298,7 @@ public class POPJavaJobManager extends POPJobService {
 
 			// write updated configration file
 			try (FileOutputStream fos = new FileOutputStream(configurationFile)) {
-				fos.write(output.getBytes());
+				fos.write(output.getBytes(StandardCharsets.UTF_8));
 			}
 		} catch(IOException e) {
 			LogWriter.writeDebugInfo("[JM] Failed to write current configuration to disk");
@@ -1390,8 +1492,15 @@ public class POPJavaJobManager extends POPJobService {
 			return aps;
 		}
 		
+		// get remote certificate
+		POPRemoteCaller remote = PopJava.getRemoteCaller();
+		Certificate cert = null;
+		if (remote.isSecure() && !remote.isUsingConfidenceLink()) {
+			cert = SSLUtils.getCertificate(remote.getFingerprint());
+		}
+		
 		// research in TFC Connector, only alive
-		List<TFCResource> resources = tfc.getObjects(objectName);
+		List<TFCResource> resources = tfc.getObjects(objectName, cert);
 		if (resources == null || resources.isEmpty()) {
 			return aps;
 		}
@@ -1521,7 +1630,7 @@ public class POPJavaJobManager extends POPJobService {
 			// connector we are using
 			POPNetworkDescriptor descriptor = null;
 			try {
-				descriptor = POPNetworkDescriptor.from(od.getConnector());
+				descriptor = POPNetworkDescriptor.from(request.getConnector());
 			} catch(IllegalArgumentException e) {
 				return;
 			}
@@ -1558,7 +1667,7 @@ public class POPJavaJobManager extends POPJobService {
 							if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 								try {
 									// send request to other JM
-									POPJavaJobManager jm = jmNode.getJobManager();
+									POPJavaJobManager jm = jmNode.getJobManager(request.getNetworkUUID());
 									jm.askResourcesDiscovery(request, getAccessPoint());		
 								} catch(Exception e) {
 									LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s", jmNode.getJobManagerAccessPoint(), e.getMessage());
@@ -1603,7 +1712,7 @@ public class POPJavaJobManager extends POPJobService {
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 							try {
 								// send request to other JM
-								POPJavaJobManager jm = jmNode.getJobManager();
+								POPJavaJobManager jm = jmNode.getJobManager(request.getNetworkUUID());
 								jm.askResourcesDiscovery(request, getAccessPoint());
 							} catch(Exception e) {
 								LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s", jmNode.getJobManagerAccessPoint(), e.getMessage());
@@ -1664,7 +1773,7 @@ public class POPJavaJobManager extends POPJobService {
 				LogWriter.writeDebugInfo("[PSN] REROUTE;%s;DEST;%s", response.getUID(), wayback.toString());
 				// get next node to contact
 				POPAccessPoint jm = wayback.pop();
-				POPJavaJobManager njm = PopJava.newActive(POPJavaJobManager.class, jm);
+				POPJavaJobManager njm = PopJava.connect(POPJavaJobManager.class, response.getNetworkUUID(), jm);
 				// route request through it
 				njm.rerouteResponse(response, wayback);
 				njm.exit();

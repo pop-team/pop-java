@@ -24,10 +24,10 @@ public abstract class POPConnector {
 	/**
 	 * The constructor define the name of the connector.
 	 * 
-	 * @param name 
+	 * @param descriptor 
 	 */
-	public POPConnector(POPNetworkDescriptor name) {
-		this.descriptor = name;
+	public POPConnector(POPNetworkDescriptor descriptor) {
+		this.descriptor = descriptor;
 	}
 	
 	/**

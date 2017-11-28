@@ -1,10 +1,12 @@
 package popjava.combox.ssl;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.KeyStore;
 import javax.net.ssl.SSLContext;
 import popjava.util.ssl.SSLUtils;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
@@ -24,6 +26,15 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	 */
 	public static final String PROTOCOL = "ssl";
 	private static final Configuration conf = Configuration.getInstance();
+	private static File sslKeyStoreFile = conf.getSSLKeyStoreFile();
+	private static String sslKeyStorePassword = conf.getSSLKeyStorePassword();
+	private static Status status = Status.UNKNOW;
+	
+	private enum Status {
+		UNKNOW,
+		AVAILABLE,
+		NOT_AVAILABLE
+	}
 
 	@Override
 	public String getComboxName() {
@@ -31,13 +42,8 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	}
 
 	@Override
-	public Combox createClientCombox(POPAccessPoint accessPoint) {
-		return createClientCombox(accessPoint, conf.getConnectionTimeout());
-	}
-
-	@Override
-	public Combox createClientCombox(POPAccessPoint accessPoint, int timeout) {
-		return new ComboxSecureSocket(accessPoint, timeout);
+	public Combox createClientCombox(String networkUUID) {
+		return new ComboxSecureSocket(networkUUID);
 	}
 
 	@Override
@@ -62,12 +68,29 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 		if (!super.isAvailable()) {
 			return false;
 		}
-		try {
-			SSLContext context = SSLUtils.getSSLContext();
-			return true;
-		} catch (Exception e) {
-			LogWriter.writeDebugInfo("[SSL Combox] can't be initialized correctly: %s", e.getMessage());
-			return false;
+		if (status == Status.UNKNOW 
+			|| sslKeyStoreFile != conf.getSSLKeyStoreFile()
+			|| sslKeyStorePassword != conf.getSSLKeyStorePassword()) {
+			try {
+				sslKeyStoreFile = conf.getSSLKeyStoreFile();
+				sslKeyStorePassword = conf.getSSLKeyStorePassword();
+				
+				KeyStore keyStore = KeyStore.getInstance(conf.getSSLKeyStoreFormat().name());
+				keyStore.load(new FileInputStream(sslKeyStoreFile), sslKeyStorePassword.toCharArray());
+				
+				status = Status.AVAILABLE;
+			} catch (Exception e) {
+				LogWriter.writeDebugInfo("[SSL Combox] can't be initialized correctly: %s", e.getMessage());
+				status = Status.NOT_AVAILABLE;
+			}
+		}
+		switch (status) {
+			case AVAILABLE:
+				return true;
+			case NOT_AVAILABLE:
+			case UNKNOW:
+			default:
+				return false;
 		}
 	}
 

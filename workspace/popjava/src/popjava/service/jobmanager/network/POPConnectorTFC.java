@@ -1,5 +1,6 @@
 package popjava.service.jobmanager.network;
 
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,12 +8,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import popjava.PopJava;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
+import popjava.base.POPObject;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.util.ssl.SSLUtils;
-import popjava.interfacebase.Interface;
 import popjava.service.jobmanager.Resource;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
@@ -39,7 +41,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 
 		@Override
 		public POPNode createNode(List<String> params) {
-			return new POPNodeTFC(new ArrayList<>(params));
+			return new POPNodeTFC(params);
 		}
 	}
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("tfc", new DescriptorMethodImpl());
@@ -92,6 +94,11 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 				String objAP = remoteJobMngs.get(i).getValue(TFC_RES_ACCESS_POINT);
 				if (objAP != null && !objAP.isEmpty()) {
 					objcontacts[i].setAccessString(objAP);
+					byte[] cert = remoteJobMngs.get(i).getCertificate();
+					if (cert != null && cert.length > 0) {
+						objcontacts[i].setFingerprint(SSLUtils.certificateFingerprint(cert));
+						objcontacts[i].setX509certificate(cert);
+					}
 				}
 			}
 		}
@@ -150,7 +157,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 		return localTFCObjects.add(resource);
 	}
 	
-	private List<TFCResource> getAliveTFCResources(String tfcObject) {
+	private List<TFCResource> getAliveTFCResources(String tfcObject, byte[] cert) {
 		List<TFCResource> resources = tfcObjects.get(tfcObject);
 		if (resources == null) {
 			return null;
@@ -161,8 +168,12 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 			TFCResource tfcResource = iterator.next();
 			try {
 				// test if object is actually alive
-				Interface aliveTest = new Interface(tfcResource.getAccessPoint());
-				aliveTest.close();
+				POPObject aliveTest = PopJava.connect(POPObject.class, network.getUUID(), tfcResource.getAccessPoint());
+				// add certificate if provided
+				if (cert != null && cert.length != 0) {
+					aliveTest.PopRegisterFutureConnectorCertificate(cert);
+				}
+				aliveTest.exit();
 			} catch(Exception e) {
 				// failed to connect, dead object, remove from list
 				iterator.remove();
@@ -172,8 +183,12 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 		return Collections.unmodifiableList(resources);
 	}
 	
-	public List<TFCResource> getObjects(String tfcObject) {
-		List<TFCResource> resources = getAliveTFCResources(tfcObject);
+	public List<TFCResource> getObjects(String tfcObject, Certificate cert) {
+		byte[] bytes = null;
+		if (cert != null) {
+			bytes = SSLUtils.certificateBytes(cert);
+		}
+		List<TFCResource> resources = getAliveTFCResources(tfcObject, bytes);
 		if (resources == null) {
 			return null;
 		}
@@ -190,7 +205,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 		
 		LogWriter.writeDebugInfo("[TFC] handling;%s;%s", request.getUID(), tfcObject);
 		
-		List<TFCResource> resources = getAliveTFCResources(tfcObject);
+		List<TFCResource> resources = getAliveTFCResources(tfcObject, request.getPublicCertificate());
 		if (resources == null) {
 			LogWriter.writeDebugInfo("[TFC] no resource found for %s", tfcObject);
 			return;
@@ -203,7 +218,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 			// add custom TFC parameter
 			String resourceString = tfcResource.getAccessPoint().toString();
 			nodeinfo.setValue(TFC_RES_ACCESS_POINT, resourceString);
-			SNResponse response = new SNResponse(request.getUID(), request.getExplorationList(), nodeinfo);
+			SNResponse response = new SNResponse(request.getUID(), request.getNetworkUUID(), request.getExplorationList(), nodeinfo);
 
 			// if we want to answer we save the certificate if there is any
 			if (request.getPublicCertificate().length > 0) {

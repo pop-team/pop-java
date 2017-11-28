@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import popjava.PopJava;
@@ -202,6 +203,7 @@ public class JVMObjectTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testAsyncCall() throws Exception {
 		LocalObject local = PopJava.newActive(LocalObject.class, 2d);
 		

@@ -53,7 +53,6 @@ import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.combox.ComboxServer;
-import popjava.combox.ssl.POPTrustManager;
 import popjava.util.ssl.SSLUtils;
 import popjava.javaagent.POPJavaAgent;
 import popjava.system.POPSystem;
@@ -78,15 +77,18 @@ public final class Broker {
 	
 	private final Configuration conf = Configuration.getInstance();
 	
-	static public final int REQUEST_QUEUE_TIMEOUT_MS = 600;
-	static public final int BASIC_CALL_MAX_RANGE = 10;
-	static public final int CONSTRUCTOR_SEMANTIC_ID = 21;
-	static public final String CALLBACK_PREFIX = "-callback=";
-	static public final String CODELOCATION_PREFIX = "-codelocation=";
-	static public final String OBJECT_NAME_PREFIX = "-object=";
-	static public final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
-	static public final String APPSERVICE_PREFIX = "-appservice=";
-	static public final String POPJAVA_CONFIG_PREFIX = "-configfile=";
+	public static final int REQUEST_QUEUE_TIMEOUT_MS = 600;
+	public static final int BASIC_CALL_MAX_RANGE = 10;
+	public static final int CONSTRUCTOR_SEMANTIC_ID = 21;
+	public static final String CALLBACK_PREFIX = "-callback=";
+	public static final String CODELOCATION_PREFIX = "-codelocation=";
+	public static final String OBJECT_NAME_PREFIX = "-object=";
+	public static final String ACTUAL_OBJECT_NAME_PREFIX = "-actualobject=";
+	public static final String APPSERVICE_PREFIX = "-appservice=";
+	public static final String JOB_SERVICE = "-jobservice=";
+	public static final String POPJAVA_CONFIG_PREFIX = "-configfile=";
+	public static final String NETWORK_UUID = "-network=";
+	
 	
 	// thread unique callers
 	private static ThreadLocal<POPRemoteCaller> remoteCaller = new InheritableThreadLocal<>();
@@ -526,8 +528,6 @@ public final class Broker {
 			}catch (Exception e) {
 				// Cannot execute, send error
 				LogWriter.writeExceptionLog(e);
-				System.out.println(method.toGenericString());
-				System.out.println(request.getClassId()+" "+request.getMethodId());
 				LogWriter.writeDebugInfo("[Broker] Cannot execute %s", method.toGenericString());
 				exception = POPException.createReflectException(
 						method.getName(), e.getMessage());
@@ -575,12 +575,12 @@ public final class Broker {
 								String originFingerprint = objAp.getFingerprint();
 								if (originFingerprint != null) {
 									// add to access point for the connector
-									Certificate originCert = POPTrustManager.getInstance().getCertificate(originFingerprint);
+									Certificate originCert = SSLUtils.getCertificate(originFingerprint);
 									objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
 
 									// send connector certificate to object's node
 									String destinationFingerprint = request.getCombox().getAccessPoint().getFingerprint();
-									Certificate destCert = POPTrustManager.getInstance().getCertificate(destinationFingerprint);
+									Certificate destCert = SSLUtils.getCertificate(destinationFingerprint);
 									// send caller' certificate to object origin node
 									returnObject.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
 								}
@@ -990,7 +990,7 @@ public final class Broker {
 				}
 			}
 
-			// If no protocol was specified, fall back to default protocol
+			// If no protocol was specified, fall back to available protocols
 			if(liveServers.isEmpty()){
 				for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
 					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
@@ -1066,6 +1066,10 @@ public final class Broker {
 				ACTUAL_OBJECT_NAME_PREFIX);
 		String userConfiguration = Util.removeStringFromList(argvList, 
 				POPJAVA_CONFIG_PREFIX);
+		String jobService = Util.removeStringFromList(argvList,
+				JOB_SERVICE);
+		String network = Util.removeStringFromList(argvList, 
+				NETWORK_UUID);
 		
 		Configuration conf = Configuration.getInstance();
 		if (userConfiguration != null) {
@@ -1092,6 +1096,9 @@ public final class Broker {
 		if (appservice != null && appservice.length() > 0) {
 			POPSystem.appServiceAccessPoint.setAccessString(appservice);
 		}
+		if (jobService != null && !jobService.isEmpty()) {
+			POPSystem.jobService.setAccessString(jobService);
+		}
 		
 		Combox callback = null;
 		if (callbackString != null && callbackString.length() > 0) {
@@ -1110,9 +1117,9 @@ public final class Broker {
 				
 				// create callback
 				try {
-					callback = factory.createClientCombox(accessPoint, 0);
+					callback = factory.createClientCombox(network);
 
-					if (callback.connect()) {
+					if (callback.connectToServer(accessPoint, 0)) {
 						LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
 					} else {
 						LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",
@@ -1150,9 +1157,9 @@ public final class Broker {
 		POPBuffer buffer = new BufferXDR();
 		buffer.setHeader(messageHeader);
 		buffer.putInt(status);
-		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 		broker.getAccessPoint().serialize(buffer);
 		callback.send(buffer);
+		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 
 		if (status == 0){
 			broker.treatRequests();

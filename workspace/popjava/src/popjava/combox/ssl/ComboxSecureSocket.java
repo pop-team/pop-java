@@ -9,13 +9,19 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import javax.net.ssl.ExtendedSSLSession;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.StandardConstants;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
@@ -25,9 +31,8 @@ import popjava.util.POPRemoteCaller;
 /**
  * This combox implement the protocol ssl
  */
-public class ComboxSecureSocket extends Combox {
+public class ComboxSecureSocket extends Combox<SSLSocket> {
 	
-	protected SSLSocket peerConnection = null;
 	protected byte[] receivedBuffer;
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
@@ -37,27 +42,24 @@ public class ComboxSecureSocket extends Combox {
 	private static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
 	
 	/**
-	 * NOTE: this is used by ServerCombox (server)
-	 * Create a new combox on the given socket
-	 * @param socket	The socket to create the combox 
+	 * This is used by ServerCombox (server).
+	 * Create a new combox from a server.
+	 * Call {@link #serverAccept(java.lang.Object)   } to let the client connect.
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
-	public ComboxSecureSocket(SSLSocket socket) throws IOException {
-		peerConnection = socket;
+	public ComboxSecureSocket() throws IOException {
+		super();
 		receivedBuffer = new byte[BUFFER_LENGTH];
-		inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
-		outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
-		extractFingerprint();
 	}
 
 	/**
-	 * NOTE: this is used by Combox (client)
-	 * Create a combox on a given accesspoint
-	 * @param accesspoint
-	 * @param timeout 
+	 * This is used by Combox (client).
+	 * Create a combox for a client.
+	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
+	 * @param networkUUID
 	 */
-	public ComboxSecureSocket(POPAccessPoint accesspoint, int timeout) {
-		super(accesspoint, timeout);
+	public ComboxSecureSocket(String networkUUID) {
+		super(networkUUID);
 		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
 
@@ -95,12 +97,24 @@ public class ComboxSecureSocket extends Combox {
 		}
 	}
 
+	@Override
+	protected boolean serverAccept() {
+		try {
+			inputStream = new BufferedInputStream(peerConnection.getInputStream(), STREAM_BUFFER_SIZE);
+			outputStream = new BufferedOutputStream(peerConnection.getOutputStream(), STREAM_BUFFER_SIZE);
+			return true;
+		} catch(IOException e) {
+			LogWriter.writeDebugInfo("[ComboxSecureSocket] Couldn't open streams on the server side.");
+			return false;
+		}
+	}
+
 	/**
 	 * A client connect to a server, Combox -> ComboxServer
 	 * @return 
 	 */
 	@Override
-	public boolean connect() {
+	protected boolean connectToServer() {
 		try {			
 			SSLContext sslContext = SSLUtils.getSSLContext();
 			SSLSocketFactory factory = sslContext.getSocketFactory();
@@ -126,12 +140,25 @@ public class ComboxSecureSocket extends Combox {
 					} else {
 						peerConnection = (SSLSocket) factory.createSocket();
 						timeOut = 0;
-					}					
+					}
+					peerConnection.setUseClientMode(true);
+					
+					// setup SNI
+					SNIServerName network = new SNIHostName(networkUUID);
+					List<SNIServerName> nets = new ArrayList<>(1);
+					nets.add(network);
+
+					// set SNI as part of the parameters
+					SSLParameters parameters = peerConnection.getSSLParameters();
+					parameters.setServerNames(nets);
+					peerConnection.setSSLParameters(parameters);
+
+					// connect and start handshake
 					peerConnection.connect(sockaddress);
+					
+					// setup communication buffers
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
-					
-					extractFingerprint();
 					
 					available = true;
 				} catch (IOException e) {
@@ -141,6 +168,35 @@ public class ComboxSecureSocket extends Combox {
 		} catch (Exception e) {}
 		
 		return available;
+	}
+
+	@Override
+	protected boolean sendNetworkName() {
+		try {
+			peerConnection.startHandshake();
+			return true;
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo("[ComboxSecureSocket] Client handshake failed. Message: %s", e.getMessage());
+			return false;
+		}
+	}
+
+	@Override
+	protected boolean receiveNetworkName() {
+		// extract network from handshake
+		ExtendedSSLSession handshakeSession = (ExtendedSSLSession) peerConnection.getSession();
+
+		// we need that the handshake is there
+		if (handshakeSession != null) {
+			// extract the SNI from the extended handshake
+			for (SNIServerName sniNetwork : handshakeSession.getRequestedServerNames()) {
+				if (sniNetwork.getType() == StandardConstants.SNI_HOST_NAME) {
+					networkUUID = ((SNIHostName) sniNetwork).getAsciiName();
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	@Override
@@ -228,8 +284,8 @@ public class ComboxSecureSocket extends Combox {
 			if (result < headerLength) {
 				if (conf.isDebugCombox()) {
 					String logInfo = String.format(
-							"%s.failed to receive header. receivedLength= %d, Message length %d",
-							this.getClass().getName(), result, headerLength);
+							"[ComboxSecureSocket] failed to receive header. receivedLength= %d, Message length %d",
+							result, headerLength);
 					LogWriter.writeDebugInfo(logInfo);
 				}
 				close();
@@ -240,7 +296,7 @@ public class ComboxSecureSocket extends Combox {
 			return result;
 		} catch (Exception e) {
 			if (conf.isDebugCombox()){
-				LogWriter.writeDebugInfo("ComboxServerSocket Error while receiving data:"
+				LogWriter.writeDebugInfo("[ComboxSecureSocket] Error while receiving data:"
 								+ e.getMessage());
 			}
 			close();
@@ -262,42 +318,46 @@ public class ComboxSecureSocket extends Combox {
 			}
 			
 			return length;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			if (conf.isDebugCombox()){
-				e.printStackTrace();
-				LogWriter.writeDebugInfo(this.getClass().getName()
-						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
+				LogWriter.writeDebugInfo(
+					"[ComboxSecureSocket] -Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
+				LogWriter.writeExceptionLog(e);
 			}
 			return -1;
 		}
 	}
 
-	private void extractFingerprint() {		
-		try {
+	@Override
+	protected boolean exportConnectionInfo() {		
+		try {			
 			// set the fingerprint in the accesspoint for all to know
 			// this time we have to look which it is
-			SSLSocket sslPeer = (SSLSocket) peerConnection;
-			Certificate[] certs = sslPeer.getSession().getPeerCertificates();
+			Certificate[] certs = peerConnection.getSession().getPeerCertificates();
 			for (Certificate cert : certs) {
-				if (POPTrustManager.getInstance().isCertificateKnown(cert)) {
+				if (SSLUtils.isCertificateKnown(cert)) {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
 					
-					// set global access to those information
-					String network = POPTrustManager.getInstance().getNetworkFromCertificate(fingerprint);
+					if (networkUUID == null) {
+						networkUUID = SSLUtils.getNetworkFromCertificate(fingerprint);
+					}
+					
+					System.out.format("=== Extracting network from handshake '%s' ===\n", networkUUID);
 					
 					remoteCaller = new POPRemoteCaller(
 						peerConnection.getInetAddress(), 
 						MY_FACTORY.getComboxName(),
 						MY_FACTORY.isSecure(),
 						fingerprint, 
-						network
-					);					
-					break;
+						networkUUID
+					);
+					return true;
 				}
 			}
 		} catch (Exception e) {
-			
+			LogWriter.writeExceptionLog(e);
 		}
+		return false;
 	}
 }

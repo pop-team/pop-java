@@ -1,13 +1,21 @@
 package popjava.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import javassist.util.proxy.ProxyObject;
+import popjava.annotation.POPClass;
 /**
  * This class gives some static methods to look inside a class
  */
 public class ClassUtil {
+	
+	private static Map<Method, String> methodSignsCache = new HashMap<>();
+	private static Map<Constructor, String> constructorSignsCache = new HashMap<>();
 	
 	public static Class<?>[] getObjectTypes(Object ... objects){
 		Class<?>[] parameterTypes = new Class<?>[objects.length];
@@ -89,10 +97,13 @@ public class ClassUtil {
 	 * @return	Signature of the given method as a string value
 	 */
 	public static String getMethodSign(Method m) {
-		if (m == null)
-			return "Method is null";
-		else
-			return getMethodSign(m.getName(), m.getParameterTypes());
+		Objects.requireNonNull(m);
+		String sign = methodSignsCache.get(m);
+		if (sign == null) {
+			sign = getMethodSign(m.getName(), m.getParameterTypes());
+			methodSignsCache.put(m, sign);
+		}
+		return sign;
 	}
 
 	/**
@@ -101,11 +112,16 @@ public class ClassUtil {
 	 * @return	Signature of the constructor as a string value
 	 */
 	public static String getMethodSign(Constructor<?> c) {
-		return getMethodSign(c.getDeclaringClass().getName(), c
-				.getParameterTypes());
+		Objects.requireNonNull(c);
+		String sign = constructorSignsCache.get(c);
+		if (sign == null) {
+			sign= getMethodSign(c.getDeclaringClass().getName(), c.getParameterTypes());
+			constructorSignsCache.put(c, sign);
+		}
+		return sign;
 	}
 
-	public static String getMethodSign(String name, Class<?>[] parameterTypes) {
+	private static String getMethodSign(String name, Class<?>[] parameterTypes) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
 		for (Class<?> c : parameterTypes) {
@@ -252,5 +268,24 @@ public class ClassUtil {
 			return new Character((char) 0);
 
 		return null;
+	}
+	
+	/**
+	 * Generate an ID or use the one specified
+	 * 
+	 * @param clazz
+	 * @return 
+	 */
+	public static int classId(Class<?> clazz) {
+		for (Annotation annotation : clazz.getDeclaredAnnotations()) {
+			if(annotation instanceof POPClass){
+				POPClass popClassAnnotation = (POPClass) annotation;
+				if(popClassAnnotation.classId() != -1){
+					return popClassAnnotation.classId();
+				}
+			}
+		}
+
+		return Math.abs(clazz.getName().hashCode());
 	}
 }

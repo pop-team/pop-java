@@ -306,6 +306,11 @@ public class POPSystem {
         }
         
         initialized = initCodeService(codeconf, popJavaObjectExecuteCommand, coreServiceManager);
+		
+		// like Broker, the main has its own directory
+		// create directories and setup their cleanup on exit
+		RuntimeDirectoryThread runtimeCleanup = new RuntimeDirectoryThread(Util.generateUUID());
+		runtimeCleanup.addCleanupHook();
 	    
         return initialized;
 	}
@@ -356,11 +361,6 @@ public class POPSystem {
 				LogWriter.writeDebugInfo("[Init] can't access user config '%s'", config.getAbsolutePath());
 			}
 		}
-		
-		// like Broker, the main has its own directory
-		// create directories and setup their cleanup
-		RuntimeDirectoryThread runtimeCleanup = new RuntimeDirectoryThread(Util.generateUUID());
-		runtimeCleanup.addCleanupHook();
 	}
 	
 	private static AppService getCoreService(String proxy, String appservicecontact, String appservicecode){
