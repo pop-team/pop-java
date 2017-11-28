@@ -27,6 +27,7 @@ import junit.localtests.protocols.ProtocolsTests;
 import junit.localtests.protocols.IncompatibleConnectionsTest;
 import junit.localtests.protocols.WhiteBlacklistTest;
 import junit.localtests.serializable.JavaSerializableTest;
+import junit.localtests.accounting.AccountingTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -53,7 +54,8 @@ import junit.localtests.serializable.JavaSerializableTest;
 	ProtocolsTests.class, 
 	IncompatibleConnectionsTest.class, 
 	WhiteBlacklistTest.class, 
-	JavaSerializableTest.class
+	JavaSerializableTest.class,
+	AccountingTest.class
 })
 public class LocalTests {
 

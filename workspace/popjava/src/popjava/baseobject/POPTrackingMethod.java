@@ -1,9 +1,5 @@
 package popjava.baseobject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import popjava.base.MethodInfo;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 
@@ -12,12 +8,17 @@ import popjava.dataswaper.IPOPBase;
  * 
  * @author Davide Mazzoleni
  */
-class POPTrackingMethod implements IPOPBase {
+public class POPTrackingMethod implements IPOPBase {
 
-	private final MethodInfo method;
+	private String method;
 	private long timeUsed;
+	private long calls;
 
-	POPTrackingMethod(MethodInfo method) {
+	public POPTrackingMethod() {
+		this(null);
+	}
+
+	POPTrackingMethod(String method) {
 		this.method = method;
 	}
 
@@ -25,12 +26,13 @@ class POPTrackingMethod implements IPOPBase {
 	 * Register a new method call.
 	 * @param time 
 	 */
-	public synchronized void increment(Long time) {
+	public synchronized void increment(long time) {
+		calls++;
 		timeUsed += time;
 	}
 
 	/**
-	 * The total time used by this method.
+	 * The total time used by this method in milliseconds.
 	 * @return 
 	 */
 	public long getTimeUsed() {
@@ -41,19 +43,32 @@ class POPTrackingMethod implements IPOPBase {
 	 * The method used.
 	 * @return 
 	 */
-	public MethodInfo getMethod() {
+	public String getMethod() {
 		return method;
+	}
+
+	/**
+	 * Number of calls to this method.
+	 * @return 
+	 */
+	public long getNumCalls() {
+		return calls;
 	}
 
 	@Override
 	public boolean serialize(POPBuffer buffer) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		buffer.putString(method);
+		buffer.putLong(timeUsed);
+		buffer.putLong(calls);
+		return true;
 	}
 
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		method = buffer.getString();
+		timeUsed = buffer.getLong();
+		calls = buffer.getLong();
+		return true;
 	}
-	
 	
 }

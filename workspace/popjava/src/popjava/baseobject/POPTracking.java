@@ -1,14 +1,11 @@
 package popjava.baseobject;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import popjava.base.MethodInfo;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
-import popjava.util.POPRemoteCaller;
 
 /**
  * This class contains information on the caller toward an object.
@@ -18,24 +15,28 @@ import popjava.util.POPRemoteCaller;
  */
 public class POPTracking implements IPOPBase {
 
-	// TODO change caller in String (ID)
-	private final POPRemoteCaller caller;
-	private final Map<MethodInfo, POPTrackingMethod> calls;
+	private String caller;
+	private final Map<String, POPTrackingMethod> calls;
 
-	public POPTracking(POPRemoteCaller caller) {
+	public POPTracking() {
+		this(null);
+	}
+
+	public POPTracking(String caller) {
 		this.caller = caller;
 		this.calls = new HashMap<>();
 	}
 
-	public POPRemoteCaller getCaller() {
+	public String getCaller() {
 		return caller;
 	}
 
 	public List<POPTrackingMethod> getCalls() {
-		return Collections.unmodifiableList(new ArrayList(calls.values()));
+		POPTrackingMethod[] data = calls.values().toArray(new POPTrackingMethod[calls.size()]);
+		return Arrays.asList(data);
 	}
 
-	public void track(MethodInfo method, long time) {
+	public void track(String method, long time) {
 		POPTrackingMethod recorder = calls.get(method);
 		if (recorder == null) {
 			recorder = new POPTrackingMethod(method);
@@ -46,12 +47,24 @@ public class POPTracking implements IPOPBase {
 	
 	@Override
 	public boolean serialize(POPBuffer buffer) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		buffer.putString(caller);
+		buffer.putInt(calls.size());
+		for (POPTrackingMethod call : calls.values()) {
+			call.serialize(buffer);
+		}
+		return true;
 	}
 
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		caller = buffer.getString();
+		int size = buffer.getInt();
+		for (int i = 0; i < size; i++) {
+			POPTrackingMethod method = new POPTrackingMethod();
+			method.deserialize(buffer);
+			calls.put(method.getMethod(), method);
+		}
+		return true;
 	}
 	
 }

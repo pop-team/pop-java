@@ -23,6 +23,7 @@ import popjava.annotation.POPSyncSeq;
 import popjava.baseobject.ConnectionType;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
+import popjava.baseobject.POPTracking;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.util.ssl.SSLUtils;
@@ -108,6 +109,7 @@ public class POPObject implements IPOPBase {
 			// TODO size (-1) is not implemented, may want to add it to POPObjectDescription
 			od.setSearch(objectDescription.searchDepth(), -1, objectDescription.searchTime());
 			od.setUseLocalJVM(objectDescription.localJVM());
+			od.setTracking(objectDescription.tracking());
 		}
 	}
 	
@@ -793,38 +795,32 @@ public class POPObject implements IPOPBase {
 	/**
 	 * Get the tracked user list.
 	 * 
-	 * @return 
+	 * @return a callerID array of strings.
 	 */
 	@POPSyncSeq(localhost = true)
-	public Object getTrackedUsers() {
-		
-		
-		return null;
+	public String[] getTrackedUsers() {
+		return broker.getTrackingUsers();
 	}
 	
 	/**
 	 * Get the resources used by an user.
 	 * 
-	 * @param user
+	 * @param callerID
 	 * @return 
 	 */
 	@POPSyncSeq(localhost = true)
-	public Object getTracked(Object user) {
-		
-		
-		return null;
+	public POPTracking getTracked(String callerID) {
+		return broker.getTracked(callerID);
 	}
 	
 	/**
-	 * Get the resources used until now by myself.
+	 * Get the resources used until now by caller.
 	 * 
 	 * @return 
 	 */
-	@POPSyncSeq(localhost = true)
-	public Object getTracked() {
-		
-		
-		return null;
+	@POPSyncSeq
+	public POPTracking getTracked() {
+		return broker.getTracked(PopJava.getRemoteCaller().getCallerID());
 	}
 	
 	/**

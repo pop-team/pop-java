@@ -52,4 +52,9 @@ public class ComboxPlugin extends Combox<Object> {
 		return false;
 	}
 
+	@Override
+	public String partyIdentification() {
+		return null;
+	}
+
 }

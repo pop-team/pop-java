@@ -2,7 +2,6 @@ package popjava.util;
 
 import java.net.InetAddress;
 import java.util.Objects;
-import popjava.combox.ssl.POPTrustManager;
 import popjava.util.ssl.SSLUtils;
 
 /**
@@ -15,20 +14,22 @@ public class POPRemoteCaller {
 	private final InetAddress remote;
 	private final String protocol;
 	private final boolean secure;
+	private final String callerID;
 	
 	private final String fingerprint;
 	private final String network;
 
-	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String fingerprint, String network) {
+	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String callerID, String fingerprint, String network) {
 		this.remote = remote;
 		this.protocol = protocol;
 		this.secure = secure;
+		this.callerID = callerID;
 		this.fingerprint = fingerprint;
 		this.network = network;
 	}
 
-	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure) {
-		this(remote, protocol, secure, null, null);
+	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String callerID) {
+		this(remote, protocol, secure, callerID, null, null);
 	}
 
 	/**
@@ -56,6 +57,14 @@ public class POPRemoteCaller {
 	 */
 	public boolean isSecure() {
 		return secure;
+	}
+
+	/**
+	 * The Combox unique identifier.
+	 * @return 
+	 */
+	public String getCallerID() {
+		return callerID;
 	}
 
 	/**

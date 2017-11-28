@@ -813,7 +813,9 @@ public class ObjectDescription implements IPOPBase {
 		if (getConnector() == null || getConnector().isEmpty()) {
 			setConnector(od.getConnector());
 		}
-		this.tracking = od.tracking;
+		if (!this.tracking && od.tracking) {
+			this.tracking = true;
+		}
 	}
 
 	/**

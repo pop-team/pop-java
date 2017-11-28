@@ -198,6 +198,11 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 		}
 		return false;
 	}
+
+	@Override
+	public String partyIdentification() {
+		return remoteCaller.getFingerprint();
+	}
 	
 	@Override
 	public int receive(POPBuffer buffer, int requestId) {
@@ -346,9 +351,10 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 					System.out.format("=== Extracting network from handshake '%s' ===\n", networkUUID);
 					
 					remoteCaller = new POPRemoteCaller(
-						peerConnection.getInetAddress(), 
+						peerConnection.getInetAddress(),
 						MY_FACTORY.getComboxName(),
 						MY_FACTORY.isSecure(),
+						fingerprint,
 						fingerprint, 
 						networkUUID
 					);

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -114,7 +115,7 @@ public final class Broker {
 	private Map<Method, Annotation[][]> methodParametersAnnotationCache = new HashMap<>();
 	private Map<Method, Integer> methodSemanticsCache = new HashMap<>();
 	
-	private Map<POPRemoteCaller, POPTracking> callerTracking = new HashMap<>();
+	private Map<String, POPTracking> callerTracking = new ConcurrentHashMap<>();
 		
 	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		
@@ -524,7 +525,7 @@ public final class Broker {
 		//LogWriter.writeDebugInfo("Call method "+method.getName());
 		// Invoke the method if success to get all parameter
 		if (exception == null && method != null) {
-			final long trackingStart = System.nanoTime();
+			final long trackingStart = System.currentTimeMillis();
 			try {
 				method.setAccessible(true);
 				if (returnType != Void.class && returnType != void.class) {					
@@ -547,9 +548,8 @@ public final class Broker {
 
 			} finally {
 				if (tracking) {
-					final long trackingTime = trackingStart - System.nanoTime();
-					// TODO replace caller with combox generate string
-					registerTracking(remoteCaller.get(), info, trackingTime);
+					final long trackingTime = System.currentTimeMillis() - trackingStart;
+					registerTracking(request.getCombox().partyIdentification(), method.toGenericString(), trackingTime);
 				}
 			}
 		}
@@ -1262,17 +1262,34 @@ public final class Broker {
 	
 	/**
 	 * Register a tracking event in the broker.
-	 * @param caller Who called the method.
+	 * @param callerID Who called the method.
 	 * @param method The method called.
 	 * @param time How much time did the execution take.
 	 */
-	private void registerTracking(POPRemoteCaller caller, MethodInfo method, long time) {
-		POPTracking userTracking = callerTracking.get(caller);
+	private void registerTracking(String callerID, String method, long time) {
+		POPTracking userTracking = callerTracking.get(callerID);
 		// create if it's the first time we see this caller
 		if (userTracking == null) {
-			userTracking = new POPTracking(caller);
-			callerTracking.put(caller, userTracking);
+			userTracking = new POPTracking(callerID);
+			callerTracking.put(callerID, userTracking);
 		}
 		userTracking.track(method, time);
+	}
+
+	/**
+	 * All the currently tracked users.
+	 * @return An array of callerID via {@link Combox#partyIdentification() }
+	 */
+	public String[] getTrackingUsers() {
+		return callerTracking.keySet().toArray(new String[callerTracking.size()]);
+	}
+
+	/**
+	 * Statistics on a single user.
+	 * @param callerID A callerID which is {@link Combox#partyIdentification() }
+	 * @return 
+	 */
+	public POPTracking getTracked(String callerID) {
+		return callerTracking.get(callerID);
 	}
 }

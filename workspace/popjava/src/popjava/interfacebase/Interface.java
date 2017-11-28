@@ -832,6 +832,10 @@ public class Interface {
 			argvList.add(jobString);
 		}
 		
+		if (od.isTracking()) {
+			argvList.add(Broker.TRACKING);
+		}
+		
 		String networkUUID = od.getNetwork();
 		if (networkUUID == null || networkUUID.isEmpty()) {
 			networkUUID = conf.getDefaultNetwork();
