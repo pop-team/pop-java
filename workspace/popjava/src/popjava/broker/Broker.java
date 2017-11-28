@@ -115,7 +115,7 @@ public final class Broker {
 	private Map<Method, Annotation[][]> methodParametersAnnotationCache = new HashMap<>();
 	private Map<Method, Integer> methodSemanticsCache = new HashMap<>();
 	
-	private Map<String, POPTracking> callerTracking = new ConcurrentHashMap<>();
+	private Map<POPRemoteCaller, POPTracking> callerTracking = new ConcurrentHashMap<>();
 		
 	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		
@@ -549,7 +549,7 @@ public final class Broker {
 			} finally {
 				if (tracking) {
 					final long trackingTime = System.currentTimeMillis() - trackingStart;
-					registerTracking(request.getCombox().partyIdentification(), method.toGenericString(), trackingTime);
+					registerTracking(request.getCombox().getRemoteCaller(), method.toGenericString(), trackingTime);
 				}
 			}
 		}
@@ -1262,16 +1262,16 @@ public final class Broker {
 	
 	/**
 	 * Register a tracking event in the broker.
-	 * @param callerID Who called the method.
+	 * @param caller Who called the method.
 	 * @param method The method called.
 	 * @param time How much time did the execution take.
 	 */
-	private void registerTracking(String callerID, String method, long time) {
-		POPTracking userTracking = callerTracking.get(callerID);
+	private void registerTracking(POPRemoteCaller caller, String method, long time) {
+		POPTracking userTracking = callerTracking.get(caller);
 		// create if it's the first time we see this caller
 		if (userTracking == null) {
-			userTracking = new POPTracking(callerID);
-			callerTracking.put(callerID, userTracking);
+			userTracking = new POPTracking(caller);
+			callerTracking.put(caller, userTracking);
 		}
 		userTracking.track(method, time);
 	}
@@ -1280,16 +1280,16 @@ public final class Broker {
 	 * All the currently tracked users.
 	 * @return An array of callerID via {@link Combox#partyIdentification() }
 	 */
-	public String[] getTrackingUsers() {
-		return callerTracking.keySet().toArray(new String[callerTracking.size()]);
+	public POPRemoteCaller[] getTrackingUsers() {
+		return callerTracking.keySet().toArray(new POPRemoteCaller[callerTracking.size()]);
 	}
 
 	/**
 	 * Statistics on a single user.
-	 * @param callerID A callerID which is {@link Combox#partyIdentification() }
+	 * @param caller A caller remote location
 	 * @return 
 	 */
-	public POPTracking getTracked(String callerID) {
-		return callerTracking.get(callerID);
+	public POPTracking getTracked(POPRemoteCaller caller) {
+		return callerTracking.get(caller);
 	}
 }

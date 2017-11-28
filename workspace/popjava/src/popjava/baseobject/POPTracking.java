@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
+import popjava.util.POPRemoteCaller;
 
 /**
  * This class contains information on the caller toward an object.
@@ -15,19 +16,19 @@ import popjava.dataswaper.IPOPBase;
  */
 public class POPTracking implements IPOPBase {
 
-	private String caller;
+	private POPRemoteCaller caller;
 	private final Map<String, POPTrackingMethod> calls;
 
 	public POPTracking() {
 		this(null);
 	}
 
-	public POPTracking(String caller) {
+	public POPTracking(POPRemoteCaller caller) {
 		this.caller = caller;
 		this.calls = new HashMap<>();
 	}
 
-	public String getCaller() {
+	public POPRemoteCaller getCaller() {
 		return caller;
 	}
 
@@ -47,7 +48,7 @@ public class POPTracking implements IPOPBase {
 	
 	@Override
 	public boolean serialize(POPBuffer buffer) {
-		buffer.putString(caller);
+		caller.serialize(buffer);
 		buffer.putInt(calls.size());
 		for (POPTrackingMethod call : calls.values()) {
 			call.serialize(buffer);
@@ -57,7 +58,7 @@ public class POPTracking implements IPOPBase {
 
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
-		caller = buffer.getString();
+		caller = (POPRemoteCaller) buffer.getValue(POPRemoteCaller.class);
 		int size = buffer.getInt();
 		for (int i = 0; i < size; i++) {
 			POPTrackingMethod method = new POPTrackingMethod();

@@ -200,11 +200,6 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 	}
 
 	@Override
-	public String partyIdentification() {
-		return remoteCaller.getFingerprint();
-	}
-	
-	@Override
 	public int receive(POPBuffer buffer, int requestId) {
 		
 		int result = 0;
@@ -354,7 +349,6 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 						peerConnection.getInetAddress(),
 						MY_FACTORY.getComboxName(),
 						MY_FACTORY.isSecure(),
-						fingerprint,
 						fingerprint, 
 						networkUUID
 					);

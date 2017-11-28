@@ -183,11 +183,6 @@ public class ComboxSocket extends Combox<Socket> {
 	}
 
 	@Override
-	public String partyIdentification() {
-		return peerConnection.getInetAddress().toString();
-	}
-	
-	@Override
 	public int receive(POPBuffer buffer, int requestId) {
 		
 		int result = 0;
@@ -321,8 +316,7 @@ public class ComboxSocket extends Combox<Socket> {
 		remoteCaller = new POPRemoteCaller(
 			peerConnection.getInetAddress(),
 			MY_FACTORY.getComboxName(),
-			MY_FACTORY.isSecure(),
-			peerConnection.getInetAddress().toString()
+			MY_FACTORY.isSecure()
 		);
 		return true;
 	}

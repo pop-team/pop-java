@@ -1,7 +1,10 @@
 package popjava.util;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Objects;
+import popjava.buffer.POPBuffer;
+import popjava.dataswaper.IPOPBase;
 import popjava.util.ssl.SSLUtils;
 
 /**
@@ -9,27 +12,28 @@ import popjava.util.ssl.SSLUtils;
  * 
  * @author Davide Mazzoleni
  */
-public class POPRemoteCaller {
+public class POPRemoteCaller implements IPOPBase {
 	
-	private final InetAddress remote;
-	private final String protocol;
-	private final boolean secure;
-	private final String callerID;
+	private InetAddress remote;
+	private String protocol;
+	private boolean secure;
 	
-	private final String fingerprint;
-	private final String network;
+	private String fingerprint;
+	private String network;
 
-	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String callerID, String fingerprint, String network) {
+	public POPRemoteCaller() {
+	}
+
+	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String fingerprint, String network) {
 		this.remote = remote;
 		this.protocol = protocol;
 		this.secure = secure;
-		this.callerID = callerID;
 		this.fingerprint = fingerprint;
 		this.network = network;
 	}
 
-	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String callerID) {
-		this(remote, protocol, secure, callerID, null, null);
+	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure) {
+		this(remote, protocol, secure, null, null);
 	}
 
 	/**
@@ -57,14 +61,6 @@ public class POPRemoteCaller {
 	 */
 	public boolean isSecure() {
 		return secure;
-	}
-
-	/**
-	 * The Combox unique identifier.
-	 * @return 
-	 */
-	public String getCallerID() {
-		return callerID;
 	}
 
 	/**
@@ -140,6 +136,43 @@ public class POPRemoteCaller {
 		}
 		if (!Objects.equals(this.remote, other.remote)) {
 			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean serialize(POPBuffer buffer) {
+		buffer.putByteArray(remote.getAddress());
+		buffer.putString(protocol);
+		buffer.putBoolean(secure);
+		boolean net = network != null;
+		buffer.putBoolean(net);
+		if (net) {
+			buffer.putString(network);
+		}
+		boolean fig = fingerprint != null;
+		buffer.putBoolean(fig);
+		if (fig) {
+			buffer.putString(fingerprint);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean deserialize(POPBuffer buffer) {
+		try {
+			int size = buffer.getInt();
+			remote = InetAddress.getByAddress(buffer.getByteArray(size));
+		} catch(UnknownHostException e) {
+			LogWriter.writeDebugInfo("[POPRemoteCaller] can't decode received InetAddress");
+		}
+		protocol = buffer.getString();
+		secure = buffer.getBoolean();
+		if (buffer.getBoolean()) {
+			network = buffer.getString();
+		}
+		if (buffer.getBoolean()) {
+			fingerprint = buffer.getString();
 		}
 		return true;
 	}

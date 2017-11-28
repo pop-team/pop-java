@@ -110,13 +110,6 @@ public abstract class Combox<T> {
 	 * @return	true if the server accept the connection successfully
 	 */
 	protected abstract boolean serverAccept();
-	
-	 /**
-	  * This method should consistently return the same results when the same person connect to an object.
-	  * This method should be called only after a connection is established.
-	  * @return A identification string.
-	  */
-	public abstract String partyIdentification();
 
 	/**
 	 * Send the buffer to the other side

@@ -31,6 +31,7 @@ import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
+import popjava.util.POPRemoteCaller;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
  */
@@ -798,19 +799,19 @@ public class POPObject implements IPOPBase {
 	 * @return a callerID array of strings.
 	 */
 	@POPSyncSeq(localhost = true)
-	public String[] getTrackedUsers() {
+	public POPRemoteCaller[] getTrackedUsers() {
 		return broker.getTrackingUsers();
 	}
 	
 	/**
 	 * Get the resources used by an user.
 	 * 
-	 * @param callerID
+	 * @param caller
 	 * @return 
 	 */
 	@POPSyncSeq(localhost = true)
-	public POPTracking getTracked(String callerID) {
-		return broker.getTracked(callerID);
+	public POPTracking getTracked(POPRemoteCaller caller) {
+		return broker.getTracked(caller);
 	}
 	
 	/**
@@ -820,7 +821,7 @@ public class POPObject implements IPOPBase {
 	 */
 	@POPSyncSeq
 	public POPTracking getTracked() {
-		return broker.getTracked(PopJava.getRemoteCaller().getCallerID());
+		return broker.getTracked(PopJava.getRemoteCaller());
 	}
 	
 	/**
