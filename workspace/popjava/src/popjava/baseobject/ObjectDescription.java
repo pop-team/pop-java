@@ -1,6 +1,9 @@
 package popjava.baseobject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import popjava.buffer.POPBuffer;
@@ -41,6 +44,8 @@ public class ObjectDescription implements IPOPBase {
 	protected String codeFile;
 	protected String directory;
 	protected String batch;
+	
+	protected List<String> searchHosts = new ArrayList<>();
 	
 	protected String remoteAccessPoint = ""; // Used to connect to a remote object at object creation
 	protected POPAccessPoint originAppService = null;  // Point to some application service 
@@ -118,6 +123,7 @@ public class ObjectDescription implements IPOPBase {
 		setNetwork(od.getNetwork());
 		setConnector(od.getConnector());
 		useLocalJVM = od.useLocalJVM();
+		searchHosts.addAll(od.searchHosts);
 	}
 	
 	public boolean useLocalJVM(){
@@ -218,6 +224,31 @@ public class ObjectDescription implements IPOPBase {
 	 */
 	public void setWallTime(float walltime) {
 		this.wallTime = walltime;
+	}
+
+	/**
+	 * Set the OD to tell that only the specified hosts should answer.
+	 * @param searchHosts 
+	 */
+	public void setSearchHosts(String... searchHosts) {
+		this.searchHosts.clear();
+		this.searchHosts.addAll(Arrays.asList(searchHosts));
+	}
+
+	/**
+	 * Add an host to the OD, see {@link #setSearchHosts(java.lang.String...) }
+	 * @param searchHost 
+	 */
+	public void addSearchHosts(String searchHost) {
+		this.searchHosts.add(searchHost);
+	}
+
+	/**
+	 * The hosts which should answer a request.
+	 * @return 
+	 */
+	public String[] getSearchHosts() {
+		return searchHosts.toArray(new String[searchHosts.size()]);
 	}
 	
 	/**
@@ -701,7 +732,13 @@ public class ObjectDescription implements IPOPBase {
 		this.setProtocols(protocols);
 		this.setEncoding(encoding);
 
-		// put the attributes
+		// get searchHosts
+		int hostsNum = buffer.getInt();
+		for (int i = 0; i < hostsNum; i++) {
+			this.searchHosts.add(buffer.getString());
+		}
+		
+		// get the attributes
 		this.attributes.clear();
 		int attributeCount = buffer.getInt();
 		for (int i = 0; i < attributeCount; i++) {
@@ -742,6 +779,11 @@ public class ObjectDescription implements IPOPBase {
 		buffer.putString(platform);
 		buffer.putArray(protocols);
 		buffer.putString(encoding);
+		// search hosts
+		buffer.putInt(searchHosts.size());
+		for (String searchHost : searchHosts) {
+			buffer.putString(searchHost);
+		}
 		// put the attributes
 		buffer.putInt(attributes.size());
 		Enumeration<String> keys = attributes.keys();
@@ -816,6 +858,7 @@ public class ObjectDescription implements IPOPBase {
 		if (!this.tracking && od.tracking) {
 			this.tracking = true;
 		}
+		this.searchHosts.addAll(od.searchHosts);
 	}
 
 	/**

@@ -76,6 +76,9 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 		if (!od.getPlatform().isEmpty()) {
 			request.setOS(od.getPlatform());
 		}
+		if (od.getSearchHosts().length > 0) {
+			request.setHosts(od.getSearchHosts());
+		}
 		String appId = "", reqId = "";
 		
 		// TFC specific requests parameters

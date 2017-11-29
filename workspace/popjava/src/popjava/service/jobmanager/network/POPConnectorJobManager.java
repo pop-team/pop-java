@@ -91,6 +91,9 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		if (!od.getPlatform().isEmpty()) {
 			request.setOS(od.getPlatform());
 		}
+		if (od.getSearchHosts().length > 0) {
+			request.setHosts(od.getSearchHosts());
+		}
 		// TODO get appId from AppService
 		String appId = "", reqId = "";
 

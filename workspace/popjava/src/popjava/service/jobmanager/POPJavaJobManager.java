@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -1700,10 +1701,27 @@ public class POPJavaJobManager extends POPJobService {
 			if (SNKnownRequests.size() > conf.getSearchNodeMaxRequests()) {
 				SNKnownRequests.pollLast();
 			}
-
-			LogWriter.writeDebugInfo("[PSN] looking for local answer");
-			// send request, handled by the different connectors
-			snEnableConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
+			
+			// check for host if they are specified
+			boolean answer = request.getHosts().length == 0;
+			if (!answer) {
+				InetAddress myself = InetAddress.getByName(POPSystem.getHostIP());
+				for (String host : request.getHosts()) {
+					InetAddress addr = InetAddress.getByName(host);
+					if (myself.equals(addr)) {
+						answer = true;
+						break;
+					}
+				}
+			}
+			
+			if (answer) {
+				LogWriter.writeDebugInfo("[PSN] Looking for local answer");
+				// send request, handled by the different connectors
+				snEnableConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
+			} else {
+				LogWriter.writeDebugInfo("[PSN] Node not in request answer list, skipping and propagating request");
+			}
 
 			// propagate in the network if we still can
 			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == conf.getSearchNodeUnlimitedHops()) {
