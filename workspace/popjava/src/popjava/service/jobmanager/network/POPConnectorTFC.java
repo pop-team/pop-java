@@ -1,7 +1,6 @@
 package popjava.service.jobmanager.network;
 
 import java.security.cert.Certificate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -227,7 +226,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 
 			LogWriter.writeDebugInfo("[TFC] aswering request %s of %s with %s.", request.getUID(), tfcObject, resourceString);
 			// route response to the original JM
-			jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));				
+			jobManager.rerouteResponse(response, new SNWayback(request.getWayback()));
 		}
 	}
 

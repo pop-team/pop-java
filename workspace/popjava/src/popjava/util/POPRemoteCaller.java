@@ -109,6 +109,7 @@ public class POPRemoteCaller implements IPOPBase {
 		int hash = 5;
 		hash = 67 * hash + Objects.hashCode(this.remote);
 		hash = 67 * hash + Objects.hashCode(this.protocol);
+		hash = 67 * hash + Objects.hashCode(this.network);
 		hash = 67 * hash + Objects.hashCode(this.fingerprint);
 		return hash;
 	}

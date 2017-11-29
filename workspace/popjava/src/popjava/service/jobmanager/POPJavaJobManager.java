@@ -1597,6 +1597,7 @@ public class POPJavaJobManager extends POPJobService {
 			return results;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in launchDiscovery: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 			return new SNNodesInfo();
 		}
 	}
@@ -1619,6 +1620,7 @@ public class POPJavaJobManager extends POPJobService {
 
 			// do nothing if we don't have the network
 			if (network == null) {
+				LogWriter.writeDebugInfo("[JM] Network [%s] not found", request.getNetworkUUID());
 				return;
 			}
 
@@ -1632,12 +1634,14 @@ public class POPJavaJobManager extends POPJobService {
 			try {
 				descriptor = POPNetworkDescriptor.from(request.getConnector());
 			} catch(IllegalArgumentException e) {
+				LogWriter.writeDebugInfo("[JM] Connector descriptor [%s] not found", request.getConnector());
 				return;
 			}
 			POPConnector connectorImpl = network.getConnector(descriptor);
 			
 			// connector won't work with the SearchNode
 			if (!(connectorImpl instanceof POPConnectorSearchNodeInterface)) {
+				LogWriter.writeDebugInfo("[JM] Connector [%s] is not Job Manager enabed", request.getConnector());
 				return;
 			}
 			POPConnectorSearchNodeInterface snEnableConnector = (POPConnectorSearchNodeInterface) connectorImpl;
@@ -1697,6 +1701,7 @@ public class POPJavaJobManager extends POPJobService {
 				SNKnownRequests.pollLast();
 			}
 
+			LogWriter.writeDebugInfo("[PSN] looking for local answer");
 			// send request, handled by the different connectors
 			snEnableConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
 
@@ -1718,12 +1723,12 @@ public class POPJavaJobManager extends POPJobService {
 								LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s", jmNode.getJobManagerAccessPoint(), e.getMessage());
 							}
 						}
-
 					}
 				}
 			}
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 
@@ -1754,6 +1759,7 @@ public class POPJavaJobManager extends POPJobService {
 			unlockDiscovery(response.getUID());
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in callbackResult: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 
@@ -1784,7 +1790,7 @@ public class POPJavaJobManager extends POPJobService {
 			}
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in rerouteResponse: %s", e.getMessage());
-			e.printStackTrace();
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 

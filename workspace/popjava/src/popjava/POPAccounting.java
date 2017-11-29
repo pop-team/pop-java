@@ -103,41 +103,4 @@ public class POPAccounting {
 		}
 		return obj.getTracked();
 	}
-	
-	/**
-	 * With the help of the Job Manager we try to identify who is the node calling us.
-	 * 
-	 * @param caller One of the caller return by {@link #getUsers(java.lang.Object) }
-	 * @return 
-	 */
-	public static POPNode identifyUser(POPRemoteCaller caller) {
-		Configuration conf = Configuration.getInstance();
-		String protocol = conf.getJobManagerProtocols()[0];
-		int port = conf.getJobManagerPorts()[0];
-		String accessString = String.format("%s://%s:%d", protocol, POPSystem.getHostIP(), port);
-		POPAccessPoint jma = new POPAccessPoint(accessString);
-		POPJavaJobManager jobManager = PopJava.connect(POPJavaJobManager.class, conf.getDefaultNetwork(), jma);
-		
-		String[][] nodesStrings = jobManager.getNetworkNodes(caller.getNetwork());
-		List<POPNode> nodes = new ArrayList<>();
-		for (int i = 0; i < nodesStrings.length; i++) {
-			List<String> nodeParams = new ArrayList<>(Arrays.asList(nodesStrings[i]));
-			String connector = Util.removeStringFromList(nodeParams, "connector=");
-			POPNetworkDescriptor descriptor = POPNetworkDescriptor.from(connector);
-			if (descriptor != null) {
-				nodes.add(descriptor.createNode(nodeParams));
-			}
-		}
-		jobManager.exit();
-		return nodes.stream()
-			.filter(node -> {
-				try {
-					InetAddress addr = InetAddress.getByName(node.getHost());
-					return addr.equals(caller.getRemote());
-				} catch (UnknownHostException e) {
-					return false;
-				}
-			})
-			.findFirst().get();
-	}
 }

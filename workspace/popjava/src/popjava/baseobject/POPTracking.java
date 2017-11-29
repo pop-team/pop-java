@@ -67,5 +67,14 @@ public class POPTracking implements IPOPBase {
 		}
 		return true;
 	}
-	
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(caller).append("\n");
+		for (POPTrackingMethod value : calls.values()) {
+			sb.append(value).append("\n");
+		}
+		return sb.toString();
+	}
 }

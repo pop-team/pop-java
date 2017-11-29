@@ -70,5 +70,9 @@ public class POPTrackingMethod implements IPOPBase {
 		calls = buffer.getLong();
 		return true;
 	}
-	
+
+	@Override
+	public String toString() {
+		return String.format("%d (%d ms) %s", calls, timeUsed, method);
+	}
 }
