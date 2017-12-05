@@ -53,6 +53,7 @@ public class IncompatibleConnectionsTest {
 		userConfig.deleteOnExit();
 		keystore.deleteOnExit();
 		Configuration.getInstance().setUserConfig(null);
+		Configuration.getInstance().setDebug(false);
 	}
 	
 	@Before

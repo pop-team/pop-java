@@ -33,6 +33,7 @@ public class POPJavaJobManagerLiveConfigurationTest {
 	@Test
 	public void networks() throws IOException {
 		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
+		assertNotNull(jm);
 		
 		// networks
 		String ONE = "1", TWO = "2", TRE = "3";
@@ -65,6 +66,7 @@ public class POPJavaJobManagerLiveConfigurationTest {
 	@Test
 	public void nodes() throws IOException {
 		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
+		assertNotNull(jm);
 		
 		String N = "n", M = "m";
 		// node params (creation)
@@ -104,6 +106,7 @@ public class POPJavaJobManagerLiveConfigurationTest {
 	@Test
 	public void mixed() throws IOException {
 		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
+		assertNotNull(jm);
 		
 		String N = "n", M = "m";
 		// node params (creation)

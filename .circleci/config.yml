@@ -7,12 +7,12 @@ jobs:
       
     steps:
       - checkout
-      - run: ant jar-popjava
-      - run: ant run-tests
+      - run: ./gradlew jar
+      - run: ./gradlew test
       - store_test_results:
-          path: ~/project/build/
+          path: ~/project/build/test-results/test
       - store_artifacts:
-          path: ~/project/build/jar/popjava.jar
+          path: ~/project/build/libs/popjava.jar
           
   java9:
     docker:
@@ -20,12 +20,12 @@ jobs:
       
     steps:
       - checkout
-      - run: ant jar-popjava
-      - run: ant run-tests
+      - run: ./gradlew jar
+      - run: ./gradlew test
       - store_test_results:
-          path: ~/project/build/
+          path: ~/project/build/test-results/test
       - store_artifacts:
-          path: ~/project/build/jar/popjava.jar
+          path: ~/project/build/libs/popjava.jar
           
 workflows:
   version: 2

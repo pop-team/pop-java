@@ -22,9 +22,13 @@
 /release
 /build
 /.idea
+*.iml
+*.ipr
+*.iws
 /.settings
 /nbproject
 /.nb-gradle
+.nb-gradle-properties
 /.gradle
 
 #files

@@ -97,6 +97,7 @@ public class MethodAccessTest {
 		Files.deleteIfExists(configTrusted);
 		Files.deleteIfExists(configTemporary);
 		Configuration.getInstance().setUserConfig(null);
+		Configuration.getInstance().setDebug(false);
 	}
 	
 	@Before

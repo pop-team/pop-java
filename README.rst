@@ -6,9 +6,16 @@ Version 1.5 is under development, use it at your own risk.
 COMPILE POP-Java SOURCE CODE
 ----------------------------
 
+By using the command below you will build and test the latest version of POP-Java.
+
 .. code::
 
-  $ ant
+  $ ./gradlew build
+  
+In case you don't want to wait you can skip the JUnit test by running the following command.
+
+.. code::
+  $ ./gradlew build -x test
 
 
 INSTALLING POP-Java
@@ -39,6 +46,39 @@ If you have kept the default options this should give you something like:
   POPJAVA_JAVA=/usr/bin/java
   export POPJAVA_JAVA
   PATH=$PATH:$POPJAVA_LOCATION/bin
+  
+DEVELOPMENT
+-----------
+
+Depending on the environment you use you may want to use different IDE, or none at all.
+Gradle can setup the environment for different platforms.
+
+Eclipse
+~~~~~~~
+
+Go in the project root and generate the Eclipse project files.
+
+.. code::
+
+  $ ./gradlew eclipse
+  
+You now should be able to open POP-Java as a Java project.
+
+IntelliJ IDEA
+~~~~~~~~~~~~~
+
+Go in the project root and generate the IntelliJ project files.
+
+.. code::
+  $ ./gradlew idea
+  
+You now should be able to open POP-Java as a Java project.
+
+Netbeans
+~~~~~~~~
+
+Open the project as a Gradle project. Nothing more should be required.
+
 
 LICENCE
 -------

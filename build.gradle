@@ -1,8 +1,14 @@
 apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+description = 'A Java distributed system'
 
 version = 1.5
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+ant.importBuild 'build.xml'
 
 repositories {
     mavenCentral()
@@ -14,7 +20,7 @@ sourceSets {
             srcDirs = ['workspace/popjava/src']
         }
         resources {
-            srcDirs = ['etc']
+            srcDirs = ['workspace/resources']
         }
     }
     test {
@@ -25,10 +31,10 @@ sourceSets {
 }
 
 dependencies {
-    compile group: 'org.javassist', name: 'javassist', version: '3.+'
-    compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.+'
-    compile group: 'org.yaml', name: 'snakeyaml', version: '1.+'
-    compile group: 'com.hierynomus', name: 'sshj', version: '0.21.1'
+    compile group: 'org.javassist',    name: 'javassist',      version: '3.+'
+    compile group: 'org.slf4j',        name: 'slf4j-nop',      version: '1.7.+'
+    compile group: 'org.yaml',         name: 'snakeyaml',      version: '1.+'
+    compile group: 'com.hierynomus',   name: 'sshj',           version: '0.21.1'
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.58'
     
     testCompile group: 'junit', name: 'junit', version: '4.+'
@@ -36,34 +42,49 @@ dependencies {
 }
 
 test {
-    useTestNG()
     useJUnit()
     
-    testLogging.showStandardStreams = true
+    testLogging.showStandardStreams = false
     
-    // TODO make it work with JUnit Suite
-    include '**'
+    // any test
+    exclude '**/AllTests.class',
+        '**/LocalTests.class',
+        '**/AnnotationTests.class',
+        '**/BenchmarkTests.class',
+        '**/POPCPPJobmanagerTest.class',
+        '**/SystemTests.class'
+    
+    //jvmArgs '-javaagent:build/popjava.jar'
     
     beforeTest { descriptor ->
-        logger.lifecycle("Running test: " + descriptor)
-    }
-
-    // listen to standard out and standard error of the test JVM(s)
-    onOutput { descriptor, event ->
-        logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
+        logger.lifecycle(descriptor.toString())
     }
 }
 
-task fatJar(type: Jar, overwrite: true) {
+task fatJar(type: Jar, group: 'build', description: 'Assembles a jar with all the dependencies') {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Jar File Example',
-            'Implementation-Version': version,
-            'Premain-Class': 'popjava.javaagent.POPJavaAgent',
+        attributes 'Premain-Class': 'popjava.javaagent.POPJavaAgent',
             'Can-Redefine-Classes': true,
             'Can-Retransform-Classes': true,
             'Can-Set-Native-Method-Prefix': true
     }
-    baseName = project.name
+    baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    // don't add signed jar checks and tests to jar
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA', 'junit/*', 'testsuite/*'
     with jar
+
+    doLast {
+        copy {
+            from 'build/libs'
+            into 'build'
+            include project.name + '-all-' + version + '.jar'
+            rename (project.name + '-all-' + version + '.jar', 'popjava.jar')
+        }
+    }
 }
+
+artifacts {
+    archives fatJar
+}
+

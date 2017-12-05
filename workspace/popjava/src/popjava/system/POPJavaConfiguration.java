@@ -154,7 +154,8 @@ public class POPJavaConfiguration {
 		    } catch(URISyntaxException e) {
 		        location = new File(temp.getLocation().getPath());
 		    }
-		            
+		    
+			System.out.println("###### " + location.getAbsolutePath());
 			if(location.isFile() && location.getAbsolutePath().endsWith(".jar")){
 				return true;
 			}			
@@ -243,7 +244,7 @@ public class POPJavaConfiguration {
         }
         
         if(!popJar.endsWith(".jar")){
-            popJar = new File("build/jar/"+Popjavac.POP_JAVA_JAR_FILE).toPath().toString();
+            popJar = new File("build/"+Popjavac.POP_JAVA_JAR_FILE).toPath().toString();
         }
         
         return popJar;

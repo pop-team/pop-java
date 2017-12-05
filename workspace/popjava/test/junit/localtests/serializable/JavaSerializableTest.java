@@ -24,6 +24,7 @@ public class JavaSerializableTest {
 	
 	@After
 	public void after() {
+		Configuration.getInstance().setDebug(false);
 		POPSystem.end();
 	}
 	
