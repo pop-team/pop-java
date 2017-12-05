@@ -449,6 +449,7 @@ public final class Broker {
 			} else {
 				// not a semantic match, we keep what we received
 				// XXX this happen when we get the annotation from a superclass
+				// FIXME get annotation from super class
 				semantics = request.getSenmatics();
 			}
 			
