@@ -262,7 +262,6 @@ public class POPObject implements IPOPBase {
 	 */
 	protected final void initializePOPObject() {
 		if (generateClassId){
-			// TODO generate a POP Java specific ID
 			classId = ClassUtil.classId(getRealClass());
 		}
 		

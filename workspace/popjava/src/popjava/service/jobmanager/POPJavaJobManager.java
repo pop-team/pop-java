@@ -717,6 +717,7 @@ public class POPJavaJobManager extends POPJobService {
 				value.setValue(sb.toString().trim());
 				return true;
 			case "power_available":
+			case "power":
 				update();
 				value.setValue(String.valueOf(available.getFlops()));
 				return true;
