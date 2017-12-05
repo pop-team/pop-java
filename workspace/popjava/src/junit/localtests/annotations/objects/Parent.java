@@ -1,6 +1,7 @@
 package junit.localtests.annotations.objects;
 
 import popjava.annotation.POPClass;
+import popjava.annotation.POPPrivate;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPObject;
 
@@ -19,5 +20,10 @@ public class Parent extends POPObject{
     @POPSyncConc(id = 21)
     public void test2(){
         
+    }
+    
+    @POPPrivate
+    public int testPrivate() {
+    	return 1234;
     }
 }

@@ -16,6 +16,7 @@ import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
+import popjava.annotation.POPPrivate;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
@@ -207,49 +208,51 @@ public class POPObject implements IPOPBase {
 		Class<?> c = getRealClass();
 		
 		for(Method method: c.getDeclaredMethods()){
-			int semantic = -1;
-			
-			//Sync
-			if(method.isAnnotationPresent(POPSyncConc.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+			if(!method.isAnnotationPresent(POPPrivate.class)) {
+				int semantic = -1;
+				
+				//Sync
+				if(method.isAnnotationPresent(POPSyncConc.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
 				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
-			}
-			if(method.isAnnotationPresent(POPSyncSeq.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				if(method.isAnnotationPresent(POPSyncSeq.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
 				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
-			}
-			if(method.isAnnotationPresent(POPSyncMutex.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				if(method.isAnnotationPresent(POPSyncMutex.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
 				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
-			}
-			//Async
-			if(method.isAnnotationPresent(POPAsyncConc.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				//Async
+				if(method.isAnnotationPresent(POPAsyncConc.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
 				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
-			}
-			if(method.isAnnotationPresent(POPAsyncSeq.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				if(method.isAnnotationPresent(POPAsyncSeq.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
 				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
-			}
-			if(method.isAnnotationPresent(POPAsyncMutex.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				if(method.isAnnotationPresent(POPAsyncMutex.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
 				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
-			}
-			
-			if(semantic != -1){
-				addSemantic(c, method.getName() , semantic);
+				
+				if(semantic != -1){
+					addSemantic(c, method.getName() , semantic);
+				}
 			}
         }
 	}

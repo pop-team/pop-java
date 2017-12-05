@@ -3,8 +3,11 @@ package junit.localtests.annotations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
+
+import javax.swing.plaf.basic.BasicTreeUI.TreeHomeAction;
 
 import org.junit.Test;
 
@@ -124,6 +127,22 @@ public class AnnotationsTest {
         Method method = child.getMethodByInfo(info);
         assertNotNull(method);
         
+        POPSystem.end();
+	}
+	
+	@Test
+	public void testPrivate() {
+		POPSystem.initialize();
+		
+	    Parent parent = PopJava.newActive(Parent.class);
+	    try {
+	    	if(parent.testPrivate() == 1234) {
+	    		fail("Method testPrivate should not be exposed");
+	    	}
+	    	
+	    }catch (Throwable e) {
+	    	e.printStackTrace();
+		}
         POPSystem.end();
 	}
 	
