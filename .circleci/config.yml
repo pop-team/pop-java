@@ -7,12 +7,23 @@ jobs:
       
     steps:
       - checkout
-      - run: ./gradlew jar
+      - restore_cache:
+          keys:
+            - pop-cache-{{ checksum "build.gradle" }}
+            - pop-cache-
+              
+      - run: ./gradlew clean build -x test
       - run: ./gradlew test
+      
+      - save_cache:
+          key: pop-cache-{{ checksum "build.gradle" }}
+          paths:
+            - ~/.gradle
+              
       - store_test_results:
           path: ~/project/build/test-results/test
       - store_artifacts:
-          path: ~/project/build/libs/popjava.jar
+          path: ~/project/build/popjava.jar
           
   java9:
     docker:
@@ -20,12 +31,23 @@ jobs:
       
     steps:
       - checkout
-      - run: ./gradlew jar
+      - restore_cache:
+          keys:
+            - pop-cache-{{ checksum "build.gradle" }}
+            - pop-cache-
+              
+      - run: ./gradlew clean build -x test
       - run: ./gradlew test
+      
+      - save_cache:
+          key: pop-cache-{{ checksum "build.gradle" }}
+          paths:
+            - ~/.gradle
+              
       - store_test_results:
           path: ~/project/build/test-results/test
       - store_artifacts:
-          path: ~/project/build/libs/popjava.jar
+          path: ~/project/build/popjava.jar
           
 workflows:
   version: 2

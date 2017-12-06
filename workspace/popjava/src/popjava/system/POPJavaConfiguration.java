@@ -155,7 +155,6 @@ public class POPJavaConfiguration {
 		        location = new File(temp.getLocation().getPath());
 		    }
 		    
-			System.out.println("###### " + location.getAbsolutePath());
 			if(location.isFile() && location.getAbsolutePath().endsWith(".jar")){
 				return true;
 			}			

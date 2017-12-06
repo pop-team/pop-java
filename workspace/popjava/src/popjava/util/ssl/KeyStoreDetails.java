@@ -31,10 +31,12 @@ public class KeyStoreDetails {
 	 * @param other 
 	 */
 	public KeyStoreDetails(KeyStoreDetails other) {
-		this.keyStorePassword = other.keyStorePassword;
-		this.privateKeyPassword = other.privateKeyPassword;
-		this.keyStoreFile = other.keyStoreFile;
-		this.keyStoreFormat = other.keyStoreFormat;
+		if (other != null) {
+			this.keyStorePassword = other.keyStorePassword;
+			this.privateKeyPassword = other.privateKeyPassword;
+			this.keyStoreFile = other.keyStoreFile;
+			this.keyStoreFormat = other.keyStoreFormat;
+		}
 	}
 
 	/**

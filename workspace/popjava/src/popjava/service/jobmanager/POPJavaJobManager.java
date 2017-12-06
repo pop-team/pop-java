@@ -904,6 +904,7 @@ public class POPJavaJobManager extends POPJobService {
 			return d;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 			return null;
 		}
 	}
@@ -955,6 +956,7 @@ public class POPJavaJobManager extends POPJobService {
 			return d;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[JM] Exception caught in createNetwork: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 			return null;
 		}
 	}

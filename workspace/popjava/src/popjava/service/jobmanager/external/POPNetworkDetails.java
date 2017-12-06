@@ -6,6 +6,7 @@ import java.util.Objects;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.service.jobmanager.network.POPNetwork;
+import popjava.util.LogWriter;
 import popjava.util.ssl.SSLUtils;
 
 /**
@@ -26,7 +27,11 @@ public class POPNetworkDetails implements IPOPBase {
 	public POPNetworkDetails(POPNetwork network) {
 		this.uuid = network.getUUID();
 		this.friendlyName = network.getFriendlyName();
-		this.certificate = SSLUtils.getCertificateFromAlias(uuid);
+		try {
+			this.certificate = SSLUtils.getCertificateFromAlias(uuid);
+		} catch (Exception e) {
+			LogWriter.writeDebugInfo("[NetworkDetails] No dertificate found for network [%s].", uuid);
+		}
 	}
 
 	public String getUUID() {

@@ -2,8 +2,7 @@ package junit.localtests.jobmanager;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.cert.Certificate;
-import java.util.Collections;
+import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -27,7 +26,14 @@ public class POPJavaJobManagerLiveConfigurationTest {
 	
 	@BeforeClass
 	public static void bc() {
-		Configuration.getInstance().setSSLKeyStoreOptions(new KeyStoreDetails());
+		Configuration.getInstance().setSSLKeyStoreOptions(null);
+		Configuration.getInstance().setDebug(true);
+	}
+	
+	@AfterClass
+	public static void ac() {
+		Configuration.getInstance().setSSLKeyStoreOptions(null);
+		Configuration.getInstance().setDebug(false);
 	}
 	
 	@Test

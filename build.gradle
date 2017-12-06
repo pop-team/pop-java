@@ -46,7 +46,7 @@ test {
     
     testLogging.showStandardStreams = false
     
-    // any test
+    // skip Suite groupping classes
     exclude '**/AllTests.class',
         '**/LocalTests.class',
         '**/AnnotationTests.class',
@@ -54,11 +54,14 @@ test {
         '**/POPCPPJobmanagerTest.class',
         '**/SystemTests.class'
     
-    //jvmArgs '-javaagent:build/popjava.jar'
-    
     beforeTest { descriptor ->
         logger.lifecycle(descriptor.toString())
     }
+}
+
+clean {
+    delete 'build'
+    delete 'logFolder'
 }
 
 task fatJar(type: Jar, group: 'build', description: 'Assembles a jar with all the dependencies') {

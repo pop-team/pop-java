@@ -490,10 +490,17 @@ public final class Configuration {
 	}
 	
 	public void setSSLKeyStoreOptions(KeyStoreDetails options) {
-		setSSLKeyStoreFile(options.getKeyStoreFile());
-		setSSLKeyStoreFormat(options.getKeyStoreFormat());
-		setSSLKeyStorePassword(options.getKeyStorePassword());
-		setSSLKeyStorePrivateKeyPassword(options.getPrivateKeyPassword());
+		if (options == null) {
+			setSSLKeyStoreFile(null);
+			setSSLKeyStoreFormat(null);
+			setSSLKeyStorePassword(null);
+			setSSLKeyStorePrivateKeyPassword(null);
+		} else {
+			setSSLKeyStoreFile(options.getKeyStoreFile());
+			setSSLKeyStoreFormat(options.getKeyStoreFormat());
+			setSSLKeyStorePassword(options.getKeyStorePassword());
+			setSSLKeyStorePrivateKeyPassword(options.getPrivateKeyPassword());
+		}
 	}
 
 	public void setJobManagerPorts(int[] jobManagerPorts) {
