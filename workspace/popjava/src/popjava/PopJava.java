@@ -266,4 +266,17 @@ public class PopJava {
 	public static POPRemoteCaller getRemoteCaller() {
 		return Broker.getRemoteCaller();
 	}
+	
+	/**
+	 * Given a Proxy Object (Client) connected to a POP Object (Server) we get the identifier of the server.
+	 * @param object
+	 * @return 
+	 */
+	public static POPRemoteCaller getRemote(Object object) {
+		if(object instanceof ProxyObject){
+			ProxyObject origin = (ProxyObject) object;
+			return ((PJMethodHandler) origin.getHandler()).getRemote();
+		}
+		throw new IllegalArgumentException("The obejct is not a valid Proxy Object");
+	}
 }
