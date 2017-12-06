@@ -5,6 +5,9 @@ jobs:
     docker:
       - image: circleci/openjdk:8
       
+    environment: 
+      - POP_DEBUG: true
+      
     steps:
       - checkout
       - restore_cache:
@@ -13,13 +16,10 @@ jobs:
             - pop-cache-
               
       - run: ./gradlew clean build -x test
-      - run:
-        - environment: 
-            POP_DEBUG: true
-        - command: ./gradlew test
+      - run: ./gradlew test
         
       - run: mkdir -p $CIRCLE_TEST_REPORTS/junit/
-      - run: find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+      - run: find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
@@ -36,6 +36,9 @@ jobs:
     docker:
       - image: circleci/openjdk:9
       
+    environment: 
+      - POP_DEBUG: true
+      
     steps:
       - checkout
       - restore_cache:
@@ -44,13 +47,10 @@ jobs:
             - pop-cache-
               
       - run: ./gradlew clean build -x test
-      - run:
-        - environment: 
-            POP_DEBUG: true
-        - command: ./gradlew test
+      - run: ./gradlew test
         
       - run: mkdir -p $CIRCLE_TEST_REPORTS/junit/
-      - run: find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+      - run: find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
