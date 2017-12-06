@@ -68,7 +68,7 @@ public class IncompatibleConnectionsTest {
 		POPSystem.end();
 	}
 	
-	@Test(timeout = 1000, expected = Exception.class)
+	@Test(timeout = 2000, expected = Exception.class)
 	@Ignore
 	public void sslToSocket() {
 		POPAccessPoint socketAP = socket.getAccessPoint();
@@ -76,11 +76,11 @@ public class IncompatibleConnectionsTest {
 		socketAsSSL.get(0).setProtocol("ssl");
 		
 		System.out.format("From %s to %s\n", socketAP, socketAsSSL);
-		A shouldThrow = PopJava.newActive(A.class, socketAsSSL);
+		A shouldThrow = PopJava.connect(A.class, "myTest", socketAsSSL);
 		shouldThrow.sync();
 	}
 	
-	@Test(timeout = 1000, expected = Exception.class)
+	@Test(timeout = 2000, expected = Exception.class)
 	public void socketToSSL() {
 		POPAccessPoint sslAP = ssl.getAccessPoint();
 		POPAccessPoint sslAsSocket = new POPAccessPoint(sslAP.toString());
