@@ -15,11 +15,13 @@ jobs:
             - pop-cache-{{ checksum "build.gradle" }}
             - pop-cache-
               
-      - run: ./gradlew clean build -x test
-      - run: ./gradlew test
-        
-      - run: mkdir -p $CIRCLE_TEST_REPORTS/junit/
-      - run: find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/
+      - run: 
+            name: Build POP-Java
+            command: ./gradlew --no-daemon clean build -x test
+
+      - run: 
+            name: Test POP-Java
+            command: ./gradlew --no-daemon test
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
@@ -28,7 +30,7 @@ jobs:
             - ~/.gradle
       
       - store_test_results:
-          path: $CIRCLE_TEST_REPORTS/junit/
+          path: ~/project/build/test-results/
       - store_artifacts:
           path: ~/project/build/popjava.jar
           
@@ -46,11 +48,13 @@ jobs:
             - pop-cache-{{ checksum "build.gradle" }}
             - pop-cache-
               
-      - run: ./gradlew clean build -x test
-      - run: ./gradlew test
-        
-      - run: mkdir -p $CIRCLE_TEST_REPORTS/junit/
-      - run: find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/
+      - run: 
+            name: Build POP-Java
+            command: ./gradlew --no-daemon clean build -x test
+
+      - run: 
+            name: Test POP-Java
+            command: ./gradlew --no-daemon test
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
@@ -59,7 +63,7 @@ jobs:
             - ~/.gradle
       
       - store_test_results:
-          path: $CIRCLE_TEST_REPORTS/junit/
+          path: ~/project/build/test-results/
       - store_artifacts:
           path: ~/project/build/popjava.jar
           

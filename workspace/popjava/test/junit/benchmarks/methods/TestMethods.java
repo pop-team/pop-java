@@ -14,6 +14,7 @@ import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
+import org.junit.Ignore;
 
 import popjava.PopJava;
 import popjava.system.POPSystem;
@@ -59,6 +60,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testPOPNoParamNoReturn(){		
 		long start = System.currentTimeMillis();
 		
@@ -70,6 +72,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testPOPNoParamSimple(){		
 		long start = System.currentTimeMillis();
 		
@@ -81,6 +84,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testPOPNoParamComplex(){
 		long start = System.currentTimeMillis();
 		
@@ -92,6 +96,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testPOPSimpleParam(){
 		long start = System.currentTimeMillis();
 		
@@ -103,6 +108,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testPOPComplexParam(){
 		
 		long start = System.currentTimeMillis();
@@ -114,6 +120,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testSocketNoParamNoReturn() throws UnknownHostException, IOException, InterruptedException{
 		
 		
@@ -125,6 +132,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testSocketNoParamSimple() throws UnknownHostException, IOException, InterruptedException{
 		
 		long start = System.currentTimeMillis();
@@ -135,6 +143,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testSocketNoParamComplex() throws UnknownHostException, IOException, InterruptedException{
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < REPETITIONS; i++){
@@ -144,6 +153,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testRMINoParamNoReturn() throws NotBoundException, IOException{
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < REPETITIONS; i++){
@@ -153,6 +163,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testRMINoParamSimple() throws NotBoundException, IOException{
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < REPETITIONS; i++){
@@ -162,6 +173,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testRMINoParamComplex() throws NotBoundException, IOException{
 		long start = System.currentTimeMillis();
 		for(int i = 0; i < REPETITIONS; i++){
@@ -171,6 +183,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testRMISimple() throws IOException{
 		long start = System.currentTimeMillis();
 		
@@ -182,6 +195,7 @@ public class TestMethods extends AbstractBenchmark {
 	}
 	
 	@Test
+	@Ignore
 	public void testRMIComplex() throws IOException{
 		long start = System.currentTimeMillis();
 		
