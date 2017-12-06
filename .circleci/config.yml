@@ -14,12 +14,14 @@ jobs:
               
       - run: ./gradlew clean build -x test
       - run: ./gradlew test
+      - run: sleep 2
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
+          when: always
           paths:
             - ~/.gradle
-              
+      
       - store_test_results:
           path: ~/project/build/test-results/test
       - store_artifacts:
@@ -38,12 +40,14 @@ jobs:
               
       - run: ./gradlew clean build -x test
       - run: ./gradlew test
+      - run: sleep 2
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
+          when: always
           paths:
             - ~/.gradle
-              
+      
       - store_test_results:
           path: ~/project/build/test-results/test
       - store_artifacts:
