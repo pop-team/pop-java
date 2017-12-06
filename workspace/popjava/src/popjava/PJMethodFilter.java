@@ -26,6 +26,7 @@ public class PJMethodFilter implements MethodFilter {
 		notFilterMethodList.add("serialize");
 		notFilterMethodList.add("deserialize");
 		notFilterMethodList.add("getAccessPoint");
+		notFilterMethodList.add("getRemote");
 		notFilterMethodList.add("exit");
 		Class<?> c = POPObject.class;
 		Method[] methods = c.getDeclaredMethods();
