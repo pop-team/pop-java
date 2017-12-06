@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import popjava.PopJava;
@@ -15,7 +14,6 @@ public class Benchmark {
 	private static final int TOTAL = 20000;
 	
 	@Test
-	@Ignore
 	public void test(){
 		long start = System.currentTimeMillis();
 		

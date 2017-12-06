@@ -46,13 +46,8 @@ test {
     
     testLogging.showStandardStreams = true
     
-    // skip Suite groupping classes
-    exclude '**/AllTests.class',
-        '**/LocalTests.class',
-        '**/AnnotationTests.class',
-        '**/BenchmarkTests.class',
-        '**/POPCPPJobmanagerTest.class',
-        '**/SystemTests.class'
+    // use only define suite
+    include '**/AllTests.class'
     
     beforeTest { descriptor ->
         logger.lifecycle(descriptor.toString())
