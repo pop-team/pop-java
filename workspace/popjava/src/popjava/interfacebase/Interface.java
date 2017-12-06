@@ -37,6 +37,7 @@ import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 import popjava.util.SystemUtil;
 import popjava.util.Util;
 
@@ -128,6 +129,14 @@ public class Interface {
 			}
 		}
 		return result;
+	}
+	
+	/**
+	 * Get the remote caller of the host the object is connected to.
+	 * @return 
+	 */
+	public POPRemoteCaller getRemote() {
+		return combox.getRemoteCaller();
 	}
 
 	/**
