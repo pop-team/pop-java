@@ -71,12 +71,17 @@ public final class Configuration {
 	
 	// Location of POPJava installation
 	private static final String POPJAVA_LOCATION;
+	private static Boolean ENV_DEBUG;
 	static {
-		String env = System.getenv("POPJAVA_LOCATION");
-		if (env == null) {
+		String location = System.getenv("POPJAVA_LOCATION");
+		String debug = System.getenv("POP_DEBUG");
+		if (location == null) {
 			POPJAVA_LOCATION = new File("./").getAbsolutePath();
 		} else {
-			POPJAVA_LOCATION = new File(env).getAbsolutePath();
+			POPJAVA_LOCATION = new File(location).getAbsolutePath();
+		}
+		if (debug != null) {
+			ENV_DEBUG = Boolean.getBoolean(debug);
 		}
 	}
 	
@@ -91,7 +96,7 @@ public final class Configuration {
 	private final Properties ALL_PROPERTIES = new Properties();
 	
 	// user configurable attributes w/ POP's defaults
-	private boolean debug = false;
+	private boolean debug = ENV_DEBUG != null ? ENV_DEBUG : false;
 	private boolean debugCombox = false;
 	private int reserveTimeout = 60000;
 	private int allocTimeout = 30000;
@@ -336,8 +341,10 @@ public final class Configuration {
 	}
 
 	public void setDebug(boolean debug) {
-		setUserProp(Settable.DEBUG, debug);
-		this.debug = debug;
+		if (ENV_DEBUG == null) {
+			setUserProp(Settable.DEBUG, debug);
+			this.debug = debug;
+		}
 	}
 
 	public void setDebugCombox(boolean debugCombox) {
@@ -605,7 +612,10 @@ public final class Configuration {
 				try {
 					switch(keyEnum) {
 						case SYSTEM_JOBMANAGER_CONFIG:           systemJobManagerConfig = new File(value); break;
-						case DEBUG:                              debug = Boolean.parseBoolean(value); break;
+						case DEBUG:
+							if (ENV_DEBUG == null) {
+								debug = Boolean.parseBoolean(value); break;
+							}
 						case DEBUG_COMBOBOX:                     debugCombox = Boolean.parseBoolean(value); break;
 						case RESERVE_TIMEOUT:                    reserveTimeout = Integer.parseInt(value); break;
 						case ALLOC_TIMEOUT:                      allocTimeout = Integer.parseInt(value); break;

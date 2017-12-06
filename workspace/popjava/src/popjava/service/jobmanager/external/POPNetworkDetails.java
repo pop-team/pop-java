@@ -30,7 +30,7 @@ public class POPNetworkDetails implements IPOPBase {
 		try {
 			this.certificate = SSLUtils.getCertificateFromAlias(uuid);
 		} catch (Exception e) {
-			LogWriter.writeDebugInfo("[NetworkDetails] No dertificate found for network [%s].", uuid);
+			LogWriter.writeDebugInfo("[NetworkDetails] No certificate found for network [%s].", uuid);
 		}
 	}
 
