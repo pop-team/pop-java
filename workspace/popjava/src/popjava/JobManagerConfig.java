@@ -234,7 +234,7 @@ public class JobManagerConfig {
 	
 	/**
 	 * Generate a KeyStore with private key and certificate.
-	 * Proxy for {@link SSLUtils#generateKeyStore(KeyStoreCreationOptions)}
+	 * Proxy for {@link SSLUtils#generateKeyStore(popjava.util.ssl.KeyStoreDetails, popjava.util.ssl.KeyPairDetails)}
 	 * 
 	 * @param keyDetails
 	 * @return 

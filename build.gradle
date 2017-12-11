@@ -10,6 +10,11 @@ targetCompatibility = 1.8
 
 ant.importBuild 'build.xml'
 
+ext {
+    releaseDirectory = new File('release').getAbsolutePath()
+    popjavac = new File('popjavac').getAbsolutePath()
+}
+
 repositories {
     mavenCentral()
 }
@@ -17,15 +22,15 @@ repositories {
 sourceSets {
     main {
         java {
-            srcDirs = ['workspace/popjava/src']
+            srcDirs = [ 'workspace/popjava/src' ]
         }
         resources {
-            srcDirs = ['workspace/resources']
+            srcDirs = [ 'workspace/resources' ]
         }
     }
     test {
         java {
-            srcDirs = ['workspace/popjava/test']
+            srcDirs = [ 'workspace/popjava/test' ]
         }
     }
 }
@@ -57,9 +62,10 @@ test {
 clean {
     delete 'build'
     delete 'logFolder'
+    delete releaseDirectory
 }
 
-task fatJar(type: Jar, group: 'build', description: 'Assembles a jar with all the dependencies') {
+task fatJar(type: Jar, dependsOn: [ classes ], group: 'build', description: 'Assembles a jar with all the dependencies') {
     manifest {
         attributes 'Premain-Class': 'popjava.javaagent.POPJavaAgent',
             'Can-Redefine-Classes': true,
@@ -82,7 +88,90 @@ task fatJar(type: Jar, group: 'build', description: 'Assembles a jar with all th
     }
 }
 
+task jarTestsuite(type: Jar, dependsOn: [ testClasses ], group: 'build', description: 'Assembles a jar with all the testsuite classes') {
+    baseName = project.name + '-testsuite'
+    from sourceSets.test.output
+    include 'testsuite/**'
+    with jar
+    
+    doLast {
+        copy {
+            from 'build/libs'
+            into 'build'
+            include project.name + '-testsuite-' + version + '.jar'
+            rename (project.name + '-testsuite-' + version + '.jar', 'testsuite.jar')
+        }
+    }
+}
+
+task makeRelease(dependsOn: [ fatJar, jarTestsuite, javadoc ], group: 'help', description: 'Make the release folder for the installation script.') {
+    doLast {
+        mkdir releaseDirectory
+        mkdir releaseDirectory + '/bin'
+        mkdir releaseDirectory + '/etc'
+        mkdir releaseDirectory + '/doc'
+        mkdir releaseDirectory + '/plugin'
+        mkdir releaseDirectory + '/JarFile'
+        mkdir releaseDirectory + '/logFolder'
+        mkdir releaseDirectory + '/testsuite'
+        
+        // change directory access with ant
+        ant.chmod(
+            file: releaseDirectory + '/logFolder',
+            perm: 777,
+            type: 'both'
+        )
+        
+        // copy files
+        copy {
+            from popjavac
+            into releaseDirectory + '/bin'
+            include 'popjrun'
+            include 'popjc'
+            fileMode 0755
+        }
+        copy {
+            from popjavac + '/xml'
+            into releaseDirectory + '/etc'
+            include 'additional-parser-infos.xsd'
+        }
+        copy {
+            from projectDir
+            into releaseDirectory
+            include 'launch_testsuite'
+            fileMode 0755
+        }
+        copy {
+            from 'build/docs/javadoc'
+            into releaseDirectory + '/doc'
+        }
+        copy {
+            from 'build'
+            from popjavac + '/popjparser'
+            into releaseDirectory + '/JarFile'
+            include 'popjava.jar'
+            include 'testsuite.jar'
+            include 'popjparser.jar'
+        }
+        copy {
+            from 'etc'
+            into releaseDirectory + '/etc'
+        }
+        copy {
+            from 'plugin'
+            into releaseDirectory + '/plugin'
+        }
+        copy {
+            from 'workspace/popjava/test/testsuite'
+            into releaseDirectory + '/testsuite'
+            include 'popc-obj'
+            include 'popc-obj/**'
+        }
+    }
+}
+
 artifacts {
     archives fatJar
+    archives jarTestsuite
 }
 

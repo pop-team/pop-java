@@ -67,7 +67,7 @@ public abstract class POPNode {
 	public abstract String toString();
 
 	/**
-	 * The necessary parameters to create this node via {@link POPNodeFactory#makeNode}
+	 * The necessary parameters to create this node via {@link POPNetworkDescriptor#createNode }
 	 *
 	 * @return
 	 */

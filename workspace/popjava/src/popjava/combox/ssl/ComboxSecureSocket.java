@@ -110,7 +110,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 	}
 
 	/**
-	 * A client connect to a server, Combox -> ComboxServer
+	 * A client connect to a server, Combox -&gt; ComboxServer
 	 * @return 
 	 */
 	@Override

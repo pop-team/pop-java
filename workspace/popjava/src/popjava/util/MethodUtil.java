@@ -157,7 +157,7 @@ public class MethodUtil {
 	 * Whitelist for method access
 	 * This only work with POJO, for POP Object use {@link }
 	 * 
-	 * @param signatures <class>.<method> list of whitelisted method
+	 * @param signatures [class].[method] list of whitelisted method
 	 */
 	public static void grant(String... signatures) {
 		StackTraceElement[] stack = Thread.currentThread().getStackTrace();

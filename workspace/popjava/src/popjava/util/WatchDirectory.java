@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Watch a Directory or file for changes
  *
- * @see http://www.rgagnon.com/javadetails/java-detect-file-modification-event.html
+ * See http://www.rgagnon.com/javadetails/java-detect-file-modification-event.html
  */
 public class WatchDirectory implements Runnable {
 

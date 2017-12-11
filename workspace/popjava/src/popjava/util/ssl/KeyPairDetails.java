@@ -10,7 +10,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 
 /**
- * This class is meant to be send to {@link SSLUtils#generateKeyStore(KeyStoreCreationOptions)} ) }
+ * This class is meant to be send to {@link SSLUtils#generateKeyPair(popjava.util.ssl.KeyPairDetails) }
  * 
  * @author Davide Mazzoleni
  */

@@ -998,7 +998,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * Register node to a network by supplying an array of string matching the format in the configuration file
 	 *
 	 * @param networkUUID The name of an existing network in this JM
-	 * @param params An array of String that will be processed by {@link POPNodeFactory#makeNode(String[])}
+	 * @param params An array of String that will be processed by {@link POPNetworkDescriptor#createNode }
 	 */
 	@POPSyncConc
 	public void registerNode(String networkUUID, String... params) {
@@ -1021,7 +1021,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * Remove a node from a network
 	 *
 	 * @param networkUUID The name of an existing network in this JM
-	 * @param params An array of String that will be processed to {@link POPNodeFactory#makeNode}
+	 * @param params An array of String that will be processed to {@link POPNetworkDescriptor#createNode }
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String networkUUID, String... params) {

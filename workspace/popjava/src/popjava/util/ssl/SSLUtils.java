@@ -347,7 +347,7 @@ public class SSLUtils {
 	/**
 	 * Get the SHA-1 fingerprint of a certificate
 	 * 
-	 * @see https://stackoverflow.com/questions/1270703/how-to-retrieve-compute-an-x509-certificates-thumbprint-in-java
+	 * See https://stackoverflow.com/questions/1270703/how-to-retrieve-compute-an-x509-certificates-thumbprint-in-java
 	 * @param cert
 	 * @return The hex representation of the fingerprint
 	 */

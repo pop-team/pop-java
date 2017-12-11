@@ -1,32 +1,7 @@
 <?xml version="1.0"?>
 <project name="PopJava" default="make-release-folder" basedir=".">
 
-    <property name="agent" value ="popjava.javaagent.POPJavaAgent"/>
-
-    <property name="obj.map" value="testsuite.jar.map"/> 
-
-    <property name="javadoc.dir" value ="doc"/>
-    <property name="etc.dir" value ="etc"/>
-    <property name="plugins.dir" value ="plugin"/>
-    
-    <property environment="env"/>
-
-    <condition property="isWindows">
-        <os family="windows" />
-    </condition>
-
-<target name="make-testsuite-popc" depends="" unless="isWindows" description="build the the popjava testsuite">
-    <exec dir="${testsuite.src}/popc-obj/integer" executable="make"/>
-    <exec dir="${testsuite.src}/popc-obj/jinteger" executable="make"/>
-</target>
-
-
 <target name="jar-testsuite" depends="classes, make-testsuite-popc" description="create jar for the popjava testsuite">
-    <mkdir dir="${jar.dir}"/>
-    <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
-            excludes="**/popjava/**, **/objgen/**">
-    </jar>
-
     <java classname="popjava.scripts.Popjrun" fork="true" output="${jar.dir}/${obj.map}">
         <classpath>
             <pathelement location="${jar.dir}/${popjava.jar}"/>
@@ -86,64 +61,6 @@
     <echo message=""/>	
     <echo message="Test 1 exit code: ${test1}"/>
     <echo message="Test 2 exit code: ${test2}"/>
-</target>
-
-<target name="make-release-folder" depends="fatJar" description="Creates the directory that will be installed">
-    <delete dir="${temp.dir}"/>
-
-    <!-- Create folders -->
-    <mkdir dir="${release.dir}"/>
-    <mkdir dir="${release.dir}/bin"/>
-    <mkdir dir="${release.dir}/etc"/>
-    <mkdir dir="${release.dir}/doc"/>
-    <mkdir dir="${release.dir}/JarFile"/>
-    <mkdir dir="${release.dir}/logFolder"/>
-
-    <!-- Copy executables -->
-    <copy file="${popjavac.dir}/popjc" todir="${release.dir}/bin"/>
-    <copy file="${popjavac.dir}/popjrun" todir="${release.dir}/bin"/>
-    <copy file="launch_testsuite" todir="${release.dir}"/>
-
-    <!-- Copy jars -->
-    <copy file="${jar.dir}/${popjava.jar}" todir="${release.dir}/JarFile"/>
-    <copy file="${jar.dir}/${testsuite.jar}" todir="${release.dir}/JarFile"/>
-    <copy file="${popjavac.dir}/popjparser/popjparser.jar" todir="${release.dir}/JarFile"/>
-
-
-    <!-- Copy rest -->
-    <copy todir="${release.dir}/doc">
-        <fileset dir="${javadoc.dir}"/>
-    </copy>
-
-    <copy todir="${release.dir}/etc">
-        <fileset dir="${etc.dir}"/>
-    </copy>
-
-    <copy file="${popjavac.dir}/xml/additional-parser-infos.xsd" todir="${release.dir}/etc"/>
-
-
-    <copy todir="${release.dir}/plugin">
-        <fileset dir="${plugins.dir}"/>
-    </copy>
-
-    <delete dir="${release.dir}/META-INF"/>
-
-    <copy todir="${release.dir}/testsuite/popc-obj">
-        <fileset dir="${testsuite.src}/popc-obj"/>
-    </copy>
-
-
-    <!-- Set filepremisions-->
-    <chmod dir="${release.dir}" perm="774" includes="**/*" type="file"/>
-
-    <chmod dir="${release.dir}" perm="775" includes="**/*" type="dir"/>
-
-    <chmod dir="${release.dir}/bin" perm="775" includes="**/*"/>
-
-    <chmod file="${release.dir}/launch_testsuite" perm="775"/>
-
-    <chmod file="${release.dir}/logFolder" perm="777" type="both"/>
-    <chmod file="${release.dir}/testsuite" perm="777" type="both"/>
 </target>
 
 </project>

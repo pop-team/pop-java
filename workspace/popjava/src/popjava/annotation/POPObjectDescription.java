@@ -14,7 +14,7 @@ public @interface POPObjectDescription {
 	String LOCAL_DEBUG_URL = "localhost-debug";
 	
 	/**
-	 * <url> or <url>:<port> where the object should be.
+	 * &lt;url&gt; or &lt;url&gt;:&lt;port&gt; where the object should be.
 	 * If multiple procol are active you should also define {@link #protocols()}
 	 * @return 
 	 */
@@ -108,7 +108,7 @@ public @interface POPObjectDescription {
 	/**
 	 * How much time elapse between the start and end of a research in the grid
 	 * if 0 the first node found is used
-	 * any other value > 0 (ms) will be a forced wait
+	 * any other value bigger than 0 (ms) will be a forced wait
 	 * @return 
 	 */
 	int searchTime() default -1;

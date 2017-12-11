@@ -29,7 +29,7 @@ import popjava.util.WatchDirectory;
 
 /**
  * Two origin KeyStore TrustManager, single instance with Directory Watch and auto-reload.
- * @see https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
+ * See https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
  * @author John Calcote
  * @author Davide Mazzoleni
  */

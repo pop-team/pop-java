@@ -68,7 +68,6 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * Construct a parallel object
 	 * @param targetClass	Class to be created
 	 * @param argvs			Arguments of the constructor
-	 * @return	true if the object is instantiate
 	 * @throws POPException				Thrown if any problem occurred during the parallel object creation
 	 * @throws NoSuchMethodException	Thrown if the constructor is not found
 	 */

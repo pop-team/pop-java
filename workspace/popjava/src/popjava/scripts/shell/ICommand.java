@@ -17,7 +17,7 @@ public interface ICommand {
 	/**
 	 * Execute the command with its parameters.
 	 * 
-	 * @param command
+	 * @param info
 	 * @return 
 	 */
 	int execute(CommandInfo info);

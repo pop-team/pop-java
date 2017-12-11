@@ -10,12 +10,12 @@ import java.util.Map;
  * Nodes are a maps of variable values which should be able to be parsed by type's POPDescriptor.
  * 
  * Ideally we should create a descriptor starting from the type.
- * ```
+ * <pre>
  * POPDescriptor descriptor = POPNetworkDescriptor.from(connector.getType());
- * for (List<String> nodeParams : connector.asPOPNodeParams()) {
+ * for (List&lt;String&gt; nodeParams : connector.asPOPNodeParams()) {
  *     handlePOPNode(descriptor.createNode(nodeParams));
  * }
- * ```
+ * </pre>
  * 
  * @author Davide Mazzoleni
  */
