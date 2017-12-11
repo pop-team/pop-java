@@ -1,7 +1,10 @@
 package popjava.util;
 
 import java.net.InetAddress;
-import popjava.combox.ssl.POPTrustManager;
+import java.net.UnknownHostException;
+import java.util.Objects;
+import popjava.buffer.POPBuffer;
+import popjava.dataswaper.IPOPBase;
 import popjava.util.ssl.SSLUtils;
 
 /**
@@ -9,16 +12,19 @@ import popjava.util.ssl.SSLUtils;
  * 
  * @author Davide Mazzoleni
  */
-public class POPRemoteCaller {
+public class POPRemoteCaller implements IPOPBase {
 	
-	private final InetAddress remote;
-	private final String protocol;
-	private final boolean secure;
+	private InetAddress remote;
+	private String protocol;
+	private String network;
+	private boolean secure;
 	
-	private final String fingerprint;
-	private final String network;
+	private String fingerprint;
 
-	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure, String fingerprint, String network) {
+	public POPRemoteCaller() {
+	}
+
+	public POPRemoteCaller(InetAddress remote, String protocol, String network, boolean secure, String fingerprint) {
 		this.remote = remote;
 		this.protocol = protocol;
 		this.secure = secure;
@@ -26,8 +32,8 @@ public class POPRemoteCaller {
 		this.network = network;
 	}
 
-	public POPRemoteCaller(InetAddress remote, String protocol, boolean secure) {
-		this(remote, protocol, secure, null, null);
+	public POPRemoteCaller(InetAddress remote, String protocol, String network, boolean secure) {
+		this(remote, protocol, network, secure, null);
 	}
 
 	/**
@@ -96,5 +102,79 @@ public class POPRemoteCaller {
 	@Override
 	public String toString() {
 		return String.format("%s://%s [%s]", protocol, remote.getHostAddress(), network);
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 5;
+		hash = 67 * hash + Objects.hashCode(this.remote);
+		hash = 67 * hash + Objects.hashCode(this.protocol);
+		hash = 67 * hash + Objects.hashCode(this.network);
+		hash = 67 * hash + Objects.hashCode(this.fingerprint);
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final POPRemoteCaller other = (POPRemoteCaller) obj;
+		if (!Objects.equals(this.protocol, other.protocol)) {
+			return false;
+		}
+		if (!Objects.equals(this.fingerprint, other.fingerprint)) {
+			return false;
+		}
+		if (!Objects.equals(this.network, other.network)) {
+			return false;
+		}
+		if (!Objects.equals(this.remote, other.remote)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean serialize(POPBuffer buffer) {
+		buffer.putByteArray(remote.getAddress());
+		buffer.putString(protocol);
+		buffer.putBoolean(secure);
+		boolean net = network != null;
+		buffer.putBoolean(net);
+		if (net) {
+			buffer.putString(network);
+		}
+		boolean fig = fingerprint != null;
+		buffer.putBoolean(fig);
+		if (fig) {
+			buffer.putString(fingerprint);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean deserialize(POPBuffer buffer) {
+		try {
+			int size = buffer.getInt();
+			remote = InetAddress.getByAddress(buffer.getByteArray(size));
+		} catch(UnknownHostException e) {
+			LogWriter.writeDebugInfo("[POPRemoteCaller] can't decode received InetAddress");
+		}
+		protocol = buffer.getString();
+		secure = buffer.getBoolean();
+		if (buffer.getBoolean()) {
+			network = buffer.getString();
+		}
+		if (buffer.getBoolean()) {
+			fingerprint = buffer.getString();
+		}
+		return true;
 	}
 }

@@ -1,5 +1,6 @@
 package popjava.serviceadapter;
 
+import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncSeq;
@@ -30,7 +31,7 @@ public class POPServiceBase extends POPObject {
 	/**
 	 * Start the service
 	 */
-	@POPSyncSeq(id = 12)
+	@POPAsyncConc(id = 12)
 	public void start() {
 
 	}

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -45,6 +46,7 @@ import popjava.base.POPSystemErrorCode;
 import popjava.base.Semantic;
 import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
+import popjava.baseobject.POPTracking;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
@@ -88,6 +90,7 @@ public final class Broker {
 	public static final String JOB_SERVICE = "-jobservice=";
 	public static final String POPJAVA_CONFIG_PREFIX = "-configfile=";
 	public static final String NETWORK_UUID = "-network=";
+	public static final String TRACKING = "-tracking";
 	
 	
 	// thread unique callers
@@ -107,8 +110,12 @@ public final class Broker {
 	private int connectionCount = 0;
 	private Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
+	private boolean tracking;
+	
 	private Map<Method, Annotation[][]> methodParametersAnnotationCache = new HashMap<>();
 	private Map<Method, Integer> methodSemanticsCache = new HashMap<>();
+	
+	private Map<POPRemoteCaller, POPTracking> callerTracking = new ConcurrentHashMap<>();
 		
 	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		
@@ -142,9 +149,9 @@ public final class Broker {
 		connectionCount++;
 		
 		String[] protocols = popObject.getOd().getProtocols();
-		List<String> initProtocols = java.util.Collections.EMPTY_LIST;
+		List<String> initParams = java.util.Collections.EMPTY_LIST;
 		if (protocols != null && protocols.length > 0) {
-			initProtocols = new ArrayList<>();
+			initParams = new ArrayList<>();
 			
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 				
@@ -162,12 +169,18 @@ public final class Broker {
 				}
 
 				if (factory != null) {
-					initProtocols.add(String.format("-%s_port=%d", factory.getComboxName(), port));
+					initParams.add(String.format("-%s_port=%d", factory.getComboxName(), port));
 				}
 			}
 		}
 		
-		initialize(initProtocols);
+		if (popObject.getOd().isTracking()) {
+			initParams.add(TRACKING);
+		}
+		
+		initParams.add(NETWORK_UUID + popObject.getOd().getNetwork());
+		
+		initialize(initParams);
 		popInfo = object;
 		
 		new Thread(new Runnable() {
@@ -436,6 +449,7 @@ public final class Broker {
 			} else {
 				// not a semantic match, we keep what we received
 				// XXX this happen when we get the annotation from a superclass
+				// FIXME get annotation from super class
 				semantics = request.getSenmatics();
 			}
 			
@@ -473,8 +487,8 @@ public final class Broker {
 		Object[] parameters = null;
 		int index = 0;
 		
+		final MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 		try {
-			MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 			method = popInfo.getMethodByInfo(info);
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
@@ -512,6 +526,7 @@ public final class Broker {
 		//LogWriter.writeDebugInfo("Call method "+method.getName());
 		// Invoke the method if success to get all parameter
 		if (exception == null && method != null) {
+			final long trackingStart = System.currentTimeMillis();
 			try {
 				method.setAccessible(true);
 				if (returnType != Void.class && returnType != void.class) {					
@@ -532,6 +547,11 @@ public final class Broker {
 				exception = POPException.createReflectException(
 						method.getName(), e.getMessage());
 
+			} finally {
+				if (tracking) {
+					final long trackingTime = System.currentTimeMillis() - trackingStart;
+					registerTracking(request.getCombox().getRemoteCaller(), method.toGenericString(), trackingTime);
+				}
 			}
 		}
 		// Prepare the response buffer if success to invoke method
@@ -659,7 +679,7 @@ public final class Broker {
 		if (request.isLocalhost() && !caller.isLocalHost()) {
 			if (request.isSynchronous()){
 				POPException exception = new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, 
-					"You can't call a @Localhost method from a remote location.");
+					"You can't call a localhost method from a remote location.");
 				sendException(request.getCombox(), exception, request.getRequestID());
 			}
 		}
@@ -908,7 +928,19 @@ public final class Broker {
 
 		return true;
 	}
+	
+	/**
+	 * Is tracking enabled on Broker side.
+	 * @return 
+	 */
+	public boolean isTraking() {
+		return tracking;
+	}
 
+	/**
+	 * Get who is calling this method.
+	 * @return 
+	 */
 	public static POPRemoteCaller getRemoteCaller() {
 		return remoteCaller.get();
 	}
@@ -962,6 +994,9 @@ public final class Broker {
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 			ComboxFactory[] comboxFactories = finder.getAvailableFactories();
 
+			// mark traking for object
+			this.tracking = Util.removeStringFromList(argvs, TRACKING) != null;
+			
 			List<ComboxServer> liveServers = new ArrayList<>();
 			for (ComboxFactory factory : comboxFactories) {
 				String prefix = String.format("-%s_port=", factory.getComboxName());
@@ -1218,7 +1253,44 @@ public final class Broker {
 		}
 	}
 
+	/**
+	 * The broker global request queue.
+	 * @return 
+	 */
 	public RequestQueue getRequestQueue() {
 		return requestQueue;
+	}
+	
+	/**
+	 * Register a tracking event in the broker.
+	 * @param caller Who called the method.
+	 * @param method The method called.
+	 * @param time How much time did the execution take.
+	 */
+	private void registerTracking(POPRemoteCaller caller, String method, long time) {
+		POPTracking userTracking = callerTracking.get(caller);
+		// create if it's the first time we see this caller
+		if (userTracking == null) {
+			userTracking = new POPTracking(caller);
+			callerTracking.put(caller, userTracking);
+		}
+		userTracking.track(method, time);
+	}
+
+	/**
+	 * All the currently tracked users.
+	 * @return An array of callerID via {@link Combox#partyIdentification() }
+	 */
+	public POPRemoteCaller[] getTrackingUsers() {
+		return callerTracking.keySet().toArray(new POPRemoteCaller[callerTracking.size()]);
+	}
+
+	/**
+	 * Statistics on a single user.
+	 * @param caller A caller remote location
+	 * @return 
+	 */
+	public POPTracking getTracked(POPRemoteCaller caller) {
+		return callerTracking.get(caller);
 	}
 }
