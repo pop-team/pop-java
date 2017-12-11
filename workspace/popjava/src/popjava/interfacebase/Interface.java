@@ -2,6 +2,7 @@ package popjava.interfacebase;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import popjava.PopJava;
@@ -558,7 +559,7 @@ public class Interface {
 		if(joburl == null || joburl.isEmpty()){
 			return false;
 		}
-		LogWriter.writeDebugInfo("[Interface] Joburl "+joburl+" "+objectName);
+		LogWriter.writeDebugInfo("[Interface] Creating %s on %s with %s", objectName, joburl, Arrays.toString(od.getProtocols()) );
 
 		codeFile = od.getCodeFile();
 		
@@ -839,6 +840,10 @@ public class Interface {
 		if (jobserv != null && !jobserv.isEmpty()) {
 			String jobString = Broker.JOB_SERVICE + jobserv.toString();
 			argvList.add(jobString);
+		}
+		
+		if (od.isTracking()) {
+			argvList.add(Broker.TRACKING);
 		}
 		
 		String networkUUID = od.getNetwork();

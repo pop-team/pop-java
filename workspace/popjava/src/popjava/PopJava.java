@@ -110,7 +110,21 @@ public class PopJava {
 	}
 	
 	/**
-	 * Search a live object in the network
+	 * Search a live object in the network.
+	 * 
+	 * A research should look something like this:
+	 * <pre>
+	 * ObjectDescription od = new ObjectDescription();
+	 * od.setNetwork(publishNetworkUUID);
+	 * POPAccessPoint[] liveObjects = PopJava.newTFCSearch(TFCObject.class, maxNumInstances, od);
+	 * for (POPAccessPoint ap : liveObjects) {
+	 *	// choose or connect
+	 *	...
+	 * }
+	 * 
+	 * TFCObject remote = PopJava.connect(TFCObject.class, publishNetworkUUID, choosenAccessPoint);
+	 * </pre>
+	 * 
 	 * @param targetClass The class we are looking for remotely
 	 * @param maxInstances The maximal number of instances we would like
 	 * @param od Parameters for the research, mainly the network we want to look into
@@ -169,7 +183,7 @@ public class PopJava {
 		}
 		return actives.toArray(new POPAccessPoint[actives.size()]);
 	}
-	
+
 	/**
 	 * Return the 
 	 * 

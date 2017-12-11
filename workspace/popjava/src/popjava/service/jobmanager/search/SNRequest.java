@@ -31,6 +31,8 @@ public class SNRequest implements IPOPBase {
 	private int hops = Integer.MAX_VALUE;
 	private int popAppId;
 	
+	private String[] hosts = new String[0];
+	
 	private byte[] publicCertificate = new byte[0];
 	private byte[] appServiceCertificate = new byte[0];
 	
@@ -81,6 +83,14 @@ public class SNRequest implements IPOPBase {
 
 	public String getNetworkUUID() {
 		return networkUUID;
+	}
+
+	public void setHosts(String[] hosts) {
+		this.hosts = hosts;
+	}
+	
+	public String[] getHosts() {
+		return hosts;
 	}
 
 	public void setHopLimit(int hops) {
@@ -153,6 +163,10 @@ public class SNRequest implements IPOPBase {
 		buffer.putInt(popAppId);
 		buffer.putByteArray(publicCertificate);
 		buffer.putString(connector);
+		buffer.putInt(hosts.length);
+		for (String hostFilter : hosts) {
+			buffer.putString(hostFilter);
+		}
 		buffer.putInt(customParams.size());
 		for (Map.Entry<String, String> entry : customParams.entrySet()) {
 			String key = entry.getKey();
@@ -178,6 +192,11 @@ public class SNRequest implements IPOPBase {
 		int buffSize = buffer.getInt();
 		publicCertificate = buffer.getByteArray(buffSize);
 		connector = buffer.getString();
+		int hostsSize = buffer.getInt();
+		hosts = new String[hostsSize];
+		for (int i = 0; i < hostsSize; i++) {
+			hosts[i] = buffer.getString();
+		}
 		int mapSize = buffer.getInt();
 		for (int i = 0; i < mapSize; i++) {
 			customParams.put(buffer.getString(), buffer.getString());

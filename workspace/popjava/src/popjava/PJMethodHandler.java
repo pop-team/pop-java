@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.security.cert.Certificate;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +31,7 @@ import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.MethodUtil;
 import popjava.util.Util;
 
 /**
@@ -309,18 +310,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			
 		}
 	}
-
-	private int hashMethod(Method m){
-		StringBuilder hash = new StringBuilder(m.getName());
-		for(Class<?> type: m.getParameterTypes()){
-			hash.append(type.getName());
-		}
-		
-		return hash.toString().hashCode();
-	}
 	
 	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<>();
-	private Set<Integer> methodMisses = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
+	private Set<Integer> methodMisses = new HashSet<>();
 	
 	/**
 	 * Return a copy of the given method
@@ -328,7 +320,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @return	Method copy
 	 */
 	private Method getSameInterfaceMethod(Method method) {
-		int methodHash = hashMethod(method);
+		int methodHash = MethodUtil.methodId(method);
 		
 		if(methodMisses.contains(methodHash)){
 			return null;

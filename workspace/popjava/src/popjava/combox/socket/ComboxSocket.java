@@ -5,13 +5,11 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Random;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
@@ -183,7 +181,7 @@ public class ComboxSocket extends Combox<Socket> {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public int receive(POPBuffer buffer, int requestId) {
 		
@@ -318,6 +316,7 @@ public class ComboxSocket extends Combox<Socket> {
 		remoteCaller = new POPRemoteCaller(
 			peerConnection.getInetAddress(),
 			MY_FACTORY.getComboxName(),
+			networkUUID,
 			MY_FACTORY.isSecure()
 		);
 		return true;

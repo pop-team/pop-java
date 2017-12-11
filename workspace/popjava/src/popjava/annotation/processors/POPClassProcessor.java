@@ -23,6 +23,7 @@ import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
+import popjava.annotation.POPPrivate;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
 import popjava.annotation.POPSyncSeq;
@@ -94,7 +95,8 @@ public class POPClassProcessor extends AbstractProcessor {
 				method.getAnnotation(POPAsyncMutex.class) == null &&
 				method.getAnnotation(POPSyncSeq.class) == null &&
 				method.getAnnotation(POPSyncConc.class) == null &&
-				method.getAnnotation(POPSyncMutex.class) == null){
+				method.getAnnotation(POPSyncMutex.class) == null &&
+				method.getAnnotation(POPPrivate.class) == null){
 			messager.printMessage(Diagnostic.Kind.WARNING,
 					"Method " + method + " is public but does not have a POP-Java annotation, @"+POPSyncConc.class.getSimpleName()+" will be used",
 					method);

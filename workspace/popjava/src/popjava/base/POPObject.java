@@ -16,6 +16,7 @@ import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
+import popjava.annotation.POPPrivate;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
@@ -23,6 +24,7 @@ import popjava.annotation.POPSyncSeq;
 import popjava.baseobject.ConnectionType;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
+import popjava.baseobject.POPTracking;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.util.ssl.SSLUtils;
@@ -30,6 +32,7 @@ import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
+import popjava.util.POPRemoteCaller;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
  */
@@ -108,6 +111,7 @@ public class POPObject implements IPOPBase {
 			// TODO size (-1) is not implemented, may want to add it to POPObjectDescription
 			od.setSearch(objectDescription.searchDepth(), -1, objectDescription.searchTime());
 			od.setUseLocalJVM(objectDescription.localJVM());
+			od.setTracking(objectDescription.tracking());
 		}
 	}
 	
@@ -204,49 +208,51 @@ public class POPObject implements IPOPBase {
 		Class<?> c = getRealClass();
 		
 		for(Method method: c.getDeclaredMethods()){
-			int semantic = -1;
-			
-			//Sync
-			if(method.isAnnotationPresent(POPSyncConc.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+			if(!method.isAnnotationPresent(POPPrivate.class)) {
+				int semantic = -1;
+				
+				//Sync
+				if(method.isAnnotationPresent(POPSyncConc.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
 				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
-			}
-			if(method.isAnnotationPresent(POPSyncSeq.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				if(method.isAnnotationPresent(POPSyncSeq.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
 				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
-			}
-			if(method.isAnnotationPresent(POPSyncMutex.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				if(method.isAnnotationPresent(POPSyncMutex.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
 				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
-			}
-			//Async
-			if(method.isAnnotationPresent(POPAsyncConc.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				//Async
+				if(method.isAnnotationPresent(POPAsyncConc.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
 				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
-			}
-			if(method.isAnnotationPresent(POPAsyncSeq.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				if(method.isAnnotationPresent(POPAsyncSeq.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
 				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
-			}
-			if(method.isAnnotationPresent(POPAsyncMutex.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
+				if(method.isAnnotationPresent(POPAsyncMutex.class)){
+					if(semantic != -1){
+						throwMultipleAnnotationsError(c, method);
+					}
+					semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
 				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
-			}
-			
-			if(semantic != -1){
-				addSemantic(c, method.getName() , semantic);
+				
+				if(semantic != -1){
+					addSemantic(c, method.getName() , semantic);
+				}
 			}
         }
 	}
@@ -256,7 +262,6 @@ public class POPObject implements IPOPBase {
 	 */
 	protected final void initializePOPObject() {
 		if (generateClassId){
-			// TODO generate a POP Java specific ID
 			classId = ClassUtil.classId(getRealClass());
 		}
 		
@@ -788,6 +793,46 @@ public class POPObject implements IPOPBase {
 	public void PopRegisterFutureConnectorCertificate(byte[] cert) {
 		LogWriter.writeDebugInfo("Writing certificate received from middleman.");
 		SSLUtils.addCertToTempStore(cert, true);
+	}
+	
+	/**
+	 * Get the tracked user list.
+	 * 
+	 * @return a callerID array of strings.
+	 */
+	@POPSyncSeq(localhost = true)
+	public POPRemoteCaller[] getTrackedUsers() {
+		return broker.getTrackingUsers();
+	}
+	
+	/**
+	 * Get the resources used by an user.
+	 * 
+	 * @param caller
+	 * @return 
+	 */
+	@POPSyncSeq(localhost = true)
+	public POPTracking getTracked(POPRemoteCaller caller) {
+		return broker.getTracked(caller);
+	}
+	
+	/**
+	 * Get the resources used until now by caller.
+	 * 
+	 * @return 
+	 */
+	@POPSyncSeq
+	public POPTracking getTracked() {
+		return broker.getTracked(PopJava.getRemoteCaller());
+	}
+	
+	/**
+	 * Is tracking enabled on the remote object.
+	 * @return 
+	 */
+	@POPSyncConc
+	public boolean isTracking() {
+		return broker.isTraking();
 	}
 	
 	@Override
