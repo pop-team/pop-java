@@ -149,7 +149,7 @@ public class PJProxyFactory extends ProxyFactory {
 				PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 				methodHandler.setOd(originalOd);
 				methodHandler.popConstructor(targetClass, argvs);
-				this.setHandler(methodHandler);
+				//this.setHandler(methodHandler);
 				Class<?> c = createClass();
 				Object result = c.newInstance();
 				((ProxyObject) result).setHandler(methodHandler);
@@ -179,12 +179,13 @@ public class PJProxyFactory extends ProxyFactory {
 			
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.bindObject(accessPoint);
-			this.setHandler(methodHandler);
+			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
 			Object result = c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);
 			return result;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new POPException(0, e.getMessage());
 		}
 	}
@@ -205,7 +206,7 @@ public class PJProxyFactory extends ProxyFactory {
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.getOD().setNetwork(networkUUID);
 			methodHandler.bindObject(accessPoint);
-			this.setHandler(methodHandler);
+			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
 			Object result = c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);
@@ -229,7 +230,7 @@ public class PJProxyFactory extends ProxyFactory {
 			popObject.loadPOPAnnotations(constructor);
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.setSetup();
-			this.setHandler(methodHandler);
+			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
 			result = (POPObject) c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);	
