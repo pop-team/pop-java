@@ -1,8 +1,7 @@
 package popjava.scripts.shell.command;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import popjava.scripts.shell.CommandInfo;
 import popjava.scripts.shell.ICommand;
 import popjava.util.Configuration;

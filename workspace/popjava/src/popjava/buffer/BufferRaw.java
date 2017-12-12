@@ -351,7 +351,7 @@ public class BufferRaw extends POPBuffer {
 		sb.append("Data in bytes:");
 		for (int i = 0; i < size(); i++) {
 			byte data = buffer.get();
-			int byteValue = new Integer(data).intValue();
+			int byteValue = new Integer(data);
 			if (byteValue < 0) {
 				byteValue = data & 0x80;
 				byteValue += data & 0x7F;

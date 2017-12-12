@@ -2,8 +2,7 @@ package junit.localtests.jobmanager;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.cert.Certificate;
-import java.util.Collections;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

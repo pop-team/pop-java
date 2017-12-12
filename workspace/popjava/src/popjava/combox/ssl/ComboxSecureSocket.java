@@ -343,8 +343,6 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 						networkUUID = SSLUtils.getNetworkFromCertificate(fingerprint);
 					}
 					
-					System.out.format("=== Extracting network from handshake '%s' ===\n", networkUUID);
-					
 					remoteCaller = new POPRemoteCaller(
 						peerConnection.getInetAddress(),
 						MY_FACTORY.getComboxName(),

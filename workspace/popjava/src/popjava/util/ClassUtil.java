@@ -251,21 +251,21 @@ public class ClassUtil {
 	 */
 	public static Object getDefaultPrimitiveValue(Class<?> c) {
 		if (c == byte.class)
-			return new Byte((byte) 0);
+			return (byte) 0;
 		if (c == int.class)
-			return new Integer(0);
+			return 0;
 		if (c == short.class)
-			return new Short((short) 0);
+			return (short) 0;
 		if (c == long.class)
-			return new Long(0);
+			return 0L;
 		if (c == float.class)
-			return new Float(0);
+			return 0f;
 		if (c == double.class)
-			return new Double(0);
+			return 0d;
 		if (c == boolean.class)
 			return Boolean.FALSE;
 		if (c == char.class)
-			return new Character((char) 0);
+			return (char) 0;
 
 		return null;
 	}

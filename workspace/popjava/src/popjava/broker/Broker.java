@@ -922,11 +922,8 @@ public final class Broker {
 	 * @return deamon mode
 	 */
 	public boolean isDaemon() {
-		if (popInfo != null) {
-			return popInfo.isDaemon();
-		}
+		return popInfo == null || popInfo.isDaemon();
 
-		return true;
 	}
 	
 	/**

@@ -483,11 +483,7 @@ public class POPObject implements IPOPBase {
 	 * @return	int value representing the semantics of the method
 	 */
 	public int getSemantic(MethodInfo methodInfo) {
-		if (semantics.containsKey(methodInfo)) {
-			return semantics.get(methodInfo);
-		} else {
-			return Semantic.SYNCHRONOUS;
-		}
+		return semantics.getOrDefault(methodInfo, Semantic.SYNCHRONOUS);
 	}
 
 	/**

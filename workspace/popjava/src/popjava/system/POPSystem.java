@@ -251,8 +251,7 @@ public class POPSystem {
 	 */
 	public static String[] initialize(String... args){
 		asyncConstructorExecutor = Executors.newFixedThreadPool(20);
-		ArrayList<String> argvList = new ArrayList<>();
-		argvList.addAll(Arrays.asList(args));
+		ArrayList<String> argvList = new ArrayList<>(Arrays.asList(args));
 		
 		initialize(argvList);
 		

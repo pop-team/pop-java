@@ -7,8 +7,6 @@ import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
 
-import javax.swing.plaf.basic.BasicTreeUI.TreeHomeAction;
-
 import org.junit.Test;
 
 import junit.localtests.annotations.objects.AbstractChild;

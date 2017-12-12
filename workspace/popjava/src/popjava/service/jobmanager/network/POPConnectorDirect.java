@@ -1,6 +1,5 @@
 package popjava.service.jobmanager.network;
 
-import java.util.ArrayList;
 import java.util.List;
 import popjava.baseobject.ConnectionType;
 import popjava.baseobject.ObjectDescription;

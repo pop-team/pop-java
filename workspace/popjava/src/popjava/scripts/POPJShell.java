@@ -114,7 +114,7 @@ public class POPJShell {
 				PROPS.load(in);
 			} catch (IOException e) {
 				try {        
-					Set<PosixFilePermission> perms = new HashSet<PosixFilePermission>();
+					Set<PosixFilePermission> perms = new HashSet<>();
 					perms.add(PosixFilePermission.OWNER_READ);
 					perms.add(PosixFilePermission.OWNER_WRITE);
 					

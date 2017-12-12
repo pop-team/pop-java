@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
-import javax.net.ssl.SSLContext;
-import popjava.util.ssl.SSLUtils;
+
 import popjava.baseobject.AccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;

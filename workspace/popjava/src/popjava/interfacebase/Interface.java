@@ -785,10 +785,8 @@ public class Interface {
 		}
 		codeFile = codeFile.trim();
 
-		ArrayList<String> argvList = new ArrayList<>();
-
 		ArrayList<String> codeList = Util.splitTheCommand(codeFile);
-		argvList.addAll(codeList);
+		ArrayList<String> argvList = new ArrayList<>(codeList);
 		
 		/*if(od.getMemoryMin() >  0){
 			argvList.add(1, "-Xms"+od.getMemoryMin()+"m");

@@ -8,11 +8,9 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import popjava.JobManagerConfig;
 import popjava.PopJava;
-import popjava.base.POPException;
 import popjava.baseobject.ObjectDescription;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;

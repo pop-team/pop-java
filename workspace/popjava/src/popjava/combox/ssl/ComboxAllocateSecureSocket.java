@@ -10,7 +10,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import popjava.buffer.POPBuffer;
 import popjava.combox.ComboxAllocate;
 import popjava.system.POPSystem;
 import popjava.util.LogWriter;
@@ -47,6 +46,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	/**
 	 * Start the socket and wait for a connection
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void startToAcceptOneConnection() {
 		try {
