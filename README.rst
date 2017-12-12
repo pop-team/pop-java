@@ -15,6 +15,7 @@ By using the command below you will build and test the latest version of POP-Jav
 In case you don't want to wait you can skip the JUnit test by running the following command.
 
 .. code::
+
   $ ./gradlew build -x test
 
 
@@ -70,6 +71,7 @@ IntelliJ IDEA
 Go in the project root and generate the IntelliJ project files.
 
 .. code::
+
   $ ./gradlew idea
   
 You now should be able to open POP-Java as a Java project.
