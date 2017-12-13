@@ -167,6 +167,8 @@ public class POPJavaConfiguration {
 	}
 	
 	public static String getClassPath(){
+		return System.getProperty("java.class.path");
+		/*
 		StringBuilder popJar = new StringBuilder();
         Set<String> paths = new HashSet<>();
 	    
@@ -195,7 +197,7 @@ public class POPJavaConfiguration {
             }
         }
         
-        return popJar.toString();
+        return popJar.toString();*/
 	}
 	
 	public static String getPOPJavaCodePath(){
