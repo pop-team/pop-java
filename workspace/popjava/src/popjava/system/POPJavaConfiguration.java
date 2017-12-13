@@ -167,7 +167,7 @@ public class POPJavaConfiguration {
 	}
 	
 	public static String getClassPath(){
-	    StringBuilder popJar = new StringBuilder();
+		StringBuilder popJar = new StringBuilder();
         Set<String> paths = new HashSet<>();
 	    
 	    if(POPAppService.class.getClassLoader() instanceof URLClassLoader) {

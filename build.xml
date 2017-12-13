@@ -112,6 +112,8 @@
     <mkdir dir="${jar.dir}"/>
     <jar destfile="${jar.dir}/${testsuite.jar}" basedir="${classes.dir}" 
             excludes="**/popjava/**, **/objgen/**">
+    	
+    	<zipgroupfileset dir="." includes="${jar.dir}/${popjava.jar}"/>
     </jar>
 
     <java classname="popjava.scripts.Popjrun" fork="true" output="${jar.dir}/${obj.map}">
