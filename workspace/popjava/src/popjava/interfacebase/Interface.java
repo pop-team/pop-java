@@ -797,10 +797,17 @@ public class Interface {
 			argvList.add(1, "-Xmx"+od.getMemoryReq()+"m");
 		}*/
 		
-		if(codeFile.startsWith("java") && conf.isActivateJmx()){
-			argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
-			argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
-			argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");
+		if(codeFile.startsWith("java")){
+			argvList.add(1, "java.base/java.lang=ALL-UNNAMED");
+			argvList.add(1, "--add-opens");
+			argvList.add(1, "-XX:+IgnoreUnrecognizedVMOptions");
+			
+			if(conf.isActivateJmx()) {
+				argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
+				argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
+				argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");
+			}
+			
 		}
 		
 		if(od.getJVMParameters() != null && !od.getJVMParameters().isEmpty()){
