@@ -17,8 +17,6 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	private final int RECEIVE_BUFFER_SIZE = 1024 * 8 * 500;
 
 	protected ServerSocket serverSocket = null;
-
-	// we use the simple socker implementation of this since it beahve the same way
 	private ComboxAcceptSecureSocket serverCombox = null;
 
 	/**
@@ -59,5 +57,10 @@ public class ComboxServerSecureSocket extends ComboxServer {
 		accessPoint.setProtocol(ComboxSecureSocketFactory.PROTOCOL);
 		accessPoint.setHost(accessPoint.getHost());
 		accessPoint.setPort(serverSocket.getLocalPort());
+	}
+
+	@Override
+	public void close() {
+		serverCombox.close();
 	}
 }

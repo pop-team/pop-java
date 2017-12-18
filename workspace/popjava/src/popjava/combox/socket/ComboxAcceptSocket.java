@@ -75,6 +75,7 @@ public class ComboxAcceptSocket implements Runnable {
 	 * Close the current connection
 	 */
 	public void close() {
+		status = EXIT;
 		for (Socket s : concurentConnections) {
 			try {
 				s.close();

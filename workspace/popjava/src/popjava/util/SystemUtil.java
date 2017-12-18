@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
+import popjava.broker.Broker;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
@@ -16,17 +17,28 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 public class SystemUtil {
 
 	private static final List<Process> processes = new ArrayList<>();
+	private static final List<Broker> localJVM = new ArrayList<>();
 	private static final Configuration conf = Configuration.getInstance();
 	private static final boolean sshAvailable = commandExists("ssh");
 	private static boolean changeUserStatus = false;
 	private static String changeUserName = null;
-		
+	
+	/**
+	 * Kill all objects created by this JVM
+	 */
 	public static void endAllChildren(){
 		for (Process process : processes) {
 			if (process != null) {
 				process.destroy();
 			}
 		}
+		processes.clear();
+		for (Broker broker : localJVM) {
+			if (broker != null) {
+				broker.kill();
+			}
+		}
+		localJVM.clear();
 	}
 
 	/**
@@ -239,5 +251,14 @@ public class SystemUtil {
 		}
 		
 		return newCommand;
+	}
+
+	/**
+	 * Register local JVM object so we can kill them
+	 * @param broker 
+	 */
+	public static synchronized void registerLocalJVM(Broker broker) {
+		Objects.requireNonNull(broker);
+		localJVM.add(broker);
 	}
 }

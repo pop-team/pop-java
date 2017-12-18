@@ -118,7 +118,7 @@ public final class Configuration {
 	private String selectedEncoding = "raw";
 	private String defaultProtocol = "socket";
 	private String defaultNetwork = "";
-	private int allocatePortRange = 30000;
+	private int allocatePortRange = 49152;
 	
 	private final Set<String> protocolsWhitelist = new HashSet<>();
 	private final Set<String> protocolsBlacklist = new HashSet<>();

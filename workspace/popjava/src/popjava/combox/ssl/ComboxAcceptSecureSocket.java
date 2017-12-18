@@ -99,6 +99,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	 * Close the current connection
 	 */
 	public void close() {
+		status = EXIT;
 		for (SSLSocket s : concurentConnections) {
 			try {
 				s.close();

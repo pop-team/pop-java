@@ -15,6 +15,7 @@ import popjava.buffer.POPBuffer;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
+import popjava.util.SystemUtil;
 import popjava.util.Util;
 
 /**
@@ -138,6 +139,7 @@ public class PJProxyFactory extends ProxyFactory {
 				popObject.loadPOPAnnotations(constructor, argvs);
 				
 				Broker broker = new Broker(popObject);
+				SystemUtil.registerLocalJVM(broker);
 				return popObject; 
 			}else{
 				if(originalOd.getRemoteAccessPoint() != null && !originalOd.getRemoteAccessPoint().isEmpty()){

@@ -141,7 +141,6 @@ public final class Broker {
 	});
 			//Executors.newCachedThreadPool());//
 	
-	@SuppressWarnings("unchecked")
 	public Broker(POPObject object){
 		this.popObject = object;
 		popObject.setBroker(this);
@@ -149,10 +148,8 @@ public final class Broker {
 		connectionCount++;
 		
 		String[] protocols = popObject.getOd().getProtocols();
-		List<String> initParams = java.util.Collections.EMPTY_LIST;
+		List<String> initParams = new ArrayList<>();
 		if (protocols != null && protocols.length > 0) {
-			initParams = new ArrayList<>();
-			
 			ComboxFactoryFinder finder = ComboxFactoryFinder.getInstance();
 				
 			for (String protocol : protocols) {
@@ -189,11 +186,12 @@ public final class Broker {
 			public void run() {
 				try {
 					treatRequests();
+					close();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-		}, "Broker thread").start();
+		}, "Local JVM Broker thread").start();
 	}
 	
 	/**
@@ -870,6 +868,15 @@ public final class Broker {
 	public synchronized void kill() {
 		setState(State.Exit);
 	}
+	
+	/**
+	 * Close all create servers etc
+	 */
+	private void close() {
+		for (ComboxServer comboxServer : comboxServers) {
+			comboxServer.close();
+		}
+	}
 
 	/**
 	 * Return the access point of this broker
@@ -1195,6 +1202,7 @@ public final class Broker {
 
 		if (status == 0){
 			broker.treatRequests();
+			broker.close();
 		}
 		
 		LogWriter.writeDebugInfo("[Broker] End broker life : "+objectName);

@@ -50,13 +50,17 @@ public class ComboxServerSocket extends ComboxServer {
 	 */
 	public final void createServer() throws IOException {
 		serverSocket = ComboxUtils.createServerSocket(accessPoint.getPort(), ss -> ss.setReceiveBufferSize(RECEIVE_BUFFER_SIZE));
-		serverCombox = new ComboxAcceptSocket(broker, getRequestQueue(),
-				serverSocket);
+		serverCombox = new ComboxAcceptSocket(broker, getRequestQueue(), serverSocket);
 		serverCombox.setStatus(RUNNING);
 		Thread thread = new Thread(serverCombox, "Server combox acception thread");
 		thread.start();
 		accessPoint.setProtocol(ComboxSocketFactory.PROTOCOL);
 		accessPoint.setHost(accessPoint.getHost());
 		accessPoint.setPort(serverSocket.getLocalPort());
+	}
+
+	@Override
+	public void close() {
+		serverCombox.close();
 	}
 }
