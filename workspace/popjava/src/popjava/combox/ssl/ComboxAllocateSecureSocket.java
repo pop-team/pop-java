@@ -11,15 +11,15 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import popjava.combox.ComboxAllocate;
+import popjava.combox.ComboxUtils;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 /**
  * This class is responsible to send an receive message on the server combox socket
  */
 public class ComboxAllocateSecureSocket extends ComboxAllocate {
-	
-	private static final int SOCKET_TIMEOUT_MS = 30000;
 	
 	protected ServerSocket serverSocket = null;	
 	protected SSLSocketFactory sslFactory = null;
@@ -30,14 +30,8 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	public ComboxAllocateSecureSocket() {		
 		try {
 			SSLContext sslContext = SSLUtils.getSSLContext();
-			sslFactory = sslContext.getSocketFactory();
-			
-			ServerSocketFactory plainFactory = ServerSocketFactory.getDefault();
-			
-			InetSocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);
-			serverSocket = plainFactory.createServerSocket();
-			serverSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
-			serverSocket.bind(sockAddr);
+			sslFactory = sslContext.getSocketFactory();			
+			serverSocket = ComboxUtils.createServerSocket(0, ss -> ss.setSoTimeout(30000));
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}

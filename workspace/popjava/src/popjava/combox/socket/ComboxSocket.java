@@ -138,6 +138,7 @@ public class ComboxSocket extends Combox<Socket> {
 				available = true;
 			} catch (IOException e) {
 				available = false;
+				LogWriter.writeExceptionLog(e);
 			}
 		}
 		return available;
@@ -145,11 +146,10 @@ public class ComboxSocket extends Combox<Socket> {
 
 	@Override
 	protected boolean sendNetworkName() {
-		byte[] networkNameUTF8 = networkUUID.getBytes(StandardCharsets.UTF_8);
+		byte[] networkNameUTF8 = getNetworkUUID().getBytes(StandardCharsets.UTF_8);
 		
 		// to send buffer
-		ByteBuffer intBuffer = ByteBuffer.allocate(Integer.BYTES);
-		intBuffer.putInt(networkNameUTF8.length);
+		ByteBuffer intBuffer = ByteBuffer.allocate(Integer.BYTES).putInt(networkNameUTF8.length);
 		
 		// send it
 		try {
@@ -158,8 +158,9 @@ public class ComboxSocket extends Combox<Socket> {
 			outputStream.flush();
 			
 			return true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[ComboxSocket] Couldn't send network name");
+			LogWriter.writeExceptionLog(e);
 			return false;
 		}
 	}
@@ -173,11 +174,12 @@ public class ComboxSocket extends Combox<Socket> {
 
 			byte[] networkNameBytes = new byte[size];
 			inputStream.read(networkNameBytes);
-			networkUUID = new String(networkNameBytes, StandardCharsets.UTF_8);
+			setNetworkUUID(new String(networkNameBytes, StandardCharsets.UTF_8));
 			
 			return true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[ComboxSocket] Couldn't read network name");
+			LogWriter.writeExceptionLog(e);
 			return false;
 		}
 	}
@@ -316,7 +318,7 @@ public class ComboxSocket extends Combox<Socket> {
 		remoteCaller = new POPRemoteCaller(
 			peerConnection.getInetAddress(),
 			MY_FACTORY.getComboxName(),
-			networkUUID,
+			getNetworkUUID(),
 			MY_FACTORY.isSecure()
 		);
 		return true;

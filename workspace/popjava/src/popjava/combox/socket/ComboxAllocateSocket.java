@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import popjava.combox.ComboxAllocate;
+import popjava.combox.ComboxUtils;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
@@ -22,10 +23,7 @@ public class ComboxAllocateSocket extends ComboxAllocate<ComboxSocket> {
 	 */
 	public ComboxAllocateSocket() {		
 		try {
-			InetSocketAddress sockAddr = new InetSocketAddress(POPSystem.getHostIP(), 0);
-			serverSocket = new ServerSocket();
-			serverSocket.bind(sockAddr);
-			serverSocket.setSoTimeout(Configuration.getInstance().getConnectionTimeout());
+			serverSocket = ComboxUtils.createServerSocket(0, ss->ss.setSoTimeout(Configuration.getInstance().getConnectionTimeout()));
 		} catch (IOException e) {
 		    LogWriter.writeExceptionLog(e);
 		}

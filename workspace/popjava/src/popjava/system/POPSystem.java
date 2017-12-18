@@ -538,7 +538,9 @@ public class POPSystem {
 		
 		prlt = null;
 		appservicecode = null;
+		appservicecontact = null;
 		initialized = false;
+		isStarted = false;
 	}
 	
 	public static boolean isInitialized(){

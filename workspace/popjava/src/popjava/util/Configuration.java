@@ -51,6 +51,7 @@ public final class Configuration {
 		SELECTED_ENCODING,
 		DEFAULT_PROTOCOL,
 		DEFAULT_NETWORK,
+		ALLOCATE_PORT_RANGE,
 		PROTOCOLS_WHITELIST,
 		PROTOCOLS_BLACKLIST,
 		ASYNC_CONSTRUCTOR,
@@ -117,6 +118,7 @@ public final class Configuration {
 	private String selectedEncoding = "raw";
 	private String defaultProtocol = "socket";
 	private String defaultNetwork = "";
+	private int allocatePortRange = 30000;
 	
 	private final Set<String> protocolsWhitelist = new HashSet<>();
 	private final Set<String> protocolsBlacklist = new HashSet<>();
@@ -248,6 +250,10 @@ public final class Configuration {
 
 	public String getDefaultNetwork() {
 		return defaultNetwork;
+	}
+
+	public int getAllocatePortRange() {
+		return allocatePortRange;
 	}
 
 	public boolean isAsyncConstructor() {
@@ -423,6 +429,11 @@ public final class Configuration {
 	public void setDefaultProtocol(String defaultProtocol) {
 		setUserProp(Settable.DEFAULT_PROTOCOL, defaultProtocol);
 		this.defaultProtocol = defaultProtocol.toUpperCase();
+	}
+
+	public void setAllocatePortRange(int allocatePortRange) {
+		setUserProp(Settable.ALLOCATE_PORT_RANGE, allocatePortRange);
+		this.allocatePortRange = allocatePortRange;
 	}
 
 	public void setDefaultNetwork(String systemDefaultNetwork) {
@@ -626,6 +637,7 @@ public final class Configuration {
 						case SELECTED_ENCODING:                  selectedEncoding = value; break;
 						case DEFAULT_PROTOCOL:                   defaultProtocol = value.toUpperCase(); break;
 						case DEFAULT_NETWORK:                    defaultNetwork = value.toLowerCase(); break;
+						case ALLOCATE_PORT_RANGE:                allocatePortRange = Integer.parseInt(value); break;
 						case PROTOCOLS_WHITELIST:
 							protocolsWhitelist.clear();
 							protocolsWhitelist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));
