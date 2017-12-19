@@ -100,7 +100,7 @@ public class ClassUtil {
 		Objects.requireNonNull(m);
 		String sign = methodSignsCache.get(m);
 		if (sign == null) {
-			sign = getMethodSign(m.getName(), m.getParameterTypes());
+			sign = getMethodSign(m.getReturnType() + "@" + m.getName(), m.getParameterTypes());
 			methodSignsCache.put(m, sign);
 		}
 		return sign;

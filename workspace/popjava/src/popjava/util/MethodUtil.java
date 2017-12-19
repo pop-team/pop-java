@@ -7,6 +7,7 @@ import java.util.Arrays;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
+import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
 import popjava.annotation.POPSyncSeq;
@@ -106,7 +107,13 @@ public class MethodUtil {
 	 * @param constructor
 	 * @return 
 	 */
-	public static int constructorId(Constructor constructor){
+	public static int constructorId(Constructor<?> constructor){
+		if(constructor.isAnnotationPresent(POPObjectDescription.class)){
+			int id = constructor.getAnnotation(POPObjectDescription.class).id();
+			if (id != -1) {
+				return id;
+			}
+		}
 		String constructorSign = ClassUtil.getMethodSign(constructor);
 	    return Math.abs(constructorSign.hashCode());
 	}

@@ -253,6 +253,7 @@ public final class Broker {
 		Class<?> targetClass;
 		try {
 			targetClass = getPOPObjectClass(objectName, urlClassLoader);
+			//System.out.println("@@@ " + targetClass.getName());
 			popInfo = (POPObject) targetClass.getConstructor().newInstance();
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[Broker] %s ; Mesage: %s",
@@ -488,6 +489,7 @@ public final class Broker {
 		final MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 		try {
 			method = popInfo.getMethodByInfo(info);
+			//System.out.println("((-)) " + info + " @ " + method.toGenericString());
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(
 					popInfo.getClass().getName(),
