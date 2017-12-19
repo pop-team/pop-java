@@ -797,8 +797,7 @@ public class Interface {
 		
 		if(codeFile.startsWith("java")){
 
-			argvList.add(1, "java.base/java.lang=ALL-UNNAMED");
-			argvList.add(1, "--add-opens");
+			argvList.add(1, "--add-opens=java.base/java.lang=ALL-UNNAMED");
 			argvList.add(1, "-XX:+IgnoreUnrecognizedVMOptions");
 			
 			if(conf.isActivateJmx()) {
