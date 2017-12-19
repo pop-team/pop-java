@@ -1,6 +1,7 @@
 package popjava;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
@@ -160,6 +161,12 @@ public class PJProxyFactory extends ProxyFactory {
 			}
 		} catch(POPException e){
 			throw e;
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof POPException) {
+				throw (POPException) e.getCause();
+			} else {
+				LogWriter.writeExceptionLog(e);
+			}
 		} catch (Exception e) {
 			LogWriter.writeExceptionLog(e);
 		}

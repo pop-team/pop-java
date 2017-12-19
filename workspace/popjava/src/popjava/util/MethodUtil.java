@@ -4,6 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
@@ -11,53 +13,75 @@ import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
 import popjava.annotation.POPSyncSeq;
+import popjava.annotation.POPSemantic;
 
 /**
  * Utilities to be used with methods
  */
 public class MethodUtil {
-		
+	
+	/**
+	 * Tell if a given method as a POPSync* or POPAsync* annotation.
+	 * 
+	 * @param method a method
+	 * @return true if the annotation is found, false otherwise
+	 */
 	public static boolean isMethodPOPAnnotated(Method method){
-		if(method.isAnnotationPresent(POPSyncConc.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPSyncSeq.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPSyncMutex.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPAsyncConc.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPAsyncSeq.class)){
-			return true;
-		}
-		
-		if(method.isAnnotationPresent(POPAsyncMutex.class)){
-			return true;
+		Annotation[] annotations = method.getDeclaredAnnotations();
+		for (Annotation annotation : annotations) {
+			POPSemantic semantic = annotation.annotationType().getAnnotation(POPSemantic.class);
+			if (semantic != null) {
+				return true;
+			}
 		}
 		
 		try{
 			if(method.getDeclaringClass().getSuperclass() != null){
 				Method parentMethod = method.getDeclaringClass().getSuperclass().getMethod(method.getName(), method.getParameterTypes());
-				
+
 				if(parentMethod != null){
 					return isMethodPOPAnnotated(parentMethod);
 				}
 			}
-			
-			
 		}catch (NoSuchMethodException e) {
-			// TODO: handle exception
+			// we shouldn't go deeper at this point
 		}
-		
-		
 		return false;
+	}
+	
+	/**
+	 * Get the specified annotation if it exist, if it does it will check the hierarchy to see if it was not changed
+	 * from previous declarations.
+	 * 
+	 * @param <A> The wanted annotation
+	 * @param m  The method to check
+	 * @param type The class of 
+	 * @return the annotation or null if not found
+	 * @throws RuntimeException when the POP annotation soddenly change from a previous implementation
+	 */
+	@SuppressWarnings("unchecked")
+	public static<A extends Annotation> A getMethodAnnotation(Method m, Class<A> type) {
+		Annotation mainAnnotation = null;
+		try{
+			Class declaringClass = m.getDeclaringClass();
+			Method workingMethod = m;
+			while (declaringClass != Object.class) {
+				Annotation currentAnnotation = workingMethod.getAnnotation(type);
+				// until we have the annotation we want
+				if (mainAnnotation == null) {
+					mainAnnotation = currentAnnotation;
+				}
+				// check if there is a different one defined
+				else if (currentAnnotation == null && workingMethod.getAnnotation(POPSemantic.class) != null) {
+					throw new RuntimeException("Method " + m.toGenericString() + " has mismatching POP Annotations");
+				} 
+				declaringClass = declaringClass.getSuperclass();
+				workingMethod = declaringClass.getMethod(m.getName(), m.getParameterTypes());
+			}
+		}catch (NoSuchMethodException e) {
+			// we shouldn't go deeper at this point
+		}
+		return (A) mainAnnotation;
 	}
 	
 	/**
