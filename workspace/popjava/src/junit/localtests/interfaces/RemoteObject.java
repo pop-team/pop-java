@@ -13,11 +13,13 @@ import popjava.base.POPObject;
 public class RemoteObject extends POPObject implements RemoteInterface{
 
 	private POPObjectImpl temp;
-	
+
+	@POPObjectDescription(localJVM = false)
 	public RemoteObject() {
 		
 	}
 	
+	@POPObjectDescription(localJVM = false)
 	public RemoteObject(@POPConfig(Type.URL) String url) {
 		
 	}
