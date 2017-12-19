@@ -199,15 +199,16 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		// Invoke the method
 		result = new Object();
 		MethodInfo info = popObjectInfo.getMethodInfo(m);
+		//System.out.println("##### " + info + " @ " + m.toGenericString());
 		
-		if(info.getClassId() == 0 && info.getMethodId() == 0){
+		if(info == null || info.getClassId() == 0 && info.getMethodId() == 0){
 			throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "The methods "+m.getName()+" has no POP annotation");
 		}
 
 		m.setAccessible(true);
 		int methodSemantics = popObjectInfo.getSemantic(info);
-		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info
-				.getMethodId(), methodSemantics);
+		MessageHeader messageHeader = new MessageHeader(info.getClassId(), 
+			info.getMethodId(), methodSemantics);
 		messageHeader.setRequestID(requestID.incrementAndGet());
 		
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();

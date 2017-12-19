@@ -376,13 +376,13 @@ public abstract class POPBuffer {
 		//LogWriter.Prefix="Broker";
 		
 		if (c.equals(byte.class) || c.equals(Byte.class)){
-			return new Byte(get());
+			return get();
 		}else if (c.equals(int.class) || c.equals(Integer.class)){
-			return new Integer(getInt());
+			return getInt();
 		}else if (c.equals(float.class) || c.equals(Float.class)){
-			return new Float(getFloat());
+			return getFloat();
 		}else if (c.equals(boolean.class) || c.equals(Boolean.class)){
-			return Boolean.valueOf(getBoolean());
+			return getBoolean();
 		}else if (c.equals(String.class)){
 			return getString();
 		}else if (c.equals(char.class) || c.equals(Character.class)){

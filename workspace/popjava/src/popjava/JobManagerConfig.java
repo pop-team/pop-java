@@ -16,7 +16,6 @@ import popjava.service.jobmanager.network.POPNetworkDescriptor;
 import popjava.service.jobmanager.network.POPNode;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
-import popjava.util.LogWriter;
 import popjava.util.Util;
 import popjava.util.ssl.KeyPairDetails;
 import popjava.util.ssl.KeyStoreDetails;

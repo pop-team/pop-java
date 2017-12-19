@@ -9,8 +9,8 @@ import java.util.List;
  */
 public interface POPNetworkDescriptorMethod {
 
-	public POPConnector createConnector();
+	POPConnector createConnector();
 
-	public POPNode createNode(List<String> params);
+	POPNode createNode(List<String> params);
 	
 }

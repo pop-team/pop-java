@@ -88,6 +88,7 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T connect(Class<T> targetClass, String networkUUID, POPAccessPoint accessPoint) {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
@@ -286,7 +287,7 @@ public class PopJava {
 	 * @param object
 	 * @return 
 	 */
-	public static POPRemoteCaller getCaller(Object object) {
+	public static POPRemoteCaller getRemote(Object object) {
 		if(object instanceof ProxyObject){
 			ProxyObject origin = (ProxyObject) object;
 			return ((PJMethodHandler) origin.getHandler()).getRemote();

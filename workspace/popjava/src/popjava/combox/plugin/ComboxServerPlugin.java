@@ -20,4 +20,8 @@ public class ComboxServerPlugin extends ComboxServer {
 		super(accessPoint, timeout, broker);
 	}
 
+	@Override
+	public void close() {
+	}
+
 }

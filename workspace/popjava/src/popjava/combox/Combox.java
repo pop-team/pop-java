@@ -21,7 +21,7 @@ public abstract class Combox<T> {
 	
 	protected T peerConnection;
 	
-	protected String networkUUID;
+	private String networkUUID;
 	protected POPRemoteCaller remoteCaller;
 	
 	protected final Configuration conf = Configuration.getInstance();
@@ -57,11 +57,7 @@ public abstract class Combox<T> {
 	public final boolean connectToServer(POPAccessPoint accesspoint, int timeout) {
 		this.accessPoint = accesspoint;
 		this.timeOut = timeout;
-		System.out.println("=== Combox will send SNI = '"+ networkUUID +"'");
-		boolean status = connectToServer();
-		status &= sendNetworkName();
-		status &= exportConnectionInfo();
-		return status;
+		return connectToServer() && sendNetworkName() && exportConnectionInfo();
 	}
 	
 	/**
@@ -72,10 +68,7 @@ public abstract class Combox<T> {
 	 */
 	public final boolean serverAccept(T peerConnection) {
 		this.peerConnection = peerConnection;
-		boolean status = serverAccept();
-		status &= receiveNetworkName();
-		status &= exportConnectionInfo();
-		return status;
+		return serverAccept() && receiveNetworkName() && exportConnectionInfo();
 	}
 	
 	/**
@@ -168,6 +161,14 @@ public abstract class Combox<T> {
 	 * @return 
 	 */
 	public String getNetworkUUID() {
-		return networkUUID;
+		return networkUUID == null ? "" : networkUUID;
+	}
+
+	/**
+	 * Set the new ID of this network
+	 * @param networkUUID 
+	 */
+	public void setNetworkUUID(String networkUUID) {
+		this.networkUUID = networkUUID;
 	}
 }

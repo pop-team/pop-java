@@ -37,4 +37,8 @@ public abstract class ComboxServer {
 		return broker.getRequestQueue();
 	}
 
+	/**
+	 * Close all connection with this server
+	 */
+	public abstract void close();
 }

@@ -144,7 +144,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 					peerConnection.setUseClientMode(true);
 					
 					// setup SNI
-					SNIServerName network = new SNIHostName(networkUUID);
+					SNIServerName network = new SNIHostName(getNetworkUUID());
 					List<SNIServerName> nets = new ArrayList<>(1);
 					nets.add(network);
 
@@ -191,7 +191,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 			// extract the SNI from the extended handshake
 			for (SNIServerName sniNetwork : handshakeSession.getRequestedServerNames()) {
 				if (sniNetwork.getType() == StandardConstants.SNI_HOST_NAME) {
-					networkUUID = ((SNIHostName) sniNetwork).getAsciiName();
+					setNetworkUUID(((SNIHostName) sniNetwork).getAsciiName());
 					return true;
 				}
 			}
@@ -339,16 +339,14 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
 					
-					if (networkUUID == null) {
-						networkUUID = SSLUtils.getNetworkFromCertificate(fingerprint);
+					if (getNetworkUUID() == null) {
+						setNetworkUUID(SSLUtils.getNetworkFromCertificate(fingerprint));
 					}
-					
-					System.out.format("=== Extracting network from handshake '%s' ===\n", networkUUID);
 					
 					remoteCaller = new POPRemoteCaller(
 						peerConnection.getInetAddress(),
 						MY_FACTORY.getComboxName(),
-						networkUUID,
+						getNetworkUUID(),
 						MY_FACTORY.isSecure(),
 						fingerprint
 					);

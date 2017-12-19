@@ -101,7 +101,6 @@ public class Popjrun {
 	private static String classPath = "";
 
 	private static List<String> parseArguments(String[] args) {
-		List<String> arguments = new ArrayList<>();
 		label:
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
@@ -146,7 +145,7 @@ public class Popjrun {
 			}
 		}
 
-		arguments.addAll(Arrays.asList(args));
+		List<String> arguments = new ArrayList<>(Arrays.asList(args));
 
 		return arguments;
 	}

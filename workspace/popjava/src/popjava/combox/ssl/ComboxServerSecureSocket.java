@@ -5,8 +5,8 @@ import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
 import java.net.*;
-import javax.net.ServerSocketFactory;
 import popjava.combox.ComboxServer;
+import popjava.combox.ComboxUtils;
 
 /**
  * This class is an implementation of the combox with the protocol ssl for the server side.
@@ -17,8 +17,6 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	private final int RECEIVE_BUFFER_SIZE = 1024 * 8 * 500;
 
 	protected ServerSocket serverSocket = null;
-
-	// we use the simple socker implementation of this since it beahve the same way
 	private ComboxAcceptSecureSocket serverCombox = null;
 
 	/**
@@ -51,11 +49,7 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	 * @throws java.io.IOException
 	 */
 	public final void createServer() throws IOException {		
-		ServerSocketFactory plainServerFactory = ServerSocketFactory.getDefault();
-		serverSocket = plainServerFactory.createServerSocket();
-
-		serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
-		serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));
+		serverSocket = ComboxUtils.createServerSocket(accessPoint.getPort(), ss -> ss.setReceiveBufferSize(RECEIVE_BUFFER_SIZE));
 		serverCombox = new ComboxAcceptSecureSocket(broker, getRequestQueue(), serverSocket);
 		serverCombox.setStatus(RUNNING);
 		Thread thread = new Thread(serverCombox, "Server combox acception thread");
@@ -63,5 +57,10 @@ public class ComboxServerSecureSocket extends ComboxServer {
 		accessPoint.setProtocol(ComboxSecureSocketFactory.PROTOCOL);
 		accessPoint.setHost(accessPoint.getHost());
 		accessPoint.setPort(serverSocket.getLocalPort());
+	}
+
+	@Override
+	public void close() {
+		serverCombox.close();
 	}
 }

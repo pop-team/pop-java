@@ -126,20 +126,16 @@ public class RequestQueue {
 
 		try {
 			//LogWriter.writeDebugInfo("Peek, queue contains "+size()+" requests "+hashCode());
-			if (availableRequest == null){
-				//LogWriter.writeDebugInfo("Search for new request "+hashCode());
-				waitSuccess = canPeek.await(time, timeUnit);
-			} else {
-				waitSuccess = true;
-			}
-			
+			//LogWriter.writeDebugInfo("Search for new request "+hashCode());
+			waitSuccess = availableRequest != null || canPeek.await(time, timeUnit);
+
 			//LogWriter.writeDebugInfo("Got request? "+waitSuccess+" "+hashCode());
 			if (waitSuccess) {
 				request = availableRequest;
 				request.setStatus(Request.SERVING);
-		        
+
 				serveRequest(request);
-				
+
 				availableRequest = null;
 				canPeek();
 			}

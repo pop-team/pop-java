@@ -29,6 +29,7 @@ import junit.localtests.protocols.WhiteBlacklistTest;
 import junit.localtests.serializable.JavaSerializableTest;
 import junit.localtests.accounting.AccountingTest;
 import junit.localtests.accounting.AccountingAPITest;
+import junit.localtests.priority.MethodAnnotationPriority;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -57,7 +58,8 @@ import junit.localtests.accounting.AccountingAPITest;
 	WhiteBlacklistTest.class, 
 	JavaSerializableTest.class,
 	AccountingTest.class,
-	AccountingAPITest.class
+	AccountingAPITest.class,
+	MethodAnnotationPriority.class
 })
 public class LocalTests {
 

@@ -35,7 +35,7 @@ public class ComplexType3 implements IPOPBase {
 		buffer.putInt(size);
 		int[] array = new int[vector.size()];
 		for (int i = 0; i < array.length; i++) {
-			array[i] = vector.get(i).intValue();
+			array[i] = vector.get(i);
 		}
 		buffer.putIntArray(array);
 		return true;

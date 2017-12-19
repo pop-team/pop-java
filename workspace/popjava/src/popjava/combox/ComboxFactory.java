@@ -4,7 +4,6 @@ import java.io.IOException;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
 import popjava.util.Configuration;
 
 /**

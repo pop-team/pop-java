@@ -625,10 +625,7 @@ public class ObjectDescription implements IPOPBase {
 	 * @return	Value of the attribute or an empty string
 	 */
 	public String getValue(String key) {
-		if (attributes.containsKey(key))
-			return attributes.get(key);
-		else
-			return "";
+		return attributes.getOrDefault(key, "");
 	}
 
 	/**

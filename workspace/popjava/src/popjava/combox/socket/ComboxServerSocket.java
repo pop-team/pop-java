@@ -9,6 +9,7 @@ import popjava.baseobject.AccessPoint;
 import java.net.*;
 import java.io.*;
 import popjava.combox.ComboxServer;
+import popjava.combox.ComboxUtils;
 /**
  * This class is an implementation of the combox with the protocol socket for the server side.
  */
@@ -48,16 +49,18 @@ public class ComboxServerSocket extends ComboxServer {
 	 * @throws java.io.IOException
 	 */
 	public final void createServer() throws IOException {
-		serverSocket = new ServerSocket();
-		serverSocket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
-		serverSocket.bind(new InetSocketAddress(accessPoint.getPort()));			
-		serverCombox = new ComboxAcceptSocket(broker, getRequestQueue(),
-				serverSocket);
+		serverSocket = ComboxUtils.createServerSocket(accessPoint.getPort(), ss -> ss.setReceiveBufferSize(RECEIVE_BUFFER_SIZE));
+		serverCombox = new ComboxAcceptSocket(broker, getRequestQueue(), serverSocket);
 		serverCombox.setStatus(RUNNING);
 		Thread thread = new Thread(serverCombox, "Server combox acception thread");
 		thread.start();
 		accessPoint.setProtocol(ComboxSocketFactory.PROTOCOL);
 		accessPoint.setHost(accessPoint.getHost());
 		accessPoint.setPort(serverSocket.getLocalPort());
+	}
+
+	@Override
+	public void close() {
+		serverCombox.close();
 	}
 }
