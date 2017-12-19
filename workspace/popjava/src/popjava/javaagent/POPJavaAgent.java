@@ -56,6 +56,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                 
         // Add our transformer to the list of transformers
         instrumentation.addTransformer( this );
+        
         try {
 			classPool.appendPathList(System.getProperty("java.class.path"));
 		} catch (NotFoundException e) {
