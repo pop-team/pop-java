@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;

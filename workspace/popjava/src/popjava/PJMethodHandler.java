@@ -282,8 +282,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	}
 	
 	private void replacePOPObjectArguments(Object[] args){
-		for(int i = 0; i < args.length; i++){
-			if(args[i] instanceof POPObject){
+		for(int i = 0; i < args.length; i++) {
+			if (args[i] instanceof POPObject) {
 				POPObject object = (POPObject)args[i];
 				// create proxy if it's not
 				if (!(args[i] instanceof ProxyObject)) {					
@@ -304,11 +304,13 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					// send connector certificate to object's node
 					String destinationFingerprint = popAccessPoint.getFingerprint();
 					Certificate destCert = SSLUtils.getCertificate(destinationFingerprint);
-					// send caller certificate to origin node
-					object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
+					
+					if (destCert != null) {
+						// send caller certificate to origin node
+						object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
+					}
 				}
 			}
-			
 		}
 	}
 	
@@ -356,10 +358,18 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	private Object invokeCustomMethod(Object self, Method m, Method proceed, boolean[] canExcute, Object[] argvs) {
 		canExcute[0] = false;
 		String methodName = m.getName();
+		
 		if (argvs.length == 1 && (methodName.equals("serialize")) || (methodName.equals("deserialize"))) {
 			boolean result = false;
 			POPBuffer buffer = (POPBuffer) argvs[0];
 			if (methodName.equals("serialize")) {
+					
+				// references that come from the Broker which were set on the POPObject
+				if (self instanceof POPObject) {
+					POPObject o = (POPObject) self;
+					od.merge(o.getOd());
+				}
+				
 				canExcute[0] = true;
 				result = serialize(buffer);
 			} else if (methodName.equals("deserialize")) {
