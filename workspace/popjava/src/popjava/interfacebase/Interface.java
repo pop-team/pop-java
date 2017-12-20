@@ -93,7 +93,7 @@ public class Interface {
 	 */
 	public boolean serialize(POPBuffer buffer) {
 		od.serialize(buffer);
-		popAccessPoint.serialize(buffer);		
+		popAccessPoint.serialize(buffer);
 		int ref = addRef();
 		buffer.putInt(ref);
 		return true;

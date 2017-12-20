@@ -195,7 +195,7 @@ public class CreateKeyStoreTest {
 		Configuration.getInstance().setDebug(false);
 	}
 	
-	@Test(expected = SSLHandshakeException.class)
+	@Test(expected = Exception.class)
 	public void fullWrongSNI() throws Exception {
 		testDir.create();
 		File tmpKS = testDir.newFile();

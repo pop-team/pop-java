@@ -135,6 +135,8 @@
         tempdir="${build.dir}"
         forkmode="perTest"
     >
+        <jvmarg value="-Xms512M" />
+        <jvmarg value="-Xmx1024M" />
         <classpath>
             <pathelement location="${classes.dir}"/>
             <pathelement location="${junit.jar}" />
