@@ -604,6 +604,9 @@ public final class Broker {
 									// send caller' certificate to object origin node
 									returnObject.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
 								}
+								
+								// set the od with the current connection network
+								returnObject.getOd().setNetwork(request.getCombox().getNetworkUUID());
 							}
 							
 						    responseBuffer.putValue(result, returnType);

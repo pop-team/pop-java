@@ -60,7 +60,7 @@ public class MethodUtil {
 	 * @throws RuntimeException when the POP annotation soddenly change from a previous implementation
 	 */
 	@SuppressWarnings("unchecked")
-	public static<A extends Annotation> A getMethodAnnotation(Method m, Class<A> type) {
+	public static<A extends Annotation> A getMethodPOPAnnotation(Method m, Class<A> type) {
 		Annotation mainAnnotation = null;
 		try{
 			Class declaringClass = m.getDeclaringClass();

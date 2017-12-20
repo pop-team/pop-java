@@ -480,12 +480,12 @@ public class POPObject implements IPOPBase {
 		}
 		
 		Annotation[] annotations = {
-			MethodUtil.getMethodAnnotation(m, POPSyncConc.class),
-			MethodUtil.getMethodAnnotation(m, POPSyncSeq.class),
-			MethodUtil.getMethodAnnotation(m, POPSyncMutex.class),
-			MethodUtil.getMethodAnnotation(m, POPAsyncConc.class),
-			MethodUtil.getMethodAnnotation(m, POPAsyncSeq.class),
-			MethodUtil.getMethodAnnotation(m, POPAsyncMutex.class)
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncConc.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncSeq.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncMutex.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncConc.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncSeq.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncMutex.class)
 		};
 		
 		Annotation annotation = null;
