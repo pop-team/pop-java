@@ -6,6 +6,7 @@ import org.junit.Test;
 import popjava.PopJava;
 import popjava.system.POPSystem;
 import static org.junit.Assert.*;
+import popjava.base.POPException;
 
 /**
  *
@@ -60,5 +61,11 @@ public class MethodAnnotationPriority {
 	IX genIX() {
 		IX x = PopJava.newActive(X.class);
 		return x;
+	}
+	
+	@Test(expected = POPException.class)
+	public void DchangeAnnotations() {
+		D d = PopJava.newActive(D.class);
+		d.sync();
 	}
 }

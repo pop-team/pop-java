@@ -7,9 +7,10 @@ import java.lang.reflect.Modifier;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
@@ -200,64 +201,6 @@ public class POPObject implements IPOPBase {
 	
 	public void loadPOPAnnotations(Constructor<?> constructor, Object ... argvs){
 		loadDynamicOD(constructor, argvs);
-		loadMethodSemantics();
-	}
-	
-	private void throwMultipleAnnotationsError(Class<?> c, Method method){
-		throw new InvalidParameterException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
-	}
-	
-	private void loadMethodSemantics(){
-		Class<?> c = getRealClass();
-		
-		for(Method method: c.getDeclaredMethods()){
-			if(!method.isAnnotationPresent(POPPrivate.class)) {
-				int semantic = -1;
-				
-				//Sync
-				if(method.isAnnotationPresent(POPSyncConc.class)){
-					if(semantic != -1){
-						throwMultipleAnnotationsError(c, method);
-					}
-					semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
-				}
-				if(method.isAnnotationPresent(POPSyncSeq.class)){
-					if(semantic != -1){
-						throwMultipleAnnotationsError(c, method);
-					}
-					semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
-				}
-				if(method.isAnnotationPresent(POPSyncMutex.class)){
-					if(semantic != -1){
-						throwMultipleAnnotationsError(c, method);
-					}
-					semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
-				}
-				//Async
-				if(method.isAnnotationPresent(POPAsyncConc.class)){
-					if(semantic != -1){
-						throwMultipleAnnotationsError(c, method);
-					}
-					semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
-				}
-				if(method.isAnnotationPresent(POPAsyncSeq.class)){
-					if(semantic != -1){
-						throwMultipleAnnotationsError(c, method);
-					}
-					semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
-				}
-				if(method.isAnnotationPresent(POPAsyncMutex.class)){
-					if(semantic != -1){
-						throwMultipleAnnotationsError(c, method);
-					}
-					semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
-				}
-				
-				if(semantic != -1){
-					addSemantic(c, method.getName() , semantic);
-				}
-			}
-        }
 	}
 
 	/**
@@ -389,31 +332,6 @@ public class POPObject implements IPOPBase {
 		return method;
 	}
 
-	/*
-	 * Retrieve a specific method in the super class
-	 * @param method	informations about the method to retrieve
-	 * @return	A method object that represent the method found in the parallel class or null
-	 */
-	/*private Method findSuperMethod(Method method) {
-		String findingSign = ClassUtil.getMethodSign(method);
-		Class<?> findingClass = method.getDeclaringClass();
-		Method result = method;
-		Enumeration<MethodInfo> keys = methodInfos.keys();
-		while (keys.hasMoreElements()) {
-			MethodInfo key = keys.nextElement();
-			Method m = methodInfos.get(key);
-			String methodSign = ClassUtil.getMethodSign(m);
-			if (findingSign.equals(methodSign)) {
-				if (findingClass.isAssignableFrom(m.getDeclaringClass())) {
-					findingClass = m.getDeclaringClass();
-					result = m;
-					break;
-				}
-			}
-		}
-		return result;
-	}*/
-
 	/**
 	 * Retrieve a constructor by its informations
 	 * @param info	Informations about the constructor to retrieve
@@ -422,14 +340,6 @@ public class POPObject implements IPOPBase {
 	 */
 	public Constructor<?> getConstructorByInfo(MethodInfo info)
 			throws NoSuchMethodException {
-
-		/*Enumeration<MethodInfo> keys = constructorInfos.keys();
-		while (keys.hasMoreElements()) {
-			MethodInfo key = keys.nextElement();
-			if (key.equals(info))
-				return constructorInfos.get(key);
-		}*/
-		
 		Constructor<?> c = constructorInfos.get(info);
 		if (c == null) {
 			throw new NoSuchMethodException();
@@ -443,26 +353,6 @@ public class POPObject implements IPOPBase {
 	 * @return	The method found
 	 */
 	public MethodInfo getMethodInfo(Method method) {
-		//TODO: potentially slow
-		/*MethodInfo methodInfo = new MethodInfo(0, 0);
-		String findingSign = ClassUtil.getMethodSign(method);
-		Class<?> findingClass = method.getDeclaringClass();
-		
-		if (methodInfos.containsValue(method)) {
-			Enumeration<MethodInfo> keys = methodInfos.keys();
-			while (keys.hasMoreElements()) {
-				MethodInfo key = keys.nextElement();
-				Method m = methodInfos.get(key);
-				String methodSign = ClassUtil.getMethodSign(m);
-				if (findingSign.equals(methodSign)) {
-					if (m.getDeclaringClass().isAssignableFrom(findingClass)) {
-						findingClass = m.getDeclaringClass();
-						methodInfo = key;
-					}
-				}
-			}
-		}*/
-		
 		return reverseMethodInfos.getOrDefault(method, new MethodInfo(0, 0));
 	}
 
@@ -472,14 +362,6 @@ public class POPObject implements IPOPBase {
 	 * @return	The method found
 	 */
 	public MethodInfo getMethodInfo(Constructor<?> constructor) {	    
-		/*if (constructorInfos.containsValue(constructor)) {
-			Enumeration<MethodInfo> keys = constructorInfos.keys();
-			while (keys.hasMoreElements()) {
-				MethodInfo key = keys.nextElement();
-				if (constructorInfos.get(key).equals(constructor))
-					return key;
-			}
-		}*/
 		MethodInfo c = reverseConstructorInfos.get(constructor);
 		if (c == null) {
 			throw new RuntimeException("Could not find constructor " + constructor.toGenericString());
@@ -578,11 +460,70 @@ public class POPObject implements IPOPBase {
 						
 						methodInfos.put(methodInfo, m);
 						reverseMethodInfos.put(m, methodInfo);
+						addMethodSemantic(methodInfo, m);
 					}
 				}
 				// map super class
 				c = c.getSuperclass();
 			}
+		}
+	}
+	
+	/**
+	 * Add the semantics of the given method
+	 * @param mi
+	 * @param m 
+	 */
+	private void addMethodSemantic(MethodInfo mi, Method m) {
+		if(m.isAnnotationPresent(POPPrivate.class)) {
+			return;
+		}
+		
+		Annotation[] annotations = {
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncConc.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncSeq.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncMutex.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncConc.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncSeq.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncMutex.class)
+		};
+		
+		Annotation annotation = null;
+		for (Annotation ia : annotations) {
+			if (Objects.isNull(ia)) {
+				continue;
+			}
+			if (annotation != null) {
+				throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, 
+					"Can not declare mutliple POP Semantics for same method " + m.toGenericString());
+			}
+			annotation = ia;
+		}
+		
+		int semantic = -1;
+		//Sync
+		if(annotation.annotationType() == POPSyncConc.class){
+			semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
+		}
+		else if(annotation.annotationType() == POPSyncSeq.class){
+			semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
+		}
+		else if(annotation.annotationType() == POPSyncMutex.class){
+			semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
+		}
+		//Async
+		else if(annotation.annotationType() == POPAsyncConc.class){
+			semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
+		}
+		else if(annotation.annotationType() == POPAsyncSeq.class){
+			semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
+		}
+		if(annotation.annotationType() == POPAsyncMutex.class){
+			semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
+		}
+
+		if(semantic != -1){
+			semantics.put(mi, semantic);
 		}
 	}
 

@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@POPSemantic
 public @interface POPSyncMutex {
     int id() default -1;
 	boolean localhost() default false;
