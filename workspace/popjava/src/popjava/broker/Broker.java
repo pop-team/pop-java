@@ -118,11 +118,11 @@ public final class Broker {
 	private Map<POPRemoteCaller, POPTracking> callerTracking = new ConcurrentHashMap<>();
 		
 	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
-		
 		@Override
 		public Thread newThread(Runnable arg0) {
 			Thread thread = Executors.defaultThreadFactory().newThread(arg0);
 			thread.setName("Sequential request thread");
+			thread.setDaemon(true);
 			return thread;
 		}
 	});
@@ -901,7 +901,7 @@ public final class Broker {
 		while (getState() == State.Running) {
 			Request request = requestQueue.peek(REQUEST_QUEUE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 			
-			if (request != null) {
+			if (request != null && request.getClassId() != 0 && request.getMethodId() != 0) {
 				serveRequest(request);
 			}
 		}
@@ -1211,7 +1211,6 @@ public final class Broker {
 		}
 		
 		LogWriter.writeDebugInfo("[Broker] End broker life : "+objectName);
-		System.exit(0);
 	}
 
 	/**
