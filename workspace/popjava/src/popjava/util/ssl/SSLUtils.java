@@ -62,7 +62,6 @@ import popjava.combox.ssl.POPTrustManager;
 import popjava.service.jobmanager.network.POPNode;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
-import popjava.util.MethodUtil;
 
 /**
  * Utilities for using SSL and certificates
@@ -679,8 +678,6 @@ public class SSLUtils {
 		X509Certificate x509Certificate = certConverter.getCertificate(certificateHolder);
 		
 		// keyStore entry for private key, Key and Certificate
-		KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(rsaPrivateKey, new Certificate[]{x509Certificate});
-
-		return privateKeyEntry;
+		return new KeyStore.PrivateKeyEntry(rsaPrivateKey, new Certificate[]{x509Certificate});
 	}
 }

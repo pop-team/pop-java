@@ -7,7 +7,8 @@ import java.lang.reflect.Modifier;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import javassist.util.proxy.ProxyObject;
 import popjava.PopJava;
@@ -16,6 +17,7 @@ import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
+import popjava.annotation.POPPrivate;
 import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
 import popjava.annotation.POPSyncMutex;
@@ -23,6 +25,7 @@ import popjava.annotation.POPSyncSeq;
 import popjava.baseobject.ConnectionType;
 import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
+import popjava.baseobject.POPTracking;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
 import popjava.util.ssl.SSLUtils;
@@ -30,6 +33,7 @@ import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
 import popjava.util.MethodUtil;
+import popjava.util.POPRemoteCaller;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
  */
@@ -43,8 +47,10 @@ public class POPObject implements IPOPBase {
 	protected ObjectDescription od = new ObjectDescription();
 	private String className = "";
 	private final ConcurrentHashMap<MethodInfo, Integer> semantics = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<MethodInfo, Method> methodInfos = new ConcurrentHashMap<>();
-	private final ConcurrentHashMap<MethodInfo, Constructor<?>> constructorInfos = new ConcurrentHashMap<>();
+	private final HashMap<MethodInfo, Method> methodInfos = new HashMap<>();
+	private final HashMap<Method, MethodInfo> reverseMethodInfos = new HashMap<>();
+	private final HashMap<MethodInfo, Constructor<?>> constructorInfos = new HashMap<>();
+	private final HashMap<Constructor<?>, MethodInfo> reverseConstructorInfos = new HashMap<>();
 
 	private boolean temporary = false;
 	
@@ -108,6 +114,7 @@ public class POPObject implements IPOPBase {
 			// TODO size (-1) is not implemented, may want to add it to POPObjectDescription
 			od.setSearch(objectDescription.searchDepth(), -1, objectDescription.searchTime());
 			od.setUseLocalJVM(objectDescription.localJVM());
+			od.setTracking(objectDescription.tracking());
 		}
 	}
 	
@@ -193,62 +200,6 @@ public class POPObject implements IPOPBase {
 	
 	public void loadPOPAnnotations(Constructor<?> constructor, Object ... argvs){
 		loadDynamicOD(constructor, argvs);
-		loadMethodSemantics();
-	}
-	
-	private void throwMultipleAnnotationsError(Class<?> c, Method method){
-		throw new InvalidParameterException("Can not declare mutliple POP Semantics for same method "+c.getName()+":"+method.getName());
-	}
-	
-	private void loadMethodSemantics(){
-		Class<?> c = getRealClass();
-		
-		for(Method method: c.getDeclaredMethods()){
-			int semantic = -1;
-			
-			//Sync
-			if(method.isAnnotationPresent(POPSyncConc.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
-				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
-			}
-			if(method.isAnnotationPresent(POPSyncSeq.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
-				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
-			}
-			if(method.isAnnotationPresent(POPSyncMutex.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
-				}
-				semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
-			}
-			//Async
-			if(method.isAnnotationPresent(POPAsyncConc.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
-				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
-			}
-			if(method.isAnnotationPresent(POPAsyncSeq.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
-				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
-			}
-			if(method.isAnnotationPresent(POPAsyncMutex.class)){
-				if(semantic != -1){
-					throwMultipleAnnotationsError(c, method);
-				}
-				semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
-			}
-			
-			if(semantic != -1){
-				addSemantic(c, method.getName() , semantic);
-			}
-        }
 	}
 
 	/**
@@ -256,7 +207,6 @@ public class POPObject implements IPOPBase {
 	 */
 	protected final void initializePOPObject() {
 		if (generateClassId){
-			// TODO generate a POP Java specific ID
 			classId = ClassUtil.classId(getRealClass());
 		}
 		
@@ -381,31 +331,6 @@ public class POPObject implements IPOPBase {
 		return method;
 	}
 
-	/*
-	 * Retrieve a specific method in the super class
-	 * @param method	informations about the method to retrieve
-	 * @return	A method object that represent the method found in the parallel class or null
-	 */
-	/*private Method findSuperMethod(Method method) {
-		String findingSign = ClassUtil.getMethodSign(method);
-		Class<?> findingClass = method.getDeclaringClass();
-		Method result = method;
-		Enumeration<MethodInfo> keys = methodInfos.keys();
-		while (keys.hasMoreElements()) {
-			MethodInfo key = keys.nextElement();
-			Method m = methodInfos.get(key);
-			String methodSign = ClassUtil.getMethodSign(m);
-			if (findingSign.equals(methodSign)) {
-				if (findingClass.isAssignableFrom(m.getDeclaringClass())) {
-					findingClass = m.getDeclaringClass();
-					result = m;
-					break;
-				}
-			}
-		}
-		return result;
-	}*/
-
 	/**
 	 * Retrieve a constructor by its informations
 	 * @param info	Informations about the constructor to retrieve
@@ -414,15 +339,11 @@ public class POPObject implements IPOPBase {
 	 */
 	public Constructor<?> getConstructorByInfo(MethodInfo info)
 			throws NoSuchMethodException {
-
-		Enumeration<MethodInfo> keys = constructorInfos.keys();
-		while (keys.hasMoreElements()) {
-			MethodInfo key = keys.nextElement();
-			if (key.equals(info))
-				return constructorInfos.get(key);
+		Constructor<?> c = constructorInfos.get(info);
+		if (c == null) {
+			throw new NoSuchMethodException();
 		}
-
-		throw new NoSuchMethodException();
+		return c;
 	}
 
 	/**
@@ -431,45 +352,20 @@ public class POPObject implements IPOPBase {
 	 * @return	The method found
 	 */
 	public MethodInfo getMethodInfo(Method method) {
-		//TODO: potentially slow
-		MethodInfo methodInfo = new MethodInfo(0, 0);
-		String findingSign = ClassUtil.getMethodSign(method);
-		Class<?> findingClass = method.getDeclaringClass();
-		
-		if (methodInfos.containsValue(method)) {
-			Enumeration<MethodInfo> keys = methodInfos.keys();
-			while (keys.hasMoreElements()) {
-				MethodInfo key = keys.nextElement();
-				Method m = methodInfos.get(key);
-				String methodSign = ClassUtil.getMethodSign(m);
-				if (findingSign.equals(methodSign)) {
-					if (m.getDeclaringClass().isAssignableFrom(findingClass)) {
-						findingClass = m.getDeclaringClass();
-						methodInfo = key;
-					}
-				}
-			}
-		}
-		
-		return methodInfo;
+		return reverseMethodInfos.getOrDefault(method, new MethodInfo(0, 0));
 	}
 
 	/**
 	 * Retrieve a specific method by its constructor informations
-	 * @param constructor	Informations about the constrcutor
+	 * @param constructor	Informations about the constructor
 	 * @return	The method found
 	 */
 	public MethodInfo getMethodInfo(Constructor<?> constructor) {	    
-		if (constructorInfos.containsValue(constructor)) {
-			Enumeration<MethodInfo> keys = constructorInfos.keys();
-			while (keys.hasMoreElements()) {
-				MethodInfo key = keys.nextElement();
-				if (constructorInfos.get(key).equals(constructor))
-					return key;
-			}
+		MethodInfo c = reverseConstructorInfos.get(constructor);
+		if (c == null) {
+			throw new RuntimeException("Could not find constructor " + constructor.toGenericString());
 		}
-		
-		throw new RuntimeException("Could not find constructor "+constructor.toString());
+		return c;
 	}
 
 	/**
@@ -478,11 +374,7 @@ public class POPObject implements IPOPBase {
 	 * @return	int value representing the semantics of the method
 	 */
 	public int getSemantic(MethodInfo methodInfo) {
-		if (semantics.containsKey(methodInfo)) {
-			return semantics.get(methodInfo);
-		} else {
-			return Semantic.SYNCHRONOUS;
-		}
+		return semantics.getOrDefault(methodInfo, Semantic.SYNCHRONOUS);
 	}
 
 	/**
@@ -560,19 +452,77 @@ public class POPObject implements IPOPBase {
 					if ((popClassAnnotation != null || declaringClass.equals(POPObject.class))
 							&& Modifier.isPublic(m.getModifiers()) && MethodUtil.isMethodPOPAnnotated(m)) {
 						int methodId = MethodUtil.methodId(m);
-						int id = popClassAnnotation == null ? -1 : popClassAnnotation.classId();
-
-						if(id == -1){
-							id = ClassUtil.classId(c);
-						}
-						MethodInfo methodInfo = new MethodInfo(id, methodId);
-
+						int methodClassId = ClassUtil.classId(c);
+						MethodInfo methodInfo = new MethodInfo(methodClassId, methodId);
+						
+						//System.out.println("___ " + methodInfo + " @ " + m.toGenericString());
+						
 						methodInfos.put(methodInfo, m);
+						reverseMethodInfos.put(m, methodInfo);
+						addMethodSemantic(methodInfo, m);
 					}
 				}
 				// map super class
 				c = c.getSuperclass();
 			}
+		}
+	}
+	
+	/**
+	 * Add the semantics of the given method
+	 * @param mi
+	 * @param m 
+	 */
+	private void addMethodSemantic(MethodInfo mi, Method m) {
+		if(m.isAnnotationPresent(POPPrivate.class)) {
+			return;
+		}
+		
+		Annotation[] annotations = {
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncConc.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncSeq.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPSyncMutex.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncConc.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncSeq.class),
+			MethodUtil.getMethodPOPAnnotation(m, POPAsyncMutex.class)
+		};
+		
+		Annotation annotation = null;
+		for (Annotation ia : annotations) {
+			if (Objects.isNull(ia)) {
+				continue;
+			}
+			if (annotation != null) {
+				throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, 
+					"Can not declare mutliple POP Semantics for same method " + m.toGenericString());
+			}
+			annotation = ia;
+		}
+		
+		int semantic = -1;
+		//Sync
+		if(annotation.annotationType() == POPSyncConc.class){
+			semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
+		}
+		else if(annotation.annotationType() == POPSyncSeq.class){
+			semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
+		}
+		else if(annotation.annotationType() == POPSyncMutex.class){
+			semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
+		}
+		//Async
+		else if(annotation.annotationType() == POPAsyncConc.class){
+			semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
+		}
+		else if(annotation.annotationType() == POPAsyncSeq.class){
+			semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
+		}
+		if(annotation.annotationType() == POPAsyncMutex.class){
+			semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
+		}
+
+		if(semantic != -1){
+			semantics.put(mi, semantic);
 		}
 	}
 
@@ -588,29 +538,20 @@ public class POPObject implements IPOPBase {
 			Arrays.sort(allConstructors, new Comparator<Constructor<?>>() {
 				@Override
                 public int compare(Constructor<?> first, Constructor<?> second) {
-					String firstSign = ClassUtil
-							.getMethodSign(first);
-					String secondSign = ClassUtil
-							.getMethodSign(second);
+					String firstSign = ClassUtil.getMethodSign(first);
+					String secondSign = ClassUtil.getMethodSign(second);
 					return firstSign.compareTo(secondSign);
 				}
 			});
 
 			for (Constructor<?> constructor : allConstructors) {
 				if (Modifier.isPublic(constructor.getModifiers())) {
-					int id = -1;
-					if(constructor.isAnnotationPresent(POPObjectDescription.class)){
-				        id = constructor.getAnnotation(POPObjectDescription.class).id();
-			        }
-					
-					if(id == -1){
-						id = MethodUtil.constructorId(constructor);
-					}
+					int id = MethodUtil.constructorId(constructor);
 					
 					MethodInfo info = new MethodInfo(getClassId(), id);
 					constructorInfos.put(info, constructor);
-					semantics.put(info, Semantic.CONSTRUCTOR
-							| Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
+					reverseConstructorInfos.put(constructor, info);
+					semantics.put(info, Semantic.CONSTRUCTOR | Semantic.SYNCHRONOUS | Semantic.SEQUENCE);
 				}
 			}
 		}
@@ -702,35 +643,22 @@ public class POPObject implements IPOPBase {
 	 */
 	public void printMethodInfo() {
 		System.out.println("===========ConstructorInfo============");
-		Enumeration<MethodInfo> keys = constructorInfos.keys();
-		while (keys.hasMoreElements()) {
-			MethodInfo key = keys.nextElement();
-			String info = String.format("ClassId:%d.ConstructorId:%d.Sign:%s",
-					key.getClassId(), key.getMethodId(), constructorInfos.get(
-							key).toGenericString());
-			System.out.println(info);
-		}
+		constructorInfos.forEach((mi, c) -> {
+			System.out.format("ClassId:%d.ConstructorId:%d.Sign:%s",
+				mi.getClassId(), mi.getMethodId(), c.toGenericString());
+		});
 
 		System.out.println("===========MethodInfo============");
-		keys = methodInfos.keys();
-		while (keys.hasMoreElements()) {
-			MethodInfo key = keys.nextElement();
-			String info = String.format("ClassId:%d.ConstructorId:%d.Sign:%s",
-					key.getClassId(), key.getMethodId(), methodInfos.get(key)
-							.toGenericString());
-			System.out.println(info);
-		}
+		methodInfos.forEach((mi, m) -> {
+			System.out.format("ClassId:%d.MethodId:%d.Sign:%s",
+				mi.getClassId(), mi.getMethodId(), m.toGenericString());
+		});
 
 		System.out.println("===========SemanticsInfo============");
-		keys = semantics.keys();
-		while (keys.hasMoreElements()) {
-			MethodInfo key = keys.nextElement();
-			String info = String.format(
-					"ClassId:%d.ConstructorId:%d.Semantics:%d", key
-							.getClassId(), key.getMethodId(), semantics
-							.get(key));
-			System.out.println(info);
-		}
+		semantics.forEach((mi, s) -> {
+			System.out.format("ClassId:%d.ConstructorId:%d.Semantics:%d",
+				mi.getClassId(), mi.getMethodId(), s);
+		});
 	}
 		
 	/**
@@ -788,6 +716,46 @@ public class POPObject implements IPOPBase {
 	public void PopRegisterFutureConnectorCertificate(byte[] cert) {
 		LogWriter.writeDebugInfo("Writing certificate received from middleman.");
 		SSLUtils.addCertToTempStore(cert, true);
+	}
+	
+	/**
+	 * Get the tracked user list.
+	 * 
+	 * @return a callerID array of strings.
+	 */
+	@POPSyncSeq(localhost = true)
+	public POPRemoteCaller[] getTrackedUsers() {
+		return broker.getTrackingUsers();
+	}
+	
+	/**
+	 * Get the resources used by an user.
+	 * 
+	 * @param caller
+	 * @return 
+	 */
+	@POPSyncSeq(localhost = true)
+	public POPTracking getTracked(POPRemoteCaller caller) {
+		return broker.getTracked(caller);
+	}
+	
+	/**
+	 * Get the resources used until now by caller.
+	 * 
+	 * @return 
+	 */
+	@POPSyncSeq
+	public POPTracking getTracked() {
+		return broker.getTracked(PopJava.getRemoteCaller());
+	}
+	
+	/**
+	 * Is tracking enabled on the remote object.
+	 * @return 
+	 */
+	@POPSyncConc
+	public boolean isTracking() {
+		return broker.isTraking();
 	}
 	
 	@Override

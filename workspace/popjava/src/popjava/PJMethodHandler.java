@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.security.cert.Certificate;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +31,7 @@ import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.MethodUtil;
 import popjava.util.Util;
 
 /**
@@ -197,15 +198,16 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		// Invoke the method
 		result = new Object();
 		MethodInfo info = popObjectInfo.getMethodInfo(m);
+		//System.out.println("##### " + info + " @ " + m.toGenericString());
 		
-		if(info.getClassId() == 0 && info.getMethodId() == 0){
+		if(info == null || info.getClassId() == 0 && info.getMethodId() == 0){
 			throw new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, "The methods "+m.getName()+" has no POP annotation");
 		}
 
 		m.setAccessible(true);
 		int methodSemantics = popObjectInfo.getSemantic(info);
-		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info
-				.getMethodId(), methodSemantics);
+		MessageHeader messageHeader = new MessageHeader(info.getClassId(), 
+			info.getMethodId(), methodSemantics);
 		messageHeader.setRequestID(requestID.incrementAndGet());
 		
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
@@ -279,8 +281,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	}
 	
 	private void replacePOPObjectArguments(Object[] args){
-		for(int i = 0; i < args.length; i++){
-			if(args[i] instanceof POPObject){
+		for(int i = 0; i < args.length; i++) {
+			if (args[i] instanceof POPObject) {
 				POPObject object = (POPObject)args[i];
 				// create proxy if it's not
 				if (!(args[i] instanceof ProxyObject)) {					
@@ -301,25 +303,18 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					// send connector certificate to object's node
 					String destinationFingerprint = popAccessPoint.getFingerprint();
 					Certificate destCert = SSLUtils.getCertificate(destinationFingerprint);
-					// send caller certificate to origin node
-					object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
+					
+					if (destCert != null) {
+						// send caller certificate to origin node
+						object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
+					}
 				}
 			}
-			
 		}
-	}
-
-	private int hashMethod(Method m){
-		StringBuilder hash = new StringBuilder(m.getName());
-		for(Class<?> type: m.getParameterTypes()){
-			hash.append(type.getName());
-		}
-		
-		return hash.toString().hashCode();
 	}
 	
 	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<>();
-	private Set<Integer> methodMisses = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
+	private Set<Integer> methodMisses = new HashSet<>();
 	
 	/**
 	 * Return a copy of the given method
@@ -327,7 +322,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * @return	Method copy
 	 */
 	private Method getSameInterfaceMethod(Method method) {
-		int methodHash = hashMethod(method);
+		int methodHash = MethodUtil.methodId(method);
 		
 		if(methodMisses.contains(methodHash)){
 			return null;
@@ -362,10 +357,18 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	private Object invokeCustomMethod(Object self, Method m, Method proceed, boolean[] canExcute, Object[] argvs) {
 		canExcute[0] = false;
 		String methodName = m.getName();
+		
 		if (argvs.length == 1 && (methodName.equals("serialize")) || (methodName.equals("deserialize"))) {
 			boolean result = false;
 			POPBuffer buffer = (POPBuffer) argvs[0];
 			if (methodName.equals("serialize")) {
+					
+				// references that come from the Broker which were set on the POPObject
+				if (self instanceof POPObject) {
+					POPObject o = (POPObject) self;
+					od.merge(o.getOd());
+				}
+				
 				canExcute[0] = true;
 				result = serialize(buffer);
 			} else if (methodName.equals("deserialize")) {

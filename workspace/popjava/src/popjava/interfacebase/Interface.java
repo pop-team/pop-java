@@ -2,6 +2,7 @@ package popjava.interfacebase;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import popjava.PopJava;
@@ -36,6 +37,7 @@ import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.POPRemoteCaller;
 import popjava.util.SystemUtil;
 import popjava.util.Util;
 
@@ -91,7 +93,7 @@ public class Interface {
 	 */
 	public boolean serialize(POPBuffer buffer) {
 		od.serialize(buffer);
-		popAccessPoint.serialize(buffer);		
+		popAccessPoint.serialize(buffer);
 		int ref = addRef();
 		buffer.putInt(ref);
 		return true;
@@ -127,6 +129,14 @@ public class Interface {
 			}
 		}
 		return result;
+	}
+	
+	/**
+	 * Get the remote caller of the host the object is connected to.
+	 * @return 
+	 */
+	public POPRemoteCaller getRemote() {
+		return combox.getRemoteCaller();
 	}
 
 	/**
@@ -549,7 +559,7 @@ public class Interface {
 		if(joburl == null || joburl.isEmpty()){
 			return false;
 		}
-		LogWriter.writeDebugInfo("[Interface] Joburl "+joburl+" "+objectName);
+		LogWriter.writeDebugInfo("[Interface] Creating %s on %s with %s", objectName, joburl, Arrays.toString(od.getProtocols()) );
 
 		codeFile = od.getCodeFile();
 		
@@ -775,10 +785,8 @@ public class Interface {
 		}
 		codeFile = codeFile.trim();
 
-		ArrayList<String> argvList = new ArrayList<>();
-
 		ArrayList<String> codeList = Util.splitTheCommand(codeFile);
-		argvList.addAll(codeList);
+		ArrayList<String> argvList = new ArrayList<>(codeList);
 		
 		/*if(od.getMemoryMin() >  0){
 			argvList.add(1, "-Xms"+od.getMemoryMin()+"m");
@@ -830,6 +838,10 @@ public class Interface {
 		if (jobserv != null && !jobserv.isEmpty()) {
 			String jobString = Broker.JOB_SERVICE + jobserv.toString();
 			argvList.add(jobString);
+		}
+		
+		if (od.isTracking()) {
+			argvList.add(Broker.TRACKING);
 		}
 		
 		String networkUUID = od.getNetwork();

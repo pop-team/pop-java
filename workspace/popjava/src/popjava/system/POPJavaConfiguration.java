@@ -1,6 +1,8 @@
 package popjava.system;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -8,6 +10,7 @@ import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import popjava.broker.Broker;
@@ -180,7 +183,7 @@ public class POPJavaConfiguration {
 	            }
 	        }
 	    }else {
-	    	
+	    	return System.getProperty("java.class.path");
 	    }
         
         List<String> pathList = new ArrayList<>(paths);

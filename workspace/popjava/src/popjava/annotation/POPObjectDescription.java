@@ -31,12 +31,22 @@ public @interface POPObjectDescription {
 	 * has to be created remotely
 	 * @return
 	 */
-	ConnectionType connection() default ConnectionType.SSH;
+	ConnectionType connection() default ConnectionType.ANY;
 	
 	String connectionSecret() default "";
 	
 	Encoding encoding() default Encoding.Default;
 	
+	/**
+	 * Enable method usage tracking on this method by user.
+	 * @return 
+	 */
+	boolean tracking() default false;
+	
+	/**
+	 * Don't spawn a new process when creating this object.
+	 * @return 
+	 */
 	boolean localJVM() default false;
 	
 	/**

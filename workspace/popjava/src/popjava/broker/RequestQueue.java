@@ -18,9 +18,9 @@ public class RequestQueue {
 	private final Condition canPeek = lock.newCondition();
 	private final Condition canInsert = lock.newCondition();
 	
-	private List<Request> requestsConc = new ArrayList<>();
-	private List<Request> requestsSeq = new ArrayList<>();
-	private List<Request> requestsMutex = new ArrayList<>();
+	private final List<Request> requestsConc = new ArrayList<>();
+	private final List<Request> requestsSeq = new ArrayList<>();
+	private final List<Request> requestsMutex = new ArrayList<>();
 	
 	private int requestType = 0;
 	private List<List<Request>> requests = new ArrayList<>();
@@ -78,7 +78,7 @@ public class RequestQueue {
 	 */
 	public boolean add(Request request) {
 		//LogWriter.writeDebugInfo(hashCode()+" Add request, there are already "+size()+" requests, "+request.getClassId()+" "+request.getMethodId());
-
+		
 		lock.lock();
 		try {
 			if(request.isConcurrent()){
@@ -126,20 +126,16 @@ public class RequestQueue {
 
 		try {
 			//LogWriter.writeDebugInfo("Peek, queue contains "+size()+" requests "+hashCode());
-			if (availableRequest == null){
-				//LogWriter.writeDebugInfo("Search for new request "+hashCode());
-				waitSuccess = canPeek.await(time, timeUnit);
-			} else {
-				waitSuccess = true;
-			}
-			
+			//LogWriter.writeDebugInfo("Search for new request "+hashCode());
+			waitSuccess = availableRequest != null || canPeek.await(time, timeUnit);
+
 			//LogWriter.writeDebugInfo("Got request? "+waitSuccess+" "+hashCode());
 			if (waitSuccess) {
 				request = availableRequest;
 				request.setStatus(Request.SERVING);
-		        
+
 				serveRequest(request);
-				
+
 				availableRequest = null;
 				canPeek();
 			}
@@ -176,10 +172,13 @@ public class RequestQueue {
 		try {
 			if(request.isMutex() && servingMutex == request){
 				servingMutex = null;
+				requestsMutex.remove(request);
 			}else if(request.isSequential() && servingSequential == request){
 				servingSequential = null;
+				requestsSeq.remove(request);
 			}else{
 				servingConcurrent.remove(request);
+				requestsConc.remove(request);
 			}
 			
 			canPeek();

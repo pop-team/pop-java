@@ -88,6 +88,7 @@ public class PopJava {
 	 * @return references to the parallel object
 	 * @throws POPException
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T connect(Class<T> targetClass, String networkUUID, POPAccessPoint accessPoint) {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
@@ -110,7 +111,21 @@ public class PopJava {
 	}
 	
 	/**
-	 * Search a live object in the network
+	 * Search a live object in the network.
+	 * 
+	 * A research should look something like this:
+	 * <pre>
+	 * ObjectDescription od = new ObjectDescription();
+	 * od.setNetwork(publishNetworkUUID);
+	 * POPAccessPoint[] liveObjects = PopJava.newTFCSearch(TFCObject.class, maxNumInstances, od);
+	 * for (POPAccessPoint ap : liveObjects) {
+	 *	// choose or connect
+	 *	...
+	 * }
+	 * 
+	 * TFCObject remote = PopJava.connect(TFCObject.class, publishNetworkUUID, choosenAccessPoint);
+	 * </pre>
+	 * 
 	 * @param targetClass The class we are looking for remotely
 	 * @param maxInstances The maximal number of instances we would like
 	 * @param od Parameters for the research, mainly the network we want to look into
@@ -169,7 +184,7 @@ public class PopJava {
 		}
 		return actives.toArray(new POPAccessPoint[actives.size()]);
 	}
-	
+
 	/**
 	 * Return the 
 	 * 
@@ -265,5 +280,18 @@ public class PopJava {
 	 */
 	public static POPRemoteCaller getRemoteCaller() {
 		return Broker.getRemoteCaller();
+	}
+	
+	/**
+	 * Given a Proxy Object (Client) connected to a POP Object (Server) we get the identifier of the server.
+	 * @param object
+	 * @return 
+	 */
+	public static POPRemoteCaller getRemote(Object object) {
+		if(object instanceof ProxyObject){
+			ProxyObject origin = (ProxyObject) object;
+			return ((PJMethodHandler) origin.getHandler()).getRemote();
+		}
+		throw new IllegalArgumentException("The obejct is not a valid Proxy Object");
 	}
 }

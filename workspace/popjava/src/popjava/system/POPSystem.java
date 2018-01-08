@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -50,6 +51,8 @@ public class POPSystem {
 	private static String platform = "linux";
 	private static volatile boolean initialized = false;
 	private static ExecutorService asyncConstructorExecutor = Executors.newFixedThreadPool(20);
+	
+	private static List<RuntimeDirectoryThread> localHooks = new ArrayList<>();
 	
 	/**
 	 * POP-Java location environement variable name
@@ -251,8 +254,7 @@ public class POPSystem {
 	 */
 	public static String[] initialize(String... args){
 		asyncConstructorExecutor = Executors.newFixedThreadPool(20);
-		ArrayList<String> argvList = new ArrayList<>();
-		argvList.addAll(Arrays.asList(args));
+		ArrayList<String> argvList = new ArrayList<>(Arrays.asList(args));
 		
 		initialize(argvList);
 		
@@ -311,6 +313,7 @@ public class POPSystem {
 		// create directories and setup their cleanup on exit
 		RuntimeDirectoryThread runtimeCleanup = new RuntimeDirectoryThread(Util.generateUUID());
 		runtimeCleanup.addCleanupHook();
+		localHooks.add(runtimeCleanup);
 	    
         return initialized;
 	}
@@ -537,9 +540,21 @@ public class POPSystem {
 			prlt.setRunning(false);
 		}
 		
+		for (RuntimeDirectoryThread localHook : localHooks) {
+			try {
+				localHook.cleanup();
+				localHook.removeCleanupHook();
+			} catch(IOException e) {
+				LogWriter.writeDebugInfo("[POPSystem] Failed to cleanup base directory %s", localHook.getBasePath());
+			}
+		}
+		localHooks.clear();
+		
 		prlt = null;
 		appservicecode = null;
+		appservicecontact = null;
 		initialized = false;
+		isStarted = false;
 	}
 	
 	public static boolean isInitialized(){

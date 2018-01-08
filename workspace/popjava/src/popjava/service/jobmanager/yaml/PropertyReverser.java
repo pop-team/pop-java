@@ -16,7 +16,7 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
  */
 public class PropertyReverser extends PropertyUtils {
 	@Override
-	protected Set<Property> createPropertySet(Class<? extends Object> type, BeanAccess bAccess) {
+	protected Set<Property> createPropertySet(Class<?> type, BeanAccess bAccess) {
 		Set<Property> reverseSet = new TreeSet<>(Collections.reverseOrder());
 		reverseSet.addAll(super.createPropertySet(type, bAccess));
 		return reverseSet;

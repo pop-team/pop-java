@@ -243,8 +243,7 @@ public final class Util {
 	public enum OSType{
 		UNIX,
 		Windows
-	}
-	
+	}	
 	
 	/**
 	 * Returns the OS type on which this machine runs. Can return windows or unix.

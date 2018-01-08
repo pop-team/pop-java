@@ -1,6 +1,7 @@
 package popjava;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
@@ -15,6 +16,7 @@ import popjava.buffer.POPBuffer;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
+import popjava.util.SystemUtil;
 import popjava.util.Util;
 
 /**
@@ -138,6 +140,7 @@ public class PJProxyFactory extends ProxyFactory {
 				popObject.loadPOPAnnotations(constructor, argvs);
 				
 				Broker broker = new Broker(popObject);
+				SystemUtil.registerLocalJVM(broker);
 				return popObject; 
 			}else{
 				if(originalOd.getRemoteAccessPoint() != null && !originalOd.getRemoteAccessPoint().isEmpty()){
@@ -149,7 +152,7 @@ public class PJProxyFactory extends ProxyFactory {
 				PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 				methodHandler.setOd(originalOd);
 				methodHandler.popConstructor(targetClass, argvs);
-				this.setHandler(methodHandler);
+				//this.setHandler(methodHandler);
 				Class<?> c = createClass();
 				Object result = c.newInstance();
 				((ProxyObject) result).setHandler(methodHandler);
@@ -158,6 +161,12 @@ public class PJProxyFactory extends ProxyFactory {
 			}
 		} catch(POPException e){
 			throw e;
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof POPException) {
+				throw (POPException) e.getCause();
+			} else {
+				LogWriter.writeExceptionLog(e);
+			}
 		} catch (Exception e) {
 			LogWriter.writeExceptionLog(e);
 		}
@@ -179,12 +188,13 @@ public class PJProxyFactory extends ProxyFactory {
 			
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.bindObject(accessPoint);
-			this.setHandler(methodHandler);
+			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
 			Object result = c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);
 			return result;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new POPException(0, e.getMessage());
 		}
 	}
@@ -205,7 +215,7 @@ public class PJProxyFactory extends ProxyFactory {
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.getOD().setNetwork(networkUUID);
 			methodHandler.bindObject(accessPoint);
-			this.setHandler(methodHandler);
+			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
 			Object result = c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);
@@ -229,10 +239,10 @@ public class PJProxyFactory extends ProxyFactory {
 			popObject.loadPOPAnnotations(constructor);
 			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
 			methodHandler.setSetup();
-			this.setHandler(methodHandler);
+			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
 			result = (POPObject) c.newInstance();
-			((ProxyObject) result).setHandler(methodHandler);	
+			((ProxyObject) result).setHandler(methodHandler);
 			if (!result.deserialize(buffer)) {
 				LogWriter.writeDebugInfo("bad deserialize");
 				POPException.throwObjectBindException(methodHandler

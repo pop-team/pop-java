@@ -46,16 +46,17 @@ dependencies {
     testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
 }
 
-test {
+test {    
     useJUnit()
     
     testLogging.showStandardStreams = true
     
     // use only define suite
     include '**/AllTests.class'
+    scanForTestClasses false
     
-    beforeTest { descriptor ->
-        logger.lifecycle(descriptor.toString())
+    beforeTest { 
+        descriptor -> logger.lifecycle(descriptor.toString())
     }
 }
 
@@ -104,7 +105,7 @@ task jarTestsuite(type: Jar, dependsOn: [ testClasses ], group: 'build', descrip
     }
 }
 
-task makeRelease(dependsOn: [ fatJar, jarTestsuite, javadoc ], group: 'help', description: 'Make the release folder for the installation script.') {
+task prepareRelease(dependsOn: [ fatJar, jarTestsuite, javadoc ], group: 'help', description: 'Make the release folder for the installation script.') {
     doLast {
         mkdir releaseDirectory
         mkdir releaseDirectory + '/bin'

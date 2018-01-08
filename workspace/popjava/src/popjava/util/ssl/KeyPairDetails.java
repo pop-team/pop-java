@@ -1,6 +1,5 @@
 package popjava.util.ssl;
 
-import java.io.File;
 import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.Date;
@@ -70,7 +69,7 @@ public class KeyPairDetails {
 	 * @param alias The alias of this node, used to find its own public certificate
 	 */
 	public KeyPairDetails(String alias) {
-		this(alias, new Date(System.currentTimeMillis() + 31536000_000l), 2048);
+		this(alias, new Date(System.currentTimeMillis() + 31536000_000L), 2048);
 	}
 	
 	/**
@@ -115,7 +114,7 @@ public class KeyPairDetails {
 	 * @param days 
 	 */
 	public void setValidFor(int days) {
-		long until = System.currentTimeMillis() + days * 86400_000l;
+		long until = System.currentTimeMillis() + days * 86400_000L;
 		this.validUntil = new Date(until);
 	}
 

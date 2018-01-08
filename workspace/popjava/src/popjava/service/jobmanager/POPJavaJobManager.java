@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -716,6 +717,7 @@ public class POPJavaJobManager extends POPJobService {
 				value.setValue(sb.toString().trim());
 				return true;
 			case "power_available":
+			case "power":
 				update();
 				value.setValue(String.valueOf(available.getFlops()));
 				return true;
@@ -1075,7 +1077,7 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
-			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network);
+			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), networkUUID);
 			return;
 		}
 
@@ -1097,7 +1099,7 @@ public class POPJavaJobManager extends POPJobService {
 		// get network
 		POPNetwork network = networks.get(networkUUID);
 		if (network == null) {
-			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), network);
+			LogWriter.writeDebugInfo("[JM] Node %s not registered, network %s not found", Arrays.toString(params), networkUUID);
 			return;
 		}
 
@@ -1599,6 +1601,7 @@ public class POPJavaJobManager extends POPJobService {
 			return results;
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in launchDiscovery: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 			return new SNNodesInfo();
 		}
 	}
@@ -1621,6 +1624,7 @@ public class POPJavaJobManager extends POPJobService {
 
 			// do nothing if we don't have the network
 			if (network == null) {
+				LogWriter.writeDebugInfo("[JM] Network [%s] not found", request.getNetworkUUID());
 				return;
 			}
 
@@ -1634,12 +1638,14 @@ public class POPJavaJobManager extends POPJobService {
 			try {
 				descriptor = POPNetworkDescriptor.from(request.getConnector());
 			} catch(IllegalArgumentException e) {
+				LogWriter.writeDebugInfo("[JM] Connector descriptor [%s] not found", request.getConnector());
 				return;
 			}
 			POPConnector connectorImpl = network.getConnector(descriptor);
 			
 			// connector won't work with the SearchNode
 			if (!(connectorImpl instanceof POPConnectorSearchNodeInterface)) {
+				LogWriter.writeDebugInfo("[JM] Connector [%s] is not Job Manager enabed", request.getConnector());
 				return;
 			}
 			POPConnectorSearchNodeInterface snEnableConnector = (POPConnectorSearchNodeInterface) connectorImpl;
@@ -1698,9 +1704,27 @@ public class POPJavaJobManager extends POPJobService {
 			if (SNKnownRequests.size() > conf.getSearchNodeMaxRequests()) {
 				SNKnownRequests.pollLast();
 			}
-
-			// send request, handled by the different connectors
-			snEnableConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
+			
+			// check for host if they are specified
+			boolean answer = request.getHosts().length == 0;
+			if (!answer) {
+				InetAddress myself = InetAddress.getByName(POPSystem.getHostIP());
+				for (String host : request.getHosts()) {
+					InetAddress addr = InetAddress.getByName(host);
+					if (myself.equals(addr)) {
+						answer = true;
+						break;
+					}
+				}
+			}
+			
+			if (answer) {
+				LogWriter.writeDebugInfo("[PSN] Looking for local answer");
+				// send request, handled by the different connectors
+				snEnableConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
+			} else {
+				LogWriter.writeDebugInfo("[PSN] Node not in request answer list, skipping and propagating request");
+			}
 
 			// propagate in the network if we still can
 			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == conf.getSearchNodeUnlimitedHops()) {
@@ -1720,12 +1744,12 @@ public class POPJavaJobManager extends POPJobService {
 								LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s", jmNode.getJobManagerAccessPoint(), e.getMessage());
 							}
 						}
-
 					}
 				}
 			}
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 
@@ -1756,6 +1780,7 @@ public class POPJavaJobManager extends POPJobService {
 			unlockDiscovery(response.getUID());
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in callbackResult: %s", e.getMessage());
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 
@@ -1786,7 +1811,7 @@ public class POPJavaJobManager extends POPJobService {
 			}
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in rerouteResponse: %s", e.getMessage());
-			e.printStackTrace();
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 
