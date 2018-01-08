@@ -8,7 +8,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses( { AnnotationTests.class, LocalTests.class, SystemTests.class})
+@Suite.SuiteClasses({ 
+	AnnotationTests.class, 
+	LocalTests.class, 
+	SystemTests.class
+})
 public class AllTests {
 
 }

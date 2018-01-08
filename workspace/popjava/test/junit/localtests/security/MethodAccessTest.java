@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.cert.Certificate;
-import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -38,7 +36,7 @@ public class MethodAccessTest {
 	
 	static Certificate opt1Pub;
 	
-	Configuration conf = Configuration.getInstance();
+	static Configuration conf = Configuration.getInstance();
 	
 	public static final String NETA = "myUUID1";
 	public static final String NETB = "myUUID2";
@@ -48,7 +46,7 @@ public class MethodAccessTest {
 		try {
 			POPNodeTFC node = new POPNodeTFC("localhost", 2711, "socket");
 			// init
-			Configuration conf = Configuration.getInstance();
+			conf = Configuration.getInstance();
 			conf.setDebug(true);
 			
 			ksTemporary = new KeyStoreDetails("mypass", "keypass", new File("test_store1.jks"));
@@ -88,6 +86,7 @@ public class MethodAccessTest {
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
+		POPSystem.initialize();
 	}
 	
 	@AfterClass
@@ -98,22 +97,12 @@ public class MethodAccessTest {
 		Files.deleteIfExists(configTemporary);
 		Configuration.getInstance().setUserConfig(null);
 		Configuration.getInstance().setDebug(false);
-	}
-	
-	@Before
-	public void beforePop() {
-		POPSystem.initialize();
-		conf = Configuration.getInstance();
-	}
-	
-	@After
-	public void endPop() {
 		POPSystem.end();
 	}
 	
 	@Test
 	public void sslComboxWorking() throws Exception {
-		conf.load(configTemporary.toFile());
+		conf.load(configTrusted.toFile());
 		SSLUtils.reloadPOPManagers();
 		
 		ComboxSecureSocketFactory factory = new ComboxSecureSocketFactory();

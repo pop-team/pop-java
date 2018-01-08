@@ -25,6 +25,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
+import popjava.util.RuntimeDirectoryThread;
 import popjava.util.WatchDirectory;
 
 /**
@@ -83,13 +84,13 @@ public class POPTrustManager implements X509TrustManager {
 	// certificates store
 	private X509TrustManager trustManager;
 	// Map[Fingerprint, Certificate]
-	private Map<String,Certificate> loadedCertificates = new HashMap<>();
+	private final Map<String,Certificate> loadedCertificates = new HashMap<>();
 	// Set[Fingerprint]
-	private Set<String> confidenceCertificates = new HashSet<>();
+	private final Set<String> confidenceCertificates = new HashSet<>();
 	// Map[Fingerprint, Network]
-	private Map<String,String> certificatesNetwork = new HashMap<>();
+	private final Map<String,String> certificatesNetwork = new HashMap<>();
 	// Map[Alias, Certificate]
-	private Map<String,Certificate> aliasCertificates = new HashMap<>();
+	private final Map<String,Certificate> aliasCertificates = new HashMap<>();
 	
 	// reload and add new certificates
 	private WatchDirectory temporaryWatcher;
@@ -198,7 +199,8 @@ public class POPTrustManager implements X509TrustManager {
 			// directory doesn't exists, create it (may have changed)
 			else {
 				// create temp dir if not found
-				Files.createDirectory(tempCertDir.toPath());
+				RuntimeDirectoryThread rdt = new RuntimeDirectoryThread(tempCertDir);
+				rdt.addCleanupHook();
 			}
 			// watch temporaray certificate directory
 			if (tempCertDir.canRead()) {

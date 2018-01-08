@@ -1,5 +1,6 @@
 package popjava.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -18,13 +19,25 @@ public class RuntimeDirectoryThread extends Thread {
 
 	private final Path origin;
 	private Path basePath;
+	private boolean done = false;
 
 	public RuntimeDirectoryThread(String id) {
 		Objects.requireNonNull(id);
 		
-		this.origin = Paths.get(".");
-		this.basePath = Paths.get(id);
+		this.origin = Paths.get(".").toAbsolutePath();
+		this.basePath = Paths.get(id).toAbsolutePath();
+		init(id);
+	}
+
+	public RuntimeDirectoryThread(File dir) {
+		Objects.requireNonNull(dir);
 		
+		this.origin = Paths.get(".").toAbsolutePath();
+		this.basePath = dir.toPath().toAbsolutePath();
+		init(basePath.getFileName().toString());
+	}
+
+	private void init(String id) {
 		Configuration conf = Configuration.getInstance();
 		// create directories
 		try {
@@ -53,25 +66,38 @@ public class RuntimeDirectoryThread extends Thread {
 		// set exit cleanup
 		Runtime.getRuntime().addShutdownHook(this);
 	}
+	
+	public void removeCleanupHook() {
+		// remove exit cleanup
+		Runtime.getRuntime().removeShutdownHook(this);
+	}
 
-	private void cleanup() throws IOException {
-		// back to the original path
-		System.setProperty("user.dir", origin.toString());
-		// remove object dir and content
-		if (basePath != null) {
-			Files.walkFileTree(basePath, new SimpleFileVisitor<Path>() {
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					Files.delete(file);
-					return FileVisitResult.CONTINUE;
-				}
+	public void cleanup() throws IOException {
+		if (!done) {
+			// back to the original path
+			System.setProperty("user.dir", origin.toString());
+			// remove object dir and content
+			if (basePath != null) {
+				Files.walkFileTree(basePath, new SimpleFileVisitor<Path>() {
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+						Files.delete(file);
+						return FileVisitResult.CONTINUE;
+					}
 
-				@Override
-				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-					Files.delete(dir);
-					return FileVisitResult.CONTINUE;
-				}
-			});
+					@Override
+					public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+						Files.delete(dir);
+						return FileVisitResult.CONTINUE;
+					}
+				});
+			}
+			done = true;
 		}
 	}
+
+	public Path getBasePath() {
+		return basePath;
+	}
+
 }
