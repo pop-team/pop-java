@@ -50,6 +50,8 @@ test {
     useJUnit()
     
     testLogging.showStandardStreams = true
+    minHeapSize = "128m"
+    maxHeapSize = "512m"
     
     // use only define suite
     include '**/AllTests.class'
