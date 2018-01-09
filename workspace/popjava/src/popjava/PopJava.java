@@ -34,7 +34,7 @@ public class PopJava {
 	 * @param objectDescription		the object description for the resource requirements 
 	 * @param argvs					arguments of the constructor (may be empty)
 	 * @return references to the parallel object created
-	 * @throws POPException 
+	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass,
@@ -54,7 +54,7 @@ public class PopJava {
 	 * @param targetClass	the parallel class to be created
 	 * @param argvs			arguments of the constructor (may be empty)
 	 * @return references to the parallel object created
-	 * @throws POPException
+	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass, Object... argvs)
@@ -70,7 +70,7 @@ public class PopJava {
 	 * @param targetClass	the parallel class to be created
 	 * @param accessPoint	access point of the living object
 	 * @return references to the parallel object
-	 * @throws POPException
+	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass,
@@ -86,7 +86,7 @@ public class PopJava {
 	 * @param networkUUID	the network that we will try to connect to
 	 * @param accessPoint	access point of the living object
 	 * @return references to the parallel object
-	 * @throws POPException
+	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T connect(Class<T> targetClass, String networkUUID, POPAccessPoint accessPoint) {
@@ -100,7 +100,7 @@ public class PopJava {
 	 * @param targetClass	the parallel class to be recovered
 	 * @param buffer		buffer from which the object must be recovered
 	 * @return references to the parallel object
-	 * @throws POPException
+	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T newActiveFromBuffer(Class<T> targetClass, POPBuffer buffer)
@@ -186,12 +186,12 @@ public class PopJava {
 	}
 
 	/**
-	 * Return the 
+	 * Make a TFC research on a specific POPNode, the node should be of type {@link POPNodeAJobManager}.
 	 * 
-	 * @param targetClass
-	 * @param networkUUID
-	 * @param node
-	 * @return 
+	 * @param targetClass the class we are looking for
+	 * @param networkUUID in which network we should look for
+	 * @param node the node we want to make the research on
+	 * @return the access points of the found objects
 	 */
 	public static POPAccessPoint[] newTFCSearchOn(Class targetClass, String networkUUID, POPNode node) {
 		POPAccessPoint[] aps = new POPAccessPoint[0];
@@ -242,16 +242,16 @@ public class PopJava {
 	
 	/**
 	 * Destroys a POP object.
-	 * @param object
+	 * @param object the object to destroy
 	 */
 	public static void destroy(Object object){
 		((POPObject)object).exit();
 	}
 	
 	/**
-	 * Disconnects the POP object without desroying the remove object.
+	 * Disconnects the POP object without destroying the remove object.
 	 * The remote object will close if it has no connections left.
-	 * @param object
+	 * @param object the locally connected object we want to disconnect
 	 */
 	public static void disconnect(Object object){
 		if(object instanceof ProxyObject){
@@ -262,7 +262,7 @@ public class PopJava {
 	
 	/**
 	 * Returns true if POP-Java is loaded and enabled
-	 * @return
+	 * @return true if active, false otherwise
 	 */
 	public static boolean isPOPJavaActive(){
 		try {
@@ -275,8 +275,9 @@ public class PopJava {
 	}
 	
 	/**
-	 * Return the remote source for the call to this method
-	 * @return 
+	 * Return the remote source for the call to this method.
+	 * Used inside a POP object.
+	 * @return who is calling this object
 	 */
 	public static POPRemoteCaller getRemoteCaller() {
 		return Broker.getRemoteCaller();
@@ -284,14 +285,15 @@ public class PopJava {
 	
 	/**
 	 * Given a Proxy Object (Client) connected to a POP Object (Server) we get the identifier of the server.
-	 * @param object
-	 * @return 
+	 * @param object the object we want to know the location of
+	 * @return the remote connection details or an exception
+	 * @throws IllegalArgumentException if the given object is not a POP Object
 	 */
 	public static POPRemoteCaller getRemote(Object object) {
 		if(object instanceof ProxyObject){
 			ProxyObject origin = (ProxyObject) object;
 			return ((PJMethodHandler) origin.getHandler()).getRemote();
 		}
-		throw new IllegalArgumentException("The obejct is not a valid Proxy Object");
+		throw new IllegalArgumentException("The object is not a valid Proxy Object");
 	}
 }

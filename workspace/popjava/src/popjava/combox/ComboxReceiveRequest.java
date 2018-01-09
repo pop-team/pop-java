@@ -22,8 +22,8 @@ public final class ComboxReceiveRequest implements Runnable {
 	static public final int ABORT = 2;
 	
 	protected Combox combox;
-	protected RequestQueue requestQueue;
-	protected Broker broker;
+	protected final RequestQueue requestQueue;
+	protected final Broker broker;
 	protected int status = EXIT;
 	
 	/**
@@ -34,7 +34,7 @@ public final class ComboxReceiveRequest implements Runnable {
 	 * @throws IOException	Thrown if any exception occurred during the process 
 	 */
 	public ComboxReceiveRequest(Broker broker,
-			RequestQueue requestQueue, Combox combox) throws IOException {
+			RequestQueue requestQueue, Combox combox) {
 		this.broker = broker;
 		this.requestQueue = requestQueue;
 		this.combox = combox;
@@ -132,7 +132,7 @@ public final class ComboxReceiveRequest implements Runnable {
 
 	/**
 	 * Get server socket request queue
-	 * @return 
+	 * @return the global queue
 	 */
 	public RequestQueue getRequestQueue() {
 		return requestQueue;

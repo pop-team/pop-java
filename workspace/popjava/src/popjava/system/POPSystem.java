@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -52,7 +51,7 @@ public class POPSystem {
 	private static volatile boolean initialized = false;
 	private static ExecutorService asyncConstructorExecutor = Executors.newFixedThreadPool(20);
 	
-	private static List<RuntimeDirectoryThread> localHooks = new ArrayList<>();
+	private static final List<RuntimeDirectoryThread> localHooks = new ArrayList<>();
 	
 	/**
 	 * POP-Java location environement variable name
@@ -61,7 +60,7 @@ public class POPSystem {
 	/**
 	 * POP-Java Job service access point
 	 */
-	public static POPAccessPoint jobService = new POPAccessPoint();
+	public static final POPAccessPoint jobService = new POPAccessPoint();
 	private static AppService coreServiceManager;
 	private static POPJobService jobmanager;
 	
@@ -340,7 +339,6 @@ public class POPSystem {
 	/**
 	 * Initialize the application scope services 
 	 * @param argvList	Any arguments to pass to the initialization
-	 * @return	true if the initialization is succeed
 	 * @throws POPException	thrown is any problems occurred during the initialization
 	 */
 	private static void initialize(List<String> argvList){
@@ -411,7 +409,7 @@ public class POPSystem {
 	 * @param fileconf			Object map file location
 	 * @param appCoreService	Reference to the AppCoreService
 	 * @return	true if the initialization is well done
-	 * @throws POPException 
+	 * @throws POPException remote exception, check caused by
 	 */
 	public static boolean initCodeService(String fileconf,
 			String popJavaObjectExecuteCommand,
@@ -498,7 +496,7 @@ public class POPSystem {
 	 * Start the application scope services. This services is a POP-C++ parallel object.
 	 * @param codelocation	location of the POP-C++ AppCoreService executable file
 	 * @return	Interface of AppCoreService
-	 * @throws POPException
+	 * @throws POPException remote exception, check caused by
 	 */
 	public static AppService createAppCoreService(String codelocation)
 			throws POPException {

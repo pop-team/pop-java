@@ -2,18 +2,14 @@ package popjava.combox.ssl;
 
 import popjava.util.ssl.SSLUtils;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import popjava.combox.ComboxAllocate;
 import popjava.combox.ComboxUtils;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
 import popjava.util.LogWriter;
 
 /**

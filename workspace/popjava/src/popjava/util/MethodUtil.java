@@ -4,8 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncMutex;
 import popjava.annotation.POPAsyncSeq;
@@ -87,8 +86,8 @@ public class MethodUtil {
 	/**
 	 * Generate an ID or use the one specified
 	 * 
-	 * @param method
-	 * @return 
+	 * @param method the method we want the ID of
+	 * @return a numeric positive id (> 0)
 	 */
 	public static int methodId(Method method){
 	    int id = -1;
@@ -128,8 +127,8 @@ public class MethodUtil {
 	/**
 	 * Generate an ID
 	 * 
-	 * @param constructor
-	 * @return 
+	 * @param constructor a constructor
+	 * @return a numeric positive id for the constructor
 	 */
 	public static int constructorId(Constructor<?> constructor){
 		if(constructor.isAnnotationPresent(POPObjectDescription.class)){
@@ -145,9 +144,9 @@ public class MethodUtil {
 	/**
 	 * Check if an array of annotations contains a specific type of annotation
 	 * 
-	 * @param annotations
-	 * @param clazz
-	 * @return 
+	 * @param annotations an annotation array
+	 * @param clazz the annotation type we want to find in the array
+	 * @return true if found, false otherwise
 	 */
 	public static boolean hasAnnotation(Annotation[] annotations, Class<? extends Annotation> clazz) {
 		return getAnnotation(annotations, clazz) != null;
@@ -156,10 +155,10 @@ public class MethodUtil {
 	/**
 	 * Get the annotation we are looking for
 	 * 
-	 * @param <T>
-	 * @param annotations
-	 * @param clazz
-	 * @return 
+	 * @param <T> the type of annotation
+	 * @param annotations an array of annotations
+	 * @param clazz the annotation type we want to find in the array
+	 * @return the found annotation or null
 	 */
 	@SuppressWarnings("unchecked")
 	public static<T extends Annotation> T getAnnotation(Annotation[] annotations, Class<T> clazz) {
@@ -177,7 +176,7 @@ public class MethodUtil {
 	/**
 	 * Get the caller of the method
 	 * 
-	 * @return 
+	 * @return a string with the method calling the method
 	 */
 	public static String getCaller() {
 		StackTraceElement caller = Thread.currentThread().getStackTrace()[3];

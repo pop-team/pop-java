@@ -28,7 +28,7 @@ public class KeyStoreDetails {
 	
 	/**
 	 * Copy constructor
-	 * @param other 
+	 * @param other the key store we want to copy
 	 */
 	public KeyStoreDetails(KeyStoreDetails other) {
 		if (other != null) {
@@ -72,7 +72,7 @@ public class KeyStoreDetails {
 	/**
 	 * Password of the keystore file, protect the integrity of the file
 	 * 
-	 * @param storepass 
+	 * @param storepass the new key store password
 	 */
 	public void setKeyStorePassword(String storepass) {
 		this.keyStorePassword = storepass;
@@ -81,7 +81,7 @@ public class KeyStoreDetails {
 	/**
 	 * The password used to encrypt the private keys.
 	 * 
-	 * @return 
+	 * @return the password of the key
 	 */
 	public String getPrivateKeyPassword() {
 		return privateKeyPassword;
@@ -90,7 +90,7 @@ public class KeyStoreDetails {
 	/**
 	 * Password of the Private Key in the KeyStore
 	 * 
-	 * @param keypass 
+	 * @param keypass the new password of the key
 	 */
 	public void setPrivateKeyPassword(String keypass) {
 		this.privateKeyPassword = keypass;
@@ -99,7 +99,7 @@ public class KeyStoreDetails {
 	/**
 	 * The file pointing to the keystore
 	 * 
-	 * @return 
+	 * @return the location of the keystore
 	 */
 	public File getKeyStoreFile() {
 		return keyStoreFile;
@@ -108,7 +108,7 @@ public class KeyStoreDetails {
 	/**
 	 * Where to save the file
 	 * 
-	 * @param keyStoreFile 
+	 * @param keyStoreFile the new keystore location
 	 */
 	public void setKeyStoreFile(File keyStoreFile) {
 		this.keyStoreFile = keyStoreFile;
@@ -117,7 +117,7 @@ public class KeyStoreDetails {
 	/**
 	 * The format of the keystore
 	 * 
-	 * @return 
+	 * @return the format of the keystore
 	 */
 	public KeyStoreFormat getKeyStoreFormat() {
 		return keyStoreFormat;
@@ -127,7 +127,7 @@ public class KeyStoreDetails {
 	 * Format of the keystore.
 	 * Be aware that format different from JKS could have issues.
 	 * 
-	 * @param keyStoreFormat 
+	 * @param keyStoreFormat the new format of the keystore
 	 */
 	public void setKeyStoreFormat(KeyStoreFormat keyStoreFormat) {
 		this.keyStoreFormat = keyStoreFormat;

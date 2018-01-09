@@ -94,7 +94,7 @@ public final class Broker {
 	
 	
 	// thread unique callers
-	private static ThreadLocal<POPRemoteCaller> remoteCaller = new InheritableThreadLocal<>();
+	private static final ThreadLocal<POPRemoteCaller> remoteCaller = new InheritableThreadLocal<>();
 	
 	/**
 	 * Request queue shared by all comboxes of this broker
@@ -108,16 +108,16 @@ public final class Broker {
 	private POPObject popObject = null;
 	private POPObject popInfo = null;
 	private int connectionCount = 0;
-	private Semaphore sequentialSemaphore = new Semaphore(1, true);
+	private final Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
 	private boolean tracking;
 	
-	private Map<Method, Annotation[][]> methodParametersAnnotationCache = new HashMap<>();
-	private Map<Method, Integer> methodSemanticsCache = new HashMap<>();
+	private final Map<Method, Annotation[][]> methodParametersAnnotationCache = new HashMap<>();
+	private final Map<Method, Integer> methodSemanticsCache = new HashMap<>();
 	
-	private Map<POPRemoteCaller, POPTracking> callerTracking = new ConcurrentHashMap<>();
+	private final Map<POPRemoteCaller, POPTracking> callerTracking = new ConcurrentHashMap<>();
 		
-	private ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
+	private final ExecutorService threadPoolSequential = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		@Override
 		public Thread newThread(Runnable arg0) {
 			Thread thread = Executors.defaultThreadFactory().newThread(arg0);
@@ -127,7 +127,7 @@ public final class Broker {
 		}
 	});
 	
-	private ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*50,
+	private final ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()*50,
 			new ThreadFactory() {
 		
 		private int threadIndex = 0;
@@ -472,7 +472,7 @@ public final class Broker {
 	 * @param request
 	 *            Request received from the interface-side
 	 * @return true if the method has been called correctly
-	 * @throws InterruptedException 
+	 * @throws InterruptedException if the any semaphore's operation fail
 	 */
 	private boolean invokeMethod(Request request) throws InterruptedException {
 		if(request.isSequential()){
@@ -673,7 +673,7 @@ public final class Broker {
 	 * @param request
 	 *            Request received from the interface-side
 	 * @return true if the request has been treated correctly
-	 * @throws InterruptedException 
+	 * @throws InterruptedException if the any semaphore's operation fail
 	 */
 	public boolean invoke(Request request) throws InterruptedException {	
 		POPRemoteCaller caller = request.getRemoteCaller();
@@ -720,7 +720,7 @@ public final class Broker {
 	 * 
 	 * @param request
 	 *            Request received from the interface-side
-	 * @throws InterruptedException 
+	 * @throws InterruptedException if the any semaphore's operation fail
 	 */
 	public void serveRequest(final Request request) throws InterruptedException {
 		request.setBroker(this);
@@ -895,7 +895,7 @@ public final class Broker {
 
 	/**
 	 * Main loop of this broker
-	 * @throws InterruptedException 
+	 * @throws InterruptedException if the any semaphore's operation fail
 	 */
 	public void treatRequests() throws InterruptedException { 
 		setState(State.Running);
@@ -941,7 +941,7 @@ public final class Broker {
 	
 	/**
 	 * Is tracking enabled on Broker side.
-	 * @return 
+	 * @return true if tracking is turned on
 	 */
 	public boolean isTraking() {
 		return tracking;
@@ -949,14 +949,14 @@ public final class Broker {
 
 	/**
 	 * Get who is calling this method.
-	 * @return 
+	 * @return the remote caller of the calling thread, if it exists
 	 */
 	public static POPRemoteCaller getRemoteCaller() {
 		return remoteCaller.get();
 	}
 
 	/**
-	 * Get information about the state of this borker
+	 * Get information about the state of this broker
 	 * 
 	 * @return current state
 	 */
@@ -1079,7 +1079,7 @@ public final class Broker {
 	 * 
 	 * @param argvs
 	 *            arguments of the program
-	 * @throws InterruptedException 
+	 * @throws InterruptedException if the any semaphore's operation fail
 	 */
 	public static void main(String[] argvs) throws InterruptedException {		
 	    POPSystem.setStarted();
@@ -1265,7 +1265,7 @@ public final class Broker {
 
 	/**
 	 * The broker global request queue.
-	 * @return 
+	 * @return the global request queue
 	 */
 	public RequestQueue getRequestQueue() {
 		return requestQueue;
@@ -1289,7 +1289,7 @@ public final class Broker {
 
 	/**
 	 * All the currently tracked users.
-	 * @return An array of callerID via {@link Combox#partyIdentification() }
+	 * @return An array of callerID via {@link Combox#getRemoteCaller()}  }
 	 */
 	public POPRemoteCaller[] getTrackingUsers() {
 		return callerTracking.keySet().toArray(new POPRemoteCaller[callerTracking.size()]);
@@ -1298,7 +1298,7 @@ public final class Broker {
 	/**
 	 * Statistics on a single user.
 	 * @param caller A caller remote location
-	 * @return 
+	 * @return the tracking object of this method
 	 */
 	public POPTracking getTracked(POPRemoteCaller caller) {
 		return callerTracking.get(caller);

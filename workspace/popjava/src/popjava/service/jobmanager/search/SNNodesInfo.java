@@ -13,7 +13,7 @@ import popjava.service.jobmanager.Resource;
 /**
  * Keep Node(s) references of remote network nodes who can accept a request.
  *
- * @author Davide Mazzolen
+ * @author Davide Mazzoleni
  */
 public class SNNodesInfo implements IPOPBase {
 
@@ -46,7 +46,7 @@ public class SNNodesInfo implements IPOPBase {
 	/**
 	 * The nodes found, the list in unmodifiable Use delegates methods if needed
 	 *
-	 * @return
+	 * @return the nodes that answered the request
 	 */
 	public List<Node> getNodes() {
 		return Collections.unmodifiableList(nodes);
@@ -79,7 +79,7 @@ public class SNNodesInfo implements IPOPBase {
 		private POPAccessPoint jobManager;
 		private String os;
 		private Resource resources;
-		private Map<String,String> customParams = new HashMap<>();
+		private final Map<String,String> customParams = new HashMap<>();
 		
 		private byte[] certificate = new byte[0];
 

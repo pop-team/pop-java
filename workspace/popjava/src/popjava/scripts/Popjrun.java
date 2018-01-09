@@ -65,7 +65,7 @@ public class Popjrun {
 	/**
 	 * Returns the path to POPJava (ex: /usr/local/popj/)
 	 * 
-	 * @return
+	 * @return location of pop java's jar
 	 */
 	private static String getPopJavaLocation() {
 		String popJavaLocation = System.getenv("POPJAVA_LOCATION");

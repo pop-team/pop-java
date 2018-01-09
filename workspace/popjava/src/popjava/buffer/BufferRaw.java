@@ -258,8 +258,8 @@ public class BufferRaw extends POPBuffer {
 	/**
      * http://www.javacodegeeks.com/2010/11/java-best-practices-char-to-byte-and.html
      * Around 30% faster than String.getBytes()
-     * @param str
-     * @return
+     * @param str the string to convert
+     * @return the bytes of the string
      */
     private static byte[] stringToBytesASCII(String str) {
     	final byte[] b = new byte[str.length()];
@@ -616,7 +616,7 @@ public class BufferRaw extends POPBuffer {
 	 * Type (0, 1, 2) (response, request, exeption)
 	 * 
 	 * 
-	 * @return
+	 * @return 0
 	 */
 	@Override
 	public int packMessageHeader() {

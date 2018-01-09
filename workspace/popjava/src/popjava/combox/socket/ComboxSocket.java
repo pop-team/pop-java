@@ -47,7 +47,7 @@ public class ComboxSocket extends Combox<Socket> {
 	 * Call {@link #serverAccept(java.lang.Object)   } to let the client connect.
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
-	public ComboxSocket() throws IOException {
+	public ComboxSocket() {
 		super();
 		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
@@ -56,7 +56,7 @@ public class ComboxSocket extends Combox<Socket> {
 	 * This is used by Combox (client).
 	 * Create a combox for a client.
 	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
-	 * @param networkUUID 
+	 * @param networkUUID the id of the network
 	 */
 	public ComboxSocket(String networkUUID) {
 		super(networkUUID);

@@ -31,7 +31,7 @@ import popjava.util.Configuration;
 import popjava.util.SystemUtil;
 
 /**
- * This class starts a deamon that listens to incoming POP requests.
+ * This class starts a daemon that listens to incoming POP requests.
  * It replaces the SSH service to start brokers.
  * @author Beat Wolf
  *
@@ -61,9 +61,10 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	
 	/**
 	 * Mode has is Cipher.ENCRYPT_MODE o 
-	 * @param password
-	 * @param encrypt
-	 * @return
+	 * @param salt to mask the password
+	 * @param password to match on the other side
+	 * @param encrypt if we are encrypting or decrypting
+	 * @return the cipher or null
 	 */
 	public static Cipher createKey(String salt, String password, boolean encrypt){
 		try{
@@ -101,7 +102,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	private class Acceptor implements Runnable{
 		
 		private final Socket socket;
-		private Random rand = new Random();
+		private final Random rand = new Random();
 		private static final int SALT_LENGTH = 10;
 		
 		public Acceptor(Socket socket){
@@ -209,7 +210,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 					writer.write("ERROR NOT JAVA\n");
 				}
 
-				System.out.println("Finished deamon stuff");
+				System.out.println("Finished daemon stuff");
 				writer.close();
 				reader.close();
 			} catch (IOException e) {
@@ -243,15 +244,15 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	}
 	
 	/**
-	 * Starts the POP-Java listener deamon
-	 * @throws IOException
+	 * Starts the POP-Java listener daemon
+	 * @throws IOException if any i/o problem occurs
 	 */
 	public void start() throws IOException{
 		serverSocket = new ServerSocket(port);
 		
 		Executor executor = Executors.newCachedThreadPool();
 		
-		System.out.println("Started POP-Java deamon");
+		System.out.println("Started POP-Java daemon");
 		
 		try{
     		while(!Thread.currentThread().isInterrupted()){
@@ -266,12 +267,12 @@ public class POPJavaDeamon implements Runnable, Closeable{
 		    serverSocket.close();
 		}
 		
-		System.out.println("Closed POP-Java deamon");
+		System.out.println("Closed POP-Java daemon");
 	}
 	
 	/**
-	 * Stops the POP-Java listener deamon
-	 * @throws IOException 
+	 * Stops the POP-Java listener daemon
+	 * @throws IOException  if any i/o problem occurs
 	 */
 	@Override
     public synchronized void close() throws IOException{

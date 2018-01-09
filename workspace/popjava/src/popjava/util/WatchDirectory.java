@@ -23,7 +23,7 @@ public class WatchDirectory implements Runnable {
 		public void modify(String s) {}
 	}
 	
-	public static WatchMethod EMPTY = new WatchMethod();
+	public static final WatchMethod EMPTY = new WatchMethod();
 	
 	private Path watchedDir;
 	private WatchService watcher;

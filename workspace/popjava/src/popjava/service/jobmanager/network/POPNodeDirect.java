@@ -22,9 +22,9 @@ public class POPNodeDirect extends POPNode {
 	/**
 	 * Used for creating daemons direct nodes
 	 * 
-	 * @param host
-	 * @param port
-	 * @param daemonSecret 
+	 * @param host the host machine
+	 * @param port the port of the daemon
+	 * @param daemonSecret the secret for the daemon
 	 */
 	public POPNodeDirect(String host, int port, String daemonSecret) {
 		super(POPConnectorDirect.DESCRIPTOR);
@@ -39,8 +39,8 @@ public class POPNodeDirect extends POPNode {
 	/**
 	 * Used for creating SSH nodes
 	 * 
-	 * @param host
-	 * @param port 
+	 * @param host the host machine
+	 * @param port the ssh port
 	 */
 	public POPNodeDirect(String host, int port) {
 		super(POPConnectorDirect.DESCRIPTOR);

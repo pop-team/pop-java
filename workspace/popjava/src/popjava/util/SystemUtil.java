@@ -136,8 +136,9 @@ public class SystemUtil {
 	
 	/**
 	 * Mark if we should use a super user command to start the process.
+	 * Defined in {@link Configuration#setJobmanagerExecutionUser(String)}.
 	 * @param user The user we want to execute 
-	 * @return 
+	 * @return true if we have to switch user
 	 */
 	public static boolean canChangeUser(String user) {
 		if (changeUserName == null ? user == null : changeUserName.equals(user)) {
@@ -237,8 +238,8 @@ public class SystemUtil {
 	
 	/**
 	 * Return the same list with all elements containing $ as \$
-	 * @param command
-	 * @return 
+	 * @param command the command to escape the dollar
+	 * @return a new list with the escaped $ character
 	 */
 	private static List<String> escapeDollar(List<String> command) {
 		List<String> newCommand = new ArrayList<>(command);
@@ -255,7 +256,7 @@ public class SystemUtil {
 
 	/**
 	 * Register local JVM object so we can kill them
-	 * @param broker 
+	 * @param broker the broker of the local JVM object
 	 */
 	public static synchronized void registerLocalJVM(Broker broker) {
 		Objects.requireNonNull(broker);

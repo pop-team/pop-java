@@ -8,9 +8,9 @@ import popjava.dataswaper.POPString;
 public class PopCParameterTest {
 
 	/**
-	 * @param args
+	 * @param args in
 	 */
-	public static void main(String... argvs) {
+	public static void main(String... args) {
 		System.out.println("POP-Java POP-C++ parameters test started...");
 		
 		Parameters p = new Parameters();
@@ -34,7 +34,7 @@ public class PopCParameterTest {
             System.out.println("int failed");
         
         System.out.println("Check long parameter");
-        long l = 6000000000l;
+        long l = 6000000000L;
         p.setLong(l);
         if(p.getLong()!=l)
             System.out.println("long failed");

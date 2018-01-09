@@ -62,7 +62,7 @@ public class YamlJobManager {
 	/**
 	 * The maximum amount of resources that the Job Manager can allocate.
 	 * 
-	 * @return 
+	 * @return the resources available globally
 	 */
 	public YamlResource getMachineResources() {
 		return machineResources;
@@ -71,7 +71,7 @@ public class YamlJobManager {
 	/**
 	 * The maximum amount of resources that the Job Manager can allocate.
 	 * 
-	 * @param machineResources 
+	 * @param machineResources the resources available globally
 	 */
 	public void setMachineResources(YamlResource machineResources) {
 		this.machineResources = machineResources;
@@ -80,7 +80,7 @@ public class YamlJobManager {
 	/**
 	 * The maximum amount of resources that the Job Manager can allocate for a single object.
 	 * 
-	 * @return 
+	 * @return the resources available for a single job
 	 */
 	public YamlResource getJobResources() {
 		return jobResources;
@@ -89,7 +89,7 @@ public class YamlJobManager {
 	/**
 	 * The maximum amount of resources that the Job Manager can allocate for a single object.
 	 * 
-	 * @param jobResources 
+	 * @param jobResources the resources available for a single job
 	 */
 	public void setJobResources(YamlResource jobResources) {
 		this.jobResources = jobResources;
@@ -98,7 +98,7 @@ public class YamlJobManager {
 	/**
 	 * How many object can the Job Manager manage at the same time.
 	 * 
-	 * @return 
+	 * @return the maximum number of jobs
 	 */
 	public int getJobLimit() {
 		return jobLimit;
@@ -107,7 +107,7 @@ public class YamlJobManager {
 	/**
 	 * How many object can the Job Manager manage at the same time.
 	 * 
-	 * @param jobLimit 
+	 * @param jobLimit the maximum number of jobs
 	 */
 	public void setJobLimit(int jobLimit) {
 		this.jobLimit = jobLimit;
@@ -116,7 +116,7 @@ public class YamlJobManager {
 	/**
 	 * Which network is used if none was specified.
 	 * 
-	 * @return 
+	 * @return the default network
 	 */
 	public String getDefaultNetwork() {
 		return defaultNetwork;
@@ -125,7 +125,7 @@ public class YamlJobManager {
 	/**
 	 * Which network is used if none was specified.
 	 * 
-	 * @param defaultNetwork 
+	 * @param defaultNetwork the default network
 	 */
 	public void setDefaultNetwork(String defaultNetwork) {
 		this.defaultNetwork = defaultNetwork;
@@ -134,7 +134,7 @@ public class YamlJobManager {
 	/**
 	 * All the networks in the Job Manager.
 	 * 
-	 * @return 
+	 * @return the networks in the job manager
 	 */
 	public List<YamlNetwork> getNetworks() {
 		return networks;
@@ -143,7 +143,7 @@ public class YamlJobManager {
 	/**
 	 * All the networks in the Job Manager.
 	 * 
-	 * @param networks 
+	 * @param networks the networks in the job manager
 	 */
 	public void setNetworks(List<YamlNetwork> networks) {
 		this.networks = networks;

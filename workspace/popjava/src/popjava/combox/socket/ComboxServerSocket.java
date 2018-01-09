@@ -27,7 +27,7 @@ public class ComboxServerSocket extends ComboxServer {
 	 * @param timeout		Connection timeout
 	 * @param buffer		Buffer associated with this combox
 	 * @param broker		Broker associated with this combox
-	 * @throws java.io.IOException
+	 * @throws java.io.IOException if any problem occurs
 	 */
 	public ComboxServerSocket(AccessPoint accessPoint, int timeout,
 			POPBuffer buffer, Broker broker) throws IOException {
@@ -46,7 +46,7 @@ public class ComboxServerSocket extends ComboxServer {
 
 	/**
 	 * Create and start the combox server
-	 * @throws java.io.IOException
+	 * @throws java.io.IOException if any problem occurs
 	 */
 	public final void createServer() throws IOException {
 		serverSocket = ComboxUtils.createServerSocket(accessPoint.getPort(), ss -> ss.setReceiveBufferSize(RECEIVE_BUFFER_SIZE));

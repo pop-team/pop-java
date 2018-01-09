@@ -34,7 +34,7 @@ public class POPNetworkDescriptorFinder {
 	/**
 	 * Add a new descriptor description
 	 * 
-	 * @param descriptor 
+	 * @param descriptor a new descriptor to add
 	 */
 	public void register(POPNetworkDescriptor descriptor) {
 		if (!descriptors.containsKey(descriptor.getGlobalName())) {
@@ -52,8 +52,8 @@ public class POPNetworkDescriptorFinder {
 	/**
 	 * Find a descriptor based on its global name.
 	 * 
-	 * @param globalName
-	 * @return 
+	 * @param globalName the global name of the descriptor
+	 * @return the descriptor or null if unknown
 	 */
 	public POPNetworkDescriptor find(String globalName) {
 		if (globalName == null || globalName.isEmpty()) {
@@ -64,7 +64,7 @@ public class POPNetworkDescriptorFinder {
 	
 	/**
 	 * All available descriptors
-	 * @return 
+	 * @return all the available descriptors
 	 */
 	public POPNetworkDescriptor[] all() {
 		return descriptors.values().toArray(new POPNetworkDescriptor[descriptors.size()]);

@@ -13,9 +13,9 @@ public abstract class ComboxServer {
 	static public final int ABORT = 2;
 	
 	protected int status = EXIT;
-	protected Broker broker;
+	protected final Broker broker;
 	protected int timeOut = 0;
-	protected AccessPoint accessPoint;
+	protected final AccessPoint accessPoint;
 
 	/**
 	 * Default constructor

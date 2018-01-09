@@ -350,7 +350,7 @@ public abstract class POPBuffer {
 		return size;
 	}
 
-	private static Map<Integer, Constructor<?>> constructorsCache = new ConcurrentHashMap<>();
+	private static final Map<Integer, Constructor<?>> constructorsCache = new ConcurrentHashMap<>();
 	
 	private Constructor<?> getConstructorForClass(Class<?> c) throws SecurityException, NoSuchMethodException{
 		int hash = c.getName().hashCode();
@@ -572,7 +572,7 @@ public abstract class POPBuffer {
 
 	/**
 	 * Retrieve an array from the buffer
-	 * @param <T>
+	 * @param <T> the type of return
 	 * @param arrayType	Class of the array to retrieve
 	 * @return	Array retrieved in the buffer
 	 * @throws POPException	thrown if the serialization process is not going well

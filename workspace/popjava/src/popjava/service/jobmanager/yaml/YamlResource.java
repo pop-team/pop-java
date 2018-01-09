@@ -14,7 +14,7 @@ public class YamlResource {
 	/**
 	 * Power in flops.
 	 * 
-	 * @return 
+	 * @return the power
 	 */
 	public float getFlops() {
 		return flops;
@@ -23,7 +23,7 @@ public class YamlResource {
 	/**
 	 * Power in flops.
 	 * 
-	 * @param flops 
+	 * @param flops the power
 	 */
 	public void setFlops(float flops) {
 		this.flops = flops;
@@ -32,7 +32,7 @@ public class YamlResource {
 	/**
 	 * Transfer speed in kbps.
 	 * 
-	 * @return 
+	 * @return the network speed
 	 */
 	public float getBandwidth() {
 		return bandwidth;
@@ -41,7 +41,7 @@ public class YamlResource {
 	/**
 	 * Transfer speed in KiB/s.
 	 * 
-	 * @param bandwidth 
+	 * @param bandwidth the network speed
 	 */
 	public void setBandwidth(float bandwidth) {
 		this.bandwidth = bandwidth;
@@ -50,7 +50,7 @@ public class YamlResource {
 	/**
 	 * Memory in MiB.
 	 * 
-	 * @return 
+	 * @return the memory
 	 */
 	public float getMemory() {
 		return memory;
@@ -59,7 +59,7 @@ public class YamlResource {
 	/**
 	 * Memory in MiB.
 	 * 
-	 * @param memory 
+	 * @param memory the memory
 	 */
 	public void setMemory(float memory) {
 		this.memory = memory;

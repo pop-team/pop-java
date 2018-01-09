@@ -14,8 +14,8 @@ import popjava.annotation.POPClass;
  */
 public class ClassUtil {
 	
-	private static Map<Method, String> methodSignsCache = new HashMap<>();
-	private static Map<Constructor, String> constructorSignsCache = new HashMap<>();
+	private static final Map<Method, String> methodSignsCache = new HashMap<>();
+	private static final Map<Constructor, String> constructorSignsCache = new HashMap<>();
 	
 	public static Class<?>[] getObjectTypes(Object ... objects){
 		Class<?>[] parameterTypes = new Class<?>[objects.length];
@@ -273,8 +273,8 @@ public class ClassUtil {
 	/**
 	 * Generate an ID or use the one specified
 	 * 
-	 * @param clazz
-	 * @return 
+	 * @param clazz the class we want an id of
+	 * @return a numeric positive identifier
 	 */
 	public static int classId(Class<?> clazz) {
 		for (Annotation annotation : clazz.getDeclaredAnnotations()) {

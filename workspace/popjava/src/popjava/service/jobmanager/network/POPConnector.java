@@ -24,7 +24,7 @@ public abstract class POPConnector {
 	/**
 	 * The constructor define the name of the connector.
 	 * 
-	 * @param descriptor 
+	 * @param descriptor the descriptor for node creation
 	 */
 	public POPConnector(POPNetworkDescriptor descriptor) {
 		this.descriptor = descriptor;
@@ -33,14 +33,14 @@ public abstract class POPConnector {
 	/**
 	 * Protocol specific createObject
 	 *
-	 * @see POPJavaJobManager
-	 * @param localservice
-	 * @param objname
-	 * @param od
-	 * @param howmany
-	 * @param objcontacts
-	 * @param howmany2
-	 * @param remotejobcontacts
+	 * @see POPJavaJobManager#createObject(POPAccessPoint, String, ObjectDescription, int, POPAccessPoint[], int, POPAccessPoint[])
+	 * @param localservice The AppService of the application
+	 * @param objname Which object we have to create
+	 * @param od The OD of the request
+	 * @param howmany The size of objcontacts
+	 * @param objcontacts How many instances we seek
+	 * @param howmany2 number of remote access points (we think)
+	 * @param remotejobcontacts actual access points (we think)
 	 * @return
 	 */
 	public abstract int createObject(POPAccessPoint localservice,
@@ -52,7 +52,7 @@ public abstract class POPConnector {
 	/**
 	 * The descriptor identifying this class.
 	 * 
-	 * @return 
+	 * @return the descriptor
 	 */
 	public POPNetworkDescriptor getDescriptor() {
 		return descriptor;
@@ -61,7 +61,7 @@ public abstract class POPConnector {
 	/**
 	 * Is the connector empty or not.
 	 * 
-	 * @return 
+	 * @return if there are any nodes inside the connector
 	 */
 	public boolean isEmpty() {
 		return nodes.isEmpty();
@@ -99,7 +99,7 @@ public abstract class POPConnector {
 	/**
 	 * Get an unmodifiable list with all the nodes in the connector.
 	 * 
-	 * @return 
+	 * @return the number of nodes
 	 */
 	List<POPNode> getNodes() {
 		return Collections.unmodifiableList(nodes);
@@ -108,7 +108,7 @@ public abstract class POPConnector {
 	/**
 	 * Set this protocol network of influence, will be used by its children
 	 *
-	 * @param network
+	 * @param network the network associated to this connector
 	 */
 	void setNetwork(POPNetwork network) {
 		this.network = network;
@@ -117,7 +117,7 @@ public abstract class POPConnector {
 	/**
 	 * Reference to the JobManger, needed for potential call to Reserve, CancelReservation, etc.
 	 *
-	 * @param jobManager
+	 * @param jobManager the machine job manager
 	 */
 	void setJobManager(POPJavaJobManager jobManager) {
 		this.jobManager = jobManager;

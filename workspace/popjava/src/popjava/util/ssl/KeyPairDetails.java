@@ -1,10 +1,8 @@
 package popjava.util.ssl;
 
 import java.security.InvalidParameterException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 
@@ -32,9 +30,10 @@ public class KeyPairDetails {
 	/**
 	 * Copy constructor
 	 * 
-	 * @param other 
+	 * @param other the other KeyPair
 	 */
 	public KeyPairDetails(KeyPairDetails other) {
+		Objects.requireNonNull(other);
 		this.alias = other.alias;
 		this.validUntil = other.validUntil;
 		this.privateKeySize = other.privateKeySize;
@@ -75,7 +74,7 @@ public class KeyPairDetails {
 	/**
 	 * The alias of the certificate
 	 * 
-	 * @return 
+	 * @return the key alias
 	 */
 	public String getAlias() {
 		return alias;
@@ -84,7 +83,7 @@ public class KeyPairDetails {
 	/**
 	 * Set the alias of the certificate
 	 * 
-	 * @param alias 
+	 * @param alias the new alias of the key
 	 */
 	public void setAlias(String alias) {
 		this.alias = alias;
@@ -93,7 +92,7 @@ public class KeyPairDetails {
 	/**
 	 * Until when is the certificate valid, only used for the key store creation
 	 * 
-	 * @return 
+	 * @return the validity of the certificate
 	 */
 	public Date getValidUntil() {
 		return validUntil;
@@ -102,7 +101,7 @@ public class KeyPairDetails {
 	/**
 	 * Until when the certificate should be valid
 	 * 
-	 * @param validUntil 
+	 * @param validUntil the new validity date
 	 */
 	public void setValidUntil(Date validUntil) {
 		this.validUntil = validUntil;
@@ -111,7 +110,7 @@ public class KeyPairDetails {
 	/**
 	 * For how many day from now should the certificate be valid
 	 * 
-	 * @param days 
+	 * @param days the number of days the certificate will be valid from today (now)
 	 */
 	public void setValidFor(int days) {
 		long until = System.currentTimeMillis() + days * 86400_000L;
@@ -121,7 +120,7 @@ public class KeyPairDetails {
 	/**
 	 * Size in bits when creating a private key
 	 * 
-	 * @return 
+	 * @return the size of the private key in bits
 	 */
 	public int getPrivateKeySize() {
 		return privateKeySize;
@@ -130,7 +129,7 @@ public class KeyPairDetails {
 	/**
 	 * The complexity of the RSA key, must be greater than 1024 bits
 	 * 
-	 * @param keySize 
+	 * @param keySize the new key size
 	 */
 	public void setPrivateKeySize(int keySize) {
 		this.privateKeySize = keySize;
@@ -141,7 +140,7 @@ public class KeyPairDetails {
 	 *
 	 * @see BCStyle
 	 * @param name What we want to specify, like {@link BCStyle#CN}
-	 * @param value
+	 * @param value the value for the RDN key
 	 */
 	public void addRDN(ASN1ObjectIdentifier name, String value) {
 		this.rdn.put(name, value);
@@ -150,7 +149,7 @@ public class KeyPairDetails {
 	/**
 	 * Remove element from the certificate name
 	 * 
-	 * @param name 
+	 * @param name the RDN (key,value) pair to remove
 	 */
 	public void removeRDN(ASN1ObjectIdentifier name) {
 		this.rdn.remove(name);
@@ -159,7 +158,7 @@ public class KeyPairDetails {
 	/**
 	 * Get the whole certificate name as a unmodifiable map
 	 * 
-	 * @return 
+	 * @return the RDN which of this key
 	 */
 	public Map<ASN1ObjectIdentifier, String> getRDN() {
 		return Collections.unmodifiableMap(rdn);

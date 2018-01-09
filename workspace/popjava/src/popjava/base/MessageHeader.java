@@ -137,7 +137,7 @@ public class MessageHeader {
 
 	/**
 	 * Set the exception code in this message header
-	 * @param exceptionCode
+	 * @param exceptionCode the code of the exception to send back on the network
 	 */
 	public void setExceptionCode(int exceptionCode) {
 		this.exceptionCode = exceptionCode;

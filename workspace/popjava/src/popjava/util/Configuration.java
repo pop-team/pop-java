@@ -72,7 +72,7 @@ public final class Configuration {
 	
 	// Location of POPJava installation
 	private static final String POPJAVA_LOCATION;
-	private static Boolean ENV_DEBUG;
+	private static final Boolean ENV_DEBUG;
 	static {
 		String location = System.getenv("POPJAVA_LOCATION");
 		String debug = System.getenv("POP_DEBUG");
@@ -83,6 +83,8 @@ public final class Configuration {
 		}
 		if (debug != null) {
 			ENV_DEBUG = Boolean.getBoolean(debug);
+		} else {
+			ENV_DEBUG = null;
 		}
 	}
 	
@@ -564,7 +566,7 @@ public final class Configuration {
 	 *   POP Defaults
 	 * 
 	 * @param file The properties file to load
-	 * @throws java.io.IOException 
+	 * @throws java.io.IOException if the given file fail to load
 	 */
 	public void load(File file) throws IOException {
 		long start = System.currentTimeMillis();
@@ -689,9 +691,9 @@ public final class Configuration {
 	}
 	
 	/**
-	 * Save the configuration to a new properties file	 
+	 * Save the configuration to a new properties file, the file is defined in {@link #setUserConfig(File)}
 	 * 
-	 * @throws IOException 
+	 * @throws IOException if we fail to write the file to disk
 	 */
 	public void store() throws IOException {
 		Objects.requireNonNull(userConfig, "A user configuration file must be provided via setUserConfig or load.");
@@ -704,7 +706,7 @@ public final class Configuration {
 	
 	/**
 	 * Dump configuration to system location, may not work if rights block writing.
-	 * @throws java.io.IOException
+	 * @throws java.io.IOException if we fail to override the system configuration
 	 */
 	public void writeSystemConfiguration() throws IOException {
 		Properties dump = new Properties();

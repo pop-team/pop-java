@@ -147,7 +147,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * Get the directory we want the process to run into
-	 * @return 
+	 * @return the directory
 	 */
 	public String getDirectory() {
 		return directory;
@@ -228,7 +228,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * Set the OD to tell that only the specified hosts should answer.
-	 * @param searchHosts 
+	 * @param searchHosts which hosts should respond to our inquiry
 	 */
 	public void setSearchHosts(String... searchHosts) {
 		this.searchHosts.clear();
@@ -237,7 +237,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * Add an host to the OD, see {@link #setSearchHosts(java.lang.String...) }
-	 * @param searchHost 
+	 * @param searchHost which hosts should respond to our inquiry
 	 */
 	public void addSearchHosts(String searchHost) {
 		this.searchHosts.add(searchHost);
@@ -245,7 +245,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * The hosts which should answer a request.
-	 * @return 
+	 * @return the only hosts that should answer a lookup
 	 */
 	public String[] getSearchHosts() {
 		return searchHosts.toArray(new String[searchHosts.size()]);
@@ -418,7 +418,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * Sets the jvm parameters that should be used when creating this object
-	 * @param parameters
+	 * @param parameters the jvm parameters
 	 */
 	public void setJVMParamters(String parameters){
 		this.jvmParamters = parameters;
@@ -426,7 +426,7 @@ public class ObjectDescription implements IPOPBase {
 	
 	/**
 	 * Sets the connection type to be used if the object has to be created remotely
-	 * @param type
+	 * @param type the type of connection
 	 */
 	public void setConnectionType(ConnectionType type){
 		connectionType = type;
@@ -435,7 +435,7 @@ public class ObjectDescription implements IPOPBase {
 	/**
 	 * Sets the secret key to be used to connect to this object.
 	 * This option only makes sense when the POP-Java deamon connection type is used
-	 * @param secret
+	 * @param secret the connection secret
 	 */
 	public void setConnectionSecret(String secret){
 		connectionSecret = secret;
@@ -532,7 +532,7 @@ public class ObjectDescription implements IPOPBase {
 	/**
 	 * Returns the parameters that should be used when creating the JVM
 	 * for this object
-	 * @return
+	 * @return the jvm parameters
 	 */
 	public String getJVMParameters(){
 		return jvmParamters;
@@ -540,7 +540,7 @@ public class ObjectDescription implements IPOPBase {
 	
 	/**
 	 * Returns the connection type to be used if the object has to be run remotely
-	 * @return
+	 * @return the connection type
 	 */
 	public ConnectionType getConnectionType(){
 		return connectionType;
@@ -568,7 +568,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * The network to use for this request
-	 * @return 
+	 * @return the specified network
 	 */
 	public String getNetwork() {
 		return getValue(NETWORK_KEY);
@@ -576,7 +576,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * Specify network name to use
-	 * @param network 
+	 * @param network the new network
 	 */
 	public void setNetwork(String network) {
 		setValue(NETWORK_KEY, network);
@@ -584,7 +584,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * Job Manager connector to use
-	 * @return 
+	 * @return the connector to use for object creation
 	 */
 	public String getConnector() {
 		return getValue(CONNECTOR_KEY);
@@ -592,7 +592,7 @@ public class ObjectDescription implements IPOPBase {
 
 	/**
 	 * Job Manager connector to use
-	 * @param connector 
+	 * @param connector the connector to use for object creation
 	 */
 	public void setConnector(String connector) {
 		if (connector.isEmpty()) {

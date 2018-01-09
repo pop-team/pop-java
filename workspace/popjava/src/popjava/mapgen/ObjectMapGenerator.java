@@ -14,10 +14,10 @@ public class ObjectMapGenerator {
 
 	/**
 	 * 
-	 * @param file
-	 * @param files
-	 * @param append
-	 * @param cwd
+	 * @param file a out file
+	 * @param files in files
+	 * @param append append of not
+	 * @param cwd source dir
 	 */
 	public ObjectMapGenerator(String file, ArrayList<String> files,
 			boolean append, String cwd) {

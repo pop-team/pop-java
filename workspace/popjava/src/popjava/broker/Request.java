@@ -181,7 +181,7 @@ public class Request {
 	
 	/**
 	 * Returns true if this request is a synchronous request, false if asynchronous
-	 * @return
+	 * @return true if synchronous, false otherwise
 	 */
 	public boolean isSynchronous(){
 		return (getSenmatics() & Semantic.SYNCHRONOUS) != 0;
@@ -189,7 +189,7 @@ public class Request {
 	
 	/**
 	 * Returns true if this request is a concurrent request, false otherwise
-	 * @return
+	 * @return true if concurrent, false otherwise
 	 */
 	public boolean isConcurrent(){
 		return (getSenmatics() & Semantic.CONCURRENT) != 0;
@@ -197,7 +197,7 @@ public class Request {
 	
 	/**
 	 * Returns true if this request is a mutex request, false otherwise
-	 * @return
+	 * @return true if mutex, false otherwise
 	 */
 	public boolean isMutex(){
 		return (getSenmatics() & Semantic.MUTEX) != 0;
@@ -205,7 +205,7 @@ public class Request {
 	
 	/**
 	 * Returns true if this request is a sequential request, false otherwise
-	 * @return
+	 * @return true if sequential, false otherwise
 	 */
 	public boolean isSequential(){
 		return !isConcurrent() && !isMutex();
@@ -213,7 +213,7 @@ public class Request {
 
 	/**
 	 * Return from where the call to this request come from
-	 * @return 
+	 * @return the remote caller of this request
 	 */
 	public POPRemoteCaller getRemoteCaller() {
 		return remoteCaller;

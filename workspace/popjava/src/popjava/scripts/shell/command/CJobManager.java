@@ -320,8 +320,7 @@ public class CJobManager implements ICommand {
 			
 			JobManagerConfig jmc = getJobManagerConfig();
 			String id = uuid;
-			POPNetworkDetails pnd = Arrays.asList(jmc.availableNetworks())
-				.stream()
+			POPNetworkDetails pnd = Arrays.stream(jmc.availableNetworks())
 				.filter(d -> d.getUUID().equals(id))
 				.findFirst().orElse(null);
 			

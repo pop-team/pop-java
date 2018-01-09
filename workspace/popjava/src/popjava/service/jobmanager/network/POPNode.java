@@ -25,7 +25,7 @@ public abstract class POPNode {
 	/**
 	 * The class for this connector
 	 *
-	 * @return
+	 * @return the descriptor for create nodes and connectors
 	 */
 	public POPNetworkDescriptor getConnectorDescriptor() {
 		return descriptor;
@@ -34,7 +34,7 @@ public abstract class POPNode {
 	/**
 	 * Host of the node
 	 * 
-	 * @return 
+	 * @return the host of the node
 	 */
 	public String getHost() {
 		return host;
@@ -43,7 +43,7 @@ public abstract class POPNode {
 	/**
 	 * Should this node be store on disk
 	 * 
-	 * @return 
+	 * @return true if the node is temporary
 	 */
 	public boolean isTemporary() {
 		return temporary;
@@ -52,7 +52,7 @@ public abstract class POPNode {
 	/**
 	 * Mark node as temporary
 	 * 
-	 * @param temporary 
+	 * @param temporary set the node as temporary
 	 */
 	public void setTemporary(boolean temporary) {
 		this.temporary = temporary;
@@ -61,7 +61,7 @@ public abstract class POPNode {
 	/**
 	 * The configuration file representation
 	 *
-	 * @return
+	 * @return should be related to {@link #getCreationParams()}
 	 */
 	@Override
 	public abstract String toString();
@@ -69,7 +69,7 @@ public abstract class POPNode {
 	/**
 	 * The necessary parameters to create this node via {@link POPNetworkDescriptor#createNode }
 	 *
-	 * @return
+	 * @return an array with all the parameters for creation of the node
 	 */
 	public String[] getCreationParams() {
 		return Arrays.copyOf(creationParams, creationParams.length);

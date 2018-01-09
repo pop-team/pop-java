@@ -10,29 +10,29 @@ public interface ICommand {
 	/**
 	 * The keyword to trigger this command.
 	 * 
-	 * @return 
+	 * @return keyword for this command
 	 */
 	String keyword();
 	
 	/**
 	 * Execute the command with its parameters.
 	 * 
-	 * @param info
-	 * @return 
+	 * @param info the command
+	 * @return exist status
 	 */
 	int execute(CommandInfo info);
 	
 	/**
 	 * Help to comprehend the command.
 	 * 
-	 * @return 
+	 * @return help string
 	 */
 	String help();
 	
 	/**
 	 * Short description of the command.
 	 * 
-	 * @return 
+	 * @return command description
 	 */
 	String description();
 }

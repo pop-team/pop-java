@@ -25,7 +25,7 @@ public class CommandInfo {
 	/**
 	 * Transform a line into its components
 	 * 
-	 * @param line 
+	 * @param line the line to read
 	 */
 	public CommandInfo(String line) {
 		Scanner s = new Scanner(line);
@@ -61,8 +61,8 @@ public class CommandInfo {
 	/**
 	 * Internal constructor for {@link #advance() }
 	 * 
-	 * @param keyword
-	 * @param params 
+	 * @param keyword the command keyword
+	 * @param params the rest of the command
 	 */
 	private CommandInfo(String keyword, String... params) {
 		this.keyword = keyword;
@@ -72,8 +72,8 @@ public class CommandInfo {
 	/**
 	 * Extract the parameters from the remaining arguments.
 	 * 
-	 * @param expected
-	 * @return 
+	 * @param expected a series of parameters we can extract later
+	 * @return the object where we can extract the parameters
 	 */
 	public Parameter extractParameter(ParameterInfo... expected) {
 		return new Parameter(params, expected);
@@ -104,7 +104,7 @@ public class CommandInfo {
 	/**
 	 * Does the command ask to call for help?
 	 * 
-	 * @return 
+	 * @return true if help is requested
 	 */
 	public boolean isNextHelp() {
 		return canAdvance() && (params[0].equals("-h") || params[0].equals("--help"));
@@ -113,7 +113,7 @@ public class CommandInfo {
 	/**
 	 * The keyword for this command.
 	 * 
-	 * @return 
+	 * @return the command keyword
 	 */
 	public String getKeyword() {
 		return keyword;
@@ -122,7 +122,7 @@ public class CommandInfo {
 	/**
 	 * A copy of the remaining parameters.
 	 * 
-	 * @return 
+	 * @return the command parameters
 	 */
 	public String[] getParams() {
 		return Arrays.copyOf(params, params.length);

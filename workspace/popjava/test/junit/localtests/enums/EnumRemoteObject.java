@@ -11,9 +11,9 @@ public class EnumRemoteObject extends POPObject{
 	public enum Test{
 		A,
 		B,
-		C;
-	};
-	
+		C
+	}
+
 	private Test constructor;
 	private Test method;
 	

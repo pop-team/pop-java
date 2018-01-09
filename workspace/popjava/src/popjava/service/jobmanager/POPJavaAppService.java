@@ -14,7 +14,7 @@ import popjava.system.POPJavaConfiguration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
 
-@POPClass(classId = 99923, deconstructor = false)
+@POPClass(classId = 99923)
 public class POPJavaAppService extends POPObject implements AppService{
 	
 	private final String uuid = Util.generateUUID();
@@ -25,7 +25,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	}
 	
 	//Platform, objectname, codefile
-	private Map<String, Map<String, String>> registeredCode = new HashMap<>();
+	private final Map<String, Map<String, String>> registeredCode = new HashMap<>();
 	
 	/**
 	 * Register a executable code file in the CodeMgr service
@@ -93,22 +93,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	}
 	
 	public String getLocalJavaFileLocation(String objname){
-		String codePath = null;
-		try{
-			ClassLoader classloader = getClass().getClassLoader();
-			Class<?> javaClass = classloader.loadClass(objname);
-
-			codePath = String.format(
-					POPJavaConfiguration.getBrokerCommand(),
-					POPJavaConfiguration.getPopJavaJar(),
-					POPJavaConfiguration.getClassPath()) +
-					javaClass.getProtectionDomain().getCodeSource().getLocation().getPath();
-
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-
-		return codePath;
+		return new Util().getLocalJavaFileLocation(objname);
 	}
 
 	/**

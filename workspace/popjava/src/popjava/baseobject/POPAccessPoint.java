@@ -21,7 +21,7 @@ public class POPAccessPoint implements IPOPBase {
 	/**
 	 * The list of the different access points
 	 */
-	protected ArrayList<AccessPoint> accessPoints = new ArrayList<>();
+	protected final ArrayList<AccessPoint> accessPoints = new ArrayList<>();
 
 	/**
 	 * Create a new POPAccessPoint()

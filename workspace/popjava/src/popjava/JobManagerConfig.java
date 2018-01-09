@@ -41,10 +41,10 @@ public class JobManagerConfig {
 	/**
 	 * Register a POPObject and make it available for discovery in a network
 	 *
-	 * @param object
-	 * @param tfcNetworkUUID
-	 * @param secret
-	 * @return
+	 * @param object the object to publish
+	 * @param tfcNetworkUUID in which network should the object be visible in
+	 * @param secret a secret to un-register the object manually, if the object dies it will un-register itself
+	 * @return true if registered, false otherwise
 	 */
 	public boolean publishTFCObject(Object object, String tfcNetworkUUID, String secret) {
 		if (object instanceof POPObject) {
@@ -57,9 +57,9 @@ public class JobManagerConfig {
 	/**
 	 * Unregister a POPObject from the local JobManager
 	 *
-	 * @param object
-	 * @param tfcNetworkUUID
-	 * @param secret
+	 * @param object the object to publish
+	 * @param tfcNetworkUUID the network the object is registered in
+	 * @param secret the secret used when the object was published
 	 */
 	public void withdrawnTFCObject(Object object, String tfcNetworkUUID, String secret) {
 		if (object instanceof POPObject) {
@@ -123,7 +123,7 @@ public class JobManagerConfig {
 	/**
 	 * Remove a network of interest with all its members
 	 * 
-	 * @param networkUUID 
+	 * @param networkUUID the network to remove
 	 */
 	public void removeNetwork(String networkUUID) {
 		jobManager.removeNetwork(networkUUID);
@@ -132,7 +132,7 @@ public class JobManagerConfig {
 	/**
 	 * Change the value of available power on the job manager
 	 * 
-	 * @param limit 
+	 * @param limit the new power limit
 	 */
 	public void changeAvailablePower(float limit) {
 		jobManager.changeAvailablePower(limit);
@@ -141,7 +141,7 @@ public class JobManagerConfig {
 	/**
 	 * Change the value of available memory on the job manager
 	 * 
-	 * @param limit 
+	 * @param limit the new memory limit
 	 */
 	public void changeAvailableMemory(float limit) {
 		jobManager.changeAvailableMemory(limit);
@@ -150,7 +150,7 @@ public class JobManagerConfig {
 	/**
 	 * Change the value of available bandwidth on the job manager
 	 * 
-	 * @param limit 
+	 * @param limit the new bandwidth limit
 	 */
 	public void changeAvailableBandwidth(float limit) {
 		jobManager.changeAvailableBandwidth(limit);
@@ -159,7 +159,7 @@ public class JobManagerConfig {
 	/**
 	 * Change the maximal number of object that can be create with this job manager
 	 * 
-	 * @param limit 
+	 * @param limit the new limit of spawned objects
 	 */
 	public void changeMaxJobLimit(int limit) {
 		jobManager.changeMaxJobLimit(limit);
@@ -168,7 +168,7 @@ public class JobManagerConfig {
 	/**
 	 * Change the value maximal power an object can request
 	 * 
-	 * @param limit 
+	 * @param limit the upper power an object can have allocated
 	 */
 	public void changeMaxJobPower(float limit) {
 		jobManager.changeMaxJobPower(limit);
@@ -177,7 +177,7 @@ public class JobManagerConfig {
 	/**
 	 * Change the value maximal memory an object can request
 	 * 
-	 * @param limit 
+	 * @param limit the upper memory an object can have allocated
 	 */
 	public void changeMaxJobMemory(float limit) {
 		jobManager.changeMaxJobMemory(limit);
@@ -186,7 +186,7 @@ public class JobManagerConfig {
 	/**
 	 * Change the value maximal bandwidth an object can request
 	 * 
-	 * @param limit 
+	 * @param limit the upper bandwidth an object can have allocated
 	 */
 	public void changeMaxJobBandwidth(float limit) {
 		jobManager.changeMaxJobBandwidth(limit);
@@ -195,7 +195,7 @@ public class JobManagerConfig {
 	/**
 	 * Array of networks available locally
 	 * 
-	 * @return 
+	 * @return all available networks on the local Job Manager
 	 */
 	public POPNetworkDetails[] availableNetworks() {
 		return jobManager.getAvailableNetworks();
@@ -205,8 +205,8 @@ public class JobManagerConfig {
 	 * All the node available in a network
 	 * Use {@link POPNode#getConnectorDescriptor()} to know which type you are working with.
 	 * 
-	 * @param networkUUID
-	 * @return 
+	 * @param networkUUID the network we want to know the nodes
+	 * @return an array of generic nodes
 	 */
 	public POPNode[] networkNodes(String networkUUID) {
 		// get nodes
@@ -234,9 +234,10 @@ public class JobManagerConfig {
 	/**
 	 * Generate a KeyStore with private key and certificate.
 	 * Proxy for {@link SSLUtils#generateKeyStore(popjava.util.ssl.KeyStoreDetails, popjava.util.ssl.KeyPairDetails)}
-	 * 
-	 * @param keyDetails
-	 * @return 
+	 *
+     * @param ksDetails the details of the keystore
+     * @param keyDetails the details about the private key
+	 * @return true if the keystore was generated correctly
 	 */
 	public boolean generateKeyStore(KeyStoreDetails ksDetails, KeyPairDetails keyDetails) {
 		return SSLUtils.generateKeyStore(ksDetails, keyDetails);
@@ -261,7 +262,7 @@ public class JobManagerConfig {
 	/**
 	 * The initial capacity of the node
 	 * 
-	 * @return 
+	 * @return how many resources were allocated on the job manager originally
 	 */
 	public Resource getInitialAvailableResources() {
 		return jobManager.getInitialAvailableResources();
@@ -270,7 +271,7 @@ public class JobManagerConfig {
 	/**
 	 * The upper limit for each job
 	 * 
-	 * @return 
+	 * @return how many resources can a single job allocate
 	 */
 	public Resource getJobResourcesLimit() {
 		return jobManager.getInitialAvailableResources();
@@ -279,7 +280,7 @@ public class JobManagerConfig {
 	/**
 	 * The maximum number of simultaneous object available on the JM machine
 	 * 
-	 * @return 
+	 * @return how many jobs can the job manager spawn
 	 */
 	public int getMaxJobs() {
 		return jobManager.getMaxJobs();
@@ -288,7 +289,7 @@ public class JobManagerConfig {
 	/**
 	 * Don't use this
 	 * 
-	 * @deprecated To be removed in production
+	 * @deprecated Should removed in production
 	 */
 	@Deprecated
 	public void dump() {

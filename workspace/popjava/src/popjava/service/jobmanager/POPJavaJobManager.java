@@ -101,16 +101,16 @@ public class POPJavaJobManager extends POPJobService {
 
 	
 	/** Total number of requests received */
-	protected AtomicInteger requestCounter = new AtomicInteger(1 + (int) (Math.random() * Integer.MAX_VALUE));
+	protected final AtomicInteger requestCounter = new AtomicInteger(1 + (int) (Math.random() * Integer.MAX_VALUE));
 
 	/** Number of job alive, mapped by {@link AppResource#id} */
-	protected Map<Integer,AppResource> jobs = new HashMap<>();
+	protected final Map<Integer,AppResource> jobs = new HashMap<>();
 	
 	/** Jobs we need to cleanup */
 	private final LinkedBlockingDeque<AppResource> cleanupJobs = new LinkedBlockingDeque<>();
 
 	/** Networks saved in this JobManager */
-	protected Map<String,POPNetwork> networks = new HashMap<>();
+	protected final Map<String,POPNetwork> networks = new HashMap<>();
 
 	/** Default network UUID */
 	protected String defaultNetwork = null;
@@ -122,13 +122,13 @@ public class POPJavaJobManager extends POPJobService {
 	protected int maxJobs;
 
 	/** Node extra information, value as List if multiple are supplied */
-	protected Map<String, List<String>> nodeExtra = new HashMap<>();
+	protected final Map<String, List<String>> nodeExtra = new HashMap<>();
 
 	/** Mutex for some operations */
-	protected ReentrantLock mutex = new ReentrantLock(true);
+	protected final ReentrantLock mutex = new ReentrantLock(true);
 
 	/** JobManager unique ID */
-	protected String nodeId = Util.generateUUID();
+	protected final String nodeId = Util.generateUUID();
 
 	/** When to perform the next update of the job list */
 	private long nextUpdate = 0;
@@ -175,7 +175,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Read configuration file and setup system Has some sane defaults
 	 *
-	 * @param configFileString Configuration file
+	 * @param configFile Configuration file
 	 */
 	private void init(File configFile) {
 
@@ -304,9 +304,9 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param od The OD of the request
 	 * @param howmany The size of objcontacts
 	 * @param objcontacts How many instances we seek
-	 * @param howmany2 
-	 * @param remotejobcontacts
-	 * @return 
+	 * @param howmany2 number of remote access points (we think)
+	 * @param remotejobcontacts actual access points (we think)
+	 * @return 0 or an exception, normally
 	 */
 	@POPSyncConc(id = 12)
 	@Override
@@ -367,7 +367,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * @param reserveIDs IDs received from {@link #reserve}
 	 * @param localservice Application AppService
 	 * @param objcontacts Where to answer when the object is created
-	 * @return
+	 * @return 0 when successful, any other number when not
 	 */
 	@POPSyncConc
 	public int execObj(@POPParameter(Direction.IN) POPString objname, int howmany, int[] reserveIDs,
@@ -499,8 +499,8 @@ public class POPJavaJobManager extends POPJobService {
 	 *
 	 * @param od The request OD
 	 * @param iofitness [output] The fitness, compatibility of the request with this node
-	 * @param popAppId
-	 * @param reqID
+	 * @param popAppId the application id
+	 * @param reqID the request id
 	 * @return the reservation ID for this request used in the other methods
 	 */
 	@POPSyncConc(id = 16)
@@ -852,8 +852,8 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Register to remote network and locally
 	 *
-	 * @param networkUUID
-	 * @param node
+	 * @param networkUUID the network id
+	 * @param node the node we are registering
 	 */
 	@POPAsyncConc
 	private void registerRemoteAsync(String networkUUID, POPNodeAJobManager node) {
@@ -1050,7 +1050,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Register a node in the default POP network
 	 *
-	 * @param params
+	 * @param params the parameters needed to create a  new node, via {@link POPNode#getCreationParams()}
 	 */
 	@POPSyncConc
 	public void registerNode(String... params) {
@@ -1060,7 +1060,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Unregister a node from the default POP network
 	 *
-	 * @param params
+	 * @param params the parameters needed to create a  new node, via {@link POPNode#getCreationParams()}
 	 */
 	@POPAsyncConc
 	public void unregisterNode(String... params) {
@@ -1069,8 +1069,8 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Register a node and write it in the configuration file
-	 * @param networkUUID
-	 * @param params
+	 * @param networkUUID the network id
+	 * @param params the parameters needed to create a  new node, via {@link POPNode#getCreationParams()}
 	 */
 	@POPSyncConc(localhost = true)
 	public void registerPermanentNode(String networkUUID, String... params) {
@@ -1090,9 +1090,9 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Register a new node and add its certificate to the Key Store
-	 * @param networkUUID
-	 * @param certificate
-	 * @param params 
+	 * @param networkUUID the network id
+	 * @param certificate the certificate associated with the node
+	 * @param params the parameters needed to create a  new node, via {@link POPNode#getCreationParams()}
 	 */
 	@POPSyncConc(localhost = true)
 	public void registerPermanentNode(String networkUUID, byte[] certificate, String... params) {
@@ -1120,8 +1120,8 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Unregister a node and write it in the configuration file
-	 * @param networkUUID
-	 * @param params
+	 * @param networkUUID the network id
+	 * @param params the parameters needed to create a  new node, via {@link POPNode#getCreationParams()}
 	 */
 	@POPSyncConc(localhost = true)
 	public void unregisterPermanentNode(String networkUUID, String... params) {
@@ -1207,7 +1207,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * The initial capacity of the node
 	 * 
-	 * @return 
+	 * @return the current available resources
 	 */
 	@POPSyncConc(localhost = true)
 	public Resource getInitialAvailableResources() {
@@ -1217,7 +1217,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * The upper limit for each job
 	 * 
-	 * @return 
+	 * @return a single job's available resource
 	 */
 	@POPSyncConc(localhost = true)
 	public Resource getJobResourcesLimit() {
@@ -1227,7 +1227,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * The maximum number of simultaneous object available on the JM machine
 	 * 
-	 * @return 
+	 * @return the maximum number of resources available on the machine
 	 */
 	@POPSyncConc(localhost = true)
 	public int getMaxJobs() {
@@ -1248,8 +1248,8 @@ public class POPJavaJobManager extends POPJobService {
 	 * Propagate application end at the end of an application NOTE May not the necessary or useful, POP-Java already
 	 * kill unused objects
 	 *
-	 * @param popAppId
-	 * @param initiator
+	 * @param popAppId the application id
+	 * @param initiator who started the application end request
 	 */
 	@POPAsyncConc
 	public void applicationEnd(int popAppId, boolean initiator) {
@@ -1300,14 +1300,12 @@ public class POPJavaJobManager extends POPJobService {
 			Yaml yaml = new Yaml(representer);
 			String output = yaml.dumpAs(yamlJobManager, Tag.MAP, DumperOptions.FlowStyle.AUTO);
 
-			// write updated configration file
+			// write updated configuration file
 			try (FileOutputStream fos = new FileOutputStream(configurationFile)) {
 				fos.write(output.getBytes(StandardCharsets.UTF_8));
 			}
 		} catch(IOException e) {
 			LogWriter.writeDebugInfo("[JM] Failed to write current configuration to disk");
-		} finally {
-			
 		}
 	}
 	
@@ -1340,7 +1338,7 @@ public class POPJavaJobManager extends POPJobService {
 	 * This method will only change the location and try to write in it, it will not delete the old file.
 	 * This method is not meant to be used to load a new configuration file.
 	 * 
-	 * @param configurationFile 
+	 * @param configurationFile the job manager configuration file
 	 */
 	@POPAsyncConc(localhost = true)
 	public void setConfigurationFile(String configurationFile) {
@@ -1351,7 +1349,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * The available networks in the current Job Manager
 	 * 
-	 * @return 
+	 * @return all the available locally on this machine (job manager)
 	 */
 	@POPSyncConc(localhost = true)
 	public POPNetworkDetails[] getAvailableNetworks() {
@@ -1368,8 +1366,8 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * All the nodes in a network
 	 * 
-	 * @param networkUUID
-	 * @return 
+	 * @param networkUUID the network id
+	 * @return the parameters needed to create multiple new nodes, via {@link POPNode#getCreationParams()}
 	 */
 	@POPSyncConc(localhost = true)
 	public String[][] getNetworkNodes(String networkUUID) {
@@ -1399,7 +1397,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Release waiting processes
 	 *
-	 * @throws Throwable
+	 * @throws Throwable anything
 	 */
 	@Override
 	protected void finalize() throws Throwable {
@@ -1477,8 +1475,8 @@ public class POPJavaJobManager extends POPJobService {
 	
 	/**
 	 * Looks for live TFC objects in a POP Network on this node.
-	 * @param networkUUID
-	 * @param objectName
+	 * @param networkUUID the network id
+	 * @param objectName the kind of object we are looking for
 	 * @return The POPAccessPoint(s) of lives TFC Objects registered on this Job Manager.
 	 */
 	@POPSyncConc
@@ -1756,7 +1754,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Add a node to the response list
 	 * 
-	 * @param response 
+	 * @param response the response from the remote node
 	 */
 	@POPAsyncConc
 	public void callbackResult(@POPParameter(Direction.IN) SNResponse response) {
@@ -1818,7 +1816,7 @@ public class POPJavaJobManager extends POPJobService {
 	/**
 	 * Release the dispatching thread if necessary
 	 * 
-	 * @param requid 
+	 * @param requid the request id to unlock a potential semaphore
 	 */
 	@POPAsyncConc
 	public void unlockDiscovery(String requid) {

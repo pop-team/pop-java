@@ -71,10 +71,6 @@ public class MethodInfo {
         return true;
     }
 
-	/**
-	 * Format the MethodInfo as a string value
-	 * @return 
-	 */
 	@Override
     public String toString() {
 		return String.format("ClassId:%d.MethodId:%d", classId, methodId);

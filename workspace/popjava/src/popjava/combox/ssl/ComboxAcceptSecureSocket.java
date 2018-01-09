@@ -31,9 +31,9 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	static public final int EXIT = 1;
 	static public final int ABORT = 2;
 	
-	protected Broker broker;
-	protected RequestQueue requestQueue;
-	protected ServerSocket serverSocket;
+	protected final Broker broker;
+	protected final RequestQueue requestQueue;
+	protected final ServerSocket serverSocket;
 	protected int status = EXIT;
 	protected final List<SSLSocket> concurentConnections = Collections.synchronizedList(new LinkedList<SSLSocket>());
 	
@@ -44,7 +44,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	 * @param broker		The associated broker
 	 * @param requestQueue	The associated request queue
 	 * @param serverSocket		The associated combox socket
-	 * @throws java.io.IOException
+	 * @throws java.io.IOException if any problem occurs
 	 */
 	public ComboxAcceptSecureSocket(Broker broker, RequestQueue requestQueue,
 			ServerSocket serverSocket) throws IOException {

@@ -95,7 +95,7 @@ public class POPObject implements IPOPBase {
 	
 	/**
 	 * Loads the OD from the specified constructor
-	 * @param constructor
+	 * @param constructor the called constructor
 	 */
 	private void loadODAnnotations(Constructor<?> constructor){
 		POPObjectDescription objectDescription = constructor.getAnnotation(POPObjectDescription.class);
@@ -417,7 +417,7 @@ public class POPObject implements IPOPBase {
 	 * @param methodName		method to modify
 	 * @param semantic			semantic to set on the method
 	 * @param parameterTypes	parameters types of the method
-	 * @throws java.lang.NoSuchMethodException
+	 * @throws java.lang.NoSuchMethodException if the method name is not found
 	 */
 	public final void addSemantic(Class<?> c, String methodName, int semantic,
 			Class<?>... parameterTypes) throws java.lang.NoSuchMethodException {
@@ -470,8 +470,8 @@ public class POPObject implements IPOPBase {
 	
 	/**
 	 * Add the semantics of the given method
-	 * @param mi
-	 * @param m 
+	 * @param mi the method identifier
+	 * @param m the method
 	 */
 	private void addMethodSemantic(MethodInfo mi, Method m) {
 		if(m.isAnnotationPresent(POPPrivate.class)) {
@@ -643,22 +643,16 @@ public class POPObject implements IPOPBase {
 	 */
 	public void printMethodInfo() {
 		System.out.println("===========ConstructorInfo============");
-		constructorInfos.forEach((mi, c) -> {
-			System.out.format("ClassId:%d.ConstructorId:%d.Sign:%s",
-				mi.getClassId(), mi.getMethodId(), c.toGenericString());
-		});
+		constructorInfos.forEach((mi, c) -> System.out.format("ClassId:%d.ConstructorId:%d.Sign:%s",
+            mi.getClassId(), mi.getMethodId(), c.toGenericString()));
 
 		System.out.println("===========MethodInfo============");
-		methodInfos.forEach((mi, m) -> {
-			System.out.format("ClassId:%d.MethodId:%d.Sign:%s",
-				mi.getClassId(), mi.getMethodId(), m.toGenericString());
-		});
+		methodInfos.forEach((mi, m) -> System.out.format("ClassId:%d.MethodId:%d.Sign:%s",
+            mi.getClassId(), mi.getMethodId(), m.toGenericString()));
 
 		System.out.println("===========SemanticsInfo============");
-		semantics.forEach((mi, s) -> {
-			System.out.format("ClassId:%d.ConstructorId:%d.Semantics:%d",
-				mi.getClassId(), mi.getMethodId(), s);
-		});
+		semantics.forEach((mi, s) -> System.out.format("ClassId:%d.ConstructorId:%d.Semantics:%d",
+            mi.getClassId(), mi.getMethodId(), s));
 	}
 		
 	/**
@@ -710,7 +704,7 @@ public class POPObject implements IPOPBase {
 	 * Register a certificate on the node 
 	 * TODO Handle this method for other kind of Combox (only SSL ATM)
 	 * 
-	 * @param cert 
+	 * @param cert the certificate to save locally
 	 */
 	@POPSyncConc
 	public void PopRegisterFutureConnectorCertificate(byte[] cert) {
@@ -731,8 +725,8 @@ public class POPObject implements IPOPBase {
 	/**
 	 * Get the resources used by an user.
 	 * 
-	 * @param caller
-	 * @return 
+	 * @param caller the identifier we want connection details of
+	 * @return the details on the user use of the object
 	 */
 	@POPSyncSeq(localhost = true)
 	public POPTracking getTracked(POPRemoteCaller caller) {
@@ -742,7 +736,7 @@ public class POPObject implements IPOPBase {
 	/**
 	 * Get the resources used until now by caller.
 	 * 
-	 * @return 
+	 * @return my own usage of the object
 	 */
 	@POPSyncSeq
 	public POPTracking getTracked() {
@@ -751,7 +745,8 @@ public class POPObject implements IPOPBase {
 	
 	/**
 	 * Is tracking enabled on the remote object.
-	 * @return 
+	 *
+	 * @return true if object's tracking is turned on
 	 */
 	@POPSyncConc
 	public boolean isTracking() {

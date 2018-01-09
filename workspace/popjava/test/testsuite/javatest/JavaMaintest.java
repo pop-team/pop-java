@@ -3,7 +3,7 @@ package testsuite.javatest;
 public class JavaMaintest {
 
 	/**
-	 * @param args
+	 * @param args in
 	 */
 	public static void main(String[] args) {
 		TestObject to = new TestObject();

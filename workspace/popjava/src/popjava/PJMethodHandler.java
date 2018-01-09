@@ -45,11 +45,11 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	protected final int constructorSemanticId = 21;
 
 	protected POPObject popObjectInfo = null;
-	private AtomicInteger requestID = new AtomicInteger(1);
+	private final AtomicInteger requestID = new AtomicInteger(1);
 
-	private AtomicBoolean setup = new AtomicBoolean(false);
+	private final AtomicBoolean setup = new AtomicBoolean(false);
 	
-	private Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<>();
+	private final Map<Method, Annotation[][]> methodAnnotationCache = new HashMap<>();
 
 	private final Configuration conf = Configuration.getInstance();
 	
@@ -313,8 +313,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		}
 	}
 	
-	private ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<>();
-	private Set<Integer> methodMisses = new HashSet<>();
+	private final ConcurrentHashMap<Integer, Method> methodCache = new ConcurrentHashMap<>();
+	private final Set<Integer> methodMisses = new HashSet<>();
 	
 	/**
 	 * Return a copy of the given method
@@ -349,9 +349,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * Try to invoke a custom method of the associated class
 	 * @param self	The object on which the method have to be invoked
 	 * @param m		Method to be invoked
-	 * @param proceed	
-	 * @param canExcute	
-	 * @param argvs	
+	 * @param proceed
+	 * @param canExcute	used as an output array (we want to know the status of the first boolean)
+	 * @param argvs	the arguments for the method
 	 * @return
 	 */
 	private Object invokeCustomMethod(Object self, Method m, Method proceed, boolean[] canExcute, Object[] argvs) {

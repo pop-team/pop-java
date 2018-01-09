@@ -29,8 +29,8 @@ public class ConfigurationWorker extends XMLWorker {
 	public static final String POPC_APPCORESERVICE_ITEM = "popc_appcoreservice_location";
 
 	// Variable's declaration
-	private String configFileLocation;
-	private String configSchemaLocation;
+	private final String configFileLocation;
+	private final String configSchemaLocation;
 	private String popjLocation;
 
 	public ConfigurationWorker() throws Exception {

@@ -102,9 +102,9 @@ public class POPJobManager extends POPJobService {
 	 * @param fitness		Fitness of the resource
 	 * @param jobcontacts	Output arguments - contacts to the JobMgr to create objects
 	 * @param reserveIDs	Output arguments - reservation identifier for each objects
-	 * @param requestInfo	
-	 * @param trace			
-	 * @param tracesize		
+	 * @param requestInfo	info
+	 * @param trace			keep track
+	 * @param tracesize		track size
 	 * @return	true if the runtime has allocated some resources for the parallel objects
 	 */
 	@POPSyncConc(id = 16)

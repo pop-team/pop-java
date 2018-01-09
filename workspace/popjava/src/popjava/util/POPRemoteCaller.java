@@ -39,7 +39,7 @@ public class POPRemoteCaller implements IPOPBase {
 	/**
 	 * The address the connection is coming from
 	 * 
-	 * @return 
+	 * @return the address of the remote connection (IPv4 or IPv6)
 	 */
 	public InetAddress getRemote() {
 		return remote;
@@ -48,7 +48,7 @@ public class POPRemoteCaller implements IPOPBase {
 	/**
 	 * The protocol used for this connection
 	 * 
-	 * @return 
+	 * @return the protocol used for this connection
 	 */
 	public String getProtocol() {
 		return protocol;
@@ -57,7 +57,7 @@ public class POPRemoteCaller implements IPOPBase {
 	/**
 	 * Is {@link #getProtocol() } secure or not.
 	 * 
-	 * @return 
+	 * @return if the connection is secure or not
 	 */
 	public boolean isSecure() {
 		return secure;
@@ -66,7 +66,7 @@ public class POPRemoteCaller implements IPOPBase {
 	/**
 	 * The fingerprint of the certificate used by the client, if available
 	 * 
-	 * @return 
+	 * @return the fingerprint if we are using certificated, null otherwise
 	 */
 	public String getFingerprint() {
 		return fingerprint;
@@ -75,7 +75,7 @@ public class POPRemoteCaller implements IPOPBase {
 	/**
 	 * The network assigned to a certificate, if available
 	 * 
-	 * @return 
+	 * @return the network we are working into, signaled by the client
 	 */
 	public String getNetwork() {
 		return network;
@@ -84,7 +84,7 @@ public class POPRemoteCaller implements IPOPBase {
 	/**
 	 * `true' if the connection was created using a confidence link
 	 * 
-	 * @return 
+	 * @return if we are connected directly to one of our direct link
 	 */
 	public boolean isUsingConfidenceLink() {
 		return SSLUtils.isConfidenceLink(fingerprint);
@@ -93,7 +93,7 @@ public class POPRemoteCaller implements IPOPBase {
 	/**
 	 * If the call come from a localhost object
 	 * 
-	 * @return 
+	 * @return true if the address is our own machine
 	 */
 	public boolean isLocalHost() {
 		return Util.isLocal(remote.getHostAddress());

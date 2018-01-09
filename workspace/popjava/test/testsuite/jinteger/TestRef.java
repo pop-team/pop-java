@@ -6,9 +6,9 @@ import popjava.annotation.POPClass;
 public class TestRef {
 
 	/**
-	 * @param args
+	 * @param args in
 	 */
-	public static void main(String... argvs) {
+	public static void main(String... args) {
 	    Integer2 i = new Integer2();
         Jinteger j = new Jinteger();
         

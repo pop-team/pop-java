@@ -33,7 +33,7 @@ import popjava.util.POPRemoteCaller;
  */
 public class ComboxSecureSocket extends Combox<SSLSocket> {
 	
-	protected byte[] receivedBuffer;
+	protected final byte[] receivedBuffer;
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
@@ -47,7 +47,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 	 * Call {@link #serverAccept(java.lang.Object)   } to let the client connect.
 	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
-	public ComboxSecureSocket() throws IOException {
+	public ComboxSecureSocket() {
 		super();
 		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
@@ -56,7 +56,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 	 * This is used by Combox (client).
 	 * Create a combox for a client.
 	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
-	 * @param networkUUID
+	 * @param networkUUID the id of the network
 	 */
 	public ComboxSecureSocket(String networkUUID) {
 		super(networkUUID);
@@ -109,10 +109,6 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 		}
 	}
 
-	/**
-	 * A client connect to a server, Combox -&gt; ComboxServer
-	 * @return 
-	 */
 	@Override
 	protected boolean connectToServer() {
 		try {			
@@ -340,7 +336,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 					accessPoint.setFingerprint(fingerprint);
 					
 					if (getNetworkUUID() == null) {
-						setNetworkUUID(SSLUtils.getNetworkFromCertificate(fingerprint));
+						setNetworkUUID(SSLUtils.getNetworkFromFingerprint(fingerprint));
 					}
 					
 					remoteCaller = new POPRemoteCaller(

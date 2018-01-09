@@ -18,7 +18,7 @@ public class YamlNetwork {
 	/**
 	 * The unique identifier for a network.
 	 * 
-	 * @return 
+	 * @return the uuid of the network
 	 */
 	public String getUuid() {
 		return uuid;
@@ -27,7 +27,7 @@ public class YamlNetwork {
 	/**
 	 * The unique identifier for a network.
 	 * 
-	 * @param uuid 
+	 * @param uuid the uuid of the network
 	 */
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
@@ -36,7 +36,7 @@ public class YamlNetwork {
 	/**
 	 * A friendly name to visualize and recognize the network. 
 	 * 
-	 * @return 
+	 * @return the friendly name locally displayed
 	 */
 	public String getFriendlyName() {
 		return friendlyName;
@@ -45,7 +45,7 @@ public class YamlNetwork {
 	/**
 	 * A friendly name to visualize and recognize the network.
 	 * 
-	 * @param friendlyName 
+	 * @param friendlyName the friendly name locally displayed
 	 */
 	public void setFriendlyName(String friendlyName) {
 		this.friendlyName = friendlyName;
@@ -54,7 +54,7 @@ public class YamlNetwork {
 	/**
 	 * The connector in this network.
 	 * 
-	 * @return 
+	 * @return the connectors in the network
 	 */
 	public List<YamlConnector> getConnectors() {
 		return connectors;
@@ -63,7 +63,7 @@ public class YamlNetwork {
 	/**
 	 * The connector in this network.
 	 * 
-	 * @param connectors 
+	 * @param connectors the connectors in the network
 	 */
 	public void setConnectors(List<YamlConnector> connectors) {
 		this.connectors = connectors;

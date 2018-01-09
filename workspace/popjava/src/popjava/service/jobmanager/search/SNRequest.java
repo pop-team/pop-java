@@ -36,7 +36,7 @@ public class SNRequest implements IPOPBase {
 	private byte[] publicCertificate = new byte[0];
 	private byte[] appServiceCertificate = new byte[0];
 	
-	private Map<String,String> customParams = new HashMap<>();
+	private final Map<String,String> customParams = new HashMap<>();
 
 	public SNRequest() {
 	}

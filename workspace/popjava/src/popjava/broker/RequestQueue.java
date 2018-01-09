@@ -23,11 +23,11 @@ public class RequestQueue {
 	private final List<Request> requestsMutex = new ArrayList<>();
 	
 	private int requestType = 0;
-	private List<List<Request>> requests = new ArrayList<>();
+	private final List<List<Request>> requests = new ArrayList<>();
 	
 	private Request servingMutex = null;
 	private Request servingSequential = null;
-	private ArrayList<Request> servingConcurrent = new ArrayList<>();
+	private final ArrayList<Request> servingConcurrent = new ArrayList<>();
 	
 	private Request availableRequest = null;
 	
@@ -149,7 +149,7 @@ public class RequestQueue {
 
 	/**
 	 * Move request from availableRequest to its proper request queue
-	 * @param request
+	 * @param request the request to add to the various queues
 	 */
 	private void serveRequest(Request request){
 	    

@@ -63,8 +63,8 @@ public abstract class Combox<T> {
 	/**
 	 * Accept a connection from {@link #connectToServer() }.
 	 * Communicate with Client mode Combox.
-	 * @param peerConnection
-	 * @return 
+	 * @param peerConnection the incoming connection
+	 * @return true if the connection is established correctly, false otherwise
 	 */
 	public final boolean serverAccept(T peerConnection) {
 		this.peerConnection = peerConnection;
@@ -73,21 +73,21 @@ public abstract class Combox<T> {
 	
 	/**
 	 * Setup POPRemoteCaller (remoteCaller) variable which is going to be made available to the user.
-	 * @return 
+	 * @return true if the operation succeeded
 	 */
 	protected abstract boolean exportConnectionInfo();
 	
 	/**
 	 * Called by the client, it send the name of the network its in.
 	 * This must use the basic peerConnection capabilities.
-	 * @return 
+	 * @return true if the operation succeeded
 	 */
 	protected abstract boolean sendNetworkName();
 	
 	/**
 	 * Called by the server client, it will receive the network name
 	 * This must use the basic peerConnection capabilities.
-	 * @return 
+	 * @return true if the operation succeeded
 	 */
 	protected abstract boolean receiveNetworkName();
 
@@ -142,7 +142,7 @@ public abstract class Combox<T> {
 
 	/**
 	 * Return the access point we are connected to
-	 * @return 
+	 * @return the access point
 	 */
 	public POPAccessPoint getAccessPoint() {
 		return accessPoint;
@@ -150,7 +150,7 @@ public abstract class Combox<T> {
 
 	/**
 	 * Information about who we are talking too
-	 * @return 
+	 * @return the client connected on the other side
 	 */
 	public POPRemoteCaller getRemoteCaller() {
 		return remoteCaller;
@@ -158,7 +158,7 @@ public abstract class Combox<T> {
 
 	/**
 	 * The network we are connecting or are connected to.
-	 * @return 
+	 * @return the network UUID
 	 */
 	public String getNetworkUUID() {
 		return networkUUID == null ? "" : networkUUID;
@@ -166,7 +166,7 @@ public abstract class Combox<T> {
 
 	/**
 	 * Set the new ID of this network
-	 * @param networkUUID 
+	 * @param networkUUID set the network UUID
 	 */
 	public void setNetworkUUID(String networkUUID) {
 		this.networkUUID = networkUUID;

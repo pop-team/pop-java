@@ -128,10 +128,10 @@ public class POPTrustManager implements X509TrustManager {
 	/**
 	 * Get the network assigned to a specific certificate
 	 * 
-	 * @param fingerprint
-	 * @return 
+	 * @param fingerprint the fingerprint we want the certificate to
+	 * @return the certificate or null if unknown
 	 */
-	public String getNetworkFromCertificate(String fingerprint) {
+	public String getNetworkFromFingerprint(String fingerprint) {
 		return certificatesNetwork.get(fingerprint);
 	}
 	
@@ -275,8 +275,8 @@ public class POPTrustManager implements X509TrustManager {
 	/**
 	 * Do we know the certificate
 	 * 
-	 * @param cert
-	 * @return 
+	 * @param cert the certificate to check
+	 * @return true is known, false otherwise
 	 */
 	public boolean isCertificateKnown(Certificate cert) {
 		return loadedCertificates.values().contains(cert);
@@ -285,8 +285,8 @@ public class POPTrustManager implements X509TrustManager {
 	/**
 	 * Any certificate from the local Trust manager
 	 * 
-	 * @param fingerprint
-	 * @return 
+	 * @param fingerprint the fingerprint of the certificate
+	 * @return the certificate or null if unknown
 	 */
 	public Certificate getCertificate(String fingerprint) {
 		return loadedCertificates.get(fingerprint);
@@ -295,8 +295,8 @@ public class POPTrustManager implements X509TrustManager {
 	/**
 	 * The certificate of a specified alias
 	 * 
-	 * @param uuid
-	 * @return 
+	 * @param uuid the alias of the certificate, usually the network UUID
+	 * @return the certificate or null if not found
 	 */
 	public Certificate getCertificateFromAlias(String uuid) {
 		Objects.requireNonNull(uuid);

@@ -72,9 +72,9 @@ public class XMLWorker {
 	 * Load the XML file into a DOM document
 	 * @param file	Path of the XML file
 	 * @return	The DOM document loaded with the XML file
-	 * @throws ParserConfigurationException
-	 * @throws SAXException
-	 * @throws IOException
+	 * @throws ParserConfigurationException can't parse
+	 * @throws SAXException can't traverse
+	 * @throws IOException can't open
 	 */
 	protected Document load(String file) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -86,7 +86,7 @@ public class XMLWorker {
 	/**
 	 * Create a new empty DOM document
 	 * @return The new DOM document
-	 * @throws ParserConfigurationException
+	 * @throws ParserConfigurationException can't parse
 	 */
 	protected Document create() throws ParserConfigurationException {
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();

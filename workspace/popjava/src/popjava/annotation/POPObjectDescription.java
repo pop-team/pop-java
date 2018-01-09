@@ -15,21 +15,21 @@ public @interface POPObjectDescription {
 	
 	/**
 	 * &lt;url&gt; or &lt;url&gt;:&lt;port&gt; where the object should be.
-	 * If multiple procol are active you should also define {@link #protocols()}
-	 * @return 
+	 * If multiple protocol are active you should also define {@link #protocols()}
+	 * @return the url of the object
 	 */
 	String url() default "";
 	
 	/**
 	 * JVM parameters to be used when creating this object
-	 * @return
+	 * @return custom jvm parameters
 	 */
 	String jvmParameters() default "";
 	
 	/**
 	 * The type of connection to be used to the remote host if the object
 	 * has to be created remotely
-	 * @return
+	 * @return which type of connection should we use
 	 */
 	ConnectionType connection() default ConnectionType.ANY;
 	
@@ -39,13 +39,13 @@ public @interface POPObjectDescription {
 	
 	/**
 	 * Enable method usage tracking on this method by user.
-	 * @return 
+	 * @return is tracking enabled
 	 */
 	boolean tracking() default false;
 	
 	/**
 	 * Don't spawn a new process when creating this object.
-	 * @return 
+	 * @return is a local jvm object
 	 */
 	boolean localJVM() default false;
 	
@@ -60,13 +60,13 @@ public @interface POPObjectDescription {
 	 *   {"protocol1:port1", "protocol2:port2"}
 	 * 
 	 * If nothing is specified all available protocols will be used.
-	 * @return 
+	 * @return the protocol specified
 	 */
 	String[] protocols() default "";
 	
 	/**
 	 * A network available on this machine
-	 * @return 
+	 * @return the network we are working into
 	 */
 	String network() default "";
 	
@@ -74,59 +74,59 @@ public @interface POPObjectDescription {
 	 * An available connector present in a network
 	 *  jobmanager: contact remote machine via the jobmanager
 	 *  direct: connect directly (ex SSH) to the remote machine
-	 * @return 
+	 * @return which type of connector was specified
 	 */
 	String connector() default "";
 	
 	/**
 	 * Power requested
-	 * @return 
+	 * @return how much power
 	 */
 	float power() default -1;
 	/**
 	 * Minimum power necessary
-	 * @return 
+	 * @return how much power
 	 */
 	float minPower() default -1;
 	/**
 	 * Memory requested
-	 * @return 
+	 * @return how much memory
 	 */
 	float memory() default -1;
 	/**
 	 * Minimum memory necessary
-	 * @return 
+	 * @return how much memory
 	 */
 	float minMemory() default -1;
 	/**
 	 * Bandwidth requested
-	 * @return 
+	 * @return how much bandwidth
 	 */
 	float bandwidth() default -1;
 	/**
 	 * Minimum bandwidth necessary
-	 * @return 
+	 * @return how much bandwidth
 	 */
 	float minBandwidth() default -1;
 	
 	/**
 	 * How many hops can we go after ours
-	 * @return 
+	 * @return how many nodes should we traverse
 	 */
 	int searchDepth() default -1;
 	
 	/**
-	 * How much time elapse between the start and end of a research in the grid
-	 * if 0 the first node found is used
-	 * any other value bigger than 0 (ms) will be a forced wait
-	 * @return 
+	 * How much time elapse between the start and end of a research in the grid.
+	 * if 0 the first node found is used.
+	 * any other value bigger than 0 (ms) will be a forced wait.
+	 * @return how much time should we wait for answers
 	 */
 	int searchTime() default -1;
 	
 	/**
 	 * Method id of the constructor.
 	 * Only use this if you absolutely know what you are doing.
-	 * @return
+	 * @return the id
 	 */
 	int id() default -1;
 }

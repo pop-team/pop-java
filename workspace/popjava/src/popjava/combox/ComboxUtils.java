@@ -79,7 +79,7 @@ public class ComboxUtils {
 	}
 	
 	/**
-	 * Should be used as parameter for {@link #createServerSocket(java.net.InetSocketAddress, popjava.combox.ComboxUtils.PreOperation) }
+	 * Should be used as parameter for {@link #createServerSocket(int, PreOperation)}  }
 	 */
 	public interface PreOperation {
 		void preBind(ServerSocket ss) throws IOException;

@@ -24,7 +24,7 @@ public class POPTrackingMethod implements IPOPBase {
 
 	/**
 	 * Register a new method call.
-	 * @param time 
+	 * @param time how much did it takes
 	 */
 	public synchronized void increment(long time) {
 		calls++;
@@ -33,7 +33,7 @@ public class POPTrackingMethod implements IPOPBase {
 
 	/**
 	 * The total time used by this method in milliseconds.
-	 * @return 
+	 * @return total time used
 	 */
 	public long getTimeUsed() {
 		return timeUsed;
@@ -41,7 +41,7 @@ public class POPTrackingMethod implements IPOPBase {
 
 	/**
 	 * The method used.
-	 * @return 
+	 * @return the method name
 	 */
 	public String getMethod() {
 		return method;
@@ -49,7 +49,7 @@ public class POPTrackingMethod implements IPOPBase {
 
 	/**
 	 * Number of calls to this method.
-	 * @return 
+	 * @return number of calls to the method
 	 */
 	public long getNumCalls() {
 		return calls;

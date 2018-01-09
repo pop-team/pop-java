@@ -14,9 +14,9 @@ public class TFCResource {
 
 	/**
 	 * Describe a TFC resource
-	 * @param objectName
-	 * @param accessPoint
-	 * @param secret 
+	 * @param objectName the object type {@link Class#getName()}
+	 * @param accessPoint where we can find the object
+	 * @param secret secret to remove it if still alive
 	 */
 	public TFCResource(String objectName, POPAccessPoint accessPoint, String secret) {
 		this.objectName = objectName;

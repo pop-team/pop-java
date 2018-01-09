@@ -16,9 +16,9 @@ public class JARReader {
 
 	/**
 	 * Returns the names of all POP-Java classes found in a certain jar file
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @return list of par classes
+	 * @throws IOException can't read jar
+	 * @throws ClassNotFoundException can't find class
 	 */
 	public ArrayList<String> getParclassFromJar() throws IOException,
 			ClassNotFoundException {

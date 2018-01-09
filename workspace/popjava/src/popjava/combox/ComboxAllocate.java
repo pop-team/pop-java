@@ -17,7 +17,7 @@ public abstract class ComboxAllocate<T extends Combox> {
 	
 	/**
 	 * The URL where the server can be contacted.
-	 * @return 
+	 * @return the url waiting for a broker connection
 	 */
 	public abstract String getUrl();
 	
@@ -50,7 +50,7 @@ public abstract class ComboxAllocate<T extends Combox> {
 	
 	/**
 	 * Is the combox 
-	 * @return 
+	 * @return true if the combox is connected
 	 */
 	public final boolean isComboxConnected(){
 		return combox != null;

@@ -14,7 +14,7 @@ public enum ConnectionType {
 		this.name = name;
 	}	
 	
-	private String name;
+	private final String name;
 	
 	@Override
 	public String toString(){

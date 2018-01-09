@@ -31,7 +31,7 @@ public class BufferFactoryFinder {
 	/**
 	 * List of different buffer name and their class
 	 */
-	private ConcurrentHashMap<String, BufferFactory> bufferFactoryList = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, BufferFactory> bufferFactoryList = new ConcurrentHashMap<>();
 	/**
 	 * Class loader to retrive a plugin
 	 */

@@ -14,8 +14,8 @@ public class POPAccounting {
 	/**
 	 * Cast an object to a POP one, throw an IllegalArgumentException if it isn't one.
 	 * 
-	 * @param obj
-	 * @return 
+	 * @param obj the object to cast
+	 * @return the POPObject instance
 	 */
 	private static POPObject cast(Object obj) {
 		if (obj instanceof POPObject) {
@@ -28,7 +28,7 @@ public class POPAccounting {
 	 * Check if a POP Object has tracking and accounting capabilities enabled.
 	 * 
 	 * @param popObject The object we want to check.
-	 * @return 
+	 * @return true if it's enabled, false otherwise
 	 */
 	public static boolean isEnabledFor(Object popObject) {
 		POPObject obj = cast(popObject);
@@ -39,8 +39,7 @@ public class POPAccounting {
 	 * For internal calls, skip casting.
 	 * 
 	 * @param obj The object we want information about.
-	 * @return 
-	 * @throws IllegalStateException 
+	 * @return true if it's enabled, false otherwise
 	 */
 	private static boolean isEnabledFor(POPObject obj) {
 		return obj.isTracking();
@@ -50,8 +49,7 @@ public class POPAccounting {
 	 * Return to the owner of the object (the same machine where the object reside) information on who contacted it.
 	 * 
 	 * @param popObject The object we want information about.
-	 * @return 
-	 * @throws IllegalStateException 
+	 * @return all the user which used this object
 	 */
 	public static POPRemoteCaller[] getUsers(Object popObject) {
 		POPObject obj = cast(popObject);
@@ -67,7 +65,7 @@ public class POPAccounting {
 	 * @param popObject The object we want information about.
 	 * @param caller One of the caller return by {@link #getUsers(java.lang.Object) }
 	 * @return A tracking object or null.
-	 * @throws IllegalStateException 
+	 * @throws IllegalArgumentException if tracking is not enabled
 	 */
 	public static POPTracking getInformation(Object popObject, POPRemoteCaller caller) {
 		POPObject obj = cast(popObject);
@@ -81,8 +79,8 @@ public class POPAccounting {
 	 * Get information on a specific what was tracked about me.
 	 * 
 	 * @param popObject The object we want information about.
-	 * @return 
-	 * @throws IllegalStateException 
+	 * @return the tracking object
+	 * @throws IllegalArgumentException if tracking is not enabled
 	 */
 	public static POPTracking getMyInformation(Object popObject) {
 		POPObject obj = cast(popObject);

@@ -28,7 +28,7 @@ public class PJProxyFactory extends ProxyFactory {
 	/**
 	 * Target class to create a proxy
 	 */
-	protected Class<?> targetClass;
+	protected final Class<?> targetClass;
 
 	/**
 	 * Create a new proxy factory for the specified class
@@ -52,7 +52,7 @@ public class PJProxyFactory extends ProxyFactory {
 	 * Create a new object from the factory
 	 * @param argvs : arguments to pass trough the constructor of the specific object
 	 * @return the instance of the object
-	 * @throws POPException
+	 * @throws POPException a remote exception, look for cause
 	 */
 	public Object newPOPObject(Object... argvs) throws POPException {
 		ObjectDescription objectDescription = POPSystem.getDefaultOD();
@@ -63,9 +63,9 @@ public class PJProxyFactory extends ProxyFactory {
 	 * All this is because getConstructor does not support Object.class as a parameter type.
 	 * Object.class is used by us for null parameters
 	 * 
-	 * @param targetClass
-	 * @param parameterTypes
-	 * @return
+	 * @param targetClass the class type
+	 * @param parameterTypes the constructor parameters
+	 * @return the constructor
 	 */
 	private static Constructor<?> findMatchingConstructor(Class<?> targetClass, Class<?>[] parameterTypes){
 		Constructor<?> constructor = null;
@@ -103,7 +103,7 @@ public class PJProxyFactory extends ProxyFactory {
 	 * @param od : Object description with the resource requirements
 	 * @param argvs : arguments to pass trough the constructor of the specific object
 	 * @return the instance of the object
-	 * @throws POPException
+	 * @throws POPException a remote exception, look for cause
 	 */
 	public Object newPOPObject(ObjectDescription od, Object... argvs) throws POPException {
 		try {
@@ -229,7 +229,7 @@ public class PJProxyFactory extends ProxyFactory {
 	 * Recover a parallel object from the buffer
 	 * @param buffer : buffer from which the object is recovered 
 	 * @return the object recovered
-	 * @throws POPException
+	 * @throws POPException a remote exception, look for cause
 	 */
 	public Object newActiveFromBuffer(POPBuffer buffer) throws POPException {
 		POPObject result = null;

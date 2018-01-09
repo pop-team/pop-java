@@ -38,8 +38,8 @@ public class POPNetwork {
 	 * Initialize a POP Network from a previously existing UUID.
 	 * 
 	 * @param uuid The previously generated UUID.
-	 * @param friendlyName 
-	 * @param jobManager 
+	 * @param friendlyName a friendly local name for easy recognition
+	 * @param jobManager the job manager
 	 */
 	public POPNetwork(String uuid, String friendlyName, POPJavaJobManager jobManager) {
 		this.uuid = uuid;
@@ -51,7 +51,7 @@ public class POPNetwork {
 	/**
 	 * The friendly name of the network, can change.
 	 * 
-	 * @return 
+	 * @return the locally recognition name
 	 */
 	public String getFriendlyName() {
 		return friendlyName;
@@ -60,7 +60,7 @@ public class POPNetwork {
 	/**
 	 * The new friendly name
 	 * 
-	 * @param friendlyName 
+	 * @param friendlyName the locally recognition name
 	 */
 	public void setFriendlyName(String friendlyName) {
 		this.friendlyName = friendlyName;
@@ -69,7 +69,7 @@ public class POPNetwork {
 	/**
 	 * The unique identifier across nodes of this network.
 	 * 
-	 * @return 
+	 * @return the global unique uuid of this network
 	 */
 	public String getUUID() {
 		return uuid;
@@ -78,7 +78,7 @@ public class POPNetwork {
 	/**
 	 * All the connectors in this network
 	 * 
-	 * @return 
+	 * @return the connectors in this network
 	 */
 	public POPConnector[] getConnectors() {
 		Collection<POPConnector> conns = connectors.values();
@@ -89,11 +89,11 @@ public class POPNetwork {
 	 * Get an already casted connector from its string.
 	 * Warning: Responsibility on the user to use the right return.
 	 * 
-	 * Use ``POPConnector conector = network.getConnector(...)`` if the return is unknown.
+	 * Use ``POPConnector connector = network.getConnector(...)`` if the return is unknown.
 	 * 
 	 * @param <T> How to cast the connector
 	 * @param connector Name of the connector
-	 * @return 
+	 * @return a specific connector, already casted
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends POPConnector> T getConnector(POPNetworkDescriptor connector) {
@@ -103,7 +103,7 @@ public class POPNetwork {
 	/**
 	 * How many nodes are present in this node.
 	 * 
-	 * @return 
+	 * @return the number of nodes
 	 */
 	public int size() {
 		int size = 0;

@@ -14,8 +14,8 @@ public final class POPNetworkDescriptor {
 	/**
 	 * Shorthand for {@link POPNetworkDescriptorFinder#find(java.lang.String) }
 	 * 
-	 * @param globalName
-	 * @return 
+	 * @param globalName the global name of the descriptor
+	 * @return the descriptor
 	 */
 	public static POPNetworkDescriptor from(String globalName) {
 		// NOTE do not make this a static attribute, it will create an initialization loop
@@ -28,8 +28,8 @@ public final class POPNetworkDescriptor {
 	/**
 	 * Create a new descriptor with its creation behavior
 	 * 
-	 * @param globalName
-	 * @param methods 
+	 * @param globalName the global bane of the descriptor
+	 * @param methods how to handle connector and node creation
 	 */
 	public POPNetworkDescriptor(String globalName, POPNetworkDescriptorMethod methods) {
 		this.globalName = globalName;
@@ -39,7 +39,7 @@ public final class POPNetworkDescriptor {
 	/**
 	 * Name of the descriptor
 	 * 
-	 * @return 
+	 * @return the global name
 	 */
 	public String getGlobalName() {
 		return globalName;
@@ -48,7 +48,7 @@ public final class POPNetworkDescriptor {
 	/**
 	 * Create a new connector which will be added to a POPNetwork
 	 * 
-	 * @return 
+	 * @return a new connector for a POPNetwork
 	 */
 	public POPConnector createConnector() {
 		return methods.createConnector();
@@ -57,8 +57,8 @@ public final class POPNetworkDescriptor {
 	/**
 	 * Create a new node based on the given paramters.
 	 * 
-	 * @param params
-	 * @return 
+	 * @param params the nodes parameters
+	 * @return a new POPNode
 	 */
 	public POPNode createNode(List<String> params) {
 		params = new ArrayList<>(params);

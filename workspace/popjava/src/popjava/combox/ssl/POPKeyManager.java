@@ -156,8 +156,8 @@ public class POPKeyManager implements X509KeyManager {
 	/**
 	 * Return the received SNI as the alias for the server.
 	 * 
-	 * @param socket
-	 * @return 
+	 * @param socket the socket of the connection
+	 * @return the given SNI or the first certificate in the keystore, null if it's not a SSL connection
 	 */
 	private String chooseSNIAlias(boolean server, Principal[] issuers, Socket socket, String... keyTypes) {
 		// we can only accept SSL Sockets

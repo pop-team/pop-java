@@ -20,9 +20,9 @@ public class ComboxAcceptSocket implements Runnable {
 	static public final int EXIT = 1;
 	static public final int ABORT = 2;
 	
-	protected Broker broker;
-	protected RequestQueue requestQueue;
-	protected ServerSocket serverSocket;
+	protected final Broker broker;
+	protected final RequestQueue requestQueue;
+	protected final ServerSocket serverSocket;
 	protected int status = EXIT;
 	protected final List<Socket> concurentConnections = new LinkedList<>();
 

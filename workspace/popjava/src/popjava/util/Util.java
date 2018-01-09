@@ -112,7 +112,7 @@ public final class Util {
 	 * Join an array of String
 	 * @param delimiter Separator of each string
 	 * @param join What we want to join
-	 * @return 
+	 * @return the joined array
 	 */
 	public static String join(String delimiter, String... join) {
 		Objects.requireNonNull(join);
@@ -134,7 +134,7 @@ public final class Util {
 	 * Join a list of String
 	 * @param delimiter Separator of each string
 	 * @param join What we want to join
-	 * @return 
+	 * @return the joined list
 	 */
 	public static String join(String delimiter, List<String> join) {
 		return join(delimiter, join.toArray(new String[join.size()]));
@@ -157,7 +157,7 @@ public final class Util {
 	
 	/**
 	 * Generate UUID string
-	 * @return 
+	 * @return a UUID as a string
 	 */
 	public static String generateUUID() {
 		return UUID.randomUUID().toString();
@@ -201,8 +201,8 @@ public final class Util {
 	
 	/**
 	 * Returns true of one of the annotations defines a IN only parameter
-	 * @param annotations
-	 * @return
+	 * @param annotations an array of annotations
+	 * @return true if the direction is set to IN
 	 */
 	public static boolean isParameterNotOfDirection(Annotation [] annotations, POPParameter.Direction direction){
 		for(Annotation annotation: annotations){
@@ -247,7 +247,7 @@ public final class Util {
 	
 	/**
 	 * Returns the OS type on which this machine runs. Can return windows or unix.
-	 * @return
+	 * @return win or unix depending on the environment
 	 */
 	public static OSType getOSType(){
 		if(System.getProperty("os.name").toLowerCase().contains("win")){

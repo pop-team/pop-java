@@ -103,11 +103,11 @@ public class SSLUtils {
 	/**
 	 * Load the KeyStore with the parameters from {@link Configuration#getSSLKeyStoreOptions()}
 	 * 
-	 * @return
-	 * @throws IOException
-	 * @throws NoSuchAlgorithmException
-	 * @throws CertificateException
-	 * @throws KeyStoreException 
+	 * @return the opened key store
+	 * @throws IOException if there is an I/O or format problem with the keystore data. If the error is due to an incorrect ProtectionParameter (e.g. wrong password)
+	 * @throws NoSuchAlgorithmException if the algorithm used to check the integrity of the keystore cannot be found
+	 * @throws CertificateException if any of the certificates in the keystore could not be loaded
+	 * @throws KeyStoreException if no Provider supports a KeyStoreSpi implementation for the specified type
 	 */
 	private static KeyStore loadKeyStore() throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
 		KeyStore keyStore = KeyStore.getInstance(conf.getSSLKeyStoreFormat().name());
@@ -118,14 +118,13 @@ public class SSLUtils {
 	/**
 	 * Save the KeyStore with the parameters from {@link Configuration#getSSLKeyStoreOptions()}
 	 * 
-	 * @param keyStore
-	 * @throws KeyStoreException
-	 * @throws IOException
-	 * @throws NoSuchAlgorithmException
-	 * @throws CertificateException
-	 * @throws Exception 
+	 * @param keyStore the keystore to save, the location is define in {@link Configuration#setSSLKeyStoreFile(File)}
+	 * @throws IOException if there is an I/O or format problem with the keystore data. If the error is due to an incorrect ProtectionParameter (e.g. wrong password)
+	 * @throws NoSuchAlgorithmException if the algorithm used to check the integrity of the keystore cannot be found
+	 * @throws CertificateException if any of the certificates in the keystore could not be loaded
+	 * @throws KeyStoreException if no Provider supports a KeyStoreSpi implementation for the specified type
 	 */
-	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, Exception {
+	private static void storeKeyStore(KeyStore keyStore) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
 		try (FileOutputStream fos = new FileOutputStream(conf.getSSLKeyStoreFile())) {
 			keyStore.store(fos, conf.getSSLKeyStorePassword().toCharArray());
 		}
@@ -134,13 +133,13 @@ public class SSLUtils {
 	/**
 	 * Get a correctly initialized SSLContext
 	 * 
-	 * @return 
-	 * @throws java.security.KeyStoreException 
-	 * @throws java.io.IOException 
-	 * @throws java.security.NoSuchAlgorithmException
-	 * @throws java.security.cert.CertificateException
-	 * @throws java.security.UnrecoverableKeyException
-	 * @throws java.security.KeyManagementException
+	 * @return the context ssl to create socket with
+	 * @throws java.security.KeyStoreException if we fail to open the keystore
+	 * @throws java.io.IOException if any I/O problem occurs
+	 * @throws java.security.NoSuchAlgorithmException if we can't find the algorithm to check for the key store integrity
+	 * @throws java.security.cert.CertificateException if we can't load some of the certificates
+	 * @throws java.security.UnrecoverableKeyException if we can't load some of the private keys in the key store
+	 * @throws java.security.KeyManagementException if we can't instantiate the ssl context correctly
 	 */
 	public static SSLContext getSSLContext() throws KeyStoreException, IOException, NoSuchAlgorithmException, 
 		CertificateException, UnrecoverableKeyException, KeyManagementException {
@@ -183,7 +182,7 @@ public class SSLUtils {
 	/**
 	 * Given a SessionContext, it invalidate all of its tokens.
 	 * 
-	 * @param context 
+	 * @param context the context ssl which need its sessions invalidated
 	 */
 	private static void invalidateSSLSessions(SSLSessionContext context) {
 		for (Enumeration<byte[]> sessionEnum = context.getIds(); sessionEnum.hasMoreElements();) {
@@ -214,9 +213,9 @@ public class SSLUtils {
 	 * A constant hash String identifier from a node.
 	 * NOTE: aliases seems to be all lowercase
 	 * 
-	 * @param node
-	 * @param networkUUID 
-	 * @return 
+	 * @param node a node
+	 * @param networkUUID a network id
+	 * @return the alias used inside the keystore
 	 */
 	private static String confidenceLinkAlias(POPNode node, String networkUUID) {
 		return String.format("%x@%s", node.hashCode(), networkUUID.toLowerCase());
@@ -225,11 +224,11 @@ public class SSLUtils {
 	/**
 	 * Add or Replace confidence link
 	 * 
-	 * @param node
-	 * @param certificate
-	 * @param networkUUID 
+	 * @param node the node assigned to the certificate
+	 * @param certificate the certificate assigned to the node
+	 * @param networkUUID the network id where the communication can happen
 	 * @param mode false if we want to add the certificate, true if we want to replace it
-	 * @throws IOException 
+	 * @throws IOException if we fail to save the new keystore
 	 */
 	private static void addConfidenceLink(POPNode node, Certificate certificate, String networkUUID, boolean mode) throws IOException {
 		try {
@@ -300,8 +299,8 @@ public class SSLUtils {
 	/**
 	 * Remove form the KeyStore the specified alias.
 	 * 
-	 * @param alias
-	 * @throws java.io.IOException
+	 * @param alias the alias to remove from the keystore
+	 * @throws java.io.IOException if we fail to save the changed keystore
 	 */
 	public static void removeAlias(String alias) throws IOException {
 		try {
@@ -327,8 +326,8 @@ public class SSLUtils {
 	/**
 	 * Get the SHA-1 fingerprint of a certificate from its byte array representation
 	 * 
-	 * @param certificate
-	 * @return 
+	 * @param certificate the certificate we want the fingerprint of
+	 * @return the fingerprint if it's a valid certificate, null otherwise
 	 */
 	public static String certificateFingerprint(byte[] certificate) {
 		try {
@@ -347,8 +346,8 @@ public class SSLUtils {
 	 * Get the SHA-1 fingerprint of a certificate
 	 * 
 	 * See https://stackoverflow.com/questions/1270703/how-to-retrieve-compute-an-x509-certificates-thumbprint-in-java
-	 * @param cert
-	 * @return The hex representation of the fingerprint
+	 * @param cert the certificate we want to know the fingerprint
+	 * @return the hex representation of the fingerprint
 	 */
 	public static String certificateFingerprint(Certificate cert) {
 		try {
@@ -369,8 +368,8 @@ public class SSLUtils {
 	/**
 	 * Get the bytes of a certificate
 	 * 
-	 * @param cert
-	 * @return 
+	 * @param cert the certificate we want in bytes
+	 * @return the byte representation of the certificate
 	 */
 	public static byte[] certificateBytes(Certificate cert) {
 		StringBuilder sb = new StringBuilder();
@@ -388,7 +387,7 @@ public class SSLUtils {
 	 * 
 	 * @param certificate A byte array in PEM format
 	 * @return The certificate or null
-	 * @throws CertificateException 
+	 * @throws CertificateException if the given bytes can't be converted to a certificate
 	 */
 	public static Certificate certificateFromBytes(byte[] certificate) throws CertificateException {
 		Certificate cert = null;
@@ -403,8 +402,8 @@ public class SSLUtils {
 	/**
 	 * Check if the given certificate is inside the Trust Manager.
 	 * 
-	 * @param certificate
-	 * @return 
+	 * @param certificate the certificate to check
+	 * @return true if the certificate is known by the trust manager, false otherwise
 	 */
 	public static boolean isCertificateKnown(Certificate certificate) {
 		ensureManagerCreation();
@@ -414,19 +413,19 @@ public class SSLUtils {
 	/**
 	 * Try to extract the network certificate from the fingerprint, and the alias inside the KeyStore.
 	 * 
-	 * @param fingerprint
-	 * @return 
+	 * @param fingerprint the fingerprint we want to know the network of
+	 * @return the network or null if unknown
 	 */
-	public static String getNetworkFromCertificate(String fingerprint) {
+	public static String getNetworkFromFingerprint(String fingerprint) {
 		ensureManagerCreation();
-		return trustManager.getNetworkFromCertificate(fingerprint);
+		return trustManager.getNetworkFromFingerprint(fingerprint);
 	}
 
 	/**
 	 * Given a fingerprint (SHA1) it will return the Public Key associated with it.
 	 * 
-	 * @param fingerprint
-	 * @return 
+	 * @param fingerprint the fingerprint of the certificate we want
+	 * @return the certificate or null if we don't know it
 	 */
 	public static Certificate getCertificate(String fingerprint) {
 		ensureManagerCreation();
@@ -436,8 +435,8 @@ public class SSLUtils {
 	/**
 	 * Given a UUID it will return the matching local public certificate for this network.
 	 * 
-	 * @param uuid
-	 * @return 
+	 * @param uuid the alias in the keystore, usually the network UUID
+	 * @return the certificate or null if we don't know it
 	 */
 	public static Certificate getCertificateFromAlias(String uuid) {
 		ensureManagerCreation();
@@ -447,8 +446,8 @@ public class SSLUtils {
 	/**
 	 * Return if a given fingerprint certificate is part of the Confidence Link group.
 	 * 
-	 * @param fingerprint
-	 * @return 
+	 * @param fingerprint the fingerprint of the certificate
+	 * @return true if it's a confidence link, false otherwise
 	 */
 	public static boolean isConfidenceLink(String fingerprint) {
 		ensureManagerCreation();
@@ -459,7 +458,7 @@ public class SSLUtils {
 	 * Add a new certificate to the temporary storage
 	 * 
 	 * @see #addCertToTempStore(byte[], boolean) 
-	 * @param certificate 
+	 * @param certificate the certificate to add to the temporary store
 	 */
 	public static void addCertToTempStore(byte[] certificate) {
 		/*MethodUtil.grant(
@@ -474,8 +473,8 @@ public class SSLUtils {
 	/**
 	 * Add a new certificate to the temporary store
 	 * 
-	 * @param certificate
-	 * @param reload 
+	 * @param certificate the bytes of the certificate to add
+	 * @param reload if we have to reload the keystore now or let the parallel event do it
 	 */
 	public static void addCertToTempStore(byte[] certificate, boolean reload) {
 		/*MethodUtil.grant(
@@ -544,14 +543,14 @@ public class SSLUtils {
 	
 	/**
 	 * Given the keystore information, the key pair details and a real Priva Key / Certificate pair, add it to the keystore.
-	 * @param ksOptions
-	 * @param keyOptions
-	 * @param privateKeyEntry
-	 * @throws IOException
-	 * @throws KeyStoreException
-	 * @throws NoSuchAlgorithmException
-	 * @throws CertificateException
-	 * @throws UnrecoverableKeyException 
+	 * @param ksOptions the key store information
+	 * @param keyOptions the private key information
+	 * @param privateKeyEntry the private key itself
+	 * @throws IOException if we fail any operation on disk
+	 * @throws KeyStoreException if we fail any operation on the keystore
+	 * @throws NoSuchAlgorithmException if we fail to validate the keystore
+	 * @throws CertificateException if we fail to parse any certificate
+	 * @throws UnrecoverableKeyException if we fail to create the key manager (for the private keys)
 	 */
 	public static void addKeyEntryToKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions, KeyStore.PrivateKeyEntry privateKeyEntry) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
 		addKeyEntryToKeyStore(ksOptions, keyOptions, privateKeyEntry, true);
@@ -563,11 +562,11 @@ public class SSLUtils {
 	 * @param ksOptions
 	 * @param keyOptions
 	 * @param privateKeyEntry
-	 * @throws IOException
-	 * @throws KeyStoreException
-	 * @throws NoSuchAlgorithmException
-	 * @throws CertificateException 
-	 * @throws java.security.UnrecoverableKeyException 
+	 * @throws IOException if we fail any operation on disk
+	 * @throws KeyStoreException if we fail any operation on the keystore
+	 * @throws NoSuchAlgorithmException if we fail to validate the keystore
+	 * @throws CertificateException if we fail to parse any certificate
+	 * @throws UnrecoverableKeyException if we fail to create the key manager (for the private keys)
 	 */
 	private static void addKeyEntryToKeyStore(KeyStoreDetails ksOptions, KeyPairDetails keyOptions, KeyStore.PrivateKeyEntry privateKeyEntry, boolean reload) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
 		// initialize a keystore
@@ -602,8 +601,8 @@ public class SSLUtils {
 	/**
 	 * Call {@link #generateKeyPair(popjava.util.ssl.KeyPairDetails) } until the operation does not fail.
 	 * 
-	 * @param options
-	 * @return
+	 * @param options the information regarding the private key
+	 * @return the generated private key, checked by BouncyCastle for security
 	 */
 	public static KeyStore.PrivateKeyEntry ensureKeyPairGeneration(KeyPairDetails options) {
 		boolean retry = true;
@@ -624,12 +623,12 @@ public class SSLUtils {
 	 * Generate a Private Key and a corresponding public certificate.
 	 * This process may fail if bouncycastle consider the generate key not to be secure.
 	 * 
-	 * @param options
-	 * @return
-	 * @throws NoSuchAlgorithmException
-	 * @throws IOException
-	 * @throws OperatorCreationException
-	 * @throws CertificateException 
+	 * @param options the information regarding the private key
+	 * @return the generated private key, or BouncyCastle will throw a security exception
+	 * @throws NoSuchAlgorithmException if there is a missing algorithm to generate certificate
+	 * @throws IOException if any I/O problem occurs
+	 * @throws OperatorCreationException if we can't sign the certificate
+	 * @throws CertificateException if we can't create the certificate
 	 */
 	public static KeyStore.PrivateKeyEntry generateKeyPair(KeyPairDetails options) throws NoSuchAlgorithmException, IOException, OperatorCreationException, CertificateException, IllegalArgumentException {
 		options.validate();
@@ -648,7 +647,7 @@ public class SSLUtils {
 		SubjectPublicKeyInfo pubKey;
 		try (InputStream der = new ByteArrayInputStream(rsaPublicKey.getEncoded());
 				ASN1InputStream asn1InputStream	= new ASN1InputStream(der)) {
-			pubKey = SubjectPublicKeyInfo.getInstance((ASN1Sequence) asn1InputStream.readObject());
+			pubKey = SubjectPublicKeyInfo.getInstance(asn1InputStream.readObject());
 		}
 
 		// name of the certificate (RDN) -> OU=Group,O=Org,CN=Myself

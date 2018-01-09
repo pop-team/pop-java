@@ -133,7 +133,7 @@ public class Interface {
 	
 	/**
 	 * Get the remote caller of the host the object is connected to.
-	 * @return 
+	 * @return the remote object connection
 	 */
 	public POPRemoteCaller getRemote() {
 		return combox.getRemoteCaller();
@@ -380,8 +380,8 @@ public class Interface {
 
 	/**
 	 * Get the current binding status 
-	 * @param bindStatus	
-	 * @throws POPException
+	 * @param bindStatus	status
+	 * @throws POPException	remote exception check, caused by
 	 */
 	private void bindStatus(BindStatus bindStatus) throws POPException {
 		if (combox == null){
@@ -534,7 +534,7 @@ public class Interface {
 	 * Try a local execution for the associated parallel object
 	 * @param objectName	Name of the object
 	 * @param accesspoint	Output parameter - Access point of the object
-	 * @param od
+	 * @param od the object description
 	 * @return true if the local execution succeed
 	 * @throws POPException thrown if any exception occurred during the creation process
 	 */
@@ -673,8 +673,8 @@ public class Interface {
 	
 	/**
 	 * Lookup local code manager for the binary source....
-	 * @param objectName
-	 * @return
+	 * @param objectName the name of the object {@link Class#getName()}
+	 * @return the remote code location
 	 */
 	private static String getRemoteCodeFile(String objectName){
 		if (objectName.equals(POPAppService.class.getName())
@@ -961,9 +961,9 @@ public class Interface {
 
 	/**
 	 * Receive response from the broker-side
-	 * @param buffer
-	 * @return
-	 * @throws POPException
+	 * @param buffer the buffer
+	 * @return 0 or an exception
+	 * @throws POPException connection failed
 	 */
 	protected int popResponse(POPBuffer buffer, int requestId) throws POPException {
 		

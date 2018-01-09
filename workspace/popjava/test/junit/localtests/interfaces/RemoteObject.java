@@ -1,11 +1,9 @@
 package junit.localtests.interfaces;
 
 import popjava.PopJava;
-import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPConfig.Type;
-import popjava.annotation.POPObjectDescription;
 import popjava.annotation.POPSyncConc;
 import popjava.base.POPObject;
 

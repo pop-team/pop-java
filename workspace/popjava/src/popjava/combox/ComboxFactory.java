@@ -15,7 +15,7 @@ public abstract class ComboxFactory {
 	 * Create a new client combox with the given access point
 	 * @param networkUUID	The network we are using
 	 * @return	The combox created
-	 * @throws java.io.IOException
+	 * @throws java.io.IOException if any problem occurs
 	 */
 	public abstract Combox createClientCombox(String networkUUID) throws IOException;
 
@@ -25,7 +25,7 @@ public abstract class ComboxFactory {
 	 * @param buffer		The buffer for sending and receiving
 	 * @param broker		The broker associated with this combox
 	 * @return	The combox server created	
-	 * @throws java.io.IOException	
+	 * @throws java.io.IOException if any problem occurs
 	 */
 	public abstract ComboxServer createServerCombox(AccessPoint accessPoint,
 			POPBuffer buffer, Broker broker) throws IOException;
@@ -37,15 +37,15 @@ public abstract class ComboxFactory {
 	 * @param buffer		The buffer for sending and receiving
 	 * @param broker		The broker associated with this combox
 	 * @return	The combox server created	
-	 * @throws java.io.IOException	
+	 * @throws java.io.IOException if any problem occurs
 	 */
 	public abstract ComboxServer createServerCombox(AccessPoint accessPoint,
 			int timeout, POPBuffer buffer, Broker broker) throws IOException;
 
 	/**
 	 * Create and allocation combox when instantiating a new remote object
-	 * @return 
-	 * @throws java.io.IOException 
+	 * @return the object which way for a broker connection
+	 * @throws java.io.IOException if any problem occurs
 	 */
 	public abstract ComboxAllocate createAllocateCombox() throws IOException;
 	
@@ -57,7 +57,7 @@ public abstract class ComboxFactory {
 	
 	/**
 	 * Mark if the protocol used by this Combox is secure or not
-	 * @return 
+	 * @return true if the factory is secure
 	 */
 	public abstract boolean isSecure();
 	

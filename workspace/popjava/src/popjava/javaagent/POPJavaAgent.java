@@ -48,7 +48,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
     /**
      * Constructor of the POPJavaAgent,
      * should only be called by the static premain method in this class.
-     * @param instrumentation
+     * @param instrumentation the instrumentation
      */
     private POPJavaAgent(final Instrumentation instrumentation){
         //Create the default ClassPool, which is built from the CLASSPATH
@@ -89,8 +89,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
      * It registers this class as the JavaAgent to be loaded
      * to transform all POPJava classes loaded by the classloader.
      * 
-     * @param agentArgs
-     * @param inst
+     * @param agentArgs arguments for the java agent
+     * @param inst the instrumentation
      */
     public static void premain( final String agentArgs, final Instrumentation inst )
     {
@@ -99,8 +99,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
 
     /**
      * Returns true if the specified class is in an ignored package
-     * @param className
-     * @return
+     * @param className the class we are treating
+     * @return true if we should ignore this class
      */
     private boolean isInIgnoredPackage(String className){
         for(String packageName: IGNORED){
@@ -144,7 +144,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
     @Override
     public byte[] transform(final ClassLoader loader, final String className,
             final Class<?> classBeingRedefined, final ProtectionDomain protectionDomain,
-            final byte[] classfileBuffer) throws IllegalClassFormatException {
+            final byte[] classfileBuffer) {
         if(classPool == null){
             return null;
         }
@@ -248,7 +248,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
         return null;
     }
     
-    private void checkMethodParameters(CtMethod method) throws NotFoundException, ClassNotFoundException, CannotCompileException{
+    private void checkMethodParameters(CtMethod method) throws ClassNotFoundException, CannotCompileException{
     	try {
     		for(CtClass parameter : method.getParameterTypes()){
                 final POPClass popClass = (POPClass)parameter.getAnnotation(POPClass.class);
@@ -339,10 +339,10 @@ public final class POPJavaAgent implements ClassFileTransformer{
             /**
              * TODO:
              * Intercept calls on this.method();
-             * @throws CannotCompileException 
+             * @throws CannotCompileException cannot recompile class
              */
             @Override
-            public void edit(MethodCall call) throws CannotCompileException{
+            public void edit(MethodCall call) {
                 if(isInIgnoredPackage(call.getClassName())){
                     return;
                 }
@@ -363,8 +363,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
     
     /**
      * Returns true if this class or any of its super classes has the @POPClass annotation
-     * @param rawClass
-     * @return
+     * @param rawClass the class we are treating
+     * @return if it's a pop class
      */
     private boolean isPOPClass(final CtClass rawClass){
         try {
@@ -405,8 +405,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
     /**
      * Returns true if this class has the @POPClass annotation and its super class
      * is the java.lang.Object class
-     * @param rawClass
-     * @return
+     * @param rawClass the class we are treating
+     * @return if a superclass is needed
      */
     private boolean classNeedsSuperclass(final CtClass rawClass){
         try {
@@ -427,9 +427,9 @@ public final class POPJavaAgent implements ClassFileTransformer{
     
     /**
      * Returns true if this class has a default constructor.
-     * @param rawClass
-     * @return
-     * @throws NotFoundException
+     * @param rawClass the class we are treating
+     * @return if there is a default constructor
+     * @throws NotFoundException there is no public constructor
      */
     private boolean hasDefaultConstructor(final CtClass rawClass) throws NotFoundException{
         boolean hasDefaultConstructor = false;

@@ -25,19 +25,19 @@ public class POPJavaDeamonConnector {
 
 	private final Socket socket;
 	
-	public POPJavaDeamonConnector(String url) throws UnknownHostException, IOException{
+	public POPJavaDeamonConnector(String url) throws IOException{
 		this(url, Configuration.getInstance().getPopJavaDeamonPort());
 	}
 	
-	public POPJavaDeamonConnector(String url, int port) throws UnknownHostException, IOException{
+	public POPJavaDeamonConnector(String url, int port) throws IOException{
 		socket = new Socket(url, port);
 	}
 	
 	/**
-	 * Sends a command to the remote deamon and closes the connection.
-	 * @param secret
-	 * @param command
-	 * @throws IOException
+	 * Sends a command to the remote daemon and closes the connection.
+	 * @param secret a secret to mask the connection parameter
+	 * @param command the command to execute
+	 * @throws IOException any i/o related problem
 	 */
 	public boolean sendCommand(String secret, List<String> command) throws IOException{
 		BufferedReader reader = new BufferedReader(

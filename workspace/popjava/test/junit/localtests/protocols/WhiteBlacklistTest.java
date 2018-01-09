@@ -109,7 +109,7 @@ public class WhiteBlacklistTest {
 	@SuppressWarnings("unchecked")
 	public void useWhitelist() {
 		conf.setProtocolsBlacklist(Collections.EMPTY_SET);
-		conf.setProtocolsWhitelist(new HashSet<>(Arrays.asList(new String[] { "socket" })));
+		conf.setProtocolsWhitelist(new HashSet<>(Arrays.asList("socket")));
 		System.out.println("Whitelist:");
 		Set<String> got = startAndCheck();
 		assertEquals("only socket should be visible", 1, got.size());
@@ -119,7 +119,7 @@ public class WhiteBlacklistTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void useBlacklist() {
-		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList(new String[] { "ssl" })));
+		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList("ssl")));
 		conf.setProtocolsWhitelist(Collections.EMPTY_SET);
 		System.out.println("Blacklist:");
 		Set<String> got = startAndCheck();
@@ -128,8 +128,8 @@ public class WhiteBlacklistTest {
 	
 	@Test
 	public void useBothLists() {
-		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList(new String[] { "ssl" })));
-		conf.setProtocolsWhitelist(new HashSet<>(Arrays.asList(new String[] { "ssl", "socket" })));
+		conf.setProtocolsBlacklist(new HashSet<>(Arrays.asList("ssl")));
+		conf.setProtocolsWhitelist(new HashSet<>(Arrays.asList("ssl", "socket")));
 		System.out.println("Both lists:");
 		Set<String> got = startAndCheck();
 		assertFalse("ssl is blacklisted", got.contains("ssl"));

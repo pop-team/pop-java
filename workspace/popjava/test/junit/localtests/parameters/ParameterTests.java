@@ -56,7 +56,7 @@ public class ParameterTests {
         POPSystem.initialize();
         ParameterObject test = PopJava.newActive(ParameterObject.class);
         
-        test.impossibleParam(new ArrayList<String>());
+        test.impossibleParam(new ArrayList<>());
         
         POPSystem.end();
     }
