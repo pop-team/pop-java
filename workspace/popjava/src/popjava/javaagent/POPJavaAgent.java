@@ -53,10 +53,16 @@ public final class POPJavaAgent implements ClassFileTransformer{
     private POPJavaAgent(final Instrumentation instrumentation){
         //Create the default ClassPool, which is built from the CLASSPATH
         classPool = ClassPool.getDefault();
-        
+                
         // Add our transformer to the list of transformers
         instrumentation.addTransformer( this );
         
+        try {
+			classPool.appendPathList(System.getProperty("java.class.path"));
+		} catch (NotFoundException e) {
+			e.printStackTrace();
+		}
+                
         //TODO: make a more complete list
         IGNORED.add("popjava.");
         IGNORED.add("com.sun.");
@@ -121,6 +127,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
             }
         } catch (NotFoundException e) {
             e.printStackTrace();
+            System.out.println("!!!!! "+System.getProperty("java.class.path"));
+            System.out.println("!!!!! "+classPool.toString());
         }       
         
         return false;
@@ -241,13 +249,18 @@ public final class POPJavaAgent implements ClassFileTransformer{
     }
     
     private void checkMethodParameters(CtMethod method) throws NotFoundException, ClassNotFoundException, CannotCompileException{
-        for(CtClass parameter : method.getParameterTypes()){
-            final POPClass popClass = (POPClass)parameter.getAnnotation(POPClass.class);
-            
-            if(popClass != null && !popClass.isDistributable()){
-                throw new CannotCompileException("Can not pass "+parameter.getName() +" as parameter to "+method.getLongName());
+    	try {
+    		for(CtClass parameter : method.getParameterTypes()){
+                final POPClass popClass = (POPClass)parameter.getAnnotation(POPClass.class);
+                
+                if(popClass != null && !popClass.isDistributable()){
+                    throw new CannotCompileException("Can not pass "+parameter.getName() +" as parameter to "+method.getLongName());
+                }
             }
-        }
+    	}catch (NotFoundException e) {
+    		e.printStackTrace();
+		}
+        
     }
     
     private void instrumentCode(final ClassLoader loader, final CtBehavior method) throws CannotCompileException{
@@ -295,7 +308,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     }
                     
                     //System.out.println(f.getClassName()+" FieldAccess: "+f.getFieldName()+" "+f.getSignature());
-                    CtClass clazz;
+                    CtClass clazz = null;
                     try {
                         clazz = f.getField().getType();
                         if(isPOPClass(clazz)){
@@ -317,6 +330,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
                         }
                     } catch (NotFoundException e) {
                         e.printStackTrace();
+                        
                     }                
                     
                 }
@@ -345,13 +359,6 @@ public final class POPJavaAgent implements ClassFileTransformer{
         };
         
         method.instrument(ed);
-    }
-    
-    private boolean isPOPMethod(CtMethod method){
-        if(Modifier.isPublic(method.getModifiers())){
-            return true;
-        }
-        return false;
     }
     
     /**

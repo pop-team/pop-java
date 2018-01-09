@@ -24,6 +24,7 @@ INSTALLING POP-Java
 
 .. code::
 
+  $ ./gradlew prepareRelease
   $ ./install
 
 You might use sudo or to be root tu execute "make install" if you do not have the right to write in the destination folder.

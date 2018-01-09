@@ -53,7 +53,7 @@ public class Interface {
 	protected POPAccessPoint popAccessPoint = new POPAccessPoint();
 	protected ObjectDescription od = new ObjectDescription();
 
-	private AtomicInteger requestID = new AtomicInteger(10000);
+	private final AtomicInteger requestID = new AtomicInteger(10000);
 	
 	private static final Configuration conf = Configuration.getInstance();
 	
@@ -795,10 +795,17 @@ public class Interface {
 			argvList.add(1, "-Xmx"+od.getMemoryReq()+"m");
 		}*/
 		
-		if(codeFile.startsWith("java") && conf.isActivateJmx()){
-			argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
-			argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
-			argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");
+		if(codeFile.startsWith("java")){
+
+			argvList.add(1, "--add-opens=java.base/java.lang=ALL-UNNAMED");
+			argvList.add(1, "-XX:+IgnoreUnrecognizedVMOptions");
+			
+			if(conf.isActivateJmx()) {
+				argvList.add(1, "-Dcom.sun.management.jmxremote.port="+(int)(Math.random() * 1000+3000));
+				argvList.add(1, "-Dcom.sun.management.jmxremote.ssl=false");
+				argvList.add(1, "-Dcom.sun.management.jmxremote.authenticate=false");
+			}
+			
 		}
 		
 		if(od.getJVMParameters() != null && !od.getJVMParameters().isEmpty()){
