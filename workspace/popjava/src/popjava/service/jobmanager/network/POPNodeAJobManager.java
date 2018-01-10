@@ -9,6 +9,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.POPString;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.util.Configuration;
+import popjava.util.LogWriter;
 import popjava.util.Util;
 
 /**
@@ -96,6 +97,7 @@ public abstract class POPNodeAJobManager extends POPNode {
 			POPString val = new POPString();
 			jm.query("power", val);
 		} catch (Exception e) {
+			LogWriter.writeDebugInfo("[NodeJM] Connection lost with [%s], opening new one", getJobManagerAccessPoint());
 			jm = PopJava.connect(POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());
 		}
 		return jm;

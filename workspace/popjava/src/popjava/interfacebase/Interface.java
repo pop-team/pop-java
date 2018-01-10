@@ -955,7 +955,7 @@ public class Interface {
 	protected void popDispatch(POPBuffer buffer) {
 		int length = combox.send(buffer);
 		if (length < 0) {
-			throw POPException.throwComboxNotAvailableException();
+            throw new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE, "Connection closed remotely while sending");
 		}
 	}
 
@@ -974,7 +974,9 @@ public class Interface {
 				int errorCode = messageHeader.getExceptionCode();
 				POPBuffer.checkAndThrow(errorCode, buffer);
 			}
-		}
+		} else {
+		    throw new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE, "Connection closed remotely while receiving");
+        }
 		return 0;
 	}
 

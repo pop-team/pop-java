@@ -30,7 +30,7 @@ public final class Configuration {
 	private enum Settable {
 		SYSTEM_JOBMANAGER_CONFIG,
 		DEBUG,
-		DEBUG_COMBOBOX,
+		DEBUG_COMBOX,
 		RESERVE_TIMEOUT,
 		ALLOC_TIMEOUT,
 		CONNECTION_TIMEOUT,
@@ -356,7 +356,7 @@ public final class Configuration {
 	}
 
 	public void setDebugCombox(boolean debugCombox) {
-		setUserProp(Settable.DEBUG_COMBOBOX, debugCombox);
+		setUserProp(Settable.DEBUG_COMBOX, debugCombox);
 		this.debugCombox = debugCombox;
 	}
 
@@ -629,7 +629,7 @@ public final class Configuration {
 							if (ENV_DEBUG == null) {
 								debug = Boolean.parseBoolean(value); break;
 							}
-						case DEBUG_COMBOBOX:                     debugCombox = Boolean.parseBoolean(value); break;
+						case DEBUG_COMBOX:                     debugCombox = Boolean.parseBoolean(value); break;
 						case RESERVE_TIMEOUT:                    reserveTimeout = Integer.parseInt(value); break;
 						case ALLOC_TIMEOUT:                      allocTimeout = Integer.parseInt(value); break;
 						case CONNECTION_TIMEOUT:                 connectionTimeout = Integer.parseInt(value); break;

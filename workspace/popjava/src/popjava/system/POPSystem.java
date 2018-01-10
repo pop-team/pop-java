@@ -60,7 +60,7 @@ public class POPSystem {
 	/**
 	 * POP-Java Job service access point
 	 */
-	public static final POPAccessPoint jobService = new POPAccessPoint();
+	public static POPAccessPoint jobService = new POPAccessPoint();
 	private static AppService coreServiceManager;
 	private static POPJobService jobmanager;
 	

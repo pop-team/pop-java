@@ -248,7 +248,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 					//A requestID of -1 (client or server) indicates that the requestID should be ignored
 					if(requestId == -1 || requestIdPacket == -1 || requestIdPacket == requestId){
 						gotPacket = true;
-						
+
 						result = 8;
 						buffer.putInt(messageLength);
 						messageLength = messageLength - 4;
@@ -269,7 +269,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 							}
 						}
 					}else{
-						//System.out.println("RESET "+requestIdPacket+" "+requestId);
+						System.out.println("RESET "+requestIdPacket+" "+requestId);
 						inputStream.reset();
 						//Thread.yield();
 					}
@@ -306,8 +306,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 			buffer.packMessageHeader();
 			final int length = buffer.size();
 			final byte[] dataSend = buffer.array();
-						
-			//System.out.println("Write "+length+" bytes to socket");			
+			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {
     			outputStream.write(dataSend, 0, length);
     			outputStream.flush();
