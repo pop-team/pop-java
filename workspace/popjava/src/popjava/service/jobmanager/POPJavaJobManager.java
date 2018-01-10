@@ -115,9 +115,6 @@ public class POPJavaJobManager extends POPJobService {
 	/** Default network UUID */
 	protected String defaultNetwork = null;
 
-	/** Last network added */
-	protected String lastNetwork = null;
-
 	/** Max number of jobs */
 	protected int maxJobs;
 
@@ -420,10 +417,7 @@ public class POPJavaJobManager extends POPJobService {
 					
 					// create directory if it doesn't exists and set OD.cwd
 					Path objectAppCwd = Paths.get(conf.getJobManagerExecutionBaseDirectory(), appId).toAbsolutePath();
-					// TODO Find a working solution with Files.setOwner(..)?
-					// TODO use a SystemUtil.something to create the directory, Windows doesn't support -m
-					String[] cmd = { "mkdir", "-m=775", objectAppCwd.toString() };
-					SystemUtil.runCmd(Arrays.asList(cmd), null, hostuser);
+					SystemUtil.mkdir(objectAppCwd, hostuser);
 					// ensure the directory is there, 200ms 
 					for (int j = 0; !Files.exists(objectAppCwd) && j < 20; j++) {
 						Thread.sleep(10);
@@ -1315,20 +1309,16 @@ public class POPJavaJobManager extends POPJobService {
 	@POPAsyncSeq
 	protected void cleanup() {
 		for (Iterator<AppResource> iterator = cleanupJobs.iterator(); iterator.hasNext();) {
-			try {
-				AppResource job = iterator.next();
-				Path appDirectory = job.getAppDirectory();
-				if (appDirectory == null) {
-					continue;
+			AppResource job = iterator.next();
+			Path appDirectory = job.getAppDirectory();
+			if (appDirectory == null) {
+				continue;
+			}
+			if (Files.exists(appDirectory) && appDirectory.toFile().list().length == 0) {
+				SystemUtil.rmdir(appDirectory, conf.getJobmanagerExecutionUser());
+				if (!Files.exists(appDirectory)) {
+					iterator.remove();
 				}
-				if (Files.exists(appDirectory) && appDirectory.toFile().list().length == 0) {
-					Files.deleteIfExists(appDirectory);
-					if (!Files.exists(appDirectory)) {
-						iterator.remove();
-					}
-				}
-			} catch(IOException e) {
-				LogWriter.writeExceptionLog(e);
 			}
 		}
 	}

@@ -2,6 +2,7 @@ package popjava.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -90,6 +91,77 @@ public class SystemUtil {
 	}
 
 	/**
+	 * Create a new directory via command line, it's possible of doing this using a different user if preconfigured.
+	 * @param dir directory we want to create
+	 * @param executeAs the user we want the directory to be created with, can be null
+	 * @return true if create correctly, false otherwise
+	 */
+	public static boolean mkdir(Path dir, String executeAs) {
+		Util.OSType os = Util.getOSType();
+		List<String> cmd = new ArrayList<>();
+		cmd.add("mkdir");
+		switch(os) {
+			case Windows:
+				cmd.add("/Q");
+				break;
+			case UNIX:
+			default:
+				cmd.add("-m=755");
+				cmd.add("-p");
+				break;
+		}
+		cmd.add(dir.toAbsolutePath().toString());
+		return runCmd(cmd, null, executeAs) == 0;
+	}
+
+	/**
+	 * Delete a file/directory via command line, it's possible of doing this using a different user if preconfigured.
+	 * To delete a directory it must be empty.
+	 * @param path file/directory we want to remove
+	 * @param executeAs the user we want the directory to be delete with, can be null
+	 * @return true if create correctly, false otherwise
+	 */
+	public static boolean rm(Path path, String executeAs) {
+		Util.OSType os = Util.getOSType();
+		List<String> cmd = new ArrayList<>();
+		switch(os) {
+			case Windows:
+				cmd.add("del");
+				cmd.add("/q");
+				break;
+			case UNIX:
+			default:
+				cmd.add("rm");
+				break;
+		}
+		cmd.add(path.toAbsolutePath().toString());
+		return runCmd(cmd, null, executeAs) == 0;
+	}
+
+	/**
+	 * Delete a directory via command line, it's possible of doing this using a different user if preconfigured.
+	 * The directory must be empty.
+	 * @param dir directory we want to remove
+	 * @param executeAs the user we want the directory to be delete with, can be null
+	 * @return true if create correctly, false otherwise
+	 */
+	public static boolean rmdir(Path dir, String executeAs) {
+		Util.OSType os = Util.getOSType();
+		List<String> cmd = new ArrayList<>();
+		cmd.add("rmdir");
+		switch(os) {
+			case Windows:
+				cmd.add("/Q");
+				break;
+			case UNIX:
+			default:
+				break;
+		}
+		cmd.add(dir.toAbsolutePath().toString());
+		return runCmd(cmd, null, executeAs) == 0;
+	}
+
+	/**
 	 * Run a new command
 	 * @param argvs arguments to pass to the new process
 	 * @param dir Working directory
@@ -158,6 +230,8 @@ public class SystemUtil {
 			case Windows: 
 				execute.add("RUNAS");
 				execute.add("/USER:" + user);
+				execute.add("/PROFILE");
+				execute.add("/SAVECRED");
 				execute.add("CMD");
 				execute.add("/K");
 				execute.add(command);
