@@ -15,10 +15,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -497,7 +494,7 @@ public final class Broker {
 					request.getClassId(), request.getMethodId(),
 					e.getMessage());
 		}
-		
+
 		if(method != null){
 			// cache the method and parameters annotations since they take a while to generate
 			if(!methodParametersAnnotationCache.containsKey(method)){
@@ -576,7 +573,7 @@ public final class Broker {
 						try {
 							responseBuffer.serializeReferenceObject(parameterTypes[index], parameters[index]);
 						} catch (POPException e) {
-							LogWriter.writeDebugInfo("[Broker] Excecption serializing parameter %s", parameterTypes[index].getName());
+							LogWriter.writeDebugInfo("[Broker] Exception serializing parameter %s", parameterTypes[index].getName());
 							exception = new POPException(e.errorCode, e.errorMessage);
 							break;
 						}
@@ -1126,7 +1123,7 @@ public final class Broker {
 			}
 		}
 		
-		// directories informations
+		// directories information
 		String objId = Util.generateUUID();
 		// create directories and setup their cleanup
 		RuntimeDirectoryThread runtimeCleanup = new RuntimeDirectoryThread(objId);
@@ -1206,8 +1203,13 @@ public final class Broker {
 		callback.send(buffer);
 		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 
+		// clean-up main method, help GC since treatRequests is an almost infinite loop
+		callback.close();
+		callback = null;
+		buffer = null;
+		argvList = null;
+
 		if (status == 0){
-		    callback.close();
 			broker.treatRequests();
 			broker.close();
 		}

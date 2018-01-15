@@ -400,6 +400,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 */
 	private void invokeExit() {
 		close();
+		decRef();
 	}
 
 	/**

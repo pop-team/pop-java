@@ -307,8 +307,8 @@ public class ComboxSocket extends Combox<Socket> {
 			if (conf.isDebugCombox()){
 				LogWriter.writeDebugInfo(this.getClass().getName()
 						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
-				LogWriter.writeExceptionLog(e);
 			}
+			close();
 			return -1;
 		}
 	}

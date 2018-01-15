@@ -315,14 +315,14 @@ public final class POPJavaAgent implements ClassFileTransformer{
                             
                             //System.out.println(f.where().toString());
                             
-                            String newAssign = "";
+                            String newAssign = "if ($1 == null) $0." + f.getFieldName() + " = $1; else ";
                             String baseStart = "$0."+f.getFieldName()+ " = ";
                             String baseEnd = "("+clazz.getName()+") (("+POPObject.class.getName()+")$1).makePermanent();";
                             if(clazz.equals(method.getDeclaringClass())){
                                 String potentialThisAssign = "$1 == this ? ("+clazz.getName()+")getThis("+clazz.getName()+".class): ";
-                                newAssign =  baseStart + potentialThisAssign + baseEnd;
+                                newAssign += baseStart + potentialThisAssign + baseEnd;
                             }else{
-                                newAssign = baseStart + baseEnd;
+                                newAssign += baseStart + baseEnd;
                             }
                             
                             //System.out.println(newAssign);
