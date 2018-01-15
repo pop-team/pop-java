@@ -81,8 +81,8 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 
 				peerConnection.sendUrgentData(-1);
 			}
-		} catch (IOException e) {
-		}finally{
+		} catch (IOException e) {}
+		finally {
 			try {
 				outputStream.close();
 			} catch (IOException e) {}
@@ -206,7 +206,7 @@ public class ComboxSecureSocket extends Combox<SSLSocket> {
 			
 			boolean gotPacket = false;
 			
-			do{
+			do {
 				synchronized (inputStream) {
 					inputStream.mark(8);
 					

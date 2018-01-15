@@ -448,10 +448,10 @@ public class Interface {
 		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.ADD_REF_CALL, Semantic.SYNCHRONOUS);
 		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
-		
-		popDispatch(popBuffer);
+
 		int result = 0;
 		try {
+			popDispatch(popBuffer);
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer, messageHeader.getRequestID());
 			result = responseBuffer.getInt();
@@ -465,15 +465,16 @@ public class Interface {
 		if (combox == null){
 			return -1;
 		}
+
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.DEC_REF_CALL, Semantic.SYNCHRONOUS);
 		messageHeader.setRequestID(requestID.incrementAndGet());
 		popBuffer.setHeader(messageHeader);
 
-		popDispatch(popBuffer);
 		int result = 0;
 		try {
+			popDispatch(popBuffer);
 			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
 			popResponse(responseBuffer, messageHeader.getRequestID());
 			result = responseBuffer.getInt();

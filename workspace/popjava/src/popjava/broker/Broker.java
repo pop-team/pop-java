@@ -1207,6 +1207,7 @@ public final class Broker {
 		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 
 		if (status == 0){
+		    callback.close();
 			broker.treatRequests();
 			broker.close();
 		}

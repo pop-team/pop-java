@@ -51,10 +51,8 @@ public class ComboxAcceptSocket implements Runnable {
 				if(broker != null){
 					broker.onNewConnection();
 				}
-				
-				synchronized (concurentConnections) {
-					concurentConnections.add(connection);
-				}
+
+				concurentConnections.add(connection);
 
 				ComboxSocket serverClient = new ComboxSocket();
 				if (serverClient.serverAccept(connection)) {
