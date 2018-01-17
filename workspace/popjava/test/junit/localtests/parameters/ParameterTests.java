@@ -38,8 +38,6 @@ public class ParameterTests {
     }
     
     @Test
-    @Ignore
-    //This does not work and should not work, but it should throw an exception
     public void testStringUTF16(){
         POPSystem.initialize();
         ParameterObject test = PopJava.newActive(ParameterObject.class);

@@ -7,6 +7,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.nio.charset.StandardCharsets;
 
 import popjava.base.MessageHeader;
 import popjava.util.LogWriter;
@@ -19,7 +20,7 @@ public class BufferRaw extends POPBuffer {
 	/**
 	 * Size of the buffer
 	 */
-	public static final int BUFFER_LENGTH = 20000;
+	public static final int BUFFER_LENGTH = 16384;
 	
 	/**
 	 * Byte buffer to store data
@@ -156,7 +157,7 @@ public class BufferRaw extends POPBuffer {
 			
 			position(position() + padding);
 			
-			return new String(data);
+			return new String(data, StandardCharsets.UTF_8);
 		} catch (Exception e) {
 			return "";
 		}
@@ -169,7 +170,7 @@ public class BufferRaw extends POPBuffer {
 			if ((length % 4) != 0){
 				this.position(this.position() + 4 - (length % 4));
 			}
-			return (new String(data)).trim();
+			return (new String(data, StandardCharsets.UTF_8)).trim();
 		} catch (Exception e) {			
 			return "";
 		}
@@ -257,27 +258,30 @@ public class BufferRaw extends POPBuffer {
 	
 	/**
      * http://www.javacodegeeks.com/2010/11/java-best-practices-char-to-byte-and.html
-     * Around 30% faster than String.getBytes()
+     * Around 30% faster than String.getBytes().
+	 *
+	 * To enable complex characters, we use UTF-8.
      * @param str the string to convert
      * @return the bytes of the string
      */
     private static byte[] stringToBytesASCII(String str) {
-    	final byte[] b = new byte[str.length()];
+    	/*final byte[] b = new byte[str.length()];
         for (int i = 0; i < b.length; i++) {
             b[i] = (byte) str.charAt(i);
             if(b[i] == 0){
                 throw new RuntimeException("Can no have 0 in a string");
             }
         }
-        return b;
+        return b;*/
+    	return str.getBytes(StandardCharsets.UTF_8);
     }
 
 	@Override
 	public void putString(String data) {
 		
 		if (data != null && data.length() > 0) {
-			int stringLength = data.length() + 1; //0 terminated
-			byte[] datas = stringToBytesASCII(data);
+			byte[] bytes = stringToBytesASCII(data);
+			int stringLength = bytes.length + 1; //0 terminated
 			
 			int padding = 0;
             
@@ -288,7 +292,7 @@ public class BufferRaw extends POPBuffer {
 			//Integrate putInt code so that resize is called only once
 			resize(stringLength + Integer.BYTES + padding);
 			buffer.putInt(stringLength);
-			buffer.put(datas);
+			buffer.put(bytes);
 			//buffer.put((byte) 0);//0 terminated
 			
 			for(int i = 0; i < padding + 1; i++){//0 terminated + padding (also 0)
