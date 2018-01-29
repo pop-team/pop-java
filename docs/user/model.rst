@@ -72,7 +72,7 @@ the user workstation. The results from different ``worker`` objects can be
 automatically synthesized and visualized inside ``output``.
 
 .. _fig-scenario:
-.. figure:: images/use_scenario.png
+.. figure:: ../images/use_scenario.png
 
    A scenario using shared parallel objects
 
@@ -109,7 +109,7 @@ described below (example of syntax in :ref:`dev`):
     (see :num:`fig-inv-async`).
 
     .. _fig-inv-async:
-    .. figure:: images/inv_async.png
+    .. figure:: ../images/inv_async.png
        :width: 10cm
 
        Callback method returning values from an asynchronous call
@@ -134,7 +134,7 @@ sequential methods. Concurrent invocation semantics guarantees neither the
 order nor the atomicity.
 
 .. _fig-inv-semantics:
-.. figure:: images/inv_semantics.png
+.. figure:: ../images/inv_semantics.png
 
    Example of different invocation requests
 
