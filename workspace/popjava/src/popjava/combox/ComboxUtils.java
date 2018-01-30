@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import javax.net.ServerSocketFactory;
+import popjava.system.POPSystem;
 import popjava.util.Configuration;
 
 /**
@@ -56,7 +57,7 @@ public class ComboxUtils {
 		do {
 			try {
 				op.preBind(server);
-				server.bind(new InetSocketAddress(port));
+				server.bind(new InetSocketAddress(POPSystem.getHostIP(), port));
 				working = true;
 			} catch (IOException ex) {
 				// close and dispose of old server, create new one
