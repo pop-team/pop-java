@@ -66,6 +66,11 @@ public final class POPNetworkDescriptor {
 	}
 
 	@Override
+	public String toString() {
+		return getGlobalName();
+	}
+
+	@Override
 	public int hashCode() {
 		int hash = 7;
 		hash = 43 * hash + Objects.hashCode(this.globalName);

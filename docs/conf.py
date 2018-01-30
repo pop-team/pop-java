@@ -47,7 +47,7 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
-year = 2014
+year = 2018
 authors = u'GRID & Cloud Computing Group'
 
 # General information about the project.

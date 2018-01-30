@@ -99,7 +99,7 @@ public class CKeystore implements ICommand {
 				}
 			}
 			
-			System.out.println("Genereting keystore...");
+			System.out.println("Generating keystore...");
 			SSLUtils.generateKeyStore(ksd, kpd);
 			
 			System.out.println("Saving configuration...");

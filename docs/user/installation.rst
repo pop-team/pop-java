@@ -195,16 +195,14 @@ Requirements
 In order to install POP-Java, some packages are required. Here is the list of
 required packages:
 
-* JDK 7 or higher
-* POP-C++ 2.5 or higher
-* JavaCC (optional)
+* JDK 8 or higher
 * Apache ANT (optional)
 
 
 Installation process
 ~~~~~~~~~~~~~~~~~~~~
 
-To install POP-Java we need to launch the command ``ant`` int the POP-Java
+To install POP-Java we need to launch the command ``./gradlew build`` int the POP-Java
 directory. Once the source code is compiled, launch the installation with the
 install script: ``sudo ./install``.
 This script will guide us through the installation by asking us some questions.

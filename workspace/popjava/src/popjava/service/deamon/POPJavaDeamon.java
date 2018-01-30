@@ -86,7 +86,7 @@ public class POPJavaDeamon implements Runnable, Closeable{
 	}
 	
 	public POPJavaDeamon(String password){
-		this(password, Configuration.getInstance().getPopJavaDeamonPort());
+		this(password, Configuration.getInstance().getPopJavaDaemonPort());
 	}
 	
 	public POPJavaDeamon(String password, int port){

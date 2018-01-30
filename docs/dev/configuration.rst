@@ -1,3 +1,4 @@
+.. _dev-configuration:
 Configuration
 =============
 
@@ -228,11 +229,11 @@ The process is done 4 steps.
         return myNewAttribute;
     }
     public void setMyNewAttribute(String value) {
-        USER_PROPERTIES.setProperty(Settable.MY_NEW_ATTRIBUTE.name(), value);
+        setUserProp(Settable.MY_NEW_ATTRIBUTE, value);
         myNewAttribute = value;
     }
 
-.. note:: Using ``USER_PROPERTIES`` enable us to save only the changed information if the User call ``store()``.
+.. note:: Using ``setUserProp`` enable us to save only the changed information if the User call ``store()``.
 
 4. Add the parsing rules in ``load``.
 
@@ -247,6 +248,6 @@ The process is done 4 steps.
 Remarks
 -------
 
-Java all Java version except Java 9, properties file are encoded with ISO-8859-1 which means that all character outside the first 256 byte will be encoded with its hexadecimal form ``\uXXXX``.
+All Java version except Java 9, properties file are encoded with ISO-8859-1 which means that all character outside the first 256 byte will be encoded with its hexadecimal form ``\uXXXX``.
 For this reason be on alert when using characters outside this charset manually.
 From Java 9 properties files are saved using UTF-8 so this problem shouldn't matter.

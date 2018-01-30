@@ -117,7 +117,7 @@ public final class Configuration {
 	
 	private String[] jobManagerProtocols = { "socket" };
 	private int[] jobManagerPorts = { 2711 };
-	private int popJavaDeamonPort = 43424;
+	private int popJavaDaemonPort = 43424;
 	private String jobManagerExecutionBaseDirectory = ".";
 	private String jobmanagerExecutionUser = null;
 	
@@ -163,174 +163,304 @@ public final class Configuration {
 		return instance;
 	}
 
+	/**
+	 * @return The location of the PopJava installation directory
+	 */
 	public String getPopJavaLocation() {
 		return POPJAVA_LOCATION;
 	}
 
+	/**
+	 * @return The location of the Job Manager configuration file
+	 */
 	public File getSystemJobManagerConfig() {
 		return systemJobManagerConfig;
 	}
 
+	/**
+	 * @return The location of the user configuration file, if given
+	 */
 	public File getUserConfig() {
 		return userConfig;
 	}
 
+	/**
+	 * @return true is a user configuration file is set
+	 */
 	public boolean isUsingUserConfig() {
 		return usingUserConfig;
 	}
 
+	/**
+	 * @return true if debug information will be displayed
+	 */
 	public boolean isDebug() {
 		return debug;
 	}
 
+	/**
+	 * @return true if the combox connection will print their debug information
+	 */
 	public boolean isDebugCombox() {
 		return debugCombox;
 	}
 
+	/**
+	 * @return how many ms after a job manager will drop a request
+	 */
 	public int getReserveTimeout() {
 		return reserveTimeout;
 	}
 
+	/**
+	 * @return how many ms a Interface should wait for a Broker to contact it
+	 */
 	public int getAllocTimeout() {
 		return allocTimeout;
 	}
 
+	/**
+	 * @return how many ms until a lost connection is dropped
+	 */
 	public int getConnectionTimeout() {
 		return connectionTimeout;
 	}
 
+	/**
+	 * @return interval in ms for the job manager to refresh itself
+	 */
 	public int getJobManagerUpdateInterval() {
 		return jobManagerUpdateInterval;
 	}
 
+	/**
+	 * @return interval in ms for the job manager to signal its present to its neighbors
+	 */
+	@Deprecated
 	public int getJobManagerSelfRegisterInterval() {
 		return jobManagerSelfRegisterInterval;
 	}
 
+	/**
+	 * @return the default approach a job manager will use in case none was expressed in the OD
+	 */
 	public String getJobManagerDefaultConnector() {
 		return jobManagerDefaultConnector;
 	}
 
+	/**
+	 * @return where the job manager should execute the object it will create
+	 */
 	public String getJobManagerExecutionBaseDirectory() {
 		return jobManagerExecutionBaseDirectory;
 	}
 
+	/**
+	 * @return the use which should be used to execute the object
+	 */
 	public String getJobmanagerExecutionUser() {
 		return jobmanagerExecutionUser;
 	}
 
+	/**
+	 * @return default timeout when looking for a single answer
+	 */
 	public int getSearchNodeUnlockTimeout() {
 		return searchNodeUnlockTimeout;
 	}
 
+	/**
+	 * @return default timeout when looking for multiple answers
+	 */
 	public int getSearchNodeSearchTimeout() {
 		return searchNodeSearchTimeout;
 	}
 
+	/**
+	 * @return default time a TFC research should last
+	 */
 	public int getTFCSearchTimeout() {
 		return tfcSearchTimeout;
 	}
 
+	/**
+	 * @return how many nodes should we explore
+	 */
 	public int getSearchNodeUnlimitedHops() {
 		return searchNodeUnlimitedHops;
 	}
 
+	/**
+	 * @return how many requests should be remember at the same time
+	 */
 	public int getSearchNodeMaxRequests() {
 		return searchNodeMaxRequests;
 	}
 
+	/**
+	 * @return how many visited nodes should be remember when searching
+	 */
 	public int getSearchNodeExplorationQueueSize() {
 		return searchNodeExplorationQueueSize;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getDefaultEncoding() {
 		return defaultEncoding;
 	}
 
+	/**
+	 * @return
+	 */
 	public String getSelectedEncoding() {
 		return selectedEncoding;
 	}
 
+	/**
+	 * @return default communication protocol
+	 */
 	public String getDefaultProtocol() {
 		return defaultProtocol;
 	}
 
+	/**
+	 * @return default POP network signaled
+	 */
 	public String getDefaultNetwork() {
 		return defaultNetwork;
 	}
 
+	/**
+	 * @return from where do we start allocating ports
+	 */
 	public int getAllocatePortRange() {
 		return allocatePortRange;
 	}
 
+	/**
+	 * @return is the constructor async
+	 */
 	public boolean isAsyncConstructor() {
 		return asyncConstructor;
 	}
 
+	/**
+	 * @return is jmx active for remote analysis
+	 */
 	public boolean isActivateJmx() {
 		return activateJmx;
 	}
 
+	/**
+	 * @return use the POPC job manager
+	 */
 	public boolean isConnectToPOPcpp() {
 		return connectToPOPcpp;
 	}
 
+	/**
+	 * @return use the Java job manager
+	 */
 	public boolean isConnectToJavaJobmanager() {
 		return connectToJavaJobmanager;
 	}
 
+	/**
+	 * @return print ssh output locally
+	 */
 	public boolean isRedirectOutputToRoot() {
 		return redirectOutputToRoot;
 	}
 
+	/**
+	 * @return use the available ssh command if possible
+	 */
 	public boolean isUseNativeSSHifPossible() {
 		return useNativeSSHifPossible;
 	}
 
+	/**
+	 * @return information on the keystore containing the private keys
+	 */
 	public KeyStoreDetails getSSLKeyStoreOptions() {
 		return new KeyStoreDetails(SSLKeyStoreOptions);
 	}
 
+	/**
+	 * @return which TLS version are we using
+	 */
 	public String getSSLProtocolVersion() {
 		return SSLProtocolVersion;
 	}
-	
+
+	/**
+	 * @return alias for {@link KeyStoreDetails#getKeyStoreFile()}
+	 */
 	public File getSSLKeyStoreFile() {
 		return SSLKeyStoreOptions.getKeyStoreFile();
 	}
 
+	/**
+	 * @return alias for {@link KeyStoreDetails#getKeyStorePassword()}
+	 */
 	public String getSSLKeyStorePassword() {
 		return SSLKeyStoreOptions.getKeyStorePassword();
 	}
 
+	/**
+	 * @return alias for {@link KeyStoreDetails#getPrivateKeyPassword()}
+	 */
 	public String getSSLKeyStorePrivateKeyPassword() {
 		return SSLKeyStoreOptions.getPrivateKeyPassword();
 	}
 
+	/**
+	 * @return alias for {@link KeyStoreDetails#getKeyStoreFormat()}
+	 */
 	public KeyStoreFormat getSSLKeyStoreFormat() {
 		return SSLKeyStoreOptions.getKeyStoreFormat();
 	}
 
+	/**
+	 * @return the location for this object temporary certificates
+	 */
 	public File getSSLTemporaryCertificateLocation() {
 		return SSLTemporaryCertificatesLocation;
 	}
 
+	/**
+	 * @return the ports to be used by the job manager
+	 */
 	public int[] getJobManagerPorts() {
 		return Arrays.copyOf(jobManagerPorts, jobManagerPorts.length);
 	}
 
+	/**
+	 * @return the protocols to the used by the job manger
+	 */
 	public String[] getJobManagerProtocols() {
 		return Arrays.copyOf(jobManagerProtocols, jobManagerProtocols.length);
 	}
 
-	public int getPopJavaDeamonPort() {
-		return popJavaDeamonPort;
+	/**
+	 * @return the port used by the object creation daemon
+	 */
+	public int getPopJavaDaemonPort() {
+		return popJavaDaemonPort;
 	}
 
+	/**
+	 * @return the only protocol we can use, unless in blacklist
+	 */
 	public Set<String> getProtocolsWhitelist() {
 		return Collections.unmodifiableSet(protocolsWhitelist);
 	}
 
+	/**
+	 * @return the protocols we can't use
+	 */
 	public Set<String> getProtocolsBlacklist() {
 		return Collections.unmodifiableSet(protocolsBlacklist);
 	}
@@ -533,9 +663,9 @@ public final class Configuration {
 		this.jobManagerProtocols = Arrays.copyOf(jobManagerProtocols, jobManagerProtocols.length);
 	}
 
-	public void setPopJavaDeamonPort(int popJavaDeamonPort) {
-		setUserProp(Settable.POP_JAVA_DEAMON_PORT, popJavaDeamonPort);
-		this.popJavaDeamonPort = popJavaDeamonPort;
+	public void setPopJavaDaemonPort(int popJavaDaemonPort) {
+		setUserProp(Settable.POP_JAVA_DEAMON_PORT, popJavaDaemonPort);
+		this.popJavaDaemonPort = popJavaDaemonPort;
 	}
 
 	public void setProtocolsWhitelist(Set<String> protocolsWhitelist) {
@@ -646,7 +776,7 @@ public final class Configuration {
 							}
 							break;
 						case JOBMANAGER_PROTOCOLS:               jobManagerProtocols = matchRegEx(value, "[\\w\\d]+"); break;
-						case POP_JAVA_DEAMON_PORT:               popJavaDeamonPort = Integer.parseInt(value); break;
+						case POP_JAVA_DEAMON_PORT:               popJavaDaemonPort = Integer.parseInt(value); break;
 						case SEARCH_NODE_UNLOCK_TIMEOUT:         searchNodeUnlockTimeout = Integer.parseInt(value); break;
 						case SEARCH_NODE_SEARCH_TIMEOUT:         searchNodeSearchTimeout = Integer.parseInt(value); break;
 						case SEARCH_NODE_MAX_REQUESTS:           searchNodeMaxRequests = Integer.parseInt(value); break;

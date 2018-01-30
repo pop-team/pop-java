@@ -565,8 +565,8 @@ public class CJobManager implements ICommand {
 				"  --host, -H          The destination host of the node\n" +
 				"  --port, -p          The destination port of the node\n" +
 				"  --protocol, -P      The node specific protocol (socket, ssl, daemon)\n" +
-				"  --certificate, -c   The node specific protocol (socket, ssl, daemon)\n" +
-				"Node specific options will be asked.";
+				"  --certificate, -c   The certificate for the SSL connection\n" +
+				"Node specific options will be asked if missing.";
 		}
 
 		@Override

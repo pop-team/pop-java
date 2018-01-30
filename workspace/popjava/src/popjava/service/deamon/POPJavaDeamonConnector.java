@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -26,7 +25,7 @@ public class POPJavaDeamonConnector {
 	private final Socket socket;
 	
 	public POPJavaDeamonConnector(String url) throws IOException{
-		this(url, Configuration.getInstance().getPopJavaDeamonPort());
+		this(url, Configuration.getInstance().getPopJavaDaemonPort());
 	}
 	
 	public POPJavaDeamonConnector(String url, int port) throws IOException{

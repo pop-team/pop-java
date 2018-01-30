@@ -22,6 +22,7 @@ This documentation is divided in three parts:
 
 * The :ref:`user-manual` targets the users of the POP-Java framework and
   describes how to develop and run POP-enabled Java applications.
+* The :ref:`tfc` manual regarding what is TFC and how to use it.
 * The :ref:`developer-manual` targets the developers of the POP-Java framework
   and contains guidelines and resources for the development process.
 * The :ref:`references` collect various reference documents, useful for both
@@ -45,6 +46,16 @@ This documentation is divided in three parts:
    user/configuration
    user/troubleshooting
    user/bibliography
+
+.. _tfc:
+
+.. toctree::
+   :maxdepth: 1
+   :caption: TFC
+
+   tfc/what.rst
+   tfc/usage.rst
+   tfc/advanced.rst
 
 .. ............................................................................
 

@@ -72,7 +72,7 @@ public class POPNodeDirect extends POPNode {
 		this.daemon = protocol != null && protocol.equals("daemon");
 		this.daemonSecret = secret;
 		// by default 22 if ssh, 43424 if daemon
-		this.port = !this.daemon ? 22 : Configuration.getInstance().getPopJavaDeamonPort();
+		this.port = !this.daemon ? 22 : Configuration.getInstance().getPopJavaDaemonPort();
 		// port need to be parsed
 		if (portString != null) {
 			try {
