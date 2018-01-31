@@ -84,7 +84,7 @@ public class CKeystore implements ICommand {
 			String alias = parameters.get("alias");
 			String rdn = parameters.get("rdn");
 			
-			KeyStoreDetails ksd = new KeyStoreDetails(storepass, keypass, new File(file));
+			KeyStoreDetails ksd = new KeyStoreDetails(storepass, keypass, new File(file).getAbsoluteFile());
 			KeyPairDetails kpd = new KeyPairDetails(alias);
 			
 			if (rdn != null) {
