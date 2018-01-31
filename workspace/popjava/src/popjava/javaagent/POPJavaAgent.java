@@ -5,7 +5,10 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javassist.ByteArrayClassPath;
@@ -166,7 +169,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
             
             // Only transform unfrozen popjava classes
             if(  !rawClass.isFrozen() && isPOPClass(rawClass) && !isProxy(rawClass)) {
-                //System.out.println("Transform "+dotClassName);
+                System.out.println("Transform "+dotClassName);
                 
                 final POPClass popClass = (POPClass)rawClass.getAnnotation(POPClass.class);
                 
@@ -195,7 +198,19 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     //TODO: create default constructor
                 }
                 
+                Set<CtMethod> methods = new HashSet<>();
+                
+                for( final CtMethod method: rawClass.getDeclaredMethods())
+                {
+                	methods.add(method);
+                }
+                
                 for( final CtMethod method: rawClass.getMethods())
+                {
+                	methods.add(method);
+                }
+                
+                for( final CtMethod method: methods)
                 {
                     //System.out.println(method.getName());
                     //TODO: correctly identify main method
@@ -264,7 +279,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
     }
     
     private void instrumentCode(final ClassLoader loader, final CtBehavior method) throws CannotCompileException{
-        
+
         ExprEditor ed = new ExprEditor(){
             
             /**
@@ -273,8 +288,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
             @Override
             public void edit(NewExpr e)
                     throws CannotCompileException {
-                
-                try {
+                try {                	
                     if(isInIgnoredPackage(e.getClassName())){
                         return;
                     }
@@ -287,7 +301,6 @@ public final class POPJavaAgent implements ClassFileTransformer{
                         e.replace(newCall);
                     }
                 } catch (NotFoundException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
             }
@@ -301,7 +314,7 @@ public final class POPJavaAgent implements ClassFileTransformer{
              * this.a = this;
              */
             @Override
-            public void edit(FieldAccess f) throws CannotCompileException {
+            public void edit(FieldAccess f) throws CannotCompileException {            	
                 if(f.isWriter()){
                     if(isInIgnoredPackage(f.getClassName())){
                         return;
@@ -340,9 +353,14 @@ public final class POPJavaAgent implements ClassFileTransformer{
              * TODO:
              * Intercept calls on this.method();
              * @throws CannotCompileException cannot recompile class
-             */
+             
             @Override
             public void edit(MethodCall call) {
+
+            	if("DistributedServerPOPJava.java".equals(call.getFileName())) {
+            		System.out.println("!!!!! Q "+call.getjLineNumber()+" "+call.getMethodName()+" "+method.getName());
+            	}
+            	
                 if(isInIgnoredPackage(call.getClassName())){
                     return;
                 }
@@ -354,8 +372,8 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     }
                 } catch (NotFoundException e) {
                     e.printStackTrace();
-                }*/
-            }
+                }
+            }*/
         };
         
         method.instrument(ed);
