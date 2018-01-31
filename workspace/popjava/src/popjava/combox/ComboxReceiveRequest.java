@@ -31,7 +31,6 @@ public final class ComboxReceiveRequest implements Runnable {
 	 * @param broker		The associated broker
 	 * @param requestQueue	The associated request queue
 	 * @param combox		The associated combox
-	 * @throws IOException	Thrown if any exception occurred during the process 
 	 */
 	public ComboxReceiveRequest(Broker broker,
 			RequestQueue requestQueue, Combox combox) {

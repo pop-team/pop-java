@@ -87,7 +87,7 @@ public class MethodUtil {
 	 * Generate an ID or use the one specified
 	 * 
 	 * @param method the method we want the ID of
-	 * @return a numeric positive id (> 0)
+	 * @return a numeric positive id (greater than 0)
 	 */
 	public static int methodId(Method method){
 	    int id = -1;

@@ -45,7 +45,6 @@ public class ComboxSocket extends Combox<Socket> {
 	 * This is used by ServerCombox (server).
 	 * Create a new combox from a server.
 	 * Call {@link #serverAccept(java.lang.Object)   } to let the client connect.
-	 * @throws IOException	Thrown is any IO exception occurred during the creation
 	 */
 	public ComboxSocket() {
 		super();

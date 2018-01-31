@@ -483,7 +483,7 @@ public class SSLUtils {
 			"popjava.interfacebase.Interface.deserialize"
 		);*/
 		ensureManagerCreation();
-		try {			
+		try {
 			// load it
 			Certificate cert = certificateFromBytes(certificate);
 			
@@ -496,8 +496,8 @@ public class SSLUtils {
 			String fingerprint = SSLUtils.certificateFingerprint(cert);
 			String outName = fingerprint + ".cer";
 			
-			// certificates temprary path
-			Path path = Paths.get(conf.getSSLTemporaryCertificateLocation().toString(), outName);
+			// certificates temporary path
+			Path path = conf.getSSLTemporaryCertificateLocation().toPath().resolve(outName);
 			// move to local directory
 			Files.write(path, certificate);
 			
