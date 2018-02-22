@@ -57,7 +57,7 @@ public class ComboxUtils {
 		do {
 			try {
 				op.preBind(server);
-				server.bind(new InetSocketAddress(POPSystem.getHostIP(), port));
+				server.bind(new InetSocketAddress(port));
 				working = true;
 			} catch (IOException ex) {
 				// close and dispose of old server, create new one

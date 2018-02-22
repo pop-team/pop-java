@@ -133,6 +133,11 @@ Similarly to how we add network, a command exists in order to add friendly nodes
 
     When working with ``ssl`` a certificate is needed and the connection will be encrypted, while ``socket`` will be unencrypted.
 
+Executing object as another user
+--------------------------------
+
+Generally speaking the Job Manager on a machine has access to sensitive information like the content of the keystore. We don't want anyone except the system administrator to be able to modify those files.
+
 Other options
 -------------
 
