@@ -1,5 +1,7 @@
 package popjava.service.jobmanager;
 
+
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,39 +28,41 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
+
 import popjava.PopJava;
 import popjava.annotation.POPAsyncConc;
 import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPSyncSeq;
 import popjava.annotation.POPClass;
 import popjava.annotation.POPConfig;
 import popjava.annotation.POPConfig.Type;
 import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPParameter.Direction;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
 import popjava.annotation.POPParameter;
+import popjava.annotation.POPParameter.Direction;
 import popjava.annotation.POPSyncConc;
+import popjava.annotation.POPSyncSeq;
 import popjava.base.POPErrorCode;
 import popjava.base.POPException;
 import popjava.baseobject.AccessPoint;
+import popjava.baseobject.ObjectDescription;
+import popjava.baseobject.POPAccessPoint;
 import popjava.codemanager.AppService;
 import popjava.dataswaper.POPMutableFloat;
 import popjava.dataswaper.POPString;
-import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
-import popjava.service.jobmanager.network.POPNodeJobManager;
-import popjava.service.jobmanager.network.POPNetwork;
-import popjava.service.jobmanager.network.POPNode;
+import popjava.service.jobmanager.external.POPNetworkDetails;
 import popjava.service.jobmanager.network.POPConnector;
-import popjava.service.jobmanager.network.POPNetworkDescriptor;
 import popjava.service.jobmanager.network.POPConnectorSearchNodeInterface;
 import popjava.service.jobmanager.network.POPConnectorTFC;
+import popjava.service.jobmanager.network.POPNetwork;
+import popjava.service.jobmanager.network.POPNetworkDescriptor;
+import popjava.service.jobmanager.network.POPNode;
 import popjava.service.jobmanager.network.POPNodeAJobManager;
+import popjava.service.jobmanager.network.POPNodeJobManager;
 import popjava.service.jobmanager.network.POPNodeTFC;
 import popjava.service.jobmanager.search.SNExploration;
 import popjava.service.jobmanager.search.SNNodesInfo;
@@ -66,12 +70,11 @@ import popjava.service.jobmanager.search.SNRequest;
 import popjava.service.jobmanager.search.SNResponse;
 import popjava.service.jobmanager.search.SNWayback;
 import popjava.service.jobmanager.tfc.TFCResource;
-import popjava.service.jobmanager.yaml.YamlJobManager;
+import popjava.service.jobmanager.yaml.PropertyReverser;
 import popjava.service.jobmanager.yaml.YamlConnector;
+import popjava.service.jobmanager.yaml.YamlJobManager;
 import popjava.service.jobmanager.yaml.YamlNetwork;
 import popjava.service.jobmanager.yaml.YamlResource;
-import popjava.service.jobmanager.yaml.PropertyReverser;
-import popjava.service.jobmanager.external.POPNetworkDetails;
 import popjava.serviceadapter.POPAppService;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPJavaConfiguration;
@@ -79,10 +82,13 @@ import popjava.system.POPSystem;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
-import popjava.util.Util;
 import popjava.util.SystemUtil;
+import popjava.util.Util;
 import popjava.util.ssl.KeyPairDetails;
 import popjava.util.ssl.KeyStoreDetails;
+import popjava.util.ssl.SSLUtils;
+
+
 
 @POPClass
 public class POPJavaJobManager extends POPJobService {
@@ -162,6 +168,13 @@ public class POPJavaJobManager extends POPJobService {
 		configurationFile = new File(conf);
 		init(configurationFile);
 	}
+	
+   @POPObjectDescription(jvmParameters = "-Xmx512m")
+    public POPJavaJobManager(@POPConfig(Type.URL) String url, @POPConfig(Type.PROTOCOLS) String[] protocols, String conf,
+            @POPConfig(Type.LOCAL_JVM) boolean localJVM) {
+        configurationFile = new File(conf);
+        init(configurationFile);
+    }
 
 	@POPObjectDescription(jvmParameters = "-Xmx512m")
 	public POPJavaJobManager(@POPConfig(Type.URL) String url, String conf) {
