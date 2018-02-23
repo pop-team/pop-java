@@ -876,6 +876,10 @@ public final class Broker {
 	 * Close all create servers etc
 	 */
 	private void close() {
+		if(comboxServers == null) {
+			return ;
+		}		
+		
 		for (ComboxServer comboxServer : comboxServers) {
 			comboxServer.close();
 		}
