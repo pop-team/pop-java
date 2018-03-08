@@ -23,27 +23,26 @@ public class UPNPManager {
 	
 	private static final Set<Integer> mappedPorts = new HashSet<Integer>();
 	
+	private static boolean inited = false;
+	
 	private static void init() {
-		if(d == null) {
+		if(!inited) {
 			try {
 				discover.discover();
 				d = discover.getValidGateway();
 			} catch (SocketException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (SAXException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			inited = true;
 		}
 	}
 	
@@ -67,7 +66,7 @@ public class UPNPManager {
 			
 			PortMappingEntry portMapping = new PortMappingEntry();
 			
-			if (!d.getSpecificPortMappingEntry(port,"TCP",portMapping)) {
+			if (d.getSpecificPortMappingEntry(port,"TCP",portMapping)) {
 				LogWriter.writeDebugInfo("Port "+port+" is already forwarded");
 			} else {
 				LogWriter.writeDebugInfo("Sending port mapping request");
