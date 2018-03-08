@@ -6,12 +6,15 @@ import org.junit.Test;
 
 import popjava.PopJava;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 import testsuite.integer.Integer;
 
 public class IntegerTest {
 
 	@Test
 	public void testInteger(){
+		Configuration.getInstance().setDebug(true);
+		
 		POPSystem.initialize();
 		Integer i1 = (Integer) PopJava.newActive(Integer.class);
 		Integer i2 = (Integer) PopJava.newActive(Integer.class);

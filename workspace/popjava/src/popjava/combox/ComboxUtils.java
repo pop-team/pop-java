@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import javax.net.ServerSocketFactory;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
+import popjava.util.upnp.UPNPManager;
 
 /**
  * Some utility method used by multiple Comboxes
@@ -76,6 +77,9 @@ public class ComboxUtils {
 				}
 			}
 		} while (!working);
+		
+		UPNPManager.registerPort(server.getLocalPort());
+		
 		return server;
 	}
 	

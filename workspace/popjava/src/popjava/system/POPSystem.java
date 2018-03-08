@@ -41,6 +41,7 @@ import popjava.util.RuntimeDirectoryThread;
 import popjava.util.SystemUtil;
 import popjava.util.Util;
 import popjava.util.Util.OSType;
+import popjava.util.upnp.UPNPManager;
 
 /**
  * This class is responsible for the initialization of a POP-Java application. It has also the responsibility to retrieve the configuration parameters.
@@ -537,6 +538,8 @@ public class POPSystem {
 			
 			prlt.setRunning(false);
 		}
+		
+		UPNPManager.close();
 		
 		for (RuntimeDirectoryThread localHook : localHooks) {
 			try {
