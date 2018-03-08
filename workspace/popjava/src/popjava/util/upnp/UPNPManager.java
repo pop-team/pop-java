@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class UPNPManager {
 	private static final GatewayDiscover discover = new GatewayDiscover();
 	private static GatewayDevice d = null;
 	
-	private static final Set<Integer> mappedPorts = new HashSet<Integer>();
+	private static final Set<Integer> mappedPorts = Collections.synchronizedSet(new HashSet<Integer>());
 	
 	private static boolean inited = false;
 	
@@ -52,44 +53,53 @@ public class UPNPManager {
 			return;
 		}
 		
-		init();
-		
-		System.out.println("Try to map port "+port);
-		
-		if (null != d) {
-			LogWriter.writeDebugInfo("Found gateway device.\n"+d.getModelName()+" ("+d.getModelDescription()+")");
-		} else {
-			LogWriter.writeDebugInfo("No valid gateway device found.");
-		    return;
-		}
-		
-		InetAddress localAddress = d.getLocalAddress();
-		String externalIPAddress = "";
-		try {
-			externalIPAddress = d.getExternalIPAddress();
+		Thread upnpThread = new Thread(new Runnable() {
 			
-			LogWriter.writeDebugInfo("Internal IP "+localAddress);
-			LogWriter.writeDebugInfo("External IP "+externalIPAddress);
-			
-			PortMappingEntry portMapping = new PortMappingEntry();
-			
-			if (d.getSpecificPortMappingEntry(port,"TCP",portMapping)) {
-				LogWriter.writeDebugInfo("Port "+port+" is already forwarded");
-			} else {
-				LogWriter.writeDebugInfo("Sending port mapping request");
+			@Override
+			public void run() {
+				init();
 				
-			    if (!d.addPortMapping(port, port,
-			            localAddress.getHostAddress(),"TCP","POP-Java")) {
-			    	LogWriter.writeDebugInfo("Port mapping attempt failed");
-			    }else {
-			    	mappedPorts.add(port);
-			    }
+				System.out.println("Try to map port "+port);
+				
+				if (null != d) {
+					LogWriter.writeDebugInfo("Found gateway device.\n"+d.getModelName()+" ("+d.getModelDescription()+")");
+				} else {
+					LogWriter.writeDebugInfo("No valid gateway device found.");
+				    return;
+				}
+				
+				InetAddress localAddress = d.getLocalAddress();
+				String externalIPAddress = "";
+				try {
+					externalIPAddress = d.getExternalIPAddress();
+					
+					LogWriter.writeDebugInfo("Internal IP "+localAddress);
+					LogWriter.writeDebugInfo("External IP "+externalIPAddress);
+					
+					PortMappingEntry portMapping = new PortMappingEntry();
+					
+					if (d.getSpecificPortMappingEntry(port,"TCP",portMapping)) {
+						LogWriter.writeDebugInfo("Port "+port+" is already forwarded");
+					} else {
+						LogWriter.writeDebugInfo("Sending port mapping request");
+						
+					    if (!d.addPortMapping(port, port,
+					            localAddress.getHostAddress(),"TCP","POP-Java")) {
+					    	LogWriter.writeDebugInfo("Port mapping attempt failed");
+					    }else {
+					    	mappedPorts.add(port);
+					    }
+					}
+				}catch (SAXException e) {
+					LogWriter.writeExceptionLog(e);
+				} catch (IOException e) {
+					LogWriter.writeExceptionLog(e);
+				}
 			}
-		}catch (SAXException e) {
-			LogWriter.writeExceptionLog(e);
-		} catch (IOException e) {
-			LogWriter.writeExceptionLog(e);
-		}
+		});
+		upnpThread.setDaemon(true);
+		upnpThread.start();
+		
 	}
 		
 	public static synchronized void close() {
