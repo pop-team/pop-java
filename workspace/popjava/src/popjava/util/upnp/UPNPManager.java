@@ -47,7 +47,14 @@ public class UPNPManager {
 	}
 	
 	public synchronized static void registerPort(int port) {
+		if(mappedPorts.contains(port)) {
+			System.out.println("We already mapped port "+port+" before");
+			return;
+		}
+		
 		init();
+		
+		System.out.println("Try to map port "+port);
 		
 		if (null != d) {
 			LogWriter.writeDebugInfo("Found gateway device.\n"+d.getModelName()+" ("+d.getModelDescription()+")");
