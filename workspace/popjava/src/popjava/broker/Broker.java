@@ -88,6 +88,7 @@ public final class Broker {
 	public static final String POPJAVA_CONFIG_PREFIX = "-configfile=";
 	public static final String NETWORK_UUID = "-network=";
 	public static final String TRACKING = "-tracking";
+	public static final String UPNP = "-upnp";
 	
 	
 	// thread unique callers
@@ -108,6 +109,7 @@ public final class Broker {
 	private final Semaphore sequentialSemaphore = new Semaphore(1, true);
 	
 	private boolean tracking;
+	private boolean upnp;
 	
 	private final Map<Method, Annotation[][]> methodParametersAnnotationCache = new HashMap<>();
 	private final Map<Method, Integer> methodSemanticsCache = new HashMap<>();
@@ -171,6 +173,10 @@ public final class Broker {
 		
 		if (popObject.getOd().isTracking()) {
 			initParams.add(TRACKING);
+		}
+		
+		if(popObject.getOd().isUPNPEnabled()) {
+			initParams.add(UPNP);
 		}
 		
 		initParams.add(NETWORK_UUID + popObject.getOd().getNetwork());
@@ -1008,6 +1014,8 @@ public final class Broker {
 			// mark traking for object
 			this.tracking = Util.removeStringFromList(argvs, TRACKING) != null;
 			
+			upnp = Util.removeStringFromList(argvs, UPNP) != null;
+			
 			List<ComboxServer> liveServers = new ArrayList<>();
 			for (ComboxFactory factory : comboxFactories) {
 				String prefix = String.format("-%s_port=", factory.getComboxName());
@@ -1309,5 +1317,13 @@ public final class Broker {
 	 */
 	public POPTracking getTracked(POPRemoteCaller caller) {
 		return callerTracking.get(caller);
+	}
+	
+	/**
+	 * Returns true if UPNP is enabled
+	 * @return
+	 */
+	public boolean isUPNPEnabled() {
+		return true;
 	}
 }

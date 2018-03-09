@@ -115,6 +115,7 @@ public class POPObject implements IPOPBase {
 			od.setSearch(objectDescription.searchDepth(), -1, objectDescription.searchTime());
 			od.setUseLocalJVM(objectDescription.localJVM());
 			od.setTracking(objectDescription.tracking());
+			od.setUPNP(objectDescription.upnp());
 		}
 	}
 	
@@ -135,7 +136,7 @@ public class POPObject implements IPOPBase {
 							od.setHostname((String)argvs[i]);
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
-									" was not of type String for Annotation URL");
+									" was not of type String for Annotation "+config.value().name());
 						}
 						
 						break;
@@ -144,7 +145,7 @@ public class POPObject implements IPOPBase {
 							od.setConnectionType((ConnectionType) argvs[i]);
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
-									" was not of type ConnectionType for Annotation CONNECTION");
+									" was not of type ConnectionType for Annotation "+config.value().name());
 						}
 						break;
 					case CONNECTION_PWD:
@@ -152,7 +153,7 @@ public class POPObject implements IPOPBase {
 							od.setConnectionSecret((String)argvs[i]);
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
-									" was not of type String for Annotation CONNECTION_PWD");
+									" was not of type String for Annotation "+config.value().name());
 						}
 						break;
 					case ACCESS_POINT:
@@ -160,7 +161,7 @@ public class POPObject implements IPOPBase {
 							od.setRemoteAccessPoint((String)argvs[i]);
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
-									" was not of type String for Annotation ACCESS_POINT");
+									" was not of type String for Annotation "+config.value().name());
 						}
 						break;
 					case LOCAL_JVM:
@@ -168,7 +169,15 @@ public class POPObject implements IPOPBase {
 							od.setUseLocalJVM((Boolean)argvs[i]);
 						}else{
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
-									" was not of type Boolean for Annotation LOCAL_JVM");
+									" was not of type Boolean for Annotation  "+config.value().name());
+						}
+						break;
+					case UPNP:
+						if(argvs[i]  instanceof Boolean){
+							od.setUPNP((Boolean)argvs[i]);
+						}else{
+							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
+									" was not of type Boolean for Annotation "+config.value().name());
 						}
 						break;
 					case PROTOCOLS:
@@ -180,7 +189,7 @@ public class POPObject implements IPOPBase {
 						}
 						else {
 							throw new InvalidParameterException("Annotated paramater "+i+" in "+getClassName()+
-									" was not of type String or String[] for Annotation PROTOCOLS");
+									" was not of type String or String[] for Annotation "+config.value().name());
 						}
 						break;
 					}

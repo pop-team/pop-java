@@ -821,7 +821,7 @@ public class Interface {
 			ComboxFactory factory = ComboxFactoryFinder.getInstance().findFactory(protocol);
 			if (factory != null && factory.isAvailable()) {
 				try {
-					allocateCombox = factory.createAllocateCombox();
+					allocateCombox = factory.createAllocateCombox(false); //TODO: Make UPNP configurable
 				} catch(IOException e) {
 					LogWriter.writeExceptionLog(e);
 					continue;
@@ -850,6 +850,10 @@ public class Interface {
 		
 		if (od.isTracking()) {
 			argvList.add(Broker.TRACKING);
+		}
+		
+		if(od.isUPNPEnabled()) {
+			argvList.add(Broker.UPNP);
 		}
 		
 		String networkUUID = od.getNetwork();

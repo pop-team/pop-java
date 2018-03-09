@@ -24,7 +24,7 @@ public class ComboxUtils {
 	 * @throws IOException If we specify a port but we can't bind the address
 	 */
 	public static ServerSocket createServerSocket(int port) throws IOException {
-		return createServerSocket(port, EMPTY, port == 0);
+		return createServerSocket(port, EMPTY, port == 0, false);
 	}
 	
 	/**
@@ -34,11 +34,11 @@ public class ComboxUtils {
 	 * @return A server already binded
 	 * @throws IOException If we specify a port but we can't bind the address
 	 */
-	public static ServerSocket createServerSocket(int port, PreOperation op) throws IOException {
+	public static ServerSocket createServerSocket(int port, PreOperation op, boolean upnp) throws IOException {
 		if (op == null) {
 			op = EMPTY;
 		}
-		return createServerSocket(port, op, port == 0);
+		return createServerSocket(port, op, port == 0, upnp);
 	}
 	
 	/**
@@ -49,7 +49,7 @@ public class ComboxUtils {
 	 * @return A server already binded
 	 * @throws IOException If we specify a port but we can't bind the address
 	 */
-	private static ServerSocket createServerSocket(int port, PreOperation op, boolean sequential) throws IOException {
+	private static ServerSocket createServerSocket(int port, PreOperation op, boolean sequential, boolean upnp) throws IOException {
 		ServerSocket server = SS_FACTORY.createServerSocket();
 		boolean working = false;
 		if (port == 0) {
@@ -78,7 +78,9 @@ public class ComboxUtils {
 			}
 		} while (!working);
 		
-		UPNPManager.registerPort(server.getLocalPort());
+		if(upnp) {
+			UPNPManager.registerPort(server.getLocalPort());
+		}
 		
 		return server;
 	}

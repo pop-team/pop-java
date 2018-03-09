@@ -58,8 +58,8 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	}
 
 	@Override
-	public ComboxAllocate createAllocateCombox() {
-		return new ComboxAllocateSecureSocket();
+	public ComboxAllocate createAllocateCombox(boolean enableUPNP) {
+		return new ComboxAllocateSecureSocket(enableUPNP);
 	}
 
 	@Override

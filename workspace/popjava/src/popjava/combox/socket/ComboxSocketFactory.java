@@ -43,8 +43,8 @@ public class ComboxSocketFactory extends ComboxFactory {
 	}
 
 	@Override
-	public ComboxAllocate createAllocateCombox() {
-		return new ComboxAllocateSocket();
+	public ComboxAllocate createAllocateCombox(boolean enableUPNP) {
+		return new ComboxAllocateSocket(enableUPNP);
 	}
 
 	@Override

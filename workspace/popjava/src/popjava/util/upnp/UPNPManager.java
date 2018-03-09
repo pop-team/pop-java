@@ -26,7 +26,7 @@ public class UPNPManager {
 	
 	private static boolean inited = false;
 	
-	private static void init() {
+	private synchronized static void init() {
 		if(!inited) {
 			try {
 				discover.discover();

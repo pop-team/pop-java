@@ -38,6 +38,11 @@ public @interface POPObjectDescription {
 	Encoding encoding() default Encoding.Default;
 	
 	/**
+	 * Set to true to make the object automatically available over UPNP
+	 */
+	boolean upnp() default false;
+	
+	/**
 	 * Enable method usage tracking on this method by user.
 	 * @return is tracking enabled
 	 */

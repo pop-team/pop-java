@@ -36,7 +36,7 @@ public class ComboxFactoryPlugin extends ComboxFactory {
 	}
 
 	@Override
-	public ComboxAllocate createAllocateCombox() {
+	public ComboxAllocate createAllocateCombox(boolean enableUPNP) {
 		return null;
 	}
 

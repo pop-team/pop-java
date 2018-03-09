@@ -47,7 +47,7 @@ public abstract class ComboxFactory {
 	 * @return the object which way for a broker connection
 	 * @throws java.io.IOException if any problem occurs
 	 */
-	public abstract ComboxAllocate createAllocateCombox() throws IOException;
+	public abstract ComboxAllocate createAllocateCombox(boolean enableUPNP) throws IOException;
 	
 	/**
 	 * Get the combox name

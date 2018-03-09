@@ -19,9 +19,9 @@ public class ComboxAllocateSocket extends ComboxAllocate<ComboxSocket> {
 	/**
 	 * Create a new instance of the ComboxAllocateSocket
 	 */
-	public ComboxAllocateSocket() {		
+	public ComboxAllocateSocket(boolean enableUPNP) {		
 		try {
-			serverSocket = ComboxUtils.createServerSocket(0, ss->ss.setSoTimeout(Configuration.getInstance().getConnectionTimeout()));
+			serverSocket = ComboxUtils.createServerSocket(0, ss->ss.setSoTimeout(Configuration.getInstance().getConnectionTimeout()), enableUPNP);
 		} catch (IOException e) {
 		    LogWriter.writeExceptionLog(e);
 		}

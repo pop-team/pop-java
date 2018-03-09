@@ -23,11 +23,11 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	/**
 	 * Create a new instance of the ComboxAllocateSocket
 	 */
-	public ComboxAllocateSecureSocket() {		
+	public ComboxAllocateSecureSocket(boolean enableUPNP) {		
 		try {
 			SSLContext sslContext = SSLUtils.getSSLContext();
 			sslFactory = sslContext.getSocketFactory();			
-			serverSocket = ComboxUtils.createServerSocket(0, ss -> ss.setSoTimeout(30000));
+			serverSocket = ComboxUtils.createServerSocket(0, ss -> ss.setSoTimeout(30000), enableUPNP);
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}

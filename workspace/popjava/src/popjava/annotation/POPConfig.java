@@ -15,7 +15,8 @@ public @interface POPConfig {
 		CONNECTION_PWD,
 		ACCESS_POINT,
 		LOCAL_JVM,
-		PROTOCOLS
+		PROTOCOLS,
+		UPNP
 	}
 	
 	Type value();

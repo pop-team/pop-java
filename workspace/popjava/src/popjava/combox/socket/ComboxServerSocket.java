@@ -49,7 +49,7 @@ public class ComboxServerSocket extends ComboxServer {
 	 * @throws java.io.IOException if any problem occurs
 	 */
 	public final void createServer() throws IOException {
-		serverSocket = ComboxUtils.createServerSocket(accessPoint.getPort(), ss -> ss.setReceiveBufferSize(RECEIVE_BUFFER_SIZE));
+		serverSocket = ComboxUtils.createServerSocket(accessPoint.getPort(), ss -> ss.setReceiveBufferSize(RECEIVE_BUFFER_SIZE), broker.isUPNPEnabled());
 		serverCombox = new ComboxAcceptSocket(broker, getRequestQueue(), serverSocket);
 		serverCombox.setStatus(RUNNING);
 		Thread thread = new Thread(serverCombox, "Server combox acception thread");

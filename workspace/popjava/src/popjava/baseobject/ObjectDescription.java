@@ -60,6 +60,7 @@ public class ObjectDescription implements IPOPBase {
 	
 	protected Boolean useLocalJVM = null;
 	protected boolean tracking = false;
+	protected boolean upnp = false;
 
 	private final ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<>();
 
@@ -667,7 +668,15 @@ public class ObjectDescription implements IPOPBase {
 	public boolean isTracking() {
 		return tracking;
 	}
+	
+	public void setUPNP(boolean upnp) {
+		this.upnp = upnp;
+	}
 
+	public boolean isUPNPEnabled() {
+		return upnp;
+	}
+	
 	/**
 	 * Check if the current object is empty
 	 * @return true if empty
@@ -855,7 +864,10 @@ public class ObjectDescription implements IPOPBase {
 		if (!this.tracking && od.tracking) {
 			this.tracking = true;
 		}
+		
 		this.searchHosts.addAll(od.searchHosts);
+		
+		this.upnp = this.upnp || od.upnp;
 	}
 
 	/**
