@@ -5,94 +5,32 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
 import popjava.base.MessageHeader;
-import popjava.baseobject.AccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
+import popjava.combox.socket.ssl.ComboxSecureSocketFactory;
 import popjava.util.LogWriter;
-import popjava.util.POPRemoteCaller;
 
-/**
- * This combox implement the protocol Socket
- */
-public class ComboxSocket extends Combox<Socket> {
-	
-	protected byte[] receivedBuffer;
+public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
+
 	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
+	protected static final int STREAM_BUFFER_SIZE = 8 * 1024 * 1024; //8MB
+	
+	protected final byte[] receivedBuffer = new byte[BUFFER_LENGTH];
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
-	private final int STREAM_BUFFER_SIZE = 8 * 1024 * 1024; //8MB
-
-	private static final ComboxFactory MY_FACTORY = new ComboxSocketFactory();
 	
-	@Override
-	public String toString(){
-		if(peerConnection != null){
-			return peerConnection.toString();
-		}
-		
-		return "Closed";
-	}
+	protected static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
 	
-	/**
-	 * This is used by ServerCombox (server).
-	 * Create a new combox from a server.
-	 * Call {@link #serverAccept(java.lang.Object)   } to let the client connect.
-	 */
 	public ComboxSocket() {
 		super();
-		receivedBuffer = new byte[BUFFER_LENGTH];
 	}
-
-	/**
-	 * This is used by Combox (client).
-	 * Create a combox for a client.
-	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
-	 * @param networkUUID the id of the network
-	 */
+	
 	public ComboxSocket(String networkUUID) {
 		super(networkUUID);
-		receivedBuffer = new byte[BUFFER_LENGTH];
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		try {
-			close();
-		} finally {
-			super.finalize();
-		}
-	}
-
-	@Override
-	public void close() {
-		receivedBuffer = null;
-		try {
-			if (peerConnection != null && !peerConnection.isClosed()) {
-				/*LogWriter.writeExceptionLog(new Exception("Close connection to "+peerConnection.getInetAddress()+
-						":"+peerConnection.getPort()+" remote: "+peerConnection.getLocalPort()));*/
-
-				peerConnection.sendUrgentData(-1);
-			}
-		} catch (IOException e) {
-		}finally{
-			try {
-				outputStream.close();
-				inputStream.close();
-				if(peerConnection != null){
-				    peerConnection.close();
-				}
-			} catch (IOException e) {
-				//LogWriter.writeExceptionLog(e);
-			}
-		}
 	}
 
 	@Override
@@ -108,82 +46,6 @@ public class ComboxSocket extends Combox<Socket> {
 	}
 	
 	@Override
-	protected boolean connectToServer() {
-		available = false;
-		int accessPointSize = accessPoint.size();
-		for (int i = 0; i < accessPointSize && !available; i++) {
-			AccessPoint ap = accessPoint.get(i);
-			if (ap.getProtocol().compareToIgnoreCase(
-					ComboxSocketFactory.PROTOCOL) != 0){
-				continue;
-			}
-			String host = ap.getHost();
-			int port = ap.getPort();
-			try {
-				// Create an unbound socket
-				if (timeOut > 0) {
-					SocketAddress sockaddress = new InetSocketAddress(host,
-							port);
-					peerConnection = new Socket();
-					peerConnection.connect(sockaddress, timeOut);
-					
-					//LogWriter.writeExceptionLog(new Exception());
-					//LogWriter.writeExceptionLog(new Exception("Open connection to "+host+":"+port+" remote: "+peerConnection.getLocalPort()));
-				} else {
-					peerConnection = new Socket(host, port);
-				}
-				inputStream = new BufferedInputStream(peerConnection.getInputStream());
-				outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
-				available = true;
-			} catch (IOException e) {
-				available = false;
-				LogWriter.writeExceptionLog(e);
-			}
-		}
-		return available;
-	}
-
-	@Override
-	protected boolean sendNetworkName() {
-		byte[] networkNameUTF8 = getNetworkUUID().getBytes(StandardCharsets.UTF_8);
-		
-		// to send buffer
-		ByteBuffer intBuffer = ByteBuffer.allocate(Integer.BYTES).putInt(networkNameUTF8.length);
-		
-		// send it
-		try {
-			outputStream.write(intBuffer.array());
-			outputStream.write(networkNameUTF8);
-			outputStream.flush();
-			
-			return true;
-		} catch (Exception e) {
-			LogWriter.writeDebugInfo("[ComboxSocket] Couldn't send network name");
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
-	}
-
-	@Override
-	protected boolean receiveNetworkName() {
-		try {
-			byte[] sizeBytes = new byte[Integer.BYTES];
-			inputStream.read(sizeBytes);
-			int size = ByteBuffer.wrap(sizeBytes).getInt();
-
-			byte[] networkNameBytes = new byte[size];
-			inputStream.read(networkNameBytes);
-			setNetworkUUID(new String(networkNameBytes, StandardCharsets.UTF_8));
-			
-			return true;
-		} catch (Exception e) {
-			LogWriter.writeDebugInfo("[ComboxSocket] Couldn't read network name");
-			LogWriter.writeExceptionLog(e);
-			return false;
-		}
-	}
-
-	@Override
 	public int receive(POPBuffer buffer, int requestId) {
 		
 		int result = 0;
@@ -194,7 +56,7 @@ public class ComboxSocket extends Combox<Socket> {
 			
 			boolean gotPacket = false;
 			
-			do{
+			do {
 				synchronized (inputStream) {
 					inputStream.mark(8);
 					
@@ -236,7 +98,7 @@ public class ComboxSocket extends Combox<Socket> {
 					//A requestID of -1 (client or server) indicates that the requestID should be ignored
 					if(requestId == -1 || requestIdPacket == -1 || requestIdPacket == requestId){
 						gotPacket = true;
-						
+
 						result = 8;
 						buffer.putInt(messageLength);
 						messageLength = messageLength - 4;
@@ -257,7 +119,7 @@ public class ComboxSocket extends Combox<Socket> {
 							}
 						}
 					}else{
-						//System.out.println("RESET "+requestIdPacket+" "+requestId);
+						System.out.println("RESET "+requestIdPacket+" "+requestId);
 						inputStream.reset();
 						//Thread.yield();
 					}
@@ -268,8 +130,8 @@ public class ComboxSocket extends Combox<Socket> {
 			if (result < headerLength) {
 				if (conf.isDebugCombox()) {
 					String logInfo = String.format(
-							"%s. failed to receive header. receivedLength= %d, Message length %d",
-							this.getClass().getName(), result, headerLength);
+							"[ComboxSecureSocket] failed to receive header. receivedLength= %d, Message length %d",
+							result, headerLength);
 					LogWriter.writeDebugInfo(logInfo);
 				}
 				close();
@@ -280,7 +142,7 @@ public class ComboxSocket extends Combox<Socket> {
 			return result;
 		} catch (Exception e) {
 			if (conf.isDebugCombox()){
-				LogWriter.writeDebugInfo("ComboxSocket Error while receiving data:"
+				LogWriter.writeDebugInfo("[ComboxSecureSocket] Error while receiving data:"
 								+ e.getMessage());
 			}
 			close();
@@ -294,7 +156,6 @@ public class ComboxSocket extends Combox<Socket> {
 			buffer.packMessageHeader();
 			final int length = buffer.size();
 			final byte[] dataSend = buffer.array();
-						
 			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {
     			outputStream.write(dataSend, 0, length);
@@ -302,10 +163,10 @@ public class ComboxSocket extends Combox<Socket> {
 			}
 			
 			return length;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			if (conf.isDebugCombox()){
-				LogWriter.writeDebugInfo(this.getClass().getName()
-						+ "-Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
+				LogWriter.writeDebugInfo(
+					"[ComboxSocket] -Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
 			}
 			close();
 			return -1;
@@ -313,14 +174,46 @@ public class ComboxSocket extends Combox<Socket> {
 	}
 
 	@Override
-	protected boolean exportConnectionInfo() {
-		remoteCaller = new POPRemoteCaller(
-			peerConnection.getInetAddress(),
-			MY_FACTORY.getComboxName(),
-			getNetworkUUID(),
-			MY_FACTORY.isSecure()
-		);
-		return true;
+	protected void finalize() throws Throwable {
+		try {
+			close();
+		} finally {
+			super.finalize();
+		}
 	}
+	
+	@Override
+	public void close() {
+		try {
+			if (peerConnection != null && !peerConnection.isClosed()) {
+				/*LogWriter.writeExceptionLog(new Exception("Close connection to "+peerConnection.getInetAddress()+
+						":"+peerConnection.getPort()+" remote: "+peerConnection.getLocalPort()));*/
 
+				peerConnection.sendUrgentData(-1);
+			}
+		} catch (IOException e) {}
+		finally {
+			try {
+				outputStream.close();
+			} catch (IOException e) {}
+			try {
+				inputStream.close();
+			} catch (IOException e) {}
+			if(peerConnection != null){
+				try {
+				    peerConnection.close();
+				} catch (IOException e) {}
+			}
+		}
+	}
+	
+	@Override
+	public String toString(){
+		if(peerConnection != null){
+			return peerConnection.toString();
+		}
+		
+		return "Closed";
+	}
 }
+

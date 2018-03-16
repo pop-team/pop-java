@@ -11,7 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import popjava.PopJava;
-import popjava.combox.ssl.ComboxSecureSocketFactory;
+import popjava.combox.socket.ssl.ComboxSecureSocketFactory;
 import popjava.service.jobmanager.network.POPNodeTFC;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;

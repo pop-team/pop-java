@@ -1,6 +1,6 @@
 
 
-package popjava.combox.socket;
+package popjava.combox.socket.raw;
 
 import popjava.broker.Broker;
 import popjava.buffer.*;

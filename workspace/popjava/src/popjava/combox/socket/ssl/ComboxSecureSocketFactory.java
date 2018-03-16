@@ -1,4 +1,4 @@
-package popjava.combox.ssl;
+package popjava.combox.socket.ssl;
 
 import java.io.File;
 import java.io.FileInputStream;

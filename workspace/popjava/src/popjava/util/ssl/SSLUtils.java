@@ -57,8 +57,9 @@ import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcContentSignerBuilder;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
-import popjava.combox.ssl.POPKeyManager;
-import popjava.combox.ssl.POPTrustManager;
+
+import popjava.combox.socket.ssl.POPKeyManager;
+import popjava.combox.socket.ssl.POPTrustManager;
 import popjava.service.jobmanager.network.POPNode;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;

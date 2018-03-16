@@ -1,4 +1,4 @@
-package popjava.combox.ssl;
+package popjava.combox.socket.ssl;
 
 import popjava.util.ssl.SSLUtils;
 import java.io.IOException;

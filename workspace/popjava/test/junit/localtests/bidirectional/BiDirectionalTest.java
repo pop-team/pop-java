@@ -7,6 +7,7 @@ import org.junit.Test;
 import popjava.PopJava;
 import popjava.annotation.POPClass;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 
 @POPClass(isDistributable = false)
 public class BiDirectionalTest {
@@ -15,11 +16,26 @@ public class BiDirectionalTest {
 	public void test() {
 		POPSystem.initialize();
 		
-		BiDirectionalObject a =  PopJava.newActive(BiDirectionalObject.class, 1234);
+		Configuration.getInstance().setDebug(true);
+		
+		BiDirectionalObject a =  PopJava.newActive(BiDirectionalObject.class, 1234, false);
 		
 		assertEquals(1234, a.test());
 		
 		POPSystem.end();
 	}
 	
+	
+	@Test
+	public void debug() {
+		POPSystem.initialize();
+		
+		Configuration.getInstance().setDebug(true);
+		
+		BiDirectionalObject a =  PopJava.newActive(BiDirectionalObject.class, 1234, true);
+		
+		assertEquals(1234, a.test());
+		
+		POPSystem.end();
+	}
 }

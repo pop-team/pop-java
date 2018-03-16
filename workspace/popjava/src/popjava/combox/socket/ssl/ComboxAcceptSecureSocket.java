@@ -1,4 +1,4 @@
-package popjava.combox.ssl;
+package popjava.combox.socket.ssl;
 
 import popjava.broker.Broker;
 import popjava.broker.RequestQueue;

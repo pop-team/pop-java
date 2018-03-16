@@ -1,4 +1,4 @@
-package popjava.combox.socket;
+package popjava.combox.socket.raw;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -12,7 +12,7 @@ import popjava.util.LogWriter;
 /**
  * This class is responsible to send an receive message on the server combox socket
  */
-public class ComboxAllocateSocket extends ComboxAllocate<ComboxSocket> {
+public class ComboxAllocateSocket extends ComboxAllocate<ComboxRawSocket> {
 	
 	protected ServerSocket serverSocket = null;
 	
@@ -34,7 +34,7 @@ public class ComboxAllocateSocket extends ComboxAllocate<ComboxSocket> {
 	public void startToAcceptOneConnection() {
 		try {
 			Socket peerConnection = serverSocket.accept();
-			combox = new ComboxSocket();
+			combox = new ComboxRawSocket();
 			combox.serverAccept(peerConnection);
 		} catch (IOException e) {
 			LogWriter.writeExceptionLog(e);

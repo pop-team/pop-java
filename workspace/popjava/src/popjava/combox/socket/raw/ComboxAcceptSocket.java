@@ -1,4 +1,4 @@
-package popjava.combox.socket;
+package popjava.combox.socket.raw;
 
 import popjava.broker.Broker;
 import popjava.broker.RequestQueue;
@@ -54,7 +54,7 @@ public class ComboxAcceptSocket implements Runnable {
 
 				concurentConnections.add(connection);
 
-				ComboxSocket serverClient = new ComboxSocket();
+				ComboxRawSocket serverClient = new ComboxRawSocket();
 				if (serverClient.serverAccept(connection)) {
 					Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, serverClient);
 					Thread thread = new Thread(runnable, "Combox request acceptance");

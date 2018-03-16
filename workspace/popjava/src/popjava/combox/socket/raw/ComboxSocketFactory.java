@@ -1,4 +1,4 @@
-package popjava.combox.socket;
+package popjava.combox.socket.raw;
 
 import java.io.IOException;
 import popjava.baseobject.AccessPoint;
@@ -27,7 +27,7 @@ public class ComboxSocketFactory extends ComboxFactory {
 	
 	@Override
 	public Combox createClientCombox(String networkUUID) {
-		return new ComboxSocket(networkUUID);
+		return new ComboxRawSocket(networkUUID);
 	}
 
 	@Override
