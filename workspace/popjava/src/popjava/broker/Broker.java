@@ -1324,6 +1324,6 @@ public final class Broker {
 	 * @return
 	 */
 	public boolean isUPNPEnabled() {
-		return true;
+		return upnp;
 	}
 }
