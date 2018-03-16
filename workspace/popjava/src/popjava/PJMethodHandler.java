@@ -23,6 +23,7 @@ import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.base.Semantic;
 import popjava.baseobject.POPAccessPoint;
+import popjava.broker.Broker;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
 import popjava.util.ssl.SSLUtils;
@@ -57,7 +58,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 	 * Associate an POPObject with this handler
 	 * @param popObject	The POPObject to associate
 	 */
-	public PJMethodHandler(POPObject popObject) {
+	public PJMethodHandler(Broker parentBroker, POPObject popObject) {
+		super(parentBroker);
 		popObjectInfo = popObject;
 	}
 
@@ -285,8 +287,8 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			if (args[i] instanceof POPObject) {
 				POPObject object = (POPObject)args[i];
 				// create proxy if it's not
-				if (!(args[i] instanceof ProxyObject)) {					
-					object = PopJava.newActive(object.getClass(), object.getAccessPoint());
+				if (!(args[i] instanceof ProxyObject)) {
+					object = PopJava.newActive(parentBroker, object.getClass(), object.getAccessPoint());
 					object.makeTemporary();
 					// change reference to proxy
 					args[i] = object;

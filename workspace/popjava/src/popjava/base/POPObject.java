@@ -266,6 +266,10 @@ public class POPObject implements IPOPBase {
 		}
 		return broker.getAccessPoint();
 	}
+	
+	public Broker getBroker() {
+		return broker;
+	}
 
 	/**
 	 * Retrieve the class name of the parallel object

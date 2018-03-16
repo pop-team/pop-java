@@ -54,9 +54,9 @@ public class PJProxyFactory extends ProxyFactory {
 	 * @return the instance of the object
 	 * @throws POPException a remote exception, look for cause
 	 */
-	public Object newPOPObject(Object... argvs) throws POPException {
+	public Object newPOPObject(Broker parentBroker, Object ... argvs) throws POPException {
 		ObjectDescription objectDescription = POPSystem.getDefaultOD();
-		return newPOPObject(objectDescription, argvs);
+		return newPOPObject(parentBroker, objectDescription, argvs);
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class PJProxyFactory extends ProxyFactory {
 	 * @return the instance of the object
 	 * @throws POPException a remote exception, look for cause
 	 */
-	public Object newPOPObject(ObjectDescription od, Object... argvs) throws POPException {
+	public Object newPOPObject(Broker parentBroker, ObjectDescription od, Object... argvs) throws POPException {
 		try {
 			POPObject popObject = null;
 			//Check if object has a default constructor
@@ -146,10 +146,10 @@ public class PJProxyFactory extends ProxyFactory {
 				if(originalOd.getRemoteAccessPoint() != null && !originalOd.getRemoteAccessPoint().isEmpty()){
 					POPAccessPoint accessPoint = new POPAccessPoint();
 					accessPoint.setAccessString(originalOd.getRemoteAccessPoint());
-					return bindPOPObject(accessPoint);
+					return bindPOPObject(parentBroker, accessPoint);
 				}
 				
-				PJMethodHandler methodHandler = new PJMethodHandler(popObject);
+				PJMethodHandler methodHandler = new PJMethodHandler(parentBroker, popObject);
 				methodHandler.setOd(originalOd);
 				methodHandler.popConstructor(targetClass, argvs);
 				//this.setHandler(methodHandler);
@@ -180,13 +180,13 @@ public class PJProxyFactory extends ProxyFactory {
 	 * @return ProxyObject which represent the Interface side
 	 * @throws POPException : if anything goes wrong
 	 */
-	public Object bindPOPObject(POPAccessPoint accessPoint) throws POPException {
+	public Object bindPOPObject(Broker parentBroker, POPAccessPoint accessPoint) throws POPException {
 		try {
 			Constructor<?> constructor = targetClass.getConstructor();
 			POPObject popObject = (POPObject) constructor.newInstance();
 			popObject.loadPOPAnnotations(constructor);
 			
-			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
+			PJMethodHandler methodHandler = new PJMethodHandler(parentBroker, popObject);
 			methodHandler.bindObject(accessPoint);
 			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
@@ -212,7 +212,7 @@ public class PJProxyFactory extends ProxyFactory {
 			POPObject popObject = (POPObject) constructor.newInstance();
 			popObject.loadPOPAnnotations(constructor);
 			
-			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
+			PJMethodHandler methodHandler = new PJMethodHandler(null, popObject);
 			methodHandler.getOD().setNetwork(networkUUID);
 			methodHandler.bindObject(accessPoint);
 			//this.setHandler(methodHandler);
@@ -237,7 +237,7 @@ public class PJProxyFactory extends ProxyFactory {
 			Constructor<?> constructor = targetClass.getConstructor();
 			POPObject popObject = (POPObject) constructor.newInstance();
 			popObject.loadPOPAnnotations(constructor);
-			PJMethodHandler methodHandler = new PJMethodHandler(popObject);
+			PJMethodHandler methodHandler = new PJMethodHandler(null, popObject);
 			methodHandler.setSetup();
 			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();

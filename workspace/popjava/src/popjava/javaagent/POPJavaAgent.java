@@ -348,32 +348,6 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     
                 }
             }
-            
-            /**
-             * TODO:
-             * Intercept calls on this.method();
-             * @throws CannotCompileException cannot recompile class
-             
-            @Override
-            public void edit(MethodCall call) {
-
-            	if("DistributedServerPOPJava.java".equals(call.getFileName())) {
-            		System.out.println("!!!!! Q "+call.getjLineNumber()+" "+call.getMethodName()+" "+method.getName());
-            	}
-            	
-                if(isInIgnoredPackage(call.getClassName())){
-                    return;
-                }
-                
-                /* try {
-                    if(call.getMethod().getDeclaringClass().equals(method.getDeclaringClass()) &&
-                            isPOPMethod(call.getMethod())){
-                        //TODO: Correcly replace call on this.XX with getThis().XX
-                    }
-                } catch (NotFoundException e) {
-                    e.printStackTrace();
-                }
-            }*/
         };
         
         method.instrument(ed);

@@ -156,6 +156,9 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			buffer.packMessageHeader();
 			final int length = buffer.size();
 			final byte[] dataSend = buffer.array();
+			
+			//System.out.println("SEND "+buffer.getHeader().getRequestID());
+			
 			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {
     			outputStream.write(dataSend, 0, length);

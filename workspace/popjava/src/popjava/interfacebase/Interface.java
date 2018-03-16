@@ -48,6 +48,7 @@ import popjava.util.Util;
  */
 public class Interface {
 
+	protected final Broker parentBroker;
 	protected Combox combox;
 	//protected Buffer popBuffer;
 	protected POPAccessPoint popAccessPoint = new POPAccessPoint();
@@ -60,7 +61,8 @@ public class Interface {
 	/**
 	 * Default Interface constructor
 	 */
-	public Interface() {
+	public Interface(final Broker parentBroker) {
+		this.parentBroker = parentBroker;
 		od = new ObjectDescription();
 	}
 
@@ -69,8 +71,9 @@ public class Interface {
 	 * @param accessPoint	Access point of the parallel object
 	 * @throws POPException	thrown of the interface cannot be bind with the parallel object
 	 */
-	public Interface(POPAccessPoint accessPoint) throws POPException {
+	public Interface(final Broker parentBroker, POPAccessPoint accessPoint) throws POPException {
 		popAccessPoint = accessPoint;
+		this.parentBroker = parentBroker;
 		bind(accessPoint);
 	}
 
@@ -80,8 +83,9 @@ public class Interface {
 	 * @param od A custom OD for specifying possible connection parameters
 	 * @throws POPException	thrown of the interface cannot be bind with the parallel object
 	 */
-	public Interface(POPAccessPoint accessPoint, ObjectDescription od) throws POPException {
+	public Interface(final Broker parentBroker, POPAccessPoint accessPoint, ObjectDescription od) throws POPException {
 		popAccessPoint = accessPoint;
+		this.parentBroker = parentBroker;
 		this.od.merge(od);
 		bind(accessPoint);
 	}
@@ -356,7 +360,7 @@ public class Interface {
 			}
 		}
 		
-		if (combox != null && combox.connectToServer(accesspoint, conf.getConnectionTimeout())) {
+		if (combox != null && combox.connectToServer(parentBroker, accesspoint, conf.getConnectionTimeout())) {
 
 			BindStatus bindStatus = new BindStatus();
 			bindStatus(bindStatus);
@@ -708,8 +712,7 @@ public class Interface {
             
             if(appCoreService == null){
                 try{
-                    appCoreService = PopJava.newActive(
-                    		POPJavaAppService.class, POPSystem.appServiceAccessPoint);
+                    appCoreService = PopJava.newActive(POPJavaAppService.class, POPSystem.appServiceAccessPoint);
                 }catch(POPException e){
                     LogWriter.writeDebugInfo("[Interface] Could not contact Appservice to recover code file");
                 }

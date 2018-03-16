@@ -1173,7 +1173,7 @@ public final class Broker {
 				try {
 					callback = factory.createClientCombox(network);
 
-					if (callback.connectToServer(accessPoint, 0)) {
+					if (callback.connectToServer(null, accessPoint, 0)) {
 						LogWriter.writeDebugInfo("[Broker] Connected to callback socket");
 					} else {
 						LogWriter.writeDebugInfo("[Broker] Error: fail to connect to callback:%s",

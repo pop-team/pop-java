@@ -1182,7 +1182,7 @@ public class POPJavaJobManager extends POPJobService {
 					job.setAccessTime(System.currentTimeMillis());
 					try {
 						// connection to object ok
-						Interface obj = new Interface(job.getContact());
+						Interface obj = new Interface(null, job.getContact());
 						obj.close();
 					} catch (Exception e) {
 						// manually remove from iterator

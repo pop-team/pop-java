@@ -37,12 +37,11 @@ public class PopJava {
 	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T newActive(Class<T> targetClass,
-			ObjectDescription objectDescription, Object ... argvs)
+	public static <T> T newActive(Class<T> targetClass, ObjectDescription objectDescription, Object ... argvs)
 			throws POPException {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T) factoryProxy.newPOPObject(objectDescription, argvs);
+		return (T) factoryProxy.newPOPObject(null, objectDescription, argvs);
 	}
 	
 	public static Object newActive(String targetClass, Object... argvs) throws POPException, ClassNotFoundException{
@@ -59,9 +58,33 @@ public class PopJava {
 	@SuppressWarnings("unchecked")
 	public static <T> T newActive(Class<T> targetClass, Object... argvs)
 			throws POPException {
+		return newActive(null, targetClass, argvs);
+	}
+	
+	/**
+	 * Static method used to create a new parallel object
+	 * @param targetClass	the parallel class to be created
+	 * @param argvs			arguments of the constructor (may be empty)
+	 * @return references to the parallel object created
+	 * @throws POPException a remote exception, check caused by
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T newActive(Object parentObject, Class<T> targetClass, Object ... argvs)
+			throws POPException {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T) factoryProxy.newPOPObject(argvs);
+		
+		Broker parentBroker = null;
+		
+		if(parentObject != null) {
+			if(parentObject instanceof POPObject) {
+				parentBroker = ((POPObject)parentObject).getBroker();
+			}else if(parentObject instanceof Broker) {
+				parentBroker = (Broker) parentObject;
+			}
+		}
+		
+		return (T) factoryProxy.newPOPObject(parentBroker, argvs);
 	}
 
 	/**
@@ -73,13 +96,28 @@ public class PopJava {
 	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T newActive(Class<T> targetClass,
-			POPAccessPoint accessPoint) throws POPException {
+	public static <T> T newActive(Object parentObject, Class<T> targetClass, POPAccessPoint accessPoint) throws POPException {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T) factoryProxy.bindPOPObject(accessPoint);
+		
+		Broker parentBroker = null;
+		
+		if(parentObject != null) {
+			if(parentObject instanceof POPObject) {
+				parentBroker = ((POPObject)parentObject).getBroker();
+			}else if(parentObject instanceof Broker) {
+				parentBroker = (Broker) parentObject;
+			}
+		}
+		
+		return (T) factoryProxy.bindPOPObject(parentBroker, accessPoint);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> T newActive(Class<T> targetClass, POPAccessPoint accessPoint) throws POPException {
+		return newActive(null,  targetClass, accessPoint);
+	}
+	
 	/**
 	 * Static method used to connect to an already existing parallel object with a custom network
 	 * @param targetClass	the parallel class to be created

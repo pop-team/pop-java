@@ -3,6 +3,8 @@ package popjava.util;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
+
+import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ssl.SSLUtils;
@@ -18,6 +20,7 @@ public class POPRemoteCaller implements IPOPBase {
 	private String protocol;
 	private String network;
 	private boolean secure;
+	private POPAccessPoint brokerAP = null;
 	
 	private String fingerprint;
 
@@ -176,5 +179,13 @@ public class POPRemoteCaller implements IPOPBase {
 			fingerprint = buffer.getString();
 		}
 		return true;
+	}
+	
+	public void setBrokerAP(POPAccessPoint ap) {
+		this.brokerAP = ap;
+	}
+	
+	public POPAccessPoint getBrokerAP() {
+		return brokerAP;
 	}
 }

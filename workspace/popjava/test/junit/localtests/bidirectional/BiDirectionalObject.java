@@ -24,7 +24,7 @@ public class BiDirectionalObject extends POPObject{
 	
 	@POPSyncConc
 	public int test() {
-		BiDirectionalObject b =  PopJava.newActive(BiDirectionalObject.class, 5678, false);
+		BiDirectionalObject b =  PopJava.newActive(this, BiDirectionalObject.class, 5678, false);
 		return b.test1(this);
 	}
 	

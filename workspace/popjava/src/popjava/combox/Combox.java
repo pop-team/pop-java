@@ -1,9 +1,13 @@
 package popjava.combox;
 
 
+import popjava.base.MessageHeader;
 import popjava.baseobject.POPAccessPoint;
+import popjava.broker.Broker;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.BufferFactoryFinder;
+import popjava.buffer.BufferRaw;
+import popjava.buffer.BufferXDR;
 import popjava.buffer.POPBuffer;
 import popjava.util.Configuration;
 import popjava.util.POPRemoteCaller;
@@ -16,6 +20,7 @@ public abstract class Combox<T> {
 	
 	protected int timeOut = 0;
 	protected POPAccessPoint accessPoint;
+	
 	protected boolean available = false;
 	protected BufferFactory bufferFactory;
 	
@@ -50,14 +55,15 @@ public abstract class Combox<T> {
 	/**
 	 * Connect to a ServerCombox on the other side, this will result in a Combox (client mode) communicating with a 
 	 * Combox (server mode).
+	 * @param broker	Broker that is behind this connection
 	 * @param accesspoint	Access point of the other side combox
 	 * @param timeout		Connection time out
 	 * @return true if the connection is established
 	 */
-	public final boolean connectToServer(POPAccessPoint accesspoint, int timeout) {
+	public final boolean connectToServer(Broker broker, POPAccessPoint accesspoint, int timeout) {
 		this.accessPoint = accesspoint;
 		this.timeOut = timeout;
-		return connectToServer() && sendNetworkName() && exportConnectionInfo();
+		return connectToServer() && sendNetworkName() && exportConnectionInfo() && sendLocalAP(broker);
 	}
 	
 	/**
@@ -68,7 +74,7 @@ public abstract class Combox<T> {
 	 */
 	public final boolean serverAccept(T peerConnection) {
 		this.peerConnection = peerConnection;
-		return serverAccept() && receiveNetworkName() && exportConnectionInfo();
+		return serverAccept() && receiveNetworkName() && exportConnectionInfo() && receiveRemoveAP();
 	}
 	
 	/**
@@ -103,6 +109,39 @@ public abstract class Combox<T> {
 	 * @return	true if the server accept the connection successfully
 	 */
 	protected abstract boolean serverAccept();
+	
+	private boolean sendLocalAP(Broker broker) {
+		MessageHeader messageHeader = new MessageHeader();
+		messageHeader.setRequestID(1234);
+		POPBuffer buffer = new BufferXDR();
+		buffer.setHeader(messageHeader);
+		buffer.putBoolean(broker != null);
+		if(broker != null) {
+			buffer.putValue(broker.getAccessPoint(), POPAccessPoint.class);
+		}
+		
+		send(buffer);
+		
+		return true;
+	}
+	
+	private boolean receiveRemoveAP() {
+		POPBuffer buffer = new BufferXDR();
+		receive(buffer, 1234);
+		
+		POPAccessPoint ap;
+		if(buffer.getBoolean()) {
+			ap = (POPAccessPoint)buffer.getValue(POPAccessPoint.class);
+		}else {
+			ap = new POPAccessPoint();
+		}
+
+		if(remoteCaller != null) {
+			remoteCaller.setBrokerAP(ap);
+		}
+		
+		return true;
+	}
 
 	/**
 	 * Send the buffer to the other side

@@ -187,7 +187,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		// failed to start all objects, kill already started objects
 		for (int i = 0; i < started; i++) {
 			try {
-				Interface obj = new Interface(objcontacts[i]);
+				Interface obj = new Interface(null, objcontacts[i]);
 				obj.kill();
 			} catch (POPException e) {
 				LogWriter.writeDebugInfo("[JM] Exception while killing objects: %s", e.getMessage());
