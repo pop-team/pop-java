@@ -6,6 +6,7 @@ import org.junit.runners.Suite;
 import junit.localtests.annotations.AnnotationsTest;
 import junit.localtests.annotations.POPObjectDefaultMethodTest;
 import junit.localtests.arrays.ArraysTest;
+import junit.localtests.bidirectional.BiDirectionalTest;
 import junit.localtests.bigData.BigDataTests;
 import junit.localtests.callback.CallBackTest;
 import junit.localtests.concurrency.TestConcurrency;
@@ -59,7 +60,8 @@ import junit.localtests.priority.MethodAnnotationPriority;
 	JavaSerializableTest.class,
 	AccountingTest.class,
 	AccountingAPITest.class,
-	MethodAnnotationPriority.class
+	MethodAnnotationPriority.class,
+	BiDirectionalTest.class
 })
 public class LocalTests {
 
