@@ -26,6 +26,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.BufferFactory;
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
 import popjava.util.ssl.SSLUtils;
 import popjava.interfacebase.Interface;
 import popjava.system.POPSystem;
@@ -378,6 +379,15 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				result = deserialize(buffer);
 			}
 			return result;
+		} else if(argvs.length == 2 && methodName.equals("deserialize")) {
+			boolean result = false;
+			POPBuffer buffer = (POPBuffer) argvs[0];
+			Combox sourceCombox = (Combox) argvs[1];
+			canExcute[0] = true;
+			result = deserialize(sourceCombox, buffer);
+			
+			return result;
+			
 		} else if (methodName.equals("exit") && argvs.length == 0) {
 			LogWriter.writeDebugInfo("Close method handler through exit: "+popObjectInfo.getClassName());
 			canExcute[0] = true;

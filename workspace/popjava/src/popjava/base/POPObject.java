@@ -28,6 +28,7 @@ import popjava.baseobject.POPAccessPoint;
 import popjava.baseobject.POPTracking;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
 import popjava.util.ssl.SSLUtils;
 import popjava.dataswaper.IPOPBase;
 import popjava.util.ClassUtil;
@@ -623,6 +624,10 @@ public class POPObject implements IPOPBase {
 	 */
 	@Override
     public boolean deserialize(POPBuffer buffer) {
+		return true;
+	}
+	
+	public boolean deserialize(Combox sourceCombox, POPBuffer buffer) {
 		return true;
 	}
 

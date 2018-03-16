@@ -109,6 +109,13 @@ public class Interface {
 	 * @return	True if the deserialization has finished without any problems
 	 */
 	public boolean deserialize(POPBuffer buffer) {
+		return deserialize(null, buffer);
+	}
+	
+	public boolean deserialize(Combox sourceCombox, POPBuffer buffer) {
+		System.out.println("DESERIALIZE "+sourceCombox);
+		//new Exception().printStackTrace();
+		
 		boolean result = true;
 		od.deserialize(buffer);
 		popAccessPoint.deserialize(buffer);
@@ -122,6 +129,11 @@ public class Interface {
 		int ref = buffer.getInt(); //related to the addRef called in serialize()
 		if (ref > 0) {
 			try {
+				
+				if(sourceCombox != null) {
+					System.out.println("MAYBE WE CAN REUSE CONNECTION "+sourceCombox.getAccessPoint()+ " "+popAccessPoint);
+				}
+				
 				bind(popAccessPoint);
 			} catch (POPException e) {
 				result = false;

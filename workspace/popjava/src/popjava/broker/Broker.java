@@ -539,6 +539,7 @@ public final class Broker {
 					method.invoke(popObject, parameters);
 				}
 			}catch(InvocationTargetException e){
+				e.printStackTrace();
 				LogWriter.writeExceptionLog(e);
 				LogWriter.writeExceptionLog(e.getCause());
 				LogWriter.writeDebugInfo("[Broker] Cannot execute. Cause %s.", e.getCause().getMessage());
@@ -660,7 +661,9 @@ public final class Broker {
 		for(int i = 0; parameters != null && i < parameters.length; i++){
 			if(parameters[i] instanceof POPObject){
 				POPObject object = (POPObject)parameters[i];
+				
 				if(!(parameters[i] instanceof ProxyObject)){
+					
 					object = PopJava.newActive(object.getClass(), object.getAccessPoint());
 				}
 				object.makeTemporary();

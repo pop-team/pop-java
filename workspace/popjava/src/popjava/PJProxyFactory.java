@@ -13,6 +13,7 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
 import popjava.system.POPSystem;
 import popjava.util.ClassUtil;
 import popjava.util.LogWriter;
@@ -231,7 +232,7 @@ public class PJProxyFactory extends ProxyFactory {
 	 * @return the object recovered
 	 * @throws POPException a remote exception, look for cause
 	 */
-	public Object newActiveFromBuffer(POPBuffer buffer) throws POPException {
+	public Object newActiveFromBuffer(Combox sourceCombox, POPBuffer buffer) throws POPException {
 		POPObject result = null;
 		try {
 			Constructor<?> constructor = targetClass.getConstructor();
@@ -242,8 +243,9 @@ public class PJProxyFactory extends ProxyFactory {
 			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
 			result = (POPObject) c.newInstance();
-			((ProxyObject) result).setHandler(methodHandler);
-			if (!result.deserialize(buffer)) {
+			((ProxyObject) result).setHandler(methodHandler);			
+			
+			if (!result.deserialize(sourceCombox, buffer)) {
 				LogWriter.writeDebugInfo("bad deserialize");
 				POPException.throwObjectBindException(methodHandler
 						.getAccessPoint());

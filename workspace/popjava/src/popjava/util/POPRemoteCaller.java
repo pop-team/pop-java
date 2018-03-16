@@ -141,6 +141,7 @@ public class POPRemoteCaller implements IPOPBase {
 		if (!Objects.equals(this.remote, other.remote)) {
 			return false;
 		}
+				
 		return true;
 	}
 
@@ -159,6 +160,12 @@ public class POPRemoteCaller implements IPOPBase {
 		if (fig) {
 			buffer.putString(fingerprint);
 		}
+		buffer.putBoolean(brokerAP != null);
+		
+		if(brokerAP != null) {
+			buffer.putValue(brokerAP, POPAccessPoint.class);
+		}
+		
 		return true;
 	}
 
@@ -178,6 +185,11 @@ public class POPRemoteCaller implements IPOPBase {
 		if (buffer.getBoolean()) {
 			fingerprint = buffer.getString();
 		}
+		
+		if(buffer.getBoolean()) {
+			brokerAP = (POPAccessPoint) buffer.getValue(POPAccessPoint.class);
+		}
+		
 		return true;
 	}
 	

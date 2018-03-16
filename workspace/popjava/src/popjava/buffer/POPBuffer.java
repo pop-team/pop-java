@@ -18,6 +18,7 @@ import popjava.base.MessageHeader;
 import popjava.base.POPException;
 import popjava.base.POPObject;
 import popjava.base.POPSystemErrorCode;
+import popjava.combox.Combox;
 import popjava.dataswaper.IPOPBase;
 import popjava.dataswaper.IPOPBaseInput;
 import popjava.util.LogWriter;
@@ -373,6 +374,17 @@ public abstract class POPBuffer {
 	 */
 	@SuppressWarnings("unchecked")
 	public Object getValue(Class<?> c) throws POPException {
+		return getValue(null, c);
+	}
+	
+	/**
+	 * Retrieve an object from the buffer
+	 * @param c	Class of the object to retrieve
+	 * @return	Object retrieved in the buffer
+	 * @throws POPException	thrown if the deserialization process is not going well
+	 */
+	@SuppressWarnings("unchecked")
+	public Object getValue(Combox sourceCombox, Class<?> c) throws POPException {
 		//LogWriter.Prefix="Broker";
 		
 		if (c.equals(byte.class) || c.equals(Byte.class)){
@@ -396,7 +408,7 @@ public abstract class POPBuffer {
 		}else if (c.isArray()) {
 			return getArray(c);
 		} else if (POPObject.class.isAssignableFrom(c)) {
-			return PopJava.newActiveFromBuffer(c, this);
+			return PopJava.newActiveFromBuffer(sourceCombox, c, this);
 		} else if (IPOPBase.class.isAssignableFrom(c)){
 			
 			try {

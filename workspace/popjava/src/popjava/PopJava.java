@@ -9,6 +9,7 @@ import popjava.baseobject.ObjectDescription;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
 import popjava.buffer.POPBuffer;
+import popjava.combox.Combox;
 import popjava.service.jobmanager.POPJavaJobManager;
 import popjava.service.jobmanager.network.POPNodeAJobManager;
 import popjava.service.jobmanager.network.POPNode;
@@ -141,11 +142,11 @@ public class PopJava {
 	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T newActiveFromBuffer(Class<T> targetClass, POPBuffer buffer)
+	public static <T> T newActiveFromBuffer(Combox sourceCombox, Class<T> targetClass, POPBuffer buffer)
 			throws POPException {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T) factoryProxy.newActiveFromBuffer(buffer);
+		return (T) factoryProxy.newActiveFromBuffer(sourceCombox, buffer);
 	}
 	
 	/**
