@@ -159,7 +159,20 @@ public class POPJavaConfiguration {
 	}
 	
 	public static String getClassPath(){
-		return System.getProperty("java.class.path");
+	    String path = System.getProperty("java.class.path");
+	    
+	    String [] parts = path.split(File.pathSeparator);
+	    path = "";
+	    for(int i = 0; i < parts.length; i++) {
+	        path += "\""+parts[i]+"\"";
+	        
+	        if(i < parts.length - 1) {
+	            path += File.pathSeparator;
+	        }
+	    }
+	          
+	    
+		return path;
 		/*
 		StringBuilder popJar = new StringBuilder();
         Set<String> paths = new HashSet<>();

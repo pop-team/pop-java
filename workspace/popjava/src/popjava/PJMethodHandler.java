@@ -40,14 +40,12 @@ import popjava.util.Util;
  * This class is responsible to invoke methods on the parallel object
  */
 public class PJMethodHandler extends Interface implements MethodHandler {
-
 	/**
 	 * Default semantic of a constructor
 	 */
 	protected final int constructorSemanticId = 21;
 
 	protected POPObject popObjectInfo = null;
-	private final AtomicInteger requestID = new AtomicInteger(1);
 
 	private final AtomicBoolean setup = new AtomicBoolean(false);
 	
@@ -98,9 +96,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					MessageHeader messageHeader = new MessageHeader(
 							methodInfo.getClassId(), methodInfo.getMethodId(),
 							constructorSemanticId);
-					messageHeader.setRequestID(requestID.incrementAndGet());
+					messageHeader.setRequestID(getRequestID());
 					
-					BufferFactory factory = combox.getBufferFactory();
+					BufferFactory factory = combox.getCombox().getBufferFactory();
 					POPBuffer popBuffer = factory.createBuffer();
 					popBuffer.setHeader(messageHeader);
 					
@@ -113,7 +111,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 					}
 					popDispatch(popBuffer);
 					
-					POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
+					POPBuffer responseBuffer = combox.getCombox().getBufferFactory().createBuffer();
 					popResponse(responseBuffer, messageHeader.getRequestID());
 					
 					for (int index = 0; index < parameterTypes.length; index++) {
@@ -211,9 +209,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		int methodSemantics = popObjectInfo.getSemantic(info);
 		MessageHeader messageHeader = new MessageHeader(info.getClassId(), 
 			info.getMethodId(), methodSemantics);
-		messageHeader.setRequestID(requestID.incrementAndGet());
+		messageHeader.setRequestID(getRequestID());
 		
-		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
+		POPBuffer popBuffer = combox.getCombox().getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
 		Class<?>[] parameterTypes = m.getParameterTypes();
 		
@@ -232,7 +230,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		
 		popDispatch(popBuffer);
 		if ((methodSemantics & Semantic.SYNCHRONOUS) != 0) {
-			POPBuffer responseBuffer = combox.getBufferFactory().createBuffer();
+			POPBuffer responseBuffer = combox.getCombox().getBufferFactory().createBuffer();
 			
 			popResponse(responseBuffer, messageHeader.getRequestID());
 			
@@ -361,7 +359,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		canExcute[0] = false;
 		String methodName = m.getName();
 		
-		if (argvs.length == 1 && (methodName.equals("serialize")) || (methodName.equals("deserialize"))) {
+		if (argvs.length == 1 && (methodName.equals("serialize") || methodName.equals("deserialize"))) {
 			boolean result = false;
 			POPBuffer buffer = (POPBuffer) argvs[0];
 			if (methodName.equals("serialize")) {
@@ -379,10 +377,10 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				result = deserialize(buffer);
 			}
 			return result;
-		} else if(argvs.length == 2 && methodName.equals("deserialize")) {
+		} else if(argvs.length == 2 && methodName.equals("deserialize")) {            
 			boolean result = false;
-			POPBuffer buffer = (POPBuffer) argvs[0];
-			Combox sourceCombox = (Combox) argvs[1];
+			POPBuffer buffer = (POPBuffer) argvs[1];
+			Combox sourceCombox = (Combox) argvs[0];
 			canExcute[0] = true;
 			result = deserialize(sourceCombox, buffer);
 			

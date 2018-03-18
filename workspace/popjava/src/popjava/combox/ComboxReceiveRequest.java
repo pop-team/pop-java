@@ -21,7 +21,7 @@ public final class ComboxReceiveRequest implements Runnable {
 	static public final int EXIT = 1;
 	static public final int ABORT = 2;
 	
-	protected Combox combox;
+	protected ComboxConnection combox;
 	protected final RequestQueue requestQueue;
 	protected final Broker broker;
 	protected int status = EXIT;
@@ -33,7 +33,7 @@ public final class ComboxReceiveRequest implements Runnable {
 	 * @param combox		The associated combox
 	 */
 	public ComboxReceiveRequest(Broker broker,
-			RequestQueue requestQueue, Combox combox) {
+			RequestQueue requestQueue, ComboxConnection combox) {
 		this.broker = broker;
 		this.requestQueue = requestQueue;
 		this.combox = combox;
@@ -75,7 +75,7 @@ public final class ComboxReceiveRequest implements Runnable {
 	 * @return	true if the new request if complete or false if it's incomplete
 	 */
 	public boolean receiveRequest(Request request) {		
-		POPBuffer buffer = combox.getBufferFactory().createBuffer();
+		POPBuffer buffer = combox.getCombox().getBufferFactory().createBuffer();
 		int receivedLength = combox.receive(buffer, -1);
 		if (receivedLength > 0) {
 			request.setBroker(broker);
@@ -126,7 +126,7 @@ public final class ComboxReceiveRequest implements Runnable {
 	public void setBuffer(String bufferType) {
 		BufferFactoryFinder finder = BufferFactoryFinder.getInstance();
 		BufferFactory factory = finder.findFactory(bufferType);		
-		combox.setBufferFactory(factory);		
+		combox.getCombox().setBufferFactory(factory);		
 	}
 
 	/**

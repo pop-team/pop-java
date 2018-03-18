@@ -178,6 +178,10 @@ public class POPAccessPoint implements IPOPBase {
 	}
 	
 	public boolean hasSameAccessPoint(POPAccessPoint ap) {
+	    if(ap == null) {
+	        return false;
+	    }
+	    
 		for(int i = 0; i < ap.size(); i++) {
 			if(accessPoints.contains(ap.get(i))) {
 				return true;

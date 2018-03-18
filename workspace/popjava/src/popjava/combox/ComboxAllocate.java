@@ -1,5 +1,6 @@
 package popjava.combox;
 
+import popjava.base.MessageHeader;
 import popjava.buffer.POPBuffer;
 
 /**
@@ -35,8 +36,8 @@ public abstract class ComboxAllocate<T extends Combox> {
 	 * @param buffer	Buffer to be send
 	 * @return	Number of byte sent
 	 */
-	public final int send(POPBuffer buffer) {
-		return combox.send(buffer);
+	public final int send(POPBuffer buffer, int connectionID) {
+		return combox.send(buffer, connectionID);
 	}
 
 	/**
@@ -44,8 +45,8 @@ public abstract class ComboxAllocate<T extends Combox> {
 	 * @param buffer	Buffer to receive the message
 	 * @return	Number of byte read
 	 */
-	public final int receive(POPBuffer buffer) {
-		return combox.receive(buffer, -1);
+	public final int receive(POPBuffer buffer, int connectionID) {
+		return combox.receive(buffer, -1, connectionID);
 	}
 	
 	/**

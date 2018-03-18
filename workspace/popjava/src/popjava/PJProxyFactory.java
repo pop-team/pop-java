@@ -244,7 +244,7 @@ public class PJProxyFactory extends ProxyFactory {
 			Class<?> c = this.createClass();
 			result = (POPObject) c.newInstance();
 			((ProxyObject) result).setHandler(methodHandler);			
-			
+
 			if (!result.deserialize(sourceCombox, buffer)) {
 				LogWriter.writeDebugInfo("bad deserialize");
 				POPException.throwObjectBindException(methodHandler

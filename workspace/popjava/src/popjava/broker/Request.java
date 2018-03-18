@@ -23,7 +23,7 @@ public class Request {
 	protected Broker broker;
 	protected POPBuffer buffer;
 	protected ComboxReceiveRequest receivedCombox;
-	protected Combox combox;	
+	protected ComboxConnection combox;	
 	protected int status;
 	
 	protected POPRemoteCaller remoteCaller;
@@ -159,7 +159,7 @@ public class Request {
 	 * Get the associated combox
 	 * @return associated combox
 	 */
-	public Combox getCombox() {
+	public ComboxConnection getConnection() {
 		return combox;
 	}
 
@@ -167,7 +167,7 @@ public class Request {
 	 * Set the associated combox
 	 * @param combox Combox to be associate
 	 */
-	public void setCombox(Combox combox) {
+	public void setCombox(ComboxConnection combox) {
 		this.combox = combox;
 	}
 

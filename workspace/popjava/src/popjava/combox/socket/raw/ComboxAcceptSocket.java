@@ -8,6 +8,9 @@ import java.net.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.io.*;
+
+import popjava.combox.Combox;
+import popjava.combox.ComboxConnection;
 import popjava.combox.ComboxReceiveRequest;
 
 /**
@@ -52,13 +55,10 @@ public class ComboxAcceptSocket implements Runnable {
 					broker.onNewConnection();
 				}
 
-				concurentConnections.add(connection);
-
 				ComboxRawSocket serverClient = new ComboxRawSocket();
 				if (serverClient.serverAccept(connection)) {
-					Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, serverClient);
-					Thread thread = new Thread(runnable, "Combox request acceptance");
-					thread.start();
+				    serveConnection(broker, requestQueue, serverClient, 1);
+	                concurentConnections.add(connection);
 				}
 			} catch (IOException e) {
 				LogWriter.writeDebugInfo("[Socket Accept] Error while setting up connection: %s", e.getMessage());
@@ -67,6 +67,12 @@ public class ComboxAcceptSocket implements Runnable {
 		
 		LogWriter.writeDebugInfo("[Socket Accept] Combox Server finished");
 		this.close();
+	}
+	
+	public static void serveConnection(Broker broker, RequestQueue requestQueue, Combox serverClient, int connectionID) {
+	    Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, new ComboxConnection(serverClient, connectionID));
+        Thread thread = new Thread(runnable, "Combox request acceptance");
+        thread.start();
 	}
 
 	/**

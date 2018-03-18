@@ -49,6 +49,7 @@ import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferXDR;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
+import popjava.combox.ComboxConnection;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.combox.ComboxServer;
@@ -297,7 +298,7 @@ public final class Broker {
 			try{
 				POPBuffer requestBuffer = request.getBuffer();
 				request.setBuffer(null); //This way the JVM can free the buffer memory
-				parameters = getParameters(requestBuffer, parameterTypes, constructor.getParameterAnnotations());
+				parameters = getParameters(request.getConnection().getCombox(), requestBuffer, parameterTypes, constructor.getParameterAnnotations());
 			}catch(POPException e){
 				exception = e;
 			}
@@ -325,7 +326,7 @@ public final class Broker {
 				// Return the value to caller
 				MessageHeader messageHeader = new MessageHeader();
 				messageHeader.setRequestID(request.getRequestID());
-				POPBuffer responseBuffer = request.getCombox().getBufferFactory()
+				POPBuffer responseBuffer = request.getConnection().getCombox().getBufferFactory()
 						.createBuffer();
 				responseBuffer.setHeader(messageHeader);
 
@@ -344,7 +345,7 @@ public final class Broker {
 					}
 				}
 				if (exception == null) {
-					sendResponse(request.getCombox(), responseBuffer);
+					sendResponse(request.getConnection(), responseBuffer);
 				}
 			}
 			// Remove reference, remove the connection to POPObject
@@ -362,13 +363,15 @@ public final class Broker {
 		if (exception != null) {
 			LogWriter.writeDebugInfo("[Broker] %s sendException: %s", 
 				this.getLogPrefix(), exception.getMessage());
-			sendException(request.getCombox(), exception, request.getRequestID());
+			sendException(request.getConnection(), exception, request.getRequestID());
 			System.exit(0);
 		}
 		return true;
 	}
 
-	private Object[] getParameters(POPBuffer requestBuffer,
+	private Object[] getParameters(
+	        Combox sourceCombox,
+	        POPBuffer requestBuffer,
 			Class<?>[] parameterTypes, Annotation [][] annotations) throws POPException{
 		Object[] parameters;
 		parameters = new Object[parameterTypes.length];
@@ -379,7 +382,7 @@ public final class Broker {
 			        Util.isParameterUsable(annotations[index])){
 				try {
 					parameters[index] = requestBuffer
-							.getValue(parameterTypes[index]);
+							.getValue(sourceCombox, parameterTypes[index]);
 				} catch (POPException e) {
 					throw new POPException(e.errorCode, e.errorMessage);
 				} catch (Exception e) {
@@ -520,7 +523,7 @@ public final class Broker {
 
 				POPBuffer requestBuffer = request.getBuffer();
 				request.setBuffer(null);//This way the JVM can free the  buffer content
-				parameters = getParameters(requestBuffer, parameterTypes, parametersAnnotations);
+				parameters = getParameters(request.getConnection().getCombox(), requestBuffer, parameterTypes, parametersAnnotations);
 			}catch(POPException e){
 				exception = e;
 			}
@@ -555,7 +558,7 @@ public final class Broker {
 			} finally {
 				if (tracking) {
 					final long trackingTime = System.currentTimeMillis() - trackingStart;
-					registerTracking(request.getCombox().getRemoteCaller(), method.toGenericString(), trackingTime);
+					registerTracking(request.getConnection().getRemoteCaller(), method.toGenericString(), trackingTime);
 				}
 			}
 		}
@@ -566,7 +569,7 @@ public final class Broker {
 
 				MessageHeader messageHeader = new MessageHeader();
 				messageHeader.setRequestID(request.getRequestID());
-				POPBuffer responseBuffer = request.getCombox().getBufferFactory().createBuffer();
+				POPBuffer responseBuffer = request.getConnection().getCombox().getBufferFactory().createBuffer();
 				responseBuffer.setHeader(messageHeader);
 
 				//Put all parameters back in the response, if needed
@@ -604,14 +607,14 @@ public final class Broker {
 									objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
 
 									// send connector certificate to object's node
-									String destinationFingerprint = request.getCombox().getAccessPoint().getFingerprint();
+									String destinationFingerprint = request.getConnection().getAccessPoint().getFingerprint();
 									Certificate destCert = SSLUtils.getCertificate(destinationFingerprint);
 									// send caller' certificate to object origin node
 									returnObject.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
 								}
 								
 								// set the od with the current connection network
-								returnObject.getOd().setNetwork(request.getCombox().getNetworkUUID());
+								returnObject.getOd().setNetwork(request.getConnection().getNetworkUUID());
 							}
 							
 						    responseBuffer.putValue(result, returnType);
@@ -622,7 +625,7 @@ public final class Broker {
 				}
 				// Send response if success to put parameter to response buffer
 				if (exception == null) {
-					sendResponse(request.getCombox(), responseBuffer);
+					sendResponse(request.getConnection(), responseBuffer);
 				}
 			}
 			// Remove reference, remove the connection to POPObject
@@ -646,7 +649,7 @@ public final class Broker {
 			LogWriter.writeDebugInfo("[Broker] %s sendException: %s.", 
 				this.getLogPrefix(), exception.getMessage());
 			if (request.isSynchronous()){
-				sendException(request.getCombox(), exception, request.getRequestID());
+				sendException(request.getConnection(), exception, request.getRequestID());
 			}
 		}
 		
@@ -690,7 +693,7 @@ public final class Broker {
 			if (request.isSynchronous()){
 				POPException exception = new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION, 
 					"You can't call a localhost method from a remote location.");
-				sendException(request.getCombox(), exception, request.getRequestID());
+				sendException(request.getConnection(), exception, request.getRequestID());
 			}
 		}
 		
@@ -776,7 +779,7 @@ public final class Broker {
 			return false;
 		}
 		POPBuffer buffer = request.getBuffer();
-		POPBuffer responseBuffer = request.getCombox().getBufferFactory().createBuffer();
+		POPBuffer responseBuffer = request.getConnection().getCombox().getBufferFactory().createBuffer();
 		
 		switch (request.getMethodId()) {
 		case MessageHeader.BIND_STATUS_CALL:
@@ -789,7 +792,7 @@ public final class Broker {
 				responseBuffer.putString(POPSystem.getPlatform());
 				responseBuffer.putString(BufferFactoryFinder.getInstance().getSupportingBuffer());
 				
-				sendResponse(request.getCombox(), responseBuffer);
+				sendResponse(request.getConnection(), responseBuffer);
 			}
 			break;
 		case MessageHeader.ADD_REF_CALL: {
@@ -804,7 +807,7 @@ public final class Broker {
 				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
 				responseBuffer.putInt(ret);
-				sendResponse(request.getCombox(), responseBuffer);
+				sendResponse(request.getConnection(), responseBuffer);
 			}
 		}
 			break;
@@ -820,7 +823,7 @@ public final class Broker {
 				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
 				responseBuffer.putInt(ret);
-				sendResponse(request.getCombox(), responseBuffer);
+				sendResponse(request.getConnection(), responseBuffer);
 			}
 		}
 			break;
@@ -836,14 +839,14 @@ public final class Broker {
 				// The trick :(( I haven't implemented to right XDR buffer
 				// I will try to fix this later :(
 				responseBuffer.putBoolean(foundEncoding);
-				sendResponse(request.getCombox(), responseBuffer);
+				sendResponse(request.getConnection(), responseBuffer);
 			}
 			
 			if (foundEncoding) {
                 request.setBufferType(encoding);
                 
                 BufferFactory bufferFactory = BufferFactoryFinder.getInstance().findFactory(encoding);
-                request.getCombox().setBufferFactory(bufferFactory);
+                request.getConnection().getCombox().setBufferFactory(bufferFactory);
             }
 		}
 			break;
@@ -864,7 +867,7 @@ public final class Broker {
 				responseBuffer.setHeader(messageHeader);
 				boolean isAlive = true;
 				responseBuffer.putBoolean(isAlive);
-				sendResponse(request.getCombox(), responseBuffer);
+				sendResponse(request.getConnection(), responseBuffer);
 			}
 		}
 			break;
@@ -1211,11 +1214,12 @@ public final class Broker {
 		
 		//Send info back to callback
 		MessageHeader messageHeader = new MessageHeader();
+		messageHeader.setRequestType(MessageHeader.REQUEST);
 		POPBuffer buffer = new BufferXDR();
 		buffer.setHeader(messageHeader);
 		buffer.putInt(status);
 		broker.getAccessPoint().serialize(buffer);
-		callback.send(buffer);
+		callback.send(buffer, 0);
 		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 
 		// clean-up main method, help GC since treatRequests is an almost infinite loop
@@ -1241,10 +1245,10 @@ public final class Broker {
 	 *            Exception to send
 	 * @return true if the exception has been sent
 	 */
-	public boolean sendException(Combox combox, POPException exception, int requestId) {
+	public boolean sendException(ComboxConnection combox, POPException exception, int requestId) {
 	    exception.printStackTrace();
 	    
-		POPBuffer buffer = combox.getBufferFactory().createBuffer();
+		POPBuffer buffer = combox.getCombox().getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(
 				POPSystemErrorCode.EXCEPTION_PAROC_STD);
 		messageHeader.setRequestID(requestId);
@@ -1263,7 +1267,7 @@ public final class Broker {
 	 * @param buffer
 	 *            Buffer to send trough the combox
 	 */
-	public void sendResponse(Combox combox, POPBuffer buffer) {
+	public void sendResponse(ComboxConnection combox, POPBuffer buffer) {
 		combox.send(buffer);
 	}
 

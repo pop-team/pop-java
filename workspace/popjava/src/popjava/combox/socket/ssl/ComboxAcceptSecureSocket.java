@@ -4,6 +4,7 @@ import popjava.broker.Broker;
 import popjava.broker.RequestQueue;
 import popjava.util.LogWriter;
 import popjava.combox.ComboxReceiveRequest;
+import popjava.combox.socket.raw.ComboxAcceptSocket;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -81,9 +82,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 
 				ComboxSecureSocket combox = new ComboxSecureSocket();
 				if (combox.serverAccept(sslConnection)) {
-					Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, combox);
-					Thread thread = new Thread(runnable, "Combox request acceptance");
-					thread.start();
+				    ComboxAcceptSocket.serveConnection(broker, requestQueue, combox, 1);
 					concurentConnections.add(sslConnection);
 				}
 			} catch (IOException e) {

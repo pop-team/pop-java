@@ -9,6 +9,7 @@ public class MessageHeader {
 	public static final int REQUEST = 0;
 	public static final int RESPONSE = 1;
 	public static final int EXCEPTION = 2;
+	public static final int COMBOX = 4; //Used for inter combox communication, like bidirectional setup
 	
 	public static final int BIND_STATUS_CALL = 0;
 	public static final int ADD_REF_CALL = 1;

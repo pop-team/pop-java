@@ -9,6 +9,7 @@ import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferRaw;
 import popjava.buffer.BufferXDR;
 import popjava.buffer.POPBuffer;
+import popjava.combox.socket.raw.ComboxAcceptSocket;
 import popjava.util.Configuration;
 import popjava.util.POPRemoteCaller;
 /**
@@ -30,6 +31,7 @@ public abstract class Combox<T> {
 	protected POPRemoteCaller remoteCaller;
 	
 	protected final Configuration conf = Configuration.getInstance();
+	private Broker broker = null; //Broken to be used when making this combox bidirectional
 
 	/**
 	 * This is used by ServerCombox (server).
@@ -63,6 +65,7 @@ public abstract class Combox<T> {
 	public final boolean connectToServer(Broker broker, POPAccessPoint accesspoint, int timeout) {
 		this.accessPoint = accesspoint;
 		this.timeOut = timeout;
+		this.broker = broker;
 		return connectToServer() && sendNetworkName() && exportConnectionInfo() && sendLocalAP(broker);
 	}
 	
@@ -113,21 +116,22 @@ public abstract class Combox<T> {
 	private boolean sendLocalAP(Broker broker) {
 		MessageHeader messageHeader = new MessageHeader();
 		messageHeader.setRequestID(1234);
-		POPBuffer buffer = new BufferXDR();
+		messageHeader.setRequestType(MessageHeader.REQUEST);
+		POPBuffer buffer = bufferFactory.createBuffer();
 		buffer.setHeader(messageHeader);
 		buffer.putBoolean(broker != null);
 		if(broker != null) {
 			buffer.putValue(broker.getAccessPoint(), POPAccessPoint.class);
 		}
 		
-		send(buffer);
+		send(buffer, 0);
 		
 		return true;
 	}
 	
 	private boolean receiveRemoveAP() {
-		POPBuffer buffer = new BufferXDR();
-		receive(buffer, 1234);
+		POPBuffer buffer = bufferFactory.createBuffer();
+		receive(buffer, 1234, 0);
 		
 		POPAccessPoint ap;
 		if(buffer.getBoolean()) {
@@ -148,7 +152,7 @@ public abstract class Combox<T> {
 	 * @param buffer	The buffer to send
 	 * @return	Number of byte sent
 	 */
-	public abstract int send(POPBuffer buffer);
+	public abstract int send(POPBuffer buffer, int connectionID);
 
 	/**
 	 * Receive buffer from the other side
@@ -156,7 +160,7 @@ public abstract class Combox<T> {
 	 * @param requestId	The ID of the request
 	 * @return	Number of byte received
 	 */
-	public abstract int receive(POPBuffer buffer, int requestId);
+	public abstract int receive(POPBuffer buffer, int requestId, int connectionID );
 
 	/**
 	 * Close the connection
@@ -209,5 +213,43 @@ public abstract class Combox<T> {
 	 */
 	public void setNetworkUUID(String networkUUID) {
 		this.networkUUID = networkUUID;
+	}
+	
+	/**
+	 * This function can be called to transform a client combox into a server combox.
+	 */
+	public int makeBidirectional() {
+	    MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setRequestID(2);
+        messageHeader.setMethodId(1234);
+        messageHeader.setRequestType(MessageHeader.REQUEST);
+        POPBuffer buffer = bufferFactory.createBuffer();
+        buffer.setHeader(messageHeader);
+        
+        send(buffer, 0);
+        
+        int answer = receive(buffer, 2, 0);
+        if(answer > 0) {
+            if(buffer.getHeader().getRequestType() == MessageHeader.EXCEPTION) {
+                System.out.println("Bidirectional connection failed, exception "+buffer.getHeader().getExceptionCode());
+                return -1;
+            }
+            int connectionID = buffer.getInt();;
+            System.out.println("Combox accepted bidirectional on connection "+connectionID);
+            
+            return connectionID;
+        }
+        
+        return -1;
+	}
+	
+	protected boolean bindToBroker(int connectionID) {
+	    System.out.println("Rebind combox to broker using connection ID "+connectionID);
+	    if(broker != null) {
+	        ComboxAcceptSocket.serveConnection(broker, broker.getRequestQueue(), this, connectionID);
+	        return true;
+	    }
+	    
+	    return false; //TODO: Throw exception?
 	}
 }

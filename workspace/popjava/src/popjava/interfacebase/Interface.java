@@ -3,7 +3,6 @@ package popjava.interfacebase;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import popjava.PopJava;
 import popjava.annotation.POPObjectDescription;
@@ -22,6 +21,7 @@ import popjava.buffer.POPBuffer;
 import popjava.codemanager.AppService;
 import popjava.combox.Combox;
 import popjava.combox.ComboxAllocate;
+import popjava.combox.ComboxConnection;
 import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.util.ssl.SSLUtils;
@@ -48,14 +48,19 @@ import popjava.util.Util;
  */
 public class Interface {
 
+
+    private static final int MIN_REQUEST_ID = 1000;
+    private static final int MAX_REQUEST_ID = Integer.MAX_VALUE;
+
+    private int requestID = MIN_REQUEST_ID;
+    
 	protected final Broker parentBroker;
-	protected Combox combox;
+	protected ComboxConnection combox;
+	
 	//protected Buffer popBuffer;
 	protected POPAccessPoint popAccessPoint = new POPAccessPoint();
 	protected ObjectDescription od = new ObjectDescription();
 
-	private final AtomicInteger requestID = new AtomicInteger(10000);
-	
 	private static final Configuration conf = Configuration.getInstance();
 	
 	/**
@@ -111,9 +116,18 @@ public class Interface {
 	public boolean deserialize(POPBuffer buffer) {
 		return deserialize(null, buffer);
 	}
+    
+    protected synchronized int getRequestID() {
+        requestID = (requestID + 1) % MAX_REQUEST_ID;
+        
+        if(requestID < MIN_REQUEST_ID) {
+            requestID = MIN_REQUEST_ID;
+        }
+        
+        return requestID;
+    }
 	
 	public boolean deserialize(Combox sourceCombox, POPBuffer buffer) {
-		System.out.println("DESERIALIZE "+sourceCombox);
 		//new Exception().printStackTrace();
 		
 		boolean result = true;
@@ -129,12 +143,19 @@ public class Interface {
 		int ref = buffer.getInt(); //related to the addRef called in serialize()
 		if (ref > 0) {
 			try {
+			    
+			    boolean connected = false;
 				
 				if(sourceCombox != null) {
-					System.out.println("MAYBE WE CAN REUSE CONNECTION "+sourceCombox.getAccessPoint()+ " "+popAccessPoint);
+				    if(popAccessPoint.hasSameAccessPoint(sourceCombox.getRemoteCaller().getBrokerAP())) {
+	                    System.out.println("MAYBE WE CAN REUSE CONNECTION "+sourceCombox.getRemoteCaller().getBrokerAP()+ " "+popAccessPoint);
+	                    connected = reuseCombox(sourceCombox);
+				    }
 				}
 				
-				bind(popAccessPoint);
+				if(!connected) {
+				    bind(popAccessPoint);
+				}
 			} catch (POPException e) {
 				result = false;
 				LogWriter.writeDebugInfo("[Interface] Deserialize. Cannot bind to " + popAccessPoint.toString());
@@ -145,6 +166,16 @@ public class Interface {
 			}
 		}
 		return result;
+	}
+	
+	private boolean reuseCombox(Combox sourceCombox) {
+	    int connectionID = sourceCombox.makeBidirectional();
+	    if(connectionID >= 0) {
+	        combox = new ComboxConnection(sourceCombox, connectionID);
+	        return true;
+	    }
+	    
+	    return false;
 	}
 	
 	/**
@@ -363,7 +394,7 @@ public class Interface {
 					if (networkUUID == null || networkUUID.isEmpty()) {
 						networkUUID = conf.getDefaultNetwork();
 					}
-					combox = factory.createClientCombox(networkUUID);
+					combox = new ComboxConnection(factory.createClientCombox(networkUUID), 1);
 				} catch(IOException e) {
 					LogWriter.writeExceptionLog(e);
 					continue;
@@ -372,7 +403,7 @@ public class Interface {
 			}
 		}
 		
-		if (combox != null && combox.connectToServer(parentBroker, accesspoint, conf.getConnectionTimeout())) {
+		if (combox != null && combox.getCombox().connectToServer(parentBroker, accesspoint, conf.getConnectionTimeout())) {
 
 			BindStatus bindStatus = new BindStatus();
 			bindStatus(bindStatus);
@@ -407,7 +438,7 @@ public class Interface {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.BIND_STATUS_CALL, Semantic.SYNCHRONOUS);
-		messageHeader.setRequestID(requestID.incrementAndGet());
+		messageHeader.setRequestID(getRequestID());
 		
 		popBuffer.setHeader(messageHeader);
 		popDispatch(popBuffer);
@@ -436,7 +467,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.GET_ENCODING_CALL, Semantic.SYNCHRONOUS);
-		messageHeader.setRequestID(requestID.incrementAndGet());
+		messageHeader.setRequestID(getRequestID());
 		popBuffer.setHeader(messageHeader);
 		popBuffer.putString(conf.getSelectedEncoding());
 
@@ -462,7 +493,7 @@ public class Interface {
 		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0, MessageHeader.ADD_REF_CALL, Semantic.SYNCHRONOUS);
-		messageHeader.setRequestID(requestID.incrementAndGet());
+		messageHeader.setRequestID(getRequestID());
 		popBuffer.setHeader(messageHeader);
 
 		int result = 0;
@@ -485,7 +516,7 @@ public class Interface {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.DEC_REF_CALL, Semantic.SYNCHRONOUS);
-		messageHeader.setRequestID(requestID.incrementAndGet());
+		messageHeader.setRequestID(getRequestID());
 		popBuffer.setHeader(messageHeader);
 
 		int result = 0;
@@ -511,7 +542,7 @@ public class Interface {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.OBJECT_ALIVE_CALL, Semantic.SYNCHRONOUS);
-		messageHeader.setRequestID(requestID.incrementAndGet());
+		messageHeader.setRequestID(getRequestID());
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -536,7 +567,7 @@ public class Interface {
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		MessageHeader messageHeader = new MessageHeader(0,
 				MessageHeader.KILL_ALL, Semantic.SYNCHRONOUS);
-		messageHeader.setRequestID(requestID.incrementAndGet());
+		messageHeader.setRequestID(getRequestID());
 		popBuffer.setHeader(messageHeader);
 
 		popDispatch(popBuffer);
@@ -950,7 +981,7 @@ public class Interface {
 		BufferXDR buffer = new BufferXDR();
 		int result = 0;
 
-		if (allocateCombox.receive(buffer) > 0) {
+		if (allocateCombox.receive(buffer, 0) > 0) {
 			int status = buffer.getInt();
 			String str = buffer.getString();
 			
