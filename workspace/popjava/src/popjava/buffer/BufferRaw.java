@@ -64,9 +64,8 @@ public class BufferRaw extends POPBuffer {
 			
 			switch (requestType) {
 			case MessageHeader.REQUEST:
-            case MessageHeader.COMBOX:
 				messageHeader.setClassId(getInt(12));
-				messageHeader.setMethodId(getInt(16));
+				messageHeader.setMethodId(getInt(16));				
 				messageHeader.setSenmatics(getInt(20));
 				break;
 			case MessageHeader.EXCEPTION:
@@ -638,10 +637,9 @@ public class BufferRaw extends POPBuffer {
 		
 		switch (type) {
 			case MessageHeader.REQUEST:
-            case MessageHeader.COMBOX:
 				putInt(12, messageHeader.getClassId());
 				putInt(16, messageHeader.getMethodId());
-				putInt(20, messageHeader.getSenmatics());
+				putInt(20, messageHeader.getSemantics());
 				break;
 			case MessageHeader.EXCEPTION:
 				putInt(12, messageHeader.getExceptionCode());

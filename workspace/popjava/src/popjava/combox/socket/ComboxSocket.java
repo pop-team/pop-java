@@ -112,20 +112,30 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                     
                     //HANDLE SPECIAL COMBOX packet
                     //TODO: Make this cleaner. 
-                    if(packetConnectionID == 0 && requestIdPacket == 2) {
+					if(packetConnectionID == 0 && requestIdPacket == 2 && requestId != 2) {
                         POPBuffer tempBuffer = getBufferFactory().createBuffer();
+                        tempBuffer.resetToReceive();
                         int length = readPacket(tempBuffer, messageLength, requestIdPacket);
+                        
+                        if(length >= MessageHeader.HEADER_LENGTH) {
+                            tempBuffer.extractHeader();
+                        }else {
+                            System.out.println("THIS SHOULD NOT HAPPEN");
+                        }
 
                         if(tempBuffer.getHeader().getRequestType() == MessageHeader.RESPONSE) {
-                            System.out.println("Got rebind response");
+                            System.out.println("Got rebind response " +connectionID+" "+requestId);
+                            inputStream.reset();
+                            Thread.yield();
+                            continue;
                         }else {
                             if(tempBuffer.getHeader().getMethodId() != 1234) {
-                                System.out.println("GOT WRONG METHOD ID, PLEASE FIX: "+tempBuffer.getHeader().getMethodId()+" "+length);
-                                System.out.println(tempBuffer.getHeader());
-                                //System.exit(0);
+                                System.out.println("GOT WRONG METHOD ID, PLEASE FIX: "+tempBuffer.getHeader().getMethodId()+" "+length+" "+this);
+                                System.out.println(tempBuffer.getHeader()+" "+length);
+                                System.exit(0);
                             }
                             
-                            System.out.println("Rebinding this combox to broker");
+                            System.out.println("Rebinding this combox to broker"+this);
                             
                             int newConnectionID = connectionCounter++;
                             
@@ -146,8 +156,9 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 					                    
                     if(packetConnectionID != connectionID) {
                         inputStream.reset();
-                        System.out.println("WRONG CONNECTION "+packetConnectionID+" instead of "+connectionID);
+                        System.out.println("WRONG CONNECTION "+packetConnectionID+" instead of "+connectionID +" "+this);
                         Thread.yield();
+                        System.exit(0);
                         continue;
                     }
 					
@@ -174,7 +185,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				}
 				close();
 			} else {
-				buffer.extractHeader();				
+				buffer.extractHeader();
 			}
 			
 			return result;
@@ -204,6 +215,11 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
         		messageLength -= receivedLength;
         		result += receivedLength;
         		buffer.put(receivedBuffer, 0, receivedLength);
+        		
+        		/*for(int i = 0; i < receivedLength; i++) {
+        		    System.out.print(receivedBuffer[i]+" ");
+        		}
+        		System.out.println();*/
         	} else {
         		break;
         	}
@@ -219,16 +235,13 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			final byte[] dataSend = buffer.array();
 			
 			//new Exception().printStackTrace();
-			System.out.println("SEND ID "+buffer.getHeader().getRequestID()+" con : "+connectionID+" method "+buffer.getHeader().getMethodId());
-			
-			if(connectionID > 5) {
-			    new Exception().printStackTrace();
-			}
+			System.out.println("SEND ID "+buffer.getHeader().getRequestID()+" con : "+connectionID+" method "+buffer.getHeader()+" combox "+this);
 			
 			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {
 			    outputStream.write(ByteBuffer.allocate(4).putInt(connectionID).array(),0 ,4);
     			outputStream.write(dataSend, 0, length);
+    			
     			outputStream.flush();
 			}
 			

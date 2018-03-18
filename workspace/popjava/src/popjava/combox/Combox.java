@@ -221,6 +221,7 @@ public abstract class Combox<T> {
 	public int makeBidirectional() {
 	    MessageHeader messageHeader = new MessageHeader();
         messageHeader.setRequestID(2);
+        messageHeader.setClassId(9999);
         messageHeader.setMethodId(1234);
         messageHeader.setRequestType(MessageHeader.REQUEST);
         POPBuffer buffer = bufferFactory.createBuffer();
