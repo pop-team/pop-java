@@ -15,7 +15,7 @@ public class SubclassingTest {
 	public void test(){
 		POPSystem.initialize();
 		
-		D d = PopJava.newActive(C.class);
+		D d = PopJava.newActive(this, C.class);
 		
 		A a = d.getTest();
 		

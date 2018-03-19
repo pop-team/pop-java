@@ -14,7 +14,7 @@ public class TestConcurrency {
 	public void test(){
 		POPSystem.initialize();
 		
-		ParallelObject object = PopJava.newActive(ParallelObject.class);
+		ParallelObject object = PopJava.newActive(this, ParallelObject.class);
 		
 		object.sync();
 		object.mutex();
@@ -32,7 +32,7 @@ public class TestConcurrency {
 	public void testConcurrentSleep(){
 		POPSystem.initialize();
 		
-		ParallelObject object = PopJava.newActive(ParallelObject.class);
+		ParallelObject object = PopJava.newActive(this, ParallelObject.class);
 		
 		long start = System.currentTimeMillis();
 		object.concSleep();
@@ -51,7 +51,7 @@ public class TestConcurrency {
 	public void testThreadedConcurrency() throws InterruptedException{
 	    POPSystem.initialize();
         
-        final ParallelObject object = PopJava.newActive(ParallelObject.class);
+        final ParallelObject object = PopJava.newActive(this, ParallelObject.class);
         
         new Thread(new Runnable() {
             

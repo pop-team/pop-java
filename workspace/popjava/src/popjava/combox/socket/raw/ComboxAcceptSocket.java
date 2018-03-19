@@ -56,7 +56,7 @@ public class ComboxAcceptSocket implements Runnable {
 				}
 
 				ComboxRawSocket serverClient = new ComboxRawSocket();
-				if (serverClient.serverAccept(connection)) {
+				if (serverClient.serverAccept(broker, connection)) {
 				    serveConnection(broker, requestQueue, serverClient, 1);
 	                concurentConnections.add(connection);
 				}

@@ -26,70 +26,70 @@ public class ProtocolsTests {
 	
 	@Test
 	public void classicObject() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test
 	public void useDefaultProtocol() {
-		A a = PopJava.newActive(A.class, "localhost", new String[]{""});
+		A a = PopJava.newActive(this, A.class, "localhost", new String[]{""});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test
 	public void useDefaultProtocolOnPort() {
-		A a = PopJava.newActive(A.class, "localhost:12050", new String[]{""});
+		A a = PopJava.newActive(this, A.class, "localhost:12050", new String[]{""});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test
 	public void twoProtocols() {
-		A a = PopJava.newActive(A.class, "localhost", new String[]{"socket:7000", "socket:7001"});
+		A a = PopJava.newActive(this, A.class, "localhost", new String[]{"socket:7000", "socket:7001"});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test
 	public void twoProtocolsRandom() {
-		A a = PopJava.newActive(A.class, "localhost", new String[]{"socket", "socket"});
+		A a = PopJava.newActive(this, A.class, "localhost", new String[]{"socket", "socket"});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test
 	public void twoProtocolsFixedAndRandom() {
-		A a = PopJava.newActive(A.class, "localhost", new String[]{"socket:8000", "socket"});
+		A a = PopJava.newActive(this, A.class, "localhost", new String[]{"socket:8000", "socket"});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test
 	public void singleChoosenProtocol() {
-		A a = PopJava.newActive(A.class, "localhost:9030", new String[]{"socket"});
+		A a = PopJava.newActive(this, A.class, "localhost:9030", new String[]{"socket"});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test
 	public void singleChoosenProtocol2() {
-		A a = PopJava.newActive(A.class, "localhost", new String[]{"socket:9040"});
+		A a = PopJava.newActive(this, A.class, "localhost", new String[]{"socket:9040"});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test(expected = Exception.class)
 	public void errorDoublePort() {
-		A a = PopJava.newActive(A.class, "localhost:9020", new String[]{"socket:9040"});
+		A a = PopJava.newActive(this, A.class, "localhost:9020", new String[]{"socket:9040"});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}
 	
 	@Test(expected = Exception.class)
 	public void errorNotEnoughPorts() {
-		A a = PopJava.newActive(A.class, "localhost:9050", new String[]{"socket", "socket"});
+		A a = PopJava.newActive(this, A.class, "localhost:9050", new String[]{"socket", "socket"});
 		System.out.format("AP: %s\n", a.getAccessPoint());
 		a.sync();
 	}

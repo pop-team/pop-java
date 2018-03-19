@@ -23,14 +23,14 @@ public class RemoteObject extends POPObject implements RemoteInterface{
 	@Override
 	@POPSyncConc
 	public POPObjectImpl getObject() {
-		temp = PopJava.newActive(POPObjectImpl.class);
+		temp = PopJava.newActive(this, POPObjectImpl.class);
 		return temp;
 	}
 	
 	@Override
 	@POPSyncConc
 	public POPObjectImpl getObject2() {
-		temp = PopJava.newActive(POPObjectImpl.class, "localhost");
+		temp = PopJava.newActive(this, POPObjectImpl.class, "localhost");
 		return temp;
 	}
 

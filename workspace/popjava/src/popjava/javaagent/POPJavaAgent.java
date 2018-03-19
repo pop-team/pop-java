@@ -297,7 +297,18 @@ public final class POPJavaAgent implements ClassFileTransformer{
                     
                     //Replace all calls to new for popjava objects with the correct instatiation
                     if(isPOPClass(clazz) && isDistributable(clazz)){
-                        String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+clazz.getName()+".class, $args);";
+                    	
+                    	int isStatic = e.where().getModifiers() & Modifier.STATIC;
+                    	
+                    	String me = "this";
+                    	if( isStatic  > 0) {
+                    		me = "null";
+                    	}
+
+                    	String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+me+", "+clazz.getName()+".class, $args);";
+                    	
+                    	System.out.println(newCall);
+                    	
                         e.replace(newCall);
                     }
                 } catch (NotFoundException e1) {

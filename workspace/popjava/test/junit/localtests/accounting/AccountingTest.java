@@ -29,7 +29,7 @@ public class AccountingTest {
 	
 	@Test
 	public void syncSeqTest() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		for (int i = 0; i < ITERATIONS; i++) {
 			a.seq();
 		}
@@ -38,7 +38,7 @@ public class AccountingTest {
 	
 	@Test
 	public void syncConcTest() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		for (int i = 0; i < ITERATIONS; i++) {
 			a.conc();
 		}
@@ -47,7 +47,7 @@ public class AccountingTest {
 	
 	@Test
 	public void asyncSeqTest() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		for (int i = 0; i < ITERATIONS; i++) {
 			a.aseq();
 		}
@@ -57,7 +57,7 @@ public class AccountingTest {
 	
 	@Test
 	public void asyncConcTest() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		for (int i = 0; i < ITERATIONS; i++) {
 			a.aconc();
 		}
@@ -67,7 +67,7 @@ public class AccountingTest {
 	
 	@Test
 	public void mixedTest() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		for (int i = 0; i < ITERATIONS; i++) {
 			a.aconc();
 		}

@@ -100,13 +100,13 @@ public class POPObjectDefaultMethodTest {
 	
 	@Test
 	public void addCertificateToRandomPOPObject() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		POPAccessPoint ap = a.getAccessPoint();
 		
 		System.out.println("A available at " + ap);
 		System.out.println("Connecting generic POPObject...");
 		
-		POPObject obj = PopJava.newActive(POPObject.class, ap);
+		POPObject obj = PopJava.newActiveConnect(this, POPObject.class, ap);
 		obj.PopRegisterFutureConnectorCertificate(certificate);
 		obj.exit();
 	}
@@ -116,13 +116,13 @@ public class POPObjectDefaultMethodTest {
 		byte[] bytes = new byte[certificate.length];
 		new Random().nextBytes(bytes);
 		
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		POPAccessPoint ap = a.getAccessPoint();
 		
 		System.out.println("A available at " + ap);
 		System.out.println("Connecting generic POPObject...");
 		
-		POPObject obj = PopJava.newActive(POPObject.class, ap);
+		POPObject obj = PopJava.newActiveConnect(this, POPObject.class, ap);
 		obj.PopRegisterFutureConnectorCertificate(bytes);
 		obj.exit();
 	}

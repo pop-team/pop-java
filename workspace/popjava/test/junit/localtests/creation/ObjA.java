@@ -24,7 +24,7 @@ public class ObjA extends POPObject {
 	public ObjA(int val) {
 		this.val = val;
 		bVal = (int) (Math.random() * 100);
-		b = PopJava.newActive(ObjB.class, this, bVal);
+		b = PopJava.newActive(this, ObjB.class, this, bVal);
 	}
 
 	@POPSyncSeq

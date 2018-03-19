@@ -27,21 +27,21 @@ public class AccountingAPITest {
 
 	@Test
 	public void apiEnabledTest() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		Object ao = a;
 		assertTrue(POPAccounting.isEnabledFor(ao));
 	}
 	
 	@Test
 	public void apiUsers() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		Object ao = a;
 		assertEquals(1, POPAccounting.getUsers(ao).length);
 	}
 	
 	@Test
 	public void apiRetrieveSpecific() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		Object ao = a;
 		POPRemoteCaller user = POPAccounting.getUsers(ao)[0];
 		assertTrue(POPAccounting.getInformation(ao, user) != null);
@@ -49,7 +49,7 @@ public class AccountingAPITest {
 	
 	@Test
 	public void apiRetrieveMyself() {
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		Object ao = a;
 		POPRemoteCaller user = POPAccounting.getUsers(ao)[0];
 		assertTrue(POPAccounting.getMyInformation(ao) != null);

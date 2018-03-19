@@ -36,7 +36,7 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testLocalCreation(){
-		LocalObject obj = PopJava.newActive(LocalObject.class, new Double(1));
+		LocalObject obj = PopJava.newActive(this, LocalObject.class, new Double(1));
 		
 		assertEquals(obj.value, obj.getValue());
 		assertNotSame(-1, obj.value);
@@ -45,7 +45,7 @@ public class JVMObjectTest {
 
 	@Test
 	public void testRemoteCreation(){
-		LocalObject obj = PopJava.newActive(LocalObject.class, "localhost");
+		LocalObject obj = PopJava.newActive(this, LocalObject.class, "localhost");
 		
 		assertEquals(-1, obj.value);
 		assertNotSame(obj.value, obj.getValue());
@@ -54,8 +54,8 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testReferences(){
-		LocalObject local = PopJava.newActive(LocalObject.class, 3.0);
-		LocalObject remote = PopJava.newActive(LocalObject.class, "localhost");
+		LocalObject local = PopJava.newActive(this, LocalObject.class, 3.0);
+		LocalObject remote = PopJava.newActive(this, LocalObject.class, "localhost");
 
 		assertNotSame(-1, local.value);
 		assertEquals(-1, remote.value);
@@ -71,8 +71,8 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testReferences2(){
-		LocalObject local = PopJava.newActive(LocalObject.class, new Double(1));
-		LocalObject remote = PopJava.newActive(LocalObject.class, "localhost");
+		LocalObject local = PopJava.newActive(this, LocalObject.class, new Double(1));
+		LocalObject remote = PopJava.newActive(this, LocalObject.class, "localhost");
 
 		POPAccessPoint localAP = PopJava.getAccessPoint(local);
 		POPAccessPoint remoteAP = PopJava.getAccessPoint(remote);
@@ -86,14 +86,14 @@ public class JVMObjectTest {
 	@Test
 	public void testMultipleLocalObjects(){
 		LocalObject [] objs = new LocalObject[10];
-		LocalObject remote = PopJava.newActive(LocalObject.class, "localhost");
+		LocalObject remote = PopJava.newActive(this, LocalObject.class, "localhost");
 		
 		assertFalse(remote.getAccessPoint().toString().isEmpty());
 		
 		Set<String> accessPoints = new HashSet<>();
 		
 		for(int i = 0; i < objs.length; i++){
-			objs[i] = PopJava.newActive(LocalObject.class, new Double(1));
+			objs[i] = PopJava.newActive(this, LocalObject.class, new Double(1));
 			objs[i].setReference(remote);
 		}
 		
@@ -121,8 +121,8 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testChainedObjectCreation(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, new Double(1));
-		LocalObject local2 = PopJava.newActive(LocalObject.class, new Double(1));
+		LocalObject local1 = PopJava.newActive(this, LocalObject.class, new Double(1));
+		LocalObject local2 = PopJava.newActive(this, LocalObject.class, new Double(1));
 		
 		local1.createReference("localhost", true);
 		LocalObject remote1 = local1.getReference();
@@ -146,9 +146,9 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testChainedObjectCreation2(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, new Double(1));
+		LocalObject local1 = PopJava.newActive(this, LocalObject.class, new Double(1));
 		
-		LocalObject remote = PopJava.newActive(LocalObject.class, PopJava.getThis(local1).getAccessPoint());
+		LocalObject remote = PopJava.newActiveConnect(this, LocalObject.class, PopJava.getThis(local1).getAccessPoint());
 		
 		local1.createReference("localhost", true);
 		LocalObject remote1 = local1.getReference();
@@ -163,40 +163,40 @@ public class JVMObjectTest {
 	@Test
 	public void multipleConnections(){
 		Configuration.getInstance().setDebug(true);
-		LocalObject local1 = PopJava.newActive(LocalObject.class, new Double(1));
+		LocalObject local1 = PopJava.newActive(this, LocalObject.class, new Double(1));
 		
-		LocalObject remote = PopJava.newActive(LocalObject.class, PopJava.getThis(local1).getAccessPoint());
-		LocalObject remote2 = PopJava.newActive(LocalObject.class, PopJava.getThis(local1).getAccessPoint());
+		LocalObject remote = PopJava.newActiveConnect(this, LocalObject.class, PopJava.getThis(local1).getAccessPoint());
+		LocalObject remote2 = PopJava.newActiveConnect(this, LocalObject.class, PopJava.getThis(local1).getAccessPoint());
 		
 		assertEquals(remote.getValue(), remote2.getValue());
 	}
 	
 	@Test(expected = Exception.class)
 	public void testLocalURLAnnotationFail(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, true, "144.33.11.33");
+		LocalObject local1 = PopJava.newActive(this, LocalObject.class, true, "144.33.11.33");
 	}
 
 	@Test
 	public void testLocalURLAnnotationLocal(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, true, "localhost");
+		LocalObject local1 = PopJava.newActive(this, LocalObject.class, true, "localhost");
 		
 		assertNotNull(local1);
 	}
 	
 	@Test
 	public void testNullParameterConstructor(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, true, null);
+		LocalObject local1 = PopJava.newActive(this, LocalObject.class, true, null);
 		assertNull(local1);
 	}
 	
 	@Test
 	public void testNullParameterConstructor2(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, true, "", null);
+		LocalObject local1 = PopJava.newActive(this, LocalObject.class, true, "", null);
 	}
 	
 	@Test(expected = Exception.class)
 	public void testConstructorCreation(){
-		LocalObject local1 = PopJava.newActive(LocalObject.class, new Long(1000));
+		LocalObject local1 = PopJava.newActive(this, LocalObject.class, new Long(1000));
 		
 		assertEquals(local1.getValue(), local1.getReference().getReference().getValue());
 		
@@ -205,7 +205,7 @@ public class JVMObjectTest {
 	@Test
 	@Ignore
 	public void testAsyncCall() throws Exception {
-		LocalObject local = PopJava.newActive(LocalObject.class, 2d);
+		LocalObject local = PopJava.newActive(this, LocalObject.class, 2d);
 		
 		int n = 3;
 		int m = 5;
@@ -220,8 +220,7 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testAsyncCallWithThis() throws Exception {
-		LocalObject local = PopJava.getThis(PopJava.newActive(LocalObject.class, 2d));
-		
+		LocalObject local = PopJava.getThis(PopJava.newActive(this, LocalObject.class, 2d));		
 		int n = 3;
 		int m = 5;
 		
@@ -235,7 +234,7 @@ public class JVMObjectTest {
 	
 	@Test
 	public void testProtocolsSpecificObject() {
-		LocalObject localDoubleSocket = PopJava.getThis(PopJava.newActive(LocalObject.class, true));
+		LocalObject localDoubleSocket = PopJava.getThis(PopJava.newActive(this, LocalObject.class, true));
 		assertEquals(500, localDoubleSocket.getValue());
 		
 		POPAccessPoint ap = localDoubleSocket.getAccessPoint();

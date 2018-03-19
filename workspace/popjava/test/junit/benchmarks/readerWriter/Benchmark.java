@@ -22,13 +22,13 @@ public class Benchmark {
 		
 		int workerCount = 5;
 		
-		Writer writer = PopJava.newActive(Writer.class, "localhost", TOTAL);
+		Writer writer = PopJava.newActive(this, Writer.class, "localhost", TOTAL);
 		System.out.println("Writer created after "+(System.currentTimeMillis() - start)+" ms");
 		
 		List<Worker> workers = new ArrayList<>();
 		
 		for(int i = 0; i < workerCount; i++){
-			workers.add(PopJava.newActive(Worker.class, "localhost", writer));
+			workers.add(PopJava.newActive(this, Worker.class, "localhost", writer));
 		}
 		
 		System.out.println("Workers created after "+(System.currentTimeMillis() - start)+" ms");

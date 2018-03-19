@@ -25,7 +25,7 @@ public class NestedPOPCreation {
 	
 	@Test(expected = Exception.class)
 	public void creation() {
-		ObjA a = PopJava.newActive(ObjA.class, 10);
+		ObjA a = PopJava.newActive(this, ObjA.class, 10);
 		ObjB b = a.getB();
 		
 		Assert.assertEquals(a.getbVal(), b.getVal());

@@ -20,7 +20,7 @@ public class X extends POPObject implements IX {
 	@POPSyncConc
 	@Override
 	public Z getZ() {
-		Z z = PopJava.newActive(Z.class);
+		Z z = PopJava.newActive(this, Z.class);
 		return z;
 	}
 	

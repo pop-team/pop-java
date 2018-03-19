@@ -81,7 +81,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 				}
 
 				ComboxSecureSocket combox = new ComboxSecureSocket();
-				if (combox.serverAccept(sslConnection)) {
+				if (combox.serverAccept(broker, sslConnection)) {
 				    ComboxAcceptSocket.serveConnection(broker, requestQueue, combox, 1);
 					concurentConnections.add(sslConnection);
 				}

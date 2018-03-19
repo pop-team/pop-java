@@ -13,7 +13,7 @@ public class ArraysTest {
         System.out.println("Callback test started ...");
         POPSystem.initialize();
         
-        ArrayObject array =  PopJava.newActive(ArrayObject.class);
+        ArrayObject array =  PopJava.newActive(this, ArrayObject.class);
         
         array.testArray(null);
         
@@ -27,7 +27,7 @@ public class ArraysTest {
 
         POPSystem.initialize();
         
-        ArrayObject array =  PopJava.newActive(ArrayObject.class);
+        ArrayObject array =  PopJava.newActive(this, ArrayObject.class);
 
 		Assert.assertArrayEquals(new String[0], array.empty1d());
 		
@@ -39,7 +39,7 @@ public class ArraysTest {
 		System.out.println("Get triangular array test started...");
         POPSystem.initialize();
         
-        ArrayObject array =  PopJava.newActive(ArrayObject.class);
+        ArrayObject array =  PopJava.newActive(this, ArrayObject.class);
 		
 		Assert.assertArrayEquals(new String[][] { { "a", "b" }, { "c" } }, array.strings2d());
 		Assert.assertArrayEquals(new String[0][0], array.empty2d());

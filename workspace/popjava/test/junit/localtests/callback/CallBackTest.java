@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import popjava.PopJava;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 import testsuite.callback.Toto;
 
 public class CallBackTest {
@@ -15,7 +16,7 @@ public class CallBackTest {
 		System.out.println("Callback test started ...");
 		POPSystem.initialize();
 		
-		Toto t = PopJava.newActive(Toto.class);
+		Toto t = PopJava.newActive(this, Toto.class);
 		t.setIdent(1234);
 		
 		int value = t.getIdent();

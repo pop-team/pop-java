@@ -706,7 +706,7 @@ public class POPObject implements IPOPBase {
 	@SuppressWarnings("unchecked")
 	public <T> T getThis(){
 		if(me == null){
-			me = PopJava.newActive(getClass(), getAccessPoint());
+			me = PopJava.newActiveConnect(this, getClass(), getAccessPoint());
 
 			//After establishing connection with self, artificially decrease connection by one
 			//This is to avoid the issue of never closing objects with reference to itself

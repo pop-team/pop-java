@@ -35,7 +35,7 @@ public class ComboxAllocateSocket extends ComboxAllocate<ComboxRawSocket> {
 		try {
 			Socket peerConnection = serverSocket.accept();
 			combox = new ComboxRawSocket();
-			combox.serverAccept(peerConnection);
+			combox.serverAccept(null, peerConnection);
 		} catch (IOException e) {
 			LogWriter.writeExceptionLog(e);
 		}
@@ -55,8 +55,8 @@ public class ComboxAllocateSocket extends ComboxAllocate<ComboxRawSocket> {
 	 * Close the current connection
 	 */
 	@Override
-	public void close() {
-		super.close();
+	public void close(int connectionID) {
+		super.close(connectionID);
 		try {
 			if (serverSocket != null && !serverSocket.isClosed()) {
 				serverSocket.close();

@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import popjava.PopJava;
 import popjava.system.POPSystem;
+import popjava.util.Configuration;
 
 public class ReferenceTest {
 
@@ -16,9 +17,11 @@ public class ReferenceTest {
  */
 	@Test
 	public void test(){
+		Configuration.getInstance().setDebug(true);
+		
 		POPSystem.initialize();
 		
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		
 		B b = a.getB();
 		

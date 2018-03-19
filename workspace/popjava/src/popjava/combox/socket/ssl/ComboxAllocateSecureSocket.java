@@ -45,7 +45,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 			sslConnection.setUseClientMode(false);
 			sslConnection.setNeedClientAuth(true);
 			combox = new ComboxSecureSocket();
-			combox.serverAccept(sslConnection);
+			combox.serverAccept(null, sslConnection);
 		} catch (IOException e) {
 			e.printStackTrace();
 			LogWriter.writeExceptionLog(e);
@@ -66,8 +66,8 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	 * Close the current connection
 	 */
 	@Override
-	public void close() {
-		super.close();
+	public void close(int connectionID) {
+		super.close(connectionID);
 		try {
 			if (serverSocket != null && !serverSocket.isClosed()) {
 				serverSocket.close();

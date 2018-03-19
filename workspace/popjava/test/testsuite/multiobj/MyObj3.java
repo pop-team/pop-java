@@ -17,7 +17,7 @@ public class MyObj3{
 	
 	@POPSyncSeq
 	public void set(int value) throws POPException {
-		MyObj4 o4 = (MyObj4) PopJava.newActive(MyObj4.class);
+		MyObj4 o4 = (MyObj4) PopJava.newActive(this, MyObj4.class);
 		o4.set(value);
 		data=o4.get();
 		

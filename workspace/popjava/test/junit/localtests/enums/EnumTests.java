@@ -18,7 +18,7 @@ public class EnumTests {
 	public void testFail(){
 		POPSystem.initialize();
 		
-		EnumRemoteObject object = PopJava.newActive(EnumRemoteObject.class, junit.localtests.enums.EnumRemoteObject.Test.B);
+		EnumRemoteObject object = PopJava.newActive(this, EnumRemoteObject.class, junit.localtests.enums.EnumRemoteObject.Test.B);
 		object.setEnum(junit.localtests.enums.EnumRemoteObject.Test.C);
 		
 		assertEquals(junit.localtests.enums.EnumRemoteObject.Test.B, object.getConstructor());

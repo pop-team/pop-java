@@ -13,7 +13,7 @@ public class ComboxPlugin extends Combox<Object> {
 	}
 
 	@Override
-	public void close() {
+	public void close(int connectionID) {
 
 	}
 
@@ -50,6 +50,11 @@ public class ComboxPlugin extends Combox<Object> {
 	@Override
 	protected boolean serverAccept() {
 		return false;
+	}
+
+	@Override
+	protected void closeInternal() {
+		
 	}
 
 }

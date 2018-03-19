@@ -16,7 +16,7 @@ public class POPJavaTests {
 	@Test(expected = Exception.class)
 	public void testExit() {
 		POPSystem.initialize();
-		TestObject test = PopJava.newActive(TestObject.class);
+		TestObject test = PopJava.newActive(this, TestObject.class);
 
 		assertEquals(1234, test.test());
 
@@ -31,7 +31,7 @@ public class POPJavaTests {
 	public void testClose() throws InterruptedException {
 		POPSystem.initialize();
 		
-		TestObject test = PopJava.newActive(TestObject.class);
+		TestObject test = PopJava.newActive(this, TestObject.class);
 
 		assertEquals(1234, test.test());
 

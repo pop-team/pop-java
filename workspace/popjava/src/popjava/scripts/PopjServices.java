@@ -51,14 +51,14 @@ public class PopjServices {
 		try {
 			POPJavaJobManager jm;
 			if (port != null) {
-				jm = PopJava.newActive(POPJavaJobManager.class, "localhost:" + port, config);
+				jm = PopJava.newActive(null, POPJavaJobManager.class, "localhost:" + port, config);
 			} else {
 				String[] protocols = conf.getJobManagerProtocols();
 				int[] ports = conf.getJobManagerPorts();
 				for (int i = 0; i < protocols.length; i++) {
 					protocols[i] = protocols[i] + ":" + ports[i];
 				}
-				jm = PopJava.newActive(POPJavaJobManager.class, "localhost", protocols);
+				jm = PopJava.newActive(null, POPJavaJobManager.class, "localhost", protocols);
 			}
 			POPAccessPoint jm_ap = PopJava.getAccessPoint(jm);
 			System.out.println("[JM] " + jm_ap.toString());

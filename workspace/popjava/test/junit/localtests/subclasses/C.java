@@ -17,7 +17,7 @@ public class C extends POPObject implements D{
 	@Override
 	@POPSyncConc
 	public B getTest() {
-		return PopJava.newActive(B.class);
+		return PopJava.newActive(this, B.class);
 	}
 
 }

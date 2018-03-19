@@ -28,7 +28,7 @@ public class MainBarrier {
 			Thread.sleep(2000);
 			
 			for (int i = 0; i < pa.length; i++) {
-				Worker w = (Worker)PopJava.newActive(Worker.class, pa[i]);
+				Worker w = (Worker)PopJava.newActiveConnect(null, Worker.class, pa[i]);
 				if(w.getNo()!=i+10){
 					System.out.println("Barrier Test failed");
 					return;

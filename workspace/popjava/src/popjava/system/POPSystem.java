@@ -389,7 +389,7 @@ public class POPSystem {
 			POPAccessPoint accessPoint = new POPAccessPoint();
 			accessPoint.setAccessString(appservicecontact);
 			try{
-				return PopJava.newActive(POPAppService.class, accessPoint);
+				return PopJava.newActiveConnect(null, POPAppService.class, accessPoint);
 			}catch(POPException e){
 			}
 		}
@@ -397,7 +397,7 @@ public class POPSystem {
 		//Create a pure java AppService as a backup (probably no popc++ present)
 		try{
 			LogWriter.writeDebugInfo("Create appservice in Java");
-			return PopJava.newActive(POPJavaAppService.class);
+			return PopJava.newActive(null, POPJavaAppService.class);
 		}catch(POPException e){
 			e.printStackTrace();
 		}

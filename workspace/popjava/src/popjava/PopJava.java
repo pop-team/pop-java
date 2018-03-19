@@ -45,21 +45,8 @@ public class PopJava {
 		return (T) factoryProxy.newPOPObject(null, objectDescription, argvs);
 	}
 	
-	public static Object newActive(String targetClass, Object... argvs) throws POPException, ClassNotFoundException{
-		return newActive(Class.forName(targetClass), argvs);
-	}
-	
-	/**
-	 * Static method used to create a new parallel object
-	 * @param targetClass	the parallel class to be created
-	 * @param argvs			arguments of the constructor (may be empty)
-	 * @return references to the parallel object created
-	 * @throws POPException a remote exception, check caused by
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T newActive(Class<T> targetClass, Object... argvs)
-			throws POPException {
-		return newActive(null, targetClass, argvs);
+	public static Object newActiveFromName(String targetClass, Object... argvs) throws POPException, ClassNotFoundException{
+		return newActive(null, Class.forName(targetClass), argvs);
 	}
 	
 	/**
@@ -115,8 +102,8 @@ public class PopJava {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T newActive(Class<T> targetClass, POPAccessPoint accessPoint) throws POPException {
-		return newActive(null,  targetClass, accessPoint);
+	public static <T> T newActiveConnect(Object parentObject, Class<T> targetClass, POPAccessPoint accessPoint) throws POPException {
+		return newActive(parentObject,  targetClass, accessPoint);
 	}
 	
 	/**
@@ -196,7 +183,7 @@ public class PopJava {
 		int port = conf.getJobManagerPorts()[0];
 		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
 			protocol, POPSystem.getHostIP(), port));
-		POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, jma);
+		POPJavaJobManager jm = PopJava.newActiveConnect(null, POPJavaJobManager.class, jma);
 		
 		// we use create object in combination with a TFC connector
 		// this will get us a varing number of access points registered on the network

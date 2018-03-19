@@ -47,7 +47,7 @@ public class LocalObject extends POPObject{
 	@POPObjectDescription(localJVM = true)
 	public LocalObject(Long fake){
 		value = (int)(Math.random() * 10000);
-		reference = PopJava.newActive(LocalObject.class, "localhost");
+		reference = PopJava.newActive(this, LocalObject.class, "localhost");
 		reference.setReference(this);
 	}
 	
@@ -74,9 +74,9 @@ public class LocalObject extends POPObject{
 	@POPSyncSeq
 	public void createReference(String url, boolean local){
 		if(local){
-			reference = PopJava.newActive(LocalObject.class, 4.0);
+			reference = PopJava.newActive(this, LocalObject.class, 4.0);
 		}else{
-			reference = PopJava.newActive(LocalObject.class, url);
+			reference = PopJava.newActive(this, LocalObject.class, url);
 		}
 	}
 	

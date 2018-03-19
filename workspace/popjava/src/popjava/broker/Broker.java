@@ -667,7 +667,7 @@ public final class Broker {
 				
 				if(!(parameters[i] instanceof ProxyObject)){
 					
-					object = PopJava.newActive(object.getClass(), object.getAccessPoint());
+					object = PopJava.newActiveConnect(this, object.getClass(), object.getAccessPoint());
 				}
 				object.makeTemporary();
 				parameters[i] = object;
@@ -1223,7 +1223,7 @@ public final class Broker {
 		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 
 		// clean-up main method, help GC since treatRequests is an almost infinite loop
-		callback.close();
+		callback.close(0);
 		callback = null;
 		buffer = null;
 		argvList = null;

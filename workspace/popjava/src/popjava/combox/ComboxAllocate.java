@@ -25,9 +25,9 @@ public abstract class ComboxAllocate<T extends Combox> {
 	/**
 	 * Close the combox
 	 */
-	public void close() {
+	public void close(int connectionID) {
 		if(combox != null){
-			combox.close();
+			combox.close(connectionID);
 		}
 	}
 

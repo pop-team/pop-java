@@ -30,42 +30,42 @@ public class JavaSerializableTest {
 	
 	@Test
 	public void sendSerializable() {
-		Obj obj = PopJava.newActive(Obj.class);
+		Obj obj = PopJava.newActive(this, Obj.class);
 		boolean equals = obj.isAEquals(Obj.A);
 		assertTrue(equals);
 	}
 	
 	@Test
 	public void getSerializable() {
-		Obj obj = PopJava.newActive(Obj.class);
+		Obj obj = PopJava.newActive(this, Obj.class);
 		MySerializable b = obj.getB();
 		assertEquals(Obj.B, b);
 	}
 	
 	@Test(expected = Exception.class)
 	public void errorSendUnserializableStruct() {
-		Obj obj = PopJava.newActive(Obj.class);
+		Obj obj = PopJava.newActive(this, Obj.class);
 		boolean equals = obj.areStructEquals(Obj.C);
 		assertTrue(equals);
 	}
 	
 	@Test(expected = Exception.class)
 	public void errorGetUnserializableStruct() {
-		Obj obj = PopJava.newActive(Obj.class);
+		Obj obj = PopJava.newActive(this, Obj.class);
 		List<MySerializable> c = obj.getStruct();
 		assertEquals(Obj.C, c);
 	}
 	
 	@Test
 	public void sendSerializableStruct() {
-		Obj obj = PopJava.newActive(Obj.class);
+		Obj obj = PopJava.newActive(this, Obj.class);
 		boolean equals = obj.areSerializableStructEquals(Obj.D);
 		assertTrue(equals);
 	}
 	
 	@Test
 	public void getSerializableStruct() {
-		Obj obj = PopJava.newActive(Obj.class);
+		Obj obj = PopJava.newActive(this, Obj.class);
 		List<MySerializable> d = obj.getSerializableStruct();
 		assertEquals(Obj.D, d);
 	}

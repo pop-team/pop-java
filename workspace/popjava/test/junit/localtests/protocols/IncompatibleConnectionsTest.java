@@ -59,8 +59,8 @@ public class IncompatibleConnectionsTest {
 	@Before
 	public void before() {
 		POPSystem.initialize();
-		socket = PopJava.newActive(A.class, "localhost", new String[]{"socket"});
-		ssl    = PopJava.newActive(A.class, "localhost", new String[]{"ssl"});
+		socket = PopJava.newActive(this, A.class, "localhost", new String[]{"socket"});
+		ssl    = PopJava.newActive(this, A.class, "localhost", new String[]{"ssl"});
 	}
 	
 	@After
@@ -87,7 +87,7 @@ public class IncompatibleConnectionsTest {
 		sslAsSocket.get(0).setProtocol("socket");
 		
 		System.out.format("From %s to %s\n", sslAP, sslAsSocket);
-		A shouldThrow = PopJava.newActive(A.class, sslAsSocket);
+		A shouldThrow = PopJava.newActiveConnect(this, A.class, sslAsSocket);
 		shouldThrow.sync();
 	}
 }

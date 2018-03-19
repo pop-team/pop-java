@@ -127,7 +127,7 @@ public class MethodAccessTest {
 		conf.load(configTrusted.toFile());
 		SSLUtils.reloadPOPManagers();
 		
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		a.sync();
 		System.out.println("AP Trust: " + a.getAccessPoint());
 		assertTrue(a.isCallFromCL());

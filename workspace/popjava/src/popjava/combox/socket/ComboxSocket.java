@@ -7,8 +7,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.HashSet;
+import java.util.Set;
 
 import popjava.base.MessageHeader;
+import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
@@ -23,9 +26,6 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 	protected final byte[] receivedBuffer = new byte[BUFFER_LENGTH];
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
-	
-	private int connectionCounter = 10;
-	
 	protected static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
 	
 	public ComboxSocket() {
@@ -68,7 +68,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                     while(read < temp.length){
                         int tempRead = inputStream.read(temp, read, temp.length - read);
                         if(tempRead < 0){
-                            close();
+                        	closeInternal();
                             return -1;
                         }
                         read += tempRead;
@@ -81,7 +81,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				    while(read < temp.length){
 				    	int tempRead = inputStream.read(temp, read, temp.length - read);
 				    	if(tempRead < 0){
-				    		close();
+				    		closeInternal();
 							return -1;
 				    	}
 				        read += tempRead;
@@ -90,7 +90,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 					int messageLength = buffer.getTranslatedInteger(temp);
 					
 					if (messageLength <= 0) {
-						close();
+						closeInternal();
 						return -1;
 					}
 					
@@ -100,7 +100,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				    while(read < temp.length){
 				    	int tempRead = inputStream.read(temp, read, temp.length - read);
 				    	if(tempRead < 0){
-				    		close();
+				    		closeInternal();
 							return -1;
 				    	}
 				        read += tempRead;
@@ -108,7 +108,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 					
 					int requestIdPacket = buffer.getTranslatedInteger(temp);
 					
-					System.out.println("GOT "+requestIdPacket+" "+packetConnectionID+" "+messageLength);
+					//System.out.println("GOT "+requestIdPacket+" "+packetConnectionID+" "+messageLength);
                     
                     //HANDLE SPECIAL COMBOX packet
                     //TODO: Make this cleaner. 
@@ -124,31 +124,46 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                         }
 
                         if(tempBuffer.getHeader().getRequestType() == MessageHeader.RESPONSE) {
-                            System.out.println("Got rebind response " +connectionID+" "+requestId);
+                            //System.out.println("Got rebind response " +connectionID+" "+requestId);
                             inputStream.reset();
                             Thread.yield();
                             continue;
                         }else {
-                            if(tempBuffer.getHeader().getMethodId() != 1234) {
-                                System.out.println("GOT WRONG METHOD ID, PLEASE FIX: "+tempBuffer.getHeader().getMethodId()+" "+length+" "+this);
-                                System.out.println(tempBuffer.getHeader()+" "+length);
-                                System.exit(0);
-                            }
-                            
-                            System.out.println("Rebinding this combox to broker"+this);
-                            
-                            int newConnectionID = connectionCounter++;
-                            
-                            bindToBroker(newConnectionID);
-                            
-                            tempBuffer.reset();
-                            MessageHeader header = new MessageHeader();
-                            header.setRequestType(MessageHeader.RESPONSE);
-                            header.setRequestID(requestIdPacket);
-                            tempBuffer.setHeader(header);
-                            tempBuffer.putInt(newConnectionID);
-                            
-                            send(tempBuffer, 0);
+                        	
+                        	switch(tempBuffer.getHeader().getMethodId()) {
+                        	case 2:{//Handle the opening of a bidirectional channel
+                        		if(tempBuffer.getBoolean()) {
+                                	POPAccessPoint otherAP = (POPAccessPoint) tempBuffer.getValue(POPAccessPoint.class);                  		
+                            		
+                                	if(remoteCaller.getBrokerAP() == null) {
+                                		remoteCaller.setBrokerAP(otherAP);
+                                	}
+                                }
+                                
+                                int newConnectionID = registerNewConnection();
+                                
+                                bindToBroker(newConnectionID);
+                                
+                                tempBuffer.reset();
+                                MessageHeader header = new MessageHeader();
+                                header.setRequestType(MessageHeader.RESPONSE);
+                                header.setRequestID(requestIdPacket);
+                                tempBuffer.setHeader(header);
+                                tempBuffer.putInt(newConnectionID);
+                                
+                                send(tempBuffer, 0);
+                        	}
+                        		break;
+                        	case 3:{
+                        		int closedConnectionID = buffer.getInt();
+                        		
+                        		close(closedConnectionID);
+                        	}
+                        		break;
+                    		default:
+                                System.out.println("Unknown internal method id "+tempBuffer.getHeader().getMethodId());
+
+                        	}
                         }
                         
                         continue;
@@ -156,9 +171,8 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 					                    
                     if(packetConnectionID != connectionID) {
                         inputStream.reset();
-                        System.out.println("WRONG CONNECTION "+packetConnectionID+" instead of "+connectionID +" "+this);
+                        //System.out.println("WRONG CONNECTION "+packetConnectionID+" instead of "+connectionID +" "+this);
                         Thread.yield();
-                        System.exit(0);
                         continue;
                     }
 					
@@ -168,7 +182,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 						result = readPacket(buffer, messageLength, requestIdPacket);
 					}else{
-				        System.out.println("RESET got "+requestIdPacket+" instead of "+requestId);
+				        //System.out.println("RESET got "+requestIdPacket+" instead of "+requestId);
                         inputStream.reset();
                         Thread.yield();
 					}
@@ -183,7 +197,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 							result, headerLength);
 					LogWriter.writeDebugInfo(logInfo);
 				}
-				close();
+				closeInternal();
 			} else {
 				buffer.extractHeader();
 			}
@@ -194,7 +208,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				LogWriter.writeDebugInfo("[ComboxSecureSocket] Error while receiving data:"
 								+ e.getMessage());
 			}
-			close();
+			closeInternal();
 			return -2;
 		}
 	}
@@ -235,7 +249,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			final byte[] dataSend = buffer.array();
 			
 			//new Exception().printStackTrace();
-			System.out.println("SEND ID "+buffer.getHeader().getRequestID()+" con : "+connectionID+" method "+buffer.getHeader()+" combox "+this);
+			//System.out.println("SEND ID "+buffer.getHeader().getRequestID()+" con : "+connectionID+" method "+buffer.getHeader()+" combox "+this);
 			
 			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {
@@ -251,7 +265,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				LogWriter.writeDebugInfo(
 					"[ComboxSocket] -Send:  Error while sending data - " + e.getMessage() +" "+outputStream);
 			}
-			close();
+			closeInternal();
 			return -1;
 		}
 	}
@@ -259,14 +273,14 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 	@Override
 	protected void finalize() throws Throwable {
 		try {
-			close();
+			closeInternal();
 		} finally {
 			super.finalize();
 		}
 	}
 	
 	@Override
-	public void close() {
+	public void closeInternal() {		
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
 				/*LogWriter.writeExceptionLog(new Exception("Close connection to "+peerConnection.getInetAddress()+

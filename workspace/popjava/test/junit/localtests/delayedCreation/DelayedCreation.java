@@ -14,10 +14,10 @@ public class DelayedCreation {
 	public void testDelayedCallback() throws InterruptedException{
 		POPSystem.initialize();
 		
-		A a1 = PopJava.newActive(A.class);
+		A a1 = PopJava.newActive(this, A.class);
 		assertEquals(1234, a1.getTestValue());
 		Thread.sleep(2000);
-		A a2 = PopJava.newActive(A.class);
+		A a2 = PopJava.newActive(this, A.class);
 		assertEquals(1234, a2.getTestValue());
 		
 		POPSystem.end();
@@ -34,7 +34,7 @@ public class DelayedCreation {
 		A [] array = new A[10];
 		
 		for(int i = 0; i < array.length; i++){
-			array[i] = PopJava.newActive(A.class);
+			array[i] = PopJava.newActive(this, A.class);
 		}
 		
 		POPSystem.end();

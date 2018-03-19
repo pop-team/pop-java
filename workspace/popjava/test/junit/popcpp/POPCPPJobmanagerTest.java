@@ -32,7 +32,7 @@ public class POPCPPJobmanagerTest {
 	public void testLocalHostFind(){
 		POPSystem.initialize();
 		
-		Integer i1 = (Integer) PopJava.newActive(Integer.class, true);
+		Integer i1 = (Integer) PopJava.newActive(null, Integer.class, true);
 		
 		assertEquals(20, i1.get());
 		

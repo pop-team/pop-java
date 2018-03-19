@@ -150,7 +150,11 @@ public class Interface {
 				    if(popAccessPoint.hasSameAccessPoint(sourceCombox.getRemoteCaller().getBrokerAP())) {
 	                    System.out.println("MAYBE WE CAN REUSE CONNECTION "+sourceCombox.getRemoteCaller().getBrokerAP()+ " "+popAccessPoint);
 	                    connected = reuseCombox(sourceCombox);
+				    }else {
+				    	System.out.println("Cannot reuse connection "+sourceCombox.getRemoteCaller().getBrokerAP()+ " "+popAccessPoint);
 				    }
+				}else {
+					System.out.println("No remote AP defined");
 				}
 				
 				if(!connected) {
@@ -169,7 +173,7 @@ public class Interface {
 	}
 	
 	private boolean reuseCombox(Combox sourceCombox) {
-	    int connectionID = sourceCombox.makeBidirectional();
+	    int connectionID = sourceCombox.makeBidirectional(parentBroker);
 	    if(connectionID >= 0) {
 	        combox = new ComboxConnection(sourceCombox, connectionID);
 	        return true;
@@ -273,7 +277,7 @@ public class Interface {
 			
         if (platforms.isEmpty()) {
         	AppService appCoreService = null;
-        	appCoreService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
+        	appCoreService = PopJava.newActiveConnect(parentBroker, POPAppService.class, POPSystem.appServiceAccessPoint);
         	POPString popStringPlatorm = new POPString();
         	appCoreService.getPlatform(objectName, popStringPlatorm);
         	platforms = popStringPlatorm.getValue();
@@ -318,11 +322,11 @@ public class Interface {
         	//	jobManager = PopJava.newActive(POPJobService.class, jobContact);
         	//}
 			if (conf.isConnectToPOPcpp())
-        		jobManager = PopJava.newActive(POPJobManager.class, jobContact);
+        		jobManager = PopJava.newActiveConnect(parentBroker, POPJobManager.class, jobContact);
 			else if (conf.isConnectToJavaJobmanager())
-        		jobManager = PopJava.newActive(POPJavaJobManager.class, jobContact);
+        		jobManager = PopJava.newActiveConnect(parentBroker, POPJavaJobManager.class, jobContact);
 			else
-        		jobManager = PopJava.newActive(POPJobService.class, jobContact);
+        		jobManager = PopJava.newActiveConnect(parentBroker, POPJobService.class, jobContact);
         }catch(Exception e){
         	e.printStackTrace();
         }
@@ -744,7 +748,7 @@ public class Interface {
 	    if(!POPSystem.appServiceAccessPoint.isEmpty()){
             if(conf.isConnectToPOPcpp()){
                 try{
-                	POPAppService tempService = PopJava.newActive(POPAppService.class, POPSystem.appServiceAccessPoint);
+                	POPAppService tempService = PopJava.newActiveConnect(null, POPAppService.class, POPSystem.appServiceAccessPoint);
                 	tempService.unregisterService("");
                     appCoreService = tempService;
                 }catch(Exception e){
@@ -755,7 +759,7 @@ public class Interface {
             
             if(appCoreService == null){
                 try{
-                    appCoreService = PopJava.newActive(POPJavaAppService.class, POPSystem.appServiceAccessPoint);
+                    appCoreService = PopJava.newActiveConnect(null, POPJavaAppService.class, POPSystem.appServiceAccessPoint);
                 }catch(POPException e){
                     LogWriter.writeDebugInfo("[Interface] Could not contact Appservice to recover code file");
                 }
@@ -994,7 +998,7 @@ public class Interface {
 			result = -1;
 		}
 
-		allocateCombox.close();
+		allocateCombox.close(0);
 		
 		return result;
 	}

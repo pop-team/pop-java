@@ -24,7 +24,7 @@ public class InterfacesTest {
 	@Test
 	public void testInheritance(){
 
-		RemoteInterface local = PopJava.newActive(RemoteObject.class);
+		RemoteInterface local = PopJava.newActive(this, RemoteObject.class);
 		
 		GenericObject test = local.getObject();
 		
@@ -33,7 +33,7 @@ public class InterfacesTest {
 	
 	@Test
 	public void testInheritance2(){
-		RemoteInterface local = PopJava.newActive(RemoteObject.class, "localhost");
+		RemoteInterface local = PopJava.newActive(this, RemoteObject.class, "localhost");
 		
 		GenericObject test = local.getObject2();
 		

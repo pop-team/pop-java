@@ -13,7 +13,7 @@ public class TestJobmanager {
 	public void testNoUrl(){
 		POPSystem.initialize();
 		
-		TestObject test = PopJava.newActive(TestObject.class);
+		TestObject test = PopJava.newActive(this, TestObject.class);
 		
 		assertEquals(1234, test.getValue());
 		

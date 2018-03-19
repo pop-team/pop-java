@@ -18,7 +18,7 @@ public class A extends POPObject{
 	
 	@POPSyncConc
 	public void test(){
-		B b = PopJava.newActive(B.class, this);
+		B b = PopJava.newActive(this, B.class, this);
 		b.work();
 		b.exit();
 	}

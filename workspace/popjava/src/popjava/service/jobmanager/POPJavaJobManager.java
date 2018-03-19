@@ -417,12 +417,12 @@ public class POPJavaJobManager extends POPJobService {
 					AppService service;
 					// TODO need to save the working network at the start of the request
 					try {
-						service = PopJava.newActive(POPJavaAppService.class, res.getAppService());
+						service = PopJava.newActiveConnect(this, POPJavaAppService.class, res.getAppService());
 						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
 						appId = service.getPOPCAppID();
 						service.exit();
 					} catch (POPException e) {
-						service = PopJava.newActive(POPAppService.class, res.getAppService());
+						service = PopJava.newActiveConnect(this, POPAppService.class, res.getAppService());
 						service.queryCode(objname.getValue(), POPSystem.getPlatform(), codeFile);
 						appId = service.getPOPCAppID();
 						service.exit();

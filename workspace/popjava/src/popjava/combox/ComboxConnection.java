@@ -40,7 +40,7 @@ public class ComboxConnection {
     }
 
     public void close() {
-        combox.close();
+        combox.close(connectionID);
     }
 
     public BufferFactory getBufferFactory() {

@@ -24,12 +24,17 @@ public class BiDirectionalObject extends POPObject{
 	
 	@POPSyncConc
 	public int test() {
-		BiDirectionalObject b =  PopJava.newActive(this, BiDirectionalObject.class, 5678, false);
+		BiDirectionalObject b =  PopJava.newActive(this, BiDirectionalObject.class, 2, false);
 		return b.test1(this);
 	}
 	
 	@POPSyncConc
 	public int test1(BiDirectionalObject ref) {
+		return ref.test2(this);
+	}
+	
+	@POPSyncConc
+	public int test2(BiDirectionalObject ref) {
 		return ref.getValue();
 	}
 	

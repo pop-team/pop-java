@@ -16,7 +16,7 @@ public class BigDataTests {
     @Ignore
     public void testBigIntArray(){
         POPSystem.initialize();
-        BigDataObject test = PopJava.newActive(BigDataObject.class);
+        BigDataObject test = PopJava.newActive(this, BigDataObject.class);
         
         for(int i = 100000; i < (Integer.MAX_VALUE - 10000) / 8; i += 10000000){
         	assertEquals(i, test.arrayTest(new int[i]));
@@ -30,7 +30,7 @@ public class BigDataTests {
     @Ignore
     public void testBigCharArray(){
         POPSystem.initialize();
-        BigDataObject test = PopJava.newActive(BigDataObject.class);
+        BigDataObject test = PopJava.newActive(this, BigDataObject.class);
         
         for(int i = 100000; i < (Integer.MAX_VALUE - 10000) / 8; i += 10000000){
         	char [] temp = new char[i];
@@ -46,7 +46,7 @@ public class BigDataTests {
     @Ignore
     public void testBigByteArray(){
         POPSystem.initialize();
-        BigDataObject test = PopJava.newActive(BigDataObject.class);
+        BigDataObject test = PopJava.newActive(this, BigDataObject.class);
         
         for(int i = 100000; i < (Integer.MAX_VALUE - 10000) / 8; i += 10000000){
         	assertEquals(i, test.arrayTest(new byte[i]));
@@ -60,7 +60,7 @@ public class BigDataTests {
     @Ignore
     public void testBigStringArray(){
         POPSystem.initialize();
-        BigDataObject test = PopJava.newActive(BigDataObject.class);
+        BigDataObject test = PopJava.newActive(this, BigDataObject.class);
         
         for(int i = 100000; i < (Integer.MAX_VALUE - 10000) / 8; i += 10000000){
         	char [] temp = new char[i];

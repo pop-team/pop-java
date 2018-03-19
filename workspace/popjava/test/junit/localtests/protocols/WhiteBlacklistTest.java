@@ -80,7 +80,7 @@ public class WhiteBlacklistTest {
 			expected.add(factory.getComboxName());
 		}
 		
-		A a = PopJava.newActive(A.class, "localhost", new String[] { "" });
+		A a = PopJava.newActive(this, A.class, "localhost", new String[] { "" });
 		a.sync();
 		
 		POPAccessPoint ap = a.getAccessPoint();

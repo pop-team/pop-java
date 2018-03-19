@@ -16,7 +16,7 @@ public class ParameterTests {
     @Test
     public void testBasics(){
         POPSystem.initialize();
-        ParameterObject test = PopJava.newActive(ParameterObject.class);
+        ParameterObject test = PopJava.newActive(this, ParameterObject.class);
         
         test.noParam();
         
@@ -28,7 +28,7 @@ public class ParameterTests {
     @Test
     public void testString(){
         POPSystem.initialize();
-        ParameterObject test = PopJava.newActive(ParameterObject.class);
+        ParameterObject test = PopJava.newActive(this, ParameterObject.class);
         
         test.setValue("asdf");
         
@@ -40,7 +40,7 @@ public class ParameterTests {
     @Test
     public void testStringUTF16(){
         POPSystem.initialize();
-        ParameterObject test = PopJava.newActive(ParameterObject.class);
+        ParameterObject test = PopJava.newActive(this, ParameterObject.class);
         
         test.setValue("a\u20AC\uD834\uDD1Ed");
         
@@ -52,7 +52,7 @@ public class ParameterTests {
     @Test(expected = POPException.class)
     public void testSerializeError(){
         POPSystem.initialize();
-        ParameterObject test = PopJava.newActive(ParameterObject.class);
+        ParameterObject test = PopJava.newActive(this, ParameterObject.class);
         
         test.impossibleParam(new ArrayList<>());
         
@@ -62,7 +62,7 @@ public class ParameterTests {
     @Test(expected = POPException.class)
     public void testSerializeErrorReturn(){
         POPSystem.initialize();
-        ParameterObject test = PopJava.newActive(ParameterObject.class);
+        ParameterObject test = PopJava.newActive(this, ParameterObject.class);
         
         test.impossibleReturn();
         
@@ -73,7 +73,7 @@ public class ParameterTests {
     @Ignore //This is supposed to not work, can't instaniate an interface
     public void testInterfaceParameter(){
         POPSystem.initialize();
-        ParameterObject test = PopJava.newActive(ParameterObject.class);
+        ParameterObject test = PopJava.newActive(this, ParameterObject.class);
         
         test.testInterfaceErrorParameter(test);
         

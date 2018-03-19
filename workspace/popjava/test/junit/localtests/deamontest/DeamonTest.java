@@ -22,7 +22,7 @@ public class DeamonTest {
 		POPSystem.initialize();
 		
 		try{
-			TestClass test = PopJava.newActive(TestClass.class, ConnectionType.DAEMON, "");
+			TestClass test = PopJava.newActive(this, TestClass.class, ConnectionType.DAEMON, "");
 			test.test();
 			fail("The object creation should fail");			
 		}catch(Exception e){
@@ -54,7 +54,7 @@ public class DeamonTest {
 		
 		POPJavaDeamon deamon = startDeamon("");
 		
-		TestClass test = PopJava.newActive(TestClass.class);
+		TestClass test = PopJava.newActive(this, TestClass.class);
 		int value = test.test();
 		deamon.close();
 		assertEquals(1234, value);
@@ -66,7 +66,7 @@ public class DeamonTest {
 	public void testDynamicCreation() throws IOException, InterruptedException{
 		POPSystem.initialize();
 		POPJavaDeamon deamon = startDeamon("");
-		TestClass test = PopJava.newActive(TestClass.class, ConnectionType.DAEMON, "");
+		TestClass test = PopJava.newActive(this, TestClass.class, ConnectionType.DAEMON, "");
 		int value = test.test();
 
 		deamon.close();
@@ -81,7 +81,7 @@ public class DeamonTest {
 		POPSystem.initialize();
 		String password = "12345";
 		POPJavaDeamon deamon = startDeamon(password);
-		TestClass test = PopJava.newActive(TestClass.class, ConnectionType.DAEMON, password);
+		TestClass test = PopJava.newActive(this, TestClass.class, ConnectionType.DAEMON, password);
 		int value = test.test();
 		deamon.close();
 		
@@ -97,7 +97,7 @@ public class DeamonTest {
 		POPJavaDeamon deamon = startDeamon(password);
 		
 		try{
-			TestClass test = PopJava.newActive(TestClass.class, ConnectionType.DAEMON, "");
+			TestClass test = PopJava.newActive(this, TestClass.class, ConnectionType.DAEMON, "");
 			test.test();
 			fail("The object creation should fail");			
 		}catch(Exception e){
@@ -117,7 +117,7 @@ public class DeamonTest {
 		try{
 			
 			for(int i = 0; i < 5; i++){
-				TestClass test = PopJava.newActive(TestClass.class, ConnectionType.DAEMON, password);
+				TestClass test = PopJava.newActive(this, TestClass.class, ConnectionType.DAEMON, password);
 				test.test();
 			}	
 		}catch(Exception e){

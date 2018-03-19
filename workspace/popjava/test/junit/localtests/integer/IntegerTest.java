@@ -16,8 +16,8 @@ public class IntegerTest {
 		Configuration.getInstance().setDebug(true);
 		
 		POPSystem.initialize();
-		Integer i1 = (Integer) PopJava.newActive(Integer.class);
-		Integer i2 = (Integer) PopJava.newActive(Integer.class);
+		Integer i1 = (Integer) PopJava.newActive(this, Integer.class);
+		Integer i2 = (Integer) PopJava.newActive(this, Integer.class);
 		i1.set(23);
 		i2.set(25);
 		System.out.println("i1 = "+i1.get());

@@ -12,7 +12,7 @@ public class DelayedCallbackTest {
 	@Test
 	public void testDelayedCallback(){
 		POPSystem.initialize();
-		A a = PopJava.newActive(A.class);
+		A a = PopJava.newActive(this, A.class);
 		a.test();
 		
 		assertEquals(1234, a.getValue());

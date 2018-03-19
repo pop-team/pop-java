@@ -25,16 +25,16 @@ public class AnnotationsTest {
 	@Test
 	public void testAnnotations() {
 		POPSystem.initialize();
-		Integer i1 = PopJava.newActive(Integer.class /* C */, "localhost");
+		Integer i1 = PopJava.newActive(this, Integer.class /* C */, "localhost");
 		assertNotNull(i1);
-		Integer i2 = PopJava.newActive(Integer.class /* C */, "localhost");
+		Integer i2 = PopJava.newActive(this, Integer.class /* C */, "localhost");
 		assertNotNull(i2);
 		
 		// Create an array
 		Integer[] tab = new Integer[3];
 		
 		for (int i = 0; i < tab.length; i++) {
-			tab[i] = PopJava.newActive(Integer.class /* C */, "localhost");
+			tab[i] = PopJava.newActive(this, Integer.class /* C */, "localhost");
 			assertNotNull(tab[i]);
 		}
 		
@@ -66,7 +66,7 @@ public class AnnotationsTest {
 	public void testMethodId() throws NoSuchMethodException{
 		POPSystem.initialize();
 		
-		POPJavaAppService appservice = PopJava.newActive(POPJavaAppService.class);
+		POPJavaAppService appservice = PopJava.newActive(this, POPJavaAppService.class);
 	    
 	    int classId = appservice.getClassId();
 	    
@@ -82,10 +82,10 @@ public class AnnotationsTest {
 	@Test
 	public void testInheritedMethodId() throws NoSuchMethodException{
 		POPSystem.initialize();
-	    Parent parent = PopJava.newActive(Parent.class);
+	    Parent parent = PopJava.newActive(this, Parent.class);
 	    assertEquals(1234, parent.getClassId());
 	    
-	    Child child = PopJava.newActive(Child.class);
+	    Child child = PopJava.newActive(this, Child.class);
 	    assertEquals(1235, child.getClassId());
 	    
 	    MethodInfo info = new MethodInfo(parent.getClassId(), 20);
@@ -118,7 +118,7 @@ public class AnnotationsTest {
 	public void testInheritedMethodIdBug() throws NoSuchMethodException{
 		POPSystem.initialize();
 		
-	    Child child = PopJava.newActive(Child.class);
+	    Child child = PopJava.newActive(this, Child.class);
 	    assertEquals(1235, child.getClassId());
 	    
 	    MethodInfo info = new MethodInfo(1234, 20);
@@ -132,7 +132,7 @@ public class AnnotationsTest {
 	public void testPrivate() {
 		POPSystem.initialize();
 		
-	    Parent parent = PopJava.newActive(Parent.class);
+	    Parent parent = PopJava.newActive(this, Parent.class);
 	    try {
 	    	if(parent.testPrivate() == 1234) {
 	    		fail("Method testPrivate should not be exposed");
@@ -148,7 +148,7 @@ public class AnnotationsTest {
     public void testParentClassCall() throws NoSuchMethodException{
 		POPSystem.initialize();
 		
-        Child child = PopJava.newActive(Child.class);
+        Child child = PopJava.newActive(this, Child.class);
         assertEquals(1235, child.getClassId());
         
         child.parentTest();
@@ -160,7 +160,7 @@ public class AnnotationsTest {
 	public void testAbstractClass(){
 		POPSystem.initialize();
 		
-		AbstractChild child = PopJava.newActive(ConcreteChild.class);
+		AbstractChild child = PopJava.newActive(this, ConcreteChild.class);
 		
 		assertEquals("C", child.nonInheritedTest());
 		assertEquals("B", child.testNonAbstract());
@@ -174,7 +174,7 @@ public class AnnotationsTest {
 	public void testCallFailure(){
         POPSystem.initialize();
         
-        Integer integer = PopJava.newActive(Integer.class, "localhost");
+        Integer integer = PopJava.newActive(this, Integer.class, "localhost");
         Integer int2 = integer.fail();
         
         int2.get();

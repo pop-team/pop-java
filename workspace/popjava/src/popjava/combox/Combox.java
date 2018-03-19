@@ -1,6 +1,9 @@
 package popjava.combox;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import popjava.base.MessageHeader;
 import popjava.baseobject.POPAccessPoint;
 import popjava.broker.Broker;
@@ -33,6 +36,9 @@ public abstract class Combox<T> {
 	protected final Configuration conf = Configuration.getInstance();
 	private Broker broker = null; //Broken to be used when making this combox bidirectional
 
+	private Set<Integer> openConnections = new HashSet<Integer>();
+	private int connectionCounter = 10;
+		
 	/**
 	 * This is used by ServerCombox (server).
 	 * Create a new combox from a server.
@@ -53,6 +59,18 @@ public abstract class Combox<T> {
 		this.accessPoint = new POPAccessPoint();
 		bufferFactory = BufferFactoryFinder.getInstance().findFactory(conf.getDefaultEncoding());
 	}
+	
+	protected int registerNewConnection() {
+		int id;
+		
+		do {
+			id = connectionCounter++;
+		}while(openConnections.contains(id));
+		
+		openConnections.add(id);
+		
+		return id;
+	}
 
 	/**
 	 * Connect to a ServerCombox on the other side, this will result in a Combox (client mode) communicating with a 
@@ -66,6 +84,7 @@ public abstract class Combox<T> {
 		this.accessPoint = accesspoint;
 		this.timeOut = timeout;
 		this.broker = broker;
+		System.out.println("ConnectToServer "+broker);
 		return connectToServer() && sendNetworkName() && exportConnectionInfo() && sendLocalAP(broker);
 	}
 	
@@ -75,8 +94,10 @@ public abstract class Combox<T> {
 	 * @param peerConnection the incoming connection
 	 * @return true if the connection is established correctly, false otherwise
 	 */
-	public final boolean serverAccept(T peerConnection) {
+	public final boolean serverAccept(Broker broker, T peerConnection) {
+		System.out.println("Accept connection "+broker);
 		this.peerConnection = peerConnection;
+		this.broker = broker;
 		return serverAccept() && receiveNetworkName() && exportConnectionInfo() && receiveRemoveAP();
 	}
 	
@@ -165,7 +186,31 @@ public abstract class Combox<T> {
 	/**
 	 * Close the connection
 	 */
-	public abstract void close();
+	public void close(int connectionID) {
+		if(connectionID == 0 || connectionID == 1) {
+			openConnections.remove(0);
+			openConnections.remove(1);
+		}else {
+			openConnections.remove(connectionID);
+		}
+		
+		if(openConnections.size() == 0) {
+			closeInternal();
+		}else {			
+			MessageHeader messageHeader = new MessageHeader();
+	        messageHeader.setRequestID(2);
+	        messageHeader.setMethodId(3);
+	        messageHeader.setRequestType(MessageHeader.REQUEST);
+	        POPBuffer buffer = bufferFactory.createBuffer();
+	        buffer.setHeader(messageHeader);
+	        buffer.putInt(connectionID);
+	        
+	        send(buffer, 0);
+		}
+		
+	}
+	
+	protected abstract void closeInternal();
 
 	/**
 	 * Associate a buffer factory to the combox
@@ -218,14 +263,25 @@ public abstract class Combox<T> {
 	/**
 	 * This function can be called to transform a client combox into a server combox.
 	 */
-	public int makeBidirectional() {
+	public int makeBidirectional(Broker broker) {
+		
+		if(this.broker == null) {
+			this.broker = broker;
+		}else if(broker != null && this.broker != broker) {
+			System.out.println("Cannot two different brokers for same combox!");
+		}
+		
 	    MessageHeader messageHeader = new MessageHeader();
         messageHeader.setRequestID(2);
-        messageHeader.setClassId(9999);
-        messageHeader.setMethodId(1234);
+        messageHeader.setMethodId(2);
         messageHeader.setRequestType(MessageHeader.REQUEST);
         POPBuffer buffer = bufferFactory.createBuffer();
         buffer.setHeader(messageHeader);
+        
+        buffer.putBoolean(this.broker != null);
+        if(this.broker != null) {
+        	buffer.putValue(this.broker.getAccessPoint(), POPAccessPoint.class);
+        }
         
         send(buffer, 0);
         
@@ -237,6 +293,7 @@ public abstract class Combox<T> {
             }
             int connectionID = buffer.getInt();;
             System.out.println("Combox accepted bidirectional on connection "+connectionID);
+            openConnections.add(connectionID);
             
             return connectionID;
         }

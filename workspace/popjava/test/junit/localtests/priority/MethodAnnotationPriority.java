@@ -25,7 +25,7 @@ public class MethodAnnotationPriority {
 	
 	@Test
 	public void BasB() {
-		B b = PopJava.newActive(B.class);
+		B b = PopJava.newActive(this, B.class);
 		b.a();
 		b.b();
 		b.sync();
@@ -34,7 +34,7 @@ public class MethodAnnotationPriority {
 	
 	@Test
 	public void CasC() {
-		C c = PopJava.newActive(C.class);
+		C c = PopJava.newActive(this, C.class);
 		c.a();
 		c.b();
 		c.sync();
@@ -43,7 +43,7 @@ public class MethodAnnotationPriority {
 	
 	@Test
 	public void CasB() {
-		C c = PopJava.newActive(C.class);
+		C c = PopJava.newActive(this, C.class);
 		B b = PopJava.connect(B.class, "", c.getAccessPoint());
 		b.a();
 		b.b();
@@ -59,13 +59,13 @@ public class MethodAnnotationPriority {
 	}
 	
 	IX genIX() {
-		IX x = PopJava.newActive(X.class);
+		IX x = PopJava.newActive(this, X.class);
 		return x;
 	}
 	
 	@Test(expected = POPException.class)
 	public void DchangeAnnotations() {
-		D d = PopJava.newActive(D.class);
+		D d = PopJava.newActive(this, D.class);
 		d.sync();
 	}
 }

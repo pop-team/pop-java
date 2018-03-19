@@ -36,7 +36,7 @@ public class TestMethods extends AbstractBenchmark {
 	@BeforeClass
 	public static void startPOPJava() throws NotBoundException, UnknownHostException, IOException{
 		POPSystem.initialize();
-		object = PopJava.newActive(POPMethods.class);
+		object = PopJava.newActive(null, POPMethods.class);
 		
 		m = new RMIMethodsObj();
 		m.publish();

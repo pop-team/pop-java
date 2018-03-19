@@ -108,7 +108,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		// make requests
 		for (int jobIdx = 0, jmIdx = 0, failed = 0; jobIdx < howmany; jobIdx++, jmIdx = (jmIdx + 1) % remoteJobMngs.size()) {
 			// connect to remote JM
-			POPJavaJobManager jm = PopJava.newActive(POPJavaJobManager.class, remoteJobMngs.get(jmIdx).getJobManager());
+			POPJavaJobManager jm = PopJava.newActiveConnect(null, POPJavaJobManager.class, remoteJobMngs.get(jmIdx).getJobManager());
 			POPMutableFloat fitness = new POPMutableFloat();
 			resIDs[jobIdx] = jm.reserve(od, fitness, appId, reqId);
 
