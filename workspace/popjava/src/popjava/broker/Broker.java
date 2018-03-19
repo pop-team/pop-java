@@ -255,6 +255,10 @@ public final class Broker {
 			}
 		}
 
+		if(urlClassLoader != null) {
+			Util.urlClassloaders.add(urlClassLoader);
+		}
+		
 		Class<?> targetClass;
 		try {
 			targetClass = getPOPObjectClass(objectName, urlClassLoader);

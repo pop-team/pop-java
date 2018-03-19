@@ -802,8 +802,7 @@ public class Interface {
 		
 		//Fall back to local popjava install path
 		if(codeFile == null || codeFile.isEmpty()){
-			Util util = new Util();
-			codeFile = util.getLocalJavaFileLocation(objectName);
+			codeFile = Util.getLocalJavaFileLocation(objectName);
 		}
 		
 		return codeFile;

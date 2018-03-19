@@ -93,7 +93,7 @@ public class POPJavaAppService extends POPObject implements AppService{
 	}
 	
 	public String getLocalJavaFileLocation(String objname){
-		return new Util().getLocalJavaFileLocation(objname);
+		return Util.getLocalJavaFileLocation(objname);
 	}
 
 	/**

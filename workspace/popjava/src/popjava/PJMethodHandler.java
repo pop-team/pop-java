@@ -80,7 +80,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		final Constructor<?> constructor = ClassUtil.getConstructor(targetClass, ClassUtil.getObjectTypes(argvs));
 		
 		final Class<?>[] parameterTypes = constructor.getParameterTypes();
-		final Exception temp = new Exception();
+		final Exception temp = new Exception(targetClass.getName());
 		
 		final Runnable constructorRunnable = new Runnable() {
 			

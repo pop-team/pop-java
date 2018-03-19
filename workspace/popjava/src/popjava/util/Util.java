@@ -1,12 +1,16 @@
 package popjava.util;
 
 import java.lang.annotation.Annotation;
+import java.net.URLClassLoader;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,6 +27,8 @@ import popjava.system.POPSystem;
 public final class Util {
 	
 	private static final Random RANDOM = new SecureRandom();
+	
+	public static Set<URLClassLoader> urlClassloaders = Collections.synchronizedSet(new HashSet<>());
 
 	/**
 	 * Check if the two contact string are the same
@@ -257,11 +263,10 @@ public final class Util {
 		return OSType.UNIX;
 	}
 	
-	public String getLocalJavaFileLocation(String objname){
+	public static String getLocalJavaFileLocation(String objname){
 		String codePath = null;
 		try{
-			ClassLoader classloader = getClass().getClassLoader();
-			Class<?> javaClass = classloader.loadClass(objname);
+			Class<?> javaClass = getClass(objname);
 						
 			codePath = String.format(
 					POPJavaConfiguration.getBrokerCommand(),
@@ -274,6 +279,28 @@ public final class Util {
 		}
 		
 		return codePath;
+	}
+	
+	private static Class<?> getClass(String objname) throws ClassNotFoundException{
+		
+		try {
+			ClassLoader classloader = new Util().getClass().getClassLoader();
+			Class<?> javaClass = classloader.loadClass(objname);
+			
+			return javaClass;
+		}catch(Exception e){
+		}
+		
+		for(URLClassLoader classloader : urlClassloaders) {
+			try {
+				Class<?> javaClass = classloader.loadClass(objname);
+				
+				return javaClass;
+			}catch(Exception e){
+			}
+		}
+		
+		throw new ClassNotFoundException(objname);
 	}
 
 }

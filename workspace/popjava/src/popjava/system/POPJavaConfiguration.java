@@ -25,7 +25,7 @@ public class POPJavaConfiguration {
 	public static String getBrokerCommand(){
 		String brokerCommand = getConfigurationValue(ConfigurationWorker.POPJ_BROKER_COMMAND_ITEM);
 		if(brokerCommand == null){
-			brokerCommand = "java -javaagent:%s -cp %s "+Broker.class.getName()+" -codelocation=";
+			brokerCommand = "java -javaagent:%s -cp %s "+Broker.class.getName()+" "+Broker.CODELOCATION_PREFIX;
 		}
 		
 		return brokerCommand;
