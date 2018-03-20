@@ -439,11 +439,15 @@ public abstract class POPBuffer {
 		}
 		else if(Serializable.class.isAssignableFrom(c)) {
 			int length = getInt();
-			try (ByteArrayInputStream bis = new ByteArrayInputStream(getByteArray(length))) {
+			
+			byte [] objectContent = getByteArray(length);
+			
+			try (ByteArrayInputStream bis = new ByteArrayInputStream(objectContent)) {
 				try (ObjectInput in = new ObjectInputStream(bis)) {
 				  return in.readObject(); 
 				}
 			} catch(IOException | ClassNotFoundException e) {
+				e.printStackTrace();
 				LogWriter.writeExceptionLog(e);
 				POPException.throwReflectSerializeException(c.getName(), e.getMessage());
 			}
@@ -522,7 +526,9 @@ public abstract class POPBuffer {
 				try (ObjectOutput out = new ObjectOutputStream(bos)) {
 					out.writeObject(o);
 					out.flush();
-					putByteArray(bos.toByteArray());
+					
+					byte [] objectContent = bos.toByteArray();
+					putByteArray(objectContent);
 				}
 			} catch(IOException e) {
 				LogWriter.writeExceptionLog(e);

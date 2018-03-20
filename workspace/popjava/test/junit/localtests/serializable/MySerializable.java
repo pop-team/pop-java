@@ -11,7 +11,7 @@ import java.util.Objects;
  * @author Davide Mazzoleni
  */
 public class MySerializable implements Serializable {
-
+	
 	private String a;
 	private int b;
 	private double c;

@@ -388,6 +388,7 @@ public final class Broker {
 					parameters[index] = requestBuffer
 							.getValue(sourceCombox, parameterTypes[index]);
 				} catch (POPException e) {
+					e.printStackTrace();
 					throw new POPException(e.errorCode, e.errorMessage);
 				} catch (Exception e) {
 					throw new POPException(

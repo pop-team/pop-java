@@ -171,7 +171,7 @@ public class POPJavaJobManager extends POPJobService {
 	
    @POPObjectDescription(jvmParameters = "-Xmx512m")
     public POPJavaJobManager(@POPConfig(Type.URL) String url, @POPConfig(Type.PROTOCOLS) String[] protocols, String conf,
-            @POPConfig(Type.LOCAL_JVM) boolean localJVM) {
+            @POPConfig(Type.LOCAL_JVM) boolean localJVM, @POPConfig(Type.UPNP) boolean upnp) {
         configurationFile = new File(conf);
         init(configurationFile);
     }
