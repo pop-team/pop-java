@@ -8,6 +8,7 @@ import popjava.PopJava;
 import popjava.baseobject.POPAccessPoint;
 import popjava.dataswaper.POPString;
 import popjava.service.jobmanager.POPJavaJobManager;
+import popjava.serviceadapter.POPJobManager;
 import popjava.util.Configuration;
 import popjava.util.LogWriter;
 import popjava.util.Util;
@@ -87,7 +88,12 @@ public abstract class POPNodeAJobManager extends POPNode {
 		return initialized;
 	}
 
-	public final POPJavaJobManager getJobManager(String networkUUID) {
+	public final POPJavaJobManager getJobManager(POPJavaJobManager localJM, String networkUUID) {
+		
+		if(localJM != null) {
+			return localJM.connectToJobmanager(getJobManagerAccessPoint(), networkUUID);
+		}
+		
 		// create connection if it doesn't exists
 		if (jm == null) {
 			jm = PopJava.connect(POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());

@@ -229,7 +229,7 @@ public class PopJava {
 		POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 		try {
 			// make local reserach on node
-			POPJavaJobManager jobManager = jmNode.getJobManager(networkUUID);
+			POPJavaJobManager jobManager = jmNode.getJobManager(null, networkUUID);
 			
 			try {
 				aps = jobManager.localTFCSearch(networkUUID, targetClass.getName());
