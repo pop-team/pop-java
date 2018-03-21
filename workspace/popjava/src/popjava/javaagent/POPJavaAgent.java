@@ -307,8 +307,6 @@ public final class POPJavaAgent implements ClassFileTransformer{
 
                     	String newCall = "$_ = ($r)"+PopJava.class.getName()+".newActive("+me+", "+clazz.getName()+".class, $args);";
                     	
-                    	System.out.println(newCall);
-                    	
                         e.replace(newCall);
                     }
                 } catch (NotFoundException e1) {

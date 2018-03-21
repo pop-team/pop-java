@@ -39,6 +39,10 @@ public class AccessPoint {
 		this.port = port;
 	}
 
+	public AccessPoint(AccessPoint accessPoint) {
+		this(accessPoint.getProtocol(), accessPoint.getHost(), accessPoint.getPort());
+	}
+
 	private String normalizeHostname(String hostname){
 		String host = null;
 		try {

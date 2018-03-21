@@ -54,6 +54,7 @@ import popjava.combox.ComboxFactory;
 import popjava.combox.ComboxFactoryFinder;
 import popjava.combox.ComboxServer;
 import popjava.util.ssl.SSLUtils;
+import popjava.util.upnp.UPNPManager;
 import popjava.javaagent.POPJavaAgent;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
@@ -1062,6 +1063,20 @@ public final class Broker {
 					accessPoint.addAccessPoint(ap);
 
 					liveServers.add(factory.createServerCombox(ap, buffer, this));
+				}
+			}
+			
+			if(upnp) {
+				String externalIP = UPNPManager.getExternalIP();
+				
+				if(externalIP != null && !externalIP.isEmpty()) {
+					for(int i = 0; i < accessPoint.size(); i++) {
+						AccessPoint ap = new AccessPoint(accessPoint.get(i));
+						//TODO: The port might also be diferent
+						ap.setHost(externalIP);
+						
+						accessPoint.addAccessPoint(ap);
+					}
 				}
 			}
 

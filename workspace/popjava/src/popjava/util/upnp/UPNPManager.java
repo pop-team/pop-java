@@ -36,6 +36,8 @@ public class UPNPManager {
 			try {
 				discover.discover();
 				d = discover.getValidGateway();
+				
+				externalIP = d.getExternalIPAddress();
 			} catch (SocketException e) {
 				e.printStackTrace();
 			} catch (UnknownHostException e) {
@@ -50,6 +52,12 @@ public class UPNPManager {
 			
 			inited = true;
 		}
+	}
+	
+	public synchronized static String getExternalIP(){
+		init();
+		
+		return externalIP;
 	}
 	
 	public synchronized static Future<String> registerPort(int port) {
