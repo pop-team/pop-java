@@ -5,19 +5,20 @@ import popjava.broker.Broker;
 import popjava.buffer.*;
 import popjava.baseobject.AccessPoint;
 import java.net.*;
+
+import javax.net.ssl.SSLSocket;
+
 import popjava.combox.ComboxServer;
 import popjava.combox.ComboxUtils;
+import popjava.combox.socket.ComboxAcceptSocket;
+import popjava.combox.socket.ComboxServerSocket;
+import popjava.combox.socket.raw.ComboxAcceptRawSocket;
+import popjava.combox.socket.raw.ComboxSocketFactory;
 
 /**
  * This class is an implementation of the combox with the protocol ssl for the server side.
  */
-public class ComboxServerSecureSocket extends ComboxServer {
-
-	public static final int BUFFER_LENGTH = 1024;
-	private final int RECEIVE_BUFFER_SIZE = 1024 * 8 * 500;
-
-	protected ServerSocket serverSocket = null;
-	private ComboxAcceptSecureSocket serverCombox = null;
+public class ComboxServerSecureSocket extends ComboxServerSocket {
 
 	/**
 	 * Default constructor. Create a new instance of a socket combox
@@ -31,36 +32,15 @@ public class ComboxServerSecureSocket extends ComboxServer {
 	public ComboxServerSecureSocket(AccessPoint accessPoint, int timeout,
 			POPBuffer buffer, Broker broker) throws IOException {
 		super(accessPoint, timeout, broker);
-		createServer();
-	}
-
-	/**
-	 * Get the URL of the combox
-	 *
-	 * @return	URL as a string value
-	 */
-	public String getUrl() {
-		return String.format("%s://%s:%d", ComboxSecureSocketFactory.PROTOCOL,
-				serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
-	}
-
-	/**
-	 * Create and start the combox server
-	 * @throws java.io.IOException if any problem occurs
-	 */
-	public final void createServer() throws IOException {		
-		serverSocket = ComboxUtils.createServerSocket(accessPoint.getPort(), ss -> ss.setReceiveBufferSize(RECEIVE_BUFFER_SIZE), broker.isUPNPEnabled());
-		serverCombox = new ComboxAcceptSecureSocket(broker, getRequestQueue(), serverSocket);
-		serverCombox.setStatus(RUNNING);
-		Thread thread = new Thread(serverCombox, "Server combox acception thread");
-		thread.start();
-		accessPoint.setProtocol(ComboxSecureSocketFactory.PROTOCOL);
-		accessPoint.setHost(accessPoint.getHost());
-		accessPoint.setPort(serverSocket.getLocalPort());
 	}
 
 	@Override
-	public void close() {
-		serverCombox.close();
+	protected String getProtocol() {
+		return ComboxSecureSocketFactory.PROTOCOL;
+	}
+
+	@Override
+	protected ComboxAcceptSecureSocket createCombox() throws IOException {
+		return new ComboxAcceptSecureSocket(broker, getRequestQueue(), serverSocket);
 	}
 }

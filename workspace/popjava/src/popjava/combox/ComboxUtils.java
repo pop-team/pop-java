@@ -3,6 +3,8 @@ package popjava.combox;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.util.concurrent.Future;
+
 import javax.net.ServerSocketFactory;
 import popjava.system.POPSystem;
 import popjava.util.Configuration;
@@ -16,17 +18,7 @@ public class ComboxUtils {
 	
 	private static final PreOperation EMPTY = (ServerSocket ss) -> {};
 	private static final ServerSocketFactory SS_FACTORY = ServerSocketFactory.getDefault();
-	
-	/**
-	 * Try to create a ServerSocket on the specified port.
-	 * @param port if 0 the port will be choose randomly or sequentially from {@link Configuration#allocatePortRange}
-	 * @return A server already binded
-	 * @throws IOException If we specify a port but we can't bind the address
-	 */
-	public static ServerSocket createServerSocket(int port) throws IOException {
-		return createServerSocket(port, EMPTY, port == 0, false);
-	}
-	
+		
 	/**
 	 * Try to create a ServerSocket on the specified port.
 	 * @param port if 0 the port will be choose randomly or sequentially from {@link Configuration#allocatePortRange}
@@ -79,7 +71,7 @@ public class ComboxUtils {
 		} while (!working);
 		
 		if(upnp) {
-			UPNPManager.registerPort(server.getLocalPort());
+			Future<String> externalIP = UPNPManager.registerPort(server.getLocalPort());
 		}
 		
 		return server;

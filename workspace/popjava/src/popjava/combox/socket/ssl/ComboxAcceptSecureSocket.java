@@ -3,8 +3,8 @@ package popjava.combox.socket.ssl;
 import popjava.broker.Broker;
 import popjava.broker.RequestQueue;
 import popjava.util.LogWriter;
-import popjava.combox.ComboxReceiveRequest;
-import popjava.combox.socket.raw.ComboxAcceptSocket;
+import popjava.combox.socket.ComboxAcceptSocket;
+import popjava.combox.socket.raw.ComboxAcceptRawSocket;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -14,7 +14,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import javax.net.ssl.SSLContext;
@@ -25,18 +24,7 @@ import popjava.util.ssl.SSLUtils;
 /**
  * This class is responsible to accept the new connection for the associated server combox socket
  */
-public class ComboxAcceptSecureSocket implements Runnable {
-
-    //TODO: replace with enum
-	static public final int RUNNING = 0;
-	static public final int EXIT = 1;
-	static public final int ABORT = 2;
-	
-	protected final Broker broker;
-	protected final RequestQueue requestQueue;
-	protected final ServerSocket serverSocket;
-	protected int status = EXIT;
-	protected final List<SSLSocket> concurentConnections = new LinkedList<>();
+public class ComboxAcceptSecureSocket extends ComboxAcceptSocket<SSLSocket>{
 	
 	protected final SSLContext sslContext;
 
@@ -49,9 +37,7 @@ public class ComboxAcceptSecureSocket implements Runnable {
 	 */
 	public ComboxAcceptSecureSocket(Broker broker, RequestQueue requestQueue,
 			ServerSocket serverSocket) throws IOException {
-		this.serverSocket = serverSocket;
-		this.broker = broker;
-		this.requestQueue = requestQueue;
+		super(broker, requestQueue, serverSocket);
 		
 		try {
 			sslContext = SSLUtils.getSSLContext();
@@ -92,42 +78,6 @@ public class ComboxAcceptSecureSocket implements Runnable {
 		
 		LogWriter.writeDebugInfo("[SSL Accept] Combox Server finished");
 		this.close();
-	}
-
-	/**
-	 * Close the current connection
-	 */
-	public void close() {
-		status = EXIT;
-		for (SSLSocket s : concurentConnections) {
-			try {
-				s.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		try {
-			if (!serverSocket.isClosed()){
-				serverSocket.close();
-			}
-		} catch (IOException e) {			
-		}
-	}
-	
-	/**
-	 * Get the current status
-	 * @return	The current status
-	 */
-	public synchronized int getStatus() {
-		return status;
-	}
-
-	/**
-	 * Set the current status
-	 * @param status	The new status
-	 */
-	public synchronized void setStatus(int status) {
-		this.status = status;
 	}
 
 }

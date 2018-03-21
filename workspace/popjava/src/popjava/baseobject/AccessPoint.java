@@ -11,10 +11,7 @@ import popjava.util.Configuration;
 public class AccessPoint {
     
 	private final Configuration conf = Configuration.getInstance();
-	/*public static final String SOCKET_PROTOCOL = "socket";
-	public static final String WEBSERVICE_PROTOCOL = "webservice";
-	public static final String HTTP_PROTOCOL = "http";
-	public static final String SSL_PROTOCOL = "ssl";*/
+	
 	public static final int DEFAULT_PORT = 12008;
 	public static final String DEFAULT_HOST = "localhost";
 	

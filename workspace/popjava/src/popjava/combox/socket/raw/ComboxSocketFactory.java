@@ -39,7 +39,7 @@ public class ComboxSocketFactory extends ComboxFactory {
 	@Override
 	public ComboxServer createServerCombox(AccessPoint accessPoint,
 			int timeout, POPBuffer buffer, Broker broker) throws IOException {
-		return new ComboxServerSocket(accessPoint, timeout, buffer, broker);
+		return new ComboxServerRawSocket(accessPoint, timeout, buffer, broker);
 	}
 
 	@Override

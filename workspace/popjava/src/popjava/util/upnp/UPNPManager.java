@@ -7,6 +7,10 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -20,6 +24,7 @@ import popjava.util.LogWriter;
 public class UPNPManager {
 	
 	private static final GatewayDiscover discover = new GatewayDiscover();
+	private static String externalIP = "";
 	private static GatewayDevice d = null;
 	
 	private static final Set<Integer> mappedPorts = Collections.synchronizedSet(new HashSet<Integer>());
@@ -47,16 +52,16 @@ public class UPNPManager {
 		}
 	}
 	
-	public synchronized static void registerPort(int port) {
+	public synchronized static Future<String> registerPort(int port) {
 		if(mappedPorts.contains(port)) {
 			System.out.println("We already mapped port "+port+" before");
-			return;
+			return CompletableFuture.completedFuture(externalIP);
 		}
 		
-		Thread upnpThread = new Thread(new Runnable() {
-			
+		Callable<String> mapper = new Callable<String>() {
+
 			@Override
-			public void run() {
+			public String call() throws Exception {
 				init();
 				
 				System.out.println("Try to map port "+port);
@@ -65,7 +70,7 @@ public class UPNPManager {
 					LogWriter.writeDebugInfo("Found gateway device.\n"+d.getModelName()+" ("+d.getModelDescription()+")");
 				} else {
 					LogWriter.writeDebugInfo("No valid gateway device found.");
-				    return;
+				    return "";
 				}
 				
 				InetAddress localAddress = d.getLocalAddress();
@@ -95,11 +100,18 @@ public class UPNPManager {
 				} catch (IOException e) {
 					LogWriter.writeExceptionLog(e);
 				}
+				
+				return externalIP;
 			}
-		});
+		};
+		
+		FutureTask<String> task = new FutureTask<>(mapper);
+		
+		Thread upnpThread = new Thread(task);
 		upnpThread.setDaemon(true);
 		upnpThread.start();
 		
+		return task;
 	}
 		
 	public static synchronized void close() {

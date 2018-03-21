@@ -12,7 +12,8 @@ import popjava.buffer.BufferFactoryFinder;
 import popjava.buffer.BufferRaw;
 import popjava.buffer.BufferXDR;
 import popjava.buffer.POPBuffer;
-import popjava.combox.socket.raw.ComboxAcceptSocket;
+import popjava.combox.socket.ComboxAcceptSocket;
+import popjava.combox.socket.raw.ComboxAcceptRawSocket;
 import popjava.util.Configuration;
 import popjava.util.POPRemoteCaller;
 /**
