@@ -76,7 +76,7 @@ public class IncompatibleConnectionsTest {
 		socketAsSSL.get(0).setProtocol("ssl");
 		
 		System.out.format("From %s to %s\n", socketAP, socketAsSSL);
-		A shouldThrow = PopJava.connect(A.class, "myTest", socketAsSSL);
+		A shouldThrow = PopJava.connect(null, A.class, "myTest", socketAsSSL);
 		shouldThrow.sync();
 	}
 	

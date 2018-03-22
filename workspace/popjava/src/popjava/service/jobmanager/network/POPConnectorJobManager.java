@@ -123,7 +123,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 				if (failed == remoteJobMngs.size()) {
 					// cancel previous registrations on remote jms
 					for (int k = 0; k < jobIdx; k++) {
-						jm = PopJava.connect(POPJavaJobManager.class, od.getNetwork(), chosenRemoteJobM[k]);
+						jm = PopJava.connect(null, POPJavaJobManager.class, od.getNetwork(), chosenRemoteJobM[k]);
 						jm.cancelReservation(new int[] { resIDs[k] }, 1);
 						jm.exit();
 					}
@@ -141,7 +141,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		int started = 0;
 		for (int i = 0; i < howmany; i++) {
 			if (!chosenRemoteJobM[i].isEmpty()) {
-				POPJavaJobManager jm = PopJava.connect(POPJavaJobManager.class, od.getNetwork(), chosenRemoteJobM[i]);
+				POPJavaJobManager jm = PopJava.connect(null, POPJavaJobManager.class, od.getNetwork(), chosenRemoteJobM[i]);
 				try {
 					// execution
 					POPString pobjname = new POPString(objname);
@@ -162,7 +162,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 					// add certificate to newly created object temporary store
 					POPRemoteCaller remote = PopJava.getRemoteCaller();
 					if (remote != null && remote.isSecure() && !remote.isUsingConfidenceLink()) {
-						POPObject object = PopJava.connect(POPObject.class, od.getNetwork(), objcontacts[i]);
+						POPObject object = PopJava.connect(null, POPObject.class, od.getNetwork(), objcontacts[i]);
 						Certificate cert = SSLUtils.getCertificate(remote.getFingerprint());
 						object.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(cert));
 						object.exit();

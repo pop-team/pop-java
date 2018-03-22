@@ -44,7 +44,7 @@ public class MethodAnnotationPriority {
 	@Test
 	public void CasB() {
 		C c = PopJava.newActive(this, C.class);
-		B b = PopJava.connect(B.class, "", c.getAccessPoint());
+		B b = PopJava.connect(null, B.class, "", c.getAccessPoint());
 		b.a();
 		b.b();
 		b.sync();

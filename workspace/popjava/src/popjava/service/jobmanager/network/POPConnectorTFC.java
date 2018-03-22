@@ -170,7 +170,7 @@ public class POPConnectorTFC extends POPConnector implements POPConnectorSearchN
 			TFCResource tfcResource = iterator.next();
 			try {
 				// test if object is actually alive
-				POPObject aliveTest = PopJava.connect(POPObject.class, network.getUUID(), tfcResource.getAccessPoint());
+				POPObject aliveTest = PopJava.connect(null, POPObject.class, network.getUUID(), tfcResource.getAccessPoint());
 				// add certificate if provided
 				if (cert != null && cert.length != 0) {
 					aliveTest.PopRegisterFutureConnectorCertificate(cert);

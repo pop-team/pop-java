@@ -96,7 +96,7 @@ public abstract class POPNodeAJobManager extends POPNode {
 		
 		// create connection if it doesn't exists
 		if (jm == null) {
-			jm = PopJava.connect(POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());
+			jm = PopJava.connect(localJM, POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());
 		}
 		// test connection
 		try {
@@ -104,7 +104,7 @@ public abstract class POPNodeAJobManager extends POPNode {
 			jm.query("power", val);
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[NodeJM] Connection lost with [%s], opening new one", getJobManagerAccessPoint());
-			jm = PopJava.connect(POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());
+			jm = PopJava.connect(localJM, POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());
 		}
 		return jm;
 	}

@@ -147,7 +147,7 @@ public class PJProxyFactory extends ProxyFactory {
 				if(originalOd.getRemoteAccessPoint() != null && !originalOd.getRemoteAccessPoint().isEmpty()){
 					POPAccessPoint accessPoint = new POPAccessPoint();
 					accessPoint.setAccessString(originalOd.getRemoteAccessPoint());
-					return bindPOPObject(parentBroker, accessPoint);
+					return bindPOPObject(parentBroker, accessPoint, null);
 				}
 				
 				PJMethodHandler methodHandler = new PJMethodHandler(parentBroker, popObject);
@@ -181,13 +181,17 @@ public class PJProxyFactory extends ProxyFactory {
 	 * @return ProxyObject which represent the Interface side
 	 * @throws POPException : if anything goes wrong
 	 */
-	public Object bindPOPObject(Broker parentBroker, POPAccessPoint accessPoint) throws POPException {
+	public Object bindPOPObject(Broker parentBroker, POPAccessPoint accessPoint, String networkUUID) throws POPException {
 		try {
 			Constructor<?> constructor = targetClass.getConstructor();
 			POPObject popObject = (POPObject) constructor.newInstance();
 			popObject.loadPOPAnnotations(constructor);
 			
 			PJMethodHandler methodHandler = new PJMethodHandler(parentBroker, popObject);
+			if(networkUUID != null) {
+				methodHandler.getOD().setNetwork(networkUUID);
+			}
+			
 			methodHandler.bindObject(accessPoint);
 			//this.setHandler(methodHandler);
 			Class<?> c = this.createClass();
@@ -196,32 +200,6 @@ public class PJProxyFactory extends ProxyFactory {
 			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new POPException(0, e.getMessage());
-		}
-	}
-
-	/**
-	 * Bind an Interface to her parallel object (her associated Broker) on a custom network
-	 * @param accessPoint : The accesspoint of the broker
-	 * @param networkUUID The network that will be requested to the server
-	 * @return ProxyObject which represent the Interface side
-	 * @throws POPException : if anything goes wrong
-	 */
-	public Object bindPOPObject(POPAccessPoint accessPoint, String networkUUID) throws POPException {
-		try {
-			Constructor<?> constructor = targetClass.getConstructor();
-			POPObject popObject = (POPObject) constructor.newInstance();
-			popObject.loadPOPAnnotations(constructor);
-			
-			PJMethodHandler methodHandler = new PJMethodHandler(null, popObject);
-			methodHandler.getOD().setNetwork(networkUUID);
-			methodHandler.bindObject(accessPoint);
-			//this.setHandler(methodHandler);
-			Class<?> c = this.createClass();
-			Object result = c.newInstance();
-			((ProxyObject) result).setHandler(methodHandler);
-			return result;
-		} catch (Exception e) {
 			throw new POPException(0, e.getMessage());
 		}
 	}

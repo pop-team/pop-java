@@ -84,7 +84,7 @@ public class PopJava {
 	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T newActive(Object parentObject, Class<T> targetClass, POPAccessPoint accessPoint) throws POPException {
+	public static <T> T newActive(Object parentObject, Class<T> targetClass, POPAccessPoint accessPoint, String networkUUID) throws POPException {
 		POPSystem.start();
 		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
 		
@@ -98,12 +98,25 @@ public class PopJava {
 			}
 		}
 		
-		return (T) factoryProxy.bindPOPObject(parentBroker, accessPoint);
+		return (T) factoryProxy.bindPOPObject(parentBroker, accessPoint, networkUUID);
 	}
 
+	/**
+	 * Static method used to connect to an already existing parallel object
+	 * TODO rename as connect?
+	 * @param targetClass	the parallel class to be created
+	 * @param accessPoint	access point of the living object
+	 * @return references to the parallel object
+	 * @throws POPException a remote exception, check caused by
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T newActive(Object parentObject, Class<T> targetClass, POPAccessPoint accessPoint) throws POPException {
+		return newActive(parentObject, targetClass, accessPoint, null);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static <T> T newActiveConnect(Object parentObject, Class<T> targetClass, POPAccessPoint accessPoint) throws POPException {
-		return newActive(parentObject,  targetClass, accessPoint);
+		return newActive(parentObject, targetClass, accessPoint);
 	}
 	
 	/**
@@ -115,10 +128,8 @@ public class PopJava {
 	 * @throws POPException a remote exception, check caused by
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T connect(Class<T> targetClass, String networkUUID, POPAccessPoint accessPoint) {
-		POPSystem.start();
-		PJProxyFactory factoryProxy = new PJProxyFactory(targetClass);
-		return (T) factoryProxy.bindPOPObject(accessPoint, networkUUID);
+	public static <T> T connect(Object parentObject, Class<T> targetClass, String networkUUID, POPAccessPoint accessPoint) {
+		return newActive(parentObject, targetClass, accessPoint, networkUUID);
 	}
 
 	/**

@@ -1,7 +1,5 @@
 package popjava.service.jobmanager;
 
-
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -77,7 +75,6 @@ import popjava.service.jobmanager.yaml.YamlJobManager;
 import popjava.service.jobmanager.yaml.YamlNetwork;
 import popjava.service.jobmanager.yaml.YamlResource;
 import popjava.serviceadapter.POPAppService;
-import popjava.serviceadapter.POPJobManager;
 import popjava.serviceadapter.POPJobService;
 import popjava.system.POPJavaConfiguration;
 import popjava.system.POPSystem;
@@ -1840,9 +1837,17 @@ public class POPJavaJobManager extends POPJobService {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
 		
 		if(!cachedJobManangers.containsKey(key)) {
-			POPJavaJobManager jm = PopJava.connect(POPJavaJobManager.class, network, ap);
+			System.out.println("######No JM found for "+ap+" # "+network);
+			
+			for(Tuple<String, POPAccessPoint> tmpKey : cachedJobManangers.keySet()) {
+				System.out.println("#####Cached JM : "+tmpKey.a+" "+tmpKey.b);
+			}			
+			
+			POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 			
 			cachedJobManangers.put(key, jm);
+		}else {
+			System.out.println("######Reuse JM "+ap+" # "+network);
 		}
 		
 		POPJavaJobManager jm = cachedJobManangers.get(key);
@@ -1854,7 +1859,7 @@ public class POPJavaJobManager extends POPJobService {
 			jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[NodeJM] Connection lost with [%s], opening new one");
-			jm = PopJava.connect(POPJavaJobManager.class, network, ap);
+			jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 		
 			cachedJobManangers.put(key, jm);
 		}
@@ -1865,10 +1870,13 @@ public class POPJavaJobManager extends POPJobService {
 	@POPSyncConc
 	public void registerNeighbourJobmanager(POPAccessPoint ap, String network, POPJavaJobManager jm) {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
-		
+				
 		if(!cachedJobManangers.containsKey(key)) {
+			System.out.println("######Register new neighbour JM "+ap+" # "+network);
 			jm.makePermanent();
 			cachedJobManangers.put(key, jm);
+		}else {
+			System.out.println("######We already know about JM "+ap+" # "+network);
 		}
 	}
 }
