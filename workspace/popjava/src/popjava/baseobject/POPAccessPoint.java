@@ -191,4 +191,35 @@ public class POPAccessPoint implements IPOPBase {
 		return false;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((accessPoints == null) ? 0 : accessPoints.hashCode());
+		result = prime * result + ((fingerprint == null) ? 0 : fingerprint.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		POPAccessPoint other = (POPAccessPoint) obj;
+		if (accessPoints == null) {
+			if (other.accessPoints != null)
+				return false;
+		} else if (!accessPoints.equals(other.accessPoints))
+			return false;
+		if (fingerprint == null) {
+			if (other.fingerprint != null)
+				return false;
+		} else if (!fingerprint.equals(other.fingerprint))
+			return false;
+		return true;
+	}
+
 }
