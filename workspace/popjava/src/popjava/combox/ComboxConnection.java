@@ -7,7 +7,7 @@ import popjava.util.POPRemoteCaller;
 
 public class ComboxConnection {
 
-    private final Combox combox;
+    private Combox combox;
     private int connectionID;
     
     public ComboxConnection(final Combox combox, int connectionID) {
@@ -23,6 +23,10 @@ public class ComboxConnection {
         return combox.send(buffer, connectionID);
     }
 
+    public int receive(POPBuffer buffer, int requestId) {
+        return combox.receive(buffer, requestId, connectionID);
+    }
+
     public String getNetworkUUID() {
         return combox.getNetworkUUID();
     }
@@ -35,12 +39,11 @@ public class ComboxConnection {
         return combox.getAccessPoint();
     }
 
-    public int receive(POPBuffer buffer, int requestId) {
-        return combox.receive(buffer, requestId, connectionID);
-    }
-
     public void close() {
-        combox.close(connectionID);
+    	if(combox != null) {
+            combox.close(connectionID);
+            combox = null;
+    	}
     }
 
     public BufferFactory getBufferFactory() {

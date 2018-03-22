@@ -196,7 +196,6 @@ public class POPAccessPoint implements IPOPBase {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((accessPoints == null) ? 0 : accessPoints.hashCode());
-		result = prime * result + ((fingerprint == null) ? 0 : fingerprint.hashCode());
 		return result;
 	}
 
@@ -214,12 +213,8 @@ public class POPAccessPoint implements IPOPBase {
 				return false;
 		} else if (!accessPoints.equals(other.accessPoints))
 			return false;
-		if (fingerprint == null) {
-			if (other.fingerprint != null)
-				return false;
-		} else if (!fingerprint.equals(other.fingerprint))
-			return false;
 		return true;
 	}
+
 
 }

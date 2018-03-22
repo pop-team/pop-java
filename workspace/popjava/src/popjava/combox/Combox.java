@@ -188,6 +188,16 @@ public abstract class Combox<T> {
 	 * Close the connection
 	 */
 	public void close(int connectionID) {
+		close(connectionID, true);
+	}
+	
+	/**
+	 * Close the connection
+	 */
+	protected void close(int connectionID, boolean informPartner) {
+		System.out.println("Closing connection "+connectionID +" "+this);			
+		new Exception().printStackTrace();
+		
 		if(connectionID == 0 || connectionID == 1) {
 			openConnections.remove(0);
 			openConnections.remove(1);
@@ -197,7 +207,7 @@ public abstract class Combox<T> {
 		
 		if(openConnections.size() == 0) {
 			closeInternal();
-		}else {			
+		}else if(informPartner){
 			MessageHeader messageHeader = new MessageHeader();
 	        messageHeader.setRequestID(2);
 	        messageHeader.setMethodId(3);
@@ -289,11 +299,11 @@ public abstract class Combox<T> {
         int answer = receive(buffer, 2, 0);
         if(answer > 0) {
             if(buffer.getHeader().getRequestType() == MessageHeader.EXCEPTION) {
-                System.out.println("Bidirectional connection failed, exception "+buffer.getHeader().getExceptionCode());
+                System.out.println("Bidirectional connection failed, exception "+buffer.getHeader().getExceptionCode()+" "+this);
                 return -1;
             }
             int connectionID = buffer.getInt();;
-            System.out.println("Combox accepted bidirectional on connection "+connectionID);
+            System.out.println("Combox accepted bidirectional on connection "+connectionID+" "+this);
             openConnections.add(connectionID);
             
             return connectionID;
@@ -303,9 +313,10 @@ public abstract class Combox<T> {
 	}
 	
 	protected boolean bindToBroker(int connectionID) {
-	    System.out.println("Rebind combox to broker using connection ID "+connectionID);
+	    System.out.println("Rebind combox to broker using connection ID "+connectionID+" "+this);
 	    if(broker != null) {
 	        ComboxAcceptSocket.serveConnection(broker, broker.getRequestQueue(), this, connectionID);
+	        broker.onNewConnection();
 	        return true;
 	    }
 	    

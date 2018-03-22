@@ -155,9 +155,10 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                         	}
                         		break;
                         	case 3:{
+                        		System.out.println("Got closing packet");
                         		int closedConnectionID = buffer.getInt();
                         		
-                        		close(closedConnectionID);
+                        		close(closedConnectionID, false);
                         	}
                         		break;
                     		default:
@@ -205,7 +206,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			return result;
 		} catch (Exception e) {
 			if (conf.isDebugCombox()){
-				LogWriter.writeDebugInfo("[ComboxSecureSocket] Error while receiving data:"
+				LogWriter.writeDebugInfo("[ComboxSocket] Error while receiving data:"
 								+ e.getMessage());
 			}
 			closeInternal();
@@ -249,7 +250,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			final byte[] dataSend = buffer.array();
 			
 			//new Exception().printStackTrace();
-			//System.out.println("SEND ID "+buffer.getHeader().getRequestID()+" con : "+connectionID+" method "+buffer.getHeader()+" combox "+this);
+			System.out.println("SEND ID "+buffer.getHeader().getRequestID()+" con : "+connectionID+" method "+buffer.getHeader()+" combox "+this);
 			
 			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {

@@ -188,13 +188,7 @@ public class PopJava {
 			instances[i] = new POPAccessPoint();
 		}
 		
-		// connect to local job manager
-		Configuration conf = Configuration.getInstance();
-		String protocol = conf.getJobManagerProtocols()[0];
-		int port = conf.getJobManagerPorts()[0];
-		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
-			protocol, POPSystem.getHostIP(), port));
-		POPJavaJobManager jm = PopJava.newActiveConnect(null, POPJavaJobManager.class, jma);
+		POPJavaJobManager jm = connectToJM();
 		
 		// we use create object in combination with a TFC connector
 		// this will get us a varing number of access points registered on the network
@@ -221,6 +215,16 @@ public class PopJava {
 		}
 		return actives.toArray(new POPAccessPoint[actives.size()]);
 	}
+	
+	private static POPJavaJobManager connectToJM() {
+		// connect to local job manager
+		Configuration conf = Configuration.getInstance();
+		String protocol = conf.getJobManagerProtocols()[0];
+		int port = conf.getJobManagerPorts()[0];
+		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d",
+			protocol, POPSystem.getHostIP(), port));
+		return PopJava.newActiveConnect(null, POPJavaJobManager.class, jma);
+	}
 
 	/**
 	 * Make a TFC research on a specific POPNode, the node should be of type {@link POPNodeAJobManager}.
@@ -239,15 +243,12 @@ public class PopJava {
 		// cast node and connect to remote job manager
 		POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 		try {
-			// make local reserach on node
-			POPJavaJobManager jobManager = jmNode.getJobManager(null, networkUUID);
-			
+			System.out.println("A");
+			POPJavaJobManager jm = connectToJM();
 			try {
-				aps = jobManager.localTFCSearch(networkUUID, targetClass.getName());
+				aps = jm.newTFCSearchOn(jmNode.getJobManagerAccessPoint(), networkUUID, targetClass.getName());
 			} catch (Exception e) { throw e; }
 			finally {
-				// exit since the node keep connection alives
-				jobManager.exit();
 			}
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[TFC] Can't connect to [%s].", node);
