@@ -7,15 +7,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import popjava.base.MessageHeader;
+import popjava.baseobject.AccessPoint;
 import popjava.baseobject.POPAccessPoint;
 import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
 import popjava.combox.socket.ssl.ComboxSecureSocketFactory;
+import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 
 public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
@@ -324,6 +330,49 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 		}
 		
 		return "Closed";
+	}
+	
+	public static List<AccessPoint> getSortedAccessPoints(String myHost, POPAccessPoint accessPoint, String protocol){
+		List<AccessPoint> aps = new ArrayList<>();
+		for (int i = 0; i < accessPoint.size(); i++) {
+			AccessPoint ap = accessPoint.get(i);
+			if (ap.getProtocol().compareToIgnoreCase(protocol) != 0){
+				continue;
+			}
+			aps.add(ap);
+		}
+		
+		int countPoints = myHost.length() - myHost.replace(".", "").length();
+		
+		if(countPoints == 3) {
+			final String subnet = myHost.substring(0, myHost.indexOf("."));
+			
+			Collections.sort(aps, new Comparator<AccessPoint>() {
+
+				@Override
+				public int compare(AccessPoint o1, AccessPoint o2) {
+					
+					int countPoints1 = o1.getHost().length() - o1.getHost().replace(".", "").length();
+					int countPoints2 = o2.getHost().length() - o2.getHost().replace(".", "").length();
+					
+					if(countPoints1 == countPoints2) {
+						if(o1.getHost().startsWith(subnet) && o2.getHost().startsWith(subnet)) {
+							return o1.getHost().compareTo(o2.getHost());
+						}
+						
+						if(o1.getHost().startsWith(subnet)) {
+							return -1;
+						}
+						
+						return 1;
+					}
+					
+					return countPoints1 - countPoints2;
+				}
+			});
+		}
+		
+		return aps;
 	}
 }
 

@@ -12,6 +12,8 @@ import java.util.Objects;
  */
 public class MySerializable implements Serializable {
 	
+	private static final long serialVersionUID = 43L;
+	
 	private String a;
 	private int b;
 	private double c;

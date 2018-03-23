@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import popjava.base.MessageHeader;
 import popjava.baseobject.AccessPoint;
@@ -17,6 +18,8 @@ import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
 import popjava.combox.socket.ComboxSocket;
+import popjava.combox.socket.ssl.ComboxSecureSocketFactory;
+import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
 
@@ -48,12 +51,12 @@ public class ComboxRawSocket extends ComboxSocket<Socket> {
 	protected boolean connectToServer() {
 		available = false;
 		int accessPointSize = accessPoint.size();
-		for (int i = 0; i < accessPointSize && !available; i++) {
-			AccessPoint ap = accessPoint.get(i);
-			if (ap.getProtocol().compareToIgnoreCase(
-					ComboxSocketFactory.PROTOCOL) != 0){
-				continue;
-			}
+		
+		List<AccessPoint> aps = getSortedAccessPoints(POPSystem.getHostIP(), accessPoint, ComboxSocketFactory.PROTOCOL);
+		
+		for (int i = 0; i < aps.size() && !available; i++) {
+			AccessPoint ap = aps.get(i);
+			
 			String host = ap.getHost();
 			int port = ap.getPort();
 			try {

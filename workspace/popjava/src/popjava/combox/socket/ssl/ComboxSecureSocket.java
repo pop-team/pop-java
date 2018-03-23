@@ -10,6 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.SNIHostName;
@@ -26,6 +28,7 @@ import popjava.buffer.POPBuffer;
 import popjava.combox.Combox;
 import popjava.combox.ComboxFactory;
 import popjava.combox.socket.ComboxSocket;
+import popjava.system.POPSystem;
 import popjava.util.LogWriter;
 import popjava.util.POPRemoteCaller;
 
@@ -62,12 +65,12 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 
 			available = false;
 			int accessPointSize = accessPoint.size();
-			for (int i = 0; i < accessPointSize && !available; i++) {
-				AccessPoint ap = accessPoint.get(i);
-				if (ap.getProtocol().compareToIgnoreCase(
-						ComboxSecureSocketFactory.PROTOCOL) != 0){
-					continue;
-				}
+			
+			List<AccessPoint> aps = getSortedAccessPoints(POPSystem.getHostIP(), accessPoint, ComboxSecureSocketFactory.PROTOCOL);
+			
+			for (int i = 0; i < aps.size() && !available; i++) {
+				AccessPoint ap = aps.get(i);
+				
 				String host = ap.getHost();
 				int port = ap.getPort();
 				try {
