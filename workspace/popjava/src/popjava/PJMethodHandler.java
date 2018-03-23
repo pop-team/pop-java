@@ -386,7 +386,6 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			return result;
 			
 		} else if (methodName.equals("exit") && argvs.length == 0) {
-			new Exception().printStackTrace();
 			LogWriter.writeDebugInfo("Close method handler through exit: "+popObjectInfo.getClassName());
 			canExcute[0] = true;
 			invokeExit();

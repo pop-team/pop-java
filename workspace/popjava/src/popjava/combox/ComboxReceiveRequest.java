@@ -66,6 +66,9 @@ public final class ComboxReceiveRequest implements Runnable {
 				setStatus(EXIT);
 			}
 		}
+		
+		System.out.println("!!!! Ending "+this.getClass().getName()+" "+combox.getAccessPoint());
+		
 		close();
 	}
 

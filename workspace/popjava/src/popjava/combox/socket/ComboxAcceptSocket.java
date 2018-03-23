@@ -71,7 +71,7 @@ public abstract class ComboxAcceptSocket<E extends Socket> implements Runnable {
 		
 	public static void serveConnection(Broker broker, RequestQueue requestQueue, Combox serverClient, int connectionID) {
 	    Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, new ComboxConnection(serverClient, connectionID));
-        Thread thread = new Thread(runnable, "Combox request acceptance");
+        Thread thread = new Thread(runnable, "Combox request acceptance "+serverClient.getAccessPoint()+" "+connectionID);
         thread.start();
 	}
 }

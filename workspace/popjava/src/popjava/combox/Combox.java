@@ -196,7 +196,6 @@ public abstract class Combox<T> {
 	 */
 	protected void close(int connectionID, boolean informPartner) {
 		System.out.println("Closing connection "+connectionID +" "+this);			
-		new Exception().printStackTrace();
 		
 		if(connectionID == 0 || connectionID == 1) {
 			openConnections.remove(0);
