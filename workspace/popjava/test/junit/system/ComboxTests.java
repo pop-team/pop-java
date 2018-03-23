@@ -34,7 +34,6 @@ public class ComboxTests {
 		sorted = ComboxSocket.getSortedAccessPoints("9.9.9.9", ap, ComboxSocketFactory.PROTOCOL);
 		assertEquals(3, sorted.size());
 		assertEquals("www.asdf.com", sorted.get(0).getHost());
-		
 	}
 	
 	@Test

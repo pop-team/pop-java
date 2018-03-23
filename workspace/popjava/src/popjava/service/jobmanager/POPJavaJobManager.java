@@ -1835,8 +1835,6 @@ public class POPJavaJobManager extends POPJobService {
 	public synchronized POPJavaJobManager connectToJobmanager(POPAccessPoint ap, String network) {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
 		
-		System.out.println("######Search for cached JM");
-		
 		if(!cachedJobManangers.containsKey(key)) {
 			System.out.println("######No JM found for "+ap+" # "+network);
 			
@@ -1848,18 +1846,14 @@ public class POPJavaJobManager extends POPJobService {
 			POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 			
 			cachedJobManangers.put(key, jm);
-		}else {
-			System.out.println("######Reuse JM "+ap+" # "+network);
 		}
 		
 		POPJavaJobManager jm = cachedJobManangers.get(key);
 		
 		try {
 			POPString val = new POPString();
-			System.out.println("######Query power");
 			jm.query("power", val);
 			
-			System.out.println("######Register myself");
 			jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
 		} catch (Exception e) {
 			cachedJobManangers.put(key, null);
@@ -1869,14 +1863,11 @@ public class POPJavaJobManager extends POPJobService {
 		
 			cachedJobManangers.put(key, jm);
 		}
-			
-		System.out.println("#######JM recovered");
 		return jm;
 	}
 	
 	@POPSyncConc
 	public POPAccessPoint[] newTFCSearchOn(POPAccessPoint ap, String network, String objectName ) {
-		System.out.println("B");
 		return connectToJobmanager(ap, network).localTFCSearch(network, objectName);
 	}
 	
@@ -1889,11 +1880,15 @@ public class POPJavaJobManager extends POPJobService {
 		cachedJobManangers.put(key, jm);*/
 		
 		if(!cachedJobManangers.containsKey(key)) {
-			System.out.println("######Register new neighbour JM "+ap+" # "+network);
 			jm.makePermanent();
 			cachedJobManangers.put(key, jm);
 		}else {
-			System.out.println("######We already know about JM "+ap+" # "+network);
+			try {
+				POPString val = new POPString();
+				jm.query("power", val);
+			} catch (Exception e) {
+				cachedJobManangers.put(key, jm);
+			}
 		}
 	}
 }
