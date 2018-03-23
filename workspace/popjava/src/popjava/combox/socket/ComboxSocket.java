@@ -356,15 +356,33 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 					int countPoints2 = o2.getHost().length() - o2.getHost().replace(".", "").length();
 					
 					if(countPoints1 == countPoints2) {
+						//If both hosts are in my subnet, sort by string
 						if(o1.getHost().startsWith(subnet) && o2.getHost().startsWith(subnet)) {
 							return o1.getHost().compareTo(o2.getHost());
 						}
 						
+						//if first host is in my subnet, priority to that
 						if(o1.getHost().startsWith(subnet)) {
 							return -1;
 						}
 						
-						return 1;
+						//Same for second
+						if(o2.getHost().startsWith(subnet)) {
+							return 1;
+						}
+						
+						boolean privateSubnet1 = isHostInPrivateSubnet(o1.getHost());
+						boolean privateSubnet2 = isHostInPrivateSubnet(o2.getHost());
+						
+						if(privateSubnet1 && !privateSubnet2) {
+							return 1;
+						}
+						
+						if(!privateSubnet1 && privateSubnet2) {
+							return -1;
+						}
+						
+						return o1.getHost().compareTo(o2.getHost());
 					}
 					
 					return countPoints1 - countPoints2;
@@ -373,6 +391,10 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 		}
 		
 		return aps;
+	}
+	
+	private static boolean isHostInPrivateSubnet(String host) {
+		return host.startsWith("10.") || host.startsWith("172.16.") || host.startsWith("192.168.");
 	}
 }
 

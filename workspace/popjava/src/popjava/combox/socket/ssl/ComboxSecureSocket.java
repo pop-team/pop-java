@@ -64,7 +64,6 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 			SSLSocketFactory factory = sslContext.getSocketFactory();
 
 			available = false;
-			int accessPointSize = accessPoint.size();
 			
 			List<AccessPoint> aps = getSortedAccessPoints(POPSystem.getHostIP(), accessPoint, ComboxSecureSocketFactory.PROTOCOL);
 			
@@ -73,6 +72,9 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 				
 				String host = ap.getHost();
 				int port = ap.getPort();
+				
+				System.out.println("Connect secure "+host +" "+port+" "+POPSystem.getHostIP());
+				
 				try {
 					// Create an unbound socket
 					SocketAddress sockaddress = new InetSocketAddress(host, port);
