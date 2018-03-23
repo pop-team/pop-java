@@ -20,7 +20,8 @@ public class ComboxConnection {
     }
 
     public int send(POPBuffer buffer) {
-        return combox.send(buffer, connectionID);
+    	buffer.getHeader().setConnectionID(connectionID);
+        return combox.send(buffer);
     }
 
     public int receive(POPBuffer buffer, int requestId) {
@@ -52,6 +53,10 @@ public class ComboxConnection {
 
     public void setBufferFactory(BufferFactory bufferFactory) {
         combox.setBufferFactory(bufferFactory);
+    }
+    
+    public int getConnectionID() {
+    	return connectionID;
     }
     
 }

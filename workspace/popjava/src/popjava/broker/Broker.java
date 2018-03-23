@@ -1236,11 +1236,13 @@ public final class Broker {
 		//Send info back to callback
 		MessageHeader messageHeader = new MessageHeader();
 		messageHeader.setRequestType(MessageHeader.REQUEST);
+		messageHeader.setConnectionID(0);
 		POPBuffer buffer = new BufferXDR();
 		buffer.setHeader(messageHeader);
 		buffer.putInt(status);
 		broker.getAccessPoint().serialize(buffer);
-		callback.send(buffer, 0);
+		callback.send(buffer);
+		
 		LogWriter.writeDebugInfo("[Broker] Broker can be accessed at "+broker.getAccessPoint().toString());
 
 		// clean-up main method, help GC since treatRequests is an almost infinite loop
@@ -1270,8 +1272,7 @@ public final class Broker {
 	    exception.printStackTrace();
 	    
 		POPBuffer buffer = combox.getCombox().getBufferFactory().createBuffer();
-		MessageHeader messageHeader = new MessageHeader(
-				POPSystemErrorCode.EXCEPTION_PAROC_STD);
+		MessageHeader messageHeader = new MessageHeader(POPSystemErrorCode.EXCEPTION_PAROC_STD);
 		messageHeader.setRequestID(requestId);
 		
 		buffer.setHeader(messageHeader);

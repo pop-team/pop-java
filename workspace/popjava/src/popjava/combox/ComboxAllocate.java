@@ -32,15 +32,6 @@ public abstract class ComboxAllocate<T extends Combox> {
 	}
 
 	/**
-	 * Send a message to the other-side
-	 * @param buffer	Buffer to be send
-	 * @return	Number of byte sent
-	 */
-	public final int send(POPBuffer buffer, int connectionID) {
-		return combox.send(buffer, connectionID);
-	}
-
-	/**
 	 * Receive a new message from the other-side
 	 * @param buffer	Buffer to receive the message
 	 * @return	Number of byte read

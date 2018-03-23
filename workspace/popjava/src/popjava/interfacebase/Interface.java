@@ -1029,7 +1029,7 @@ public class Interface {
 				POPBuffer.checkAndThrow(errorCode, buffer);
 			}
 		} else {
-		    throw new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE, "Connection closed remotely while receiving");
+		    throw new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE, "Connection closed remotely while receiving "+combox.getCombox());
         }
 		return 0;
 	}

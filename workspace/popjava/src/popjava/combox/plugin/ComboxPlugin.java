@@ -28,7 +28,7 @@ public class ComboxPlugin extends Combox<Object> {
 	}
 
 	@Override
-	public int send(POPBuffer buffer, int connectionID) {
+	public int send(POPBuffer buffer) {
 		return 0;
 	}
 

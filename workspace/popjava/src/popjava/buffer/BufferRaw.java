@@ -56,20 +56,23 @@ public class BufferRaw extends POPBuffer {
 		messageHeader = new MessageHeader();
 		
 		if (buffer.limit() >= MessageHeader.HEADER_LENGTH) {
-			int requestId = getInt(4);
+			int connectionID = getInt(4);
+			messageHeader.setConnectionID(connectionID);
+			
+			int requestId = getInt(8);
 			messageHeader.setRequestID(requestId);
 			
-			int requestType = getInt(8);
+			int requestType = getInt(12);
 			messageHeader.setRequestType(requestType);
 			
 			switch (requestType) {
 			case MessageHeader.REQUEST:
-				messageHeader.setClassId(getInt(12));
-				messageHeader.setMethodId(getInt(16));				
-				messageHeader.setSenmatics(getInt(20));
+				messageHeader.setClassId(getInt(16));
+				messageHeader.setMethodId(getInt(20));				
+				messageHeader.setSenmatics(getInt(24));
 				break;
 			case MessageHeader.EXCEPTION:
-				messageHeader.setExceptionCode(getInt(12));
+				messageHeader.setExceptionCode(getInt(16));
 				break;
 			case MessageHeader.RESPONSE:
 				break;
@@ -81,6 +84,47 @@ public class BufferRaw extends POPBuffer {
 		}
 		return this.messageHeader;
 	}
+	
+	/**
+	 * Format:
+	 * Size
+	 * Type (0, 1, 2) (response, request, exeption)
+	 * 
+	 * 
+	 * @return 0
+	 */
+	@Override
+	public int packMessageHeader() {
+		int index = 0;
+		for (index = 0; index < 7; index++) {
+			putInt(index * 4, 0); //0, 4, 8, 12
+		}
+		int type = messageHeader.getRequestType();
+		putInt(0, size());
+
+		putInt(4, messageHeader.getConnectionID());
+		
+		putInt(8, messageHeader.getRequestID());
+		
+		putInt(12, type);
+		
+		switch (type) {
+			case MessageHeader.REQUEST:
+				putInt(16, messageHeader.getClassId());
+				putInt(20, messageHeader.getMethodId());
+				putInt(24, messageHeader.getSemantics());
+				break;
+			case MessageHeader.EXCEPTION:
+				putInt(16, messageHeader.getExceptionCode());
+				break;
+			case MessageHeader.RESPONSE:
+				break;
+			default:
+				break;
+		}
+		return 0;
+	}
+
 
 
 	@Override
@@ -614,44 +658,6 @@ public class BufferRaw extends POPBuffer {
 	    }
 	}
 	
-	/**
-	 * Format:
-	 * Size
-	 * Type (0, 1, 2) (response, request, exeption)
-	 * 
-	 * 
-	 * @return 0
-	 */
-	@Override
-	public int packMessageHeader() {
-		int index = 0;
-		for (index = 0; index < 6; index++) {
-			putInt(index * 4, 0); //0, 4, 8, 12
-		}
-		int type = messageHeader.getRequestType();
-		putInt(0, size());
-		
-		putInt(4, messageHeader.getRequestID());
-		
-		putInt(8, type);
-		
-		switch (type) {
-			case MessageHeader.REQUEST:
-				putInt(12, messageHeader.getClassId());
-				putInt(16, messageHeader.getMethodId());
-				putInt(20, messageHeader.getSemantics());
-				break;
-			case MessageHeader.EXCEPTION:
-				putInt(12, messageHeader.getExceptionCode());
-				break;
-			case MessageHeader.RESPONSE:
-				break;
-			default:
-				break;
-		}
-		return 0;
-	}
-
 	@Override
 	public short getShort() {
 		return buffer.getShort();

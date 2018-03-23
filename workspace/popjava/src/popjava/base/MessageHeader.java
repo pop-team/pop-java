@@ -17,14 +17,15 @@ public class MessageHeader {
 	public static final int KILL_ALL = 4;
 	public static final int OBJECT_ALIVE_CALL = 5;
 
-	public static final int HEADER_LENGTH = 24;
-
-	protected int requestType;
-	protected int classId;
-	protected int methodId;
-	protected int semantics;
-	protected int exceptionCode;
-	protected int requestID = -1; //ID of the request. Must be unique for all concurrent requests from same source to same target. 
+	public static final int HEADER_LENGTH = 28;
+	
+	private int connectionID;
+	private int requestType;
+	private int classId;
+	private int methodId;
+	private int semantics;
+	private int exceptionCode;
+	private int requestID = -1; //ID of the request. Must be unique for all concurrent requests from same source to same target. 
 
 	/**
 	 * Initialize a new message header with parameters
@@ -63,6 +64,14 @@ public class MessageHeader {
 		semantics = Semantic.SYNCHRONOUS;
 	}
 
+	public void setConnectionID(int connectionID) {
+		this.connectionID = connectionID;
+	}
+	
+	public int getConnectionID() {
+		return connectionID;
+	}
+	
 	/**
 	 * Get the request type 
 	 * @return	The request type stored in the message header

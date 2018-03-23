@@ -139,14 +139,16 @@ public abstract class Combox<T> {
 		MessageHeader messageHeader = new MessageHeader();
 		messageHeader.setRequestID(1234);
 		messageHeader.setRequestType(MessageHeader.REQUEST);
+		messageHeader.setConnectionID(0);
 		POPBuffer buffer = bufferFactory.createBuffer();
 		buffer.setHeader(messageHeader);
 		buffer.putBoolean(broker != null);
+		
 		if(broker != null) {
 			buffer.putValue(broker.getAccessPoint(), POPAccessPoint.class);
 		}
 		
-		send(buffer, 0);
+		send(buffer);
 		
 		return true;
 	}
@@ -166,6 +168,8 @@ public abstract class Combox<T> {
 			remoteCaller.setBrokerAP(ap);
 		}
 		
+		System.out.println("Got remote AP "+ap);
+		
 		return true;
 	}
 
@@ -174,7 +178,7 @@ public abstract class Combox<T> {
 	 * @param buffer	The buffer to send
 	 * @return	Number of byte sent
 	 */
-	public abstract int send(POPBuffer buffer, int connectionID);
+	public abstract int send(POPBuffer buffer);
 
 	/**
 	 * Receive buffer from the other side
@@ -195,7 +199,7 @@ public abstract class Combox<T> {
 	 * Close the connection
 	 */
 	protected void close(int connectionID, boolean informPartner) {
-		System.out.println("Closing connection "+connectionID +" "+this);			
+		System.out.println("Closing connection "+connectionID +" "+this);
 		
 		if(connectionID == 0 || connectionID == 1) {
 			openConnections.remove(0);
@@ -211,11 +215,13 @@ public abstract class Combox<T> {
 	        messageHeader.setRequestID(2);
 	        messageHeader.setMethodId(3);
 	        messageHeader.setRequestType(MessageHeader.REQUEST);
+	        messageHeader.setConnectionID(0);
+	        
 	        POPBuffer buffer = bufferFactory.createBuffer();
 	        buffer.setHeader(messageHeader);
 	        buffer.putInt(connectionID);
 	        
-	        send(buffer, 0);
+	        send(buffer);
 		}
 		
 	}
@@ -284,6 +290,7 @@ public abstract class Combox<T> {
 	    MessageHeader messageHeader = new MessageHeader();
         messageHeader.setRequestID(2);
         messageHeader.setMethodId(2);
+        messageHeader.setConnectionID(0);
         messageHeader.setRequestType(MessageHeader.REQUEST);
         POPBuffer buffer = bufferFactory.createBuffer();
         buffer.setHeader(messageHeader);
@@ -293,7 +300,7 @@ public abstract class Combox<T> {
         	buffer.putValue(this.broker.getAccessPoint(), POPAccessPoint.class);
         }
         
-        send(buffer, 0);
+        send(buffer);
         
         int answer = receive(buffer, 2, 0);
         if(answer > 0) {

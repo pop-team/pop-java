@@ -58,26 +58,21 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			byte[] temp = new byte[4];
 			
 			boolean gotPacket = false;
-			
+
+			boolean yieldThread = false;
 			do {
+				if(yieldThread) {
+                    Thread.yield();
+                    Thread.sleep(1);
+				}
+				yieldThread = false;
+				
 				synchronized (inputStream) {
 					inputStream.mark(12);
 					
 					int read = 0;
-                    //Get connectionID
-                    while(read < temp.length){
-                        int tempRead = inputStream.read(temp, read, temp.length - read);
-                        if(tempRead < 0){
-                        	closeInternal();
-                            return -1;
-                        }
-                        read += tempRead;
-                    }
-                    
-                    int packetConnectionID = ByteBuffer.wrap(temp).getInt();
 					
-				    read = 0;
-				    //Get size
+					//Get size
 				    while(read < temp.length){
 				    	int tempRead = inputStream.read(temp, read, temp.length - read);
 				    	if(tempRead < 0){
@@ -94,6 +89,19 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 						return -1;
 					}
 					
+				    read = 0;					
+                    //Get connectionID
+                    while(read < temp.length){
+                        int tempRead = inputStream.read(temp, read, temp.length - read);
+                        if(tempRead < 0){
+                        	closeInternal();
+                            return -1;
+                        }
+                        read += tempRead;
+                    }
+                    
+                    int packetConnectionID = buffer.getTranslatedInteger(temp);
+					
 					//Get requestID
 					read = 0;
 				    //Get size
@@ -108,14 +116,14 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 					
 					int requestIdPacket = buffer.getTranslatedInteger(temp);
 					
-					//System.out.println("GOT "+requestIdPacket+" "+packetConnectionID+" "+messageLength);
+					//System.out.println("GOT "+requestIdPacket+" "+packetConnectionID+" "+messageLength+" on "+connectionID);
                     
                     //HANDLE SPECIAL COMBOX packet
                     //TODO: Make this cleaner. 
 					if(packetConnectionID == 0 && requestIdPacket == 2 && requestId != 2) {
                         POPBuffer tempBuffer = getBufferFactory().createBuffer();
                         tempBuffer.resetToReceive();
-                        int length = readPacket(tempBuffer, messageLength, requestIdPacket);
+                        int length = readPacket(tempBuffer, messageLength, requestIdPacket, packetConnectionID);
                         
                         if(length >= MessageHeader.HEADER_LENGTH) {
                             tempBuffer.extractHeader();
@@ -126,10 +134,9 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                         if(tempBuffer.getHeader().getRequestType() == MessageHeader.RESPONSE) {
                             //System.out.println("Got rebind response " +connectionID+" "+requestId);
                             inputStream.reset();
-                            Thread.yield();
+                            yieldThread = true;
                             continue;
                         }else {
-                        	
                         	switch(tempBuffer.getHeader().getMethodId()) {
                         	case 2:{//Handle the opening of a bidirectional channel
                         		if(tempBuffer.getBoolean()) {
@@ -148,10 +155,11 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                                 MessageHeader header = new MessageHeader();
                                 header.setRequestType(MessageHeader.RESPONSE);
                                 header.setRequestID(requestIdPacket);
+                                header.setConnectionID(0);
                                 tempBuffer.setHeader(header);
                                 tempBuffer.putInt(newConnectionID);
                                 
-                                send(tempBuffer, 0);
+                                send(tempBuffer);
                         	}
                         		break;
                         	case 3:{
@@ -173,7 +181,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                     if(packetConnectionID != connectionID) {
                         inputStream.reset();
                         //System.out.println("WRONG CONNECTION "+packetConnectionID+" instead of "+connectionID +" "+this);
-                        Thread.yield();
+                        yieldThread = true;
                         continue;
                     }
 					
@@ -181,13 +189,14 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 					if(requestId == -1 || requestIdPacket == -1 || requestIdPacket == requestId){
 						gotPacket = true;
 
-						result = readPacket(buffer, messageLength, requestIdPacket);
+						result = readPacket(buffer, messageLength, requestIdPacket, packetConnectionID);
 					}else{
 				        //System.out.println("RESET got "+requestIdPacket+" instead of "+requestId);
                         inputStream.reset();
-                        Thread.yield();
+                        yieldThread = true;
 					}
 				}
+				
 			}while(!gotPacket);
 
 			int headerLength = MessageHeader.HEADER_LENGTH;
@@ -214,11 +223,14 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 		}
 	}
 
-    private int readPacket(POPBuffer buffer, int messageLength, int requestIdPacket) throws IOException {
-        int result = 8;
+    private int readPacket(POPBuffer buffer, int messageLength, int requestIdPacket, int packetConnectionID) throws IOException {
+        int result = 12;
         buffer.putInt(messageLength);
         messageLength = messageLength - 4;
         
+        buffer.putInt(packetConnectionID);
+        messageLength = messageLength - 4;
+                
         buffer.putInt(requestIdPacket);
         messageLength = messageLength - 4;
         
@@ -243,18 +255,18 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
     }
 	
 	@Override
-	public int send(POPBuffer buffer, int connectionID) {
+	public int send(POPBuffer buffer) {
+		
 		try {
 			buffer.packMessageHeader();
 			final int length = buffer.size();
 			final byte[] dataSend = buffer.array();
 			
 			//new Exception().printStackTrace();
-			System.out.println("SEND ID "+buffer.getHeader().getRequestID()+" con : "+connectionID+" method "+buffer.getHeader()+" combox "+this);
+			//System.out.println("SEND ID "+buffer.getHeader().getRequestID()+" " +buffer.size()+" con : "+buffer.getHeader().getConnectionID()+" method "+buffer.getHeader()+" combox "+this);
 			
 			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {
-			    outputStream.write(ByteBuffer.allocate(4).putInt(connectionID).array(),0 ,4);
     			outputStream.write(dataSend, 0, length);
     			
     			outputStream.flush();
@@ -281,7 +293,8 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 	}
 	
 	@Override
-	public void closeInternal() {		
+	public void closeInternal() {
+		//new Exception("CLOSING COMBOX SOCKET "+this).printStackTrace();
 		try {
 			if (peerConnection != null && !peerConnection.isClosed()) {
 				/*LogWriter.writeExceptionLog(new Exception("Close connection to "+peerConnection.getInetAddress()+

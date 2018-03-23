@@ -67,7 +67,11 @@ public final class ComboxReceiveRequest implements Runnable {
 			}
 		}
 		
-		System.out.println("!!!! Ending "+this.getClass().getName()+" "+combox.getAccessPoint());
+		if(broker != null) {
+			System.out.println("!!!! Ending "+this.getClass().getName()+" "+combox.getRemoteCaller().getBrokerAP()+":"+combox.getConnectionID()+" # "+broker.getAccessPoint());
+		}else {
+			System.out.println("!!!! Ending "+this.getClass().getName()+" "+combox.getRemoteCaller().getBrokerAP()+":"+combox.getConnectionID()+" # No broker");
+		}
 		
 		close();
 	}
@@ -80,6 +84,7 @@ public final class ComboxReceiveRequest implements Runnable {
 	public boolean receiveRequest(Request request) {		
 		POPBuffer buffer = combox.getCombox().getBufferFactory().createBuffer();
 		int receivedLength = combox.receive(buffer, -1);
+		
 		if (receivedLength > 0) {
 			request.setBroker(broker);
 			MessageHeader messageHeader = buffer.extractHeader();
@@ -92,6 +97,7 @@ public final class ComboxReceiveRequest implements Runnable {
 			request.setCombox(combox);
 			return true;
 		}
+		
 		return false;
 	}
 
