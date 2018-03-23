@@ -23,6 +23,9 @@ import popjava.util.POPRemoteCaller;
  */
 public abstract class Combox<T> {
 	
+	protected static final int OPEN_BIDIRECTIONAL = 2;
+	protected static final int CLOSE_SUBCONNECTION = 3;
+	
 	protected int timeOut = 0;
 	protected POPAccessPoint accessPoint;
 	
@@ -213,7 +216,7 @@ public abstract class Combox<T> {
 		}else if(informPartner){
 			MessageHeader messageHeader = new MessageHeader();
 	        messageHeader.setRequestID(2);
-	        messageHeader.setMethodId(3);
+	        messageHeader.setMethodId(CLOSE_SUBCONNECTION);
 	        messageHeader.setRequestType(MessageHeader.REQUEST);
 	        messageHeader.setConnectionID(0);
 	        
@@ -289,7 +292,7 @@ public abstract class Combox<T> {
 		
 	    MessageHeader messageHeader = new MessageHeader();
         messageHeader.setRequestID(2);
-        messageHeader.setMethodId(2);
+        messageHeader.setMethodId(OPEN_BIDIRECTIONAL);
         messageHeader.setConnectionID(0);
         messageHeader.setRequestType(MessageHeader.REQUEST);
         POPBuffer buffer = bufferFactory.createBuffer();

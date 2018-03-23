@@ -70,17 +70,9 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				synchronized (inputStream) {
 					inputStream.mark(12);
 					
-					int read = 0;
-					
-					//Get size
-				    while(read < temp.length){
-				    	int tempRead = inputStream.read(temp, read, temp.length - read);
-				    	if(tempRead < 0){
-				    		closeInternal();
-							return -1;
-				    	}
-				        read += tempRead;
-				    }
+					if(peakHeadInteger(temp)) {
+						return -1;
+					}
 					
 					int messageLength = buffer.getTranslatedInteger(temp);
 					
@@ -89,31 +81,16 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 						return -1;
 					}
 					
-				    read = 0;					
-                    //Get connectionID
-                    while(read < temp.length){
-                        int tempRead = inputStream.read(temp, read, temp.length - read);
-                        if(tempRead < 0){
-                        	closeInternal();
-                            return -1;
-                        }
-                        read += tempRead;
-                    }
+					if(peakHeadInteger(temp)) {
+						return -1;
+					}
                     
                     int packetConnectionID = buffer.getTranslatedInteger(temp);
 					
-					//Get requestID
-					read = 0;
-				    //Get size
-				    while(read < temp.length){
-				    	int tempRead = inputStream.read(temp, read, temp.length - read);
-				    	if(tempRead < 0){
-				    		closeInternal();
-							return -1;
-				    	}
-				        read += tempRead;
-				    }
-					
+                    if(peakHeadInteger(temp)) {
+						return -1;
+					}
+                    
 					int requestIdPacket = buffer.getTranslatedInteger(temp);
 					
 					//System.out.println("GOT "+requestIdPacket+" "+packetConnectionID+" "+messageLength+" on "+connectionID);
@@ -126,7 +103,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                         int length = readPacket(tempBuffer, messageLength, requestIdPacket, packetConnectionID);
                         
                         if(length >= MessageHeader.HEADER_LENGTH) {
-                            tempBuffer.extractHeader();
+                        	tempBuffer.extractHeader();
                         }else {
                             System.out.println("THIS SHOULD NOT HAPPEN");
                         }
@@ -138,7 +115,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                             continue;
                         }else {
                         	switch(tempBuffer.getHeader().getMethodId()) {
-                        	case 2:{//Handle the opening of a bidirectional channel
+                        	case OPEN_BIDIRECTIONAL:{//Handle the opening of a bidirectional channel
                         		if(tempBuffer.getBoolean()) {
                                 	POPAccessPoint otherAP = (POPAccessPoint) tempBuffer.getValue(POPAccessPoint.class);                  		
                             		
@@ -162,7 +139,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
                                 send(tempBuffer);
                         	}
                         		break;
-                        	case 3:{
+                        	case CLOSE_SUBCONNECTION:{
                         		System.out.println("Got closing packet");
                         		int closedConnectionID = buffer.getInt();
                         		
@@ -180,7 +157,6 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 					                    
                     if(packetConnectionID != connectionID) {
                         inputStream.reset();
-                        //System.out.println("WRONG CONNECTION "+packetConnectionID+" instead of "+connectionID +" "+this);
                         yieldThread = true;
                         continue;
                     }
@@ -221,6 +197,29 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			closeInternal();
 			return -2;
 		}
+	}
+
+	/**
+	 * Reads one integer from the header.
+	 * Return true if we reached the end of the stream.
+	 * @param temp
+	 * @return
+	 * @throws IOException
+	 */
+	private boolean peakHeadInteger(byte[] temp) throws IOException {
+		int read = 0;
+		
+		//Get size
+		while(read < temp.length){
+			int tempRead = inputStream.read(temp, read, temp.length - read);
+			if(tempRead < 0){
+				closeInternal();
+				return true;
+			}
+		    read += tempRead;
+		}
+		
+		return false;
 	}
 
     private int readPacket(POPBuffer buffer, int messageLength, int requestIdPacket, int packetConnectionID) throws IOException {
