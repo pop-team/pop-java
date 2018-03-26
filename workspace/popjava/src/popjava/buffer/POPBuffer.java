@@ -441,7 +441,7 @@ public abstract class POPBuffer {
 			int length = getInt();
 			
 			byte [] objectContent = getByteArray(length);
-			
+						
 			try (ByteArrayInputStream bis = new ByteArrayInputStream(objectContent)) {
 				try (ObjectInput in = new ObjectInputStream(bis)) {
 				  return in.readObject(); 
@@ -528,7 +528,7 @@ public abstract class POPBuffer {
 					out.flush();
 					
 					byte [] objectContent = bos.toByteArray();
-					putByteArray(objectContent);
+					putByteArray(objectContent);					
 				}
 			} catch(IOException e) {
 				LogWriter.writeExceptionLog(e);

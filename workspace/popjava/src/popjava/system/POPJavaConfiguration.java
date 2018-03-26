@@ -164,13 +164,16 @@ public class POPJavaConfiguration {
 	    String [] parts = path.split(File.pathSeparator);
 	    path = "";
 	    for(int i = 0; i < parts.length; i++) {
-	        path += "\""+parts[i]+"\"";
+	    	if(parts[i].contains(" ")) {
+	    		path += "\""+parts[i]+"\"";
+	    	}else {
+	    		path += parts[i];
+	    	}
 	        
 	        if(i < parts.length - 1) {
 	            path += File.pathSeparator;
 	        }
 	    }
-	          
 	    
 		return path;
 		/*

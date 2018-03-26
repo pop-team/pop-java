@@ -130,8 +130,6 @@ public final class POPJavaAgent implements ClassFileTransformer{
             }
         } catch (NotFoundException e) {
             e.printStackTrace();
-            System.out.println("!!!!! "+System.getProperty("java.class.path"));
-            System.out.println("!!!!! "+classPool.toString());
         }       
         
         return false;

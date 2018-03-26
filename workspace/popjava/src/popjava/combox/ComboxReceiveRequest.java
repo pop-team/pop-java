@@ -67,12 +67,6 @@ public final class ComboxReceiveRequest implements Runnable {
 			}
 		}
 		
-		if(broker != null) {
-			System.out.println("!!!! Ending "+this.getClass().getName()+" "+combox.getRemoteCaller().getBrokerAP()+":"+combox.getConnectionID()+" # "+broker.getAccessPoint());
-		}else {
-			System.out.println("!!!! Ending "+this.getClass().getName()+" "+combox.getRemoteCaller().getBrokerAP()+":"+combox.getConnectionID()+" # No broker");
-		}
-		
 		close();
 	}
 
