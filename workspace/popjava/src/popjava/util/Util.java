@@ -67,6 +67,7 @@ public final class Util {
 				|| sameContact(myHost, hostname)
 				|| hostname.equals("localhost") ||
 				hostname.equals("127.0.0.1") ||
+				hostname.equals("0.0.0.0") ||
 				hostname.equals("127.0.1.1"));
 	}
 

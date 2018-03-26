@@ -23,8 +23,13 @@ import popjava.util.POPRemoteCaller;
  */
 public abstract class Combox<T> {
 	
+	private static final boolean KEEP_ALIVE = false;
+	private static final int KEEP_ALIVE_INTERVAL = 30000;
+
+	protected static final int SEND_REMOTE_AP = 1;
 	protected static final int OPEN_BIDIRECTIONAL = 2;
 	protected static final int CLOSE_SUBCONNECTION = 3;
+	protected static final int PING = 4;
 	
 	protected int timeOut = 0;
 	protected POPAccessPoint accessPoint;
@@ -42,6 +47,9 @@ public abstract class Combox<T> {
 
 	private Set<Integer> openConnections = new HashSet<Integer>();
 	private int connectionCounter = 10;
+	
+	private Thread keepAliveThread;
+	private long lastCommunication = 0;
 		
 	/**
 	 * This is used by ServerCombox (server).
@@ -88,8 +96,7 @@ public abstract class Combox<T> {
 		this.accessPoint = accesspoint;
 		this.timeOut = timeout;
 		this.broker = broker;
-		System.out.println("ConnectToServer "+broker);
-		return connectToServer() && sendNetworkName() && exportConnectionInfo() && sendLocalAP(broker);
+		return connectToServer() && sendNetworkName() && exportConnectionInfo() && sendLocalAP(broker) && startKeepAlive();
 	}
 	
 	/**
@@ -99,10 +106,38 @@ public abstract class Combox<T> {
 	 * @return true if the connection is established correctly, false otherwise
 	 */
 	public final boolean serverAccept(Broker broker, T peerConnection) {
-		System.out.println("Accept connection "+broker);
 		this.peerConnection = peerConnection;
 		this.broker = broker;
-		return serverAccept() && receiveNetworkName() && exportConnectionInfo() && receiveRemoveAP();
+		return serverAccept() && receiveNetworkName() && exportConnectionInfo() && receiveRemoveAP() && startKeepAlive();
+	}
+	
+	private boolean startKeepAlive(){
+		if(KEEP_ALIVE) {
+			keepAliveThread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					while(!Thread.currentThread().isInterrupted()) {
+						try {
+							Thread.sleep(KEEP_ALIVE_INTERVAL);
+						} catch (InterruptedException e) {
+							break;
+						}
+						
+						if(System.currentTimeMillis() - lastCommunication > KEEP_ALIVE_INTERVAL) {
+							POPBuffer buffer = createServicePacket(PING);
+							send(buffer);
+						}
+						
+					}
+				}
+			}, "Keep alive thread");
+			
+			keepAliveThread.setDaemon(true);
+			keepAliveThread.start();
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -140,11 +175,12 @@ public abstract class Combox<T> {
 	
 	private boolean sendLocalAP(Broker broker) {
 		MessageHeader messageHeader = new MessageHeader();
-		messageHeader.setRequestID(1234);
+		messageHeader.setRequestID(SEND_REMOTE_AP);
 		messageHeader.setRequestType(MessageHeader.REQUEST);
 		messageHeader.setConnectionID(0);
 		POPBuffer buffer = bufferFactory.createBuffer();
 		buffer.setHeader(messageHeader);
+        
 		buffer.putBoolean(broker != null);
 		
 		if(broker != null) {
@@ -158,7 +194,7 @@ public abstract class Combox<T> {
 	
 	private boolean receiveRemoveAP() {
 		POPBuffer buffer = bufferFactory.createBuffer();
-		receive(buffer, 1234, 0);
+		receive(buffer, SEND_REMOTE_AP, 0);
 		
 		POPAccessPoint ap;
 		if(buffer.getBoolean()) {
@@ -170,8 +206,6 @@ public abstract class Combox<T> {
 		if(remoteCaller != null) {
 			remoteCaller.setBrokerAP(ap);
 		}
-		
-		System.out.println("Got remote AP "+ap);
 		
 		return true;
 	}
@@ -202,7 +236,7 @@ public abstract class Combox<T> {
 	 * Close the connection
 	 */
 	protected void close(int connectionID, boolean informPartner) {
-		System.out.println("Closing connection "+connectionID +" "+this);
+		//System.out.println("Closing connection "+connectionID +" "+this);
 		
 		if(connectionID == 0 || connectionID == 1) {
 			openConnections.remove(0);
@@ -214,14 +248,8 @@ public abstract class Combox<T> {
 		if(openConnections.size() == 0) {
 			closeInternal();
 		}else if(informPartner){
-			MessageHeader messageHeader = new MessageHeader();
-	        messageHeader.setRequestID(2);
-	        messageHeader.setMethodId(CLOSE_SUBCONNECTION);
-	        messageHeader.setRequestType(MessageHeader.REQUEST);
-	        messageHeader.setConnectionID(0);
+	        POPBuffer buffer = createServicePacket(CLOSE_SUBCONNECTION);
 	        
-	        POPBuffer buffer = bufferFactory.createBuffer();
-	        buffer.setHeader(messageHeader);
 	        buffer.putInt(connectionID);
 	        
 	        send(buffer);
@@ -279,6 +307,18 @@ public abstract class Combox<T> {
 		this.networkUUID = networkUUID;
 	}
 	
+	private POPBuffer createServicePacket(int methodID) {
+		MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setRequestID(2);
+        messageHeader.setMethodId(methodID);
+        messageHeader.setConnectionID(0);
+        messageHeader.setRequestType(MessageHeader.REQUEST);
+        POPBuffer buffer = bufferFactory.createBuffer();
+        buffer.setHeader(messageHeader);
+        
+        return buffer;
+	}
+	
 	/**
 	 * This function can be called to transform a client combox into a server combox.
 	 */
@@ -287,16 +327,10 @@ public abstract class Combox<T> {
 		if(this.broker == null) {
 			this.broker = broker;
 		}else if(broker != null && this.broker != broker) {
-			System.out.println("Cannot two different brokers for same combox!");
+			//System.out.println("Cannot two different brokers for same combox!");
 		}
 		
-	    MessageHeader messageHeader = new MessageHeader();
-        messageHeader.setRequestID(2);
-        messageHeader.setMethodId(OPEN_BIDIRECTIONAL);
-        messageHeader.setConnectionID(0);
-        messageHeader.setRequestType(MessageHeader.REQUEST);
-        POPBuffer buffer = bufferFactory.createBuffer();
-        buffer.setHeader(messageHeader);
+        POPBuffer buffer = createServicePacket(OPEN_BIDIRECTIONAL);
         
         buffer.putBoolean(this.broker != null);
         if(this.broker != null) {
@@ -308,11 +342,11 @@ public abstract class Combox<T> {
         int answer = receive(buffer, 2, 0);
         if(answer > 0) {
             if(buffer.getHeader().getRequestType() == MessageHeader.EXCEPTION) {
-                System.out.println("Bidirectional connection failed, exception "+buffer.getHeader().getExceptionCode()+" "+this);
+            	//System.out.println("Bidirectional connection failed, exception "+buffer.getHeader().getExceptionCode()+" "+this);
                 return -1;
             }
             int connectionID = buffer.getInt();;
-            System.out.println("Combox accepted bidirectional on connection "+connectionID+" "+this);
+            //System.out.println("Combox accepted bidirectional on connection "+connectionID+" "+this);
             openConnections.add(connectionID);
             
             return connectionID;
@@ -322,7 +356,7 @@ public abstract class Combox<T> {
 	}
 	
 	protected boolean bindToBroker(int connectionID) {
-	    System.out.println("Rebind combox to broker using connection ID "+connectionID+" "+this);
+		//System.out.println("Rebind combox to broker using connection ID "+connectionID+" "+this);
 	    if(broker != null) {
 	        ComboxAcceptSocket.serveConnection(broker, broker.getRequestQueue(), this, connectionID);
 	        broker.onNewConnection();
@@ -330,5 +364,51 @@ public abstract class Combox<T> {
 	    }
 	    
 	    return false; //TODO: Throw exception?
+	}
+	
+	protected void handleComboxMessages(POPBuffer tempBuffer) {
+		switch(tempBuffer.getHeader().getMethodId()) {
+    	case OPEN_BIDIRECTIONAL:{//Handle the opening of a bidirectional channel
+    		if(tempBuffer.getBoolean()) {
+            	POPAccessPoint otherAP = (POPAccessPoint) tempBuffer.getValue(POPAccessPoint.class);                  		
+        		
+            	if(remoteCaller.getBrokerAP() == null) {
+            		remoteCaller.setBrokerAP(otherAP);
+            	}
+            }
+            
+            int newConnectionID = registerNewConnection();
+            
+            bindToBroker(newConnectionID);
+            
+            tempBuffer.reset();
+            MessageHeader header = new MessageHeader();
+            header.setRequestType(MessageHeader.RESPONSE);
+            header.setRequestID(tempBuffer.getHeader().getRequestID());
+            header.setConnectionID(0);
+            tempBuffer.setHeader(header);
+            tempBuffer.putInt(newConnectionID);
+            
+            send(tempBuffer);
+    	}
+    		break;
+    	case CLOSE_SUBCONNECTION:{
+    		int closedConnectionID = tempBuffer.getInt();
+    		
+    		close(closedConnectionID, false);
+    	}
+    		break;
+    	case PING:{
+    		
+    	}
+    	break;	
+		default:
+            System.out.println("Unknown internal method id "+tempBuffer.getHeader().getMethodId());
+
+    	}
+	}
+	
+	protected synchronized void registerCommuncation() {
+		lastCommunication = System.currentTimeMillis();
 	}
 }

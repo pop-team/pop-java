@@ -13,6 +13,7 @@ public class CallBackTest {
 
 	@Test
 	public void testCallback(){
+		Configuration.getInstance().setDebug(true);
 		System.out.println("Callback test started ...");
 		POPSystem.initialize();
 		
