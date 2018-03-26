@@ -23,7 +23,7 @@ import popjava.util.POPRemoteCaller;
  */
 public abstract class Combox<T> {
 	
-	private static final boolean KEEP_ALIVE = false;
+	private static final boolean KEEP_ALIVE = true;
 	private static final int KEEP_ALIVE_INTERVAL = 30000;
 
 	protected static final int SEND_REMOTE_AP = 1;
