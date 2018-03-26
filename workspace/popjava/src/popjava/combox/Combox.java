@@ -246,6 +246,12 @@ public abstract class Combox<T> {
 		}
 		
 		if(openConnections.size() == 0) {
+			
+			if(keepAliveThread != null) {
+				keepAliveThread.interrupt();
+				keepAliveThread = null;
+			}
+			
 			closeInternal();
 		}else if(informPartner){
 	        POPBuffer buffer = createServicePacket(CLOSE_SUBCONNECTION);
