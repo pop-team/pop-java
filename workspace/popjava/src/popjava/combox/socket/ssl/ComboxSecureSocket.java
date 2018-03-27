@@ -37,6 +37,8 @@ import popjava.util.POPRemoteCaller;
  */
 public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 	
+
+	protected static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
 	
 	/**
 	 * This is used by ServerCombox (server).

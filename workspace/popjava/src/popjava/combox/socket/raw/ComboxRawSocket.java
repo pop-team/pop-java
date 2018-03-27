@@ -27,7 +27,9 @@ import popjava.util.POPRemoteCaller;
  * This combox implement the protocol Socket
  */
 public class ComboxRawSocket extends ComboxSocket<Socket> {
-		
+
+	protected static final ComboxFactory MY_FACTORY = new ComboxSocketFactory();
+	
 	/**
 	 * This is used by ServerCombox (server).
 	 * Create a new combox from a server.

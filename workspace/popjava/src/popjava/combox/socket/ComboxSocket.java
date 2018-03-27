@@ -32,7 +32,6 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 	protected final byte[] receivedBuffer = new byte[BUFFER_LENGTH];
 	protected InputStream inputStream = null;
 	protected OutputStream outputStream = null;
-	protected static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
 	
 	public ComboxSocket() {
 		super();
