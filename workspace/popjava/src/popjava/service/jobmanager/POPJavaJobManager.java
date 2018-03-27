@@ -1858,11 +1858,14 @@ public class POPJavaJobManager extends POPJobService {
 		} catch (Exception e) {
 			cachedJobManangers.put(key, null);
 			
-			LogWriter.writeDebugInfo("[NodeJM] Connection lost with [%s], opening new one");
+			LogWriter.writeDebugInfo("[POPJavaJobManager] Connection lost with [%s], opening new one");
 			jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 		
 			cachedJobManangers.put(key, jm);
 		}
+
+		System.out.println("#####Connected to JM "+ ap);
+		
 		return jm;
 	}
 	
