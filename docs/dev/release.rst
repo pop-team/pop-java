@@ -61,7 +61,7 @@ Creation of a new release
 	
 #. Wait for tests to pass and documentation to build
 
-	Here nothing to do but wait.
+	Here nothing to do but wait. While one or more tests fail, please fix the related bugs and go back to previous step.
 
 #. Update release details on GitHub
 
