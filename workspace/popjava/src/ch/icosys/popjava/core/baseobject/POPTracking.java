@@ -38,13 +38,13 @@ public class POPTracking implements IPOPBase {
 		return Arrays.asList(data);
 	}
 
-	public void track(String method, long time) {
+	public void track(String method, long time, int inputSize, int outputSize) {
 		POPTrackingMethod recorder = calls.get(method);
 		if (recorder == null) {
 			recorder = new POPTrackingMethod(method);
 			calls.put(method, recorder);
 		}
-		recorder.increment(time);
+		recorder.increment(time, inputSize, outputSize);
 	}
 	
 	@Override

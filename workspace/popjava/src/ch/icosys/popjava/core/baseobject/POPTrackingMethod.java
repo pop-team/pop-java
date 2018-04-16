@@ -6,13 +6,15 @@ import ch.icosys.popjava.core.dataswaper.IPOPBase;
 /**
  * This class keep track of the calls toward a specific method.
  * 
- * @author Davide Mazzoleni
+ * @author Davide Mazzoleni, Christophe Gisler
  */
 public class POPTrackingMethod implements IPOPBase {
 
 	private String method;
-	private long timeUsed;
-	private long calls;
+	private int calls;
+	private long totalTime;
+	private long totalInputParamsSize;
+	private long totalOutputResultSize;
 
 	public POPTrackingMethod() {
 		this(null);
@@ -20,23 +22,6 @@ public class POPTrackingMethod implements IPOPBase {
 
 	POPTrackingMethod(String method) {
 		this.method = method;
-	}
-
-	/**
-	 * Register a new method call.
-	 * @param time how much did it takes
-	 */
-	public synchronized void increment(long time) {
-		calls++;
-		timeUsed += time;
-	}
-
-	/**
-	 * The total time used by this method in milliseconds.
-	 * @return total time used
-	 */
-	public long getTimeUsed() {
-		return timeUsed;
 	}
 
 	/**
@@ -48,31 +33,71 @@ public class POPTrackingMethod implements IPOPBase {
 	}
 
 	/**
-	 * Number of calls to this method.
-	 * @return number of calls to the method
+	 * Total number of calls to this method.
+	 * @return total number of calls to the method
 	 */
-	public long getNumCalls() {
+	public long getTotalCalls() {
 		return calls;
+	}
+
+	/**
+	 * Register a new method call.
+	 * @param time how much did it takes
+	 */
+	public synchronized void increment(long time, int inputParamsSize, int outputResultSize) {
+		calls++;
+		totalTime += time;
+		totalInputParamsSize += inputParamsSize;
+		totalOutputResultSize += outputResultSize;
+	}
+
+	/**
+	 * The total time used by this method in milliseconds.
+	 * @return total time used
+	 */
+	public long getTotalTime() {
+		return totalTime;
+	}
+	
+	/**
+	 * The total size of the input parameters of the method in bytes.
+	 * @return total size of the input parameters
+	 */
+	public long getTotalInputParamsSize() {
+	    return totalInputParamsSize;
+	}
+	
+	/**
+	 * The total size of the output result object returned by the method (if any) in bytes.
+	 * @return total size of the output result object
+	 */
+	public long getTotalOutputResultSize() {
+	    return totalOutputResultSize;
 	}
 
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putString(method);
-		buffer.putLong(timeUsed);
-		buffer.putLong(calls);
+		buffer.putInt(calls);
+		buffer.putLong(totalTime);
+		buffer.putLong(totalInputParamsSize);
+		buffer.putLong(totalOutputResultSize);
 		return true;
 	}
 
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
 		method = buffer.getString();
-		timeUsed = buffer.getLong();
-		calls = buffer.getLong();
+		calls = buffer.getInt();
+		totalTime = buffer.getLong();
+		totalInputParamsSize = buffer.getLong();
+		totalOutputResultSize = buffer.getLong();
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%d (%d ms) %s", calls, timeUsed, method);
+		return String.format("%s -> calls: %d, time: %d ms, input size: %d bytes, output size: %d bytes ", 
+			method, calls, totalTime, totalInputParamsSize, totalOutputResultSize);
 	}
 }
