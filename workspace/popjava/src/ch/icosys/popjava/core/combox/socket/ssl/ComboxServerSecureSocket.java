@@ -1,19 +1,10 @@
 package ch.icosys.popjava.core.combox.socket.ssl;
 
 import java.io.IOException;
-import java.net.*;
-
-import javax.net.ssl.SSLSocket;
-
 import ch.icosys.popjava.core.baseobject.AccessPoint;
 import ch.icosys.popjava.core.broker.Broker;
 import ch.icosys.popjava.core.buffer.*;
-import ch.icosys.popjava.core.combox.ComboxServer;
-import ch.icosys.popjava.core.combox.ComboxUtils;
-import ch.icosys.popjava.core.combox.socket.ComboxAcceptSocket;
 import ch.icosys.popjava.core.combox.socket.ComboxServerSocket;
-import ch.icosys.popjava.core.combox.socket.raw.ComboxAcceptRawSocket;
-import ch.icosys.popjava.core.combox.socket.raw.ComboxSocketFactory;
 
 /**
  * This class is an implementation of the combox with the protocol ssl for the server side.

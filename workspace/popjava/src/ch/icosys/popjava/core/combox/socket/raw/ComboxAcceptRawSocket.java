@@ -1,14 +1,8 @@
 package ch.icosys.popjava.core.combox.socket.raw;
 
 import java.net.*;
-import java.util.LinkedList;
-import java.util.List;
-
 import ch.icosys.popjava.core.broker.Broker;
 import ch.icosys.popjava.core.broker.RequestQueue;
-import ch.icosys.popjava.core.combox.Combox;
-import ch.icosys.popjava.core.combox.ComboxConnection;
-import ch.icosys.popjava.core.combox.ComboxReceiveRequest;
 import ch.icosys.popjava.core.combox.socket.ComboxAcceptSocket;
 import ch.icosys.popjava.core.util.LogWriter;
 

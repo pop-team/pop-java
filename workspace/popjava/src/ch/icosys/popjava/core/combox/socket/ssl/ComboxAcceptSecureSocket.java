@@ -8,8 +8,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.LinkedList;
-import java.util.List;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -17,7 +15,6 @@ import javax.net.ssl.SSLSocketFactory;
 import ch.icosys.popjava.core.broker.Broker;
 import ch.icosys.popjava.core.broker.RequestQueue;
 import ch.icosys.popjava.core.combox.socket.ComboxAcceptSocket;
-import ch.icosys.popjava.core.combox.socket.raw.ComboxAcceptRawSocket;
 import ch.icosys.popjava.core.util.LogWriter;
 import ch.icosys.popjava.core.util.ssl.SSLUtils;
 

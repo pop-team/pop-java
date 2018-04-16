@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import ch.icosys.popjava.core.annotation.POPClass;
 import ch.icosys.popjava.core.annotation.POPParameter;
 import ch.icosys.popjava.core.base.MessageHeader;

@@ -1,7 +1,5 @@
 package ch.icosys.popjava.core.combox;
 
-import java.io.IOException;
-
 import ch.icosys.popjava.core.base.MessageHeader;
 import ch.icosys.popjava.core.broker.Broker;
 import ch.icosys.popjava.core.broker.Request;

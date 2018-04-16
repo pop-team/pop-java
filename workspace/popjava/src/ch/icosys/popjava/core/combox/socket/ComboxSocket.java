@@ -6,22 +6,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import ch.icosys.popjava.core.base.MessageHeader;
 import ch.icosys.popjava.core.baseobject.AccessPoint;
 import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 import ch.icosys.popjava.core.buffer.POPBuffer;
 import ch.icosys.popjava.core.combox.Combox;
-import ch.icosys.popjava.core.combox.ComboxFactory;
-import ch.icosys.popjava.core.combox.socket.ssl.ComboxSecureSocketFactory;
-import ch.icosys.popjava.core.system.POPSystem;
 import ch.icosys.popjava.core.util.LogWriter;
 
 public abstract class ComboxSocket<T extends Socket> extends Combox<T> {

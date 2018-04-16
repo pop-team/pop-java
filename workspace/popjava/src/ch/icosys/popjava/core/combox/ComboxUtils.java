@@ -7,7 +7,6 @@ import java.util.concurrent.Future;
 
 import javax.net.ServerSocketFactory;
 
-import ch.icosys.popjava.core.system.POPSystem;
 import ch.icosys.popjava.core.util.Configuration;
 import ch.icosys.popjava.core.util.upnp.UPNPManager;
 

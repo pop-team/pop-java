@@ -2,13 +2,9 @@ package ch.icosys.popjava.core.javaagent;
 
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import ch.icosys.popjava.core.PopJava;
@@ -26,7 +22,6 @@ import javassist.Modifier;
 import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.FieldAccess;
-import javassist.expr.MethodCall;
 import javassist.expr.NewExpr;
 import javassist.util.proxy.ProxyObject;
 

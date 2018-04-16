@@ -7,7 +7,6 @@ import ch.icosys.popjava.core.baseobject.AccessPoint;
 import ch.icosys.popjava.core.broker.Broker;
 import ch.icosys.popjava.core.combox.ComboxServer;
 import ch.icosys.popjava.core.combox.ComboxUtils;
-import ch.icosys.popjava.core.combox.socket.raw.ComboxAcceptRawSocket;
 
 public abstract class ComboxServerSocket extends ComboxServer {
     

@@ -9,7 +9,6 @@ import ch.icosys.popjava.core.PopJava;
 import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 import ch.icosys.popjava.core.dataswaper.POPString;
 import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
-import ch.icosys.popjava.core.serviceadapter.POPJobManager;
 import ch.icosys.popjava.core.util.Configuration;
 import ch.icosys.popjava.core.util.LogWriter;
 import ch.icosys.popjava.core.util.Util;

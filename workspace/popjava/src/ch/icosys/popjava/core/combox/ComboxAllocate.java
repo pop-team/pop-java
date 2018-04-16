@@ -1,6 +1,5 @@
 package ch.icosys.popjava.core.combox;
 
-import ch.icosys.popjava.core.base.MessageHeader;
 import ch.icosys.popjava.core.buffer.POPBuffer;
 
 /**

@@ -10,7 +10,6 @@ import ch.icosys.popjava.core.base.POPObject;
 import ch.icosys.popjava.core.codemanager.AppService;
 import ch.icosys.popjava.core.dataswaper.POPString;
 import ch.icosys.popjava.core.serviceadapter.POPAppService;
-import ch.icosys.popjava.core.system.POPJavaConfiguration;
 import ch.icosys.popjava.core.util.LogWriter;
 import ch.icosys.popjava.core.util.Util;
 
