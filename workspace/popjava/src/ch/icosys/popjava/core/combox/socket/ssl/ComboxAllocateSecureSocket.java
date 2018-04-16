@@ -1,6 +1,5 @@
-package popjava.combox.socket.ssl;
+package ch.icosys.popjava.core.combox.socket.ssl;
 
-import popjava.util.ssl.SSLUtils;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,9 +7,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import popjava.combox.ComboxAllocate;
-import popjava.combox.ComboxUtils;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.combox.ComboxAllocate;
+import ch.icosys.popjava.core.combox.ComboxUtils;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * This class is responsible to send an receive message on the server combox socket

@@ -1,21 +1,21 @@
-package popjava.combox;
+package ch.icosys.popjava.core.combox;
 
 
 import java.util.HashSet;
 import java.util.Set;
 
-import popjava.base.MessageHeader;
-import popjava.baseobject.POPAccessPoint;
-import popjava.broker.Broker;
-import popjava.buffer.BufferFactory;
-import popjava.buffer.BufferFactoryFinder;
-import popjava.buffer.BufferRaw;
-import popjava.buffer.BufferXDR;
-import popjava.buffer.POPBuffer;
-import popjava.combox.socket.ComboxAcceptSocket;
-import popjava.combox.socket.raw.ComboxAcceptRawSocket;
-import popjava.util.Configuration;
-import popjava.util.POPRemoteCaller;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.buffer.BufferFactory;
+import ch.icosys.popjava.core.buffer.BufferFactoryFinder;
+import ch.icosys.popjava.core.buffer.BufferRaw;
+import ch.icosys.popjava.core.buffer.BufferXDR;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.socket.ComboxAcceptSocket;
+import ch.icosys.popjava.core.combox.socket.raw.ComboxAcceptRawSocket;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
 /**
  * This class is the base implementation for all Combox in the POP-Java library
  * All other combox must inherit from this class
@@ -63,7 +63,7 @@ public abstract class Combox<T> {
 	/**
 	 * This is used by Combox (client).
 	 * Create a combox for a client.
-	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
+	 * Call {@link #connectToServer(ch.icosys.popjava.core.baseobject.POPAccessPoint, int)  } to actually connect the client.
 	 * @param networkUUID	The network UUID that will be send to the other end
 	 */
 	public Combox(String networkUUID) {

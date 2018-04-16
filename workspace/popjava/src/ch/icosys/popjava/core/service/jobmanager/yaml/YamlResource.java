@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.yaml;
+package ch.icosys.popjava.core.service.jobmanager.yaml;
 
 /**
  * Describe a resource in the YAML configuration file.

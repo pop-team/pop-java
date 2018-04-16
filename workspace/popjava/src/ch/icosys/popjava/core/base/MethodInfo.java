@@ -1,4 +1,4 @@
-package popjava.base;
+package ch.icosys.popjava.core.base;
 
 /**
  * This class represents all the informations about a method in a parallel object. This class is used to retrieve the method to invoke on a parallel object

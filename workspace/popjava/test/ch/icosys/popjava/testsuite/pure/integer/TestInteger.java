@@ -1,7 +1,7 @@
-package testsuite.pure.integer;
+package ch.icosys.popjava.testsuite.pure.integer;
 
-import popjava.annotation.POPClass;
-import testsuite.integer.Integer;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.testsuite.integer.Integer;
 
 @POPClass(isDistributable = false)
 public class TestInteger {

@@ -1,4 +1,4 @@
-package junit.localtests.deamontest;
+package ch.icosys.popjava.junit.localtests.deamontest;
 
 import static org.junit.Assert.*;
 
@@ -6,10 +6,10 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.baseobject.ConnectionType;
-import popjava.service.deamon.POPJavaDeamon;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.baseobject.ConnectionType;
+import ch.icosys.popjava.core.service.deamon.POPJavaDeamon;
+import ch.icosys.popjava.core.system.POPSystem;
 
 public class DeamonTest {
 	

@@ -1,4 +1,4 @@
-package junit.localtests.jobmanager;
+package ch.icosys.popjava.junit.localtests.jobmanager;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.junit.After;
@@ -18,20 +19,21 @@ import org.junit.rules.TemporaryFolder;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.Resource;
-import popjava.service.jobmanager.external.POPNetworkDetails;
-import popjava.service.jobmanager.network.POPNetwork;
-import popjava.service.jobmanager.network.POPNetworkDescriptor;
-import popjava.service.jobmanager.network.POPNodeDirect;
-import popjava.service.jobmanager.network.POPNodeJobManager;
-import popjava.service.jobmanager.network.POPNodeTFC;
-import popjava.service.jobmanager.network.POPNode;
-import popjava.service.jobmanager.yaml.YamlConnector;
-import popjava.service.jobmanager.yaml.YamlJobManager;
-import popjava.service.jobmanager.yaml.YamlNetwork;
-import popjava.system.POPSystem;
-import popjava.util.Util;
+
+import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.service.jobmanager.Resource;
+import ch.icosys.popjava.core.service.jobmanager.external.POPNetworkDetails;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNetwork;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNetworkDescriptor;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNode;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNodeDirect;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNodeJobManager;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNodeTFC;
+import ch.icosys.popjava.core.service.jobmanager.yaml.YamlConnector;
+import ch.icosys.popjava.core.service.jobmanager.yaml.YamlJobManager;
+import ch.icosys.popjava.core.service.jobmanager.yaml.YamlNetwork;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Util;
 
 /**
  *
@@ -76,9 +78,9 @@ public class POPJavaJobManagerConfigurationTest {
 		int setMaxJobs = 1000;
 		
 		String[] file = {
-			String.format("machineResources: {memory: %f, flops: %f, bandwidth: %f}",
+			String.format(Locale.US, "machineResources: {memory: %.0f, flops: %.0f, bandwidth: %.0f}",
 				setInitial.getMemory(), setInitial.getFlops(), setInitial.getBandwidth()),
-			String.format("jobResources: {memory: %f, flops: %f, bandwidth: %f}",
+			String.format(Locale.US, "jobResources: {memory: %.0f, flops: %.0f, bandwidth: %.0f}",
 				setLimit.getMemory(), setLimit.getFlops(), setLimit.getBandwidth()),
 			"jobLimit: " + setMaxJobs
 		};

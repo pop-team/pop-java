@@ -1,8 +1,8 @@
-package popjava.serviceadapter;
+package ch.icosys.popjava.core.serviceadapter;
 
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the RemoteLog parallel object of POP-C++

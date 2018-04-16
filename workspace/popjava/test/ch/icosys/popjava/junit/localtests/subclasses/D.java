@@ -1,4 +1,4 @@
-package junit.localtests.subclasses;
+package ch.icosys.popjava.junit.localtests.subclasses;
 
 public interface D {
 

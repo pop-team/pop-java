@@ -1,12 +1,13 @@
-package junit.localtests.subclasses;
+package ch.icosys.popjava.junit.localtests.subclasses;
 
 import org.junit.Test;
-import popjava.PopJava;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncSeq;
-import popjava.base.POPObject;
-import popjava.system.POPSystem;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.system.POPSystem;
 
 import static org.junit.Assert.*;
 

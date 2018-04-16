@@ -1,8 +1,8 @@
-package popjava.combox;
+package ch.icosys.popjava.core.combox;
 
-import popjava.baseobject.AccessPoint;
-import popjava.broker.Broker;
-import popjava.broker.RequestQueue;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.broker.RequestQueue;
 /**
  * This class represent the server side of a socket connection
  */

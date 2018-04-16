@@ -1,9 +1,10 @@
-package popjava.service.jobmanager;
+package ch.icosys.popjava.core.service.jobmanager;
 
 import java.nio.file.Path;
 import java.util.Objects;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
+
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 
 /**
  * This is an Application/Object own resource

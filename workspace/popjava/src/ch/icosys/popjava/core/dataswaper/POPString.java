@@ -1,6 +1,6 @@
-package popjava.dataswaper;
+package ch.icosys.popjava.core.dataswaper;
 
-import popjava.buffer.POPBuffer;
+import ch.icosys.popjava.core.buffer.POPBuffer;
 /**
  * Compatible with the POP-C++ paroc_string implementation
  */

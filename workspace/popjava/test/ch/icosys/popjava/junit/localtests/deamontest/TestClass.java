@@ -1,12 +1,12 @@
-package junit.localtests.deamontest;
+package ch.icosys.popjava.junit.localtests.deamontest;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPConfig;
-import popjava.annotation.POPConfig.Type;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.base.POPObject;
-import popjava.baseobject.ConnectionType;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPConfig;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPConfig.Type;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.baseobject.ConnectionType;
 
 @POPClass
 public class TestClass extends POPObject {

@@ -1,4 +1,4 @@
-package popjava.combox.socket.ssl;
+package ch.icosys.popjava.core.combox.socket.ssl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,10 +23,11 @@ import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.StandardConstants;
 import javax.net.ssl.X509KeyManager;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.WatchDirectory;
-import popjava.util.ssl.SSLUtils;
+
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.WatchDirectory;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * A wrapper for a standard X509KeyManager, it will unwrap the SNI from the handshake and use the sent host name - which

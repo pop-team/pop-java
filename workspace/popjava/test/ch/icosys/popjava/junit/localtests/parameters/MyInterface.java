@@ -1,6 +1,6 @@
-package junit.localtests.parameters;
+package ch.icosys.popjava.junit.localtests.parameters;
 
-import popjava.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public interface MyInterface extends IPOPBase{
 

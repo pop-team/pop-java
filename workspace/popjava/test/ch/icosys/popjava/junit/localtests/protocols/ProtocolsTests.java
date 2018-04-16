@@ -1,11 +1,12 @@
-package junit.localtests.protocols;
+package ch.icosys.popjava.junit.localtests.protocols;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import popjava.PopJava;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  *

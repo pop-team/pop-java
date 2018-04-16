@@ -1,8 +1,8 @@
-package popjava.dataswaper;
+package ch.icosys.popjava.core.dataswaper;
 
-import popjava.buffer.POPBuffer;
+import ch.icosys.popjava.core.buffer.POPBuffer;
 /**
- * Primitive settable short for POPJava, needed for {@link popjava.annotation.POPParameter} direction use in methods 
+ * Primitive settable short for POPJava, needed for {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in methods 
  * @author Davide Mazzoleni
  */
 public class POPMutableShort implements IPOPBase {

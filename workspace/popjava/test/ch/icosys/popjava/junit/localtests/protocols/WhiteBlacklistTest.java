@@ -1,4 +1,4 @@
-package junit.localtests.protocols;
+package ch.icosys.popjava.junit.localtests.protocols;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,18 +10,20 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import popjava.combox.ComboxFactory;
-import popjava.combox.ComboxFactoryFinder;
-import popjava.util.Configuration;
-import popjava.util.Util;
-import popjava.util.ssl.KeyPairDetails;
-import popjava.util.ssl.SSLUtils;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.combox.ComboxFactory;
+import ch.icosys.popjava.core.combox.ComboxFactoryFinder;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.Util;
+import ch.icosys.popjava.core.util.ssl.KeyPairDetails;
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
+
 import static org.junit.Assert.*;
 import org.junit.Before;
-import popjava.PopJava;
-import popjava.baseobject.POPAccessPoint;
-import popjava.system.POPSystem;
-import popjava.util.ssl.KeyStoreDetails;
 
 /**
  *

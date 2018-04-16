@@ -1,4 +1,4 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import popjava.broker.Broker;
+
+import ch.icosys.popjava.core.broker.Broker;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;

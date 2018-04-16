@@ -1,8 +1,8 @@
-package popjava;
+package ch.icosys.popjava.core;
 
-import popjava.base.POPObject;
-import popjava.baseobject.POPTracking;
-import popjava.util.POPRemoteCaller;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.baseobject.POPTracking;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
 
 /**
  * Accounting API for POP Objects.

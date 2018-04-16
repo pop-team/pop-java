@@ -1,7 +1,7 @@
-package popjava.combox.plugin;
+package ch.icosys.popjava.core.combox.plugin;
 
-import popjava.buffer.POPBuffer;
-import popjava.combox.Combox;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.Combox;
 
 /**
  * This class defined the interface for each new combox plug-in

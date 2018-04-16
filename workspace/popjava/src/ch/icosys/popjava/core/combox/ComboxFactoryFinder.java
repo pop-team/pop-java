@@ -1,4 +1,4 @@
-package popjava.combox;
+package ch.icosys.popjava.core.combox;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,12 +24,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import popjava.combox.socket.raw.ComboxSocketFactory;
-import popjava.combox.socket.ssl.ComboxSecureSocketFactory;
-import popjava.system.POPJavaConfiguration;
-import popjava.system.XMLWorker;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.combox.socket.raw.ComboxSocketFactory;
+import ch.icosys.popjava.core.combox.socket.ssl.ComboxSecureSocketFactory;
+import ch.icosys.popjava.core.system.POPJavaConfiguration;
+import ch.icosys.popjava.core.system.XMLWorker;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
 
 /**
  * This class is responsible to find the different combox available in POP-Java

@@ -1,4 +1,4 @@
-package junit.localtests.interfaces;
+package ch.icosys.popjava.junit.localtests.interfaces;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,8 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
 
 public class InterfacesTest {
 

@@ -1,4 +1,4 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
 /**
  * Implementation of the abstract BufferFactory for the RAW encoding

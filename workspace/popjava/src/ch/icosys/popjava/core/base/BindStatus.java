@@ -1,4 +1,4 @@
-package popjava.base;
+package ch.icosys.popjava.core.base;
 
 /**
  *	This class represent the different bind status that a connection between a interface and a broker can have.

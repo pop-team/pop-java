@@ -1,14 +1,14 @@
-package junit.localtests.parameters;
+package ch.icosys.popjava.junit.localtests.parameters;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import popjava.PopJava;
-import popjava.annotation.POPAsyncMutex;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPAsyncMutex;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class ParameterObject extends POPObject implements MyInterface{

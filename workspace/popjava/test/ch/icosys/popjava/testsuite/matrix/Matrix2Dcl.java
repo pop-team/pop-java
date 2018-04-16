@@ -1,4 +1,4 @@
-package testsuite.matrix;
+package ch.icosys.popjava.testsuite.matrix;
 
 public class Matrix2Dcl extends Matrix2D {
 	

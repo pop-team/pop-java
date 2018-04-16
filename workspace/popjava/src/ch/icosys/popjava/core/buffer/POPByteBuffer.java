@@ -1,4 +1,4 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
 
 import java.nio.*;

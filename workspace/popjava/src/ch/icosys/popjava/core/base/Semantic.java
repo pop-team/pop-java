@@ -1,4 +1,4 @@
-package popjava.base;
+package ch.icosys.popjava.core.base;
 
 /**
  * This class class is used to store the different semantics used in the POP model.

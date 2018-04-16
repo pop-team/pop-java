@@ -1,19 +1,19 @@
-package popjava.combox.socket.ssl;
+package ch.icosys.popjava.core.combox.socket.ssl;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 
-import popjava.baseobject.AccessPoint;
-import popjava.broker.Broker;
-import popjava.buffer.POPBuffer;
-import popjava.combox.Combox;
-import popjava.combox.ComboxAllocate;
-import popjava.combox.ComboxFactory;
-import popjava.combox.ComboxServer;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.combox.ComboxAllocate;
+import ch.icosys.popjava.core.combox.ComboxFactory;
+import ch.icosys.popjava.core.combox.ComboxServer;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
 
 /**
  * This class is the factory for all combox socket

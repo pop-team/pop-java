@@ -1,4 +1,4 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 import java.lang.annotation.Annotation;
 import java.net.URLClassLoader;
@@ -15,10 +15,10 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import popjava.annotation.POPParameter;
-import popjava.annotation.POPParameter.Direction;
-import popjava.system.POPJavaConfiguration;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.annotation.POPParameter;
+import ch.icosys.popjava.core.annotation.POPParameter.Direction;
+import ch.icosys.popjava.core.system.POPJavaConfiguration;
+import ch.icosys.popjava.core.system.POPSystem;
 
 /**
  * This class gives some static utility methods

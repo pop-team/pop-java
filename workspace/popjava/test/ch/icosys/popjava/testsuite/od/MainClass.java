@@ -1,6 +1,6 @@
-package testsuite.od;
-import popjava.PopJava;
-import popjava.annotation.POPClass;
+package ch.icosys.popjava.testsuite.od;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass(isDistributable = false)
 public class MainClass {

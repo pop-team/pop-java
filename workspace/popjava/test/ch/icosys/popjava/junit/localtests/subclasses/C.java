@@ -1,10 +1,10 @@
-package junit.localtests.subclasses;
+package ch.icosys.popjava.junit.localtests.subclasses;
 
-import popjava.PopJava;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class C extends POPObject implements D{

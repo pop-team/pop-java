@@ -1,14 +1,15 @@
-package popjava.service.jobmanager.search;
+package ch.icosys.popjava.core.service.jobmanager.search;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
-import popjava.service.jobmanager.Resource;
+
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.service.jobmanager.Resource;
 
 /**
  * Keep Node(s) references of remote network nodes who can accept a request.

@@ -1,10 +1,10 @@
-package popjava.serviceadapter;
+package ch.icosys.popjava.core.serviceadapter;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncSeq;
-import popjava.baseobject.POPAccessPoint;
-import popjava.codemanager.AppService;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.codemanager.AppService;
 
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime

@@ -1,9 +1,9 @@
-package popjava.broker;
+package ch.icosys.popjava.core.broker;
 
-import popjava.base.Semantic;
-import popjava.buffer.*;
-import popjava.combox.*;
-import popjava.util.POPRemoteCaller;
+import ch.icosys.popjava.core.base.Semantic;
+import ch.icosys.popjava.core.buffer.*;
+import ch.icosys.popjava.core.combox.*;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
 /**
  * This class symbolize a request between the interface-side and the broker-side.
  *

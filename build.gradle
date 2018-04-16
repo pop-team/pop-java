@@ -41,7 +41,7 @@ dependencies {
     compile group: 'org.yaml',         name: 'snakeyaml',      version: '1.+'
     compile group: 'com.hierynomus',   name: 'sshj',           version: '0.21.1'
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.58'
-    compile group: 'org.bitlet', name: 'weupnp', version: '0.1.4+'
+    compile group: 'org.bitlet', 	   name: 'weupnp', 		   version: '0.1.4+'
     
     testCompile group: 'junit', name: 'junit', version: '4.+'
     testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
@@ -71,7 +71,7 @@ clean {
 
 task fatJar(type: Jar, dependsOn: [ classes ], group: 'build', description: 'Assembles a jar with all the dependencies') {
     manifest {
-        attributes 'Premain-Class': 'popjava.javaagent.POPJavaAgent',
+        attributes 'Premain-Class': 'ch.icosys.popjava.core.javaagent.POPJavaAgent',
             'Can-Redefine-Classes': true,
             'Can-Retransform-Classes': true,
             'Can-Set-Native-Method-Prefix': true
@@ -166,7 +166,7 @@ task prepareRelease(dependsOn: [ fatJar, jarTestsuite, javadoc ], group: 'help',
             into releaseDirectory + '/plugin'
         }
         copy {
-            from 'workspace/popjava/test/testsuite'
+            from 'workspace/popjava/test/ch/icosys/popjava/testsuite'
             into releaseDirectory + '/testsuite'
             include 'popc-obj'
             include 'popc-obj/**'

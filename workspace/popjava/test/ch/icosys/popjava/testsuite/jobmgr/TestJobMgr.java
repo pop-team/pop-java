@@ -1,9 +1,9 @@
-package testsuite.jobmgr;
+package ch.icosys.popjava.testsuite.jobmgr;
 
-import popjava.PopJava;
-import popjava.annotation.POPClass;
-import popjava.base.POPException;
-import popjava.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
 
 @POPClass(isDistributable = false)
 public class TestJobMgr {

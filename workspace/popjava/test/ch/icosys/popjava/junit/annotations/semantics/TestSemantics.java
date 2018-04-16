@@ -1,10 +1,10 @@
-package junit.annotations.semantics;
+package ch.icosys.popjava.junit.annotations.semantics;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import popjava.base.Semantic;
+import ch.icosys.popjava.core.base.Semantic;
 
 public class TestSemantics {
 

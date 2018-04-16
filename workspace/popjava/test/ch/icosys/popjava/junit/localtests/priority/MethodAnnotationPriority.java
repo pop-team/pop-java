@@ -1,12 +1,14 @@
-package junit.localtests.priority;
+package ch.icosys.popjava.junit.localtests.priority;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import popjava.PopJava;
-import popjava.system.POPSystem;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.system.POPSystem;
+
 import static org.junit.Assert.*;
-import popjava.base.POPException;
 
 /**
  *

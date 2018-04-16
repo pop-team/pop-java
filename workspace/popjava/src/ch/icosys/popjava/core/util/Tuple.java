@@ -1,4 +1,4 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 public class Tuple <A, B> {
 

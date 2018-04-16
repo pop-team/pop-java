@@ -1,7 +1,7 @@
-package testsuite.popjavatest;
+package ch.icosys.popjava.testsuite.popjavatest;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
 
 @POPClass
 public class POPJParclass{

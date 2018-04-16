@@ -1,11 +1,11 @@
-package junit.localtests.bigData;
+package ch.icosys.popjava.junit.localtests.bigData;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPParameter;
-import popjava.annotation.POPParameter.Direction;
-import popjava.annotation.POPSyncConc;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPParameter;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPParameter.Direction;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class BigDataObject extends POPObject{

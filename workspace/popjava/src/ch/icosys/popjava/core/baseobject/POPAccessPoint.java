@@ -1,10 +1,10 @@
-package popjava.baseobject;
+package ch.icosys.popjava.core.baseobject;
 
 import java.util.ArrayList;
 
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.system.POPSystem;
 
 /**
  * This class represents multiple access to the broker-side parallel object

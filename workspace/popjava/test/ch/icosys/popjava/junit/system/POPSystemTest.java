@@ -1,4 +1,4 @@
-package junit.system;
+package ch.icosys.popjava.junit.system;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -8,12 +8,12 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import popjava.interfacebase.Interface;
-import popjava.serviceadapter.POPAppService;
-import popjava.system.POPJavaConfiguration;
-import popjava.system.POPSystem;
-import popjava.util.Util;
-import popjava.util.Util.OSType;
+import ch.icosys.popjava.core.interfacebase.Interface;
+import ch.icosys.popjava.core.serviceadapter.POPAppService;
+import ch.icosys.popjava.core.system.POPJavaConfiguration;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Util;
+import ch.icosys.popjava.core.util.Util.OSType;
 
 public class POPSystemTest {
 

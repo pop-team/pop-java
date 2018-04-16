@@ -1,7 +1,7 @@
-package junit.localtests.annotations.objects;
+package ch.icosys.popjava.junit.localtests.annotations.objects;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
 
 @POPClass(classId = 1235)
 public class Child extends Parent{

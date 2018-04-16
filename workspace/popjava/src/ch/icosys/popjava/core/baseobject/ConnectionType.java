@@ -1,4 +1,4 @@
-package popjava.baseobject;
+package ch.icosys.popjava.core.baseobject;
 
 /**
  * Connection type to be used if the object has to be created on a remote machine

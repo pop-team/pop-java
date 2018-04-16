@@ -1,9 +1,9 @@
-package popjava.combox;
+package ch.icosys.popjava.core.combox;
 
-import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.BufferFactory;
-import popjava.buffer.POPBuffer;
-import popjava.util.POPRemoteCaller;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.buffer.BufferFactory;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
 
 public class ComboxConnection {
 

@@ -1,4 +1,4 @@
-package popjava.scripts.shell;
+package ch.icosys.popjava.core.scripts.shell;
 
 import java.io.Console;
 import java.util.Scanner;

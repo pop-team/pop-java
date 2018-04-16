@@ -1,4 +1,4 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,9 +20,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import popjava.system.POPJavaConfiguration;
-import popjava.system.XMLWorker;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.system.POPJavaConfiguration;
+import ch.icosys.popjava.core.system.XMLWorker;
+import ch.icosys.popjava.core.util.LogWriter;
 
 /**
  * This class is responsible to discover the buffer

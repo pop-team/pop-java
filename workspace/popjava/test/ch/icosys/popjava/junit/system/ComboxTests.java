@@ -1,4 +1,4 @@
-package junit.system;
+package ch.icosys.popjava.junit.system;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
-import popjava.combox.socket.ComboxSocket;
-import popjava.combox.socket.raw.ComboxSocketFactory;
-import popjava.combox.socket.ssl.ComboxSecureSocketFactory;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.combox.socket.ComboxSocket;
+import ch.icosys.popjava.core.combox.socket.raw.ComboxSocketFactory;
+import ch.icosys.popjava.core.combox.socket.ssl.ComboxSecureSocketFactory;
 
 public class ComboxTests {
 

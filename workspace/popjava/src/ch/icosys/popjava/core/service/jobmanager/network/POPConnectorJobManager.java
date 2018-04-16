@@ -1,29 +1,30 @@
-package popjava.service.jobmanager.network;
+package ch.icosys.popjava.core.service.jobmanager.network;
 
 import java.security.cert.Certificate;
 import java.util.List;
-import popjava.PopJava;
-import popjava.base.POPErrorCode;
-import popjava.base.POPException;
-import popjava.base.POPObject;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
-import popjava.util.ssl.SSLUtils;
-import popjava.dataswaper.POPMutableFloat;
-import popjava.dataswaper.POPString;
-import popjava.interfacebase.Interface;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.Resource;
-import popjava.service.jobmanager.search.SNExploration;
-import popjava.service.jobmanager.search.SNNodesInfo;
-import popjava.service.jobmanager.search.SNRequest;
-import popjava.service.jobmanager.search.SNResponse;
-import popjava.service.jobmanager.search.SNWayback;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.POPRemoteCaller;
-import popjava.util.Util;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.base.POPErrorCode;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.dataswaper.POPMutableFloat;
+import ch.icosys.popjava.core.dataswaper.POPString;
+import ch.icosys.popjava.core.interfacebase.Interface;
+import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.service.jobmanager.Resource;
+import ch.icosys.popjava.core.service.jobmanager.search.SNExploration;
+import ch.icosys.popjava.core.service.jobmanager.search.SNNodesInfo;
+import ch.icosys.popjava.core.service.jobmanager.search.SNRequest;
+import ch.icosys.popjava.core.service.jobmanager.search.SNResponse;
+import ch.icosys.popjava.core.service.jobmanager.search.SNWayback;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
+import ch.icosys.popjava.core.util.Util;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  *

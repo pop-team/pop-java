@@ -1,4 +1,4 @@
-package junit.system;
+package ch.icosys.popjava.junit.system;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

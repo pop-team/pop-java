@@ -1,10 +1,10 @@
-package popjava.serviceadapter;
+package ch.icosys.popjava.core.serviceadapter;
 
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncSeq;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.base.POPObject;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the paroc_service_base parallel object of POP-C++

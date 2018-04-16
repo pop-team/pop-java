@@ -1,6 +1,6 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
-import popjava.base.MessageHeader;
+import ch.icosys.popjava.core.base.MessageHeader;
 
 /**
  * This class defined the interface for each new buffer plug-in

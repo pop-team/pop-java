@@ -1,4 +1,4 @@
-package popjava.scripts.shell;
+package ch.icosys.popjava.core.scripts.shell;
 
 import java.util.ArrayList;
 import java.util.Arrays;

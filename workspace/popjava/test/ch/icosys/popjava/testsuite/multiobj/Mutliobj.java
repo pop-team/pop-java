@@ -1,7 +1,7 @@
-package testsuite.multiobj;
+package ch.icosys.popjava.testsuite.multiobj;
 
-import popjava.*;
-import popjava.annotation.POPClass;
+import ch.icosys.popjava.core.*;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass(isDistributable = false)
 public class Mutliobj {

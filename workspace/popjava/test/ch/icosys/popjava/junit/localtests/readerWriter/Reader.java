@@ -1,4 +1,4 @@
-package junit.localtests.readerWriter;
+package ch.icosys.popjava.junit.localtests.readerWriter;
 
 import java.util.List;
 

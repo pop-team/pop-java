@@ -1,7 +1,7 @@
-package testsuite.arg;
+package ch.icosys.popjava.testsuite.arg;
 
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class MyComplexType implements IPOPBase {
 	private int theInt;

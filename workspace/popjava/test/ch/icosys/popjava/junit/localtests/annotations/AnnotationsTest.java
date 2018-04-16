@@ -1,4 +1,4 @@
-package junit.localtests.annotations;
+package ch.icosys.popjava.junit.localtests.annotations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -9,16 +9,16 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-import junit.localtests.annotations.objects.AbstractChild;
-import junit.localtests.annotations.objects.Child;
-import junit.localtests.annotations.objects.ConcreteChild;
-import junit.localtests.annotations.objects.Integer;
-import junit.localtests.annotations.objects.Parent;
-import popjava.PopJava;
-import popjava.base.MethodInfo;
-import popjava.base.POPException;
-import popjava.service.jobmanager.POPJavaAppService;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.base.MethodInfo;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.service.jobmanager.POPJavaAppService;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.junit.localtests.annotations.objects.AbstractChild;
+import ch.icosys.popjava.junit.localtests.annotations.objects.Child;
+import ch.icosys.popjava.junit.localtests.annotations.objects.ConcreteChild;
+import ch.icosys.popjava.junit.localtests.annotations.objects.Integer;
+import ch.icosys.popjava.junit.localtests.annotations.objects.Parent;
 
 public class AnnotationsTest {
 

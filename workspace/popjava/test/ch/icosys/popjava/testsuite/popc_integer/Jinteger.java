@@ -1,9 +1,9 @@
-package testsuite.popc_integer;
+package ch.icosys.popjava.testsuite.popc_integer;
 
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
 
 @POPClass(classId = 1001, deconstructor = true)
 public class Jinteger{

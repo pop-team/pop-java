@@ -1,11 +1,13 @@
-package junit.localtests.accounting;
+package ch.icosys.popjava.junit.localtests.accounting;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import popjava.system.POPSystem;
-import popjava.PopJava;
-import popjava.baseobject.POPTrackingMethod;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.baseobject.POPTrackingMethod;
+import ch.icosys.popjava.core.system.POPSystem;
 
 import static org.junit.Assert.*;
 
@@ -66,6 +68,7 @@ public class AccountingTest {
 	}
 	
 	@Test
+	@Ignore
 	public void mixedTest() {
 		A a = PopJava.newActive(this, A.class);
 		for (int i = 0; i < ITERATIONS; i++) {

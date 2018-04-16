@@ -1,10 +1,11 @@
-package popjava.combox;
+package ch.icosys.popjava.core.combox;
 
 import java.io.IOException;
-import popjava.broker.Broker;
-import popjava.buffer.POPBuffer;
-import popjava.baseobject.AccessPoint;
-import popjava.util.Configuration;
+
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  * This abstract class regroups the methods needed by a ComboxFactory

@@ -1,4 +1,4 @@
-package junit.annotations.od;
+package ch.icosys.popjava.junit.annotations.od;
 
 import static org.junit.Assert.*;
 

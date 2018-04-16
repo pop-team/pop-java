@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.network;
+package ch.icosys.popjava.core.service.jobmanager.network;
 
 import java.util.Arrays;
 import java.util.HashMap;

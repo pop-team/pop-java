@@ -1,7 +1,7 @@
-package testsuite.demo;
+package ch.icosys.popjava.testsuite.demo;
 
-import popjava.PopJava;
-import popjava.annotation.POPClass;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass(isDistributable = false)
 public class DemoMain {

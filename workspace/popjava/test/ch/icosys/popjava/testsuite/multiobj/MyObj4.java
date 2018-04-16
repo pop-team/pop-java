@@ -1,9 +1,9 @@
-package testsuite.multiobj;
+package ch.icosys.popjava.testsuite.multiobj;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
 
 @POPClass(classId = 1211)
 public class MyObj4{

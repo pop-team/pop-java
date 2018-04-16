@@ -1,9 +1,9 @@
-package testsuite.matrix;
+package ch.icosys.popjava.testsuite.matrix;
 
 import java.util.Random;
 
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class Matrix2D implements IPOPBase {
 	protected int nbLine, nbCol, dataSize;

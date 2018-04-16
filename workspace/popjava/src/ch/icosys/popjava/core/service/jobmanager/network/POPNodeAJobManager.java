@@ -1,17 +1,18 @@
-package popjava.service.jobmanager.network;
+package ch.icosys.popjava.core.service.jobmanager.network;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import popjava.PopJava;
-import popjava.baseobject.POPAccessPoint;
-import popjava.dataswaper.POPString;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.serviceadapter.POPJobManager;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.Util;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.dataswaper.POPString;
+import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.serviceadapter.POPJobManager;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.Util;
 
 /**
  * Nodes using the Job Manager should extend this class instead

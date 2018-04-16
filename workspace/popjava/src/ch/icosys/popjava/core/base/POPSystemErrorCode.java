@@ -1,4 +1,4 @@
-package popjava.base;
+package ch.icosys.popjava.core.base;
 
 /**
  * This class regroup all exception code 

@@ -1,4 +1,4 @@
-package junit.localtests.priority;
+package ch.icosys.popjava.junit.localtests.priority;
 
 /**
  *

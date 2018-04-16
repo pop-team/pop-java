@@ -1,4 +1,4 @@
-package popjava.broker;
+package ch.icosys.popjava.core.broker;
 
 import java.util.ArrayList;
 import java.util.List;

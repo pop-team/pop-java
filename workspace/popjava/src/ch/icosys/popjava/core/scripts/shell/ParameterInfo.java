@@ -1,4 +1,4 @@
-package popjava.scripts.shell;
+package ch.icosys.popjava.core.scripts.shell;
 
 /**
  * Describe a possible parameter.

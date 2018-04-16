@@ -1,4 +1,4 @@
-package popjava.baseobject;
+package ch.icosys.popjava.core.baseobject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,9 +6,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
-import popjava.util.Configuration;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  * This class represents the object description for a parallel object. The object description is the resource requirements for a specific parallel object.

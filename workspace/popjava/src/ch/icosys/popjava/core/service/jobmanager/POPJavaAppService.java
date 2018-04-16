@@ -1,18 +1,18 @@
-package popjava.service.jobmanager;
+package ch.icosys.popjava.core.service.jobmanager;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncSeq;
-import popjava.base.POPObject;
-import popjava.codemanager.AppService;
-import popjava.dataswaper.POPString;
-import popjava.serviceadapter.POPAppService;
-import popjava.system.POPJavaConfiguration;
-import popjava.util.LogWriter;
-import popjava.util.Util;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.codemanager.AppService;
+import ch.icosys.popjava.core.dataswaper.POPString;
+import ch.icosys.popjava.core.serviceadapter.POPAppService;
+import ch.icosys.popjava.core.system.POPJavaConfiguration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.Util;
 
 @POPClass(classId = 99923)
 public class POPJavaAppService extends POPObject implements AppService{

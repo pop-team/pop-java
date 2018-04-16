@@ -1,13 +1,14 @@
-package popjava.service.jobmanager.external;
+package ch.icosys.popjava.core.service.jobmanager.external;
 
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Objects;
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
-import popjava.service.jobmanager.network.POPNetwork;
-import popjava.util.LogWriter;
-import popjava.util.ssl.SSLUtils;
+
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNetwork;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * Details on a network.

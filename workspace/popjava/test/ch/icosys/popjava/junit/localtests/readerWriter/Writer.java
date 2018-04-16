@@ -1,10 +1,10 @@
-package junit.localtests.readerWriter;
+package ch.icosys.popjava.junit.localtests.readerWriter;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPConfig;
-import popjava.annotation.POPConfig.Type;
-import popjava.annotation.POPSyncMutex;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPConfig;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.annotation.POPConfig.Type;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class Writer extends POPObject{

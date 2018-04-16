@@ -1,16 +1,17 @@
 
 
-package popjava.combox.socket.raw;
-
-import popjava.broker.Broker;
-import popjava.buffer.*;
-import popjava.baseobject.AccessPoint;
+package ch.icosys.popjava.core.combox.socket.raw;
 
 import java.net.*;
+
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.buffer.*;
+import ch.icosys.popjava.core.combox.ComboxServer;
+import ch.icosys.popjava.core.combox.ComboxUtils;
+import ch.icosys.popjava.core.combox.socket.ComboxServerSocket;
+
 import java.io.*;
-import popjava.combox.ComboxServer;
-import popjava.combox.ComboxUtils;
-import popjava.combox.socket.ComboxServerSocket;
 /**
  * This class is an implementation of the combox with the protocol socket for the server side.
  */

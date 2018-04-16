@@ -1,6 +1,6 @@
-package testsuite.matrix;
+package ch.icosys.popjava.testsuite.matrix;
 
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.system.POPSystem;
 
 
 

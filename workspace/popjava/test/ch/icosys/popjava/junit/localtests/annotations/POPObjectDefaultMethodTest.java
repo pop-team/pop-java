@@ -1,15 +1,16 @@
-package junit.localtests.annotations;
+package ch.icosys.popjava.junit.localtests.annotations;
 
 import java.util.Random;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import popjava.PopJava;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.base.POPObject;
-import popjava.baseobject.POPAccessPoint;
-import popjava.system.POPSystem;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.system.POPSystem;
 
 /**
  *

@@ -1,13 +1,13 @@
-package junit.localtests.accounting;
+package ch.icosys.popjava.junit.localtests.accounting;
 
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
-import popjava.annotation.POPSyncSeq;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.base.POPObject;
 
 /**
  *

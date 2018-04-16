@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.network;
+package ch.icosys.popjava.core.service.jobmanager.network;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,10 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.yaml.YamlConnector;
-import popjava.service.jobmanager.yaml.YamlNetwork;
-import popjava.util.Util;
+
+import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.service.jobmanager.yaml.YamlConnector;
+import ch.icosys.popjava.core.service.jobmanager.yaml.YamlNetwork;
+import ch.icosys.popjava.core.util.Util;
 
 /**
  * Describe a POP Network, made of POP Connector with relative members to of a POP COnnector.

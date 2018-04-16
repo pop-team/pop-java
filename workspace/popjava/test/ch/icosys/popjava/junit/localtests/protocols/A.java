@@ -1,10 +1,10 @@
-package junit.localtests.protocols;
+package ch.icosys.popjava.junit.localtests.protocols;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPConfig;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncSeq;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPConfig;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.base.POPObject;
 
 /**
  *

@@ -1,7 +1,7 @@
-package popjava.codemanager;
+package ch.icosys.popjava.core.codemanager;
 
-import popjava.baseobject.POPAccessPoint;
-import popjava.dataswaper.POPString;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.dataswaper.POPString;
 
 public interface AppService {
 	

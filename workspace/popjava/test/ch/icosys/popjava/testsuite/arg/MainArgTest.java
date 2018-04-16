@@ -1,6 +1,6 @@
-package testsuite.arg;
+package ch.icosys.popjava.testsuite.arg;
 
-import popjava.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass(isDistributable = false)
 public class MainArgTest {

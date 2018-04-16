@@ -1,4 +1,4 @@
-package popjava.base;
+package ch.icosys.popjava.core.base;
 
 /**
  * This class regroup all POP error code. They are the same as the ones defined in the POP-C++ implementation.

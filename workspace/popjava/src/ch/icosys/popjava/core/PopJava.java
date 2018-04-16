@@ -1,23 +1,24 @@
-package popjava;
+package ch.icosys.popjava.core;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNode;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNodeAJobManager;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 import javassist.util.proxy.ProxyObject;
-import popjava.base.POPException;
-import popjava.base.POPObject;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
-import popjava.broker.Broker;
-import popjava.buffer.POPBuffer;
-import popjava.combox.Combox;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.network.POPNodeAJobManager;
-import popjava.service.jobmanager.network.POPNode;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.POPRemoteCaller;
-import popjava.util.ssl.SSLUtils;
 
 /**
  * 
@@ -304,7 +305,7 @@ public class PopJava {
 	 */
 	public static boolean isPOPJavaActive(){
 		try {
-			popjava.javaagent.POPJavaAgent.getInstance();
+			ch.icosys.popjava.core.javaagent.POPJavaAgent.getInstance();
 		} catch (Exception e) {
 			return false;
 		}

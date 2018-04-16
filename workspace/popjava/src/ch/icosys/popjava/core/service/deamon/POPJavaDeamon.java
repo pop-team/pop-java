@@ -1,4 +1,4 @@
-package popjava.service.deamon;
+package ch.icosys.popjava.core.service.deamon;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,9 +26,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import popjava.system.POPJavaConfiguration;
-import popjava.util.Configuration;
-import popjava.util.SystemUtil;
+import ch.icosys.popjava.core.system.POPJavaConfiguration;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.SystemUtil;
 
 /**
  * This class starts a daemon that listens to incoming POP requests.

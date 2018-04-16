@@ -1,13 +1,13 @@
-package junit.localtests.callback;
+package ch.icosys.popjava.junit.localtests.callback;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
-import testsuite.callback.Toto;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.testsuite.callback.Toto;
 
 public class CallBackTest {
 

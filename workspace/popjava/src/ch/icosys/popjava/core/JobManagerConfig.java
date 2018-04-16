@@ -1,4 +1,4 @@
-package popjava;
+package ch.icosys.popjava.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,19 +6,20 @@ import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import popjava.base.POPObject;
-import popjava.baseobject.POPAccessPoint;
-import popjava.util.ssl.SSLUtils;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.Resource;
-import popjava.service.jobmanager.external.POPNetworkDetails;
-import popjava.service.jobmanager.network.POPNetworkDescriptor;
-import popjava.service.jobmanager.network.POPNode;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
-import popjava.util.Util;
-import popjava.util.ssl.KeyPairDetails;
-import popjava.util.ssl.KeyStoreDetails;
+
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.service.jobmanager.Resource;
+import ch.icosys.popjava.core.service.jobmanager.external.POPNetworkDetails;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNetworkDescriptor;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNode;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.Util;
+import ch.icosys.popjava.core.util.ssl.KeyPairDetails;
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * Proxy to localhost Job Manager
@@ -233,7 +234,7 @@ public class JobManagerConfig {
 	
 	/**
 	 * Generate a KeyStore with private key and certificate.
-	 * Proxy for {@link SSLUtils#generateKeyStore(popjava.util.ssl.KeyStoreDetails, popjava.util.ssl.KeyPairDetails)}
+	 * Proxy for {@link SSLUtils#generateKeyStore(ch.icosys.popjava.core.util.ssl.KeyStoreDetails, ch.icosys.popjava.core.util.ssl.KeyPairDetails)}
 	 *
      * @param ksDetails the details of the keystore
      * @param keyDetails the details about the private key

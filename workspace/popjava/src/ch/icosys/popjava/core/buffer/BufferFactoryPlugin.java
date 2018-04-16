@@ -1,4 +1,4 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
 /**
  * This class defined the interface for new buffer factory plug-in

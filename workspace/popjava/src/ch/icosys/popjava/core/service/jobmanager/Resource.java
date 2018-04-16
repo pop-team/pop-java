@@ -1,9 +1,9 @@
-package popjava.service.jobmanager;
+package ch.icosys.popjava.core.service.jobmanager;
 
-import popjava.baseobject.ObjectDescription;
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
-import popjava.service.jobmanager.yaml.YamlResource;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.service.jobmanager.yaml.YamlResource;
 
 /**
  * This is a generic resource for the Job Manager

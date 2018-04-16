@@ -1,4 +1,4 @@
-package junit.benchmarks.methods;
+package ch.icosys.popjava.junit.benchmarks.methods;
 
 import static org.junit.Assert.*;
 
@@ -15,8 +15,8 @@ import com.carrotsearch.junitbenchmarks.annotation.AxisRange;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 
-import popjava.PopJava;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
 
 @AxisRange(min = 0, max = 1)
 @BenchmarkMethodChart(filePrefix = "benchmark-methods")

@@ -1,12 +1,12 @@
-package testsuite.demo;
+package ch.icosys.popjava.testsuite.demo;
 
-import popjava.PopJava;
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPConfig;
-import popjava.annotation.POPConfig.Type;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPConfig;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.annotation.POPConfig.Type;
 
 @POPClass
 public class Demopop{

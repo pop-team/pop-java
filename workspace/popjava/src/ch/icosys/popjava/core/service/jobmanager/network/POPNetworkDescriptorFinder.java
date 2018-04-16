@@ -1,8 +1,9 @@
-package popjava.service.jobmanager.network;
+package ch.icosys.popjava.core.service.jobmanager.network;
 
 import java.util.HashMap;
 import java.util.Map;
-import popjava.util.Configuration;
+
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  * Find and register customs POP Network Descriptor (factories).

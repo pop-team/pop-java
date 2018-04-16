@@ -1,9 +1,10 @@
-package popjava.scripts.shell;
+package ch.icosys.popjava.core.scripts.shell;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import popjava.scripts.POPJShell;
+
+import ch.icosys.popjava.core.scripts.POPJShell;
 
 /**
  * Base commands registration.

@@ -1,16 +1,16 @@
-package popjava.serviceadapter;
+package ch.icosys.popjava.core.serviceadapter;
 
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPParameter;
-import popjava.annotation.POPParameter.Direction;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncSeq;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
-import popjava.dataswaper.POPString;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPParameter;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.annotation.POPParameter.Direction;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.dataswaper.POPString;
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
  * This class declares the necessary methods to use the JobMgr parallel object of POP-C++

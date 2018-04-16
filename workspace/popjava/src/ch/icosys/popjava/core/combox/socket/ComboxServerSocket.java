@@ -1,13 +1,13 @@
-package popjava.combox.socket;
+package ch.icosys.popjava.core.combox.socket;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import popjava.baseobject.AccessPoint;
-import popjava.broker.Broker;
-import popjava.combox.ComboxServer;
-import popjava.combox.ComboxUtils;
-import popjava.combox.socket.raw.ComboxAcceptRawSocket;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.combox.ComboxServer;
+import ch.icosys.popjava.core.combox.ComboxUtils;
+import ch.icosys.popjava.core.combox.socket.raw.ComboxAcceptRawSocket;
 
 public abstract class ComboxServerSocket extends ComboxServer {
     

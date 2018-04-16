@@ -1,4 +1,4 @@
-package popjava.service.deamon;
+package ch.icosys.popjava.core.service.deamon;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,7 +12,7 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 
-import popjava.util.Configuration;
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  * Connector class for the POPJavaDeamon.

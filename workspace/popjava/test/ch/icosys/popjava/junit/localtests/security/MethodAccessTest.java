@@ -1,4 +1,4 @@
-package junit.localtests.security;
+package ch.icosys.popjava.junit.localtests.security;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,14 +10,15 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import popjava.PopJava;
-import popjava.combox.socket.ssl.ComboxSecureSocketFactory;
-import popjava.service.jobmanager.network.POPNodeTFC;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
-import popjava.util.ssl.KeyPairDetails;
-import popjava.util.ssl.KeyStoreDetails;
-import popjava.util.ssl.SSLUtils;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.combox.socket.ssl.ComboxSecureSocketFactory;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNodeTFC;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.ssl.KeyPairDetails;
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 
 /**

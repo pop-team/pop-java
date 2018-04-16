@@ -1,20 +1,21 @@
-package popjava.scripts.shell.command;
+package ch.icosys.popjava.core.scripts.shell.command;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import popjava.scripts.POPJShell;
-import popjava.scripts.shell.CommandHandler;
-import popjava.scripts.shell.CommandInfo;
-import popjava.scripts.shell.ICommand;
-import popjava.scripts.shell.Parameter;
-import popjava.scripts.shell.ParameterInfo;
-import popjava.util.Configuration;
-import popjava.util.ssl.KeyPairDetails;
-import popjava.util.ssl.KeyStoreDetails;
-import popjava.util.ssl.SSLUtils;
+
+import ch.icosys.popjava.core.scripts.POPJShell;
+import ch.icosys.popjava.core.scripts.shell.CommandHandler;
+import ch.icosys.popjava.core.scripts.shell.CommandInfo;
+import ch.icosys.popjava.core.scripts.shell.ICommand;
+import ch.icosys.popjava.core.scripts.shell.Parameter;
+import ch.icosys.popjava.core.scripts.shell.ParameterInfo;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.ssl.KeyPairDetails;
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * Keystore related commands.

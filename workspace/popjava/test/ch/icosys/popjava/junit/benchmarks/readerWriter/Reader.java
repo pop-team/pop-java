@@ -1,4 +1,4 @@
-package junit.benchmarks.readerWriter;
+package ch.icosys.popjava.junit.benchmarks.readerWriter;
 
 import java.util.List;
 

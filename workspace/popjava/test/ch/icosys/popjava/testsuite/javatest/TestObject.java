@@ -1,4 +1,4 @@
-package testsuite.javatest;
+package ch.icosys.popjava.testsuite.javatest;
 
 public class TestObject {
 	

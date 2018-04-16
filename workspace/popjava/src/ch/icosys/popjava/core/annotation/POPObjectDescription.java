@@ -1,11 +1,11 @@
-package popjava.annotation;
+package ch.icosys.popjava.core.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import popjava.baseobject.ConnectionType;
+import ch.icosys.popjava.core.baseobject.ConnectionType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.CONSTRUCTOR)

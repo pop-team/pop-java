@@ -1,4 +1,4 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -9,8 +9,8 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 
-import popjava.base.MessageHeader;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.util.LogWriter;
 
 /**
  * This class is a RAW implementation of the buffer abstract class

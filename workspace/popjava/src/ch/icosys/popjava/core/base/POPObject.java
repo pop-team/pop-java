@@ -1,4 +1,4 @@
-package popjava.base;
+package ch.icosys.popjava.core.base;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -10,31 +10,32 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPAsyncMutex;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPConfig;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPPrivate;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.baseobject.ConnectionType;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.baseobject.POPTracking;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.util.ClassUtil;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.MethodUtil;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 import javassist.util.proxy.ProxyObject;
-import popjava.PopJava;
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPAsyncMutex;
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPConfig;
-import popjava.annotation.POPPrivate;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
-import popjava.annotation.POPSyncSeq;
-import popjava.baseobject.ConnectionType;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
-import popjava.baseobject.POPTracking;
-import popjava.broker.Broker;
-import popjava.buffer.POPBuffer;
-import popjava.combox.Combox;
-import popjava.util.ssl.SSLUtils;
-import popjava.dataswaper.IPOPBase;
-import popjava.util.ClassUtil;
-import popjava.util.LogWriter;
-import popjava.util.MethodUtil;
-import popjava.util.POPRemoteCaller;
 /**
  * This class is the base class of all POP-Java parallel classes. Every POP-Java parallel classes must inherit from this one.
  */

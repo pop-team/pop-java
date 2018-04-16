@@ -1,6 +1,6 @@
-package popjava.dataswaper;
+package ch.icosys.popjava.core.dataswaper;
 
-import popjava.buffer.POPBuffer;
+import ch.icosys.popjava.core.buffer.POPBuffer;
 
 /**
  * This type is used for communicate with the pop-c++ only. It is compatible with the in type

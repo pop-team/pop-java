@@ -1,4 +1,4 @@
-package popjava.combox;
+package ch.icosys.popjava.core.combox;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -6,9 +6,10 @@ import java.net.ServerSocket;
 import java.util.concurrent.Future;
 
 import javax.net.ServerSocketFactory;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
-import popjava.util.upnp.UPNPManager;
+
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.upnp.UPNPManager;
 
 /**
  * Some utility method used by multiple Comboxes

@@ -1,4 +1,4 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 import java.io.IOException;
 import java.nio.file.Files;

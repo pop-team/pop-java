@@ -1,4 +1,4 @@
-package popjava.annotation.processors;
+package ch.icosys.popjava.core.annotation.processors;
 
 import java.util.Set;
 
@@ -19,14 +19,14 @@ import javax.lang.model.type.TypeVisitor;
 import javax.lang.model.util.SimpleTypeVisitor6;
 import javax.tools.Diagnostic;
 
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPAsyncMutex;
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPPrivate;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
-import popjava.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPAsyncMutex;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPPrivate;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
 
 /**
  * http://www.javaspecialists.eu/archive/Issue167.html

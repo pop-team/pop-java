@@ -1,7 +1,8 @@
-package popjava.service.jobmanager.tfc;
+package ch.icosys.popjava.core.service.jobmanager.tfc;
 
 import java.util.Objects;
-import popjava.baseobject.POPAccessPoint;
+
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 
 /**
  * Describe a TFC resource

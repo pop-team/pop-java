@@ -1,8 +1,8 @@
-package popjava.service.jobmanager.network;
+package ch.icosys.popjava.core.service.jobmanager.network;
 
-import popjava.baseobject.POPAccessPoint;
-import popjava.service.jobmanager.search.SNExploration;
-import popjava.service.jobmanager.search.SNRequest;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.service.jobmanager.search.SNExploration;
+import ch.icosys.popjava.core.service.jobmanager.search.SNRequest;
 
 /**
  * Mark Connectors that works with the JobManager SearchNode methods

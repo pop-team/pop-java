@@ -1,8 +1,8 @@
-package testsuite;
+package ch.icosys.popjava.testsuite;
 
-import popjava.util.LogWriter;
-import testsuite.callback.CallBackMain;
-import testsuite.integer.TestInteger;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.testsuite.callback.CallBackMain;
+import ch.icosys.popjava.testsuite.integer.TestInteger;
 
 public class Testsuite {
 

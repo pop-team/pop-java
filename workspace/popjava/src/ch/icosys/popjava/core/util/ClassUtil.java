@@ -1,4 +1,4 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import ch.icosys.popjava.core.annotation.POPClass;
 import javassist.util.proxy.ProxyObject;
-import popjava.annotation.POPClass;
 /**
  * This class gives some static methods to look inside a class
  */

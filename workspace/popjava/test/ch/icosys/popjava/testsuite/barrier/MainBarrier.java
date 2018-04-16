@@ -1,10 +1,10 @@
-package testsuite.barrier;
+package ch.icosys.popjava.testsuite.barrier;
 
 import java.io.IOException;
 
-import popjava.PopJava;
-import popjava.annotation.POPClass;
-import popjava.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 
 @POPClass(isDistributable = false)
 public class MainBarrier {

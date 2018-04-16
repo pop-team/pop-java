@@ -1,4 +1,4 @@
-package popjava.scripts;
+package ch.icosys.popjava.core.scripts;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,13 +10,14 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import popjava.scripts.shell.CommandHandler;
-import popjava.scripts.shell.CommandInfo;
-import popjava.scripts.shell.ConsoleHandler;
-import popjava.scripts.shell.ICommand;
-import popjava.scripts.shell.command.CJobManager;
-import popjava.scripts.shell.command.CKeystore;
-import popjava.scripts.shell.command.CDebug;
+
+import ch.icosys.popjava.core.scripts.shell.CommandHandler;
+import ch.icosys.popjava.core.scripts.shell.CommandInfo;
+import ch.icosys.popjava.core.scripts.shell.ConsoleHandler;
+import ch.icosys.popjava.core.scripts.shell.ICommand;
+import ch.icosys.popjava.core.scripts.shell.command.CDebug;
+import ch.icosys.popjava.core.scripts.shell.command.CJobManager;
+import ch.icosys.popjava.core.scripts.shell.command.CKeystore;
 
 
 /**

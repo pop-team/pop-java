@@ -1,8 +1,8 @@
-package popjava.base;
+package ch.icosys.popjava.core.base;
 
-import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 /**
  * This class is the base implementation for all POP exception

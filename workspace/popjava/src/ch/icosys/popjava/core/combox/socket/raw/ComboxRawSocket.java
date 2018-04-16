@@ -1,4 +1,4 @@
-package popjava.combox.socket.raw;
+package ch.icosys.popjava.core.combox.socket.raw;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -10,12 +10,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import popjava.baseobject.AccessPoint;
-import popjava.combox.ComboxFactory;
-import popjava.combox.socket.ComboxSocket;
-import popjava.system.POPSystem;
-import popjava.util.LogWriter;
-import popjava.util.POPRemoteCaller;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.combox.ComboxFactory;
+import ch.icosys.popjava.core.combox.socket.ComboxSocket;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
 
 /**
  * This combox implement the protocol Socket
@@ -36,7 +36,7 @@ public class ComboxRawSocket extends ComboxSocket<Socket> {
 	/**
 	 * This is used by Combox (client).
 	 * Create a combox for a client.
-	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
+	 * Call {@link #connectToServer(ch.icosys.popjava.core.baseobject.POPAccessPoint, int)  } to actually connect the client.
 	 * @param networkUUID the id of the network
 	 */
 	public ComboxRawSocket(String networkUUID) {

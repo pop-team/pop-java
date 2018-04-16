@@ -1,4 +1,4 @@
-package junit.localtests.parameters;
+package ch.icosys.popjava.junit.localtests.parameters;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.base.POPException;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.system.POPSystem;
 
 public class ParameterTests {
 

@@ -1,4 +1,4 @@
-package popjava.combox.socket;
+package ch.icosys.popjava.core.combox.socket;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -14,15 +14,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import popjava.base.MessageHeader;
-import popjava.baseobject.AccessPoint;
-import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.POPBuffer;
-import popjava.combox.Combox;
-import popjava.combox.ComboxFactory;
-import popjava.combox.socket.ssl.ComboxSecureSocketFactory;
-import popjava.system.POPSystem;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.combox.ComboxFactory;
+import ch.icosys.popjava.core.combox.socket.ssl.ComboxSecureSocketFactory;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.LogWriter;
 
 public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 

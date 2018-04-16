@@ -1,4 +1,4 @@
-package junit.localtests.jvmObject;
+package ch.icosys.popjava.junit.localtests.jvmObject;
 
 import static org.junit.Assert.*;
 
@@ -11,10 +11,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.baseobject.POPAccessPoint;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  * Special test for the functionality to create a POPJava object in the same VM as the creator. 

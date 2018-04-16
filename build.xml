@@ -2,7 +2,7 @@
 <project name="PopJava" default="make-release-folder" basedir=".">
 
 <target name="jar-testsuite" depends="classes, make-testsuite-popc" description="create jar for the popjava testsuite">
-    <java classname="popjava.scripts.Popjrun" fork="true" output="${jar.dir}/${obj.map}">
+    <java classname="ch.icosys.popjava.core.scripts.Popjrun" fork="true" output="${jar.dir}/${obj.map}">
         <classpath>
             <pathelement location="${jar.dir}/${popjava.jar}"/>
         </classpath>
@@ -13,7 +13,7 @@
 </target>
 
 <target name="run-testsuite" depends="fatJar" description="Run the testsuite">
-    <java classname="testsuite.Testsuite" fork="true">
+    <java classname="ch.icosys.popjava.testsuite.Testsuite" fork="true">
         <classpath>
             <pathelement location="${jar.dir}/${popjava.jar}"/>
             <pathelement location="${jar.dir}/${testsuite.jar}"/>
@@ -33,7 +33,7 @@
     <echo message="Launching passing arguments test 1 / 2"/>
     <echo message="########################################"/>
 
-    <java classname="testsuite.arg.MainArgTest" fork="true" resultproperty="test1">
+    <java classname="ch.icosys.popjava.testsuite.arg.MainArgTest" fork="true" resultproperty="test1">
         <jvmarg value="-javaagent:${env.POPJAVA_LOCATION}/JarFile/popjava.jar" />
         <classpath>
             <pathelement location="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"/>
@@ -46,7 +46,7 @@
     <echo message="Launching passing arguments test 2 / 2"/>
     <echo message="########################################"/>
 
-    <java classname="testsuite.multiobj.Mutliobj" fork="true" resultproperty="test2">
+    <java classname="ch.icosys.popjava.testsuite.multiobj.Mutliobj" fork="true" resultproperty="test2">
         <jvmarg value="-javaagent:${env.POPJAVA_LOCATION}/JarFile/popjava.jar" />
         <classpath>
             <pathelement location="${env.POPJAVA_LOCATION}/JarFile/popjava.jar"/>

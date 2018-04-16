@@ -1,4 +1,4 @@
-package junit.localtests.jobmanager;
+package ch.icosys.popjava.junit.localtests.jobmanager;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,15 +6,17 @@ import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.service.jobmanager.external.POPNetworkDetails;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.Util;
+import ch.icosys.popjava.core.util.ssl.KeyPairDetails;
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
+
 import org.junit.BeforeClass;
 import static org.junit.Assert.*;
-import popjava.util.Configuration;
-import popjava.util.ssl.KeyStoreDetails;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.service.jobmanager.external.POPNetworkDetails;
-import popjava.util.Util;
-import popjava.util.ssl.KeyPairDetails;
-import popjava.util.ssl.SSLUtils;
 /**
  *
  * @author dosky

@@ -1,10 +1,10 @@
-package popjava.scripts.shell.command;
+package ch.icosys.popjava.core.scripts.shell.command;
 
 import java.io.IOException;
 
-import popjava.scripts.shell.CommandInfo;
-import popjava.scripts.shell.ICommand;
-import popjava.util.Configuration;
+import ch.icosys.popjava.core.scripts.shell.CommandInfo;
+import ch.icosys.popjava.core.scripts.shell.ICommand;
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  * Turn on and off the debug option.

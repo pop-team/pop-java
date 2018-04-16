@@ -1,6 +1,6 @@
-package testsuite.popc_integer;
+package ch.icosys.popjava.testsuite.popc_integer;
 
-import popjava.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass(isDistributable = false)
 public class TestPopcInteger {

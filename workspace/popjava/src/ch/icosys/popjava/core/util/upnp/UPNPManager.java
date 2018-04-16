@@ -1,4 +1,4 @@
-package popjava.util.upnp;
+package ch.icosys.popjava.core.util.upnp;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -19,7 +19,7 @@ import org.bitlet.weupnp.GatewayDiscover;
 import org.bitlet.weupnp.PortMappingEntry;
 import org.xml.sax.SAXException;
 
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.util.LogWriter;
 
 public class UPNPManager {
 	

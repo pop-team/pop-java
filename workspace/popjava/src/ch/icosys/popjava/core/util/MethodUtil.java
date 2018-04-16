@@ -1,18 +1,18 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPAsyncMutex;
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
-import popjava.annotation.POPSyncSeq;
-import popjava.annotation.POPSemantic;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPAsyncMutex;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSemantic;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
 
 /**
  * Utilities to be used with methods

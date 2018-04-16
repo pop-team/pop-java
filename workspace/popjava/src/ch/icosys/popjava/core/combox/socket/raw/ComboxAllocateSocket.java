@@ -1,13 +1,13 @@
-package popjava.combox.socket.raw;
+package ch.icosys.popjava.core.combox.socket.raw;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import popjava.combox.ComboxAllocate;
-import popjava.combox.ComboxUtils;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.combox.ComboxAllocate;
+import ch.icosys.popjava.core.combox.ComboxUtils;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
 
 /**
  * This class is responsible to send an receive message on the server combox socket

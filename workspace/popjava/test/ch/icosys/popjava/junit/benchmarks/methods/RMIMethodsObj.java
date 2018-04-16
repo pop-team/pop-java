@@ -1,4 +1,4 @@
-package junit.benchmarks.methods;
+package ch.icosys.popjava.junit.benchmarks.methods;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -1,24 +1,24 @@
-package popjava;
+package ch.icosys.popjava.core;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import ch.icosys.popjava.core.base.POPErrorCode;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.ClassUtil;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.SystemUtil;
+import ch.icosys.popjava.core.util.Util;
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
-import popjava.base.POPErrorCode;
-import popjava.base.POPException;
-import popjava.base.POPObject;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
-import popjava.broker.Broker;
-import popjava.buffer.POPBuffer;
-import popjava.combox.Combox;
-import popjava.system.POPSystem;
-import popjava.util.ClassUtil;
-import popjava.util.LogWriter;
-import popjava.util.SystemUtil;
-import popjava.util.Util;
 
 /**
  * POP-Java Proxy Factory : this class provide methods to create a proxy factory for a specified class. This class uses the Javassit library.

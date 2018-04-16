@@ -1,11 +1,11 @@
-package testsuite.barrier;
+package ch.icosys.popjava.testsuite.barrier;
 
 import java.io.IOException;
 
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPSyncSeq;
-import popjava.base.*;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.base.*;
 
 @POPClass
 public class Worker{

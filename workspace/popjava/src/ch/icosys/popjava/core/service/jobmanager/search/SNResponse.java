@@ -1,9 +1,10 @@
-package popjava.service.jobmanager.search;
+package ch.icosys.popjava.core.service.jobmanager.search;
 
 import java.security.cert.Certificate;
-import popjava.buffer.POPBuffer;
-import popjava.util.ssl.SSLUtils;
-import popjava.dataswaper.IPOPBase;
+
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * Response of a network request, create and send one for itself.

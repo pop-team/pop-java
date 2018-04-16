@@ -1,14 +1,15 @@
-package junit.popcpp;
+package ch.icosys.popjava.junit.popcpp;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.testsuite.integer.Integer;
+
 import static org.junit.Assert.*;
-import popjava.PopJava;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
-import testsuite.integer.Integer;
 
 /**
  * Test connection to POPC++. Make sure the command

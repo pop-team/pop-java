@@ -1,9 +1,9 @@
-package junit.localtests.priority;
+package ch.icosys.popjava.junit.localtests.priority;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.base.POPObject;
 
 /**
  *

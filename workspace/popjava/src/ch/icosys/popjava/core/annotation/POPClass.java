@@ -1,4 +1,4 @@
-package popjava.annotation;
+package ch.icosys.popjava.core.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -7,7 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import popjava.broker.RequestQueue;
+import ch.icosys.popjava.core.broker.RequestQueue;
 
 @Inherited
 @Documented

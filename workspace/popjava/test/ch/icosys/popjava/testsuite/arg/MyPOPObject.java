@@ -1,8 +1,8 @@
-package testsuite.arg;
+package ch.icosys.popjava.testsuite.arg;
 
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
 
 @POPClass
 public class MyPOPObject{

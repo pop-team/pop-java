@@ -1,12 +1,13 @@
-package junit.localtests.priority;
+package ch.icosys.popjava.junit.localtests.priority;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
-import popjava.base.POPObject;
+
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.base.POPObject;
 
 /**
  *

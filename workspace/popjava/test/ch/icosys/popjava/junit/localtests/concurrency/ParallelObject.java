@@ -1,15 +1,15 @@
-package junit.localtests.concurrency;
+package ch.icosys.popjava.junit.localtests.concurrency;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPAsyncMutex;
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncConc;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPAsyncMutex;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class ParallelObject extends POPObject{

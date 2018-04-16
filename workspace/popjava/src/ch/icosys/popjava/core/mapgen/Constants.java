@@ -1,4 +1,4 @@
-package popjava.mapgen;
+package ch.icosys.popjava.core.mapgen;
 
 public class Constants {
 	public static final String JAR_EXT = ".jar";

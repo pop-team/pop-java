@@ -1,9 +1,9 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
 import java.nio.ByteOrder;
 
-import popjava.base.MessageHeader;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.util.LogWriter;
 /**
  * This class is a XDR extension of the BufferRAW class
  */

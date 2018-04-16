@@ -1,4 +1,4 @@
-package popjava.mapgen;
+package ch.icosys.popjava.core.mapgen;
 import java.io.File;
 import java.util.ArrayList;
 

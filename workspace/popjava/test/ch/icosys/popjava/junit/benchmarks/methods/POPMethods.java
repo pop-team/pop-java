@@ -1,9 +1,9 @@
-package junit.benchmarks.methods;
+package ch.icosys.popjava.junit.benchmarks.methods;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncMutex;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class POPMethods extends POPObject{

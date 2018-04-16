@@ -1,15 +1,15 @@
-package popjava.combox;
+package ch.icosys.popjava.core.combox;
 
 import java.io.IOException;
 
-import popjava.base.MessageHeader;
-import popjava.broker.Broker;
-import popjava.broker.Request;
-import popjava.broker.RequestQueue;
-import popjava.buffer.BufferFactory;
-import popjava.buffer.BufferFactoryFinder;
-import popjava.buffer.POPBuffer;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.broker.Request;
+import ch.icosys.popjava.core.broker.RequestQueue;
+import ch.icosys.popjava.core.buffer.BufferFactory;
+import ch.icosys.popjava.core.buffer.BufferFactoryFinder;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.util.LogWriter;
 
 /**
  * This class is responsible to receive the new request for the associated combox

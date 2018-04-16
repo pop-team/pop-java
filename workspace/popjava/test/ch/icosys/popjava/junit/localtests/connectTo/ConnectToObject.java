@@ -1,10 +1,10 @@
-package junit.localtests.connectTo;
+package ch.icosys.popjava.junit.localtests.connectTo;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPConfig;
-import popjava.annotation.POPConfig.Type;
-import popjava.annotation.POPSyncConc;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPConfig;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPConfig.Type;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class ConnectToObject extends POPObject{

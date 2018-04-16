@@ -1,10 +1,10 @@
-package popjava.util.ssl;
+package ch.icosys.popjava.core.util.ssl;
 
 import java.io.File;
 import java.security.InvalidParameterException;
 
 /**
- * This class is meant describe a KeyStore for {@link popjava.util.Configuration}
+ * This class is meant describe a KeyStore for {@link ch.icosys.popjava.core.util.Configuration}
  *
  * @author Davide Mazzoleni
  */

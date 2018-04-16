@@ -1,16 +1,17 @@
-package junit.localtests.jvmObject;
+package ch.icosys.popjava.junit.localtests.jvmObject;
 
 import java.util.concurrent.TimeUnit;
-import popjava.PopJava;
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPConfig;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncSeq;
-import popjava.annotation.POPConfig.Type;
-import popjava.annotation.POPSyncConc;
-import popjava.base.POPException;
-import popjava.base.POPObject;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPConfig;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.annotation.POPConfig.Type;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class LocalObject extends POPObject{

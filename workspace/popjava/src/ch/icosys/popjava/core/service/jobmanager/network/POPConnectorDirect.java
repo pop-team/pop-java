@@ -1,10 +1,11 @@
-package popjava.service.jobmanager.network;
+package ch.icosys.popjava.core.service.jobmanager.network;
 
 import java.util.List;
-import popjava.baseobject.ConnectionType;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
-import popjava.interfacebase.Interface;
+
+import ch.icosys.popjava.core.baseobject.ConnectionType;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.interfacebase.Interface;
 
 /**
  *

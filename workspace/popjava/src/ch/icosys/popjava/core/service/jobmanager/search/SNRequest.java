@@ -1,13 +1,15 @@
-package popjava.service.jobmanager.search;
+package ch.icosys.popjava.core.service.jobmanager.search;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.service.jobmanager.Resource;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
+
 import java.security.cert.Certificate;
-import popjava.buffer.POPBuffer;
-import popjava.util.ssl.SSLUtils;
-import popjava.dataswaper.IPOPBase;
-import popjava.service.jobmanager.Resource;
-import popjava.system.POPSystem;
 
 /**
  * A request for the Search Node, is also used to handle application death.

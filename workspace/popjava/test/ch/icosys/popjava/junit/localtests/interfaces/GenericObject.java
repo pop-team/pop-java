@@ -1,4 +1,4 @@
-package junit.localtests.interfaces;
+package ch.icosys.popjava.junit.localtests.interfaces;
 
 public interface GenericObject {
 

@@ -1,4 +1,4 @@
-package popjava.annotation;
+package ch.icosys.popjava.core.annotation;
 
 /**
  * Enum that lists all possible encodings that can be used

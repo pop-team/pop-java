@@ -1,10 +1,10 @@
-package popjava.mapgen;
+package ch.icosys.popjava.core.mapgen;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import popjava.annotation.POPClass;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.base.POPObject;
 
 /**
  * This class is used to read a .class file and to determine if it's a parallel

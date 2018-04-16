@@ -1,4 +1,4 @@
-package junit.localtests.serializable;
+package ch.icosys.popjava.junit.localtests.serializable;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

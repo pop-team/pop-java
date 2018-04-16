@@ -1,4 +1,4 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Date;
 
-import popjava.system.POPJavaConfiguration;
+import ch.icosys.popjava.core.system.POPJavaConfiguration;
 
 /**
  * This class is used to write log file

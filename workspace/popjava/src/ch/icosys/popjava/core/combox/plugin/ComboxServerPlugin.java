@@ -1,8 +1,8 @@
-package popjava.combox.plugin;
+package ch.icosys.popjava.core.combox.plugin;
 
-import popjava.baseobject.AccessPoint;
-import popjava.broker.Broker;
-import popjava.combox.ComboxServer;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.combox.ComboxServer;
 
 /**
  * This class defined the interface for all new combox server plug-in

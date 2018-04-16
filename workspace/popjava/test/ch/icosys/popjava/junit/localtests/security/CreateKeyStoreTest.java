@@ -1,4 +1,4 @@
-package junit.localtests.security;
+package ch.icosys.popjava.junit.localtests.security;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,12 +21,13 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import popjava.util.ssl.KeyPairDetails;
-import popjava.util.ssl.SSLUtils;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.ssl.KeyStoreDetails;
-import popjava.util.ssl.KeyStoreDetails.KeyStoreFormat;
+
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.ssl.KeyPairDetails;
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails.KeyStoreFormat;
 
 /**
  *

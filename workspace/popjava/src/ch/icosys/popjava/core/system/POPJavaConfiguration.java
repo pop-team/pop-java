@@ -1,4 +1,4 @@
-package popjava.system;
+package ch.icosys.popjava.core.system;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -6,8 +6,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
 
-import popjava.broker.Broker;
-import popjava.scripts.Popjavac;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.scripts.Popjavac;
 
 public class POPJavaConfiguration {
 	

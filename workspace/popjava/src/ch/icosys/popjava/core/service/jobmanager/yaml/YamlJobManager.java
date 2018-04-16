@@ -1,4 +1,4 @@
-package popjava.service.jobmanager.yaml;
+package ch.icosys.popjava.core.service.jobmanager.yaml;
 
 import java.util.Collections;
 import java.util.List;

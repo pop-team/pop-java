@@ -1,4 +1,4 @@
-package popjava.javaagent;
+package ch.icosys.popjava.core.javaagent;
 
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -11,6 +11,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.system.POPSystem;
 import javassist.ByteArrayClassPath;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -25,10 +29,6 @@ import javassist.expr.FieldAccess;
 import javassist.expr.MethodCall;
 import javassist.expr.NewExpr;
 import javassist.util.proxy.ProxyObject;
-import popjava.PopJava;
-import popjava.annotation.POPClass;
-import popjava.base.POPObject;
-import popjava.system.POPSystem;
 
 /**
  * POPJava Java Agent. This class intercepts the class file loading.

@@ -1,4 +1,4 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
 /**
  * This abstract class defined all the methods needed by a BufferFactory

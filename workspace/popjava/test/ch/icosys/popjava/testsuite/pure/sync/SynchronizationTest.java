@@ -1,6 +1,6 @@
-package testsuite.pure.sync;
+package ch.icosys.popjava.testsuite.pure.sync;
 
-import popjava.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass(isDistributable = false)
 public class SynchronizationTest {

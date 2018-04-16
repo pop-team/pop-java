@@ -1,4 +1,4 @@
-package popjava.buffer;
+package ch.icosys.popjava.core.buffer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,15 +13,15 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import popjava.PopJava;
-import popjava.base.MessageHeader;
-import popjava.base.POPException;
-import popjava.base.POPObject;
-import popjava.base.POPSystemErrorCode;
-import popjava.combox.Combox;
-import popjava.dataswaper.IPOPBase;
-import popjava.dataswaper.IPOPBaseInput;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.base.POPSystemErrorCode;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.dataswaper.IPOPBaseInput;
+import ch.icosys.popjava.core.util.LogWriter;
 /**
  * This abstract class defined all the required methods to implement a buffer. 
  * The buffer is responsible to encode and decode the data before sending them or receiving them over the network.

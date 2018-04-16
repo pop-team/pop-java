@@ -1,11 +1,11 @@
-package junit.localtests.delayedCreation;
+package ch.icosys.popjava.junit.localtests.delayedCreation;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
 
 public class DelayedCreation {
 

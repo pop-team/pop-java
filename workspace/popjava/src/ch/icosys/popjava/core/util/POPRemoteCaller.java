@@ -1,13 +1,13 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
 
-import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
-import popjava.util.ssl.SSLUtils;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * Information on the remote caller available to a method

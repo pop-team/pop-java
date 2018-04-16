@@ -1,4 +1,4 @@
-package popjava.util;
+package ch.icosys.popjava.core.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,8 +16,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import popjava.util.ssl.KeyStoreDetails;
-import popjava.util.ssl.KeyStoreDetails.KeyStoreFormat;
+
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails;
+import ch.icosys.popjava.core.util.ssl.KeyStoreDetails.KeyStoreFormat;
 
 /**
  * This class regroup some configuration values

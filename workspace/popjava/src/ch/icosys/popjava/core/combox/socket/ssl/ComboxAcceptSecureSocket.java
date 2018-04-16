@@ -1,10 +1,4 @@
-package popjava.combox.socket.ssl;
-
-import popjava.broker.Broker;
-import popjava.broker.RequestQueue;
-import popjava.util.LogWriter;
-import popjava.combox.socket.ComboxAcceptSocket;
-import popjava.combox.socket.raw.ComboxAcceptRawSocket;
+package ch.icosys.popjava.core.combox.socket.ssl;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,7 +13,13 @@ import java.util.List;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import popjava.util.ssl.SSLUtils;
+
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.broker.RequestQueue;
+import ch.icosys.popjava.core.combox.socket.ComboxAcceptSocket;
+import ch.icosys.popjava.core.combox.socket.raw.ComboxAcceptRawSocket;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * This class is responsible to accept the new connection for the associated server combox socket

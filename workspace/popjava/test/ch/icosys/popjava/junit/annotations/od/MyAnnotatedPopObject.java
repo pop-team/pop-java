@@ -1,8 +1,8 @@
-package junit.annotations.od;
+package ch.icosys.popjava.junit.annotations.od;
 
-import popjava.annotation.POPConfig;
-import popjava.annotation.POPConfig.Type;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPConfig;
+import ch.icosys.popjava.core.annotation.POPConfig.Type;
+import ch.icosys.popjava.core.base.POPObject;
 
 public class MyAnnotatedPopObject extends POPObject{
 

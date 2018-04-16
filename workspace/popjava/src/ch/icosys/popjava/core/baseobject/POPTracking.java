@@ -1,12 +1,13 @@
-package popjava.baseobject;
+package ch.icosys.popjava.core.baseobject;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
-import popjava.util.POPRemoteCaller;
+
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
 
 /**
  * This class contains information on the caller toward an object.

@@ -1,4 +1,4 @@
-package popjava.system;
+package ch.icosys.popjava.core.system;
 
 import java.net.URL;
 import java.net.URLClassLoader;

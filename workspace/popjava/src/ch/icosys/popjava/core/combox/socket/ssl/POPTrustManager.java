@@ -1,6 +1,5 @@
-package popjava.combox.socket.ssl;
+package ch.icosys.popjava.core.combox.socket.ssl;
 
-import popjava.util.ssl.SSLUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,10 +22,12 @@ import java.util.Set;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.RuntimeDirectoryThread;
-import popjava.util.WatchDirectory;
+
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.RuntimeDirectoryThread;
+import ch.icosys.popjava.core.util.WatchDirectory;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * Two origin KeyStore TrustManager, single instance with Directory Watch and auto-reload.

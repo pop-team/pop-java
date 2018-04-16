@@ -1,9 +1,10 @@
-package popjava.service.jobmanager.search;
+package ch.icosys.popjava.core.service.jobmanager.search;
 
 import java.util.LinkedList;
-import popjava.baseobject.POPAccessPoint;
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
+
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 /**
  * List the AccessPoint of each intermediary node to go back to the origin.

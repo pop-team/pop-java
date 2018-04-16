@@ -1,4 +1,4 @@
-package junit.system;
+package ch.icosys.popjava.junit.system;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -7,7 +7,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import popjava.buffer.BufferRaw;
+import ch.icosys.popjava.core.buffer.BufferRaw;
 
 public class RawBufferTest {
 

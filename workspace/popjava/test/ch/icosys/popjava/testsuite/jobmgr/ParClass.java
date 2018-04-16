@@ -1,6 +1,6 @@
-package testsuite.jobmgr;
+package ch.icosys.popjava.testsuite.jobmgr;
 
-import popjava.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass
 public class ParClass{

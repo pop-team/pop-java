@@ -1,4 +1,4 @@
-package popjava.util.ssl;
+package ch.icosys.popjava.core.util.ssl;
 
 import java.security.InvalidParameterException;
 import java.util.*;

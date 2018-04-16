@@ -1,10 +1,10 @@
-package testsuite.integer;
+package ch.icosys.popjava.testsuite.integer;
 
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPObjectDescription;
-import popjava.annotation.POPSyncMutex;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class Integer extends POPObject{

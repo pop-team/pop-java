@@ -1,11 +1,11 @@
-package junit.localtests.delayedCallback;
+package ch.icosys.popjava.junit.localtests.delayedCallback;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
 
 public class DelayedCallbackTest {
 

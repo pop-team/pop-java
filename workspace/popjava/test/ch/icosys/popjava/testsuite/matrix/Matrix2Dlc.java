@@ -1,4 +1,4 @@
-package testsuite.matrix;
+package ch.icosys.popjava.testsuite.matrix;
 
 import java.text.DecimalFormat;
 

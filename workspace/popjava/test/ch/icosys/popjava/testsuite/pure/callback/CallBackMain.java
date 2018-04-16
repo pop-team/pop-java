@@ -1,6 +1,6 @@
-package testsuite.pure.callback;
+package ch.icosys.popjava.testsuite.pure.callback;
 
-import popjava.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass(isDistributable = false)
 public class CallBackMain {

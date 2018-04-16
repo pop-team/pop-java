@@ -1,7 +1,7 @@
-package testsuite.popc;
+package ch.icosys.popjava.testsuite.popc;
 
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class SerialObject implements IPOPBase {
 	public int i;

@@ -1,14 +1,15 @@
-package popjava.scripts;
+package ch.icosys.popjava.core.scripts;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import popjava.PopJava;
-import popjava.annotation.POPClass;
-import popjava.baseobject.POPAccessPoint;
-import popjava.service.jobmanager.POPJavaJobManager;
-import popjava.util.Configuration;
+
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  *

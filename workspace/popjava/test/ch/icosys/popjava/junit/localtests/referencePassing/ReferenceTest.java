@@ -1,12 +1,12 @@
-package junit.localtests.referencePassing;
+package ch.icosys.popjava.junit.localtests.referencePassing;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
 
 public class ReferenceTest {
 

@@ -1,4 +1,4 @@
-package popjava;
+package ch.icosys.popjava.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -12,29 +12,29 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPParameter;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.base.MethodInfo;
+import ch.icosys.popjava.core.base.POPErrorCode;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.base.Semantic;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.buffer.BufferFactory;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.interfacebase.Interface;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.ClassUtil;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.MethodUtil;
+import ch.icosys.popjava.core.util.Util;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyObject;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPParameter;
-import popjava.base.MessageHeader;
-import popjava.base.MethodInfo;
-import popjava.base.POPErrorCode;
-import popjava.base.POPException;
-import popjava.base.POPObject;
-import popjava.base.Semantic;
-import popjava.baseobject.POPAccessPoint;
-import popjava.broker.Broker;
-import popjava.buffer.BufferFactory;
-import popjava.buffer.POPBuffer;
-import popjava.combox.Combox;
-import popjava.util.ssl.SSLUtils;
-import popjava.interfacebase.Interface;
-import popjava.system.POPSystem;
-import popjava.util.ClassUtil;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.MethodUtil;
-import popjava.util.Util;
 
 /**
  * This class is responsible to invoke methods on the parallel object

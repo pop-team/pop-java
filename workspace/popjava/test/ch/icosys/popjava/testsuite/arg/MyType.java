@@ -1,7 +1,7 @@
-package testsuite.arg;
+package ch.icosys.popjava.testsuite.arg;
 
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.*;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.*;
 
 public class MyType implements IPOPBase {
 	private String theString;

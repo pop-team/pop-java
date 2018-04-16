@@ -1,4 +1,4 @@
-package popjava.util.ssl;
+package ch.icosys.popjava.core.util.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -58,11 +58,11 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcContentSignerBuilder;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 
-import popjava.combox.socket.ssl.POPKeyManager;
-import popjava.combox.socket.ssl.POPTrustManager;
-import popjava.service.jobmanager.network.POPNode;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
+import ch.icosys.popjava.core.combox.socket.ssl.POPKeyManager;
+import ch.icosys.popjava.core.combox.socket.ssl.POPTrustManager;
+import ch.icosys.popjava.core.service.jobmanager.network.POPNode;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
 
 /**
  * Utilities for using SSL and certificates
@@ -600,7 +600,7 @@ public class SSLUtils {
 	}
 	
 	/**
-	 * Call {@link #generateKeyPair(popjava.util.ssl.KeyPairDetails) } until the operation does not fail.
+	 * Call {@link #generateKeyPair(ch.icosys.popjava.core.util.ssl.KeyPairDetails) } until the operation does not fail.
 	 * 
 	 * @param options the information regarding the private key
 	 * @return the generated private key, checked by BouncyCastle for security

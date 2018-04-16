@@ -1,6 +1,5 @@
-package popjava.combox.socket.ssl;
+package ch.icosys.popjava.core.combox.socket.ssl;
 
-import popjava.util.ssl.SSLUtils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -22,15 +21,16 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.StandardConstants;
 
-import popjava.base.MessageHeader;
-import popjava.baseobject.AccessPoint;
-import popjava.buffer.POPBuffer;
-import popjava.combox.Combox;
-import popjava.combox.ComboxFactory;
-import popjava.combox.socket.ComboxSocket;
-import popjava.system.POPSystem;
-import popjava.util.LogWriter;
-import popjava.util.POPRemoteCaller;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.combox.ComboxFactory;
+import ch.icosys.popjava.core.combox.socket.ComboxSocket;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
+import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
  * This combox implement the protocol ssl
@@ -52,7 +52,7 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 	/**
 	 * This is used by Combox (client).
 	 * Create a combox for a client.
-	 * Call {@link #connectToServer(popjava.baseobject.POPAccessPoint, int)  } to actually connect the client.
+	 * Call {@link #connectToServer(ch.icosys.popjava.core.baseobject.POPAccessPoint, int)  } to actually connect the client.
 	 * @param networkUUID the id of the network
 	 */
 	public ComboxSecureSocket(String networkUUID) {

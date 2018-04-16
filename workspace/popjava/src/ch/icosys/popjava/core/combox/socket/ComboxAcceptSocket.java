@@ -1,4 +1,4 @@
-package popjava.combox.socket;
+package ch.icosys.popjava.core.combox.socket;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -6,11 +6,11 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 
-import popjava.broker.Broker;
-import popjava.broker.RequestQueue;
-import popjava.combox.Combox;
-import popjava.combox.ComboxConnection;
-import popjava.combox.ComboxReceiveRequest;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.broker.RequestQueue;
+import ch.icosys.popjava.core.combox.Combox;
+import ch.icosys.popjava.core.combox.ComboxConnection;
+import ch.icosys.popjava.core.combox.ComboxReceiveRequest;
 
 public abstract class ComboxAcceptSocket<E extends Socket> implements Runnable {
 

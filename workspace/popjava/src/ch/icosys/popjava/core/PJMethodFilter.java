@@ -1,12 +1,12 @@
-package popjava;
+package ch.icosys.popjava.core;
 
 import javassist.util.proxy.MethodFilter;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-import popjava.base.POPObject;
-import popjava.util.MethodUtil;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.util.MethodUtil;
 
 /**
  * This class is a method filter for the PJMethodHandler

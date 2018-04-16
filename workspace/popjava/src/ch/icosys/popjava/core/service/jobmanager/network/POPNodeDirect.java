@@ -1,11 +1,12 @@
-package popjava.service.jobmanager.network;
+package ch.icosys.popjava.core.service.jobmanager.network;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import popjava.util.Configuration;
-import popjava.util.Util;
+
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.Util;
 
 /**
  * A SSH node for direct IP connections

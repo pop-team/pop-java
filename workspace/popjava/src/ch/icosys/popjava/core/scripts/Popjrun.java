@@ -1,4 +1,4 @@
-package popjava.scripts;
+package ch.icosys.popjava.core.scripts;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import popjava.broker.Broker;
-import popjava.mapgen.POPJObjectMap;
-import popjava.util.Configuration;
+import ch.icosys.popjava.core.broker.Broker;
+import ch.icosys.popjava.core.mapgen.POPJObjectMap;
+import ch.icosys.popjava.core.util.Configuration;
 
 public class Popjrun {
 

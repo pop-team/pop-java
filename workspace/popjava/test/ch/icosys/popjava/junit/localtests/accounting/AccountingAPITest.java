@@ -1,14 +1,15 @@
-package junit.localtests.accounting;
+package ch.icosys.popjava.junit.localtests.accounting;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import popjava.PopJava;
-import popjava.system.POPSystem;
+
+import ch.icosys.popjava.core.POPAccounting;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.POPRemoteCaller;
 
 import static org.junit.Assert.*;
-import popjava.POPAccounting;
-import popjava.util.POPRemoteCaller;
 
 /**
  * Testing accounting API

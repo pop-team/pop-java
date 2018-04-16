@@ -1,4 +1,4 @@
-package testsuite.barrier;
+package ch.icosys.popjava.testsuite.barrier;
 
 
 import java.io.BufferedWriter;
@@ -8,8 +8,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import popjava.annotation.POPClass;
-import popjava.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
 
 @POPClass
 public class Barrier{

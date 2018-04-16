@@ -1,13 +1,13 @@
-package junit.localtests.bidirectional;
+package ch.icosys.popjava.junit.localtests.bidirectional;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.annotation.POPClass;
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
 
 @POPClass(isDistributable = false)
 public class BiDirectionalTest {

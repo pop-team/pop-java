@@ -1,7 +1,7 @@
-package testsuite.popc;
+package ch.icosys.popjava.testsuite.popc;
 
-import popjava.annotation.POPClass;
-import popjava.dataswaper.POPString;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.dataswaper.POPString;
 
 
 @POPClass(isDistributable = false)

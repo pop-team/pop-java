@@ -1,6 +1,6 @@
-package popjava.dataswaper;
+package ch.icosys.popjava.core.dataswaper;
 
-import popjava.buffer.POPBuffer;
+import ch.icosys.popjava.core.buffer.POPBuffer;
 /**
  * This interface declare the needed method for the serialization and the deserialization of an object
  *

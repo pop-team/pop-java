@@ -1,7 +1,7 @@
-package popjava.combox;
+package ch.icosys.popjava.core.combox;
 
-import popjava.base.MessageHeader;
-import popjava.buffer.POPBuffer;
+import ch.icosys.popjava.core.base.MessageHeader;
+import ch.icosys.popjava.core.buffer.POPBuffer;
 
 /**
  * Generalize multiple ways to allocate and initiate a POP object

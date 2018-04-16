@@ -1,4 +1,4 @@
-package popjava.scripts;
+package ch.icosys.popjava.core.scripts;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

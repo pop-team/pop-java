@@ -1,6 +1,6 @@
-package testsuite.jinteger;
+package ch.icosys.popjava.testsuite.jinteger;
 
-import popjava.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPClass;
 
 @POPClass(isDistributable = false)
 public class TestRef {

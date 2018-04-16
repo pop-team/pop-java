@@ -1,4 +1,4 @@
-package popjava.mapgen;
+package ch.icosys.popjava.core.mapgen;
 
 public class PathWorker {
 	

@@ -1,9 +1,9 @@
-package popjava.baseobject;
+package ch.icosys.popjava.core.baseobject;
 
 import java.net.UnknownHostException;
 
-import popjava.system.POPSystem;
-import popjava.util.Configuration;
+import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
 
 /**
  * This class represent an access to a broker-side parallel object

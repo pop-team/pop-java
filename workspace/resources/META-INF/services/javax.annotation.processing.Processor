@@ -1,1 +1,1 @@
-popjava.annotation.processors.POPClassProcessor
+ch.icosys.popjava.core.annotation.processors.POPClassProcessor

@@ -1,7 +1,7 @@
-package popjava.baseobject;
+package ch.icosys.popjava.core.baseobject;
 
-import popjava.buffer.POPBuffer;
-import popjava.dataswaper.IPOPBase;
+import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 /**
  * This class keep track of the calls toward a specific method.

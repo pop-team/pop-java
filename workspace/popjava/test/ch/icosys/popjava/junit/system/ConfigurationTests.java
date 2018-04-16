@@ -1,10 +1,10 @@
-package junit.system;
+package ch.icosys.popjava.junit.system;
 
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import popjava.system.POPJavaConfiguration;
+import ch.icosys.popjava.core.system.POPJavaConfiguration;
 
 public class ConfigurationTests {
 

@@ -1,12 +1,12 @@
-package junit.localtests.concurrency;
+package ch.icosys.popjava.junit.localtests.concurrency;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import popjava.PopJava;
-import popjava.system.POPSystem;
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.system.POPSystem;
 
 public class TestConcurrency {
 

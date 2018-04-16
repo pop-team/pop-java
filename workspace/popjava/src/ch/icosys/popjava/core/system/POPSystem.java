@@ -1,4 +1,4 @@
-package popjava.system;
+package ch.icosys.popjava.core.system;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,22 +26,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.base.POPException;
+import ch.icosys.popjava.core.baseobject.ObjectDescription;
+import ch.icosys.popjava.core.baseobject.POPAccessPoint;
+import ch.icosys.popjava.core.codemanager.AppService;
+import ch.icosys.popjava.core.service.jobmanager.POPJavaAppService;
+import ch.icosys.popjava.core.serviceadapter.POPAppService;
+import ch.icosys.popjava.core.serviceadapter.POPJobService;
+import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.RuntimeDirectoryThread;
+import ch.icosys.popjava.core.util.SystemUtil;
+import ch.icosys.popjava.core.util.Util;
+import ch.icosys.popjava.core.util.Util.OSType;
+import ch.icosys.popjava.core.util.upnp.UPNPManager;
 import javassist.util.proxy.ProxyFactory;
-import popjava.PopJava;
-import popjava.base.POPException;
-import popjava.baseobject.ObjectDescription;
-import popjava.baseobject.POPAccessPoint;
-import popjava.codemanager.AppService;
-import popjava.service.jobmanager.POPJavaAppService;
-import popjava.serviceadapter.POPAppService;
-import popjava.serviceadapter.POPJobService;
-import popjava.util.Configuration;
-import popjava.util.LogWriter;
-import popjava.util.RuntimeDirectoryThread;
-import popjava.util.SystemUtil;
-import popjava.util.Util;
-import popjava.util.Util.OSType;
-import popjava.util.upnp.UPNPManager;
 
 /**
  * This class is responsible for the initialization of a POP-Java application. It has also the responsibility to retrieve the configuration parameters.

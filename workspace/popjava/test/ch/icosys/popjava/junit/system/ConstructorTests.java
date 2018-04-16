@@ -1,10 +1,10 @@
-package junit.system;
+package ch.icosys.popjava.junit.system;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import popjava.util.ClassUtil;
+import ch.icosys.popjava.core.util.ClassUtil;
 
 public class ConstructorTests {
 

@@ -1,13 +1,13 @@
-package junit.annotations.semantics;
+package ch.icosys.popjava.junit.annotations.semantics;
 
-import popjava.annotation.POPAsyncConc;
-import popjava.annotation.POPAsyncMutex;
-import popjava.annotation.POPAsyncSeq;
-import popjava.annotation.POPClass;
-import popjava.annotation.POPSyncConc;
-import popjava.annotation.POPSyncMutex;
-import popjava.annotation.POPSyncSeq;
-import popjava.base.POPObject;
+import ch.icosys.popjava.core.annotation.POPAsyncConc;
+import ch.icosys.popjava.core.annotation.POPAsyncMutex;
+import ch.icosys.popjava.core.annotation.POPAsyncSeq;
+import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPSyncConc;
+import ch.icosys.popjava.core.annotation.POPSyncMutex;
+import ch.icosys.popjava.core.annotation.POPSyncSeq;
+import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
 public class SemanticObject extends POPObject{

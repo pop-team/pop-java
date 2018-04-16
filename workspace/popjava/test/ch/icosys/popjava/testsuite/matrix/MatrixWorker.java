@@ -1,7 +1,7 @@
-package testsuite.matrix;
+package ch.icosys.popjava.testsuite.matrix;
 
-import popjava.base.POPObject;
-import popjava.base.Semantic;
+import ch.icosys.popjava.core.base.POPObject;
+import ch.icosys.popjava.core.base.Semantic;
 
 public class MatrixWorker extends POPObject {
 	
