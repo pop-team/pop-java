@@ -12,19 +12,28 @@ import ch.icosys.popjava.core.util.upnp.UPNPManager;
 
 /**
  * Some utility method used by multiple Comboxes
+ * 
  * @author Davide Mazzoleni
  */
 public class ComboxUtils {
-	
-	private static final PreOperation EMPTY = (ServerSocket ss) -> {};
+
+	private static final PreOperation EMPTY = (ServerSocket ss) -> {
+	};
+
 	private static final ServerSocketFactory SS_FACTORY = ServerSocketFactory.getDefault();
-		
+
 	/**
 	 * Try to create a ServerSocket on the specified port.
-	 * @param port if 0 the port will be choose randomly or sequentially from {@link Configuration#allocatePortRange}
-	 * @param op an operation to perform on the server socket before its binding. ex: {@link ServerSocket#setReceiveBufferSize(int) }
+	 * 
+	 * @param port
+	 *            if 0 the port will be choose randomly or sequentially from
+	 *            {@link Configuration#allocatePortRange}
+	 * @param op
+	 *            an operation to perform on the server socket before its binding.
+	 *            ex: {@link ServerSocket#setReceiveBufferSize(int) }
 	 * @return A server already binded
-	 * @throws IOException If we specify a port but we can't bind the address
+	 * @throws IOException
+	 *             If we specify a port but we can't bind the address
 	 */
 	public static ServerSocket createServerSocket(int port, PreOperation op, boolean upnp) throws IOException {
 		if (op == null) {
@@ -32,16 +41,24 @@ public class ComboxUtils {
 		}
 		return createServerSocket(port, op, port == 0, upnp);
 	}
-	
+
 	/**
 	 * Try to create a ServerSocket on the specified port.
-	 * @param port if 0 the port will be choose randomly or sequentially from {@link Configuration#allocatePortRange}
-	 * @param op an operation to perform on the server socket before its binding. ex: {@link ServerSocket#setReceiveBufferSize(int) }
-	 * @param sequential Continue looking for new port if we fail to bind
+	 * 
+	 * @param port
+	 *            if 0 the port will be choose randomly or sequentially from
+	 *            {@link Configuration#allocatePortRange}
+	 * @param op
+	 *            an operation to perform on the server socket before its binding.
+	 *            ex: {@link ServerSocket#setReceiveBufferSize(int) }
+	 * @param sequential
+	 *            Continue looking for new port if we fail to bind
 	 * @return A server already binded
-	 * @throws IOException If we specify a port but we can't bind the address
+	 * @throws IOException
+	 *             If we specify a port but we can't bind the address
 	 */
-	private static ServerSocket createServerSocket(int port, PreOperation op, boolean sequential, boolean upnp) throws IOException {
+	private static ServerSocket createServerSocket(int port, PreOperation op, boolean sequential, boolean upnp)
+			throws IOException {
 		ServerSocket server = SS_FACTORY.createServerSocket();
 		boolean working = false;
 		if (port == 0) {
@@ -65,20 +82,23 @@ public class ComboxUtils {
 				port++;
 				if (port > 65535) {
 					// something really wrong here
+					server.close();
 					throw new IOException("[ComboxUtils] can't find an available port");
 				}
 			}
 		} while (!working);
-		
-		if(upnp) {
+
+		if (upnp) {
+			@SuppressWarnings("unused")
 			Future<String> externalIP = UPNPManager.registerPort(server.getLocalPort());
 		}
-		
+
 		return server;
 	}
-	
+
 	/**
-	 * Should be used as parameter for {@link #createServerSocket(int, PreOperation)}  }
+	 * Should be used as parameter for
+	 * {@link #createServerSocket(int, PreOperation)} }
 	 */
 	public interface PreOperation {
 		void preBind(ServerSocket ss) throws IOException;

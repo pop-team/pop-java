@@ -16,12 +16,12 @@ public class X extends POPObject implements IX {
 	@POPObjectDescription(url = "localhost")
 	public X() {
 	}
-	
+
 	@POPSyncConc
 	@Override
 	public Z getZ() {
 		Z z = PopJava.newActive(this, Z.class);
 		return z;
 	}
-	
+
 }

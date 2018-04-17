@@ -6,21 +6,21 @@ import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class B extends POPObject{
+public class B extends POPObject {
 
 	private A a;
-	
+
 	@POPObjectDescription(url = "localhost")
-	public B(){
+	public B() {
 	}
-	
+
 	@POPObjectDescription(url = "localhost")
-	public B(A a){
+	public B(A a) {
 		this.a = a.makePermanent();
 	}
-	
+
 	@POPSyncConc
-	public void work(){
+	public void work() {
 		a.setValue(1234);
 	}
 }

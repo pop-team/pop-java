@@ -8,24 +8,24 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class SocketServer implements Runnable{
+public class SocketServer implements Runnable {
 
 	public static final int PORT = 5541;
-	
-	private static String [] complexReturn = new String[]{"asdfasdf", "asdfasdf", "asdfasdf"};
-	
+
+	private static String[] complexReturn = new String[] { "asdfasdf", "asdfasdf", "asdfasdf" };
+
 	@Override
 	public void run() {
 		ServerSocket serverSocket;
 		try {
 			serverSocket = new ServerSocket(PORT);
 			Socket socket = serverSocket.accept();
-			
+
 			InputStream in = new BufferedInputStream(socket.getInputStream());
 			OutputStream out = new BufferedOutputStream(socket.getOutputStream());
 			int data = -1;
-			while((data = in.read()) != -1 && !Thread.interrupted()){
-				switch(data){
+			while ((data = in.read()) != -1 && !Thread.interrupted()) {
+				switch (data) {
 				case 1:
 					break;
 				case 2:
@@ -34,7 +34,7 @@ public class SocketServer implements Runnable{
 					break;
 				case 3:
 					out.write(complexReturn.length);
-					for(String s: complexReturn){
+					for (String s : complexReturn) {
 						out.write(s.length());
 						out.write(s.getBytes());
 					}
@@ -42,15 +42,12 @@ public class SocketServer implements Runnable{
 					break;
 				}
 			}
-			
+
 			serverSocket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 	}
-	
-	
 
 }

@@ -29,24 +29,24 @@ import ch.icosys.popjava.core.util.ssl.SSLUtils;
  * This combox implement the protocol ssl
  */
 public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
-	
 
 	protected static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
-	
+
 	/**
-	 * This is used by ServerCombox (server).
-	 * Create a new combox from a server.
-	 * Call {@link #serverAccept(java.lang.Object)   } to let the client connect.
+	 * This is used by ServerCombox (server). Create a new combox from a server.
+	 * Call {@link #serverAccept(java.lang.Object) } to let the client connect.
 	 */
 	public ComboxSecureSocket() {
 		super();
 	}
 
 	/**
-	 * This is used by Combox (client).
-	 * Create a combox for a client.
-	 * Call {@link #connectToServer(ch.icosys.popjava.core.baseobject.POPAccessPoint, int)  } to actually connect the client.
-	 * @param networkUUID the id of the network
+	 * This is used by Combox (client). Create a combox for a client. Call
+	 * {@link #connectToServer(ch.icosys.popjava.core.baseobject.POPAccessPoint, int) }
+	 * to actually connect the client.
+	 * 
+	 * @param networkUUID
+	 *            the id of the network
 	 */
 	public ComboxSecureSocket(String networkUUID) {
 		super(networkUUID);
@@ -54,36 +54,39 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 
 	@Override
 	protected boolean connectToServer() {
-		try {			
+		try {
 			SSLContext sslContext = SSLUtils.getSSLContext();
 			SSLSocketFactory factory = sslContext.getSocketFactory();
 
 			available = false;
-			
-			List<AccessPoint> aps = getSortedAccessPoints(POPSystem.getHostIP(), accessPoint, ComboxSecureSocketFactory.PROTOCOL);
-			
+
+			List<AccessPoint> aps = getSortedAccessPoints(POPSystem.getHostIP(), accessPoint,
+					ComboxSecureSocketFactory.PROTOCOL);
+
 			for (int i = 0; i < aps.size() && !available; i++) {
 				AccessPoint ap = aps.get(i);
-				
+
 				String host = ap.getHost();
 				int port = ap.getPort();
-				
-				System.out.println("Connect secure "+host +" "+port+" "+POPSystem.getHostIP());
-				
+
+				System.out.println("Connect secure " + host + " " + port + " " + POPSystem.getHostIP());
+
 				try {
 					// Create an unbound socket
 					SocketAddress sockaddress = new InetSocketAddress(host, port);
 					if (timeOut > 0) {
 						peerConnection = (SSLSocket) factory.createSocket();
 
-						//LogWriter.writeExceptionLog(new Exception());
-						//LogWriter.writeExceptionLog(new Exception("Open connection to "+host+":"+port+" remote: "+peerConnection.getLocalPort()));
+						// LogWriter.writeExceptionLog(new Exception());
+						// LogWriter.writeExceptionLog(new Exception("Open
+						// connection to "+host+":"+port+" remote:
+						// "+peerConnection.getLocalPort()));
 					} else {
 						peerConnection = (SSLSocket) factory.createSocket();
 						timeOut = 0;
 					}
 					peerConnection.setUseClientMode(true);
-					
+
 					// setup SNI
 					SNIServerName network = new SNIHostName(getNetworkUUID());
 					List<SNIServerName> nets = new ArrayList<>(1);
@@ -96,18 +99,19 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 
 					// connect and start handshake
 					peerConnection.connect(sockaddress);
-					
+
 					// setup communication buffers
 					inputStream = new BufferedInputStream(peerConnection.getInputStream());
 					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
-					
+
 					available = true;
 				} catch (IOException e) {
 					available = false;
 				}
 			}
-		} catch (Exception e) {}
-		
+		} catch (Exception e) {
+		}
+
 		return available;
 	}
 
@@ -141,8 +145,8 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 	}
 
 	@Override
-	protected boolean exportConnectionInfo() {		
-		try {			
+	protected boolean exportConnectionInfo() {
+		try {
 			// set the fingerprint in the accesspoint for all to know
 			// this time we have to look which it is
 			Certificate[] certs = peerConnection.getSession().getPeerCertificates();
@@ -150,18 +154,13 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 				if (SSLUtils.isCertificateKnown(cert)) {
 					String fingerprint = SSLUtils.certificateFingerprint(cert);
 					accessPoint.setFingerprint(fingerprint);
-					
+
 					if (getNetworkUUID() == null) {
 						setNetworkUUID(SSLUtils.getNetworkFromFingerprint(fingerprint));
 					}
-					
-					remoteCaller = new POPRemoteCaller(
-						peerConnection.getInetAddress(),
-						MY_FACTORY.getComboxName(),
-						getNetworkUUID(),
-						MY_FACTORY.isSecure(),
-						fingerprint
-					);
+
+					remoteCaller = new POPRemoteCaller(peerConnection.getInetAddress(), MY_FACTORY.getComboxName(),
+							getNetworkUUID(), MY_FACTORY.isSecure(), fingerprint);
 					return true;
 				}
 			}

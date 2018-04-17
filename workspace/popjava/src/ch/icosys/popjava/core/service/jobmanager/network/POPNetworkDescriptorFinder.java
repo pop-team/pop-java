@@ -11,31 +11,32 @@ import ch.icosys.popjava.core.util.Configuration;
  * @author Davide Mazzoleni
  */
 public class POPNetworkDescriptorFinder {
-	
+
 	private static POPNetworkDescriptorFinder instance;
-	
+
 	private final Map<String, POPNetworkDescriptor> descriptors = new HashMap<>();
 
 	private POPNetworkDescriptorFinder() {
 		POPNetworkDescriptor jm = POPConnectorJobManager.DESCRIPTOR;
 		POPNetworkDescriptor direct = POPConnectorDirect.DESCRIPTOR;
 		POPNetworkDescriptor tfc = POPConnectorTFC.DESCRIPTOR;
-		
+
 		descriptors.put(jm.getGlobalName(), jm);
 		descriptors.put(direct.getGlobalName(), direct);
 		descriptors.put(tfc.getGlobalName(), tfc);
-		
+
 		loadCustomDescriptors();
 	}
 
 	private void loadCustomDescriptors() {
 		// TODO from some file read and add class
 	}
-	
+
 	/**
 	 * Add a new descriptor description
 	 * 
-	 * @param descriptor a new descriptor to add
+	 * @param descriptor
+	 *            a new descriptor to add
 	 */
 	public void register(POPNetworkDescriptor descriptor) {
 		if (!descriptors.containsKey(descriptor.getGlobalName())) {
@@ -49,11 +50,12 @@ public class POPNetworkDescriptorFinder {
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * Find a descriptor based on its global name.
 	 * 
-	 * @param globalName the global name of the descriptor
+	 * @param globalName
+	 *            the global name of the descriptor
 	 * @return the descriptor or null if unknown
 	 */
 	public POPNetworkDescriptor find(String globalName) {
@@ -62,9 +64,10 @@ public class POPNetworkDescriptorFinder {
 		}
 		return descriptors.get(globalName);
 	}
-	
+
 	/**
 	 * All available descriptors
+	 * 
 	 * @return all the available descriptors
 	 */
 	public POPNetworkDescriptor[] all() {

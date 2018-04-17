@@ -32,22 +32,27 @@ public class BufferFactoryFinder {
 	 * List of different buffer name and their class
 	 */
 	private final ConcurrentHashMap<String, BufferFactory> bufferFactoryList = new ConcurrentHashMap<>();
+
 	/**
 	 * Class loader to retrive a plugin
 	 */
 	private URLClassLoader urlClassLoader = null;
+
 	/**
 	 * Singleton reference of the unique instance of this class
 	 */
 	private static BufferFactoryFinder currentInstance = null;
+
 	/**
 	 * Plugin file XML element name
 	 */
 	private final String PackageNodeName = "Package";
+
 	/**
 	 * Plugin file XML element name
 	 */
 	private final String JarAttributeName = "JarFile";
+
 	/**
 	 * Plugin file XML element name
 	 */
@@ -91,17 +96,15 @@ public class BufferFactoryFinder {
 	 */
 	public void loadBufferMap(String pluginLocation) {
 		DocumentBuilder builder;
-		String bufferMapLocation =  pluginLocation
-				+ File.separator + "pop_buffer.xml";
-		String schemaLocation =  pluginLocation
-		+ File.separator + "pop_buffer.xsd";
-		
+		String bufferMapLocation = pluginLocation + File.separator + "pop_buffer.xml";
+		String schemaLocation = pluginLocation + File.separator + "pop_buffer.xsd";
+
 		XMLWorker xw = new XMLWorker();
-		if(!xw.isValid(bufferMapLocation, schemaLocation)){
+		if (!xw.isValid(bufferMapLocation, schemaLocation)) {
 			LogWriter.printDebug("The buffer plugin map is not valid");
 			return;
 		}
-		
+
 		try {
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document document = builder.parse(new File(bufferMapLocation));
@@ -113,14 +116,11 @@ public class BufferFactoryFinder {
 				// node: a <Package> node
 				Node node = list.item(index);
 				// Handle <Package> node only
-				if (node.getNodeType() == Node.ELEMENT_NODE
-						&& node.getNodeName().equals(PackageNodeName)) {
+				if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(PackageNodeName)) {
 					Element packageElement = (Element) node;
 					// Get "package" attribute
-					String jarFileName = packageElement
-							.getAttribute(JarAttributeName);
-					String jarFileLocation = pluginLocation
-							+ File.separator + jarFileName;
+					String jarFileName = packageElement.getAttribute(JarAttributeName);
+					String jarFileLocation = pluginLocation + File.separator + jarFileName;
 					File jarFile = new File(jarFileLocation);
 					try {
 						URL[] urls = new URL[1];
@@ -135,8 +135,7 @@ public class BufferFactoryFinder {
 					Node childNode = node.getFirstChild();
 					while (childNode != null) {
 						if (childNode.getNodeType() == Node.ELEMENT_NODE
-								&& childNode.getNodeName().equals(
-										BufferFactoryNodeName)) {
+								&& childNode.getNodeName().equals(BufferFactoryNodeName)) {
 							String factoryName = childNode.getTextContent();
 							if (factoryName != null && factoryName.length() > 0)
 								loadPlugin(factoryName, urlClassLoader);
@@ -174,24 +173,22 @@ public class BufferFactoryFinder {
 	 *            URL to load the class
 	 * @return The buffer factory found or null
 	 */
-	private BufferFactory loadPlugin(String bufferFactoryName,
-			URLClassLoader urlClassLoader) {
+	private BufferFactory loadPlugin(String bufferFactoryName, URLClassLoader urlClassLoader) {
 		bufferFactoryName = bufferFactoryName.trim();
 		if (urlClassLoader == null || bufferFactoryName.length() == 0)
 			return null;
 		BufferFactory bufferFactory = null;
 		try {
-			Class<?> bufferClass = Class.forName(bufferFactoryName, true,
-					urlClassLoader);
+			Class<?> bufferClass = Class.forName(bufferFactoryName, true, urlClassLoader);
 			Constructor<?> constructor = bufferClass.getConstructor();
 			bufferFactory = (BufferFactory) constructor.newInstance();
 			if (!bufferFactoryList.containsKey(bufferFactory.getBufferName())) {
-				bufferFactoryList.put(bufferFactory.getBufferName(),
-						bufferFactory);
+				bufferFactoryList.put(bufferFactory.getBufferName(), bufferFactory);
 			} else {
 
 			}
-		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InvocationTargetException | IllegalAccessException | InstantiationException | IllegalArgumentException e) {
+		} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InvocationTargetException
+				| IllegalAccessException | InstantiationException | IllegalArgumentException e) {
 			e.printStackTrace();
 		}
 		return bufferFactory;

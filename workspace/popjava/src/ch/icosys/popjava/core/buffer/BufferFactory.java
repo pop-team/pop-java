@@ -12,7 +12,8 @@ public abstract class BufferFactory {
 
 	/**
 	 * Return buffer's names
-	 * @return	name of the buffers
+	 * 
+	 * @return name of the buffers
 	 */
 	public abstract String getBufferName();
 

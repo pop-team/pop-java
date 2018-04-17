@@ -7,25 +7,25 @@ import ch.icosys.popjava.core.annotation.POPConfig.Type;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class ConnectToObject extends POPObject{
+public class ConnectToObject extends POPObject {
 
 	private String message;
-	
-	public ConnectToObject(){
-		
+
+	public ConnectToObject() {
+
 	}
 
-	public ConnectToObject(String message){
+	public ConnectToObject(String message) {
 		this.message = message;
 	}
-	
-	public ConnectToObject(@POPConfig(Type.ACCESS_POINT)String accessPoint, String message){
+
+	public ConnectToObject(@POPConfig(Type.ACCESS_POINT) String accessPoint, String message) {
 		this(message);
 	}
-	
+
 	@POPSyncConc
-	public String getMessage(){
+	public String getMessage() {
 		return message;
 	}
-	
+
 }

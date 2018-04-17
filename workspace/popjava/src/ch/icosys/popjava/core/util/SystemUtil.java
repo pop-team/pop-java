@@ -19,16 +19,21 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
 public class SystemUtil {
 
 	private static final List<Process> processes = new ArrayList<>();
+
 	private static final List<Broker> localJVM = new ArrayList<>();
+
 	private static final Configuration conf = Configuration.getInstance();
+
 	private static final boolean sshAvailable = commandExists("ssh");
+
 	private static boolean changeUserStatus = false;
+
 	private static String changeUserName = null;
-	
+
 	/**
 	 * Kill all objects created by this JVM
 	 */
-	public static void endAllChildren(){
+	public static void endAllChildren() {
 		for (Process process : processes) {
 			if (process != null) {
 				process.destroy();
@@ -45,19 +50,23 @@ public class SystemUtil {
 
 	/**
 	 * Run a new command in a directory
-	 * @param argvs arguments to pass to the new process
-	 * @param dir Working directory
-	 * @param executeAs Should we change user if possible
+	 * 
+	 * @param argvs
+	 *            arguments to pass to the new process
+	 * @param dir
+	 *            Working directory
+	 * @param executeAs
+	 *            Should we change user if possible
 	 * @return 0 if the command launch is a success
 	 */
 	public static int runCmd(List<String> argvs, String dir, String executeAs) {
 		if (executeAs != null && !executeAs.isEmpty() && canChangeUser(executeAs)) {
 			argvs = commandAs(executeAs, Util.join(" ", escapeDollar(argvs)));
 		}
-		
+
 		long startTime = System.currentTimeMillis();
 		LogWriter.writeDebugInfo("[System] Run command");
-		for(String arg: argvs){
+		for (String arg : argvs) {
 			LogWriter.writeDebugInfo(" %79s", arg);
 		}
 
@@ -66,23 +75,24 @@ public class SystemUtil {
 			pb.directory(new File(dir));
 		}
 
-		if(conf.isRedirectOutputToRoot()){
+		if (conf.isRedirectOutputToRoot()) {
 			pb = pb.inheritIO();
-		}else{
+		} else {
 			pb.redirectErrorStream(true);
 			pb.redirectOutput(new File("/dev/null"));
 		}
 
 		if (pb != null) {
 			try {
-				/*String directory = System.getProperty("java.io.tmpdir");
-				File currentDirectory = new File(directory);
-				if (currentDirectory != null) {
-					//pb.directory(currentDirectory);
-				}*/
+				/*
+				 * String directory = System.getProperty("java.io.tmpdir"); File
+				 * currentDirectory = new File(directory); if (currentDirectory != null) {
+				 * //pb.directory(currentDirectory); }
+				 */
 				Process process = pb.start();
 				processes.add(process);
-				LogWriter.writeDebugInfo("[System] Started command after %s ms", System.currentTimeMillis() - startTime);
+				LogWriter.writeDebugInfo("[System] Started command after %s ms",
+						System.currentTimeMillis() - startTime);
 				return 0;
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -92,71 +102,81 @@ public class SystemUtil {
 	}
 
 	/**
-	 * Create a new directory via command line, it's possible of doing this using a different user if preconfigured.
-	 * @param dir directory we want to create
-	 * @param executeAs the user we want the directory to be created with, can be null
+	 * Create a new directory via command line, it's possible of doing this using a
+	 * different user if preconfigured.
+	 * 
+	 * @param dir
+	 *            directory we want to create
+	 * @param executeAs
+	 *            the user we want the directory to be created with, can be null
 	 * @return true if create correctly, false otherwise
 	 */
 	public static boolean mkdir(Path dir, String executeAs) {
 		Util.OSType os = Util.getOSType();
 		List<String> cmd = new ArrayList<>();
 		cmd.add("mkdir");
-		switch(os) {
-			case Windows:
-				cmd.add("/Q");
-				break;
-			case UNIX:
-			default:
-				cmd.add("-m=755");
-				cmd.add("-p");
-				break;
+		switch (os) {
+		case Windows:
+			cmd.add("/Q");
+			break;
+		case UNIX:
+		default:
+			cmd.add("-m=755");
+			cmd.add("-p");
+			break;
 		}
 		cmd.add(dir.toAbsolutePath().toString());
 		return runCmd(cmd, null, executeAs) == 0;
 	}
 
 	/**
-	 * Delete a file/directory via command line, it's possible of doing this using a different user if preconfigured.
-	 * To delete a directory it must be empty.
-	 * @param path file/directory we want to remove
-	 * @param executeAs the user we want the directory to be delete with, can be null
+	 * Delete a file/directory via command line, it's possible of doing this using a
+	 * different user if preconfigured. To delete a directory it must be empty.
+	 * 
+	 * @param path
+	 *            file/directory we want to remove
+	 * @param executeAs
+	 *            the user we want the directory to be delete with, can be null
 	 * @return true if create correctly, false otherwise
 	 */
 	public static boolean rm(Path path, String executeAs) {
 		Util.OSType os = Util.getOSType();
 		List<String> cmd = new ArrayList<>();
-		switch(os) {
-			case Windows:
-				cmd.add("del");
-				cmd.add("/q");
-				break;
-			case UNIX:
-			default:
-				cmd.add("rm");
-				break;
+		switch (os) {
+		case Windows:
+			cmd.add("del");
+			cmd.add("/q");
+			break;
+		case UNIX:
+		default:
+			cmd.add("rm");
+			break;
 		}
 		cmd.add(path.toAbsolutePath().toString());
 		return runCmd(cmd, null, executeAs) == 0;
 	}
 
 	/**
-	 * Delete a directory via command line, it's possible of doing this using a different user if preconfigured.
-	 * The directory must be empty.
-	 * @param dir directory we want to remove
-	 * @param executeAs the user we want the directory to be delete with, can be null
+	 * Delete a directory via command line, it's possible of doing this using a
+	 * different user if preconfigured. The directory must be empty.
+	 * 
+	 * @param dir
+	 *            directory we want to remove
+	 * @param executeAs
+	 *            the user we want the directory to be delete with, can be null
 	 * @return true if create correctly, false otherwise
 	 */
 	public static boolean rmdir(Path dir, String executeAs) {
 		Util.OSType os = Util.getOSType();
 		List<String> cmd = new ArrayList<>();
 		cmd.add("rmdir");
-		switch(os) {
-			case Windows:
-				cmd.add("/Q");
-				break;
-			case UNIX:
-			default:
-				break;
+		switch (os) {
+		case Windows:
+			cmd.add("/Q");
+			break;
+		case UNIX:
+		default:
+			break;
 		}
 		cmd.add(dir.toAbsolutePath().toString());
 		return runCmd(cmd, null, executeAs) == 0;
@@ -164,24 +184,29 @@ public class SystemUtil {
 
 	/**
 	 * Run a new command
-	 * @param argvs arguments to pass to the new process
-	 * @param dir Working directory
+	 * 
+	 * @param argvs
+	 *            arguments to pass to the new process
+	 * @param dir
+	 *            Working directory
 	 * @return 0 if the command launch is a success
 	 */
 	public static int runCmd(List<String> argvs, String dir) {
 		return runCmd(argvs, dir, null);
 	}
-	
+
 	/**
 	 * Run a new command
-	 * @param argvs arguments to pass to the new process
+	 * 
+	 * @param argvs
+	 *            arguments to pass to the new process
 	 * @return 0 if the command launch is a success
 	 */
 	public static int runCmd(List<String> argvs) {
 		return runCmd(argvs, null);
 	}
 
-	public static boolean commandExists(String command){
+	public static boolean commandExists(String command) {
 		try {
 			Runtime.getRuntime().exec(command);
 			return true;
@@ -190,11 +215,12 @@ public class SystemUtil {
 
 		return false;
 	}
-	
+
 	/**
-	 * Test if a command works.
-	 * Timeout 1 second
-	 * @param command a 'sh' command
+	 * Test if a command works. Timeout 1 second
+	 * 
+	 * @param command
+	 *            a 'sh' command
 	 * @return true if the command exit value is 0, false otherwise
 	 */
 	public static boolean commandWork(List<String> command) {
@@ -206,79 +232,81 @@ public class SystemUtil {
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Mark if we should use a super user command to start the process.
-	 * Defined in {@link Configuration#setJobmanagerExecutionUser(String)}.
-	 * @param user The user we want to execute 
+	 * Mark if we should use a super user command to start the process. Defined in
+	 * {@link Configuration#setJobmanagerExecutionUser(String)}.
+	 * 
+	 * @param user
+	 *            The user we want to execute
 	 * @return true if we have to switch user
 	 */
 	public static boolean canChangeUser(String user) {
 		if (changeUserName == null ? user == null : changeUserName.equals(user)) {
 			return changeUserStatus;
 		}
-		
+
 		changeUserName = user;
 		changeUserStatus = commandWork(commandAs(user, "echo 1"));
 		return changeUserStatus;
 	}
-	
+
 	private static List<String> commandAs(String user, String command) {
 		Util.OSType os = Util.getOSType();
 		List<String> execute = new ArrayList<>();
-		switch(os) {
-			// TODO test on windows
-			case Windows: 
-				execute.add("RUNAS");
-				execute.add("/USER:" + user);
-				execute.add("/PROFILE");
-				execute.add("/SAVECRED");
-				execute.add("CMD");
-				execute.add("/K");
-				execute.add(command);
-				break;
-			case UNIX:
-			default:
-				execute.add("sudo");
-				execute.add("-inu"); // --login --non-interactive --user
-				execute.add(user);
-				execute.add("sh");
-				execute.add("-c");
-				execute.add(command);
-				break;
+		switch (os) {
+		// TODO test on windows
+		case Windows:
+			execute.add("RUNAS");
+			execute.add("/USER:" + user);
+			execute.add("/PROFILE");
+			execute.add("/SAVECRED");
+			execute.add("CMD");
+			execute.add("/K");
+			execute.add(command);
+			break;
+		case UNIX:
+		default:
+			execute.add("sudo");
+			execute.add("-inu"); // --login --non-interactive --user
+			execute.add(user);
+			execute.add("sh");
+			execute.add("-c");
+			execute.add(command);
+			break;
 		}
 		return execute;
 	}
 
-	public static int runRemoteCmdSSHJ(String url, List<String> command){
+	public static int runRemoteCmdSSHJ(String url, List<String> command) {
 		int returnValue = -1;
 		final SSHClient client = new SSHClient();
-		LogWriter.writeDebugInfo("[System] Connect to "+url+" using sshj");
+		LogWriter.writeDebugInfo("[System] Connect to " + url + " using sshj");
 		try {
 			client.addHostKeyVerifier(new PromiscuousVerifier());
 			client.connect(url);
 
-			LogWriter.writeDebugInfo("[System] Use user "+System.getProperty("user.name")+"for connection");
+			LogWriter.writeDebugInfo("[System] Use user " + System.getProperty("user.name") + "for connection");
 			client.authPublickey(System.getProperty("user.name"));
 
-            final Session session = client.startSession();
-            try{
-            	StringBuilder commandAsString = new StringBuilder();
-                for(int i = 0; i < command.size(); i++){
-                	commandAsString.append(command.get(i));
-                	if(i < command.size() - 1){
-                		commandAsString.append(" ");
-                	}
-                }
-                LogWriter.writeDebugInfo("[System] Run remote command");
-                session.exec(commandAsString.toString());
-                returnValue = 0;
-            }finally{
-            	//session.close();
-            }
+			final Session session = client.startSession();
+			try {
+				StringBuilder commandAsString = new StringBuilder();
+				for (int i = 0; i < command.size(); i++) {
+					commandAsString.append(command.get(i));
+					if (i < command.size() - 1) {
+						commandAsString.append(" ");
+					}
+				}
+				LogWriter.writeDebugInfo("[System] Run remote command");
+				session.exec(commandAsString.toString());
+				returnValue = 0;
+			} finally {
+				// session.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 			try {
 				client.disconnect();
 				client.close();
@@ -290,12 +318,12 @@ public class SystemUtil {
 		return returnValue;
 	}
 
-	public static int runRemoteCmd(String url, List<String> command){
+	public static int runRemoteCmd(String url, List<String> command) {
 		return runRemoteCmd(url, null, command);
 	}
 
-	public static int runRemoteCmd(String url, String port, List<String> command){
-		if(conf.isUseNativeSSHifPossible() && sshAvailable){
+	public static int runRemoteCmd(String url, String port, List<String> command) {
+		if (conf.isUseNativeSSHifPossible() && sshAvailable) {
 			// it's better to send the command over SSH as a single argument
 			// every argument is escaped to avoid expansion
 			command = escapeDollar(command);
@@ -310,10 +338,12 @@ public class SystemUtil {
 
 		return runRemoteCmdSSHJ(url, command);
 	}
-	
+
 	/**
 	 * Return the same list with all elements containing $ as \$
-	 * @param command the command to escape the dollar
+	 * 
+	 * @param command
+	 *            the command to escape the dollar
 	 * @return a new list with the escaped $ character
 	 */
 	private static List<String> escapeDollar(List<String> command) {
@@ -321,17 +351,20 @@ public class SystemUtil {
 		for (int i = 0; i < newCommand.size(); i++) {
 			String com = newCommand.get(i);
 			if (com.contains("$")) {
-				// XXX escaping AFTER the $ works, why though is rather a mystery
+				// XXX escaping AFTER the $ works, why though is rather a
+				// mystery
 				newCommand.set(i, com.replace("$", "$\\"));
 			}
 		}
-		
+
 		return newCommand;
 	}
 
 	/**
 	 * Register local JVM object so we can kill them
-	 * @param broker the broker of the local JVM object
+	 * 
+	 * @param broker
+	 *            the broker of the local JVM object
 	 */
 	public static synchronized void registerLocalJVM(Broker broker) {
 		Objects.requireNonNull(broker);

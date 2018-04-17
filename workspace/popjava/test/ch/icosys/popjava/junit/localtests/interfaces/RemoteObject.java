@@ -8,25 +8,25 @@ import ch.icosys.popjava.core.annotation.POPConfig.Type;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class RemoteObject extends POPObject implements RemoteInterface{
+public class RemoteObject extends POPObject implements RemoteInterface {
 
 	private POPObjectImpl temp;
-	
+
 	public RemoteObject() {
-		
+
 	}
-	
+
 	public RemoteObject(@POPConfig(Type.URL) String url) {
-		
+
 	}
-	
+
 	@Override
 	@POPSyncConc
 	public POPObjectImpl getObject() {
 		temp = PopJava.newActive(this, POPObjectImpl.class);
 		return temp;
 	}
-	
+
 	@Override
 	@POPSyncConc
 	public POPObjectImpl getObject2() {

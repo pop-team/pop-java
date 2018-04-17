@@ -10,32 +10,32 @@ import ch.icosys.popjava.core.annotation.POPSyncSeq;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class SemanticObject extends POPObject{
-	
-	public SemanticObject(){
+public class SemanticObject extends POPObject {
+
+	public SemanticObject() {
 	}
-	
+
 	@POPSyncConc
-	public void testSyncConc(){
+	public void testSyncConc() {
 	}
-	
+
 	@POPSyncSeq
-	public void testSyncSeq(){
+	public void testSyncSeq() {
 	}
-	
+
 	@POPSyncMutex
-	public void testSyncMut(){
+	public void testSyncMut() {
 	}
-	
+
 	@POPAsyncConc
-	public void testAsyncConc(){
+	public void testAsyncConc() {
 	}
-	
+
 	@POPAsyncSeq
-	public void testAsyncSeq(){
+	public void testAsyncSeq() {
 	}
-	
+
 	@POPAsyncMutex
-	public void testAsyncMutex(){
+	public void testAsyncMutex() {
 	}
 }

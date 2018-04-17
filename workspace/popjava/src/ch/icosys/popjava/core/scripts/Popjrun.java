@@ -18,26 +18,23 @@ public class Popjrun {
 
 	private static final String HELP_MESSAGE = "POP-Java Application Runner v1.0\n\n"
 			+ "This program is used to run a POP-Java application or to generate object map\n\n"
-			+ "Usage: popjrun <options> <objectmap> <mainclass>\n\n"
-			+ "OPTIONS:\n"
-			+ "   -h, --help                Show this message\n"
-			+ "   -v, --verbose             Verbose mode\n"
+			+ "Usage: popjrun <options> <objectmap> <mainclass>\n\n" + "OPTIONS:\n"
+			+ "   -h, --help                Show this message\n" + "   -v, --verbose             Verbose mode\n"
 			+ "   -k, --killall             Kill all parallel object (zombie) (not implemented)\n"
 			+ "   -c, --classpath <files>   Include JAR or compiled Java class needed to run the application. Files must be separated by a "
-			+ File.pathSeparatorChar+"\n"
-			+ "    -b, --broker             Run Broker with specified object"
-			+ "\n\n"
+			+ File.pathSeparatorChar + "\n" + "    -b, --broker             Run Broker with specified object" + "\n\n"
 			+ "OPTIONS FOR OBJECT MAP GENERATION:\n"
 			+ "   -l, --listlong <parclass> Generate the object map for the given parclasses. Parclasses can be a .class, .jar, .obj or .module file. Parclasses must be separated by "
 			+ File.pathSeparatorChar;
 
 	private static final String JAR_FOLDER = "JarFile";
-	private static final String JAR_OBJMAPGEN = JAR_FOLDER + File.separatorChar
-			+ "popjobjectmapgen.jar";
-	private static final String JAR_POPJAVA = JAR_FOLDER + File.separatorChar
-			+ Popjavac.POP_JAVA_JAR_FILE;
+
+	// private static final String JAR_OBJMAPGEN = JAR_FOLDER +
+	// File.separatorChar + "popjobjectmapgen.jar";
+	private static final String JAR_POPJAVA = JAR_FOLDER + File.separatorChar + Popjavac.POP_JAVA_JAR_FILE;
+
 	private static final String DEFAULT_POP_JAVA_LOCATION;
-	
+
 	static {
 		if (ScriptUtils.isWindows()) {
 			DEFAULT_POP_JAVA_LOCATION = "C:\\Users\\asraniel\\workspace\\PopJava\\release\\";
@@ -81,67 +78,70 @@ public class Popjrun {
 
 	private static String createClassPath(String classPath) {
 
-	    String popJavaLocation = getPopJavaLocation();
+		String popJavaLocation = getPopJavaLocation();
 
-        String popJavaClassPath = popJavaLocation + JAR_POPJAVA;
+		String popJavaClassPath = popJavaLocation + JAR_POPJAVA;
 
-        if (classPath.isEmpty()) {
-            classPath = popJavaClassPath + File.pathSeparatorChar + ".";
-        } else {
-            classPath += File.pathSeparatorChar + popJavaClassPath;
-        }
+		if (classPath.isEmpty()) {
+			classPath = popJavaClassPath + File.pathSeparatorChar + ".";
+		} else {
+			classPath += File.pathSeparatorChar + popJavaClassPath;
+		}
 
 		return classPath;
 	}
 
 	private static boolean help = false;
+
 	private static boolean killAll = false;
+
 	private static boolean broker = false;
+
 	private static String listLong = "";
+
 	private static String classPath = "";
 
 	private static List<String> parseArguments(String[] args) {
-		label:
-		for (int i = 0; i < args.length; i++) {
+		label: for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
-				case "-h":
-				case "--help":
-					help = true;
-					break;
-				case "-k":
-				case "--killall":
-					killAll = true;
-					break;
-				case "-v":
-				case "--verbose":
-					verbose = true;
-					break;
-				case "-b":
-				case "--broker":
-					broker = true;
-					break;
-				case "-l":
-				case "--listlong":
-					if (args.length > i + 1) {
-						listLong = args[i + 1];
-						i++;
-					} else {
-						System.err.println("Listlong command needs a parameter following it");
-						System.exit(0);
-					}
-					break;
-				case "-c":
-				case "--classpath":
-					if (args.length > i + 1) {
-						classPath = createClassPath(args[i + 1]);
-						i++;
-					} else {
-						System.err.println("Classpath parameter needs a parameter following it");
-						System.exit(0);
-					}
-					break;
-				default:
-					break label;
+			case "-h":
+			case "--help":
+				help = true;
+				break;
+			case "-k":
+			case "--killall":
+				killAll = true;
+				break;
+			case "-v":
+			case "--verbose":
+				verbose = true;
+				break;
+			case "-b":
+			case "--broker":
+				broker = true;
+				break;
+			case "-l":
+			case "--listlong":
+				if (args.length > i + 1) {
+					listLong = args[i + 1];
+					i++;
+				} else {
+					System.err.println("Listlong command needs a parameter following it");
+					System.exit(0);
+				}
+				break;
+			case "-c":
+			case "--classpath":
+				if (args.length > i + 1) {
+					classPath = createClassPath(args[i + 1]);
+					i++;
+				} else {
+					System.err.println("Classpath parameter needs a parameter following it");
+					System.exit(0);
+				}
+				break;
+			default:
+				break label;
 			}
 		}
 
@@ -150,7 +150,8 @@ public class Popjrun {
 		return arguments;
 	}
 
-	public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
+	public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException, IOException {
 
 		List<String> arguments = parseArguments(args);
 
@@ -180,7 +181,7 @@ public class Popjrun {
 			System.err.println("No arguments where specified to run POP-Java application");
 			return;
 		}
-		
+
 		String main = arguments.get(0);
 		arguments.remove(0);
 
@@ -194,30 +195,29 @@ public class Popjrun {
 		if (classPath.isEmpty()) {
 			classPath = createClassPath("");
 		}
-		
-		if(broker){
-		    arguments.add(0, objectMap);
-		}else{
-		    arguments.add(0, "-codeconf=" + objectMap);
+
+		if (broker) {
+			arguments.add(0, objectMap);
+		} else {
+			arguments.add(0, "-codeconf=" + objectMap);
 		}
 		arguments.add(0, main);
-		
-		if(broker){
-		    arguments.add(0, Broker.class.getName());
+
+		if (broker) {
+			arguments.add(0, Broker.class.getName());
 		}
-		
+
 		arguments.add(0, classPath);
 		arguments.add(0, "-cp");
 		Configuration conf = Configuration.getInstance();
 		if (conf.isActivateJmx()) {
 			arguments.add(0, "-Dcom.sun.management.jmxremote.port=3333");
 			arguments.add(0, "-Dcom.sun.management.jmxremote.ssl=false");
-			arguments.add(0,
-					"-Dcom.sun.management.jmxremote.authenticate=false");
+			arguments.add(0, "-Dcom.sun.management.jmxremote.authenticate=false");
 		}
 
-        arguments.add(0, "-javaagent:" + getPopJavaLocation() + JAR_POPJAVA);
-        
+		arguments.add(0, "-javaagent:" + getPopJavaLocation() + JAR_POPJAVA);
+
 		arguments.add(0, java);
 
 		runPopApplication(arguments);
@@ -225,9 +225,9 @@ public class Popjrun {
 
 	private static void listLong(String files) {
 		String[] command = new String[2];
-	    command[0] = "-cwd=" + System.getProperty("user.dir");
+		command[0] = "-cwd=" + System.getProperty("user.dir");
 		command[1] = "-file=" + files;
-		
+
 		POPJObjectMap.main(command);
 	}
 
@@ -244,8 +244,7 @@ public class Popjrun {
 			BufferedReader out = new BufferedReader(new InputStreamReader(in));
 			String line;
 			try {
-				while (!Thread.currentThread().isInterrupted()
-						&& (line = out.readLine()) != null) {
+				while (!Thread.currentThread().isInterrupted() && (line = out.readLine()) != null) {
 					System.out.println(line);
 				}
 				out.close();

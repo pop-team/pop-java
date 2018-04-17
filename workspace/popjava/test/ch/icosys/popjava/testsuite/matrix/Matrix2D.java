@@ -7,64 +7,61 @@ import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class Matrix2D implements IPOPBase {
 	protected int nbLine, nbCol, dataSize;
+
 	protected float[] value;
-	
-	public Matrix2D(){
-		nbLine=0;
-		nbCol=0;
-		dataSize=0;
+
+	public Matrix2D() {
+		nbLine = 0;
+		nbCol = 0;
+		dataSize = 0;
 		value = null;
 	}
-	
-	public Matrix2D(int line, int col){
+
+	public Matrix2D(int line, int col) {
 		nbLine = line;
 		nbCol = col;
-		dataSize = nbLine*nbCol;
+		dataSize = nbLine * nbCol;
 		value = new float[dataSize];
 	}
-	
-	public void init(){
+
+	public void init() {
 		Random r = new Random();
-		if(nbLine!=0 && nbCol!=0){
+		if (nbLine != 0 && nbCol != 0) {
 			for (int i = 0; i < value.length; i++) {
-				value[i] = r.nextFloat()*10000;
+				value[i] = r.nextFloat() * 10000;
 			}
 		}
 	}
-	
-	public void fill(float v){
-		if(nbLine!=0 && nbCol!=0){
+
+	public void fill(float v) {
+		if (nbLine != 0 && nbCol != 0) {
 			for (int i = 0; i < value.length; i++) {
 				value[i] = v;
 			}
 		}
 	}
-	
-	public void zero(){
-		if(nbLine!=0 && nbCol!=0){
+
+	public void zero() {
+		if (nbLine != 0 && nbCol != 0) {
 			for (int i = 0; i < value.length; i++) {
 				value[i] = 0;
 			}
 		}
 	}
-	
-	
-	public float get(int line, int col){
+
+	public float get(int line, int col) {
 		int pos = line * nbCol + col;
 		return value[pos];
 	}
-	
-	public int getLines(){
+
+	public int getLines() {
 		return nbLine;
 	}
-	
-	public int getCols(){
+
+	public int getCols() {
 		return nbCol;
 	}
-	
-	
-	
-	
+
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
 		nbCol = buffer.getInt();

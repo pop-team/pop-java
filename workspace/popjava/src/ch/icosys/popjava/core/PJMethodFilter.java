@@ -31,7 +31,7 @@ public class PJMethodFilter implements MethodFilter {
 		Class<?> c = POPObject.class;
 		Method[] methods = c.getDeclaredMethods();
 		for (Method m : methods) {
-			if (!notFilterMethodList.contains(m.getName()) && !MethodUtil.isMethodPOPAnnotated(m)) {				
+			if (!notFilterMethodList.contains(m.getName()) && !MethodUtil.isMethodPOPAnnotated(m)) {
 				filterMethodList.add(m.getName());
 			}
 		}
@@ -45,7 +45,9 @@ public class PJMethodFilter implements MethodFilter {
 
 	/**
 	 * Check if a method is handled by the method handler
-	 * @param m	The method to check
+	 * 
+	 * @param m
+	 *            The method to check
 	 * @return true if the method is handled
 	 */
 	public boolean isHandled(Method m) {

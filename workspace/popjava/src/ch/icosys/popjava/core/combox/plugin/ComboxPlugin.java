@@ -54,7 +54,7 @@ public class ComboxPlugin extends Combox<Object> {
 
 	@Override
 	protected void closeInternal() {
-		
+
 	}
 
 }

@@ -5,14 +5,14 @@ import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class TestObject extends POPObject{
+public class TestObject extends POPObject {
 
-	public TestObject(){
+	public TestObject() {
 	}
-	
+
 	@POPSyncConc
-	public int getValue(){
+	public int getValue() {
 		return 1234;
 	}
-	
+
 }

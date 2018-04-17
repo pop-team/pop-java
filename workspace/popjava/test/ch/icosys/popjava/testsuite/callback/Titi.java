@@ -6,21 +6,21 @@ import ch.icosys.popjava.core.annotation.POPSyncSeq;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass(classId = 1034)
-public class Titi extends POPObject{
+public class Titi extends POPObject {
 	private int identity;
-	
+
 	@POPObjectDescription(url = "localhost")
-	public Titi(){
+	public Titi() {
 		identity = -1;
 	}
-	
+
 	@POPSyncSeq
-	public void setIdent(int i){
+	public void setIdent(int i) {
 		identity = i;
 	}
-	
+
 	@POPSyncSeq
-	public void computeIdent(Toto t){
+	public void computeIdent(Toto t) {
 		t.setIdent(identity);
 	}
 }

@@ -1,8 +1,12 @@
 package ch.icosys.popjava.core.dataswaper;
 
 import ch.icosys.popjava.core.buffer.POPBuffer;
+
 /**
- * Primitive settable double for POPJava, needed for {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in methods 
+ * Primitive settable double for POPJava, needed for
+ * {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in
+ * methods
+ * 
  * @author Davide Mazzoleni
  */
 public class POPMutableDouble implements IPOPBase {
@@ -20,24 +24,28 @@ public class POPMutableDouble implements IPOPBase {
 
 	/**
 	 * Constructor with given value
-	 * @param value	double value to be stored in this object
+	 * 
+	 * @param value
+	 *            double value to be stored in this object
 	 */
 	public POPMutableDouble(double value) {
 		this.value = value;
 	}
-	
+
 	/**
 	 * Set the double value of this object
-	 * @param value	new double value
+	 * 
+	 * @param value
+	 *            new double value
 	 */
-	public void setValue(double value)
-	{
-		this.value=value;
+	public void setValue(double value) {
+		this.value = value;
 	}
 
 	/**
 	 * Get the current value of this object
-	 * @return	current double value
+	 * 
+	 * @return current double value
 	 */
 	public double getValue() {
 		return value;
@@ -60,9 +68,9 @@ public class POPMutableDouble implements IPOPBase {
 		value = buffer.getDouble();
 		return false;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return String.valueOf(value);
 	}
 }

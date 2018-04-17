@@ -21,9 +21,13 @@ import ch.icosys.popjava.core.util.Util;
 public abstract class POPNodeAJobManager extends POPNode {
 
 	protected POPAccessPoint jobManagerAccessPoint;
+
 	protected POPJavaJobManager jm;
+
 	protected int port;
+
 	protected String protocol;
+
 	protected boolean initialized = true;
 
 	public POPNodeAJobManager(POPNetworkDescriptor descriptor, String host, int port, String protocol) {
@@ -31,18 +35,18 @@ public abstract class POPNodeAJobManager extends POPNode {
 		this.host = host;
 		this.port = port;
 		this.protocol = protocol;
-		
+
 		init();
 	}
-	
+
 	public POPNodeAJobManager(POPNetworkDescriptor descriptor, List<String> params) {
 		super(descriptor);
-		
+
 		// get potential params
 		host = Util.removeStringFromList(params, "host=");
 		String portString = Util.removeStringFromList(params, "port=");
-		protocol= Util.removeStringFromList(params, "protocol=");
-		
+		protocol = Util.removeStringFromList(params, "protocol=");
+
 		// stop if we have no host
 		if (host == null) {
 			initialized = false;
@@ -53,7 +57,7 @@ public abstract class POPNodeAJobManager extends POPNode {
 		if (protocol == null) {
 			protocol = conf.getDefaultProtocol();
 		}
-		
+
 		// some sane defaults
 		port = conf.getJobManagerPorts()[0];
 		if (portString != null) {
@@ -64,10 +68,10 @@ public abstract class POPNodeAJobManager extends POPNode {
 				initialized = false;
 			}
 		}
-		
+
 		init();
 	}
-	
+
 	private void init() {
 		// set access point
 		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
@@ -79,8 +83,8 @@ public abstract class POPNodeAJobManager extends POPNode {
 		paramsSet.add("protocol=" + protocol);
 		creationParams = paramsSet.toArray(new String[paramsSet.size()]);
 	}
-	
-    public final POPAccessPoint getJobManagerAccessPoint() {
+
+	public final POPAccessPoint getJobManagerAccessPoint() {
 		return jobManagerAccessPoint;
 	}
 
@@ -89,11 +93,11 @@ public abstract class POPNodeAJobManager extends POPNode {
 	}
 
 	public final POPJavaJobManager getJobManager(POPJavaJobManager localJM, String networkUUID) {
-		
-		if(localJM != null) {
+
+		if (localJM != null) {
 			return localJM.connectToJobmanager(getJobManagerAccessPoint(), networkUUID);
 		}
-		
+
 		// create connection if it doesn't exists
 		if (jm == null) {
 			jm = PopJava.connect(localJM, POPJavaJobManager.class, networkUUID, getJobManagerAccessPoint());
@@ -145,9 +149,10 @@ public abstract class POPNodeAJobManager extends POPNode {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
-		return String.format("host=%s port=%s connector=%s protocol=%s", host, port, descriptor.getGlobalName(), protocol);
+		return String.format("host=%s port=%s connector=%s protocol=%s", host, port, descriptor.getGlobalName(),
+				protocol);
 	}
 }

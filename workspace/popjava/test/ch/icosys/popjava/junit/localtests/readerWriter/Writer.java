@@ -7,25 +7,25 @@ import ch.icosys.popjava.core.annotation.POPConfig.Type;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class Writer extends POPObject{
+public class Writer extends POPObject {
 	private int value;
-	
-	public Writer(){
-		
+
+	public Writer() {
+
 	}
-	
-	public Writer(@POPConfig(Type.URL) String ip){
-		
+
+	public Writer(@POPConfig(Type.URL) String ip) {
+
 	}
-	
+
 	@POPSyncMutex
-	public void write(){
+	public void write() {
 		value++;
 	}
-	
+
 	@POPSyncMutex
-	public int getWritten(){
+	public int getWritten() {
 		return value;
 	}
-	
+
 }

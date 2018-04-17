@@ -18,50 +18,51 @@ import ch.icosys.popjava.core.base.POPObject;
 @POPClass
 public class A extends POPObject {
 
-    @POPObjectDescription(url = "localhost", tracking = true)
-    public A() {}
-
-    @POPSyncSeq
-    public void seq() {
-	job();
-    }
-
-    @POPSyncConc
-    public void conc() {
-	job();
-    }
-
-    @POPAsyncSeq
-    public void aseq() {
-	job();
-    }
-
-    @POPAsyncConc
-    public void aconc() {
-	job();
-    }
-
-    @POPSyncMutex
-    public void sync() {
-
-    }
-
-    @POPSyncSeq
-    public byte[] sendByteArrayIN(@POPParameter(Direction.IN) byte[] ba) {
-	return ba;
-    }
-
-    @POPSyncSeq
-    public byte[] sendByteArrayINOUT(/*@POPParameter(Direction.INOUT)*/ byte[] ba) {
-	return ba;
-    }
-
-    private double job() {
-	double sum = 0;
-	for (int n = 0; n < 1_000_000; n++) {
-	    sum = Math.sqrt(n);
+	@POPObjectDescription(url = "localhost", tracking = true)
+	public A() {
 	}
-	return sum;
-    }
-    
+
+	@POPSyncSeq
+	public void seq() {
+		job();
+	}
+
+	@POPSyncConc
+	public void conc() {
+		job();
+	}
+
+	@POPAsyncSeq
+	public void aseq() {
+		job();
+	}
+
+	@POPAsyncConc
+	public void aconc() {
+		job();
+	}
+
+	@POPSyncMutex
+	public void sync() {
+
+	}
+
+	@POPSyncSeq
+	public byte[] sendByteArrayIN(@POPParameter(Direction.IN) byte[] ba) {
+		return ba;
+	}
+
+	@POPSyncSeq
+	public byte[] sendByteArrayINOUT(/* @POPParameter(Direction.INOUT) */ byte[] ba) {
+		return ba;
+	}
+
+	private double job() {
+		double sum = 0;
+		for (int n = 0; n < 1_000_000; n++) {
+			sum = Math.sqrt(n);
+		}
+		return sum;
+	}
+
 }

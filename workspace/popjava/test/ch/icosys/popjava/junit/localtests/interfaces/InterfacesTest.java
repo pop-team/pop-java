@@ -12,32 +12,32 @@ import ch.icosys.popjava.core.system.POPSystem;
 public class InterfacesTest {
 
 	@Before
-	public void before(){
+	public void before() {
 		POPSystem.initialize();
 	}
-	
+
 	@After
-	public void after(){
+	public void after() {
 		POPSystem.end();
 	}
-	
+
 	@Test
-	public void testInheritance(){
+	public void testInheritance() {
 
 		RemoteInterface local = PopJava.newActive(this, RemoteObject.class);
-		
+
 		GenericObject test = local.getObject();
-		
+
 		assertEquals(test.test(), 1234);
 	}
-	
+
 	@Test
-	public void testInheritance2(){
+	public void testInheritance2() {
 		RemoteInterface local = PopJava.newActive(this, RemoteObject.class, "localhost");
-		
+
 		GenericObject test = local.getObject2();
-		
+
 		assertEquals(test.test(), 1234);
 	}
-	
+
 }

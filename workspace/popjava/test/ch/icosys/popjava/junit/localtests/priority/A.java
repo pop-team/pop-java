@@ -6,5 +6,6 @@ package ch.icosys.popjava.junit.localtests.priority;
  */
 public interface A {
 	void a();
+
 	void b();
 }

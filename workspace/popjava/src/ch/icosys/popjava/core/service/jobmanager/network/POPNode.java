@@ -12,10 +12,11 @@ import java.util.Map;
 public abstract class POPNode {
 
 	protected String host;
+
 	protected String[] creationParams;
-	
+
 	protected final POPNetworkDescriptor descriptor;
-	
+
 	protected boolean temporary = false;
 
 	public POPNode(POPNetworkDescriptor descriptor) {
@@ -52,7 +53,8 @@ public abstract class POPNode {
 	/**
 	 * Mark node as temporary
 	 * 
-	 * @param temporary set the node as temporary
+	 * @param temporary
+	 *            set the node as temporary
 	 */
 	public void setTemporary(boolean temporary) {
 		this.temporary = temporary;
@@ -67,7 +69,8 @@ public abstract class POPNode {
 	public abstract String toString();
 
 	/**
-	 * The necessary parameters to create this node via {@link POPNetworkDescriptor#createNode }
+	 * The necessary parameters to create this node via
+	 * {@link POPNetworkDescriptor#createNode }
 	 *
 	 * @return an array with all the parameters for creation of the node
 	 */
@@ -77,13 +80,13 @@ public abstract class POPNode {
 
 	public Map<String, Object> toYamlResource() {
 		Map<String, Object> mapParams = new HashMap<>();
-		
+
 		for (String param : creationParams) {
 			String key = param.substring(0, param.indexOf("="));
 			String value = param.substring(param.indexOf("=") + 1);
 			mapParams.put(key, value);
 		}
-		
+
 		return mapParams;
 	}
 }

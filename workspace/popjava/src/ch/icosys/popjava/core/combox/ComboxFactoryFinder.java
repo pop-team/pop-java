@@ -37,12 +37,17 @@ import ch.icosys.popjava.core.util.LogWriter;
 
 public class ComboxFactoryFinder {
 	private final Map<String, ComboxFactory> comboxFactoryList = new HashMap<>();
+
 	private URLClassLoader urlClassLoader = null;
+
 	private static ComboxFactoryFinder currentInstance = null;
+
 	private final String PackageNodeName = "Package";
+
 	private final String JarAttributeName = "JarFile";
+
 	private final String ComboxFactoryNodeName = "ComboxFactory";
-	
+
 	private final Configuration conf = Configuration.getInstance();
 
 	/**
@@ -52,10 +57,10 @@ public class ComboxFactoryFinder {
 		// Load default combox factory
 		ComboxSocketFactory comboxSocketFactory = new ComboxSocketFactory();
 		ComboxSecureSocketFactory comboxSecureSocketFactory = new ComboxSecureSocketFactory();
-		
+
 		comboxFactoryList.put(comboxSocketFactory.getComboxName(), comboxSocketFactory);
 		comboxFactoryList.put(comboxSecureSocketFactory.getComboxName(), comboxSecureSocketFactory);
-		
+
 		String pluginLocation = POPJavaConfiguration.getPopPluginLocation();
 		if (pluginLocation.length() > 0) {
 			loadComboxMap(pluginLocation);
@@ -64,7 +69,8 @@ public class ComboxFactoryFinder {
 
 	/**
 	 * Get the unique instance of the factory finder
-	 * @return	The unique ComboxFactoryFinder instance
+	 * 
+	 * @return The unique ComboxFactoryFinder instance
 	 */
 	public static ComboxFactoryFinder getInstance() {
 		if (currentInstance == null)
@@ -74,17 +80,17 @@ public class ComboxFactoryFinder {
 
 	/**
 	 * Load all the combox in the pop_combox.xml file
-	 * @param pluginLocation	Location of the plugin file
+	 * 
+	 * @param pluginLocation
+	 *            Location of the plugin file
 	 */
 	public void loadComboxMap(String pluginLocation) {
 		DocumentBuilder builder;
-		String comboxMapLocation = pluginLocation
-				+ File.separator + "pop_combox.xml";
-		String schemaLocation = pluginLocation
-		+ File.separator + "pop_combox.xsd";
-		
+		String comboxMapLocation = pluginLocation + File.separator + "pop_combox.xml";
+		String schemaLocation = pluginLocation + File.separator + "pop_combox.xsd";
+
 		XMLWorker xw = new XMLWorker();
-		if(!xw.isValid(comboxMapLocation, schemaLocation)){
+		if (!xw.isValid(comboxMapLocation, schemaLocation)) {
 			LogWriter.printDebug("The combox plugin map is not valid");
 			return;
 		}
@@ -99,8 +105,7 @@ public class ComboxFactoryFinder {
 				// node: a <Package> node
 				Node node = list.item(index);
 				// Handle <Package> node only
-				if (node.getNodeType() == Node.ELEMENT_NODE
-						&& node.getNodeName().equals(PackageNodeName)) {
+				if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(PackageNodeName)) {
 					Element packageElement = (Element) node;
 					// Get "package" attribute
 					String jarFileName = packageElement.getAttribute(JarAttributeName);
@@ -131,29 +136,34 @@ public class ComboxFactoryFinder {
 		} catch (ParserConfigurationException | IOException | SAXException e) {
 			e.printStackTrace();
 		}
-    }
+	}
 
 	/**
 	 * Find a specific factory with the given name
-	 * @param factoryName	Name of the factory
-	 * @return	The combox factory or null if not found, if empty or null the default protocol factory
+	 * 
+	 * @param factoryName
+	 *            Name of the factory
+	 * @return The combox factory or null if not found, if empty or null the default
+	 *         protocol factory
 	 */
 	public ComboxFactory findFactory(String factoryName) {
 		if (factoryName == null || factoryName.isEmpty()) {
 			factoryName = conf.getDefaultProtocol();
 		}
 		factoryName = factoryName.toLowerCase();
-		
+
 		ComboxFactory factory = comboxFactoryList.get(factoryName);
 		if (factory != null && factory.isAvailable()) {
 			return factory;
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Check if a factory protocol is secure or not.
-	 * @param factoryName The name of the factory
+	 * 
+	 * @param factoryName
+	 *            The name of the factory
 	 * @return true if secure, false if not found or not secure
 	 */
 	public boolean isFactorySecure(String factoryName) {
@@ -161,22 +171,24 @@ public class ComboxFactoryFinder {
 			return false;
 		}
 		factoryName = factoryName.toLowerCase();
-		
+
 		ComboxFactory factory = comboxFactoryList.get(factoryName);
-		
+
 		return factory != null && factory.isSecure();
 	}
 
 	/**
 	 * Get the number of factory
+	 * 
 	 * @return Number of factory
 	 */
 	public int getFactoryCount() {
 		return comboxFactoryList.size();
 	}
-	
+
 	/**
 	 * Get all available factories at a given instant
+	 * 
 	 * @return An array containing all available factories
 	 */
 	public ComboxFactory[] getAvailableFactories() {
@@ -191,8 +203,10 @@ public class ComboxFactoryFinder {
 
 	/**
 	 * Get the factory at the specified index
-	 * @param index	Index of the factory
-	 * @return	The factory at the specified index or null if out of bound index
+	 * 
+	 * @param index
+	 *            Index of the factory
+	 * @return The factory at the specified index or null if out of bound index
 	 */
 	public ComboxFactory get(int index) {
 		if (index < 0 || index >= getFactoryCount())
@@ -208,9 +222,12 @@ public class ComboxFactoryFinder {
 
 	/**
 	 * Load a specific combox plug-in
-	 * @param comboxFactoryName	Name of the combox plug-in
-	 * @param urlClassLoader	URL of the combox plug-in
-	 * @return	The combox factory loaded or null if the plug-in is not found
+	 * 
+	 * @param comboxFactoryName
+	 *            Name of the combox plug-in
+	 * @param urlClassLoader
+	 *            URL of the combox plug-in
+	 * @return The combox factory loaded or null if the plug-in is not found
 	 */
 	private ComboxFactory loadPlugin(String comboxFactoryName, URLClassLoader urlClassLoader) {
 		comboxFactoryName = comboxFactoryName.trim();
@@ -222,12 +239,11 @@ public class ComboxFactoryFinder {
 			Constructor<?> constructor = comboxClass.getConstructor();
 			comboxFactory = (ComboxFactory) constructor.newInstance();
 			if (!comboxFactoryList.containsKey(comboxFactory.getComboxName())) {
-				comboxFactoryList.put(comboxFactory.getComboxName(),
-						comboxFactory);
+				comboxFactoryList.put(comboxFactory.getComboxName(), comboxFactory);
 			}
-			
-		} catch (ClassNotFoundException | IllegalArgumentException | InstantiationException 
-			| IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
+
+		} catch (ClassNotFoundException | IllegalArgumentException | InstantiationException | IllegalAccessException
+				| InvocationTargetException | SecurityException | NoSuchMethodException e) {
 			LogWriter.writeExceptionLog(e);
 		}
 

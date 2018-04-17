@@ -28,20 +28,19 @@ public class CDebug implements ICommand {
 		} catch (IOException ex) {
 			System.out.println("Couldn't save global debug option.");
 		}
-		
+
 		System.out.println("Debug set to " + set);
 		return 0;
 	}
 
 	@Override
 	public String help() {
-		return "usage: debug\n" +
-			description();
+		return "usage: debug\n" + description();
 	}
 
 	@Override
 	public String description() {
 		return "toggle system debug option";
 	}
-	
+
 }

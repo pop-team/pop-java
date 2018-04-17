@@ -77,11 +77,15 @@ public class SNNodesInfo implements IPOPBase {
 	public static class Node implements IPOPBase {
 
 		private String nodeID;
+
 		private POPAccessPoint jobManager;
+
 		private String os;
+
 		private Resource resources;
-		private final Map<String,String> customParams = new HashMap<>();
-		
+
+		private final Map<String, String> customParams = new HashMap<>();
+
 		private byte[] certificate = new byte[0];
 
 		public Node() {
@@ -125,7 +129,7 @@ public class SNNodesInfo implements IPOPBase {
 		public void setResources(Resource resources) {
 			this.resources = resources;
 		}
-	
+
 		public void setValue(String key, String value) {
 			customParams.put(key, value);
 		}

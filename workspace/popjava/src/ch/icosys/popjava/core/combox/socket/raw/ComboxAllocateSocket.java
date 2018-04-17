@@ -10,20 +10,22 @@ import ch.icosys.popjava.core.util.Configuration;
 import ch.icosys.popjava.core.util.LogWriter;
 
 /**
- * This class is responsible to send an receive message on the server combox socket
+ * This class is responsible to send an receive message on the server combox
+ * socket
  */
 public class ComboxAllocateSocket extends ComboxAllocate<ComboxRawSocket> {
-	
+
 	protected ServerSocket serverSocket = null;
-	
+
 	/**
 	 * Create a new instance of the ComboxAllocateSocket
 	 */
-	public ComboxAllocateSocket(boolean enableUPNP) {		
+	public ComboxAllocateSocket(boolean enableUPNP) {
 		try {
-			serverSocket = ComboxUtils.createServerSocket(0, ss->ss.setSoTimeout(Configuration.getInstance().getConnectionTimeout()), enableUPNP);
+			serverSocket = ComboxUtils.createServerSocket(0,
+					ss -> ss.setSoTimeout(Configuration.getInstance().getConnectionTimeout()), enableUPNP);
 		} catch (IOException e) {
-		    LogWriter.writeExceptionLog(e);
+			LogWriter.writeExceptionLog(e);
 		}
 	}
 
@@ -43,12 +45,13 @@ public class ComboxAllocateSocket extends ComboxAllocate<ComboxRawSocket> {
 
 	/**
 	 * Get URL of this socket
-	 * @return	The URL as a string value
+	 * 
+	 * @return The URL as a string value
 	 */
 	@Override
 	public String getUrl() {
-		return String.format("%s://%s:%d", ComboxSocketFactory.PROTOCOL,
-				serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
+		return String.format("%s://%s:%d", ComboxSocketFactory.PROTOCOL, serverSocket.getInetAddress().getHostAddress(),
+				serverSocket.getLocalPort());
 	}
 
 	/**

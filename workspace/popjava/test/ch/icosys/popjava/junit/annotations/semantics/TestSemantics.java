@@ -9,12 +9,12 @@ import ch.icosys.popjava.core.base.Semantic;
 public class TestSemantics {
 
 	@Test
-	public void testSemantics() throws NoSuchMethodException, SecurityException{
+	public void testSemantics() throws NoSuchMethodException, SecurityException {
 		SemanticObject obj = new SemanticObject();
 		obj.loadPOPAnnotations(obj.getClass().getConstructor());
-		
-		assertEquals(Semantic.SYNCHRONOUS | Semantic.CONCURRENT, 
+
+		assertEquals(Semantic.SYNCHRONOUS | Semantic.CONCURRENT,
 				obj.getSemantic(SemanticObject.class.getMethod("testSyncConc")));
 	}
-	
+
 }

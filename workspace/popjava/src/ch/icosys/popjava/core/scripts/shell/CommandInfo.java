@@ -11,12 +11,12 @@ import java.util.Scanner;
  * @author Davide Mazzoleni
  */
 public class CommandInfo {
-	
+
 	/**
 	 * The first keyword
 	 */
 	private final String keyword;
-	
+
 	/**
 	 * All the other
 	 */
@@ -25,63 +25,67 @@ public class CommandInfo {
 	/**
 	 * Transform a line into its components
 	 * 
-	 * @param line the line to read
+	 * @param line
+	 *            the line to read
 	 */
 	public CommandInfo(String line) {
 		Scanner s = new Scanner(line);
-		
+
 		this.keyword = s.next();
-		
+
 		List<String> args = new ArrayList<>();
 		String arg = "";
 		char quote = '\0';
 		while (s.hasNext()) {
 			arg += s.next();
-			
+
 			char start = arg.charAt(0);
 			char end = arg.charAt(arg.length() - 1);
 			if (start == '"' || start == '\'') {
 				quote = start;
 				arg = arg.substring(1);
-			}
-			else if (end == quote) {
+			} else if (end == quote) {
 				arg = arg.substring(0, arg.length() - 1);
 				args.add(arg);
 				arg = "";
-			}
-			else {
+			} else {
 				args.add(arg);
 				arg = "";
 			}
 		}
-		
+
 		this.params = args.toArray(new String[arg.length()]);
+
+		s.close();
 	}
-	
+
 	/**
 	 * Internal constructor for {@link #advance() }
 	 * 
-	 * @param keyword the command keyword
-	 * @param params the rest of the command
+	 * @param keyword
+	 *            the command keyword
+	 * @param params
+	 *            the rest of the command
 	 */
 	private CommandInfo(String keyword, String... params) {
 		this.keyword = keyword;
 		this.params = params;
 	}
-	
+
 	/**
 	 * Extract the parameters from the remaining arguments.
 	 * 
-	 * @param expected a series of parameters we can extract later
+	 * @param expected
+	 *            a series of parameters we can extract later
 	 * @return the object where we can extract the parameters
 	 */
 	public Parameter extractParameter(ParameterInfo... expected) {
 		return new Parameter(params, expected);
 	}
-	
+
 	/**
-	 * Replace the keyword with the first parameter in {@link #params}.
-	 * Before calling this method, check if you can with {@link #canAdvance() }.
+	 * Replace the keyword with the first parameter in {@link #params}. Before
+	 * calling this method, check if you can with {@link #canAdvance() }.
 	 * 
 	 * @return a new CommandInfo or null in can it can't advance anymore.
 	 */
@@ -91,7 +95,7 @@ public class CommandInfo {
 		}
 		return new CommandInfo(params[0], Arrays.copyOfRange(params, 1, params.length));
 	}
-	
+
 	/**
 	 * Report if we can advance the command one (1) step.
 	 * 
@@ -100,7 +104,7 @@ public class CommandInfo {
 	public boolean canAdvance() {
 		return params.length > 0;
 	}
-	
+
 	/**
 	 * Does the command ask to call for help?
 	 * 

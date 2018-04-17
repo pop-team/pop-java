@@ -4,54 +4,37 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Describe the whole Job Manager in the YAML configuration file.
- * A configuration file may look something like this.
- * Notice how YAML file are indentation sensitive.
+ * Describe the whole Job Manager in the YAML configuration file. A
+ * configuration file may look something like this. Notice how YAML file are
+ * indentation sensitive.
  * 
  * ```yaml
  * 
- * machineResources:
- *   flops: 1000.0
- *   memory: 8000.0
- *   bandwidth: 100.0
- *   
- * jobResources:
- *   flops: 200.0
- *   memory: 500.0
- *   bandwidth: 10.0
- *   
- * jobLimit: 100
- * defaultNetwork: 6ff6b4d0-97bb-468d-99c5-2a4d042471e2
+ * machineResources: flops: 1000.0 memory: 8000.0 bandwidth: 100.0
  * 
- * networks:
- *   - uuid: 6ff6b4d0-97bb-468d-99c5-2a4d042471e2
- *     friendlyName: second net friendly name
- *     connectors: 
- *     - type: jobmanager
- *       nodes:
- *       - host: localhost
- *         port: 2713
- *         protocol: socket
+ * jobResources: flops: 200.0 memory: 500.0 bandwidth: 10.0
  * 
- *     - type: tfc
- *       nodes:
- *       - host: localhost
- *         port: 2713
- *         protocol: ssl
+ * jobLimit: 100 defaultNetwork: 6ff6b4d0-97bb-468d-99c5-2a4d042471e2
  * 
- *       - host: localhost
- *         port: 2712
- *         protocol: ssl
- *   
- *   - uuid: ff3789de-4471-4f14-8b04-cfdcf668e31c
- *     friendlyName: my second network
+ * networks: - uuid: 6ff6b4d0-97bb-468d-99c5-2a4d042471e2 friendlyName: second
+ * net friendly name connectors: - type: jobmanager nodes: - host: localhost
+ * port: 2713 protocol: socket
+ * 
+ * - type: tfc nodes: - host: localhost port: 2713 protocol: ssl
+ * 
+ * - host: localhost port: 2712 protocol: ssl
+ * 
+ * - uuid: ff3789de-4471-4f14-8b04-cfdcf668e31c friendlyName: my second network
  * ```
+ * 
  * @author Davide Mazzoleni
  */
 public class YamlJobManager {
 
 	private YamlResource machineResources;
+
 	private YamlResource jobResources;
+
 	private int jobLimit;
 
 	private String defaultNetwork;
@@ -71,14 +54,16 @@ public class YamlJobManager {
 	/**
 	 * The maximum amount of resources that the Job Manager can allocate.
 	 * 
-	 * @param machineResources the resources available globally
+	 * @param machineResources
+	 *            the resources available globally
 	 */
 	public void setMachineResources(YamlResource machineResources) {
 		this.machineResources = machineResources;
 	}
 
 	/**
-	 * The maximum amount of resources that the Job Manager can allocate for a single object.
+	 * The maximum amount of resources that the Job Manager can allocate for a
+	 * single object.
 	 * 
 	 * @return the resources available for a single job
 	 */
@@ -87,9 +72,11 @@ public class YamlJobManager {
 	}
 
 	/**
-	 * The maximum amount of resources that the Job Manager can allocate for a single object.
+	 * The maximum amount of resources that the Job Manager can allocate for a
+	 * single object.
 	 * 
-	 * @param jobResources the resources available for a single job
+	 * @param jobResources
+	 *            the resources available for a single job
 	 */
 	public void setJobResources(YamlResource jobResources) {
 		this.jobResources = jobResources;
@@ -107,7 +94,8 @@ public class YamlJobManager {
 	/**
 	 * How many object can the Job Manager manage at the same time.
 	 * 
-	 * @param jobLimit the maximum number of jobs
+	 * @param jobLimit
+	 *            the maximum number of jobs
 	 */
 	public void setJobLimit(int jobLimit) {
 		this.jobLimit = jobLimit;
@@ -125,7 +113,8 @@ public class YamlJobManager {
 	/**
 	 * Which network is used if none was specified.
 	 * 
-	 * @param defaultNetwork the default network
+	 * @param defaultNetwork
+	 *            the default network
 	 */
 	public void setDefaultNetwork(String defaultNetwork) {
 		this.defaultNetwork = defaultNetwork;
@@ -143,7 +132,8 @@ public class YamlJobManager {
 	/**
 	 * All the networks in the Job Manager.
 	 * 
-	 * @param networks the networks in the job manager
+	 * @param networks
+	 *            the networks in the job manager
 	 */
 	public void setNetworks(List<YamlNetwork> networks) {
 		this.networks = networks;

@@ -11,54 +11,65 @@ import ch.icosys.popjava.core.annotation.POPParameter.Direction;
 import ch.icosys.popjava.core.baseobject.ObjectDescription;
 import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 import ch.icosys.popjava.core.dataswaper.POPString;
+
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
- * This class declares the necessary methods to use the JobMgr parallel object of POP-C++
+ * This class declares the necessary methods to use the JobMgr parallel object
+ * of POP-C++
  */
 @POPClass(classId = 15, className = "JobMgr", deconstructor = true)
 public class POPJobManager extends POPJobService {
 
 	/**
-	 * Default constructor of POPJobManager.
-	 * Create a POP-C++ object JobMgr
+	 * Default constructor of POPJobManager. Create a POP-C++ object JobMgr
 	 */
 	@POPObjectDescription(id = 10)
 	public POPJobManager() {
 		Class<?> c = POPJobManager.class;
-		defineConstructor(c,10);
-		defineConstructor(c,11,String.class,String.class);
-		//defineConstructor(c,12,String.class,String.class,String.class);
+		defineConstructor(c, 10);
+		defineConstructor(c, 11, String.class, String.class);
+		// defineConstructor(c,12,String.class,String.class,String.class);
 
 	}
 
 	/**
 	 * Constructor of POPJobManager with challenge string
-	 * @param daemon	Set the service in deamon mode
-	 * @param challenge	Challenge string needed for the service stop
-	 * @param url		URL of the JobMgr service
+	 * 
+	 * @param daemon
+	 *            Set the service in deamon mode
+	 * @param challenge
+	 *            Challenge string needed for the service stop
+	 * @param url
+	 *            URL of the JobMgr service
 	 */
 	@POPObjectDescription(id = 11)
 	public POPJobManager(boolean daemon, String challenge, String url) {
 
 	}
-	
+
 	/**
 	 * Constructor of POPCodeManager with challenge string
-	 * @param daemon	Set the service in deamon mode
-	 * @param config	Configuration information
-	 * @param challenge	Challenge string needed for the service stop	
-	 * @param url		URL of the JobMgr service
+	 * 
+	 * @param daemon
+	 *            Set the service in deamon mode
+	 * @param config
+	 *            Configuration information
+	 * @param challenge
+	 *            Challenge string needed for the service stop
+	 * @param url
+	 *            URL of the JobMgr service
 	 */
 
 	@POPObjectDescription(id = 12)
-	public POPJobManager(boolean daemon, String config, String challenge,
-			String url) {
+	public POPJobManager(boolean daemon, String config, String challenge, String url) {
 
 	}
 
 	/**
 	 * Register a other JobMgr as a neighbor
-	 * @param url	URL of the node to register
+	 * 
+	 * @param url
+	 *            URL of the node to register
 	 */
 	@POPAsyncConc(id = 13)
 	public void registerNode(String url) {
@@ -67,8 +78,11 @@ public class POPJobManager extends POPJobService {
 
 	/**
 	 * Query configuration informations
-	 * @param type	Name of the configuration element
-	 * @param value	Output argument - Value of the configuration element
+	 * 
+	 * @param type
+	 *            Name of the configuration element
+	 * @param value
+	 *            Output argument - Value of the configuration element
 	 * @return 0 if the configuration element is not found
 	 */
 	@POPSyncSeq(id = 14)
@@ -78,47 +92,70 @@ public class POPJobManager extends POPJobService {
 
 	/**
 	 * Ask the JobMgr service to create a new parallel object
-	 * @param localservice	Access to the local application scope services
-	 * @param objname		Name of the object to create
-	 * @param od			Object description for the resource requirements of this object
-	 * @param howmany		Number of objects to create
-	 * @param objcontacts	Output arguments - contacts to the objects created
-	 * @param howmany2		??
-	 * @param remotejobcontacts	??
+	 * 
+	 * @param localservice
+	 *            Access to the local application scope services
+	 * @param objname
+	 *            Name of the object to create
+	 * @param od
+	 *            Object description for the resource requirements of this object
+	 * @param howmany
+	 *            Number of objects to create
+	 * @param objcontacts
+	 *            Output arguments - contacts to the objects created
+	 * @param howmany2
+	 *            ??
+	 * @param remotejobcontacts
+	 *            ??
 	 * @return 0 if the object is created correctly
 	 */
 	@POPSyncConc(id = 12)
 	public int createObject(POPAccessPoint localservice, POPString objname,
-			@POPParameter(Direction.IN) ObjectDescription od, int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
+			@POPParameter(Direction.IN) ObjectDescription od, int howmany, POPAccessPoint[] objcontacts, int howmany2,
+			POPAccessPoint[] remotejobcontacts) {
 		return 0;
 	}
 
 	/**
 	 * Ask the JobMgr service to allocate resources for a new objects
-	 * @param localservice	Access to the local application scope services
-	 * @param objname		Name of the object to create
-	 * @param od			Object description for the resource requirements of this object
-	 * @param howmany		Number of objects to create
-	 * @param fitness		Fitness of the resource
-	 * @param jobcontacts	Output arguments - contacts to the JobMgr to create objects
-	 * @param reserveIDs	Output arguments - reservation identifier for each objects
-	 * @param requestInfo	info
-	 * @param trace			keep track
-	 * @param tracesize		track size
-	 * @return	true if the runtime has allocated some resources for the parallel objects
+	 * 
+	 * @param localservice
+	 *            Access to the local application scope services
+	 * @param objname
+	 *            Name of the object to create
+	 * @param od
+	 *            Object description for the resource requirements of this object
+	 * @param howmany
+	 *            Number of objects to create
+	 * @param fitness
+	 *            Fitness of the resource
+	 * @param jobcontacts
+	 *            Output arguments - contacts to the JobMgr to create objects
+	 * @param reserveIDs
+	 *            Output arguments - reservation identifier for each objects
+	 * @param requestInfo
+	 *            info
+	 * @param trace
+	 *            keep track
+	 * @param tracesize
+	 *            track size
+	 * @return true if the runtime has allocated some resources for the parallel
+	 *         objects
 	 */
 	@POPSyncConc(id = 16)
-	public boolean allocResource(String localservice, String objname,
-			@POPParameter(Direction.IN) ObjectDescription od, int howmany, float[] fitness,
-			POPAccessPoint[] jobcontacts, int[] reserveIDs, int[] requestInfo,
+	public boolean allocResource(String localservice, String objname, @POPParameter(Direction.IN) ObjectDescription od,
+			int howmany, float[] fitness, POPAccessPoint[] jobcontacts, int[] reserveIDs, int[] requestInfo,
 			int[] trace, int tracesize) {
 		return true;
 	}
 
 	/**
 	 * Ask the JobMgr service to cancel some reservation for parallel object
-	 * @param req		Reservation identifiers of the reservations to cancel
-	 * @param howmany	Number of reservations to cancel
+	 * 
+	 * @param req
+	 *            Reservation identifiers of the reservations to cancel
+	 * @param howmany
+	 *            Number of reservations to cancel
 	 */
 	@POPAsyncSeq(id = 18)
 	public void cancelReservation(int[] req, int howmany) {
@@ -127,16 +164,22 @@ public class POPJobManager extends POPJobService {
 
 	/**
 	 * Ask the JobMgr service to execute a specific object
-	 * @param objname		Name of the object
-	 * @param howmany		Number of object to execute
-	 * @param reserveIDs	Reservations identifiers for these objects
-	 * @param localservice	Access to the local application scope services
-	 * @param objcontacts	Output arguments - contacts to the objects created
-	 * @return	0 if the execution hasn't failed
+	 * 
+	 * @param objname
+	 *            Name of the object
+	 * @param howmany
+	 *            Number of object to execute
+	 * @param reserveIDs
+	 *            Reservations identifiers for these objects
+	 * @param localservice
+	 *            Access to the local application scope services
+	 * @param objcontacts
+	 *            Output arguments - contacts to the objects created
+	 * @return 0 if the execution hasn't failed
 	 */
 	@POPSyncConc(id = 19)
-	public int execObj(POPString objname, int howmany, int[] reserveIDs,
-			String localservice, POPAccessPoint[] objcontacts) {
+	public int execObj(POPString objname, int howmany, int[] reserveIDs, String localservice,
+			POPAccessPoint[] objcontacts) {
 		return 0;
 	}
 
@@ -153,7 +196,7 @@ public class POPJobManager extends POPJobService {
 	 */
 	@Override
 	@POPSyncSeq(id = 21)
-    public void start() {
+	public void start() {
 
 	}
 

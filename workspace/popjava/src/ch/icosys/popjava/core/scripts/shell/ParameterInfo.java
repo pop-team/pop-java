@@ -1,16 +1,19 @@
 package ch.icosys.popjava.core.scripts.shell;
 
 /**
- * Describe a possible parameter.
- * NOTE: It should be more generic for many kind of parameters, but let's not think about it.
+ * Describe a possible parameter. NOTE: It should be more generic for many kind
+ * of parameters, but let's not think about it.
  * 
  * @author Davide Mazzoleni
  */
 public class ParameterInfo {
-	
+
 	private final String alias;
+
 	private final String[] options;
+
 	private final boolean argument;
+
 	private final boolean mask;
 
 	public ParameterInfo(String alias, boolean argument, boolean mask, String... options) {
@@ -19,7 +22,7 @@ public class ParameterInfo {
 		this.argument = argument;
 		this.mask = mask;
 	}
-	
+
 	public ParameterInfo(String alias, boolean argument, String... options) {
 		this(alias, argument, false, options);
 	}

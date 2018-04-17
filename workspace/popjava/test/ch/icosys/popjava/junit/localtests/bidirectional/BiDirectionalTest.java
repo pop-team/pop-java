@@ -15,26 +15,26 @@ public class BiDirectionalTest {
 	@Test
 	public void test() {
 		POPSystem.initialize();
-		
+
 		Configuration.getInstance().setDebug(true);
-		
-		BiDirectionalObject a =  PopJava.newActive(this, BiDirectionalObject.class, 1, false);
-		
+
+		BiDirectionalObject a = PopJava.newActive(this, BiDirectionalObject.class, 1, false);
+
 		assertEquals(2, a.test());
-		
+
 		POPSystem.end();
 	}
-	
+
 	@Test
 	public void debug() {
 		POPSystem.initialize();
-		
+
 		Configuration.getInstance().setDebug(true);
-		
-		BiDirectionalObject a =  PopJava.newActive(this, BiDirectionalObject.class, 1, true);
-		
+
+		BiDirectionalObject a = PopJava.newActive(this, BiDirectionalObject.class, 1, true);
+
 		assertEquals(2, a.test());
-		
+
 		POPSystem.end();
 	}
 }

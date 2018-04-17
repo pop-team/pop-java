@@ -8,14 +8,15 @@ import ch.icosys.popjava.core.dataswaper.IPOPBase;
 import ch.icosys.popjava.core.util.Configuration;
 
 /**
- * Exploration list on the network in the grid. 
- * Keep track of each node to avoid infinite loops.
+ * Exploration list on the network in the grid. Keep track of each node to avoid
+ * infinite loops.
  *
  * @author Davide Mazzoleni
  */
 public class SNExploration implements IPOPBase {
 
 	private final LinkedList<POPAccessPoint> visited = new LinkedList<>();
+
 	private final Configuration conf = Configuration.getInstance();
 
 	public SNExploration() {

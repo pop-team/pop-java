@@ -8,13 +8,14 @@ import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 
 @POPClass(isDistributable = false)
 public class MainBarrier {
-    
+
 	public static void main(String... argvs) throws IOException {
 		System.out.println("Barrier: Starting test...");
-		
+
 		int nbWorkers = 12;
-		if(argvs.length > 0) nbWorkers = Integer.parseInt(argvs[0]);
-		
+		if (argvs.length > 0)
+			nbWorkers = Integer.parseInt(argvs[0]);
+
 		try {
 			Barrier b = new Barrier(nbWorkers);
 			POPAccessPoint[] pa = new POPAccessPoint[nbWorkers];
@@ -24,12 +25,12 @@ public class MainBarrier {
 				w.setNo(i);
 				w.work(b);
 			}
-			//Give time to worker to finish their job
+			// Give time to worker to finish their job
 			Thread.sleep(2000);
-			
+
 			for (int i = 0; i < pa.length; i++) {
-				Worker w = (Worker)PopJava.newActiveConnect(null, Worker.class, pa[i]);
-				if(w.getNo()!=i+10){
+				Worker w = (Worker) PopJava.newActiveConnect(null, Worker.class, pa[i]);
+				if (w.getNo() != i + 10) {
 					System.out.println("Barrier Test failed");
 					return;
 				}
@@ -38,7 +39,6 @@ public class MainBarrier {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 	}
 }

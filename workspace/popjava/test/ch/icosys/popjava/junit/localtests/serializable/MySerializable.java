@@ -11,11 +11,13 @@ import java.util.Objects;
  * @author Davide Mazzoleni
  */
 public class MySerializable implements Serializable {
-	
+
 	private static final long serialVersionUID = 43L;
-	
+
 	private String a;
+
 	private int b;
+
 	private double c;
 
 	public MySerializable(String a, int b, double c) {
@@ -35,7 +37,7 @@ public class MySerializable implements Serializable {
 	public double getC() {
 		return c;
 	}
-	
+
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.writeUTF(a);
 		out.writeInt(b);

@@ -14,24 +14,28 @@ import ch.icosys.popjava.core.combox.ComboxReceiveRequest;
 
 public abstract class ComboxAcceptSocket<E extends Socket> implements Runnable {
 
-    //TODO: replace with enum
+	// TODO: replace with enum
 	static public final int RUNNING = 0;
+
 	static public final int EXIT = 1;
+
 	static public final int ABORT = 2;
-	
+
 	protected final Broker broker;
+
 	protected final RequestQueue requestQueue;
+
 	protected final ServerSocket serverSocket;
+
 	protected int status = EXIT;
+
 	protected final List<E> concurentConnections = new LinkedList<E>();
-	
+
 	protected ComboxAcceptSocket(Broker broker, RequestQueue requestQueue, ServerSocket serverSocket) {
 		this.broker = broker;
 		this.requestQueue = requestQueue;
 		this.serverSocket = serverSocket;
 	}
-	
-
 
 	/**
 	 * Close the current connection
@@ -46,16 +50,17 @@ public abstract class ComboxAcceptSocket<E extends Socket> implements Runnable {
 			}
 		}
 		try {
-			if (!serverSocket.isClosed()){
+			if (!serverSocket.isClosed()) {
 				serverSocket.close();
 			}
-		} catch (IOException e) {			
+		} catch (IOException e) {
 		}
 	}
-	
+
 	/**
 	 * Get the current status
-	 * @return	The current status
+	 * 
+	 * @return The current status
 	 */
 	public synchronized int getStatus() {
 		return status;
@@ -63,15 +68,20 @@ public abstract class ComboxAcceptSocket<E extends Socket> implements Runnable {
 
 	/**
 	 * Set the current status
-	 * @param status	The new status
+	 * 
+	 * @param status
+	 *            The new status
 	 */
 	public synchronized void setStatus(int status) {
 		this.status = status;
 	}
-		
-	public static void serveConnection(Broker broker, RequestQueue requestQueue, Combox serverClient, int connectionID) {
-	    Runnable runnable = new ComboxReceiveRequest(broker, requestQueue, new ComboxConnection(serverClient, connectionID));
-        Thread thread = new Thread(runnable, "Combox request acceptance "+serverClient.getAccessPoint()+" "+connectionID);
-        thread.start();
+
+	public static void serveConnection(Broker broker, RequestQueue requestQueue, Combox serverClient,
+			int connectionID) {
+		Runnable runnable = new ComboxReceiveRequest(broker, requestQueue,
+				new ComboxConnection(serverClient, connectionID));
+		Thread thread = new Thread(runnable,
+				"Combox request acceptance " + serverClient.getAccessPoint() + " " + connectionID);
+		thread.start();
 	}
 }

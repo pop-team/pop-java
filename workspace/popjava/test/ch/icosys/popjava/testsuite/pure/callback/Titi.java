@@ -5,31 +5,32 @@ import ch.icosys.popjava.core.annotation.POPObjectDescription;
 import ch.icosys.popjava.core.annotation.POPSyncSeq;
 
 @POPClass(classId = 1034)
-public class Titi{
-    
+public class Titi {
+
 	private int identity;
+
 	private Toto t;
-	
+
 	@POPObjectDescription(url = "localhost")
-	public Titi(){
+	public Titi() {
 		identity = -1;
 	}
-	
+
 	@POPSyncSeq
-	public void setIdent(int i){
+	public void setIdent(int i) {
 		identity = i;
 	}
-	
+
 	@POPSyncSeq
-	public void setIdent(Toto t){
-        System.out.println("A "+(t == null));
+	public void setIdent(Toto t) {
+		System.out.println("A " + (t == null));
 		this.t = t;
 	}
-	
+
 	@POPSyncSeq
-	public void computeIdent(){
-        System.out.println("B "+(t == null));
-	    t.setIdent(identity);
-	    System.out.println("E");
+	public void computeIdent() {
+		System.out.println("B " + (t == null));
+		t.setIdent(identity);
+		System.out.println("E");
 	}
 }

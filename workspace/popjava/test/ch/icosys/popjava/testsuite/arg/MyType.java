@@ -5,24 +5,25 @@ import ch.icosys.popjava.core.dataswaper.*;
 
 public class MyType implements IPOPBase {
 	private String theString;
+
 	private int theInt;
-	
-	public void setString(String s){
+
+	public void setString(String s) {
 		theString = s;
 	}
-	
-	public void setInt(int i){
+
+	public void setInt(int i) {
 		theInt = i;
 	}
-	
-	public int getInt(){
+
+	public int getInt() {
 		return theInt;
 	}
-	
-	public String getString(){
+
+	public String getString() {
 		return theString;
 	}
-	
+
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
 		theInt = buffer.getInt();
@@ -36,11 +37,11 @@ public class MyType implements IPOPBase {
 		buffer.putString(getString());
 		return true;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		String output = "";
-		output+=theInt+" ";
-		output+=theString;
+		output += theInt + " ";
+		output += theString;
 		return output;
 	}
 

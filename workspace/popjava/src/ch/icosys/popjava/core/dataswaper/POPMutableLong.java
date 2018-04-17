@@ -1,8 +1,12 @@
 package ch.icosys.popjava.core.dataswaper;
 
 import ch.icosys.popjava.core.buffer.POPBuffer;
+
 /**
- * Primitive settable long for POPJava, needed for {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in methods 
+ * Primitive settable long for POPJava, needed for
+ * {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in
+ * methods
+ * 
  * @author Davide Mazzoleni
  */
 public class POPMutableLong implements IPOPBase {
@@ -20,24 +24,28 @@ public class POPMutableLong implements IPOPBase {
 
 	/**
 	 * Constructor with given value
-	 * @param value	long value to be stored in this object
+	 * 
+	 * @param value
+	 *            long value to be stored in this object
 	 */
 	public POPMutableLong(long value) {
 		this.value = value;
 	}
-	
+
 	/**
 	 * Set the long value of this object
-	 * @param value	new long value
+	 * 
+	 * @param value
+	 *            new long value
 	 */
-	public void setValue(long value)
-	{
-		this.value=value;
+	public void setValue(long value) {
+		this.value = value;
 	}
 
 	/**
 	 * Get the current value of this object
-	 * @return	current long value
+	 * 
+	 * @return current long value
 	 */
 	public long getValue() {
 		return value;
@@ -60,9 +68,9 @@ public class POPMutableLong implements IPOPBase {
 		value = buffer.getLong();
 		return false;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return String.valueOf(value);
 	}
 }

@@ -10,14 +10,15 @@ import ch.icosys.popjava.core.dataswaper.IPOPBase;
 import ch.icosys.popjava.core.util.POPRemoteCaller;
 
 /**
- * This class contains information on the caller toward an object.
- * We store how many time a method was called and for how long.
+ * This class contains information on the caller toward an object. We store how
+ * many time a method was called and for how long.
  * 
  * @author Davide Mazzoleni
  */
 public class POPTracking implements IPOPBase {
 
 	private POPRemoteCaller caller;
+
 	private final Map<String, POPTrackingMethod> calls;
 
 	public POPTracking() {
@@ -46,7 +47,7 @@ public class POPTracking implements IPOPBase {
 		}
 		recorder.increment(time, inputSize, outputSize);
 	}
-	
+
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		caller.serialize(buffer);

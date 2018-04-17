@@ -12,14 +12,14 @@ import ch.icosys.popjava.core.base.POPObject;
  */
 @POPClass
 public class A extends POPObject {
-	
+
 	@POPObjectDescription(url = "localhost")
 	public A() {
 	}
-	
+
 	public A(@POPConfig(POPConfig.Type.URL) String url, @POPConfig(POPConfig.Type.PROTOCOLS) String[] protocols) {
 	}
-	
+
 	@POPSyncSeq
 	public void sync() {
 	}

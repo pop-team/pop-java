@@ -29,23 +29,23 @@ public class PopjServices {
 			String token = itr.next();
 
 			switch (token) {
-				case "-h":
-				case "--help":
-					System.err.println("usage: PopjServices [-p|--port <port num>] [-c|--config <jm config file>]");
-					System.exit(1);
-					break;
-				case "-p":
-				case "--port":
-					String portString = itr.next();
-					try {
-						port = Integer.parseInt(portString);
-					} catch (NumberFormatException e) {
-					}
-					break;
-				case "-c":
-				case "--config":
-					config = itr.next();
-					break;
+			case "-h":
+			case "--help":
+				System.err.println("usage: PopjServices [-p|--port <port num>] [-c|--config <jm config file>]");
+				System.exit(1);
+				break;
+			case "-p":
+			case "--port":
+				String portString = itr.next();
+				try {
+					port = Integer.parseInt(portString);
+				} catch (NumberFormatException e) {
+				}
+				break;
+			case "-c":
+			case "--config":
+				config = itr.next();
+				break;
 			}
 		}
 

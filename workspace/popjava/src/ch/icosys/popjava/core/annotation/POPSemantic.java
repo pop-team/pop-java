@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Make all POPSync* POPAsync* annotation also part of this annotation for detection.
+ * Make all POPSync* POPAsync* annotation also part of this annotation for
+ * detection.
  * 
  * @author Davide Mazzoleni
  */

@@ -10,24 +10,24 @@ import ch.icosys.popjava.core.util.Configuration;
 
 public class ReferenceTest {
 
-/**
- * This test randomly fails.
- * This is most likely because the object B created in getB() is destroyed too soon
- * 
- */
+	/**
+	 * This test randomly fails. This is most likely because the object B created in
+	 * getB() is destroyed too soon
+	 * 
+	 */
 	@Test
-	public void test(){
+	public void test() {
 		Configuration.getInstance().setDebug(true);
-		
+
 		POPSystem.initialize();
-		
+
 		A a = PopJava.newActive(this, A.class);
-		
+
 		B b = a.getB();
-		
+
 		assertEquals("asdf", b.value());
-		
+
 		POPSystem.end();
 	}
-	
+
 }

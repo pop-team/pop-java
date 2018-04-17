@@ -18,12 +18,14 @@ import java.util.Objects;
 public class RuntimeDirectoryThread extends Thread {
 
 	private final Path origin;
+
 	private Path basePath;
+
 	private boolean done = false;
 
 	public RuntimeDirectoryThread(String id) {
 		Objects.requireNonNull(id);
-		
+
 		this.origin = Paths.get(".").toAbsolutePath();
 		this.basePath = Paths.get(id).toAbsolutePath();
 		init(id);
@@ -31,7 +33,7 @@ public class RuntimeDirectoryThread extends Thread {
 
 	public RuntimeDirectoryThread(File dir) {
 		Objects.requireNonNull(dir);
-		
+
 		this.origin = Paths.get(".").toAbsolutePath();
 		this.basePath = dir.toPath().toAbsolutePath();
 		init(basePath.getFileName().toString());
@@ -42,10 +44,10 @@ public class RuntimeDirectoryThread extends Thread {
 		// create directories
 		try {
 			basePath = Files.createDirectories(basePath);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			try {
 				basePath = Files.createTempDirectory(String.format("popjava-%s", id));
-			} catch(IOException ex) {
+			} catch (IOException ex) {
 				throw new RuntimeException("Broker couldn't create the object directory.");
 			}
 		}
@@ -61,12 +63,12 @@ public class RuntimeDirectoryThread extends Thread {
 			LogWriter.writeDebugInfo("[Broker] A problem occurred when cleaning up: %s", e.getMessage());
 		}
 	}
-	
-	public void addCleanupHook() {		
+
+	public void addCleanupHook() {
 		// set exit cleanup
 		Runtime.getRuntime().addShutdownHook(this);
 	}
-	
+
 	public void removeCleanupHook() {
 		// remove exit cleanup
 		Runtime.getRuntime().removeShutdownHook(this);

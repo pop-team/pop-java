@@ -7,15 +7,19 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 
 /**
- * This class is meant to be send to {@link SSLUtils#generateKeyPair(popjava.util.ssl.KeyPairDetails) }
+ * This class is meant to be send to
+ * {@link SSLUtils#generateKeyPair(popjava.util.ssl.KeyPairDetails) }
  * 
  * @author Davide Mazzoleni
  */
 public class KeyPairDetails {
-	
+
 	protected String alias;
+
 	protected Date validUntil;
+
 	protected int privateKeySize;
+
 	protected final Map<ASN1ObjectIdentifier, String> rdn = new HashMap<>();
 
 	// validation
@@ -26,11 +30,12 @@ public class KeyPairDetails {
 	 */
 	public KeyPairDetails() {
 	}
-	
+
 	/**
 	 * Copy constructor
 	 * 
-	 * @param other the other KeyPair
+	 * @param other
+	 *            the other KeyPair
 	 */
 	public KeyPairDetails(KeyPairDetails other) {
 		Objects.requireNonNull(other);
@@ -40,13 +45,16 @@ public class KeyPairDetails {
 		this.rdn.putAll(other.rdn);
 		this.hasName = other.hasName;
 	}
-	
+
 	/**
 	 * Full constructor
 	 * 
-	 * @param alias The alias of this node, used to find its own public certificate
-	 * @param validUntil Until when the certificate should be valid
-	 * @param privateKeySize The complexity of the RSA key, must be greater than 1024 bits
+	 * @param alias
+	 *            The alias of this node, used to find its own public certificate
+	 * @param validUntil
+	 *            Until when the certificate should be valid
+	 * @param privateKeySize
+	 *            The complexity of the RSA key, must be greater than 1024 bits
 	 */
 	public KeyPairDetails(String alias, Date validUntil, int privateKeySize) {
 		this.alias = alias;
@@ -57,20 +65,18 @@ public class KeyPairDetails {
 		hasName = true;
 	}
 
-	
 	/**
-	 * Parameters to create a KeyStore with sane defaults.
-	 * Consider using {@link #setValidFor(int)}
-	 * Defaults are: 
-	 *  validity := 365 days
-	 *  keySize := 2048 bits
+	 * Parameters to create a KeyStore with sane defaults. Consider using
+	 * {@link #setValidFor(int)} Defaults are: validity := 365 days keySize := 2048
+	 * bits
 	 *
-	 * @param alias The alias of this node, used to find its own public certificate
+	 * @param alias
+	 *            The alias of this node, used to find its own public certificate
 	 */
 	public KeyPairDetails(String alias) {
 		this(alias, new Date(System.currentTimeMillis() + 31536000_000L), 2048);
 	}
-	
+
 	/**
 	 * The alias of the certificate
 	 * 
@@ -83,7 +89,8 @@ public class KeyPairDetails {
 	/**
 	 * Set the alias of the certificate
 	 * 
-	 * @param alias the new alias of the key
+	 * @param alias
+	 *            the new alias of the key
 	 */
 	public void setAlias(String alias) {
 		this.alias = alias;
@@ -101,7 +108,8 @@ public class KeyPairDetails {
 	/**
 	 * Until when the certificate should be valid
 	 * 
-	 * @param validUntil the new validity date
+	 * @param validUntil
+	 *            the new validity date
 	 */
 	public void setValidUntil(Date validUntil) {
 		this.validUntil = validUntil;
@@ -110,7 +118,8 @@ public class KeyPairDetails {
 	/**
 	 * For how many day from now should the certificate be valid
 	 * 
-	 * @param days the number of days the certificate will be valid from today (now)
+	 * @param days
+	 *            the number of days the certificate will be valid from today (now)
 	 */
 	public void setValidFor(int days) {
 		long until = System.currentTimeMillis() + days * 86400_000L;
@@ -129,7 +138,8 @@ public class KeyPairDetails {
 	/**
 	 * The complexity of the RSA key, must be greater than 1024 bits
 	 * 
-	 * @param keySize the new key size
+	 * @param keySize
+	 *            the new key size
 	 */
 	public void setPrivateKeySize(int keySize) {
 		this.privateKeySize = keySize;
@@ -139,8 +149,10 @@ public class KeyPairDetails {
 	 * Specify the certificate Relative Distinguished Name (RDN).
 	 *
 	 * @see BCStyle
-	 * @param name What we want to specify, like {@link BCStyle#CN}
-	 * @param value the value for the RDN key
+	 * @param name
+	 *            What we want to specify, like {@link BCStyle#CN}
+	 * @param value
+	 *            the value for the RDN key
 	 */
 	public void addRDN(ASN1ObjectIdentifier name, String value) {
 		this.rdn.put(name, value);
@@ -149,7 +161,8 @@ public class KeyPairDetails {
 	/**
 	 * Remove element from the certificate name
 	 * 
-	 * @param name the RDN (key,value) pair to remove
+	 * @param name
+	 *            the RDN (key,value) pair to remove
 	 */
 	public void removeRDN(ASN1ObjectIdentifier name) {
 		this.rdn.remove(name);

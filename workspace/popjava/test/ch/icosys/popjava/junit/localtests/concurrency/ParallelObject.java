@@ -12,22 +12,24 @@ import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class ParallelObject extends POPObject{
+public class ParallelObject extends POPObject {
 
 	private AtomicInteger counter = new AtomicInteger();
+
 	private AtomicInteger counter2 = new AtomicInteger();
+
 	private volatile boolean error = false;
-	
+
 	private Semaphore sem = new Semaphore(0);
-	
+
 	@POPObjectDescription(url = "localhost")
-	public ParallelObject(){
+	public ParallelObject() {
 	}
-	
+
 	@POPAsyncMutex
-	public void mutex(){
+	public void mutex() {
 		System.out.println("Start mutex");
-		if(counter.incrementAndGet() > 1){
+		if (counter.incrementAndGet() > 1) {
 			error = true;
 			System.out.println("Mutex error");
 		}
@@ -41,11 +43,11 @@ public class ParallelObject extends POPObject{
 		counter2.incrementAndGet();
 		sem.release();
 	}
-	
+
 	@POPAsyncSeq
-	public void sync(){
+	public void sync() {
 		System.out.println("Start seq");
-		if(counter.get() > 1){
+		if (counter.get() > 1) {
 			error = true;
 			System.out.println("Seq error");
 		}
@@ -58,11 +60,11 @@ public class ParallelObject extends POPObject{
 		counter2.incrementAndGet();
 		sem.release();
 	}
-	
+
 	private Semaphore semSleep = new Semaphore(0);
-	
+
 	@POPAsyncConc
-	public void concSleep(){
+	public void concSleep() {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -70,23 +72,23 @@ public class ParallelObject extends POPObject{
 		}
 		semSleep.release();
 	}
-	
+
 	@POPSyncConc
-	public void concSleepEnd(int wait){
-		try{
-			for(int i = 0; i < wait; i++){
+	public void concSleepEnd(int wait) {
+		try {
+			for (int i = 0; i < wait; i++) {
 				semSleep.acquire();
 			}
-		}catch (InterruptedException e) {
+		} catch (InterruptedException e) {
 			// TODO: handle exception
 		}
-		
+
 	}
-	
+
 	@POPAsyncConc
-	public void conc(){
+	public void conc() {
 		System.out.println("Start conc");
-		if(counter.get() > 1){
+		if (counter.get() > 1) {
 			error = true;
 			System.out.println("Conc error");
 		}
@@ -99,23 +101,23 @@ public class ParallelObject extends POPObject{
 		counter2.incrementAndGet();
 		sem.release();
 	}
-	
+
 	@POPSyncConc
-	public boolean success(){
+	public boolean success() {
 		try {
 			sem.acquire(4);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Success ? "+counter2.intValue());
+		System.out.println("Success ? " + counter2.intValue());
 		return !error && counter2.intValue() == 4;
 	}
-	
+
 	@POPSyncConc
-	public int ping(int sleep, int value) throws InterruptedException{
-	    Thread.sleep(sleep);
-	    System.out.println("ping "+sleep+" "+value);
-	    return value;
+	public int ping(int sleep, int value) throws InterruptedException {
+		Thread.sleep(sleep);
+		System.out.println("ping " + sleep + " " + value);
+		return value;
 	}
 }

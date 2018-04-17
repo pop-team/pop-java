@@ -20,28 +20,32 @@ import ch.icosys.popjava.core.util.ssl.KeyPairDetails;
 import ch.icosys.popjava.core.util.ssl.KeyStoreDetails;
 import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
-
 /**
  *
  * @author dosky
  */
 public class MethodAccessTest {
-	
+
 	static KeyStoreDetails ksTemporary;
+
 	static KeyStoreDetails ksTrusted;
+
 	static KeyPairDetails keyTemporary;
+
 	static KeyPairDetails keyTrusted;
-	
+
 	static Path configTemporary;
+
 	static Path configTrusted;
-	
+
 	static Certificate opt1Pub;
-	
+
 	static Configuration conf = Configuration.getInstance();
-	
+
 	public static final String NETA = "myUUID1";
+
 	public static final String NETB = "myUUID2";
-	
+
 	@BeforeClass
 	public static void beforeClass() throws InterruptedException {
 		try {
@@ -49,25 +53,25 @@ public class MethodAccessTest {
 			// init
 			conf = Configuration.getInstance();
 			conf.setDebug(true);
-			
+
 			ksTemporary = new KeyStoreDetails("mypass", "keypass", new File("test_store1.jks"));
 			keyTemporary = new KeyPairDetails(NETA);
-			
+
 			ksTrusted = new KeyStoreDetails("mypass", "keypass", new File("test_store2.jks"));
 			keyTrusted = new KeyPairDetails(NETB);
-			
+
 			// remove possible leftovers
 			Files.deleteIfExists(ksTemporary.getKeyStoreFile().toPath());
 			Files.deleteIfExists(ksTrusted.getKeyStoreFile().toPath());
-			
+
 			configTemporary = Files.createTempFile("pop-junit-", ".properties");
 			configTrusted = Files.createTempFile("pop-junit-", ".properties");
-			
+
 			// create temporary
 			conf.setSSLKeyStoreOptions(ksTemporary);
 			SSLUtils.generateKeyStore(ksTemporary, keyTemporary);
 			SSLUtils.reloadPOPManagers();
-			
+
 			// setup first keystore
 			opt1Pub = SSLUtils.getCertificateFromAlias(keyTemporary.getAlias());
 
@@ -76,7 +80,7 @@ public class MethodAccessTest {
 			SSLUtils.removeConfidenceLink(node, NETA);
 			conf.setUserConfig(configTemporary.toFile());
 			conf.store();
-			
+
 			// create truststore
 			conf.setSSLKeyStoreOptions(ksTrusted);
 			conf.setDefaultNetwork(NETB);
@@ -84,12 +88,12 @@ public class MethodAccessTest {
 			SSLUtils.reloadPOPManagers();
 			conf.setUserConfig(configTrusted.toFile());
 			conf.store();
-		} catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		POPSystem.initialize();
 	}
-	
+
 	@AfterClass
 	public static void afterClass() throws IOException {
 		Files.deleteIfExists(ksTemporary.getKeyStoreFile().toPath());
@@ -100,34 +104,35 @@ public class MethodAccessTest {
 		Configuration.getInstance().setDebug(false);
 		POPSystem.end();
 	}
-	
+
 	@Test
 	public void sslComboxWorking() throws Exception {
 		conf.load(configTrusted.toFile());
 		SSLUtils.reloadPOPManagers();
-		
+
 		ComboxSecureSocketFactory factory = new ComboxSecureSocketFactory();
 		assertTrue(factory.isAvailable());
 	}
-	
+
 	@Test
 	@Ignore
 	public void testTemporaryConfidenceLink() throws Exception {
 		conf.load(configTemporary.toFile());
-		//POPTrustManager.getInstance().reloadTrustManager();
+		// POPTrustManager.getInstance().reloadTrustManager();
 
-		/*X509Certificate[] certs = POPTrustManager.getInstance().getAcceptedIssuers();
-		for (X509Certificate cert : certs) {
-			String f = SSLUtils.certificateFingerprint(cert);
-			assertFalse(SSLUtils.isConfidenceLink(f));
-		}*/
+		/*
+		 * X509Certificate[] certs = POPTrustManager.getInstance().getAcceptedIssuers();
+		 * for (X509Certificate cert : certs) { String f =
+		 * SSLUtils.certificateFingerprint(cert);
+		 * assertFalse(SSLUtils.isConfidenceLink(f)); }
+		 */
 	}
-	
+
 	@Test
 	public void testTrustedConnection() throws Exception {
 		conf.load(configTrusted.toFile());
 		SSLUtils.reloadPOPManagers();
-		
+
 		A a = PopJava.newActive(this, A.class);
 		a.sync();
 		System.out.println("AP Trust: " + a.getAccessPoint());

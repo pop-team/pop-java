@@ -1,22 +1,25 @@
 package ch.icosys.popjava.core.mapgen;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
-
 public class POPJObjectMap {
 	private static boolean append;
+
 	private static ArrayList<String> files;
+
 	private static String xmlFile;
+
 	private static String cwd;
+
 	private static String strFile;
-	
-	public static void main(String[] args){
+
+	public static void main(String[] args) {
 		files = new ArrayList<>();
-		if(args.length < 2){
+		if (args.length < 2) {
 			printUsage();
 			System.exit(1);
 		}
-
 
 		for (String arg : args) {
 			if (arg.equals("-append")) {
@@ -39,30 +42,26 @@ public class POPJObjectMap {
 				System.exit(1);
 			}
 		}
-		
-		if(cwd.endsWith(Constants.PATH_SEP))
-			cwd = cwd.substring(0, cwd.length()-1);
-		
-		
-		if(xmlFile != null && !PathWorker.isAbsoluePath(xmlFile)){
+
+		if (cwd.endsWith(Constants.PATH_SEP))
+			cwd = cwd.substring(0, cwd.length() - 1);
+
+		if (xmlFile != null && !PathWorker.isAbsoluePath(xmlFile)) {
 			xmlFile = PathWorker.getAbsolutePath(cwd, xmlFile);
 		}
-		
-		
-		while(strFile.indexOf(":")>0){
+
+		while (strFile.indexOf(":") > 0) {
 			String f = strFile.substring(0, strFile.indexOf(":"));
-			strFile = strFile.substring(strFile.indexOf(":")+1);
+			strFile = strFile.substring(strFile.indexOf(":") + 1);
 			files.add(PathWorker.setToAbsolute(f, cwd));
 		}
 		files.add(PathWorker.setToAbsolute(strFile, cwd));
-		
-	
-		
-		if(cwd.equals("") || files.size()==0){
+
+		if (cwd.equals("") || files.size() == 0) {
 			printUsage();
 			System.exit(0);
 		}
-		
+
 		ObjectMapGenerator omg = new ObjectMapGenerator(xmlFile, files, append, cwd);
 		try {
 			omg.generate();
@@ -77,11 +76,12 @@ public class POPJObjectMap {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Print the usage of this program
 	 */
-	private static void printUsage(){
-		System.out.println("POPJObjectMap [-append=OLD_OBJECTMAP] -file=COMPILED_PARCLASS -cwd=CURRENT_WORKING_DIRECTORY");
+	private static void printUsage() {
+		System.out.println(
+				"POPJObjectMap [-append=OLD_OBJECTMAP] -file=COMPILED_PARCLASS -cwd=CURRENT_WORKING_DIRECTORY");
 	}
 }

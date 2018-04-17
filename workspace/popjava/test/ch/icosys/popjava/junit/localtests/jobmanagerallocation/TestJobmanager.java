@@ -10,14 +10,14 @@ import ch.icosys.popjava.core.system.POPSystem;
 public class TestJobmanager {
 
 	@Test
-	public void testNoUrl(){
+	public void testNoUrl() {
 		POPSystem.initialize();
-		
+
 		TestObject test = PopJava.newActive(this, TestObject.class);
-		
+
 		assertEquals(1234, test.getValue());
-		
+
 		POPSystem.end();
 	}
-	
+
 }

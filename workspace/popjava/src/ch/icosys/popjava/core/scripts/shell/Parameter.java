@@ -16,27 +16,27 @@ import java.util.Map;
 public class Parameter {
 
 	private final Map<String, ParameterInfo> raw = new HashMap<>();
+
 	private final Map<String, String> params = new HashMap<>();
+
 	private final List<String> endArgs = new ArrayList<>();
-	
+
 	public Parameter(String[] params, ParameterInfo... expected) {
 		List<String> lp = Arrays.asList(params);
-		
+
 		for (ParameterInfo pi : expected) {
 			raw.put(pi.getAlias(), pi);
 		}
-		
+
 		for (Iterator<String> itr = lp.iterator(); itr.hasNext();) {
 			String key = itr.next();
 			for (ParameterInfo pi : expected) {
 				if (pi.keyMatch(key)) {
 					if (!pi.hasArgument()) {
 						this.params.put(pi.getAlias(), "");
-					}
-					else if (itr.hasNext()) {
+					} else if (itr.hasNext()) {
 						this.params.put(pi.getAlias(), itr.next());
-					}
-					else {
+					} else {
 						throw new IllegalArgumentException(key + " require an argument");
 					}
 				} else {
@@ -45,7 +45,7 @@ public class Parameter {
 			}
 		}
 	}
-	
+
 	public String get(String param, Object returnOnNull) {
 		ParameterInfo pi = raw.get(param);
 		if (pi == null && returnOnNull != null) {

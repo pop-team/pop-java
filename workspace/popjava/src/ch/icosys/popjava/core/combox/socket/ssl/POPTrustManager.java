@@ -30,13 +30,15 @@ import ch.icosys.popjava.core.util.WatchDirectory;
 import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
- * Two origin KeyStore TrustManager, single instance with Directory Watch and auto-reload.
- * See https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
+ * Two origin KeyStore TrustManager, single instance with Directory Watch and
+ * auto-reload. See
+ * https://jcalcote.wordpress.com/2010/06/22/managing-a-dynamic-java-trust-store/
+ * 
  * @author John Calcote
  * @author Davide Mazzoleni
  */
 public class POPTrustManager implements X509TrustManager {
-	
+
 	private class TemporaryDirectoryWatcher extends WatchDirectory.WatchMethod {
 		@Override
 		public void create(String file) {
@@ -51,20 +53,23 @@ public class POPTrustManager implements X509TrustManager {
 				reload();
 			}
 		}
-		
+
 		private void reload() {
 			try {
 				// reload certificates
 				reloadTrustManager();
-			} catch(Exception e) {}
+			} catch (Exception e) {
+			}
 		}
 	}
-	
+
 	private class KeyStoreWatcher extends WatchDirectory.WatchMethod {
 		private final Path keyStore;
+
 		public KeyStoreWatcher(Path keyStore) {
 			this.keyStore = keyStore;
 		}
+
 		@Override
 		public void modify(String s) {
 			// filter to handle only the keystore
@@ -72,35 +77,42 @@ public class POPTrustManager implements X509TrustManager {
 				reload();
 			}
 		}
+
 		private void reload() {
 			try {
 				// reload certificates
 				reloadTrustManager();
-			} catch(Exception e) {}
+			} catch (Exception e) {
+			}
 		}
 	}
-	
+
 	private final Configuration conf = Configuration.getInstance();
-	
+
 	// certificates store
 	private X509TrustManager trustManager;
+
 	// Map[Fingerprint, Certificate]
-	private final Map<String,Certificate> loadedCertificates = new HashMap<>();
+	private final Map<String, Certificate> loadedCertificates = new HashMap<>();
+
 	// Set[Fingerprint]
 	private final Set<String> confidenceCertificates = new HashSet<>();
+
 	// Map[Fingerprint, Network]
-	private final Map<String,String> certificatesNetwork = new HashMap<>();
+	private final Map<String, String> certificatesNetwork = new HashMap<>();
+
 	// Map[Alias, Certificate]
-	private final Map<String,Certificate> aliasCertificates = new HashMap<>();
-	
+	private final Map<String, Certificate> aliasCertificates = new HashMap<>();
+
 	// reload and add new certificates
 	private WatchDirectory temporaryWatcher;
+
 	private WatchDirectory keyStoreWatcher;
-	
+
 	public POPTrustManager() throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
 		reloadTrustManager();
 	}
-	
+
 	@Override
 	public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 		trustManager.checkClientTrusted(chain, authType);
@@ -115,32 +127,34 @@ public class POPTrustManager implements X509TrustManager {
 	public X509Certificate[] getAcceptedIssuers() {
 		return trustManager.getAcceptedIssuers();
 	}
-	
+
 	/**
 	 * Tell if a certificate is confidence link certificate or a temporary link
 	 * 
-	 * @param fingerprint The identifier of the certificate
+	 * @param fingerprint
+	 *            The identifier of the certificate
 	 * @return true if it's a confidence link, false otherwise
 	 */
 	public boolean isConfidenceLink(String fingerprint) {
 		return confidenceCertificates.contains(fingerprint);
 	}
-	
+
 	/**
 	 * Get the network assigned to a specific certificate
 	 * 
-	 * @param fingerprint the fingerprint we want the certificate to
+	 * @param fingerprint
+	 *            the fingerprint we want the certificate to
 	 * @return the certificate or null if unknown
 	 */
 	public String getNetworkFromFingerprint(String fingerprint) {
 		return certificatesNetwork.get(fingerprint);
 	}
-	
+
 	/**
 	 * Refresh loadedCertificates after a reload of the keystore or of the temp dir
 	 */
 	private void saveCertificatesToMemory() {
-		Map<String,Certificate> temp = new HashMap<>();
+		Map<String, Certificate> temp = new HashMap<>();
 		Certificate[] certificates = getAcceptedIssuers();
 		for (Certificate cert : certificates) {
 			temp.put(SSLUtils.certificateFingerprint(cert), cert);
@@ -150,7 +164,8 @@ public class POPTrustManager implements X509TrustManager {
 		loadedCertificates.putAll(temp);
 	}
 
-	public final void reloadTrustManager() throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
+	public final void reloadTrustManager()
+			throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
 		long start = System.currentTimeMillis();
 		SSLUtils.invalidateSSLSessions();
 		// load keystore from specified cert store (or default)
@@ -159,7 +174,7 @@ public class POPTrustManager implements X509TrustManager {
 			// load stores in memory
 			trustedKS.load(trustedStore, conf.getSSLKeyStorePassword().toCharArray());
 		}
-		
+
 		// mark certificate in the keystore as confidence certificates
 		confidenceCertificates.clear();
 		for (Enumeration<String> certAlias = trustedKS.aliases(); certAlias.hasMoreElements();) {
@@ -167,7 +182,7 @@ public class POPTrustManager implements X509TrustManager {
 			Certificate cert = trustedKS.getCertificate(alias);
 			String fingerprint = SSLUtils.certificateFingerprint(cert);
 			confidenceCertificates.add(fingerprint);
-			
+
 			// extract network or leave the alias as the fingerprint
 			int atLocation = alias.indexOf('@');
 			if (atLocation >= 0) {
@@ -176,11 +191,11 @@ public class POPTrustManager implements X509TrustManager {
 			} else {
 				certificatesNetwork.put(fingerprint, alias);
 			}
-			
+
 			// save for the alias -> certificate matcher
 			aliasCertificates.put(alias, cert);
 		}
-		
+
 		// add temporary certificates
 		// get all files in directory and add them
 		File tempCertDir = conf.getSSLTemporaryCertificateLocation();
@@ -192,7 +207,7 @@ public class POPTrustManager implements X509TrustManager {
 							Certificate cert = SSLUtils.certificateFromBytes(Files.readAllBytes(file.toPath()));
 							String alias = file.getName().substring(0, file.getName().length() - 4);
 							trustedKS.setCertificateEntry(alias, cert);
-						} catch(Exception e) {
+						} catch (Exception e) {
 						}
 					}
 				}
@@ -219,19 +234,19 @@ public class POPTrustManager implements X509TrustManager {
 
 				if (createWatcher) {
 					temporaryWatcher = new WatchDirectory(tempCertDir.toPath(), new TemporaryDirectoryWatcher(),
-						StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
+							StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
 					Thread dirWatcher = new Thread(temporaryWatcher, "TrustStore temporary folder watcher");
 					dirWatcher.setDaemon(true);
 					dirWatcher.start();
 				}
 			}
 		}
-		
+
 		// watch keystore
 		File keyStoreFile = conf.getSSLKeyStoreFile();
 		if (keyStoreFile != null && keyStoreFile.canRead()) {
 			Path keyStorePath = keyStoreFile.toPath().toAbsolutePath();
-			
+
 			// stop previous watcher
 			boolean createWatcher = true;
 			if (keyStoreWatcher != null) {
@@ -245,18 +260,18 @@ public class POPTrustManager implements X509TrustManager {
 			}
 
 			if (createWatcher) {
-				keyStoreWatcher = new WatchDirectory(keyStorePath.getParent(), new KeyStoreWatcher(keyStorePath), 
-					StandardWatchEventKinds.ENTRY_MODIFY);
+				keyStoreWatcher = new WatchDirectory(keyStorePath.getParent(), new KeyStoreWatcher(keyStorePath),
+						StandardWatchEventKinds.ENTRY_MODIFY);
 				Thread keyWatcher = new Thread(keyStoreWatcher, "KeyStore changes watcher (TrustManager)");
 				keyWatcher.setDaemon(true);
 				keyWatcher.start();
 			}
 		}
-		
+
 		// initialize a new TMF with the trustedKS we just loaded
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		tmf.init(trustedKS);
-		
+
 		long end = System.currentTimeMillis();
 		LogWriter.writeDebugInfo(String.format("[TrustManager] initiated in %d ms", end - start));
 
@@ -272,21 +287,23 @@ public class POPTrustManager implements X509TrustManager {
 
 		throw new NoSuchAlgorithmException("No X509TrustManager in TrustManagerFactory");
 	}
-	
+
 	/**
 	 * Do we know the certificate
 	 * 
-	 * @param cert the certificate to check
+	 * @param cert
+	 *            the certificate to check
 	 * @return true is known, false otherwise
 	 */
 	public boolean isCertificateKnown(Certificate cert) {
 		return loadedCertificates.values().contains(cert);
 	}
-	
+
 	/**
 	 * Any certificate from the local Trust manager
 	 * 
-	 * @param fingerprint the fingerprint of the certificate
+	 * @param fingerprint
+	 *            the fingerprint of the certificate
 	 * @return the certificate or null if unknown
 	 */
 	public Certificate getCertificate(String fingerprint) {
@@ -296,7 +313,8 @@ public class POPTrustManager implements X509TrustManager {
 	/**
 	 * The certificate of a specified alias
 	 * 
-	 * @param uuid the alias of the certificate, usually the network UUID
+	 * @param uuid
+	 *            the alias of the certificate, usually the network UUID
 	 * @return the certificate or null if not found
 	 */
 	public Certificate getCertificateFromAlias(String uuid) {

@@ -9,10 +9,11 @@ import java.util.Scanner;
  * @author Davide Mazzoleni
  */
 public class ConsoleHandler {
-	
+
 	private final Scanner scanner;
+
 	private final Console console;
-	
+
 	private final boolean hasConsole;
 
 	private static ConsoleHandler instance;
@@ -23,7 +24,7 @@ public class ConsoleHandler {
 		}
 		return instance;
 	}
-	
+
 	private ConsoleHandler() {
 		scanner = new Scanner(System.in);
 		console = System.console();
@@ -34,7 +35,7 @@ public class ConsoleHandler {
 		String line = readLine();
 		return line == null ? null : new CommandInfo(line);
 	}
-	
+
 	public String readPassword() {
 		if (hasConsole) {
 			return new String(console.readPassword());
@@ -42,7 +43,7 @@ public class ConsoleHandler {
 			return scanner.nextLine();
 		}
 	}
-	
+
 	public String readLine() {
 		String line;
 		if (hasConsole) {

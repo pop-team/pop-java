@@ -1,15 +1,16 @@
 package ch.icosys.popjava.core.util;
 
-public class Tuple <A, B> {
+public class Tuple<A, B> {
 
 	public A a;
+
 	public B b;
-	
+
 	public Tuple(A a, B b) {
 		this.a = a;
 		this.b = b;
 	}
-	
+
 	public A getA() {
 		return a;
 	}
@@ -17,7 +18,7 @@ public class Tuple <A, B> {
 	public void setA(A a) {
 		this.a = a;
 	}
-	
+
 	public B getB() {
 		return b;
 	}
@@ -34,6 +35,7 @@ public class Tuple <A, B> {
 		result = prime * result + ((b == null) ? 0 : b.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -55,7 +57,5 @@ public class Tuple <A, B> {
 			return false;
 		return true;
 	}
-	
-	
-	
+
 }

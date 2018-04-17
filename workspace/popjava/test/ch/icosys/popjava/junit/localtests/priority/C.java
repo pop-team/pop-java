@@ -23,5 +23,5 @@ public class C extends B {
 	public void b() {
 		super.b();
 	}
-	
+
 }

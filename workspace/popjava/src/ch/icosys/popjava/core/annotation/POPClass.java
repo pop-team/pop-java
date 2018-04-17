@@ -15,9 +15,14 @@ import ch.icosys.popjava.core.broker.RequestQueue;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface POPClass {
 	String className() default "";
+
 	int classId() default -1;
+
 	boolean deconstructor() default false;
+
 	int maxRequestQueue() default RequestQueue.DEFAULT_REQUEST_QUEUE_SIZE;
+
 	boolean isDistributable() default true;
+
 	boolean useAsyncConstructor() default true;
 }

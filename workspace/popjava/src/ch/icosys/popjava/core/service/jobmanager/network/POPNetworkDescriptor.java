@@ -10,26 +10,31 @@ import java.util.Objects;
  * @author Davide Mazzoleni
  */
 public final class POPNetworkDescriptor {
-	
+
 	/**
 	 * Shorthand for {@link POPNetworkDescriptorFinder#find(java.lang.String) }
 	 * 
-	 * @param globalName the global name of the descriptor
+	 * @param globalName
+	 *            the global name of the descriptor
 	 * @return the descriptor
 	 */
 	public static POPNetworkDescriptor from(String globalName) {
-		// NOTE do not make this a static attribute, it will create an initialization loop
+		// NOTE do not make this a static attribute, it will create an
+		// initialization loop
 		return POPNetworkDescriptorFinder.getInstance().find(globalName);
 	}
-	
+
 	private final String globalName;
+
 	private final POPNetworkDescriptorMethod methods;
 
 	/**
 	 * Create a new descriptor with its creation behavior
 	 * 
-	 * @param globalName the global bane of the descriptor
-	 * @param methods how to handle connector and node creation
+	 * @param globalName
+	 *            the global bane of the descriptor
+	 * @param methods
+	 *            how to handle connector and node creation
 	 */
 	public POPNetworkDescriptor(String globalName, POPNetworkDescriptorMethod methods) {
 		this.globalName = globalName;
@@ -44,7 +49,7 @@ public final class POPNetworkDescriptor {
 	public String getGlobalName() {
 		return globalName;
 	}
-	
+
 	/**
 	 * Create a new connector which will be added to a POPNetwork
 	 * 
@@ -53,11 +58,12 @@ public final class POPNetworkDescriptor {
 	public POPConnector createConnector() {
 		return methods.createConnector();
 	}
-	
+
 	/**
 	 * Create a new node based on the given paramters.
 	 * 
-	 * @param params the nodes parameters
+	 * @param params
+	 *            the nodes parameters
 	 * @return a new POPNode
 	 */
 	public POPNode createNode(List<String> params) {

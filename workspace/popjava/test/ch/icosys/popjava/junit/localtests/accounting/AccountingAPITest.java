@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 
 /**
  * Testing accounting API
+ * 
  * @author dosky
  */
 public class AccountingAPITest {
@@ -20,7 +21,7 @@ public class AccountingAPITest {
 	public void b() {
 		POPSystem.initialize();
 	}
-	
+
 	@After
 	public void a() {
 		POPSystem.end();
@@ -32,14 +33,14 @@ public class AccountingAPITest {
 		Object ao = a;
 		assertTrue(POPAccounting.isEnabledFor(ao));
 	}
-	
+
 	@Test
 	public void apiUsers() {
 		A a = PopJava.newActive(this, A.class);
 		Object ao = a;
 		assertEquals(1, POPAccounting.getUsers(ao).length);
 	}
-	
+
 	@Test
 	public void apiRetrieveSpecific() {
 		A a = PopJava.newActive(this, A.class);
@@ -47,11 +48,12 @@ public class AccountingAPITest {
 		POPRemoteCaller user = POPAccounting.getUsers(ao)[0];
 		assertTrue(POPAccounting.getInformation(ao, user) != null);
 	}
-	
+
 	@Test
 	public void apiRetrieveMyself() {
 		A a = PopJava.newActive(this, A.class);
 		Object ao = a;
+		@SuppressWarnings("unused")
 		POPRemoteCaller user = POPAccounting.getUsers(ao)[0];
 		assertTrue(POPAccounting.getMyInformation(ao) != null);
 	}

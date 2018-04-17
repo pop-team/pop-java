@@ -11,20 +11,21 @@ import ch.icosys.popjava.core.util.LogWriter;
 import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 /**
- * Details on a network.
- * Global UUID, local friendly name, network 
+ * Details on a network. Global UUID, local friendly name, network
  * 
  * @author Davide Mazzoleni
  */
 public class POPNetworkDetails implements IPOPBase {
 
 	private String uuid;
+
 	private String friendlyName;
+
 	private Certificate certificate;
-	
+
 	public POPNetworkDetails() {
 	}
-	
+
 	public POPNetworkDetails(POPNetwork network) {
 		this.uuid = network.getUUID();
 		this.friendlyName = network.getFriendlyName();
@@ -68,10 +69,10 @@ public class POPNetworkDetails implements IPOPBase {
 			int certLength = buffer.getInt();
 			try {
 				certificate = SSLUtils.certificateFromBytes(buffer.getByteArray(certLength));
-			} catch(CertificateException e) {
+			} catch (CertificateException e) {
 			}
 		}
- 		return true;
+		return true;
 	}
 
 	@Override
@@ -102,5 +103,5 @@ public class POPNetworkDetails implements IPOPBase {
 		}
 		return true;
 	}
-	
+
 }

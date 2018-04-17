@@ -12,18 +12,18 @@ public class SubclassingTest {
 
 	@Test
 	@Ignore
-	public void test(){
+	public void test() {
 		POPSystem.initialize();
-		
+
 		D d = PopJava.newActive(this, C.class);
-		
+
 		A a = d.getTest();
-		
+
 		assertNotNull(a);
 
 		assertEquals("asdf", a.a());
-		
+
 		POPSystem.end();
 	}
-	
+
 }

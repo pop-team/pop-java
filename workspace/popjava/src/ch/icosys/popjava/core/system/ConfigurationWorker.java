@@ -11,8 +11,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 /**
- * POP-Java configuration class. Provide access trough the different configuration parameters stored in the XML configuration file.
+ * POP-Java configuration class. Provide access trough the different
+ * configuration parameters stored in the XML configuration file.
+ * 
  * @author clementval
  */
 public class ConfigurationWorker extends XMLWorker {
@@ -21,26 +24,33 @@ public class ConfigurationWorker extends XMLWorker {
 	 * Private constants declaration. This constant should not be modified
 	 */
 	private static final String CONFIG_SUFFIX = "popj_config";
+
 	private static final String ENV_POPJ_LOCATION = "POPJAVA_LOCATION";
+
 	private static final String CONFIG_DIRECTORY = "etc";
+
 	/**
-	 *private static final String DEFAULT_POPJ_LOCATION = "/usr/local/popj";
+	 * private static final String DEFAULT_POPJ_LOCATION = "/usr/local/popj";
 	 */
 	private static final String DEFAULT_POPJ_LOCATION = "/home/clementval/popj";
+
 	private static final String ATTRIBUTE_ITEM_NAME = "item";
-	
+
 	/**
 	 * POP-Java location configuration item name
 	 */
 	public static final String POPJ_LOCATION_ITEM = "popj_location";
+
 	/**
 	 * POP-Java plug-in location configuration item name
 	 */
 	public static final String POPJ_PLUGIN_ITEM = "popj_plugin_location";
+
 	/**
 	 * POP-Java broker command configuration item name
 	 */
 	public static final String POPJ_BROKER_COMMAND_ITEM = "popj_broker_command";
+
 	/**
 	 * POP-Java application core service location configuration name
 	 */
@@ -50,12 +60,16 @@ public class ConfigurationWorker extends XMLWorker {
 	 * Variables declaration
 	 */
 	private String configFileLocation;
+
 	private String configSchemaLocation;
+
 	private String popjLocation;
 
 	/**
 	 * Constructs a new ConfigurationWorker and retrieve POP-Java base location
-	 * @throws Exception thrown if the configuration file is not valid with its XML schema
+	 * 
+	 * @throws Exception
+	 *             thrown if the configuration file is not valid with its XML schema
 	 */
 	public ConfigurationWorker() throws Exception {
 		String baseLocation = System.getenv(ENV_POPJ_LOCATION);
@@ -65,10 +79,8 @@ public class ConfigurationWorker extends XMLWorker {
 		popjLocation = baseLocation;
 		if (!popjLocation.endsWith("/"))
 			popjLocation += "/";
-		configFileLocation = popjLocation + CONFIG_DIRECTORY + "/"
-				+ CONFIG_SUFFIX + XML_FILE_EXTENSION;
-		configSchemaLocation = popjLocation + CONFIG_DIRECTORY + "/"
-				+ CONFIG_SUFFIX + XSD_FILE_EXTENSION;
+		configFileLocation = popjLocation + CONFIG_DIRECTORY + "/" + CONFIG_SUFFIX + XML_FILE_EXTENSION;
+		configSchemaLocation = popjLocation + CONFIG_DIRECTORY + "/" + CONFIG_SUFFIX + XSD_FILE_EXTENSION;
 
 		if (!isValid(configFileLocation, configSchemaLocation)) {
 			throw new InvalidParameterException("Configuration file is not valid");
@@ -77,10 +89,12 @@ public class ConfigurationWorker extends XMLWorker {
 
 	/**
 	 * Retrieve a configuration item in the configuration file by its name
-	 * @param name	name of the item to retrieve the value
-	 * @return		Value of the item or null if not found
+	 * 
+	 * @param name
+	 *            name of the item to retrieve the value
+	 * @return Value of the item or null if not found
 	 */
-	public String getValue(String name){
+	public String getValue(String name) {
 		DocumentBuilder builder;
 		try {
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -89,17 +103,17 @@ public class ConfigurationWorker extends XMLWorker {
 			NodeList list = popjConfigElement.getChildNodes();
 			for (int index = 0; index < list.getLength(); ++index) {
 				Node node = list.item(index);
-				if (node.getNodeType() == Node.ELEMENT_NODE	&& node.getNodeName().equals(ATTRIBUTE_ITEM_NAME)) {
+				if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(ATTRIBUTE_ITEM_NAME)) {
 					NamedNodeMap attributes = node.getAttributes();
-					if(attributes != null){
+					if (attributes != null) {
 						String itemName = attributes.item(0).getTextContent();
-						if(itemName.equals(name))
+						if (itemName.equals(name))
 							return node.getTextContent();
 					}
 				}
-				
+
 			}
-		} catch (Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}

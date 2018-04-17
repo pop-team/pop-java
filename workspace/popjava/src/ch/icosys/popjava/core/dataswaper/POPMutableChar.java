@@ -1,8 +1,12 @@
 package ch.icosys.popjava.core.dataswaper;
 
 import ch.icosys.popjava.core.buffer.POPBuffer;
+
 /**
- * Primitive settable char for POPJava, needed for {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in methods 
+ * Primitive settable char for POPJava, needed for
+ * {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in
+ * methods
+ * 
  * @author Davide Mazzoleni
  */
 public class POPMutableChar implements IPOPBase {
@@ -20,24 +24,28 @@ public class POPMutableChar implements IPOPBase {
 
 	/**
 	 * Constructor with given value
-	 * @param value	char value to be stored in this object
+	 * 
+	 * @param value
+	 *            char value to be stored in this object
 	 */
 	public POPMutableChar(char value) {
 		this.value = value;
 	}
-	
+
 	/**
 	 * Set the char value of this object
-	 * @param value	new char value
+	 * 
+	 * @param value
+	 *            new char value
 	 */
-	public void setValue(char value)
-	{
-		this.value=value;
+	public void setValue(char value) {
+		this.value = value;
 	}
 
 	/**
 	 * Get the current value of this object
-	 * @return	current char value
+	 * 
+	 * @return current char value
 	 */
 	public char getValue() {
 		return value;
@@ -60,9 +68,9 @@ public class POPMutableChar implements IPOPBase {
 		value = buffer.getChar();
 		return false;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return String.valueOf(value);
 	}
 }

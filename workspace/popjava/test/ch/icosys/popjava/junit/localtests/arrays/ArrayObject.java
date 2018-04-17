@@ -6,33 +6,30 @@ import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class ArrayObject extends POPObject{
+public class ArrayObject extends POPObject {
 
-    @POPObjectDescription(url = "localhost")
-    public ArrayObject(){
-        
-    }
-    
-    @POPSyncConc
-    public void testArray(byte [] array){
-        
-    }
-	
+	@POPObjectDescription(url = "localhost")
+	public ArrayObject() {
+
+	}
+
+	@POPSyncConc
+	public void testArray(byte[] array) {
+
+	}
+
 	@POPSyncConc
 	public String[][] strings2d() {
-		return new String[][] {
-			{ "a", "b" },
-			{ "c" }
-		};
+		return new String[][] { { "a", "b" }, { "c" } };
 	}
-	
+
 	@POPSyncConc
 	public String[][] empty2d() {
 		return new String[0][0];
 	}
 
 	@POPSyncConc
-	public String[] empty1d(){
+	public String[] empty1d() {
 		return new String[0];
 	}
 }

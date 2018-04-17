@@ -14,10 +14,13 @@ import ch.icosys.popjava.core.util.ssl.SSLUtils;
 public class SNResponse implements IPOPBase {
 
 	private String uid;
+
 	private SNExploration explorationList;
+
 	private SNNodesInfo.Node nodeinfo;
+
 	private String networkUUID;
-	
+
 	private byte[] publicCertificate = new byte[0];
 
 	public SNResponse() {
@@ -28,7 +31,7 @@ public class SNResponse implements IPOPBase {
 		this.explorationList = explorationList;
 		this.nodeinfo = nodeinfo;
 		this.networkUUID = networkUUID;
-		
+
 		Certificate localPublicCertificate = SSLUtils.getCertificateFromAlias(networkUUID);
 		if (localPublicCertificate != null) {
 			publicCertificate = SSLUtils.certificateBytes(localPublicCertificate);

@@ -14,9 +14,11 @@ import ch.icosys.popjava.core.base.POPObject;
 public class ObjA extends POPObject {
 
 	private int val;
+
 	private ObjB b;
+
 	private int bVal;
-	
+
 	public ObjA() {
 	}
 

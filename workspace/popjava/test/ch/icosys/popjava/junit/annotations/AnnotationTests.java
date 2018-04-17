@@ -7,7 +7,7 @@ import ch.icosys.popjava.junit.annotations.od.TestOD;
 import ch.icosys.popjava.junit.annotations.semantics.TestSemantics;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses( { TestOD.class, TestSemantics.class})
+@Suite.SuiteClasses({ TestOD.class, TestSemantics.class })
 public class AnnotationTests {
 
 }

@@ -7,16 +7,17 @@ import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class ComplexType3 implements IPOPBase {
 	private Vector<Integer> vector;
+
 	private int value;
-	
-	public ComplexType3(){
+
+	public ComplexType3() {
 		vector = new Vector<>(10);
 		for (int i = 0; i < vector.capacity(); i++) {
 			vector.add(new Integer(i));
 		}
 		value = vector.size();
 	}
-		
+
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
 		value = buffer.getInt();
@@ -28,7 +29,7 @@ public class ComplexType3 implements IPOPBase {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		int size = value;

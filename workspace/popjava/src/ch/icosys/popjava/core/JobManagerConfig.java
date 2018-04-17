@@ -42,9 +42,13 @@ public class JobManagerConfig {
 	/**
 	 * Register a POPObject and make it available for discovery in a network
 	 *
-	 * @param object the object to publish
-	 * @param tfcNetworkUUID in which network should the object be visible in
-	 * @param secret a secret to un-register the object manually, if the object dies it will un-register itself
+	 * @param object
+	 *            the object to publish
+	 * @param tfcNetworkUUID
+	 *            in which network should the object be visible in
+	 * @param secret
+	 *            a secret to un-register the object manually, if the object dies it
+	 *            will un-register itself
 	 * @return true if registered, false otherwise
 	 */
 	public boolean publishTFCObject(Object object, String tfcNetworkUUID, String secret) {
@@ -58,9 +62,12 @@ public class JobManagerConfig {
 	/**
 	 * Unregister a POPObject from the local JobManager
 	 *
-	 * @param object the object to publish
-	 * @param tfcNetworkUUID the network the object is registered in
-	 * @param secret the secret used when the object was published
+	 * @param object
+	 *            the object to publish
+	 * @param tfcNetworkUUID
+	 *            the network the object is registered in
+	 * @param secret
+	 *            the secret used when the object was published
 	 */
 	public void withdrawnTFCObject(Object object, String tfcNetworkUUID, String secret) {
 		if (object instanceof POPObject) {
@@ -72,29 +79,36 @@ public class JobManagerConfig {
 	/**
 	 * Add a new Node/Friend to a network
 	 *
-	 * @param networksUUID The name of the network
-	 * @param node A network node implementation
+	 * @param networksUUID
+	 *            The name of the network
+	 * @param node
+	 *            A network node implementation
 	 */
 	public void registerNode(String networksUUID, POPNode node) {
 		jobManager.registerPermanentNode(networksUUID, node.getCreationParams());
 	}
-	
+
 	/**
 	 * Register a new node with a certificate associated to it
 	 * 
-	 * @param networkUUID Name of the network
-	 * @param node The node to add
-	 * @param certificate The certificate to use
+	 * @param networkUUID
+	 *            Name of the network
+	 * @param node
+	 *            The node to add
+	 * @param certificate
+	 *            The certificate to use
 	 */
 	public void registerNode(String networkUUID, POPNode node, Certificate certificate) {
 		jobManager.registerPermanentNode(networkUUID, SSLUtils.certificateBytes(certificate), node.getCreationParams());
 	}
-	
+
 	/**
 	 * Remove a Node/Friend from a network
 	 *
-	 * @param networkUUID The name of the network
-	 * @param node A network node implementation
+	 * @param networkUUID
+	 *            The name of the network
+	 * @param node
+	 *            A network node implementation
 	 */
 	public void unregisterNode(String networkUUID, POPNode node) {
 		jobManager.unregisterPermanentNode(networkUUID, node.getCreationParams());
@@ -103,7 +117,8 @@ public class JobManagerConfig {
 	/**
 	 * Create a new network of interest, return the details with UUID.
 	 * 
-	 * @param friendlyName A friendly name to identify the network locally.
+	 * @param friendlyName
+	 *            A friendly name to identify the network locally.
 	 * @return An object containing a generated UUID and the friendly name.
 	 */
 	public POPNetworkDetails createNetwork(String friendlyName) {
@@ -113,8 +128,10 @@ public class JobManagerConfig {
 	/**
 	 * Create a new network of interest, return the details with UUID.
 	 * 
-	 * @param networkUUID The UUID the network will use
-	 * @param friendlyName A friendly name to identify the network locally.
+	 * @param networkUUID
+	 *            The UUID the network will use
+	 * @param friendlyName
+	 *            A friendly name to identify the network locally.
 	 * @return An object containing the UUID and the friendly name.
 	 */
 	public POPNetworkDetails createNetwork(String networkUUID, String friendlyName) {
@@ -124,7 +141,8 @@ public class JobManagerConfig {
 	/**
 	 * Remove a network of interest with all its members
 	 * 
-	 * @param networkUUID the network to remove
+	 * @param networkUUID
+	 *            the network to remove
 	 */
 	public void removeNetwork(String networkUUID) {
 		jobManager.removeNetwork(networkUUID);
@@ -133,7 +151,8 @@ public class JobManagerConfig {
 	/**
 	 * Change the value of available power on the job manager
 	 * 
-	 * @param limit the new power limit
+	 * @param limit
+	 *            the new power limit
 	 */
 	public void changeAvailablePower(float limit) {
 		jobManager.changeAvailablePower(limit);
@@ -142,7 +161,8 @@ public class JobManagerConfig {
 	/**
 	 * Change the value of available memory on the job manager
 	 * 
-	 * @param limit the new memory limit
+	 * @param limit
+	 *            the new memory limit
 	 */
 	public void changeAvailableMemory(float limit) {
 		jobManager.changeAvailableMemory(limit);
@@ -151,7 +171,8 @@ public class JobManagerConfig {
 	/**
 	 * Change the value of available bandwidth on the job manager
 	 * 
-	 * @param limit the new bandwidth limit
+	 * @param limit
+	 *            the new bandwidth limit
 	 */
 	public void changeAvailableBandwidth(float limit) {
 		jobManager.changeAvailableBandwidth(limit);
@@ -160,7 +181,8 @@ public class JobManagerConfig {
 	/**
 	 * Change the maximal number of object that can be create with this job manager
 	 * 
-	 * @param limit the new limit of spawned objects
+	 * @param limit
+	 *            the new limit of spawned objects
 	 */
 	public void changeMaxJobLimit(int limit) {
 		jobManager.changeMaxJobLimit(limit);
@@ -169,7 +191,8 @@ public class JobManagerConfig {
 	/**
 	 * Change the value maximal power an object can request
 	 * 
-	 * @param limit the upper power an object can have allocated
+	 * @param limit
+	 *            the upper power an object can have allocated
 	 */
 	public void changeMaxJobPower(float limit) {
 		jobManager.changeMaxJobPower(limit);
@@ -178,7 +201,8 @@ public class JobManagerConfig {
 	/**
 	 * Change the value maximal memory an object can request
 	 * 
-	 * @param limit the upper memory an object can have allocated
+	 * @param limit
+	 *            the upper memory an object can have allocated
 	 */
 	public void changeMaxJobMemory(float limit) {
 		jobManager.changeMaxJobMemory(limit);
@@ -187,12 +211,13 @@ public class JobManagerConfig {
 	/**
 	 * Change the value maximal bandwidth an object can request
 	 * 
-	 * @param limit the upper bandwidth an object can have allocated
+	 * @param limit
+	 *            the upper bandwidth an object can have allocated
 	 */
 	public void changeMaxJobBandwidth(float limit) {
 		jobManager.changeMaxJobBandwidth(limit);
 	}
-	
+
 	/**
 	 * Array of networks available locally
 	 * 
@@ -201,23 +226,25 @@ public class JobManagerConfig {
 	public POPNetworkDetails[] availableNetworks() {
 		return jobManager.getAvailableNetworks();
 	}
-	
+
 	/**
-	 * All the node available in a network
-	 * Use {@link POPNode#getConnectorDescriptor()} to know which type you are working with.
+	 * All the node available in a network Use
+	 * {@link POPNode#getConnectorDescriptor()} to know which type you are working
+	 * with.
 	 * 
-	 * @param networkUUID the network we want to know the nodes
+	 * @param networkUUID
+	 *            the network we want to know the nodes
 	 * @return an array of generic nodes
 	 */
 	public POPNode[] networkNodes(String networkUUID) {
 		// get nodes
 		String[][] networkNodes = jobManager.getNetworkNodes(networkUUID);
-		
+
 		// no results
 		if (networkNodes == null) {
 			return new POPNode[0];
 		}
-		
+
 		POPNode[] nodes = new POPNode[networkNodes.length];
 		// make them real
 		for (int i = 0; i < nodes.length; i++) {
@@ -228,29 +255,33 @@ public class JobManagerConfig {
 				nodes[i] = descriptor.createNode(nodeParams);
 			}
 		}
-		
+
 		return nodes;
 	}
-	
+
 	/**
-	 * Generate a KeyStore with private key and certificate.
-	 * Proxy for {@link SSLUtils#generateKeyStore(ch.icosys.popjava.core.util.ssl.KeyStoreDetails, ch.icosys.popjava.core.util.ssl.KeyPairDetails)}
+	 * Generate a KeyStore with private key and certificate. Proxy for
+	 * {@link SSLUtils#generateKeyStore(ch.icosys.popjava.core.util.ssl.KeyStoreDetails, ch.icosys.popjava.core.util.ssl.KeyPairDetails)}
 	 *
-     * @param ksDetails the details of the keystore
-     * @param keyDetails the details about the private key
+	 * @param ksDetails
+	 *            the details of the keystore
+	 * @param keyDetails
+	 *            the details about the private key
 	 * @return true if the keystore was generated correctly
 	 */
 	public boolean generateKeyStore(KeyStoreDetails ksDetails, KeyPairDetails keyDetails) {
 		return SSLUtils.generateKeyStore(ksDetails, keyDetails);
 	}
-	
+
 	/**
-	 * Change configuration file location.
-	 * This method will only change the location and try to write in it, it will not delete the old file.
-	 * This method is NOT meant to be used to load a new configuration file.
+	 * Change configuration file location. This method will only change the location
+	 * and try to write in it, it will not delete the old file. This method is NOT
+	 * meant to be used to load a new configuration file.
 	 * 
-	 * @param location The new location of the configuration file.
-	 * @throws java.io.IOException If you can't write in the location specified.
+	 * @param location
+	 *            The new location of the configuration file.
+	 * @throws java.io.IOException
+	 *             If you can't write in the location specified.
 	 */
 	public void setConfigurationFileLocation(File location) throws IOException {
 		if (!location.canWrite()) {
@@ -258,8 +289,7 @@ public class JobManagerConfig {
 		}
 		jobManager.setConfigurationFile(location.getAbsolutePath());
 	}
-	
-	
+
 	/**
 	 * The initial capacity of the node
 	 * 
@@ -286,7 +316,7 @@ public class JobManagerConfig {
 	public int getMaxJobs() {
 		return jobManager.getMaxJobs();
 	}
-	
+
 	/**
 	 * Don't use this
 	 * 

@@ -1,8 +1,12 @@
 package ch.icosys.popjava.core.dataswaper;
 
 import ch.icosys.popjava.core.buffer.POPBuffer;
+
 /**
- * Primitive settable short for POPJava, needed for {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in methods 
+ * Primitive settable short for POPJava, needed for
+ * {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in
+ * methods
+ * 
  * @author Davide Mazzoleni
  */
 public class POPMutableShort implements IPOPBase {
@@ -20,32 +24,38 @@ public class POPMutableShort implements IPOPBase {
 
 	/**
 	 * Constructor with given value
-	 * @param value	short value to be stored in this object
+	 * 
+	 * @param value
+	 *            short value to be stored in this object
 	 */
 	public POPMutableShort(short value) {
 		this.value = value;
 	}
-	
+
 	/**
 	 * Set the short value of this object
-	 * @param value	new short value
+	 * 
+	 * @param value
+	 *            new short value
 	 */
-	public void setValue(short value)
-	{
-		this.value=value;
+	public void setValue(short value) {
+		this.value = value;
 	}
 
 	/**
 	 * Set the short value of this object, from an int
-	 * @param value	new short value from int
+	 * 
+	 * @param value
+	 *            new short value from int
 	 */
 	public void setValue(int value) {
-		this.value=(short)value;
+		this.value = (short) value;
 	}
 
 	/**
 	 * Get the current value of this object
-	 * @return	current short value
+	 * 
+	 * @return current short value
 	 */
 	public short getValue() {
 		return value;
@@ -68,9 +78,9 @@ public class POPMutableShort implements IPOPBase {
 		value = buffer.getShort();
 		return false;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return String.valueOf(value);
 	}
 }

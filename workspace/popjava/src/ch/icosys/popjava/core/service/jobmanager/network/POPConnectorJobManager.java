@@ -31,7 +31,7 @@ import ch.icosys.popjava.core.util.ssl.SSLUtils;
  * @author Davide Mazzoleni
  */
 public class POPConnectorJobManager extends POPConnector implements POPConnectorSearchNodeInterface {
-	
+
 	private static class DescriptorMethodImpl implements POPNetworkDescriptorMethod {
 		@Override
 		public POPConnector createConnector() {
@@ -43,39 +43,44 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 			return new POPNodeJobManager(params);
 		}
 	}
+
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("jobmanager", new DescriptorMethodImpl());
-	
+
 	private final Configuration conf = Configuration.getInstance();
 
 	public POPConnectorJobManager() {
 		super(DESCRIPTOR);
 	}
-	
+
 	@Override
-	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
-			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
+	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, int howmany,
+			POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// check local resource
+		@SuppressWarnings("unused")
 		Resource currAva = jobManager.getAvailableResources();
 		// od request
 		Resource resourceReq = new Resource(od.getPowerReq(), od.getMemoryReq(), od.getBandwidthReq());
 		Resource resourceMin = new Resource(od.getPowerMin(), od.getMemoryMin(), od.getBandwidthMin());
 
 		// check if we have enough resources locally
-		// NOTE could be kept if we doun't want to pass through the SN, it's faster too
-		/*if (currAva.canHandle(resourceReq) || currAva.canHandle(resourceMin)) {
-			POPFloat fitness = new POPFloat();
-			int[] resIDs = new int[howmany];
-			for (int i = 0; i < howmany; i++)
-				resIDs[i] = jobManager.reserve(od, fitness, "", "");
-			POPString pobjname = new POPString(objname);
-			return jobManager.execObj(pobjname, howmany, resIDs, localservice.toString(), objcontacts);
-		}*/
-		
-		// the POPAccessPoint could contains the fingerprint of the AppService certificate
+		// NOTE could be kept if we doun't want to pass through the SN, it's
+		// faster too
+		/*
+		 * if (currAva.canHandle(resourceReq) || currAva.canHandle(resourceMin)) {
+		 * POPFloat fitness = new POPFloat(); int[] resIDs = new int[howmany]; for (int
+		 * i = 0; i < howmany; i++) resIDs[i] = jobManager.reserve(od, fitness, "", "");
+		 * POPString pobjname = new POPString(objname); return
+		 * jobManager.execObj(pobjname, howmany, resIDs, localservice.toString(),
+		 * objcontacts); }
+		 */
+
+		// the POPAccessPoint could contains the fingerprint of the AppService
+		// certificate
 		String appServiceFingerprint = localservice.getFingerprint();
-		
+
 		// use search node to find a suitable node
-		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getUUID(), descriptor.getGlobalName(), appServiceFingerprint);
+		SNRequest request = new SNRequest(Util.generateUUID(), resourceReq, resourceMin, network.getUUID(),
+				descriptor.getGlobalName(), appServiceFingerprint);
 		// setup request
 		// distance between nodes
 		if (od.getSearchMaxDepth() > 0) {
@@ -102,14 +107,17 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		SNNodesInfo remoteJobMngs = jobManager.launchDiscovery(request, timeout);
 		POPAccessPoint[] chosenRemoteJobM = new POPAccessPoint[howmany];
 		if (remoteJobMngs.isEmpty()) {
-			throw new POPException(POPErrorCode.ALLOCATION_EXCEPTION, "No answer from the network while looking for resource " + resourceReq);
+			throw new POPException(POPErrorCode.ALLOCATION_EXCEPTION,
+					"No answer from the network while looking for resource " + resourceReq);
 		}
 
 		int[] resIDs = new int[howmany];
 		// make requests
-		for (int jobIdx = 0, jmIdx = 0, failed = 0; jobIdx < howmany; jobIdx++, jmIdx = (jmIdx + 1) % remoteJobMngs.size()) {
+		for (int jobIdx = 0, jmIdx = 0, failed = 0; jobIdx < howmany; jobIdx++, jmIdx = (jmIdx + 1)
+				% remoteJobMngs.size()) {
 			// connect to remote JM
-			POPJavaJobManager jm = PopJava.newActiveConnect(null, POPJavaJobManager.class, remoteJobMngs.get(jmIdx).getJobManager());
+			POPJavaJobManager jm = PopJava.newActiveConnect(null, POPJavaJobManager.class,
+					remoteJobMngs.get(jmIdx).getJobManager());
 			POPMutableFloat fitness = new POPMutableFloat();
 			resIDs[jobIdx] = jm.reserve(od, fitness, appId, reqId);
 
@@ -142,7 +150,8 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 		int started = 0;
 		for (int i = 0; i < howmany; i++) {
 			if (!chosenRemoteJobM[i].isEmpty()) {
-				POPJavaJobManager jm = PopJava.connect(null, POPJavaJobManager.class, od.getNetwork(), chosenRemoteJobM[i]);
+				POPJavaJobManager jm = PopJava.connect(null, POPJavaJobManager.class, od.getNetwork(),
+						chosenRemoteJobM[i]);
 				try {
 					// execution
 					POPString pobjname = new POPString(objname);
@@ -159,7 +168,7 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 						jm.cancelReservation(localRIDs, 1);
 						return POPErrorCode.OBJECT_NO_RESOURCE;
 					}
-					
+
 					// add certificate to newly created object temporary store
 					POPRemoteCaller remote = PopJava.getRemoteCaller();
 					if (remote != null && remote.isSecure() && !remote.isUsingConfidenceLink()) {
@@ -199,22 +208,25 @@ public class POPConnectorJobManager extends POPConnector implements POPConnector
 	}
 
 	@Override
-	public void askResourcesDiscoveryAction(SNRequest request, POPAccessPoint sender, SNExploration oldExplorationList) {
+	public void askResourcesDiscoveryAction(SNRequest request, POPAccessPoint sender,
+			SNExploration oldExplorationList) {
 		// check local resource
 		Resource available = jobManager.getAvailableResources();
-		
-		// check local available resources to see if we can handle the request to the requester
-		if (available.canHandle(request.getResourceNeeded()) ||
-				available.canHandle(request.getMinResourceNeeded())) {
+
+		// check local available resources to see if we can handle the request
+		// to the requester
+		if (available.canHandle(request.getResourceNeeded()) || available.canHandle(request.getMinResourceNeeded())) {
 			// build response and give it back to the original sender
-			SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(), POPSystem.getPlatform(), available);
-			SNResponse response = new SNResponse(request.getUID(), request.getNetworkUUID(), request.getExplorationList(), nodeinfo);
+			SNNodesInfo.Node nodeinfo = new SNNodesInfo.Node(jobManager.getNodeId(), jobManager.getAccessPoint(),
+					POPSystem.getPlatform(), available);
+			SNResponse response = new SNResponse(request.getUID(), request.getNetworkUUID(),
+					request.getExplorationList(), nodeinfo);
 
 			// we want to save the requester's certificate if there is one
 			if (request.getPublicCertificate().length > 0) {
 				SSLUtils.addCertToTempStore(request.getPublicCertificate());
 			}
-			
+
 			// we want to save the AppService's node certiicate
 			if (request.getAppServiceCertificate().length > 0) {
 				SSLUtils.addCertToTempStore(request.getAppServiceCertificate());

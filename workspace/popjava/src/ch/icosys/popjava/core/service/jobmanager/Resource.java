@@ -13,7 +13,9 @@ import ch.icosys.popjava.core.service.jobmanager.yaml.YamlResource;
 public class Resource implements IPOPBase {
 
 	protected float flops;
+
 	protected float memory;
+
 	protected float bandwidth;
 
 	public Resource() {
@@ -32,7 +34,8 @@ public class Resource implements IPOPBase {
 	/**
 	 * Add another resource to this one, only positive values will be considered
 	 *
-	 * @param r Another resource
+	 * @param r
+	 *            Another resource
 	 */
 	public void add(Resource r) {
 		flops += r.flops;
@@ -43,7 +46,8 @@ public class Resource implements IPOPBase {
 	/**
 	 * Set this resource in the OD
 	 *
-	 * @param od A initialized OD
+	 * @param od
+	 *            A initialized OD
 	 */
 	public void addTo(ObjectDescription od) {
 		od.setBandwidth(bandwidth, bandwidth);
@@ -52,9 +56,11 @@ public class Resource implements IPOPBase {
 	}
 
 	/**
-	 * Subtract another resource to this one, only positive values will be considered
+	 * Subtract another resource to this one, only positive values will be
+	 * considered
 	 *
-	 * @param r Another resource
+	 * @param r
+	 *            Another resource
 	 */
 	public void subtract(Resource r) {
 		flops -= r.flops;
@@ -93,7 +99,7 @@ public class Resource implements IPOPBase {
 		canHandle &= bandwidth >= resource.bandwidth;
 		return canHandle;
 	}
-	
+
 	public YamlResource toYamlResource() {
 		YamlResource res = new YamlResource();
 		res.setFlops(flops);

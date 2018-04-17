@@ -1,19 +1,17 @@
 package ch.icosys.popjava.testsuite.popc_integer;
 
-
 import ch.icosys.popjava.core.annotation.POPAsyncSeq;
 import ch.icosys.popjava.core.annotation.POPClass;
 import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.annotation.POPSyncMutex;
 
 @POPClass(classId = 1500, className = "Integer", deconstructor = true)
-public class Integer{
-	private int value=0;
-	
-	
+public class Integer {
+	private int value = 0;
+
 	public Integer() {
 	}
-	
+
 	@POPSyncConc
 	public int get() {
 		return value;
@@ -21,7 +19,7 @@ public class Integer{
 
 	@POPAsyncSeq
 	public void set(int value) {
-		this.value=value;
+		this.value = value;
 	}
 
 	@POPSyncMutex

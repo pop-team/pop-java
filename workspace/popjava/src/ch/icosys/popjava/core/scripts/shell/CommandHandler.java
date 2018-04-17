@@ -14,26 +14,24 @@ import ch.icosys.popjava.core.scripts.POPJShell;
 public class CommandHandler {
 
 	private final Map<String, ICommand> commands = new HashMap<>();
-	
+
 	public int execute(CommandInfo ci) {
 		ICommand command = commands.get(ci.getKeyword());
 		if (command == null) {
 			POPJShell.optionNotFound(ci.getKeyword(), help());
 			return 1;
-		}
-		else if (ci.isNextHelp()) {
+		} else if (ci.isNextHelp()) {
 			System.out.println(command.help());
 			return 0;
-		}
-		else {
+		} else {
 			return command.execute(ci);
 		}
 	}
-	
+
 	public void add(ICommand command) {
 		commands.put(command.keyword(), command);
 	}
-	
+
 	public String help() {
 		Collection<ICommand> comm = commands.values();
 		StringBuilder sb = new StringBuilder();

@@ -10,11 +10,12 @@ import ch.icosys.popjava.core.base.POPObject;
  * @author dosky
  */
 @POPClass
-public class ObjB extends POPObject{
+public class ObjB extends POPObject {
 
 	private ObjA a;
+
 	private int val;
-	
+
 	public ObjB() {
 	}
 
@@ -24,12 +25,10 @@ public class ObjB extends POPObject{
 		val = bVal;
 	}
 
-
 	@POPSyncSeq
 	public ObjA getA() {
 		return a;
 	}
-
 
 	@POPSyncSeq
 	public int getVal() {

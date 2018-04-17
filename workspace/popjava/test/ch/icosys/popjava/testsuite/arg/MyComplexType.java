@@ -5,17 +5,20 @@ import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class MyComplexType implements IPOPBase {
 	private int theInt;
+
 	private double theDouble;
+
 	private int[] someInt;
-	
-	public MyComplexType(){}
-	
-	public MyComplexType(int i, double d, int[] ia){
+
+	public MyComplexType() {
+	}
+
+	public MyComplexType(int i, double d, int[] ia) {
 		theInt = i;
 		theDouble = d;
 		someInt = ia;
 	}
-	
+
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
 		theInt = buffer.getInt();
@@ -32,18 +35,17 @@ public class MyComplexType implements IPOPBase {
 		double ds = theDouble;
 		buffer.putDouble(ds);
 		int[] ias = someInt;
-		buffer.putIntArray(ias);		
+		buffer.putIntArray(ias);
 		return true;
 	}
-	
-	public String toString(){
-		String output="";
-		output+="MyComplexType --> int:"+theInt+" double:"+theDouble+" array: ";
+
+	public String toString() {
+		String output = "";
+		output += "MyComplexType --> int:" + theInt + " double:" + theDouble + " array: ";
 		for (int i = 0; i < someInt.length; i++) {
-			output+= someInt[i]+" ";
+			output += someInt[i] + " ";
 		}
 		return output;
 	}
-
 
 }

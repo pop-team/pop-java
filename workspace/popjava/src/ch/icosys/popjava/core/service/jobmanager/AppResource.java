@@ -14,13 +14,21 @@ import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 public class AppResource extends Resource {
 
 	protected int id;
+
 	protected String appId;
+
 	protected String reqId;
+
 	protected long accessTime;
+
 	protected POPAccessPoint contact;
+
 	protected POPAccessPoint appService;
+
 	protected ObjectDescription od;
+
 	protected Path appDirectory;
+
 	protected boolean used;
 
 	public int getId() {
@@ -136,5 +144,4 @@ public class AppResource extends Resource {
 		return true;
 	}
 
-	
 }

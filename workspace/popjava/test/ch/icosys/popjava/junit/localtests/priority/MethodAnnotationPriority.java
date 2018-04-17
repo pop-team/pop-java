@@ -15,16 +15,17 @@ import static org.junit.Assert.*;
  * @author dosky
  */
 public class MethodAnnotationPriority {
-	
+
 	@Before
 	public void b() {
 		POPSystem.initialize();
 	}
+
 	@After
 	public void a() {
 		POPSystem.end();
 	}
-	
+
 	@Test
 	public void BasB() {
 		B b = PopJava.newActive(this, B.class);
@@ -33,7 +34,7 @@ public class MethodAnnotationPriority {
 		b.sync();
 		assertEquals("Wrong method execution", 200, b.getValue());
 	}
-	
+
 	@Test
 	public void CasC() {
 		C c = PopJava.newActive(this, C.class);
@@ -42,7 +43,7 @@ public class MethodAnnotationPriority {
 		c.sync();
 		assertEquals("Wrong method execution", 200, c.getValue());
 	}
-	
+
 	@Test
 	public void CasB() {
 		C c = PopJava.newActive(this, C.class);
@@ -52,19 +53,19 @@ public class MethodAnnotationPriority {
 		b.sync();
 		assertEquals("Wrong method execution", 200, b.getValue());
 	}
-	
+
 	@Test
 	public void XreturnIZasZ() {
 		IX x = genIX();
 		IZ z = x.getZ();
 		assertEquals(100, z.getV());
 	}
-	
+
 	IX genIX() {
 		IX x = PopJava.newActive(this, X.class);
 		return x;
 	}
-	
+
 	@Test(expected = POPException.class)
 	public void DchangeAnnotations() {
 		D d = PopJava.newActive(this, D.class);

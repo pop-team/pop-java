@@ -1,4 +1,5 @@
 package ch.icosys.popjava.core.mapgen;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -17,43 +18,42 @@ import org.w3c.dom.*;
  */
 public class ObjectMapWriter extends XMLWorker {
 	private String xmlFile;
+
 	private boolean append;
+
 	private Document objmap;
 
 	/**
-	 * Create a new instance of the ObjectMapWriter. This object is used to
-	 * write the object map file
+	 * Create a new instance of the ObjectMapWriter. This object is used to write
+	 * the object map file
 	 * 
 	 * @param xmlFile
 	 *            location of the XML file
 	 * @param append
-	 *            Set to true if the new entries must be added to the current
-	 *            one
+	 *            Set to true if the new entries must be added to the current one
 	 * @throws Exception
 	 *             Thrown if anything go wrong in the process
 	 */
 	public ObjectMapWriter(String xmlFile, boolean append) throws Exception {
 		this.xmlFile = xmlFile;
 		this.append = append;
-		File f = null; 
-		if(xmlFile != null)
+		File f = null;
+		if (xmlFile != null)
 			f = new File(xmlFile);
 		if (f == null || !f.exists()) {
 			append = false;
 			objmap = create();
-			Element codeInfoList = objmap
-					.createElement(Constants.NODE_CODE_INFO_LIST);
+			Element codeInfoList = objmap.createElement(Constants.NODE_CODE_INFO_LIST);
 			objmap.appendChild(codeInfoList);
 		} else {
 			ConfigurationWorker cw = new ConfigurationWorker();
-			String popjLocation = cw
-					.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
+			String popjLocation = cw.getValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
 			if (isValid(xmlFile, popjLocation + "/etc/objectmap.xsd"))
 				objmap = load(xmlFile);
 			else
 				throw new Exception("The input object map is not valid");
 		}
-		
+
 	}
 
 	/**
@@ -66,8 +66,7 @@ public class ObjectMapWriter extends XMLWorker {
 	 * @throws Exception
 	 *             Thrown if the process go wrong
 	 */
-	public void writePOPJavaEntries(ArrayList<String> parclasses, String path)
-			throws Exception {
+	public void writePOPJavaEntries(ArrayList<String> parclasses, String path) throws Exception {
 		// Create the new entries
 		for (int i = 0; i < parclasses.size(); i++) {
 			writePOPJavaEntry(parclasses.get(i), path);
@@ -158,13 +157,12 @@ public class ObjectMapWriter extends XMLWorker {
 	 * Write all the changes to the file
 	 * 
 	 * @throws TransformerException
-	 *             Thrown if the tranformation from the DOM document to the
-	 *             string file go wrong
+	 *             Thrown if the tranformation from the DOM document to the string
+	 *             file go wrong
 	 */
 	public void writeToFile() throws TransformerException {
 		// write the content into xml file
-		TransformerFactory transformerFactory = TransformerFactory
-				.newInstance();
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -172,11 +170,10 @@ public class ObjectMapWriter extends XMLWorker {
 		StreamResult result = new StreamResult(new File(xmlFile));
 		transformer.transform(source, result);
 	}
-	
-	public void writeToConsole() throws TransformerException{
+
+	public void writeToConsole() throws TransformerException {
 		// write the content into xml file
-		TransformerFactory transformerFactory = TransformerFactory
-				.newInstance();
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -209,9 +206,9 @@ public class ObjectMapWriter extends XMLWorker {
 				// equal
 				if (element.getNodeName().equals(Constants.NODE_OBJECT_NAME)
 						&& element.getTextContent().equals(parclass)) {
-					while(codeInfo.hasChildNodes())
+					while (codeInfo.hasChildNodes())
 						codeInfo.removeChild(codeInfo.getFirstChild());
-				
+
 					// Remove the entry
 					codeInfo.getParentNode().removeChild(codeInfo);
 					objmap.normalize();

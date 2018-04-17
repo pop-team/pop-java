@@ -9,12 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 public @interface POPParameter {
 
-	enum Direction{
-		IN,
-		OUT,
-		INOUT,
-		IGNORE
+	enum Direction {
+		IN, OUT, INOUT, IGNORE
 	}
-	
+
 	Direction value();
 }

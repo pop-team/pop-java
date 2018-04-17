@@ -6,16 +6,16 @@ import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class B extends POPObject{
+public class B extends POPObject {
 
 	@POPObjectDescription(url = "localhost")
-	public B(){
-		
+	public B() {
+
 	}
-	
+
 	@POPSyncConc
-	public String value(){
+	public String value() {
 		return "asdf";
 	}
-	
+
 }

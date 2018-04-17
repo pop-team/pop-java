@@ -4,23 +4,24 @@ import ch.icosys.popjava.core.buffer.POPBuffer;
 import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class ComplexType2 implements IPOPBase {
-    
+
 	private int size;
+
 	private double[] d;
-	
-	public void setInt(int value){
+
+	public void setInt(int value) {
 		size = value;
 	}
-	
-	public int getInt(){
+
+	public int getInt() {
 		return size;
 	}
-	
-	public void setDouble(double[] array){
+
+	public void setDouble(double[] array) {
 		d = array;
 	}
-	
-	public double[] getDouble(){
+
+	public double[] getDouble() {
 		return d;
 	}
 

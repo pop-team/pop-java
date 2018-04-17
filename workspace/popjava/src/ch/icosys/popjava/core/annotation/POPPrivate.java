@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Methods annotated with this are not exposed to the network
+ * 
  * @author beat
  *
  */

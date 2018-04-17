@@ -1,6 +1,5 @@
 package ch.icosys.popjava.core.buffer;
 
-
 import java.nio.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,9 @@ import java.util.List;
 public final class POPByteBuffer {
 
 	private long size;
+
 	private long capacity;
+
 	private final ByteOrder order;
 
 	private final List<ByteBuffer> buffers = new ArrayList<>();
@@ -22,7 +23,9 @@ public final class POPByteBuffer {
 	}
 
 	/**
-	 * Initialize a POP Buffer, if the initialCapacity is bigger than Integer.MAX_INT the buffer will grow of 2GB at time.
+	 * Initialize a POP Buffer, if the initialCapacity is bigger than
+	 * Integer.MAX_INT the buffer will grow of 2GB at time.
+	 * 
 	 * @param order
 	 */
 	public POPByteBuffer(ByteOrder order) {
@@ -97,6 +100,7 @@ public final class POPByteBuffer {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private int whichBuffer(long position) {
 		return (int) (position % Integer.MAX_VALUE);
 	}

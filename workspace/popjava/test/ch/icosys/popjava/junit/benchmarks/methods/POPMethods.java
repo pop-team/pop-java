@@ -6,37 +6,37 @@ import ch.icosys.popjava.core.annotation.POPSyncMutex;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class POPMethods extends POPObject{
+public class POPMethods extends POPObject {
 
 	@POPObjectDescription(url = "localhost")
-	public POPMethods(){
-		
+	public POPMethods() {
+
 	}
-	
+
 	@POPSyncMutex
-	public void noParamNoReturn(){
-		
+	public void noParamNoReturn() {
+
 	}
-	
+
 	@POPSyncMutex
-	public int noParamSimple(){
+	public int noParamSimple() {
 		return 100;
 	}
-	
-	private static String [] complexReturn = new String[]{"asdfasdf", "asdfasdf", "asdfasdf"};
-	
+
+	private static String[] complexReturn = new String[] { "asdfasdf", "asdfasdf", "asdfasdf" };
+
 	@POPSyncMutex
-	public String[] noParamComplex(){
+	public String[] noParamComplex() {
 		return complexReturn;
 	}
-	
+
 	@POPSyncMutex
-	public void simpleParam(int param){
-		
+	public void simpleParam(int param) {
+
 	}
-	
+
 	@POPSyncMutex
-	public void complexParam(String [] param){
-		
+	public void complexParam(String[] param) {
+
 	}
 }

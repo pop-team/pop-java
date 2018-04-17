@@ -12,11 +12,10 @@ import ch.icosys.popjava.core.codemanager.AppService;
  * object of POP-C++
  */
 @POPClass(classId = 20, className = "AppCoreService", deconstructor = true)
-public class POPAppService extends POPObjectMonitor implements AppService{
-	
+public class POPAppService extends POPObjectMonitor implements AppService {
+
 	/**
-	 * Default constructor of POPAppService. Create a POP-C++ object
-	 * AppCoreService
+	 * Default constructor of POPAppService. Create a POP-C++ object AppCoreService
 	 */
 	@POPObjectDescription(id = 10)
 	public POPAppService() {
@@ -94,7 +93,7 @@ public class POPAppService extends POPObjectMonitor implements AppService{
 
 	@Override
 	@POPSyncSeq(id = 13)
-    public String getPOPCAppID() {
+	public String getPOPCAppID() {
 		return "";
 	}
 }

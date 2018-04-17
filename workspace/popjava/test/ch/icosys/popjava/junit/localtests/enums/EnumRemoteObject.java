@@ -6,40 +6,39 @@ import ch.icosys.popjava.core.annotation.POPSyncMutex;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class EnumRemoteObject extends POPObject{
+public class EnumRemoteObject extends POPObject {
 
-	public enum Test{
-		A,
-		B,
-		C
+	public enum Test {
+		A, B, C
 	}
 
 	private Test constructor;
+
 	private Test method;
-	
-	public EnumRemoteObject(){
-		
+
+	public EnumRemoteObject() {
+
 	}
-	
+
 	@POPObjectDescription(url = "localhost")
-	public EnumRemoteObject(Test param){
+	public EnumRemoteObject(Test param) {
 		constructor = param;
-		System.out.println("Const "+param.name());
+		System.out.println("Const " + param.name());
 	}
-	
+
 	@POPSyncMutex
-	public void setEnum(Test param){
+	public void setEnum(Test param) {
 		method = param;
-		System.out.println("Func "+param.name());
+		System.out.println("Func " + param.name());
 	}
-	
+
 	@POPSyncMutex
-	public Test getConstructor(){
+	public Test getConstructor() {
 		return constructor;
 	}
-	
+
 	@POPSyncMutex
-	public Test getMethod(){
+	public Test getMethod() {
 		return method;
 	}
 }

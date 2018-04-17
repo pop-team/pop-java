@@ -17,11 +17,11 @@ import ch.icosys.popjava.core.base.POPObject;
 public class B extends POPObject implements A {
 
 	private int value;
-	
+
 	@POPObjectDescription(url = "localhost")
 	public B() {
 	}
-	
+
 	@POPSyncConc
 	@Override
 	public void a() {
@@ -48,7 +48,8 @@ public class B extends POPObject implements A {
 	public int getValue() {
 		return value;
 	}
-	
+
 	@POPSyncMutex
-	public void sync(){}
+	public void sync() {
+	}
 }

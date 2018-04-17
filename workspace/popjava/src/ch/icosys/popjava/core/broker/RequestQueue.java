@@ -8,31 +8,38 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * This class represents the request queue used in the broker-side
- * Every requests are put into this request queue and are served in FIFO order
+ * This class represents the request queue used in the broker-side Every
+ * requests are put into this request queue and are served in FIFO order
  */
 
 public class RequestQueue {
-	
+
 	private final Lock lock = new ReentrantLock();
+
 	private final Condition canPeek = lock.newCondition();
+
 	private final Condition canInsert = lock.newCondition();
-	
+
 	private final List<Request> requestsConc = new ArrayList<>();
+
 	private final List<Request> requestsSeq = new ArrayList<>();
+
 	private final List<Request> requestsMutex = new ArrayList<>();
-	
+
 	private int requestType = 0;
+
 	private final List<List<Request>> requests = new ArrayList<>();
-	
+
 	private Request servingMutex = null;
+
 	private Request servingSequential = null;
+
 	private final ArrayList<Request> servingConcurrent = new ArrayList<>();
-	
+
 	private Request availableRequest = null;
-	
+
 	public static final int DEFAULT_REQUEST_QUEUE_SIZE = 250;
-	
+
 	private int maxQueue = DEFAULT_REQUEST_QUEUE_SIZE;
 
 	/**
@@ -46,17 +53,17 @@ public class RequestQueue {
 
 	/**
 	 * Give the actual number of requests in the queue
+	 * 
 	 * @return number of requests
 	 */
 	public synchronized int size() {
-		return requestsConc.size() + requestsSeq.size() + requestsMutex.size() +
-				(servingMutex == null ? 0 : 1) + 
-				servingConcurrent.size() +
-				(servingSequential == null ? 0 : 1);
+		return requestsConc.size() + requestsSeq.size() + requestsMutex.size() + (servingMutex == null ? 0 : 1)
+				+ servingConcurrent.size() + (servingSequential == null ? 0 : 1);
 	}
 
 	/**
 	 * Return the maximum number of requests in the queue
+	 * 
 	 * @return max requests number in the queue
 	 */
 	public synchronized int getMaxQueue() {
@@ -65,7 +72,9 @@ public class RequestQueue {
 
 	/**
 	 * Set the maximum number of requests in the queue
-	 * @param maxQueue	Maximum number of requests
+	 * 
+	 * @param maxQueue
+	 *            Maximum number of requests
 	 */
 	public synchronized void setMaxQueue(int maxQueue) {
 		this.maxQueue = maxQueue;
@@ -73,50 +82,59 @@ public class RequestQueue {
 
 	/**
 	 * Put a new request in the queue
-	 * @param request Request to add
+	 * 
+	 * @param request
+	 *            Request to add
 	 * @return true if the request is added correctly
 	 */
 	public boolean add(Request request) {
-		//LogWriter.writeDebugInfo(hashCode()+" Add request, there are already "+size()+" requests, "+request.getClassId()+" "+request.getMethodId());
-		
+		// LogWriter.writeDebugInfo(hashCode()+" Add request, there are already
+		// "+size()+" requests, "+request.getClassId()+"
+		// "+request.getMethodId());
+
 		lock.lock();
 		try {
-			if(request.isConcurrent()){
-				while (requestsConc.size() + servingConcurrent.size() >= maxQueue){
+			if (request.isConcurrent()) {
+				while (requestsConc.size() + servingConcurrent.size() >= maxQueue) {
 					canInsert.await();
 				}
-				
+
 				requestsConc.add(request);
-			}else if(request.isSequential()){
-				while (requestsSeq.size() >= maxQueue){
+			} else if (request.isSequential()) {
+				while (requestsSeq.size() >= maxQueue) {
 					canInsert.await();
 				}
-				
+
 				requestsSeq.add(request);
-			}else if(request.isMutex()){
-				while (requestsMutex.size() >= maxQueue){
+			} else if (request.isMutex()) {
+				while (requestsMutex.size() >= maxQueue) {
 					canInsert.await();
 				}
-				
+
 				requestsMutex.add(request);
 			}
-			
+
 			canPeek();
 		} catch (InterruptedException e) {
-		    e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			lock.unlock();
 		}
-		
-		//LogWriter.writeDebugInfo(hashCode()+" Added request "+request.getClassId()+" "+request.getMethodId());
-		
+
+		// LogWriter.writeDebugInfo(hashCode()+" Added request
+		// "+request.getClassId()+" "+request.getMethodId());
+
 		return true;
 	}
 
 	/**
-	 * Peek a request in the queue. If there is no request to peek, this method waits the time passed in parameters
-	 * @param time		Time to wait
-	 * @param timeUnit	Unit of time
+	 * Peek a request in the queue. If there is no request to peek, this method
+	 * waits the time passed in parameters
+	 * 
+	 * @param time
+	 *            Time to wait
+	 * @param timeUnit
+	 *            Unit of time
 	 * @return Request peeked in the queue
 	 */
 	public Request peek(int time, TimeUnit timeUnit) {
@@ -125,11 +143,13 @@ public class RequestQueue {
 		lock.lock();
 
 		try {
-			//LogWriter.writeDebugInfo("Peek, queue contains "+size()+" requests "+hashCode());
-			//LogWriter.writeDebugInfo("Search for new request "+hashCode());
+			// LogWriter.writeDebugInfo("Peek, queue contains "+size()+"
+			// requests "+hashCode());
+			// LogWriter.writeDebugInfo("Search for new request "+hashCode());
 			waitSuccess = availableRequest != null || canPeek.await(time, timeUnit);
 
-			//LogWriter.writeDebugInfo("Got request? "+waitSuccess+" "+hashCode());
+			// LogWriter.writeDebugInfo("Got request? "+waitSuccess+"
+			// "+hashCode());
 			if (waitSuccess) {
 				request = availableRequest;
 				request.setStatus(Request.SERVING);
@@ -143,44 +163,48 @@ public class RequestQueue {
 		} finally {
 			lock.unlock();
 		}
-		
+
 		return request;
 	}
 
 	/**
 	 * Move request from availableRequest to its proper request queue
-	 * @param request the request to add to the various queues
+	 * 
+	 * @param request
+	 *            the request to add to the various queues
 	 */
-	private void serveRequest(Request request){
-	    
-		if(request.isMutex()){
+	private void serveRequest(Request request) {
+
+		if (request.isMutex()) {
 			servingMutex = request;
-		}else if(request.isSequential()){
+		} else if (request.isSequential()) {
 			servingSequential = request;
-		}else{
+		} else {
 			servingConcurrent.add(request);
 		}
 	}
 
 	/**
 	 * Remove a specific request from the queue
-	 * @param request Request to be removed
+	 * 
+	 * @param request
+	 *            Request to be removed
 	 * @return true if the request is correctly removed
 	 */
 	public boolean remove(Request request) {
 		lock.lock();
 		try {
-			if(request.isMutex() && servingMutex == request){
+			if (request.isMutex() && servingMutex == request) {
 				servingMutex = null;
 				requestsMutex.remove(request);
-			}else if(request.isSequential() && servingSequential == request){
+			} else if (request.isSequential() && servingSequential == request) {
 				servingSequential = null;
 				requestsSeq.remove(request);
-			}else{
+			} else {
 				servingConcurrent.remove(request);
 				requestsConc.remove(request);
 			}
-			
+
 			canPeek();
 			canInsert.signal();
 		} finally {
@@ -191,6 +215,7 @@ public class RequestQueue {
 
 	/**
 	 * Clear the queue
+	 * 
 	 * @return true if the queue if correctly cleared
 	 */
 	public synchronized boolean clear() {
@@ -201,25 +226,29 @@ public class RequestQueue {
 		servingMutex = null;
 		servingSequential = null;
 		servingConcurrent.clear();
-		
+
 		return true;
 	}
 
 	/**
 	 * Check if there is request to peek
+	 * 
 	 * @return true if a request can be peeked
 	 */
 	public boolean canPeek() {
-		requestType = (requestType + 1) % requests.size(); //Rotate through conc, seq, mutex to give them equal time
+		requestType = (requestType + 1) % requests.size(); // Rotate through
+		// conc, seq, mutex
+		// to give them equal
+		// time
 		if (availableRequest == null) {
-			
-			for(int i = 0; i < 3; i++){
-				if(canPeekType(requests.get((requestType + i) % requests.size()))){
+
+			for (int i = 0; i < 3; i++) {
+				if (canPeekType(requests.get((requestType + i) % requests.size()))) {
 					canPeek.signal();
 					return true;
 				}
 			}
-		}else{
+		} else {
 			canPeek.signal();
 			return true;
 		}
@@ -227,48 +256,51 @@ public class RequestQueue {
 		return false;
 	}
 
-	private boolean canPeekType(List<Request> requests){
-		for(int i = 0; i < requests.size(); i++){
+	private boolean canPeekType(List<Request> requests) {
+		for (int i = 0; i < requests.size(); i++) {
 			Request currentRequest = requests.get(i);
 			if (canPeek(currentRequest)) {
 				if (availableRequest == null) {
-					//System.out.println("Accepted");
+					// System.out.println("Accepted");
 					availableRequest = currentRequest;
 					requests.remove(i);
 				}
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Check if a specific request can be peeked
-	 * @param request	Request to be peeked
+	 * 
+	 * @param request
+	 *            Request to be peeked
 	 * @return true if the request can be peeked
 	 */
 	private boolean canPeek(Request request) {
-		if (request.getStatus() != Request.PENDING){
+		if (request.getStatus() != Request.PENDING) {
 			return false;
 		}
-		
-		//If any mutex request is currently running, dont serve this request
-		if (servingMutex != null && servingMutex.getStatus() == Request.SERVING){
+
+		// If any mutex request is currently running, dont serve this request
+		if (servingMutex != null && servingMutex.getStatus() == Request.SERVING) {
 			return false;
 		}
-		
-		
+
 		if (request.isMutex() || request.isSequential()) {
-			//Dont serve mutex or seq requests if there is any sequential request running
-			if (servingSequential != null && servingSequential.getStatus() == Request.SERVING){
+			// Dont serve mutex or seq requests if there is any sequential
+			// request running
+			if (servingSequential != null && servingSequential.getStatus() == Request.SERVING) {
 				return false;
 			}
-			
-			if(request.isMutex()){
-				//Dont serve mutex request if any concurrent request is running
+
+			if (request.isMutex()) {
+				// Dont serve mutex request if any concurrent request is running
 				for (Request currentRequest : servingConcurrent) {
-					//TODO: is the trailing isMutex check necessary? or even wrong?
+					// TODO: is the trailing isMutex check necessary? or even
+					// wrong?
 					if (currentRequest.getStatus() == Request.SERVING && currentRequest.isMutex()) {
 						return false;
 					}

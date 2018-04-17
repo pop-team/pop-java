@@ -13,7 +13,7 @@ public class POPNodeJobManager extends POPNodeAJobManager {
 		super(POPConnectorJobManager.DESCRIPTOR, host, port, protocol);
 
 	}
-	
+
 	public POPNodeJobManager(List<String> params) {
 		super(POPConnectorJobManager.DESCRIPTOR, params);
 	}

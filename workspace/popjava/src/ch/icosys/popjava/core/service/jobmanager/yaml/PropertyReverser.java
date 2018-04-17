@@ -8,10 +8,12 @@ import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 /**
- * Reverse order of YAML Properties when making output.
- * This normally put attributes before lists and maps.
+ * Reverse order of YAML Properties when making output. This normally put
+ * attributes before lists and maps.
  * 
- * See https://bitbucket.org/asomov/snakeyaml/src/tip/src/test/java/org/yaml/snakeyaml/issues/issue60/CustomOrderTest.java
+ * See
+ * https://bitbucket.org/asomov/snakeyaml/src/tip/src/test/java/org/yaml/snakeyaml/issues/issue60/CustomOrderTest.java
+ * 
  * @author Davide Mazzoleni
  */
 public class PropertyReverser extends PropertyUtils {

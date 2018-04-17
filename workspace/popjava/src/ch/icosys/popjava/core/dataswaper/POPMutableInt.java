@@ -1,8 +1,12 @@
 package ch.icosys.popjava.core.dataswaper;
 
 import ch.icosys.popjava.core.buffer.POPBuffer;
+
 /**
- * Primitive settable int for POPJava, needed for {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in methods 
+ * Primitive settable int for POPJava, needed for
+ * {@link ch.icosys.popjava.core.annotation.POPParameter} direction use in
+ * methods
+ * 
  * @author Davide Mazzoleni
  */
 public class POPMutableInt implements IPOPBase {
@@ -20,24 +24,28 @@ public class POPMutableInt implements IPOPBase {
 
 	/**
 	 * Constructor with given value
-	 * @param value	int value to be stored in this object
+	 * 
+	 * @param value
+	 *            int value to be stored in this object
 	 */
 	public POPMutableInt(int value) {
 		this.value = value;
 	}
-	
+
 	/**
 	 * Set the int value of this object
-	 * @param value	new int value
+	 * 
+	 * @param value
+	 *            new int value
 	 */
-	public void setValue(int value)
-	{
-		this.value=value;
+	public void setValue(int value) {
+		this.value = value;
 	}
 
 	/**
 	 * Get the current value of this object
-	 * @return	current int value
+	 * 
+	 * @return current int value
 	 */
 	public int getValue() {
 		return value;
@@ -60,9 +68,9 @@ public class POPMutableInt implements IPOPBase {
 		value = buffer.getInt();
 		return false;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return String.valueOf(value);
 	}
 }

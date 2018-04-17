@@ -4,31 +4,36 @@ import java.io.File;
 import java.security.InvalidParameterException;
 
 /**
- * This class is meant describe a KeyStore for {@link ch.icosys.popjava.core.util.Configuration}
+ * This class is meant describe a KeyStore for
+ * {@link ch.icosys.popjava.core.util.Configuration}
  *
  * @author Davide Mazzoleni
  */
 public class KeyStoreDetails {
-	
+
 	public enum KeyStoreFormat {
-		JKS,
-		PKCS12
+		JKS, PKCS12
 	}
 
 	protected String keyStorePassword;
+
 	protected String privateKeyPassword;
+
 	protected File keyStoreFile;
+
 	protected KeyStoreFormat keyStoreFormat;
-	
+
 	/**
 	 * When using this constructor we must ensure {@link #validate()} return true
 	 */
 	public KeyStoreDetails() {
 	}
-	
+
 	/**
 	 * Copy constructor
-	 * @param other the key store we want to copy
+	 * 
+	 * @param other
+	 *            the key store we want to copy
 	 */
 	public KeyStoreDetails(KeyStoreDetails other) {
 		if (other != null) {
@@ -42,10 +47,15 @@ public class KeyStoreDetails {
 	/**
 	 * Full constructor
 	 * 
-	 * @param storepass The main password for the KeyStore, protect from tempering with the file
-	 * @param keypass The password of the primate key, used to extract it
-	 * @param keyStoreFile Where to save the file
-	 * @param keyStoreFormat Which format to save the KeyStore: JKS, PKCS12 (may have issue)
+	 * @param storepass
+	 *            The main password for the KeyStore, protect from tempering with
+	 *            the file
+	 * @param keypass
+	 *            The password of the primate key, used to extract it
+	 * @param keyStoreFile
+	 *            Where to save the file
+	 * @param keyStoreFormat
+	 *            Which format to save the KeyStore: JKS, PKCS12 (may have issue)
 	 */
 	public KeyStoreDetails(String storepass, String keypass, File keyStoreFile, KeyStoreFormat keyStoreFormat) {
 		this.keyStorePassword = storepass;
@@ -53,13 +63,17 @@ public class KeyStoreDetails {
 		this.keyStoreFile = keyStoreFile;
 		this.keyStoreFormat = keyStoreFormat;
 	}
-	
+
 	/**
 	 * Parameters to create a KeyStore with JKS as default keystore
 	 *
-	 * @param storepass The main password for the KeyStore, protect from tempering with the file
-	 * @param keypass The password of the primate key, used to extract it
-	 * @param keyStoreFile Where to save the file
+	 * @param storepass
+	 *            The main password for the KeyStore, protect from tempering with
+	 *            the file
+	 * @param keypass
+	 *            The password of the primate key, used to extract it
+	 * @param keyStoreFile
+	 *            Where to save the file
 	 */
 	public KeyStoreDetails(String storepass, String keypass, File keyStoreFile) {
 		this(storepass, keypass, keyStoreFile, KeyStoreFormat.JKS);
@@ -72,7 +86,8 @@ public class KeyStoreDetails {
 	/**
 	 * Password of the keystore file, protect the integrity of the file
 	 * 
-	 * @param storepass the new key store password
+	 * @param storepass
+	 *            the new key store password
 	 */
 	public void setKeyStorePassword(String storepass) {
 		this.keyStorePassword = storepass;
@@ -90,7 +105,8 @@ public class KeyStoreDetails {
 	/**
 	 * Password of the Private Key in the KeyStore
 	 * 
-	 * @param keypass the new password of the key
+	 * @param keypass
+	 *            the new password of the key
 	 */
 	public void setPrivateKeyPassword(String keypass) {
 		this.privateKeyPassword = keypass;
@@ -108,7 +124,8 @@ public class KeyStoreDetails {
 	/**
 	 * Where to save the file
 	 * 
-	 * @param keyStoreFile the new keystore location
+	 * @param keyStoreFile
+	 *            the new keystore location
 	 */
 	public void setKeyStoreFile(File keyStoreFile) {
 		this.keyStoreFile = keyStoreFile;
@@ -124,17 +141,19 @@ public class KeyStoreDetails {
 	}
 
 	/**
-	 * Format of the keystore.
-	 * Be aware that format different from JKS could have issues.
+	 * Format of the keystore. Be aware that format different from JKS could have
+	 * issues.
 	 * 
-	 * @param keyStoreFormat the new format of the keystore
+	 * @param keyStoreFormat
+	 *            the new format of the keystore
 	 */
 	public void setKeyStoreFormat(KeyStoreFormat keyStoreFormat) {
 		this.keyStoreFormat = keyStoreFormat;
 	}
 
 	/**
-	 * @throws InvalidParameterException when something is set incorrectly for creating a new KeyStore
+	 * @throws InvalidParameterException
+	 *             when something is set incorrectly for creating a new KeyStore
 	 */
 	public void validate() {
 		if (keyStorePassword == null || keyStorePassword.length() < 6) {

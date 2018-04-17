@@ -8,7 +8,9 @@ package ch.icosys.popjava.core.service.jobmanager.yaml;
 public class YamlResource {
 
 	private float flops;
+
 	private float bandwidth;
+
 	private float memory;
 
 	/**
@@ -23,7 +25,8 @@ public class YamlResource {
 	/**
 	 * Power in flops.
 	 * 
-	 * @param flops the power
+	 * @param flops
+	 *            the power
 	 */
 	public void setFlops(float flops) {
 		this.flops = flops;
@@ -41,7 +44,8 @@ public class YamlResource {
 	/**
 	 * Transfer speed in KiB/s.
 	 * 
-	 * @param bandwidth the network speed
+	 * @param bandwidth
+	 *            the network speed
 	 */
 	public void setBandwidth(float bandwidth) {
 		this.bandwidth = bandwidth;
@@ -59,7 +63,8 @@ public class YamlResource {
 	/**
 	 * Memory in MiB.
 	 * 
-	 * @param memory the memory
+	 * @param memory
+	 *            the memory
 	 */
 	public void setMemory(float memory) {
 		this.memory = memory;

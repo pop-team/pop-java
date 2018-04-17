@@ -1,4 +1,5 @@
 package ch.icosys.popjava.core.mapgen;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -14,7 +15,9 @@ import ch.icosys.popjava.core.base.POPObject;
  */
 public class ClassReader {
 	private String cleanPath;
+
 	private String className;
+
 	private String packageName = "";
 
 	/**
@@ -37,40 +40,39 @@ public class ClassReader {
 	 * @throws MalformedURLException
 	 *             Thrown if the URL to the class is wrong
 	 */
-	public boolean isParclass() throws ClassNotFoundException,
-			MalformedURLException {
-		ClassLoader loader = URLClassLoader.newInstance(new URL[] { new URL(
-				"file://" + cleanPath) }, getClass().getClassLoader());
+	public boolean isParclass() throws ClassNotFoundException, MalformedURLException {
+		ClassLoader loader = URLClassLoader.newInstance(new URL[] { new URL("file://" + cleanPath) },
+				getClass().getClassLoader());
 		Class<?> c = Class.forName(className, true, loader);
-		
-		if(isParclass(c)){
-		    Package p = c.getPackage();
-            if (p != null){
-                packageName = p.getName();
-            }
-            return true;
+
+		if (isParclass(c)) {
+			Package p = c.getPackage();
+			if (p != null) {
+				packageName = p.getName();
+			}
+			return true;
 		}
-		
+
 		return false;
 	}
-	
-	public static boolean isParclass(Class<?> c){
-	    Class<?> sc = c;
-	    do{
-	        POPClass popAnnotation = sc.getAnnotation(POPClass.class);
-	        
-	        if(popAnnotation != null){
-	            return true;
-	        }
-	        
-	        if (sc == POPObject.class) {
-	            return true;
-	        }
-	        
-	        sc = sc.getSuperclass();
-	    }while(sc != null);
-	    
-        return false;
+
+	public static boolean isParclass(Class<?> c) {
+		Class<?> sc = c;
+		do {
+			POPClass popAnnotation = sc.getAnnotation(POPClass.class);
+
+			if (popAnnotation != null) {
+				return true;
+			}
+
+			if (sc == POPObject.class) {
+				return true;
+			}
+
+			sc = sc.getSuperclass();
+		} while (sc != null);
+
+		return false;
 	}
 
 	/**

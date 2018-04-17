@@ -5,13 +5,14 @@ import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class SerialObject implements IPOPBase {
 	public int i;
+
 	public double d;
-	
-	public SerialObject(){
+
+	public SerialObject() {
 		i = 0;
 		d = 0.0;
 	}
-	
+
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
 		i = buffer.getInt();

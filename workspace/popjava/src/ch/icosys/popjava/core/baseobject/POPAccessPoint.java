@@ -11,11 +11,15 @@ import ch.icosys.popjava.core.system.POPSystem;
  */
 
 public class POPAccessPoint implements IPOPBase {
-	
+
 	private boolean isService;
+
 	private boolean noaddref = false;
+
 	private int security;
+
 	private String fingerprint = null;
+
 	private byte[] x509certificate = null;
 
 	/**
@@ -32,7 +36,9 @@ public class POPAccessPoint implements IPOPBase {
 
 	/**
 	 * Create a new POPAccessPoint an make some initialization tasks
-	 * @param initialize Set to false if you don't want the initialization
+	 * 
+	 * @param initialize
+	 *            Set to false if you don't want the initialization
 	 */
 	public POPAccessPoint(boolean initialize) {
 		if (initialize) {
@@ -42,7 +48,9 @@ public class POPAccessPoint implements IPOPBase {
 
 	/**
 	 * Create a new POPAccessPoint with a formatted string
-	 * @param accessString Formatted string to create the POPAccessPoint
+	 * 
+	 * @param accessString
+	 *            Formatted string to create the POPAccessPoint
 	 */
 	public POPAccessPoint(String accessString) {
 		setAccessString(accessString);
@@ -52,7 +60,7 @@ public class POPAccessPoint implements IPOPBase {
 	 * Serialize the object into the buffer to be sent over the network
 	 */
 	@Override
-    public boolean serialize(POPBuffer buffer) {
+	public boolean serialize(POPBuffer buffer) {
 		buffer.putString(toString());
 		buffer.putInt(security);
 		buffer.putBoolean(isService);
@@ -78,7 +86,7 @@ public class POPAccessPoint implements IPOPBase {
 	 * Deserialize the object from the buffer received from the network
 	 */
 	@Override
-    public boolean deserialize(POPBuffer buffer) {
+	public boolean deserialize(POPBuffer buffer) {
 		String accessPoint = buffer.getString();
 		setAccessString(accessPoint);
 		security = buffer.getInt();
@@ -112,7 +120,9 @@ public class POPAccessPoint implements IPOPBase {
 
 	/**
 	 * Add an access point to the POPAccessPoint
-	 * @param accessPoint New access point to be added
+	 * 
+	 * @param accessPoint
+	 *            New access point to be added
 	 */
 	public void addAccessPoint(AccessPoint accessPoint) {
 		if (!accessPoints.contains(accessPoint)) {
@@ -122,6 +132,7 @@ public class POPAccessPoint implements IPOPBase {
 
 	/**
 	 * Check if the current object is empty
+	 * 
 	 * @return true is the current object is not set
 	 */
 	public boolean isEmpty() {
@@ -132,7 +143,7 @@ public class POPAccessPoint implements IPOPBase {
 	 * Format the POPAccessPoint to a string value
 	 */
 	@Override
-    public String toString() {
+	public String toString() {
 		StringBuilder accessString = new StringBuilder();
 		for (AccessPoint accessPoint : accessPoints) {
 			accessString.append(accessPoint.toString()).append(" ");
@@ -143,17 +154,19 @@ public class POPAccessPoint implements IPOPBase {
 
 	/**
 	 * Add an access point by a formatted string
-	 * @param accessString Formatted string to be added as an access point
+	 * 
+	 * @param accessString
+	 *            Formatted string to be added as an access point
 	 */
 	public void setAccessString(String accessString) {
 		accessPoints.clear();
 		String[] accessStrings = accessString.split("[ \t\r\n]");
-		
+
 		for (String str : accessStrings) {
 			str = str.trim();
 			if (str.length() > 0) {
 				AccessPoint acessPoint = AccessPoint.create(str);
-				if (acessPoint != null){
+				if (acessPoint != null) {
 					accessPoints.add(acessPoint);
 				}
 			}
@@ -162,6 +175,7 @@ public class POPAccessPoint implements IPOPBase {
 
 	/**
 	 * Get the number of different access points
+	 * 
 	 * @return Number of access points
 	 */
 	public int size() {
@@ -170,24 +184,26 @@ public class POPAccessPoint implements IPOPBase {
 
 	/**
 	 * Get the access point at specified index
-	 * @param index	index of the access point to return
-	 * @return the access points at the specified index 
+	 * 
+	 * @param index
+	 *            index of the access point to return
+	 * @return the access points at the specified index
 	 */
 	public AccessPoint get(int index) {
 		return accessPoints.get(index);
 	}
-	
+
 	public boolean hasSameAccessPoint(POPAccessPoint ap) {
-	    if(ap == null) {
-	        return false;
-	    }
-	    
-		for(int i = 0; i < ap.size(); i++) {
-			if(accessPoints.contains(ap.get(i))) {
+		if (ap == null) {
+			return false;
+		}
+
+		for (int i = 0; i < ap.size(); i++) {
+			if (accessPoints.contains(ap.get(i))) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -215,6 +231,5 @@ public class POPAccessPoint implements IPOPBase {
 			return false;
 		return true;
 	}
-
 
 }

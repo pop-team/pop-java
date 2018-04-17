@@ -11,17 +11,17 @@ public class ConfigurationTests {
 	@Test
 	public void testPOPJavaLocation() {
 		String location = POPJavaConfiguration.getPopJavaLocation();
-		
+
 		System.out.println(location);
-		
+
 		assertFalse(location.isEmpty());
 	}
-	
+
 	@Test
 	public void testClasspath() {
 		String cp = POPJavaConfiguration.getClassPath();
-		
+
 		System.out.println(cp);
 	}
-	
+
 }

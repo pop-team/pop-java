@@ -7,8 +7,6 @@ import ch.icosys.popjava.core.base.MessageHeader;
  */
 public class BufferPlugin extends POPBuffer {
 
-    
-    
 	@Override
 	public byte[] array() {
 		return null;
@@ -93,7 +91,6 @@ public class BufferPlugin extends POPBuffer {
 		return null;
 	}
 
-
 	@Override
 	public void put(byte value) {
 
@@ -107,18 +104,15 @@ public class BufferPlugin extends POPBuffer {
 	@Override
 	public void put(byte[] data, int offset, int length) {
 
-
 	}
 
 	@Override
 	public void putBoolean(boolean value) {
 
-
 	}
 
 	@Override
 	public void putBooleanArray(boolean[] value) {
-
 
 	}
 
@@ -210,13 +204,11 @@ public class BufferPlugin extends POPBuffer {
 	@Override
 	public void putShort(short value) {
 
-		
 	}
 
 	@Override
 	public void putShortArray(short[] value) {
 
-		
 	}
 
 	@Override
@@ -226,8 +218,7 @@ public class BufferPlugin extends POPBuffer {
 
 	@Override
 	public void putCharArray(char[] value) {
-	
-		
+
 	}
 
 }

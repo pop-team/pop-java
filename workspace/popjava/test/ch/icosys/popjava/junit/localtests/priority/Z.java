@@ -15,11 +15,11 @@ public class Z extends POPObject implements IZ {
 	@POPObjectDescription(url = "localhost")
 	public Z() {
 	}
-	
+
 	@POPSyncConc
 	@Override
 	public int getV() {
 		return 100;
 	}
-	
+
 }

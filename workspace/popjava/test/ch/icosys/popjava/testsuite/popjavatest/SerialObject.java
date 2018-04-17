@@ -4,20 +4,21 @@ import ch.icosys.popjava.core.buffer.POPBuffer;
 import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
 public class SerialObject implements IPOPBase {
-	
+
 	int i;
+
 	String test;
-	
-	public SerialObject(){
-		test="";
-		i=0;
+
+	public SerialObject() {
+		test = "";
+		i = 0;
 	}
-	
-	public SerialObject(int i, String test){
-		this.i=i;
+
+	public SerialObject(int i, String test) {
+		this.i = i;
 		this.test = test;
 	}
-	
+
 	@Override
 	public boolean deserialize(POPBuffer buffer) {
 		i = buffer.getInt();
@@ -32,5 +33,5 @@ public class SerialObject implements IPOPBase {
 		buffer.putString(test);
 		return true;
 	}
-	
+
 }

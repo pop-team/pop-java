@@ -6,18 +6,25 @@ import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 
 /**
  * Describe a TFC resource
+ * 
  * @author Davide Mazzoleni
  */
 public class TFCResource {
 	private final String objectName;
+
 	private final POPAccessPoint accessPoint;
+
 	private final String secret;
 
 	/**
 	 * Describe a TFC resource
-	 * @param objectName the object type {@link Class#getName()}
-	 * @param accessPoint where we can find the object
-	 * @param secret secret to remove it if still alive
+	 * 
+	 * @param objectName
+	 *            the object type {@link Class#getName()}
+	 * @param accessPoint
+	 *            where we can find the object
+	 * @param secret
+	 *            secret to remove it if still alive
 	 */
 	public TFCResource(String objectName, POPAccessPoint accessPoint, String secret) {
 		this.objectName = objectName;
@@ -36,7 +43,7 @@ public class TFCResource {
 	public String getSecret() {
 		return secret;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = 7;

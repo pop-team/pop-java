@@ -11,21 +11,21 @@ import ch.icosys.popjava.core.baseobject.ConnectionType;
 @POPClass
 public class TestClass extends POPObject {
 
-	//@POPObjectDescription(connection=ConnectionType.DAEMON, url = POPObjectDescription.LOCAL_DEBUG_URL)
-	
-	@POPObjectDescription(connection=ConnectionType.DAEMON, connectionSecret = "password")
-	public TestClass(){
+	// @POPObjectDescription(connection=ConnectionType.DAEMON, url =
+	// POPObjectDescription.LOCAL_DEBUG_URL)
+
+	@POPObjectDescription(connection = ConnectionType.DAEMON, connectionSecret = "password")
+	public TestClass() {
 	}
-	
+
 	@POPObjectDescription(url = POPObjectDescription.LOCAL_DEBUG_URL)
-	public TestClass(@POPConfig(Type.CONNECTION) ConnectionType type,
-			@POPConfig(Type.CONNECTION_PWD) String secret){
-		
+	public TestClass(@POPConfig(Type.CONNECTION) ConnectionType type, @POPConfig(Type.CONNECTION_PWD) String secret) {
+
 	}
-	
+
 	@POPSyncConc
-	public int test(){
+	public int test() {
 		return 1234;
 	}
-	
+
 }

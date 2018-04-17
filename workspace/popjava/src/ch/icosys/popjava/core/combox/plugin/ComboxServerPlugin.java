@@ -11,12 +11,15 @@ public class ComboxServerPlugin extends ComboxServer {
 
 	/**
 	 * Default constructor. Create a new combox server plug-in
-	 * @param accessPoint	Access point of the combox server
-	 * @param timeout		Connection timeout
-	 * @param broker		Associated broker
+	 * 
+	 * @param accessPoint
+	 *            Access point of the combox server
+	 * @param timeout
+	 *            Connection timeout
+	 * @param broker
+	 *            Associated broker
 	 */
-	public ComboxServerPlugin(AccessPoint accessPoint, int timeout,
-			Broker broker) {
+	public ComboxServerPlugin(AccessPoint accessPoint, int timeout, Broker broker) {
 		super(accessPoint, timeout, broker);
 	}
 

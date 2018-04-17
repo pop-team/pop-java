@@ -6,14 +6,14 @@ import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class A extends POPObject{
-	
+public class A extends POPObject {
+
 	@POPObjectDescription(url = "localhost")
-	public A(){
+	public A() {
 	}
-	
+
 	@POPSyncConc
-	public int getTestValue(){
+	public int getTestValue() {
 		return 1234;
 	}
 

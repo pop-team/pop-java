@@ -16,16 +16,22 @@ import ch.icosys.popjava.core.util.Util;
 public class POPNodeDirect extends POPNode {
 
 	private int port;
+
 	private boolean daemon;
+
 	private String daemonSecret;
+
 	private boolean initialized = true;
 
 	/**
 	 * Used for creating daemons direct nodes
 	 * 
-	 * @param host the host machine
-	 * @param port the port of the daemon
-	 * @param daemonSecret the secret for the daemon
+	 * @param host
+	 *            the host machine
+	 * @param port
+	 *            the port of the daemon
+	 * @param daemonSecret
+	 *            the secret for the daemon
 	 */
 	public POPNodeDirect(String host, int port, String daemonSecret) {
 		super(POPConnectorDirect.DESCRIPTOR);
@@ -33,15 +39,17 @@ public class POPNodeDirect extends POPNode {
 		this.port = port;
 		this.daemon = true;
 		this.daemonSecret = daemonSecret;
-		
+
 		init();
 	}
 
 	/**
 	 * Used for creating SSH nodes
 	 * 
-	 * @param host the host machine
-	 * @param port the ssh port
+	 * @param host
+	 *            the host machine
+	 * @param port
+	 *            the ssh port
 	 */
 	public POPNodeDirect(String host, int port) {
 		super(POPConnectorDirect.DESCRIPTOR);
@@ -49,7 +57,7 @@ public class POPNodeDirect extends POPNode {
 		this.port = port;
 		this.daemon = false;
 		this.daemonSecret = null;
-		
+
 		init();
 	}
 
@@ -83,12 +91,13 @@ public class POPNodeDirect extends POPNode {
 				initialized = false;
 			}
 		}
-		
+
 		init();
 	}
-	
+
 	private void init() {
-		// set parameters again for future creation and sharing, keep posible extra values
+		// set parameters again for future creation and sharing, keep posible
+		// extra values
 		Set<String> paramsSet = new HashSet<>();
 		paramsSet.add("connector=" + descriptor.getGlobalName());
 		paramsSet.add("host=" + this.host);
@@ -156,7 +165,6 @@ public class POPNodeDirect extends POPNode {
 	@Override
 	public String toString() {
 		return String.format("host=%s port=%d connector=%s protocol=%s %s", host, port, descriptor.getGlobalName(),
-				daemon ? "daemon" : "ssh",
-				daemonSecret == null ? "" : "secret=" + daemonSecret).trim();
+				daemon ? "daemon" : "ssh", daemonSecret == null ? "" : "secret=" + daemonSecret).trim();
 	}
 }

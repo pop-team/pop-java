@@ -17,6 +17,7 @@ import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
 import org.junit.BeforeClass;
 import static org.junit.Assert.*;
+
 /**
  *
  * @author dosky
@@ -25,19 +26,19 @@ public class POPJavaJobManagerLiveConfigurationTest {
 
 	@Rule
 	public TemporaryFolder tf = new TemporaryFolder();
-	
+
 	@BeforeClass
 	public static void bc() {
 		Configuration.getInstance().setSSLKeyStoreOptions(new KeyStoreDetails());
 	}
-	
+
 	@Test
 	public void networks() throws IOException {
 		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
-		
+
 		// networks
 		String ONE = "1", TWO = "2", TRE = "3";
-		
+
 		// new networks
 		String N1 = jm.createNetwork(ONE).getUUID();
 		assertEquals(1, jm.getAvailableNetworks().length);
@@ -45,7 +46,7 @@ public class POPJavaJobManagerLiveConfigurationTest {
 		assertEquals(2, jm.getAvailableNetworks().length);
 		String N3 = jm.createNetwork(TRE).getUUID();
 		assertEquals(3, jm.getAvailableNetworks().length);
-		
+
 		// duplicates
 		jm.createNetwork(N1, ONE);
 		assertEquals(3, jm.getAvailableNetworks().length);
@@ -53,7 +54,7 @@ public class POPJavaJobManagerLiveConfigurationTest {
 		assertEquals(3, jm.getAvailableNetworks().length);
 		jm.createNetwork(N3, TRE);
 		assertEquals(3, jm.getAvailableNetworks().length);
-		
+
 		// remove
 		jm.removeNetwork(N1);
 		assertEquals(2, jm.getAvailableNetworks().length);
@@ -62,21 +63,21 @@ public class POPJavaJobManagerLiveConfigurationTest {
 		jm.removeNetwork(N3);
 		assertEquals(0, jm.getAvailableNetworks().length);
 	}
-	
+
 	@Test
 	public void nodes() throws IOException {
 		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
-		
+
 		String N = "n", M = "m";
 		// node params (creation)
 		String[] ONE = { "host=1", "port=0", "connector=direct", "protocol=ssh" };
 		String[] TWO = { "host=0", "port=0", "connector=jobmanager", "protocol=ssl" };
 		String[] TRE = { "host=3", "port=0", "connector=direct", "protocol=daemon", "secret=daemon" };
-		
+
 		// two networks
 		String NID = jm.createNetwork(N).getUUID();
 		String MID = jm.createNetwork(M).getUUID();
-		
+
 		// add nodes to networks
 		jm.registerNode(NID, ONE);
 		assertEquals(1, jm.getNetworkNodes(NID).length);
@@ -84,7 +85,7 @@ public class POPJavaJobManagerLiveConfigurationTest {
 		assertEquals(2, jm.getNetworkNodes(NID).length);
 		jm.registerNode(MID, TRE);
 		assertEquals(1, jm.getNetworkNodes(MID).length);
-		
+
 		// duplicates
 		jm.registerNode(NID, ONE);
 		assertEquals(2, jm.getNetworkNodes(NID).length);
@@ -92,7 +93,7 @@ public class POPJavaJobManagerLiveConfigurationTest {
 		assertEquals(2, jm.getNetworkNodes(NID).length);
 		jm.registerNode(MID, TRE);
 		assertEquals(1, jm.getNetworkNodes(MID).length);
-		
+
 		// remove
 		jm.unregisterNode(NID, ONE);
 		assertEquals(1, jm.getNetworkNodes(NID).length);
@@ -101,21 +102,21 @@ public class POPJavaJobManagerLiveConfigurationTest {
 		jm.unregisterNode(MID, TRE);
 		assertEquals(0, jm.getNetworkNodes(MID).length);
 	}
-	
+
 	@Test
 	public void mixed() throws IOException {
 		POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
-		
+
 		String N = "n", M = "m";
 		// node params (creation)
 		String[] ONE = { "host=1", "port=0", "connector=direct", "protocol=ssh" };
 		String[] TWO = { "host=0", "port=0", "connector=jobmanager", "protocol=ssl" };
 		String[] TRE = { "host=3", "port=0", "connector=direct", "protocol=daemon", "secret=daemon" };
-		
+
 		// two networks
 		String N1 = jm.createNetwork(N).getUUID();
 		String M1 = jm.createNetwork(M).getUUID();
-		
+
 		// add nodes to networks
 		jm.registerNode(N1, ONE);
 		assertEquals(1, jm.getNetworkNodes(N1).length);
@@ -123,17 +124,17 @@ public class POPJavaJobManagerLiveConfigurationTest {
 		assertEquals(2, jm.getNetworkNodes(N1).length);
 		jm.registerNode(M1, TRE);
 		assertEquals(1, jm.getNetworkNodes(M1).length);
-		
+
 		// remove networks
 		jm.removeNetwork(N1);
 		assertEquals(1, jm.getAvailableNetworks().length);
 		jm.removeNetwork(M1);
 		assertEquals(0, jm.getAvailableNetworks().length);
-		
+
 		// get from unexisting network
 		assertEquals(0, jm.getNetworkNodes(N1).length);
 	}
-	
+
 	@Test
 	public void withSSL() throws IOException {
 		Configuration conf = Configuration.getInstance();
@@ -150,9 +151,9 @@ public class POPJavaJobManagerLiveConfigurationTest {
 			conf.setUserConfig(userConfig);
 
 			conf.store();
-			
+
 			POPJavaJobManager jm = new POPJavaJobManager("localhost:2711", tf.newFile().getAbsolutePath());
-			
+
 			POPNetworkDetails N1 = jm.createNetwork("random");
 			assertEquals(1, jm.getAvailableNetworks().length);
 			assertTrue(SSLUtils.getCertificateFromAlias(N1.getUUID()) != null);

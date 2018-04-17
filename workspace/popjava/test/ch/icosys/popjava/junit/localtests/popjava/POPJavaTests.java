@@ -8,8 +8,9 @@ import ch.icosys.popjava.core.PopJava;
 import ch.icosys.popjava.core.system.POPSystem;
 
 public class POPJavaTests {
-	
-	private static class TestClass{
+
+	@SuppressWarnings("unused")
+	private static class TestClass {
 		TestObject temp;
 	}
 
@@ -30,7 +31,7 @@ public class POPJavaTests {
 	@Test(expected = Exception.class)
 	public void testClose() throws InterruptedException {
 		POPSystem.initialize();
-		
+
 		TestObject test = PopJava.newActive(this, TestObject.class);
 
 		assertEquals(1234, test.test());

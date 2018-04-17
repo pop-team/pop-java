@@ -12,7 +12,7 @@ import ch.icosys.popjava.core.interfacebase.Interface;
  * @author Davide Mazzoleni
  */
 public class POPConnectorDirect extends POPConnector {
-	
+
 	private static class DescriptorMethodImpl implements POPNetworkDescriptorMethod {
 		@Override
 		public POPConnector createConnector() {
@@ -24,6 +24,7 @@ public class POPConnectorDirect extends POPConnector {
 			return new POPNodeDirect(params);
 		}
 	}
+
 	static final POPNetworkDescriptor DESCRIPTOR = new POPNetworkDescriptor("direct", new DescriptorMethodImpl());
 
 	public static final String OD_SERVICE_PORT = "_service-port";
@@ -31,10 +32,10 @@ public class POPConnectorDirect extends POPConnector {
 	public POPConnectorDirect() {
 		super(DESCRIPTOR);
 	}
-	
+
 	@Override
-	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od,
-			int howmany, POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
+	public int createObject(POPAccessPoint localservice, String objname, ObjectDescription od, int howmany,
+			POPAccessPoint[] objcontacts, int howmany2, POPAccessPoint[] remotejobcontacts) {
 		// node in network
 		// get a random node
 		POPNodeDirect node = (POPNodeDirect) nodes.get((int) (Math.random() * nodes.size()));
@@ -51,6 +52,7 @@ public class POPConnectorDirect extends POPConnector {
 
 		// do n times on the same node
 		for (int i = 0; i < howmany; i++) {
+			@SuppressWarnings("unused")
 			boolean success = Interface.tryLocal(objname, objcontacts[i], od);
 		}
 		return 0;

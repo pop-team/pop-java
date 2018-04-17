@@ -14,33 +14,42 @@ import ch.icosys.popjava.core.service.jobmanager.yaml.YamlNetwork;
 import ch.icosys.popjava.core.util.Util;
 
 /**
- * Describe a POP Network, made of POP Connector with relative members to of a POP COnnector.
+ * Describe a POP Network, made of POP Connector with relative members to of a
+ * POP COnnector.
  * 
  * @author Davide Mazzoleni
  */
 public class POPNetwork {
 
 	private final String uuid;
+
 	private String friendlyName;
+
 	private final Map<POPNetworkDescriptor, POPConnector> connectors;
+
 	private final POPJavaJobManager jobManager;
 
 	/**
 	 * Create a new network from 0, it will generate a new UUID for it.
 	 * 
-	 * @param frendlyName A local name for the network.
-	 * @param jobManager The job manager it is assigned to.
+	 * @param frendlyName
+	 *            A local name for the network.
+	 * @param jobManager
+	 *            The job manager it is assigned to.
 	 */
 	public POPNetwork(String frendlyName, POPJavaJobManager jobManager) {
 		this(Util.generateUUID(), frendlyName, jobManager);
 	}
-	
+
 	/**
 	 * Initialize a POP Network from a previously existing UUID.
 	 * 
-	 * @param uuid The previously generated UUID.
-	 * @param friendlyName a friendly local name for easy recognition
-	 * @param jobManager the job manager
+	 * @param uuid
+	 *            The previously generated UUID.
+	 * @param friendlyName
+	 *            a friendly local name for easy recognition
+	 * @param jobManager
+	 *            the job manager
 	 */
 	public POPNetwork(String uuid, String friendlyName, POPJavaJobManager jobManager) {
 		this.uuid = uuid;
@@ -61,7 +70,8 @@ public class POPNetwork {
 	/**
 	 * The new friendly name
 	 * 
-	 * @param friendlyName the locally recognition name
+	 * @param friendlyName
+	 *            the locally recognition name
 	 */
 	public void setFriendlyName(String friendlyName) {
 		this.friendlyName = friendlyName;
@@ -85,15 +95,18 @@ public class POPNetwork {
 		Collection<POPConnector> conns = connectors.values();
 		return conns.toArray(new POPConnector[conns.size()]);
 	}
-	
+
 	/**
-	 * Get an already casted connector from its string.
-	 * Warning: Responsibility on the user to use the right return.
+	 * Get an already casted connector from its string. Warning: Responsibility on
+	 * the user to use the right return.
 	 * 
-	 * Use ``POPConnector connector = network.getConnector(...)`` if the return is unknown.
+	 * Use ``POPConnector connector = network.getConnector(...)`` if the return is
+	 * unknown.
 	 * 
-	 * @param <T> How to cast the connector
-	 * @param connector Name of the connector
+	 * @param <T>
+	 *            How to cast the connector
+	 * @param connector
+	 *            Name of the connector
 	 * @return a specific connector, already casted
 	 */
 	@SuppressWarnings("unchecked")
@@ -117,7 +130,8 @@ public class POPNetwork {
 	/**
 	 * Get NetworkNode already casted to correct type
 	 *
-	 * @param connectorName Which connector we are using
+	 * @param connectorName
+	 *            Which connector we are using
 	 * @return An immutable set we can loop through
 	 */
 	@SuppressWarnings("unchecked")
@@ -126,17 +140,17 @@ public class POPNetwork {
 		if (connector == null) {
 			return Collections.EMPTY_LIST;
 		}
-		
+
 		return connector.getNodes();
 	}
 
 	/**
 	 * Add a NetworkNode to this network
 	 *
-	 * @param node The node
+	 * @param node
+	 *            The node
 	 * @return true if the Node is added, false if not or not compatible
 	 */
-	@SuppressWarnings("unchecked")
 	public boolean add(POPNode node) {
 		// connector
 		POPConnector connector = connectors.get(node.getConnectorDescriptor());
@@ -152,7 +166,8 @@ public class POPNetwork {
 	/**
 	 * Remove a node from this Network
 	 *
-	 * @param node The node
+	 * @param node
+	 *            The node
 	 * @return true if the Node is remove, false otherwise
 	 */
 	public boolean remove(POPNode node) {
@@ -200,13 +215,13 @@ public class POPNetwork {
 		YamlNetwork yamlNetwork = new YamlNetwork();
 		yamlNetwork.setUuid(uuid);
 		yamlNetwork.setFriendlyName(friendlyName);
-		
+
 		List<YamlConnector> yamlConnectors = new ArrayList<>(connectors.size());
 		yamlNetwork.setConnectors(yamlConnectors);
 		for (POPConnector connector : connectors.values()) {
 			yamlConnectors.add(connector.toYamlResource());
 		}
-		
+
 		return yamlNetwork;
 	}
 

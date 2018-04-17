@@ -7,13 +7,13 @@ import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class C extends POPObject implements D{
+public class C extends POPObject implements D {
 
 	@POPObjectDescription(url = "localhost")
-	public C(){
-		
+	public C() {
+
 	}
-	
+
 	@Override
 	@POPSyncConc
 	public B getTest() {

@@ -4,26 +4,29 @@ import ch.icosys.popjava.core.annotation.POPAsyncConc;
 import ch.icosys.popjava.core.annotation.POPAsyncSeq;
 import ch.icosys.popjava.core.annotation.POPClass;
 import ch.icosys.popjava.core.annotation.POPObjectDescription;
+
 /**
  * Partial POP-Java class implementation to be used with the POP-C++ runtime
- * This class declares the necessary methods to use the ObjectMonitor parallel object of POP-C++
+ * This class declares the necessary methods to use the ObjectMonitor parallel
+ * object of POP-C++
  */
 @POPClass(classId = 4, className = "ObjectMonitor")
 public class POPObjectMonitor extends POPCodeManager {
-	
+
 	/**
-	 * Default constructor of POPJobManager.
-	 * Create a POP-C++ object JobMgr
+	 * Default constructor of POPJobManager. Create a POP-C++ object JobMgr
 	 */
-    @POPObjectDescription(id = 10)
+	@POPObjectDescription(id = 10)
 	public POPObjectMonitor() {
 	}
 
 	/**
 	 * Constructor of POPAppService with parameters
-	 * @param challenge		challenge string to stop the parallel object
+	 * 
+	 * @param challenge
+	 *            challenge string to stop the parallel object
 	 */
-    @POPObjectDescription(id = 11)
+	@POPObjectDescription(id = 11)
 	public POPObjectMonitor(String challenge) {
 
 	}
@@ -38,7 +41,9 @@ public class POPObjectMonitor extends POPCodeManager {
 
 	/**
 	 * Ask the ObjectMinotr service to manage a new object
-	 * @param p	acces point to this object
+	 * 
+	 * @param p
+	 *            acces point to this object
 	 */
 	@POPAsyncSeq(id = 14)
 	public void manageObject(String p) {
@@ -47,7 +52,9 @@ public class POPObjectMonitor extends POPCodeManager {
 
 	/**
 	 * Ask the ObjectMinotr service to stop the management of an object
-	 * @param p	acces point to this object
+	 * 
+	 * @param p
+	 *            acces point to this object
 	 */
 	@POPAsyncSeq(id = 15)
 	public void unManageObject(String p) {
@@ -55,7 +62,8 @@ public class POPObjectMonitor extends POPCodeManager {
 
 	/**
 	 * Check how many parallel objects are currently alive
-	 * @return	Number of currently alive parallel objects
+	 * 
+	 * @return Number of currently alive parallel objects
 	 */
 	@POPAsyncConc(id = 16)
 	public int checkObjects() {

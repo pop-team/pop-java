@@ -10,14 +10,14 @@ import ch.icosys.popjava.core.system.POPSystem;
 public class DelayedCallbackTest {
 
 	@Test
-	public void testDelayedCallback(){
+	public void testDelayedCallback() {
 		POPSystem.initialize();
 		A a = PopJava.newActive(this, A.class);
 		a.test();
-		
+
 		assertEquals(1234, a.getValue());
-		
+
 		POPSystem.end();
 	}
-	
+
 }

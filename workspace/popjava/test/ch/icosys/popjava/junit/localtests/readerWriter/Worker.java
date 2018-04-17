@@ -7,20 +7,20 @@ import ch.icosys.popjava.core.annotation.POPConfig.Type;
 import ch.icosys.popjava.core.base.POPObject;
 
 @POPClass
-public class Worker extends POPObject{
+public class Worker extends POPObject {
 	private Writer writer;
 
-	public Worker(){
-		
+	public Worker() {
+
 	}
-	
-	public Worker(@POPConfig(Type.URL) String ip, Writer writer){
+
+	public Worker(@POPConfig(Type.URL) String ip, Writer writer) {
 		this.writer = writer.makePermanent();
 	}
-	
+
 	@POPSyncConc
-	public void work(){
+	public void work() {
 		writer.write();
 	}
-	
+
 }

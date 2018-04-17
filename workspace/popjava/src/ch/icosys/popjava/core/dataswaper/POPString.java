@@ -1,6 +1,7 @@
 package ch.icosys.popjava.core.dataswaper;
 
 import ch.icosys.popjava.core.buffer.POPBuffer;
+
 /**
  * Compatible with the POP-C++ paroc_string implementation
  */
@@ -19,24 +20,28 @@ public class POPString implements IPOPBase {
 
 	/**
 	 * Constructor with given value
-	 * @param value	String value to be stored in this object
+	 * 
+	 * @param value
+	 *            String value to be stored in this object
 	 */
 	public POPString(String value) {
 		this.value = value;
 	}
-	
+
 	/**
 	 * Set the string value of this object
-	 * @param value	new string value
+	 * 
+	 * @param value
+	 *            new string value
 	 */
-	public void setValue(String value)
-	{
-		this.value=value;
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	/**
 	 * Get the current value of this object
-	 * @return	current string value
+	 * 
+	 * @return current string value
 	 */
 	public String getValue() {
 		return value;
@@ -59,9 +64,9 @@ public class POPString implements IPOPBase {
 		value = buffer.getString();
 		return false;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return value;
 	}
 }

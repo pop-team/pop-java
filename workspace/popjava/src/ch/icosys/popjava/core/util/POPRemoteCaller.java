@@ -15,13 +15,17 @@ import ch.icosys.popjava.core.util.ssl.SSLUtils;
  * @author Davide Mazzoleni
  */
 public class POPRemoteCaller implements IPOPBase {
-	
+
 	private InetAddress remote;
+
 	private String protocol;
+
 	private String network;
+
 	private boolean secure;
+
 	private POPAccessPoint brokerAP = null;
-	
+
 	private String fingerprint;
 
 	public POPRemoteCaller() {
@@ -83,7 +87,7 @@ public class POPRemoteCaller implements IPOPBase {
 	public String getNetwork() {
 		return network;
 	}
-	
+
 	/**
 	 * `true' if the connection was created using a confidence link
 	 * 
@@ -92,7 +96,7 @@ public class POPRemoteCaller implements IPOPBase {
 	public boolean isUsingConfidenceLink() {
 		return SSLUtils.isConfidenceLink(fingerprint);
 	}
-	
+
 	/**
 	 * If the call come from a localhost object
 	 * 
@@ -141,7 +145,7 @@ public class POPRemoteCaller implements IPOPBase {
 		if (!Objects.equals(this.remote, other.remote)) {
 			return false;
 		}
-				
+
 		return true;
 	}
 
@@ -161,11 +165,11 @@ public class POPRemoteCaller implements IPOPBase {
 			buffer.putString(fingerprint);
 		}
 		buffer.putBoolean(brokerAP != null);
-		
-		if(brokerAP != null) {
+
+		if (brokerAP != null) {
 			buffer.putValue(brokerAP, POPAccessPoint.class);
 		}
-		
+
 		return true;
 	}
 
@@ -174,7 +178,7 @@ public class POPRemoteCaller implements IPOPBase {
 		try {
 			int size = buffer.getInt();
 			remote = InetAddress.getByAddress(buffer.getByteArray(size));
-		} catch(UnknownHostException e) {
+		} catch (UnknownHostException e) {
 			LogWriter.writeDebugInfo("[POPRemoteCaller] can't decode received InetAddress");
 		}
 		protocol = buffer.getString();
@@ -185,18 +189,18 @@ public class POPRemoteCaller implements IPOPBase {
 		if (buffer.getBoolean()) {
 			fingerprint = buffer.getString();
 		}
-		
-		if(buffer.getBoolean()) {
+
+		if (buffer.getBoolean()) {
 			brokerAP = (POPAccessPoint) buffer.getValue(POPAccessPoint.class);
 		}
-		
+
 		return true;
 	}
-	
+
 	public void setBrokerAP(POPAccessPoint ap) {
 		this.brokerAP = ap;
 	}
-	
+
 	public POPAccessPoint getBrokerAP() {
 		return brokerAP;
 	}

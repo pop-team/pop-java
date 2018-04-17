@@ -24,55 +24,20 @@ import ch.icosys.popjava.core.util.ssl.KeyStoreDetails.KeyStoreFormat;
  * This class regroup some configuration values
  */
 public final class Configuration {
-	
+
 	/**
 	 * Settable parameters for load and store options
 	 */
 	private enum Settable {
-		SYSTEM_JOBMANAGER_CONFIG,
-		DEBUG,
-		DEBUG_COMBOX,
-		RESERVE_TIMEOUT,
-		ALLOC_TIMEOUT,
-		CONNECTION_TIMEOUT,
-		JOBMANAGER_UPDATE_INTERVAL,
-		JOBMANAGER_SELF_REGISTER_INTERVAL,
-		JOBMANAGER_DEFAULT_CONNECTOR,
-		JOBMANAGER_PROTOCOLS,
-		JOBMANAGER_PORTS,
-		JOBMANAGER_EXECUTION_BASE_DIRECTORY,
-		JOBMANAGER_EXECUTION_USER,
-		POP_JAVA_DEAMON_PORT,
-		SEARCH_NODE_UNLOCK_TIMEOUT,
-		SEARCH_NODE_SEARCH_TIMEOUT,
-		SEARCH_NODE_MAX_REQUESTS,
-		SEARCH_NODE_EXPLORATION_QUEUE_SIZE,
-		TFC_SEARCH_TIMEOUT,
-		DEFAULT_ENCODING,
-		SELECTED_ENCODING,
-		DEFAULT_PROTOCOL,
-		DEFAULT_NETWORK,
-		ALLOCATE_PORT_RANGE,
-		PROTOCOLS_WHITELIST,
-		PROTOCOLS_BLACKLIST,
-		ASYNC_CONSTRUCTOR,
-		ACTIVATE_JMX,
-		CONNECT_TO_POPCPP,
-		CONNECT_TO_JAVA_JOBMANAGER,
-		REDIRECT_OUTPUT_TO_ROOT,
-		USE_NATIVE_SSH_IF_POSSIBLE,
-		SSL_PROTOCOL_VERSION,
-		SSL_KEY_STORE_FILE,
-		SSL_KEY_STORE_PASSWORD,
-		SSL_KEY_STORE_PRIVATE_KEY_PASSWORD,
-		SSL_KEY_STORE_FORMAT,
+		SYSTEM_JOBMANAGER_CONFIG, DEBUG, DEBUG_COMBOX, RESERVE_TIMEOUT, ALLOC_TIMEOUT, CONNECTION_TIMEOUT, JOBMANAGER_UPDATE_INTERVAL, JOBMANAGER_SELF_REGISTER_INTERVAL, JOBMANAGER_DEFAULT_CONNECTOR, JOBMANAGER_PROTOCOLS, JOBMANAGER_PORTS, JOBMANAGER_EXECUTION_BASE_DIRECTORY, JOBMANAGER_EXECUTION_USER, POP_JAVA_DEAMON_PORT, SEARCH_NODE_UNLOCK_TIMEOUT, SEARCH_NODE_SEARCH_TIMEOUT, SEARCH_NODE_MAX_REQUESTS, SEARCH_NODE_EXPLORATION_QUEUE_SIZE, TFC_SEARCH_TIMEOUT, DEFAULT_ENCODING, SELECTED_ENCODING, DEFAULT_PROTOCOL, DEFAULT_NETWORK, ALLOCATE_PORT_RANGE, PROTOCOLS_WHITELIST, PROTOCOLS_BLACKLIST, ASYNC_CONSTRUCTOR, ACTIVATE_JMX, CONNECT_TO_POPCPP, CONNECT_TO_JAVA_JOBMANAGER, REDIRECT_OUTPUT_TO_ROOT, USE_NATIVE_SSH_IF_POSSIBLE, SSL_PROTOCOL_VERSION, SSL_KEY_STORE_FILE, SSL_KEY_STORE_PASSWORD, SSL_KEY_STORE_PRIVATE_KEY_PASSWORD, SSL_KEY_STORE_FORMAT,
 	}
-	
+
 	// instance
 	private static Configuration instance;
-	
+
 	// Location of POPJava installation
 	private static final String POPJAVA_LOCATION;
+
 	private static final Boolean ENV_DEBUG;
 	static {
 		String location = System.getenv("POPJAVA_LOCATION");
@@ -88,61 +53,93 @@ public final class Configuration {
 			ENV_DEBUG = null;
 		}
 	}
-	
+
 	// config files
 	private static final File SYSTEM_CONFIG = Paths.get(POPJAVA_LOCATION, "etc", "popjava.properties").toFile();
+
 	private File systemJobManagerConfig = Paths.get(POPJAVA_LOCATION, "etc", "jobmgr.yml").toFile();
-	
+
 	// properties set by the user are found here
 	private File userConfig = null;
+
 	private boolean usingUserConfig = false;
+
 	private final Properties USER_PROPERTIES = new Properties();
+
 	private final Properties ALL_PROPERTIES = new Properties();
-	
+
 	// user configurable attributes w/ POP's defaults
 	private boolean debug = ENV_DEBUG != null ? ENV_DEBUG : false;
+
 	private boolean debugCombox = false;
+
 	private int reserveTimeout = 60000;
+
 	private int allocTimeout = 30000;
+
 	private int connectionTimeout = 30000;
-	
+
 	private int jobManagerUpdateInterval = 10000;
+
 	private int jobManagerSelfRegisterInterval = 43_200_000;
+
 	private String jobManagerDefaultConnector = "jobmanager";
+
 	private int searchNodeUnlockTimeout = 10000;
+
 	private int searchNodeSearchTimeout = 0;
+
 	private int tfcSearchTimeout = 5000;
+
 	private int searchNodeUnlimitedHops = Integer.MAX_VALUE;
+
 	private int searchNodeMaxRequests = 300;
+
 	private int searchNodeExplorationQueueSize = 300;
-	
+
 	private String[] jobManagerProtocols = { "socket" };
+
 	private int[] jobManagerPorts = { 2711 };
+
 	private int popJavaDaemonPort = 43424;
+
 	private String jobManagerExecutionBaseDirectory = ".";
+
 	private String jobmanagerExecutionUser = null;
-	
+
 	private String defaultEncoding = "xdr";
+
 	private String selectedEncoding = "raw";
+
 	private String defaultProtocol = "socket";
+
 	private String defaultNetwork = "";
+
 	private int allocatePortRange = 49152;
-	
+
 	private final Set<String> protocolsWhitelist = new HashSet<>();
+
 	private final Set<String> protocolsBlacklist = new HashSet<>();
 
 	private boolean asyncConstructor = true;
+
 	private boolean activateJmx = false;
+
 	private boolean connectToPOPcpp = false;
+
 	private boolean connectToJavaJobmanager = !connectToPOPcpp;
-	
+
 	private boolean redirectOutputToRoot = true;
+
 	private boolean useNativeSSHifPossible = true;
-	
-	// all relevant information of the keystore (alias, keyStorePassword, privateKeyPassword, keyStoreLocation, keyStoreType, temporaryCertificatesDir)
+
+	// all relevant information of the keystore (alias, keyStorePassword,
+	// privateKeyPassword, keyStoreLocation, keyStoreType,
+	// temporaryCertificatesDir)
 	private final KeyStoreDetails SSLKeyStoreOptions = new KeyStoreDetails();
+
 	private File SSLTemporaryCertificatesLocation = new File(".");
-	
+
 	// NOTE this is waiting for TLSv1.3 to be officialized
 	private String SSLProtocolVersion = "TLSv1.2";
 
@@ -152,7 +149,7 @@ public final class Configuration {
 	private Configuration() {
 		try {
 			load(SYSTEM_CONFIG);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			System.out.format("[Configuration] couldn't load '%s' using POP-Java's defaults.\n", SYSTEM_CONFIG);
 		}
 	}
@@ -235,7 +232,8 @@ public final class Configuration {
 	}
 
 	/**
-	 * @return interval in ms for the job manager to signal its present to its neighbors
+	 * @return interval in ms for the job manager to signal its present to its
+	 *         neighbors
 	 */
 	@Deprecated
 	public int getJobManagerSelfRegisterInterval() {
@@ -243,7 +241,8 @@ public final class Configuration {
 	}
 
 	/**
-	 * @return the default approach a job manager will use in case none was expressed in the OD
+	 * @return the default approach a job manager will use in case none was
+	 *         expressed in the OD
 	 */
 	public String getJobManagerDefaultConnector() {
 		return jobManagerDefaultConnector;
@@ -466,9 +465,6 @@ public final class Configuration {
 		return Collections.unmodifiableSet(protocolsBlacklist);
 	}
 
-
-	
-	
 	public void setSystemJobManagerConfig(File systemJobManagerConfig) {
 		setUserProp(Settable.SYSTEM_JOBMANAGER_CONFIG, systemJobManagerConfig);
 		this.systemJobManagerConfig = systemJobManagerConfig;
@@ -639,7 +635,7 @@ public final class Configuration {
 	public void setSSLTemporaryCertificateDirectory(File file) {
 		SSLTemporaryCertificatesLocation = file;
 	}
-	
+
 	public void setSSLKeyStoreOptions(KeyStoreDetails options) {
 		if (options == null) {
 			setSSLKeyStoreFile(null);
@@ -680,35 +676,34 @@ public final class Configuration {
 		this.protocolsBlacklist.clear();
 		this.protocolsBlacklist.addAll(protocolsBlacklist);
 	}
-	
-	private<T> void setUserProp(Settable prop, T value) {
+
+	private <T> void setUserProp(Settable prop, T value) {
 		if (value == null) {
 			USER_PROPERTIES.remove(prop.name());
 		} else {
 			USER_PROPERTIES.put(prop.name(), String.valueOf(value));
 		}
 	}
-	
+
 	/**
 	 * Load a custom configuration file on top of the system and defaults one.
-	 * Hierarchy:
-	 *       User
-	 *      Machine
-	 *   POP Defaults
+	 * Hierarchy: User Machine POP Defaults
 	 * 
-	 * @param file The properties file to load
-	 * @throws java.io.IOException if the given file fail to load
+	 * @param file
+	 *            The properties file to load
+	 * @throws java.io.IOException
+	 *             if the given file fail to load
 	 */
 	public void load(File file) throws IOException {
 		long start = System.currentTimeMillis();
 		Objects.requireNonNull(file);
-		
+
 		// mark as using user config file
 		if (!file.equals(SYSTEM_CONFIG)) {
 			userConfig = file.getCanonicalFile();
 			usingUserConfig = true;
 		}
-		
+
 		// abort if we can't load
 		if (!file.exists()) {
 			if (debug) {
@@ -716,11 +711,11 @@ public final class Configuration {
 			}
 			return;
 		}
-		
+
 		// merge manually set values
 		ALL_PROPERTIES.putAll(USER_PROPERTIES);
-		
-		// load user config and merge with all		
+
+		// load user config and merge with all
 		if (usingUserConfig) {
 			try (InputStream in = new FileInputStream(file)) {
 				USER_PROPERTIES.load(in);
@@ -734,81 +729,148 @@ public final class Configuration {
 				ALL_PROPERTIES.load(in);
 			}
 		}
-		
+
 		// set properties to class values
 		for (Object prop : ALL_PROPERTIES.keySet()) {
 			if (prop instanceof String) {
 				String key = (String) prop;
 				String[] keys = key.split("\\.");
 				String value = ALL_PROPERTIES.getProperty(key);
-				
+
 				// get enum
 				Settable keyEnum;
 				try {
 					keyEnum = Settable.valueOf(keys[0].toUpperCase());
-				} catch(IllegalArgumentException e) {
+				} catch (IllegalArgumentException e) {
 					if (debug) {
 						System.out.format("[Configuration] unknown key '%s'\n", key);
 					}
 					continue;
 				}
-				
+
 				try {
-					switch(keyEnum) {
-						case SYSTEM_JOBMANAGER_CONFIG:           systemJobManagerConfig = new File(value); break;
-						case DEBUG:
-							if (ENV_DEBUG == null) {
-								debug = Boolean.parseBoolean(value); break;
-							}
-						case DEBUG_COMBOX:                     debugCombox = Boolean.parseBoolean(value); break;
-						case RESERVE_TIMEOUT:                    reserveTimeout = Integer.parseInt(value); break;
-						case ALLOC_TIMEOUT:                      allocTimeout = Integer.parseInt(value); break;
-						case CONNECTION_TIMEOUT:                 connectionTimeout = Integer.parseInt(value); break;
-						case JOBMANAGER_UPDATE_INTERVAL:         jobManagerUpdateInterval = Integer.parseInt(value); break;
-						case JOBMANAGER_SELF_REGISTER_INTERVAL:  jobManagerSelfRegisterInterval = Integer.parseInt(value); break;
-						case JOBMANAGER_DEFAULT_CONNECTOR:       jobManagerDefaultConnector = value; break;
-						case JOBMANAGER_EXECUTION_BASE_DIRECTORY:jobManagerExecutionBaseDirectory = value; break;
-						case JOBMANAGER_EXECUTION_USER:          jobmanagerExecutionUser = value; break;
-						case JOBMANAGER_PORTS:
-							String[] ports = matchRegEx(value, "\\d+");
-							jobManagerPorts = new int[ports.length];
-							for (int i = 0; i < ports.length; i++) {
-								jobManagerPorts[i] = Integer.parseInt(ports[i]);
-							}
+					switch (keyEnum) {
+					case SYSTEM_JOBMANAGER_CONFIG:
+						systemJobManagerConfig = new File(value);
+						break;
+					case DEBUG:
+						if (ENV_DEBUG == null) {
+							debug = Boolean.parseBoolean(value);
 							break;
-						case JOBMANAGER_PROTOCOLS:               jobManagerProtocols = matchRegEx(value, "[\\w\\d]+"); break;
-						case POP_JAVA_DEAMON_PORT:               popJavaDaemonPort = Integer.parseInt(value); break;
-						case SEARCH_NODE_UNLOCK_TIMEOUT:         searchNodeUnlockTimeout = Integer.parseInt(value); break;
-						case SEARCH_NODE_SEARCH_TIMEOUT:         searchNodeSearchTimeout = Integer.parseInt(value); break;
-						case SEARCH_NODE_MAX_REQUESTS:           searchNodeMaxRequests = Integer.parseInt(value); break;
-						case SEARCH_NODE_EXPLORATION_QUEUE_SIZE: searchNodeExplorationQueueSize = Integer.parseInt(value); break;
-						case TFC_SEARCH_TIMEOUT:                 tfcSearchTimeout = Integer.parseInt(value); break;
-						case DEFAULT_ENCODING:                   defaultEncoding = value; break;
-						case SELECTED_ENCODING:                  selectedEncoding = value; break;
-						case DEFAULT_PROTOCOL:                   defaultProtocol = value.toUpperCase(); break;
-						case DEFAULT_NETWORK:                    defaultNetwork = value.toLowerCase(); break;
-						case ALLOCATE_PORT_RANGE:                allocatePortRange = Integer.parseInt(value); break;
-						case PROTOCOLS_WHITELIST:
-							protocolsWhitelist.clear();
-							protocolsWhitelist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));
-							break;
-						case PROTOCOLS_BLACKLIST:
-							protocolsBlacklist.clear();
-							protocolsBlacklist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));
-							break;
-						case ASYNC_CONSTRUCTOR:                  asyncConstructor = Boolean.parseBoolean(value); break;
-						case ACTIVATE_JMX:                       activateJmx = Boolean.parseBoolean(value); break;
-						case CONNECT_TO_POPCPP:                  connectToPOPcpp = Boolean.parseBoolean(value); break;
-						case CONNECT_TO_JAVA_JOBMANAGER:         connectToJavaJobmanager = Boolean.parseBoolean(value); break;
-						case REDIRECT_OUTPUT_TO_ROOT:            redirectOutputToRoot = Boolean.parseBoolean(value); break;
-						case USE_NATIVE_SSH_IF_POSSIBLE:         useNativeSSHifPossible = Boolean.parseBoolean(value); break;
-						case SSL_PROTOCOL_VERSION:               SSLProtocolVersion = value; break;
-						case SSL_KEY_STORE_FILE:                 SSLKeyStoreOptions.setKeyStoreFile(new File(value)); break;
-						case SSL_KEY_STORE_PASSWORD:             SSLKeyStoreOptions.setKeyStorePassword(value); break;
-						case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD: SSLKeyStoreOptions.setPrivateKeyPassword(value); break;
-						case SSL_KEY_STORE_FORMAT:               SSLKeyStoreOptions.setKeyStoreFormat(KeyStoreFormat.valueOf(value)); break;
+						}
+					case DEBUG_COMBOX:
+						debugCombox = Boolean.parseBoolean(value);
+						break;
+					case RESERVE_TIMEOUT:
+						reserveTimeout = Integer.parseInt(value);
+						break;
+					case ALLOC_TIMEOUT:
+						allocTimeout = Integer.parseInt(value);
+						break;
+					case CONNECTION_TIMEOUT:
+						connectionTimeout = Integer.parseInt(value);
+						break;
+					case JOBMANAGER_UPDATE_INTERVAL:
+						jobManagerUpdateInterval = Integer.parseInt(value);
+						break;
+					case JOBMANAGER_SELF_REGISTER_INTERVAL:
+						jobManagerSelfRegisterInterval = Integer.parseInt(value);
+						break;
+					case JOBMANAGER_DEFAULT_CONNECTOR:
+						jobManagerDefaultConnector = value;
+						break;
+					case JOBMANAGER_EXECUTION_BASE_DIRECTORY:
+						jobManagerExecutionBaseDirectory = value;
+						break;
+					case JOBMANAGER_EXECUTION_USER:
+						jobmanagerExecutionUser = value;
+						break;
+					case JOBMANAGER_PORTS:
+						String[] ports = matchRegEx(value, "\\d+");
+						jobManagerPorts = new int[ports.length];
+						for (int i = 0; i < ports.length; i++) {
+							jobManagerPorts[i] = Integer.parseInt(ports[i]);
+						}
+						break;
+					case JOBMANAGER_PROTOCOLS:
+						jobManagerProtocols = matchRegEx(value, "[\\w\\d]+");
+						break;
+					case POP_JAVA_DEAMON_PORT:
+						popJavaDaemonPort = Integer.parseInt(value);
+						break;
+					case SEARCH_NODE_UNLOCK_TIMEOUT:
+						searchNodeUnlockTimeout = Integer.parseInt(value);
+						break;
+					case SEARCH_NODE_SEARCH_TIMEOUT:
+						searchNodeSearchTimeout = Integer.parseInt(value);
+						break;
+					case SEARCH_NODE_MAX_REQUESTS:
+						searchNodeMaxRequests = Integer.parseInt(value);
+						break;
+					case SEARCH_NODE_EXPLORATION_QUEUE_SIZE:
+						searchNodeExplorationQueueSize = Integer.parseInt(value);
+						break;
+					case TFC_SEARCH_TIMEOUT:
+						tfcSearchTimeout = Integer.parseInt(value);
+						break;
+					case DEFAULT_ENCODING:
+						defaultEncoding = value;
+						break;
+					case SELECTED_ENCODING:
+						selectedEncoding = value;
+						break;
+					case DEFAULT_PROTOCOL:
+						defaultProtocol = value.toUpperCase();
+						break;
+					case DEFAULT_NETWORK:
+						defaultNetwork = value.toLowerCase();
+						break;
+					case ALLOCATE_PORT_RANGE:
+						allocatePortRange = Integer.parseInt(value);
+						break;
+					case PROTOCOLS_WHITELIST:
+						protocolsWhitelist.clear();
+						protocolsWhitelist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));
+						break;
+					case PROTOCOLS_BLACKLIST:
+						protocolsBlacklist.clear();
+						protocolsBlacklist.addAll(Arrays.asList(matchRegEx(value, "[\\w\\d]+")));
+						break;
+					case ASYNC_CONSTRUCTOR:
+						asyncConstructor = Boolean.parseBoolean(value);
+						break;
+					case ACTIVATE_JMX:
+						activateJmx = Boolean.parseBoolean(value);
+						break;
+					case CONNECT_TO_POPCPP:
+						connectToPOPcpp = Boolean.parseBoolean(value);
+						break;
+					case CONNECT_TO_JAVA_JOBMANAGER:
+						connectToJavaJobmanager = Boolean.parseBoolean(value);
+						break;
+					case REDIRECT_OUTPUT_TO_ROOT:
+						redirectOutputToRoot = Boolean.parseBoolean(value);
+						break;
+					case USE_NATIVE_SSH_IF_POSSIBLE:
+						useNativeSSHifPossible = Boolean.parseBoolean(value);
+						break;
+					case SSL_PROTOCOL_VERSION:
+						SSLProtocolVersion = value;
+						break;
+					case SSL_KEY_STORE_FILE:
+						SSLKeyStoreOptions.setKeyStoreFile(new File(value));
+						break;
+					case SSL_KEY_STORE_PASSWORD:
+						SSLKeyStoreOptions.setKeyStorePassword(value);
+						break;
+					case SSL_KEY_STORE_PRIVATE_KEY_PASSWORD:
+						SSLKeyStoreOptions.setPrivateKeyPassword(value);
+						break;
+					case SSL_KEY_STORE_FORMAT:
+						SSLKeyStoreOptions.setKeyStoreFormat(KeyStoreFormat.valueOf(value));
+						break;
 					}
-				} catch(NumberFormatException e) {
+				} catch (NumberFormatException e) {
 					if (debug) {
 						System.out.format("[Configuration] unknown value '%s' for key '%s'.\n", value, key);
 					}
@@ -820,24 +882,28 @@ public final class Configuration {
 			System.out.format("[Configuration] loaded '%s' in %d ms\n", file.getCanonicalPath(), end - start);
 		}
 	}
-	
+
 	/**
-	 * Save the configuration to a new properties file, the file is defined in {@link #setUserConfig(File)}
+	 * Save the configuration to a new properties file, the file is defined in
+	 * {@link #setUserConfig(File)}
 	 * 
-	 * @throws IOException if we fail to write the file to disk
+	 * @throws IOException
+	 *             if we fail to write the file to disk
 	 */
 	public void store() throws IOException {
 		Objects.requireNonNull(userConfig, "A user configuration file must be provided via setUserConfig or load.");
 		File file = userConfig;
-		
+
 		try (PrintStream out = new PrintStream(file)) {
 			USER_PROPERTIES.store(out, "Automatically generated by POP-Java");
 		}
 	}
-	
+
 	/**
 	 * Dump configuration to system location, may not work if rights block writing.
-	 * @throws java.io.IOException if we fail to override the system configuration
+	 * 
+	 * @throws java.io.IOException
+	 *             if we fail to override the system configuration
 	 */
 	public void writeSystemConfiguration() throws IOException {
 		Properties dump = new Properties();
@@ -847,7 +913,7 @@ public final class Configuration {
 			dump.store(out, "Automatically generated by POP-Java");
 		}
 	}
-	
+
 	private String[] matchRegEx(String value, String pattern) {
 		Pattern p = Pattern.compile(pattern);
 		Matcher m = p.matcher(value);

@@ -19,17 +19,18 @@ import ch.icosys.popjava.core.scripts.shell.command.CDebug;
 import ch.icosys.popjava.core.scripts.shell.command.CJobManager;
 import ch.icosys.popjava.core.scripts.shell.command.CKeystore;
 
-
 /**
- * This is a simple shell an administrator can run to configure POP-Java and the POPJavaJobManager.
+ * This is a simple shell an administrator can run to configure POP-Java and the
+ * POPJavaJobManager.
  * 
  * @author Davide Mazzoleni
  */
 public class POPJShell {
-	
+
 	public static final ShellConfiguration configuration = new ShellConfiguration();
-	
+
 	private final ConsoleHandler consoleHandler;
+
 	private final CommandHandler commandHandler;
 
 	public POPJShell() {
@@ -37,7 +38,7 @@ public class POPJShell {
 		commandHandler = new CommandHandler();
 		initCommands();
 	}
-	
+
 	private void start() {
 		System.out.println("Welcome to POP-Java simple configuration shell.");
 		System.out.println("This shell is not interactive, you must type every command.");
@@ -62,17 +63,17 @@ public class POPJShell {
 		commandHandler.add(new Help());
 		commandHandler.add(new CDebug());
 	}
-	
+
 	public static void optionNotFound(String keyword, String help) {
 		System.out.format("%s: command not found\n", keyword);
 		System.out.println(help);
 	}
-	
+
 	public static void main(String[] args) {
 		POPJShell shell = new POPJShell();
 		shell.start();
 	}
-	
+
 	private class Help implements ICommand {
 
 		public Help() {
@@ -105,23 +106,23 @@ public class POPJShell {
 		private enum S {
 			PRIVATE_NETWORK
 		}
-		
+
 		private static final Path LOCATION = Paths.get("pshell.properties").toAbsolutePath();
+
 		private final Properties PROPS = new Properties();
-		
-		
+
 		public ShellConfiguration() {
 			try (FileInputStream in = new FileInputStream(LOCATION.toFile())) {
 				PROPS.load(in);
 			} catch (IOException e) {
-				try {        
+				try {
 					Set<PosixFilePermission> perms = new HashSet<>();
 					perms.add(PosixFilePermission.OWNER_READ);
 					perms.add(PosixFilePermission.OWNER_WRITE);
-					
+
 					Files.createFile(LOCATION);
 					Files.setPosixFilePermissions(LOCATION, perms);
-				} catch(IOException ex) {
+				} catch (IOException ex) {
 					System.err.println("Couldn't save shell configuration, it may not work in the future.");
 				}
 			}
@@ -134,7 +135,7 @@ public class POPJShell {
 		public void setPrivateNetwork(String networkUUID) {
 			saveValue(S.PRIVATE_NETWORK, networkUUID);
 		}
-		
+
 		private void saveValue(S key, String val) {
 			PROPS.setProperty(key.name(), val);
 			try (FileOutputStream out = new FileOutputStream(LOCATION.toFile())) {

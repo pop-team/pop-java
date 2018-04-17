@@ -10,9 +10,13 @@ import java.io.RandomAccessFile;
  */
 public class POPRemoteLogThread extends Thread {
 	private String appID;
+
 	private String filename;
+
 	private boolean running = true;
-	private static final int POLLING_SLEEP = 750; //TODO: migreate to Java7 Watchservice
+
+	private static final int POLLING_SLEEP = 750; // TODO: migreate to Java7
+	// Watchservice
 
 	/**
 	 * POPRemoteLogThread constructor
@@ -45,17 +49,16 @@ public class POPRemoteLogThread extends Thread {
 	}
 
 	/**
-	 * Running method of the thread. The thread will work in this method until
-	 * it is stopped
+	 * Running method of the thread. The thread will work in this method until it is
+	 * stopped
 	 */
 	public void run() {
-		if(new File("/tmp").exists()){
+		if (new File("/tmp").exists()) {
 			filename = "/tmp/";
-		}else{
+		} else {
 			filename = System.getProperty("java.io.tmpdir");
 		}
 
-		
 		filename += "popjava_logremote_" + appID;
 
 		File logFile = new File(filename);
@@ -73,7 +76,7 @@ public class POPRemoteLogThread extends Thread {
 			long filePointer = 0;
 			while (running) {
 				long fileLength = log.length();
-				
+
 				if (fileLength > filePointer) {
 					log.seek(filePointer);
 					String line = log.readLine();
@@ -88,8 +91,8 @@ public class POPRemoteLogThread extends Thread {
 			logFile.delete();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
-			if(log != null){
+		} finally {
+			if (log != null) {
 				try {
 					log.close();
 				} catch (Exception e) {

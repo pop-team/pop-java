@@ -11,9 +11,13 @@ import ch.icosys.popjava.core.dataswaper.IPOPBase;
 public class POPTrackingMethod implements IPOPBase {
 
 	private String method;
+
 	private int calls;
+
 	private long totalTime;
+
 	private long totalInputParamsSize;
+
 	private long totalOutputResultSize;
 
 	public POPTrackingMethod() {
@@ -26,6 +30,7 @@ public class POPTrackingMethod implements IPOPBase {
 
 	/**
 	 * The method used.
+	 * 
 	 * @return the method name
 	 */
 	public String getMethod() {
@@ -34,6 +39,7 @@ public class POPTrackingMethod implements IPOPBase {
 
 	/**
 	 * Total number of calls to this method.
+	 * 
 	 * @return total number of calls to the method
 	 */
 	public long getTotalCalls() {
@@ -42,7 +48,9 @@ public class POPTrackingMethod implements IPOPBase {
 
 	/**
 	 * Register a new method call.
-	 * @param time how much did it takes
+	 * 
+	 * @param time
+	 *            how much did it takes
 	 */
 	public synchronized void increment(long time, int inputParamsSize, int outputResultSize) {
 		calls++;
@@ -53,26 +61,30 @@ public class POPTrackingMethod implements IPOPBase {
 
 	/**
 	 * The total time used by this method in milliseconds.
+	 * 
 	 * @return total time used
 	 */
 	public long getTotalTime() {
 		return totalTime;
 	}
-	
+
 	/**
 	 * The total size of the input parameters of the method in bytes.
+	 * 
 	 * @return total size of the input parameters
 	 */
 	public long getTotalInputParamsSize() {
-	    return totalInputParamsSize;
+		return totalInputParamsSize;
 	}
-	
+
 	/**
-	 * The total size of the output result object returned by the method (if any) in bytes.
+	 * The total size of the output result object returned by the method (if any) in
+	 * bytes.
+	 * 
 	 * @return total size of the output result object
 	 */
 	public long getTotalOutputResultSize() {
-	    return totalOutputResultSize;
+		return totalOutputResultSize;
 	}
 
 	@Override
@@ -97,7 +109,7 @@ public class POPTrackingMethod implements IPOPBase {
 
 	@Override
 	public String toString() {
-		return String.format("%s -> calls: %d, time: %d ms, input size: %d bytes, output size: %d bytes ", 
-			method, calls, totalTime, totalInputParamsSize, totalOutputResultSize);
+		return String.format("%s -> calls: %d, time: %d ms, input size: %d bytes, output size: %d bytes ", method,
+				calls, totalTime, totalInputParamsSize, totalOutputResultSize);
 	}
 }

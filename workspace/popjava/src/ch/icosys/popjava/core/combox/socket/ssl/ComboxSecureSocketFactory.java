@@ -19,20 +19,22 @@ import ch.icosys.popjava.core.util.LogWriter;
  * This class is the factory for all combox socket
  */
 public class ComboxSecureSocketFactory extends ComboxFactory {
-	
+
 	/**
 	 * Name of the implemented protocol
 	 */
 	public static final String PROTOCOL = "ssl";
+
 	private static final Configuration conf = Configuration.getInstance();
+
 	private static File sslKeyStoreFile = conf.getSSLKeyStoreFile();
+
 	private static String sslKeyStorePassword = conf.getSSLKeyStorePassword();
+
 	private static Status status = Status.UNKNOW;
-	
+
 	private enum Status {
-		UNKNOW,
-		AVAILABLE,
-		NOT_AVAILABLE
+		UNKNOW, AVAILABLE, NOT_AVAILABLE
 	}
 
 	@Override
@@ -46,14 +48,14 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	}
 
 	@Override
-	public ComboxServer createServerCombox(AccessPoint accessPoint,
-			POPBuffer buffer, Broker broker) throws IOException {
+	public ComboxServer createServerCombox(AccessPoint accessPoint, POPBuffer buffer, Broker broker)
+			throws IOException {
 		return createServerCombox(accessPoint, conf.getConnectionTimeout(), buffer, broker);
 	}
 
 	@Override
-	public ComboxServer createServerCombox(AccessPoint accessPoint,
-			int timeout, POPBuffer buffer, Broker broker) throws IOException {
+	public ComboxServer createServerCombox(AccessPoint accessPoint, int timeout, POPBuffer buffer, Broker broker)
+			throws IOException {
 		return new ComboxServerSecureSocket(accessPoint, timeout, buffer, broker);
 	}
 
@@ -67,16 +69,15 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 		if (!super.isAvailable()) {
 			return false;
 		}
-		if (status == Status.UNKNOW 
-			|| sslKeyStoreFile != conf.getSSLKeyStoreFile()
-			|| sslKeyStorePassword != conf.getSSLKeyStorePassword()) {
+		if (status == Status.UNKNOW || sslKeyStoreFile != conf.getSSLKeyStoreFile()
+				|| sslKeyStorePassword != conf.getSSLKeyStorePassword()) {
 			try {
 				sslKeyStoreFile = conf.getSSLKeyStoreFile();
 				sslKeyStorePassword = conf.getSSLKeyStorePassword();
-				
+
 				KeyStore keyStore = KeyStore.getInstance(conf.getSSLKeyStoreFormat().name());
 				keyStore.load(new FileInputStream(sslKeyStoreFile), sslKeyStorePassword.toCharArray());
-				
+
 				status = Status.AVAILABLE;
 			} catch (Exception e) {
 				LogWriter.writeDebugInfo("[SSL Combox] can't be initialized correctly: %s", e.getMessage());
@@ -84,12 +85,12 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 			}
 		}
 		switch (status) {
-			case AVAILABLE:
-				return true;
-			case NOT_AVAILABLE:
-			case UNKNOW:
-			default:
-				return false;
+		case AVAILABLE:
+			return true;
+		case NOT_AVAILABLE:
+		case UNKNOW:
+		default:
+			return false;
 		}
 	}
 

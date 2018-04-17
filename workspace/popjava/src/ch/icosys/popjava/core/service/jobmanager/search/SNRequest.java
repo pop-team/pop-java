@@ -19,32 +19,41 @@ import java.security.cert.Certificate;
 public class SNRequest implements IPOPBase {
 
 	private String requestId;
+
 	private String os;
+
 	private Resource minResource;
+
 	private Resource reqResource;
 
 	private SNExploration explorationNodes;
+
 	private SNWayback wayback;
 
 	private String networkUUID;
+
 	private String connector;
-	
+
 	private boolean endRequest = false;
+
 	private int hops = Integer.MAX_VALUE;
+
 	private int popAppId;
-	
+
 	private String[] hosts = new String[0];
-	
+
 	private byte[] publicCertificate = new byte[0];
+
 	private byte[] appServiceCertificate = new byte[0];
-	
-	private final Map<String,String> customParams = new HashMap<>();
+
+	private final Map<String, String> customParams = new HashMap<>();
 
 	public SNRequest() {
 	}
-	
+
 	// TODO get appservice certificate and fill appServiceCertificate
-	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String networkUUID, String connector, String appServiceFingerprint) {
+	public SNRequest(String nodeId, Resource reqResource, Resource minResource, String networkUUID, String connector,
+			String appServiceFingerprint) {
 		this.requestId = nodeId;
 		this.os = POPSystem.getPlatform();
 		this.minResource = minResource;
@@ -53,13 +62,13 @@ public class SNRequest implements IPOPBase {
 		this.wayback = new SNWayback();
 		this.networkUUID = networkUUID;
 		this.connector = connector;
-		
+
 		// this node certificate
 		Certificate localPublicCertificate = SSLUtils.getCertificateFromAlias(networkUUID);
 		if (localPublicCertificate != null) {
 			publicCertificate = SSLUtils.certificateBytes(localPublicCertificate);
 		}
-		
+
 		// app service certificate
 		if (appServiceFingerprint != null) {
 			Certificate appServiceCert = SSLUtils.getCertificate(appServiceFingerprint);
@@ -90,7 +99,7 @@ public class SNRequest implements IPOPBase {
 	public void setHosts(String[] hosts) {
 		this.hosts = hosts;
 	}
-	
+
 	public String[] getHosts() {
 		return hosts;
 	}
@@ -142,15 +151,15 @@ public class SNRequest implements IPOPBase {
 	public String getConnector() {
 		return connector;
 	}
-	
+
 	public void setValue(String key, String value) {
 		customParams.put(key, value);
 	}
-	
+
 	public String getValue(String key) {
 		return customParams.get(key);
 	}
-	
+
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putString(requestId);
