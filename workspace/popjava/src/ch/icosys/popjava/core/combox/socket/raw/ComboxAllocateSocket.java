@@ -1,11 +1,13 @@
 package ch.icosys.popjava.core.combox.socket.raw;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import ch.icosys.popjava.core.combox.ComboxAllocate;
 import ch.icosys.popjava.core.combox.ComboxUtils;
+import ch.icosys.popjava.core.system.POPSystem;
 import ch.icosys.popjava.core.util.Configuration;
 import ch.icosys.popjava.core.util.LogWriter;
 
@@ -50,7 +52,14 @@ public class ComboxAllocateSocket extends ComboxAllocate<ComboxRawSocket> {
 	 */
 	@Override
 	public String getUrl() {
-		return String.format("%s://%s:%d", ComboxSocketFactory.PROTOCOL, serverSocket.getInetAddress().getHostAddress(),
+		InetAddress address = serverSocket.getInetAddress();
+		
+		String ip = address.getHostAddress();
+		if(address.isAnyLocalAddress()) {
+			ip = POPSystem.getHostIP();
+		}
+		
+		return String.format("%s://%s:%d", ComboxSocketFactory.PROTOCOL, ip,
 				serverSocket.getLocalPort());
 	}
 

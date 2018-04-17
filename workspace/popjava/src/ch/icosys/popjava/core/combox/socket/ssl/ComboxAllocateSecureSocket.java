@@ -1,6 +1,7 @@
 package ch.icosys.popjava.core.combox.socket.ssl;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import javax.net.ssl.SSLContext;
@@ -9,6 +10,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import ch.icosys.popjava.core.combox.ComboxAllocate;
 import ch.icosys.popjava.core.combox.ComboxUtils;
+import ch.icosys.popjava.core.system.POPSystem;
 import ch.icosys.popjava.core.util.LogWriter;
 import ch.icosys.popjava.core.util.ssl.SSLUtils;
 
@@ -43,8 +45,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	public void startToAcceptOneConnection() {
 		try {
 			Socket plainConnection = serverSocket.accept();
-			SSLSocket sslConnection = (SSLSocket) sslFactory.createSocket(plainConnection,
-					plainConnection.getInputStream(), true);
+			SSLSocket sslConnection = (SSLSocket) sslFactory.createSocket(plainConnection, plainConnection.getInputStream(), true);
 			sslConnection.setUseClientMode(false);
 			sslConnection.setNeedClientAuth(true);
 			combox = new ComboxSecureSocket();
@@ -62,8 +63,16 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	 */
 	@Override
 	public String getUrl() {
-		return String.format("%s://%s:%d", ComboxSecureSocketFactory.PROTOCOL,
-				serverSocket.getInetAddress().getHostAddress(), serverSocket.getLocalPort());
+
+		InetAddress address = serverSocket.getInetAddress();
+		
+		String ip = address.getHostAddress();
+		if(address.isAnyLocalAddress()) {
+			ip = POPSystem.getHostIP();
+		}
+		
+		
+		return String.format("%s://%s:%d", ComboxSecureSocketFactory.PROTOCOL, ip, serverSocket.getLocalPort());
 	}
 
 	/**

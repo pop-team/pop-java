@@ -167,7 +167,7 @@ public final class POPJavaAgent implements ClassFileTransformer {
 
 			// Only transform unfrozen popjava classes
 			if (!rawClass.isFrozen() && isPOPClass(rawClass) && !isProxy(rawClass)) {
-				System.out.println("Transform " + dotClassName);
+				//System.out.println("Transform " + dotClassName);
 
 				final POPClass popClass = (POPClass) rawClass.getAnnotation(POPClass.class);
 

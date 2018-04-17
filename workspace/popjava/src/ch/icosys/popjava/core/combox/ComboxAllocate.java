@@ -1,6 +1,7 @@
 package ch.icosys.popjava.core.combox;
 
 import ch.icosys.popjava.core.buffer.POPBuffer;
+import ch.icosys.popjava.core.combox.socket.raw.ComboxSocketFactory;
 
 /**
  * Generalize multiple ways to allocate and initiate a POP object
@@ -23,7 +24,7 @@ public abstract class ComboxAllocate<T extends Combox> {
 	 * @return the url waiting for a broker connection
 	 */
 	public abstract String getUrl();
-
+		
 	/**
 	 * Close the combox
 	 */
