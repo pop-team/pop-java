@@ -43,7 +43,7 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	}
 
 	@Override
-	public Combox createClientCombox(String networkUUID) {
+	public Combox<?> createClientCombox(String networkUUID) {
 		return new ComboxSecureSocket(networkUUID);
 	}
 
@@ -60,7 +60,7 @@ public class ComboxSecureSocketFactory extends ComboxFactory {
 	}
 
 	@Override
-	public ComboxAllocate createAllocateCombox(boolean enableUPNP) {
+	public ComboxAllocate<?> createAllocateCombox(boolean enableUPNP) {
 		return new ComboxAllocateSecureSocket(enableUPNP);
 	}
 

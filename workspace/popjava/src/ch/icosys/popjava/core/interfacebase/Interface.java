@@ -56,7 +56,7 @@ public class Interface {
 
 	protected final Broker parentBroker;
 
-	protected ComboxConnection combox;
+	protected ComboxConnection<?> combox;
 
 	// protected Buffer popBuffer;
 	protected POPAccessPoint popAccessPoint = new POPAccessPoint();

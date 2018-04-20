@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="PopJava" default="make-release-folder" basedir=".">
+<project name="popjava" default="make-release-folder" basedir=".">
 
 <target name="jar-testsuite" depends="classes, make-testsuite-popc" description="create jar for the popjava testsuite">
     <java classname="ch.icosys.popjava.core.scripts.Popjrun" fork="true" output="${jar.dir}/${obj.map}">

@@ -5,18 +5,20 @@ import ch.icosys.popjava.core.buffer.BufferFactory;
 import ch.icosys.popjava.core.buffer.POPBuffer;
 import ch.icosys.popjava.core.util.POPRemoteCaller;
 
-public class ComboxConnection {
+public class ComboxConnection<T> {
 
-	private Combox combox;
+	private Combox<T> combox;
 
+	protected T peerConnection;
 	private int connectionID;
 
-	public ComboxConnection(final Combox combox, int connectionID) {
+	public ComboxConnection(final Combox<T> combox, int connectionID) {
 		this.combox = combox;
 		this.connectionID = connectionID;
+		this.peerConnection = combox.peerConnection;
 	}
 
-	public Combox getCombox() {
+	public Combox<T> getCombox() {
 		return combox;
 	}
 

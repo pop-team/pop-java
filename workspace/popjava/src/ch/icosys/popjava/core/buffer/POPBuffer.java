@@ -469,7 +469,7 @@ public abstract class POPBuffer {
 	 *             thrown if the deserialization process is not going well
 	 */
 	@SuppressWarnings("unchecked")
-	public Object getValue(Combox<?> sourceCombox, Class<?> c) throws POPException {
+	public Object getValue(Combox sourceCombox, Class<?> c) throws POPException {
 		// LogWriter.Prefix="Broker";
 
 		if (c.equals(byte.class) || c.equals(Byte.class)) {

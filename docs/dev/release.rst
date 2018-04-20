@@ -36,19 +36,37 @@ Creation of a new release
 
 #. Run tests locally
 
-	POP-Java must be tested locally by using the following command::
+	POP-Java must be tested locally by using the following commands::
 
+  		$ ./gradlew fatJar
   		$ ./gradlew test
 	
 	All bugs found must be fixed until all tests have passed.
 	
-	.. note:: This step and the preceding one can be executed both at once by using the following command::
+	.. note:: We first build a fat Jar bundle, which is required to run some tests.
+	
+#. Build and upload Maven package to OSSRH 
 
-		$ ./gradlew build 
+	Build the POP-Java Jar files and signing files required for the Maven package, and upload (deploy) them to `OSSRH  <https://oss.sonatype.org>`_ repository by using the following commands::
 
-#. Build Maven package 
-
-	.. todo:: In progress...
+  		$ ./gradlew clean
+  		$ ./gradlew uploadArchives
+  		
+  	
+  	.. note:: 
+  		* We first clean the build directory to get rid of the fat Jar bundle, which must not be deployed to the OSSRH repository. 
+  		
+  		* To perform this step, one must have a `Sonatype JIRA login <https://issues.sonatype.org>`_ and `credentials <http://central.sonatype.org/pages/gradle.html>`_ in his gradle.properties file (generally stored in ~/.gradle/) like this::
+  	
+  		 	signing.keyId=YourKeyId
+  	  	 	signing.password=YourPublicKeyPassword
+  	  	 	signing.secretKeyRingFile=PathToYourKeyRingFile
+  	  	 	
+  	  	 	ossrhUsername=your-jira-id
+  	  	 	ossrhPassword=your-jira-password
+  	  	 
+  	 	* The signing data must be generated, e.g. with `GnuPG <http://central.sonatype.org/pages/working-with-pgp-signatures.html>`_ .  
+  	  	
 
 #. Commit, tag and push
 
@@ -73,7 +91,11 @@ Creation of a new release
 	#. Fill in the related fields;
 	#. Click on the ``Publish release`` button.
 
-#. Publish Maven package
+#. Release deployed Maven package from OSSRH to the Central Repository
 
-	.. todo:: In progress... (attach package https://github.com/pop-team/pop-java/releases/)
+	Automatically close and release the staging version from `OSSRH  <https://oss.sonatype.org>`_ to the `Central Repository <https://search.maven.org>`_ by using the following command::
+
+  		./gradlew closeAndReleaseRepository
+  		
+  	.. note:: To pass this step, the deployed files are verified and thus must fulfil the `requirements <http://central.sonatype.org/pages/requirements.html>`_
 	

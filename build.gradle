@@ -1,12 +1,17 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'io.codearte.nexus-staging'
 
 description = 'A Java distributed system'
 
-version = 1.5
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+group = "ch.icosys"
+archivesBaseName = "popjava"
+version = "1.5.1"
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
 
 ant.importBuild 'build.xml'
 
@@ -36,15 +41,15 @@ sourceSets {
 }
 
 dependencies {
-    compile group: 'org.javassist',    name: 'javassist',      version: '3.+'
-    compile group: 'org.slf4j',        name: 'slf4j-nop',      version: '1.7.+'
-    compile group: 'org.yaml',         name: 'snakeyaml',      version: '1.+'
-    compile group: 'com.hierynomus',   name: 'sshj',           version: '0.21.1'
-    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.58'
-    compile group: 'org.bitlet', 	   name: 'weupnp', 		   version: '0.1.4+'
+    compile group: 'org.javassist',    		name: 'javassist',      	version: '[3,)'		//'3.+'
+    compile group: 'org.slf4j',        		name: 'slf4j-nop',      	version: '[1.7,)'	//'1.7.+'
+    compile group: 'org.yaml',         		name: 'snakeyaml',      	version: '[1,)'		//'1.+'
+    compile group: 'com.hierynomus',   		name: 'sshj',           	version: '0.21.1'
+    compile group: 'org.bouncycastle', 		name: 'bcprov-jdk15on', 	version: '1.58'
+    compile group: 'org.bitlet', 	   		name: 'weupnp', 			version: '[0.1.4,)'	//'0.1.4+'
     
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-    testCompile group: 'com.carrotsearch', name: 'junit-benchmarks', version: '0.7.2'
+    testCompile group: 'junit', 	   		name: 'junit', 				version: '[4,)'		//'4.+'
+    testCompile group: 'com.carrotsearch', 	name: 'junit-benchmarks', 	version: '0.7.2'
 }
 
 test {    
@@ -67,6 +72,15 @@ clean {
     delete 'build'
     delete 'logFolder'
     delete releaseDirectory
+}
+
+jar {
+	manifest {
+		attributes 'Premain-Class': 'ch.icosys.popjava.core.javaagent.POPJavaAgent',
+            'Can-Redefine-Classes': true,
+            'Can-Retransform-Classes': true,
+            'Can-Set-Native-Method-Prefix': true
+	}
 }
 
 task fatJar(type: Jar, dependsOn: [ classes ], group: 'build', description: 'Assembles a jar with all the dependencies') {
@@ -174,8 +188,100 @@ task prepareRelease(dependsOn: [ fatJar, jarTestsuite, javadoc ], group: 'help',
     }
 }
 
-artifacts {
-    archives fatJar
-    archives jarTestsuite
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.java.srcDirs
 }
 
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+artifacts {
+    //archives fatJar
+   	//archives jarTestsuite
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'popjava'
+        packaging 'jar'
+        // optionally artifactId can be defined here 
+        description 'POP-Java is an implementation of the POP (Parallel Object Programing) model for the Java programming language.'
+        url 'https://github.com/pop-team/pop-java'
+
+        scm {
+          connection 'scm:git:https://github.com/pop-team/pop-java.git'
+          developerConnection 'scm:git:https://github.com/pop-team/pop-java.git'
+          url 'https://github.com/pop-team/pop-java/tree/master'
+        }
+
+        licenses {
+          license {
+            name 'The GNU Lesser General Public License, Version 3.0'
+            url 'https://www.gnu.org/licenses/gpl-3.0.txt'
+          }
+        }
+
+        developers {
+          developer {
+            id 'bwolf'
+            name 'Beat Wolf'
+            email 'beat.wolf@hefr.ch'
+            organization 'iCoSys Institute - University of Applied Sciences and Arts - Western Switzerland'
+            organizationUrl 'https://icosys.ch'
+          }
+          developer {
+            id 'garetjax'
+            name 'Jonathan Stoppani'
+            email 'jonathan.stoppani@hefr.ch'
+            organization 'iCoSys Institute - University of Applied Sciences and Arts - Western Switzerland'
+            organizationUrl 'https://icosys.ch'
+          }
+          developer {
+            id 'cgisler'
+            name 'Christophe Gisler'
+            email 'christophe.gisler@hefr.ch'
+            organization 'iCoSys Institute - University of Applied Sciences and Arts - Western Switzerland'
+            organizationUrl 'https://icosys.ch'
+          }
+        }
+      }
+    }
+  }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        //maven { url "http://oss.sonatype.org/content/repositories/snapshots/" } //Needed only for SNAPSHOT versions
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.11.0"
+    }
+}
+
+nexusStaging {
+    //packageGroup = "ch.icosys.popjava"//"org.mycompany.myproject" //optional if packageGroup == project.getGroup()
+    //stagingProfileId = "popjava"//"yourStagingProfileId" //when not defined will be got from server using "packageGroup"
+    numberOfRetries = 20 // Default is 20
+    delayBetweenRetriesInMillis = 20000 // [ms] = 20 [s], default is 2000 [ms]
+}
