@@ -33,6 +33,8 @@ Creation of a new release
 	The version of POP-Java to be released must be built locally by using the following command::
 
   		$ ./gradlew fatJar
+  		
+  	.. note:: Make sure you use Java 8 (not 9) to build POP-Java. Otherwise it will not run under Java 8.
 
 #. Run tests locally
 
