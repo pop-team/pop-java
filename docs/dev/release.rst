@@ -20,6 +20,10 @@ Creation of a new release
 
 	New functionalities, which are not yet released, will be listed at the top of the CHANGELOG.md under the so-called UNRELEASED section.
 
+#. Update version 
+
+	Increment the version number of POP-Java in the ``build.gradle`` file. This step is mandatory for a new Maven release.	
+
 
 #. Update author file
 
@@ -36,6 +40,7 @@ Creation of a new release
   		
   	.. note:: Make sure you use Java 8 (not 9) to build POP-Java. Otherwise it will not run under Java 8.
 
+
 #. Run tests locally
 
 	POP-Java must be tested locally by using the following command::
@@ -43,14 +48,14 @@ Creation of a new release
   		$ ./gradlew test
 	
 	All bugs found must be fixed until all tests have passed.
+
 	
 #. Build and upload Maven package to OSSRH 
 
 	Build the POP-Java Jar files and signing files required for the Maven package, and upload (deploy) them to `OSSRH  <https://oss.sonatype.org>`_ repository by using the following commands::
 
   		$ ./gradlew clean
-  		$ ./gradlew uploadArchives
-  		
+  		$ ./gradlew uploadArchives  		
   	
   	.. note:: 
   		* We first clean the build directory to get rid of the fat Jar bundle, which must not be deployed to the OSSRH repository. 
@@ -76,9 +81,11 @@ Creation of a new release
 	$ git push origin master
 	$ git push --tags
 	
+
 #. Wait for tests to pass and documentation to build
 
 	Here nothing to do but wait. While one or more tests fail, please fix the related bugs and go back to previous step.
+
 
 #. Update release details on GitHub
 
@@ -89,6 +96,7 @@ Creation of a new release
 	#. Click on the ``Edit tag`` button (on the top right of the page);
 	#. Fill in the related fields;
 	#. Click on the ``Publish release`` button.
+
 
 #. Release deployed Maven package from OSSRH to the Central Repository
 
