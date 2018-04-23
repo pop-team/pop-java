@@ -40,7 +40,7 @@ Creation of a new release
 
   		$ ./gradlew fatJar
   		
-  	.. note:: Make sure you use Java JDK 8 (not 9) in order to build POP-Java. Otherwise it will not run under Java 9.
+  	.. note:: Make sure you use Java JDK 8 (not 9) in order to build POP-Java. Otherwise it will not run under Java 8.
 
 
 #. Run tests locally

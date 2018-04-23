@@ -162,15 +162,15 @@ public class Interface {
 
 				if (sourceCombox != null) {
 					if (popAccessPoint.hasSameAccessPoint(sourceCombox.getRemoteCaller().getBrokerAP())) {
-						System.out.println("MAYBE WE CAN REUSE CONNECTION "
-								+ sourceCombox.getRemoteCaller().getBrokerAP() + " " + popAccessPoint);
+						/*System.out.println("MAYBE WE CAN REUSE CONNECTION "
+								+ sourceCombox.getRemoteCaller().getBrokerAP() + " " + popAccessPoint);*/
 						connected = reuseCombox(sourceCombox);
 					} else {
-						System.out.println("Cannot reuse connection " + sourceCombox.getRemoteCaller().getBrokerAP()
-								+ " " + popAccessPoint);
+						/*System.out.println("Cannot reuse connection " + sourceCombox.getRemoteCaller().getBrokerAP()
+								+ " " + popAccessPoint);*/
 					}
 				} else {
-					System.out.println("No remote AP defined");
+					//System.out.println("No remote AP defined");
 				}
 
 				if (!connected) {
