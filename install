@@ -1,12 +1,12 @@
 #!/bin/bash
-###########################################################################################################
+##########################################################################################################
 # POP-Java installation script
 # Date : 06/22/2010
 # Author : Clement Valentin
 # Updates (please write any modifications to this file in the following lines)
 # Date				Author			Description
 # 06/29/2010	clementval	Modifying Java detection and adding rights when installing in default directory
-###########################################################################################################
+##########################################################################################################
 
 #POP-Java installation script
 PREFIX="[POP-Java installation]:"
