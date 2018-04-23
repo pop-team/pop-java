@@ -32,18 +32,15 @@ Creation of a new release
 	
 	The version of POP-Java to be released must be built locally by using the following command::
 
-  		$ ./gradlew build -x test
+  		$ ./gradlew fatJar
 
 #. Run tests locally
 
-	POP-Java must be tested locally by using the following commands::
+	POP-Java must be tested locally by using the following command::
 
-  		$ ./gradlew fatJar
   		$ ./gradlew test
 	
 	All bugs found must be fixed until all tests have passed.
-	
-	.. note:: We first build a fat Jar bundle, which is required to run some tests.
 	
 #. Build and upload Maven package to OSSRH 
 
