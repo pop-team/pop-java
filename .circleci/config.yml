@@ -17,7 +17,7 @@ jobs:
               
       - run: 
             name: Build POP-Java
-            command: ./gradlew --no-daemon clean build -x test
+            command: ./gradlew --no-daemon clean fatJar
 
       - run: 
             name: Test POP-Java
@@ -50,7 +50,7 @@ jobs:
               
       - run: 
             name: Build POP-Java
-            command: ./gradlew --no-daemon clean build -x test
+            command: ./gradlew --no-daemon clean fatJar
 
       - run: 
             name: Test POP-Java
