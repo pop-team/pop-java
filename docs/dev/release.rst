@@ -4,7 +4,7 @@ Release management
 Creation of a new release
 -------------------------
 
-.. todo:: This is a draft.
+.. todo:: This draft must be approved by Beat.
 
 #. Update changelog file
 
@@ -22,7 +22,9 @@ Creation of a new release
 
 #. Update version 
 
-	Increment the version number of POP-Java in the ``build.gradle`` file. This step is mandatory for a new Maven release.	
+	Increment the version number of POP-Java in the ``build.gradle`` file.
+	
+	.. note:: This step is mandatory in order to publish a new Maven release.	
 
 
 #. Update author file
@@ -34,11 +36,11 @@ Creation of a new release
 
 #. Build Jar
 	
-	The version of POP-Java to be released must be built locally by using the following command::
+	A fat Jar version of POP-Java must be built locally in order to run the tests by using the following command::
 
   		$ ./gradlew fatJar
   		
-  	.. note:: Make sure you use Java 8 (not 9) to build POP-Java. Otherwise it will not run under Java 8.
+  	.. note:: Make sure you use Java JDK 8 (not 9) in order to build POP-Java. Otherwise it will not run under Java 9.
 
 
 #. Run tests locally
@@ -47,20 +49,20 @@ Creation of a new release
 
   		$ ./gradlew test
 	
-	All bugs found must be fixed until all tests have passed.
+	All tests must pass before going to the next step.
 
 	
 #. Build and upload Maven package to OSSRH 
 
-	Build the POP-Java Jar files and signing files required for the Maven package, and upload (deploy) them to `OSSRH  <https://oss.sonatype.org>`_ repository by using the following commands::
+	Build the POP-Java Jar files and signing files required for the Maven package, and upload (deploy) them to the `OSSRH repository <https://oss.sonatype.org>`_ by using the following commands::
 
   		$ ./gradlew clean
   		$ ./gradlew uploadArchives  		
   	
   	.. note:: 
-  		* We first clean the build directory to get rid of the fat Jar bundle, which must not be deployed to the OSSRH repository. 
+  		* We first clean the build directory to get rid of the fat Jar bundle, which must not be deployed to the `OSSRH repository <https://oss.sonatype.org>`_. 
   		
-  		* To perform this step, one must have a `Sonatype JIRA login <https://issues.sonatype.org>`_ and `credentials <http://central.sonatype.org/pages/gradle.html>`_ in his gradle.properties file (generally stored in ~/.gradle/) like this::
+  		* To perform this step, one must have a `Sonatype JIRA login <https://issues.sonatype.org>`_ and `credentials <http://central.sonatype.org/pages/gradle.html>`_ in his gradle.properties file (generally stored in ``~/.gradle/``) like this::
   	
   		 	signing.keyId=YourKeyId
   	  	 	signing.password=YourPublicKeyPassword
@@ -69,7 +71,8 @@ Creation of a new release
   	  	 	ossrhUsername=your-jira-id
   	  	 	ossrhPassword=your-jira-password
   	  	 
-  	 	* The signing data must be generated, e.g. with `GnuPG <http://central.sonatype.org/pages/working-with-pgp-signatures.html>`_ .  
+  	 	* The signing data must be generated, e.g. with `GnuPG <http://central.sonatype.org/pages/working-with-pgp-signatures.html>`_. 
+  	 	* More information about the Maven packaging process is given on the `OSSRH Guide <http://central.sonatype.org/pages/ossrh-guide.html>`_.  
   	  	
 
 #. Commit, tag and push
@@ -104,5 +107,7 @@ Creation of a new release
 
   		./gradlew closeAndReleaseRepository
   		
-  	.. note:: To pass this step, the deployed files are verified and thus must fulfil the `requirements <http://central.sonatype.org/pages/requirements.html>`_
+  	.. note:: 
+  		* To pass this step, the deployed files are verified and thus must fulfil some `requirements <http://central.sonatype.org/pages/requirements.html>`_.
+  		* This step was fully automatized thanks to the `Gradle Nexus Staging Plugin <https://github.com/Codearte/gradle-nexus-staging-plugin/>`_. However, it can manually be done on the `OSSRH website <https://oss.sonatype.org>`_ as described `here <http://central.sonatype.org/pages/releasing-the-deployment.html>`_.
 	
