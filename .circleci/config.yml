@@ -7,7 +7,6 @@ jobs:
       
     environment: 
       - POP_DEBUG: true
-      - GRADLE_OPTS: -PossrhUsername=usrnm -PossrhPassword=pswrd
       
     steps:
       - checkout
@@ -18,7 +17,7 @@ jobs:
               
       - run: 
             name: Build POP-Java
-            command: ./gradlew --no-daemon clean fatJar
+            command: ./gradlew --no-daemon clean fatJar -PossrhUsername=usrnm -PossrhPassword=pswrd
 
       - run: 
             name: Test POP-Java
@@ -51,7 +50,7 @@ jobs:
               
       - run: 
             name: Build POP-Java
-            command: ./gradlew --no-daemon clean fatJar
+            command: ./gradlew --no-daemon clean fatJar -PossrhUsername=usrnm -PossrhPassword=pswrd
 
       - run: 
             name: Test POP-Java
