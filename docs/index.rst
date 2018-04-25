@@ -53,9 +53,9 @@ This documentation is divided in three parts:
    :maxdepth: 1
    :caption: TFC
 
-   tfc/tfc_model.rst
-   tfc/basic_example.rst
-   tfc/advanced_example.rst
+   tfc/tfc-model.rst
+   tfc/basic-example.rst
+   tfc/advanced-example.rst
 
 .. ............................................................................
 
@@ -66,7 +66,6 @@ This documentation is divided in three parts:
    :caption: Developer manual
 
    dev/contributing
-   dev/release
    dev/documentation
    dev/architecture
    dev/brokerinterface

@@ -7,17 +7,16 @@ After installation of POP-Java we need to take some steps if we want to enable s
 
 To do this a small dedicated shell was created. To run it go into the POP installation directory and run:
 
-.. code-block:: txt
+.. code-block:: shell
 
     $ java -javaagent:JarFile/popjava.jar -cp JarFile/popjava.jar popjava.scripts.POPJShell
     This shell is not interactive, you must type every command.
     Use ``help`` to know the available commands.
     Every command has a --help (-h) flag which print its options.
-    $
 
 This will open the shell. To execute a command simply write it and press enter. No history is available at this time.
 
-.. code-block:: txt
+.. code-block:: shell
 
     $ help
     Available options:
@@ -31,7 +30,7 @@ About the Shell
 
 Every command in the shell has a ``help`` method, usually by adding ``-h`` or ``--help`` to it. When it asks for a missing value is because that value could have been given by an option. See below.
 
-.. code-block:: txt
+.. code-block:: shell
 
     $ jm node add -h
     usage: jm node add [OPTIONS]
@@ -53,7 +52,7 @@ TLS Configuration
 In case you want to use secure connections, you first have to create a keystore.
 Using the ``keystore create`` command the command will ask us to insert all the needed values. It will also save the keystore information in the POP-Java's global configuration so users will be able to use secure connection too.
 
-.. code-block:: txt
+.. code-block:: shell
 
     $ keystore create
     missing value for 'file': global.jks
@@ -71,7 +70,7 @@ If there is not a third party application to configure the Job Manager, the shel
 
 The first thing to do is start the Job Manager.
 
-.. code-block:: txt
+.. code-block:: shell
 
     $ jm start
     Job Manager started.
@@ -83,7 +82,7 @@ Network creation
 
 To create a new network you will have to execute the ``jm network create`` command. Its output should something like the folowing snippet.
 
-.. code-block:: txt
+.. code-block:: shell
 
     $ jm network create
     missing value for 'name': friendly net
@@ -100,7 +99,7 @@ The command will also export a ``.cer`` file which can be shared with trusted pa
 
 You can see the existing network by running ``jm network list``
 
-.. code-block:: txt
+.. code-block:: shell
 
     $ jm network list
     Note that networks are identified by their UUID.
@@ -115,7 +114,7 @@ Adding friendly nodes
 
 Similarly to how we add network, a command exists in order to add friendly nodes.
 
-.. code-block:: txt
+.. code-block:: shell
 
     $ jm node add
     missing value for 'type': jobmanager
