@@ -17,11 +17,11 @@ jobs:
               
       - run: 
             name: Build POP-Java
-            command: ./gradlew --no-daemon clean fatJar -PossrhUsername=usrnm -PossrhPassword=pswrd
+            command: ./gradlew --no-daemon clean fatJar -PossrhUsername=dummy -PossrhPassword=dummy
 
       - run: 
             name: Test POP-Java
-            command: ./gradlew --no-daemon test -PossrhUsername=usrnm -PossrhPassword=pswrd
+            command: ./gradlew --no-daemon test -PossrhUsername=dummy -PossrhPassword=dummy
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
@@ -50,11 +50,11 @@ jobs:
               
       - run: 
             name: Build POP-Java
-            command: ./gradlew --no-daemon clean fatJar -PossrhUsername=usrnm -PossrhPassword=pswrd
+            command: ./gradlew --no-daemon clean fatJar -PossrhUsername=dummy -PossrhPassword=dummy
 
       - run: 
             name: Test POP-Java
-            command: ./gradlew --no-daemon test -PossrhUsername=usrnm -PossrhPassword=pswrd
+            command: ./gradlew --no-daemon test -PossrhUsername=dummy -PossrhPassword=dummy
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}

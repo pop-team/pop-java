@@ -125,27 +125,27 @@ The following information is usually extracted from a connecting user: the certi
 
 .. note:: POP-Java does not handle the real identification of a user. It's the job of the one creating an application to provide this ability.
 
-To access the statistics of a POP object we use the APIs provided by ``POPAccounting``. This class let us do principally 3 things:
-	- See if an object has tracking enabled
+To access the statistics of a POP object, we use the API provided by the class ``POPAccounting``, which can do 3 main things:
+	- Check if an object has tracking enabled
 	- Retrieve the users which used the object
-	- Ask the stats for a given user
-	- Ask the stats about the current connection
+	- Ask the statistics of a given user
+	- Ask the statistics of a current connection
 
 Own statistics
 ~~~~~~~~~~~~~~
 
-Access your own statistics can be useful if you want to check how much you used another person shared object before closing a connection, usage is stacked and not connection independent. This means that if you connect two time to an object the the second time you request your statistics it will also contains the ones from the first connection.
+Accessing your own statistics can be useful to check how much you used another person's' shared object before closing a connection. The usage is stacked and connection independent, meaning that the statistics cumulate and are not reset between two connections to an object.
 
 .. code-block:: java
 
 	POPTracking own = POPAccounting.getMyInformation(a);
 
-``POPTracking`` contains the information the owner of the object will be able to see about yourself to identify you and your usage of the methods in the object.
+``POPTracking`` contains information that the owner of the object can see about you, in order to identify you and see your usage of the methods in the object.
 
 Object statistics
 ~~~~~~~~~~~~~~~~~
 
-If you are the owner of an object you are interested in knowing who used your object, for doing so you first need to request a user list to the object and successively ask detailed information on each of the user.
+As the owner of an object, you may be interested in knowing who used your object. To do that, you first need to request a list of users of the object. Then you can successively ask detailed information about each user.
 
 .. code-block:: java
 
@@ -158,9 +158,11 @@ If you are the owner of an object you are interested in knowing who used your ob
 Tracked information
 ~~~~~~~~~~~~~~~~~~~
 
-We generally track three things the user did:
-	- the method he used
-	- how many times did he call said method
-	- how long did the method execute for
+We generally track three things done by the user:
+	- the methods he used;
+	- the number of times he called each method;
+	- the duration of the method execution (usage);
+	- the size of the method input data;
+	- the size of the method output data.
 
-With those information an owner of an object should be able to gather enough information to fill an invoice.
+With those information, the owner of an object can gather enough information e.g. to fill in an invoice.
