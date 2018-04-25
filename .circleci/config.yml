@@ -7,7 +7,7 @@ jobs:
       
     environment: 
       - POP_DEBUG: true
-      - GRADLE_OPTS: -DossrhUsername=usrnm -DossrhPassword=pswrd
+      - GRADLE_OPTS: -PossrhUsername=usrnm -PossrhPassword=pswrd
       
     steps:
       - checkout
