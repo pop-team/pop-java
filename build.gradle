@@ -9,7 +9,7 @@ description = 'A Java distributed system'
 
 group = "ch.icosys"
 archivesBaseName = "popjava"
-version = "1.5.2"
+version = "1.5.3"
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 

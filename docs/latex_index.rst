@@ -18,9 +18,9 @@
     :maxdepth: 1
     :caption: TFC
 
-    tfc/what.rst
-    tfc/usage.rst
-    tfc/advanced.rst
+    tfc/tfc_model.rst
+    tfc/basic_example.rst
+    tfc/advanced_example.rst
 
 .. ............................................................................
 

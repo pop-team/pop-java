@@ -1,4 +1,5 @@
 .. _dev-configuration:
+
 Configuration
 =============
 
