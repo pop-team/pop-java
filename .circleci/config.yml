@@ -21,7 +21,7 @@ jobs:
 
       - run: 
             name: Test POP-Java
-            command: ./gradlew --no-daemon test
+            command: ./gradlew --no-daemon test -PossrhUsername=usrnm -PossrhPassword=pswrd
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
@@ -54,7 +54,7 @@ jobs:
 
       - run: 
             name: Test POP-Java
-            command: ./gradlew --no-daemon test
+            command: ./gradlew --no-daemon test -PossrhUsername=usrnm -PossrhPassword=pswrd
       
       - save_cache:
           key: pop-cache-{{ checksum "build.gradle" }}
