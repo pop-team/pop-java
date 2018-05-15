@@ -20,7 +20,7 @@ POP-Java uses the standard Java compiler and can easily be integrated into an ex
 As POP-Java java files use features from the POP-Java library, the POP-Java jar file needs to be included in the classpath during the compilation process.
 An example of how to compile POP-Java source-code using ant is shown below:
 
-.. code-block:: ant
+.. code-block:: xml
 
 	<property environment="env"/>
 

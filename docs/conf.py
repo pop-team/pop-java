@@ -31,6 +31,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinxcontrib.bibtex',
     'numfig',
+    'javasphinx'
 ]
 
 todo_include_todos = True
