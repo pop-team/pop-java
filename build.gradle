@@ -213,6 +213,13 @@ uploadArchives {
     mavenDeployer {
       beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
+	  if (!project.hasProperty("ossrhUsername")) {
+	    ext.ossrhUsername = "dummy"
+	  }
+	  if (!project.hasProperty("ossrhPassword")) {
+	    ext.ossrhPassword = "dummy"
+	  }
+
       repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
         authentication(userName: ossrhUsername, password: ossrhPassword)
       }
