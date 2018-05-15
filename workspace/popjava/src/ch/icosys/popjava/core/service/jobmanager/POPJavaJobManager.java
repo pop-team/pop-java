@@ -1996,8 +1996,9 @@ public class POPJavaJobManager extends POPJobService {
 			cachedJobManangers.put(key, jm);
 		} else {
 			try {
+				POPJavaJobManager current = cachedJobManangers.get(key);
 				POPString val = new POPString();
-				jm.query("power", val);
+				current.query("power", val);
 			} catch (Exception e) {
 				jm.makePermanent();
 				cachedJobManangers.put(key, jm);
