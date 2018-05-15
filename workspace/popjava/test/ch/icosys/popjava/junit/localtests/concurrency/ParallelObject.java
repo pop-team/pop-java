@@ -26,7 +26,7 @@ public class ParallelObject extends POPObject {
 	public ParallelObject() {
 	}
 
-	@POPAsyncMutex
+	@POPAsyncMutex(id = 22222)
 	public void mutex() {
 		System.out.println("Start mutex");
 		if (counter.incrementAndGet() > 1) {
@@ -38,14 +38,14 @@ public class ParallelObject extends POPObject {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("End mutex");
 		counter.decrementAndGet();
 		counter2.incrementAndGet();
 		sem.release();
+		System.out.println("End mutex");
 	}
 
-	@POPAsyncSeq
-	public void sync() {
+	@POPAsyncSeq(id = 11111)
+	public void seq() {
 		System.out.println("Start seq");
 		if (counter.get() > 1) {
 			error = true;
@@ -56,9 +56,9 @@ public class ParallelObject extends POPObject {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("End seq");
 		counter2.incrementAndGet();
 		sem.release();
+		System.out.println("End seq");
 	}
 
 	private Semaphore semSleep = new Semaphore(0);
@@ -80,12 +80,12 @@ public class ParallelObject extends POPObject {
 				semSleep.acquire();
 			}
 		} catch (InterruptedException e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 
 	}
 
-	@POPAsyncConc
+	@POPAsyncConc(id = 33333)
 	public void conc() {
 		System.out.println("Start conc");
 		if (counter.get() > 1) {
@@ -97,21 +97,20 @@ public class ParallelObject extends POPObject {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("End conc");
 		counter2.incrementAndGet();
 		sem.release();
+		System.out.println("End conc");
 	}
 
 	@POPSyncConc
-	public boolean success() {
+	public boolean success(int permits) {
 		try {
-			sem.acquire(4);
+			sem.acquire(permits);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("Success ? " + counter2.intValue());
-		return !error && counter2.intValue() == 4;
+		return !error && counter2.intValue() == permits;
 	}
 
 	@POPSyncConc

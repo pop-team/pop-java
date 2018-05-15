@@ -27,14 +27,20 @@ public class ParameterTests {
 
 	@Test
 	public void testString() {
+		System.out.println("A");
 		POPSystem.initialize();
 		ParameterObject test = PopJava.newActive(this, ParameterObject.class);
 
+		System.out.println("B");
 		test.setValue("asdf");
 
+		System.out.println("C");
 		assertEquals("asdf", test.getValue());
 
+		System.out.println("D");
 		POPSystem.end();
+
+		System.out.println("E");
 	}
 
 	@Test

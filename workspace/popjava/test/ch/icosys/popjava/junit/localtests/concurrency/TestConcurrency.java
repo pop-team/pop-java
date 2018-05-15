@@ -16,12 +16,12 @@ public class TestConcurrency {
 
 		ParallelObject object = PopJava.newActive(this, ParallelObject.class);
 
-		object.sync();
+		object.seq();
 		object.mutex();
-		object.sync();
+		object.seq();
 		object.conc();
 
-		boolean correct = object.success();
+		boolean correct = object.success(4);
 
 		POPSystem.end();
 

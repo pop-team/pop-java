@@ -94,7 +94,7 @@ public final class ComboxReceiveRequest implements Runnable {
 			MessageHeader messageHeader = buffer.extractHeader();
 			request.setClassId(messageHeader.getClassId());
 			request.setMethodId(messageHeader.getMethodId());
-			request.setSenmatics(messageHeader.getSemantics());
+			request.setSemantics(messageHeader.getSemantics());
 			request.setRequestID(messageHeader.getRequestID());
 			request.setBuffer(buffer);
 			request.setReceiveCombox(this);

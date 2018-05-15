@@ -33,13 +33,34 @@ import ch.icosys.popjava.junit.localtests.subclasses.CallFromSubClassTest;
 import ch.icosys.popjava.junit.localtests.subclasses.SubclassingTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ CallBackTest.class, IntegerTest.class, AnnotationsTest.class, POPObjectDefaultMethodTest.class,
-		ReaderWriterTest.class, TestConcurrency.class, DeamonTest.class, EnumTests.class, ArraysTest.class,
-		ParameterTests.class, BigDataTests.class, SubclassingTest.class, CallFromSubClassTest.class,
-		ReferenceTest.class, JVMObjectTest.class, NestedPOPCreation.class, CreateKeyStoreTest.class,
-		MethodAccessTest.class, POPJavaJobManagerConfigurationTest.class, POPJavaJobManagerLiveConfigurationTest.class,
-		ProtocolsTests.class, IncompatibleConnectionsTest.class, WhiteBlacklistTest.class, JavaSerializableTest.class,
-		AccountingTest.class, AccountingAPITest.class, MethodAnnotationPriority.class, BiDirectionalTest.class })
+@Suite.SuiteClasses({ 
+	CallBackTest.class, 
+	IntegerTest.class, 
+	AnnotationsTest.class, 
+	POPObjectDefaultMethodTest.class,
+	ReaderWriterTest.class, 
+	TestConcurrency.class, 
+	DeamonTest.class, 
+	EnumTests.class, 
+	ArraysTest.class,
+	ParameterTests.class, 
+	BigDataTests.class, 
+	SubclassingTest.class, 
+	CallFromSubClassTest.class, 
+	ReferenceTest.class, 
+	JVMObjectTest.class, 
+	NestedPOPCreation.class, 
+	CreateKeyStoreTest.class, 
+	MethodAccessTest.class, 
+	POPJavaJobManagerConfigurationTest.class, 
+	POPJavaJobManagerLiveConfigurationTest.class, 
+	ProtocolsTests.class, 
+	IncompatibleConnectionsTest.class, 
+	WhiteBlacklistTest.class, 
+	JavaSerializableTest.class, 
+	AccountingTest.class, 
+	AccountingAPITest.class, 
+	MethodAnnotationPriority.class, 
+	BiDirectionalTest.class })
 public class LocalTests {
-
 }

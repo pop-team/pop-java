@@ -343,7 +343,7 @@ public final class Broker {
 		}
 
 		if (exception == null && constructor != null && parameterTypes != null && parameters != null) {
-			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
+			if ((request.getSemantics() & Semantic.SYNCHRONOUS) != 0) {
 				// Return the value to caller
 				MessageHeader messageHeader = new MessageHeader();
 				messageHeader.setRequestID(request.getRequestID());
@@ -419,7 +419,7 @@ public final class Broker {
 	public void finalizeRequest(Request request) {
 		try {
 			// skip if marked as constructor
-			if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
+			if ((request.getSemantics() & Semantic.CONSTRUCTOR) != 0) {
 				return;
 			}
 
@@ -428,7 +428,7 @@ public final class Broker {
 
 			// use previously set semantics if possible
 			if (methodSemanticsCache.containsKey(method)) {
-				request.setSenmatics(methodSemanticsCache.get(method));
+				request.setSemantics(methodSemanticsCache.get(method));
 				return;
 			}
 
@@ -466,7 +466,7 @@ public final class Broker {
 				// not a semantic match, we keep what we received
 				// XXX this happen when we get the annotation from a superclass
 				// FIXME get annotation from super class
-				semantics = request.getSenmatics();
+				semantics = request.getSemantics();
 			}
 
 			// localhost only call
@@ -474,7 +474,7 @@ public final class Broker {
 				semantics |= Semantic.LOCALHOST;
 			}
 
-			request.setSenmatics(semantics);
+			request.setSemantics(semantics);
 			methodSemanticsCache.put(method, semantics);
 		} catch (NoSuchMethodException e) {
 		}
@@ -729,7 +729,7 @@ public final class Broker {
 		// normal case
 		else {
 			// normal execution
-			if ((request.getSenmatics() & Semantic.CONSTRUCTOR) != 0) {
+			if ((request.getSemantics() & Semantic.CONSTRUCTOR) != 0) {
 				invokeConstructor(request);
 			} else {
 				invokeMethod(request);
@@ -817,7 +817,7 @@ public final class Broker {
 		switch (request.getMethodId()) {
 		case MessageHeader.BIND_STATUS_CALL:
 			// BindStatus call
-			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
+			if ((request.getSemantics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
 				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
@@ -834,7 +834,7 @@ public final class Broker {
 				return false;
 			}
 			int ret = 1;
-			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
+			if ((request.getSemantics() & Semantic.SYNCHRONOUS) != 0) {
 
 				MessageHeader messageHeader = new MessageHeader();
 				messageHeader.setRequestID(request.getRequestID());
@@ -851,7 +851,7 @@ public final class Broker {
 			}
 			int ret = 1;
 
-			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
+			if ((request.getSemantics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
 				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
@@ -865,7 +865,7 @@ public final class Broker {
 			String encoding = buffer.getString();
 			boolean foundEncoding = findEndcoding(encoding);
 
-			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
+			if ((request.getSemantics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
 				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
@@ -894,7 +894,7 @@ public final class Broker {
 			// ObjectAlive call
 			if (popInfo == null)
 				return false;
-			if ((request.getSenmatics() & Semantic.SYNCHRONOUS) != 0) {
+			if ((request.getSemantics() & Semantic.SYNCHRONOUS) != 0) {
 				MessageHeader messageHeader = new MessageHeader();
 				messageHeader.setRequestID(request.getRequestID());
 				responseBuffer.setHeader(messageHeader);
@@ -1295,7 +1295,7 @@ public final class Broker {
 	 *            Exception to send
 	 * @return true if the exception has been sent
 	 */
-	public boolean sendException(ComboxConnection combox, POPException exception, int requestId) {
+	public boolean sendException(ComboxConnection<?> combox, POPException exception, int requestId) {
 		exception.printStackTrace();
 
 		POPBuffer buffer = combox.getCombox().getBufferFactory().createBuffer();
@@ -1316,7 +1316,7 @@ public final class Broker {
 	 * @param buffer
 	 *            Buffer to send trough the combox
 	 */
-	public void sendResponse(ComboxConnection combox, POPBuffer buffer) {
+	public void sendResponse(ComboxConnection<?> combox, POPBuffer buffer) {
 		combox.send(buffer);
 	}
 

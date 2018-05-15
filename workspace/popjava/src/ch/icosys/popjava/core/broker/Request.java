@@ -33,7 +33,7 @@ public class Request {
 
 	protected ComboxReceiveRequest receivedCombox;
 
-	protected ComboxConnection combox;
+	protected ComboxConnection<?> combox;
 
 	protected int status;
 
@@ -97,7 +97,7 @@ public class Request {
 	 * 
 	 * @return Semantic of the current request as an int value
 	 */
-	public int getSenmatics() {
+	public int getSemantics() {
 		return semantics;
 	}
 
@@ -107,7 +107,7 @@ public class Request {
 	 * @param semantics
 	 *            Semantic to be set on the current request as an int value
 	 */
-	public void setSenmatics(int semantics) {
+	public void setSemantics(int semantics) {
 		this.semantics = semantics;
 	}
 
@@ -192,7 +192,7 @@ public class Request {
 	 * 
 	 * @return associated combox
 	 */
-	public ComboxConnection getConnection() {
+	public ComboxConnection<?> getConnection() {
 		return combox;
 	}
 
@@ -202,7 +202,7 @@ public class Request {
 	 * @param combox
 	 *            Combox to be associate
 	 */
-	public void setCombox(ComboxConnection combox) {
+	public void setCombox(ComboxConnection<?> combox) {
 		this.combox = combox;
 	}
 
@@ -222,7 +222,7 @@ public class Request {
 	 * @return true if synchronous, false otherwise
 	 */
 	public boolean isSynchronous() {
-		return (getSenmatics() & Semantic.SYNCHRONOUS) != 0;
+		return (getSemantics() & Semantic.SYNCHRONOUS) != 0;
 	}
 
 	/**
@@ -231,7 +231,7 @@ public class Request {
 	 * @return true if concurrent, false otherwise
 	 */
 	public boolean isConcurrent() {
-		return (getSenmatics() & Semantic.CONCURRENT) != 0;
+		return (getSemantics() & Semantic.CONCURRENT) != 0;
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class Request {
 	 * @return true if mutex, false otherwise
 	 */
 	public boolean isMutex() {
-		return (getSenmatics() & Semantic.MUTEX) != 0;
+		return (getSemantics() & Semantic.MUTEX) != 0;
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class Request {
 	}
 
 	boolean isLocalhost() {
-		return (getSenmatics() & Semantic.LOCALHOST) != 0;
+		return (getSemantics() & Semantic.LOCALHOST) != 0;
 	}
 
 	public RequestQueue getRequestQueue() {

@@ -35,7 +35,7 @@ public class ParameterObject extends POPObject implements MyInterface {
 		temp = string;
 	}
 
-	@POPSyncMutex
+	@POPSyncMutex(id = 11111)
 	public String getValue() {
 		return temp;
 	}

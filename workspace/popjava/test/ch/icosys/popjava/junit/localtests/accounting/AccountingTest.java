@@ -2,7 +2,6 @@ package ch.icosys.popjava.junit.localtests.accounting;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.icosys.popjava.core.PopJava;
@@ -75,7 +74,6 @@ public class AccountingTest {
 	}
 
 	@Test
-	@Ignore
 	public void asyncConcTest() {
 		A a = PopJava.newActive(this, A.class);
 		for (int i = 0; i < ITERATIONS; i++) {
@@ -86,7 +84,6 @@ public class AccountingTest {
 	}
 
 	@Test
-	@Ignore
 	public void mixedTest() {
 		A a = PopJava.newActive(this, A.class);
 		for (int i = 0; i < ITERATIONS; i++) {
