@@ -1,42 +1,38 @@
 package ch.icosys.popjava.core.broker;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * This class represents the request queue used in the broker-side Every
- * requests are put into this request queue and are served in FIFO order
+ * This class represents the request queue used in the broker-side. Every
+ * requests are put into this request queue and are served in FIFO order.
+ * 
+ * @author Gisler Christophe
+ *
  */
 
 public class RequestQueue {
 
 	private final Lock lock = new ReentrantLock();
 
-	private final Condition canPeek = lock.newCondition();
+	private final Condition canPick = lock.newCondition();
 
 	private final Condition canInsert = lock.newCondition();
 
-	private Request availableRequest = null;
+	private Request nextRequestToPick = null;
 
-	private Request requestMutex = null;
-	
-	private final List<Request> requestsConc = new LinkedList<>();
+	private Request mutexRequest = null;
 
-	private final List<Request> requestsSeq = new LinkedList<>();
+	private final LinkedList<Request> concurrentRequests = new LinkedList<>();
 
-	private final LinkedList<Request> requestsWaiting = new LinkedList<>();
+	private final LinkedList<Request> sequentialRequests = new LinkedList<>();
 
-	private Request servingMutex = null;
+	private final LinkedList<Request> waitingRequests = new LinkedList<>();
 
-	private Request servingSequential = null;
-
-	private final List<Request> servingConcurrent = new LinkedList<>();
-
-	private boolean requestTypeConc = false;
+	private boolean nextRequestIsConc = false;
 
 	public static final int DEFAULT_REQUEST_QUEUE_SIZE = 250;
 
@@ -53,8 +49,7 @@ public class RequestQueue {
 	 * @return number of requests
 	 */
 	public synchronized int size() {
-		return requestsConc.size() + requestsSeq.size() + requestsWaiting.size() + (servingMutex == null ? 0 : 1)
-				+ servingConcurrent.size() + (servingSequential == null ? 0 : 1);
+		return concurrentRequests.size() + sequentialRequests.size() + (mutexRequest == null ? 0 : 1) + waitingRequests.size();
 	}
 
 	/**
@@ -88,31 +83,31 @@ public class RequestQueue {
 		 										+ request.getClassId() + " " + request.getMethodId());*/
 		lock.lock();
 		try {
-			if (requestMutex == null) {
+			if (mutexRequest == null) {
 				if (request.isMutex()) {
-					requestMutex = request;
-					//System.out.println("Mutex " + request.getMethodId() + " added");
+					mutexRequest = request;
+					//System.out.println("Mutex request " + request.getMethodId() + " added");
 				} else if (request.isConcurrent()) {
 					while (size() >= maxQueue) {
 						canInsert.await();
 					}
-					requestsConc.add(request);
-					//System.out.println("Conc " + request.getMethodId() + " added");
+					concurrentRequests.add(request);
+					//System.out.println("Conc request " + request.getMethodId() + " added");
 				} else if (request.isSequential()) {
 					while (size() >= maxQueue) {
 						canInsert.await();
 					}
-					requestsSeq.add(request);
-					//System.out.println("Seq " + request.getMethodId() + " added");
+					sequentialRequests.add(request);
+					//System.out.println("Seq request " + request.getMethodId() + " added");
 				}
 			} else { // requestMutex is not null
 				while (size() >= maxQueue) {
 					canInsert.await();
 				}
-				requestsWaiting.add(request);
-				//System.out.println("Mutex is set. Request " + request.getMethodId() + " added to waiting queue of size: " + requestsWaiting.size());
+				waitingRequests.add(request);
+				//System.out.println("Mutex request is already set. Request " + request.getMethodId() + " added to waiting queue of size: " + waitingRequests.size());
 			}
-			canPeek();
+			canPick();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
@@ -123,57 +118,42 @@ public class RequestQueue {
 	}
 
 	/**
-	 * Peek a request in the queue. If there is no request to peek, this method
+	 * Pick a request in the queue. If there is no request to pick, this method
 	 * waits the time passed in parameters
 	 * 
 	 * @param time
 	 *            Time to wait
 	 * @param timeUnit
 	 *            Unit of time
-	 * @return Request peeked in the queue
+	 * @return Request picked in the queue
 	 */
-	public Request peek(int time, TimeUnit timeUnit) {
-		Request request = null;
-		boolean waitSuccess = false;
+	public Request pick(int time, TimeUnit timeUnit) {
+		Request pickedRequest = null;
 		lock.lock();
 		try {
 			// LogWriter.writeDebugInfo("Peek, queue contains " + size() + " requests " + hashCode());
 			// LogWriter.writeDebugInfo("Search for new request " + hashCode());
-			waitSuccess = availableRequest != null || canPeek.await(time, timeUnit);
+			boolean waitSuccess = nextRequestToPick != null || canPick.await(time, timeUnit);
 			// LogWriter.writeDebugInfo("Got request? " + waitSuccess + " " + hashCode());
 			if (waitSuccess) {
-				request = availableRequest;
-				request.setStatus(Request.SERVING);
-				serveRequest(request);
-				availableRequest = null;
-				canPeek();
+				pickedRequest = nextRequestToPick;
+				pickedRequest.setStatus(Request.SERVING);
+				if (pickedRequest.isMutex()) {
+					//System.out.println("Mutex request " + pickedRequest.getMethodId() + " picked");
+				} else if (pickedRequest.isSequential()) {
+					//System.out.println("Seq request " + pickedRequest.getMethodId() + " picked");
+				} else {
+					//System.out.println("Conq request " + pickedRequest.getMethodId() + " picked");
+				}
+				nextRequestToPick = null;
+				canPick();
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			lock.unlock();
 		}
-		return request;
-	}
-
-	/**
-	 * Move request from availableRequest to its proper request queue
-	 * 
-	 * @param request
-	 *            the request to add to the various queues
-	 */
-	private void serveRequest(Request request) {
-		if (request.isMutex()) {
-			servingMutex = request;
-			//requestMutex = null;
-		} else if (request.isSequential()) {
-			servingSequential = request;
-			requestsSeq.remove(request);
-		} else {
-			servingConcurrent.add(request);
-			requestsConc.remove(request);
-		}
-		//System.out.println("Request " + request.getMethodId() + " served");
+		return pickedRequest;
 	}
 
 	/**
@@ -186,55 +166,42 @@ public class RequestQueue {
 	public boolean remove(Request request) {
 		lock.lock();
 		try {
-			if (request.isMutex() && servingMutex == request) {
-				servingMutex = null;
+			// If it is the requestMutex
+			if (request.isMutex() && mutexRequest == request) {
+				mutexRequest = null;
+				//System.out.println("Mutex request " + request.getMethodId() + " removed");
 				// Move queued waiting requests to adequate queues until reaching the next mutex (if any is waiting)
-				Request queuedRequest;
-				while ((queuedRequest = requestsWaiting.poll()) != null) {
-					if (queuedRequest.isMutex()) {
-						requestMutex = queuedRequest;
-						//System.out.println("New mutex " + queuedRequest.getMethodId() + " set");
+				Request waitingRequest;
+				while ((waitingRequest = waitingRequests.poll()) != null) {
+					if (waitingRequest.isMutex()) {
+						mutexRequest = waitingRequest;
+						//System.out.println("New mutex request " + waitingRequest.getMethodId() + " set");
 						break;
-					} else if (queuedRequest.isConcurrent()) {
-						requestsConc.add(queuedRequest);
-						//System.out.println("Conc " + queuedRequest.getMethodId() + " moved from waiting to conc queue");
-					} else if (queuedRequest.isSequential()) {
-						requestsSeq.add(queuedRequest);
-						//System.out.println("Seq " + queuedRequest.getMethodId() + " moved from waiting to seq queue");
+					} else if (waitingRequest.isConcurrent()) {
+						concurrentRequests.add(waitingRequest);
+						//System.out.println("Conc request " + waitingRequest.getMethodId() + " moved from waiting to conc request queue");
+					} else if (waitingRequest.isSequential()) {
+						sequentialRequests.add(waitingRequest);
+						//System.out.println("Seq request " + waitingRequest.getMethodId() + " moved from waiting to seq request queue");
 					}
-					//System.out.println("Wating queue size: " + requestsWaiting.size());
+					//System.out.println("Waiting request queue size: " + waitingRequests.size());
 				}
-			} else if (request.isSequential() && servingSequential == request) {
-				servingSequential = null;
-				//requestsSeq.remove(request);
-			} else if (request.isConcurrent() && servingConcurrent.contains(request)) {
-				servingConcurrent.remove(request);
-				//requestsConc.remove(request);
-			} /*else if (requestsWaiting.contains(request)) {
-				requestsWaiting.remove(request);
-			}*/
-			canPeek();
+			} else if (request.isSequential()) {
+				sequentialRequests.remove(request);
+				//System.out.println("Seq request " + request.getMethodId() + " removed from seq request queue");
+			} else if (request.isConcurrent()) {
+				concurrentRequests.remove(request);
+				//System.out.println("Conc request " + request.getMethodId() + " removed from conc request queue");
+			} else if (waitingRequests.contains(request)) {
+				waitingRequests.remove(request);
+				//System.out.println("Request " + request.getMethodId() + " removed from waiting request queue");
+			}
+			canPick();
 			canInsert.signal();
 		} finally {
 			lock.unlock();
+			//System.out.println("RequestQueue size: " + size());
 		}
-		return true;
-	}
-
-	/**
-	 * Clear the queue
-	 * 
-	 * @return true if the queue if correctly cleared
-	 */
-	public synchronized boolean clear() {
-		availableRequest = null;
-		requestMutex = null;
-		requestsConc.clear();
-		requestsSeq.clear();
-		requestsWaiting.clear();
-		servingMutex = null;
-		servingSequential = null;
-		servingConcurrent.clear();
 		return true;
 	}
 
@@ -243,92 +210,60 @@ public class RequestQueue {
 	 * 
 	 * @return true if a request can be peeked
 	 */
-	public boolean canPeek() { 
-		if (availableRequest == null) {
-			if (requestsSeq.isEmpty() && requestsConc.isEmpty()) {
-				if (requestMutex != null) {
-					Request request = requestMutex;
-					if (canPeek(request)) {
-						if (availableRequest == null) {
-							//System.out.println("Accepted1 " + request.getMethodId());
-							availableRequest = request;
-							requestMutex = null;
-						}
-						return true;
+	private boolean canPick() { 
+		if (nextRequestToPick == null) {
+			// If both seq and conc request queues are empty, check if there is a pending mutex request set
+			if (sequentialRequests.isEmpty() && concurrentRequests.isEmpty()) {
+				if (mutexRequest != null && mutexRequest.getStatus() == Request.PENDING) {
+					nextRequestToPick = mutexRequest;
+				}
+			} else if (sequentialRequests.isEmpty()) { // => requestConc queue is not empty
+				for (Request request: concurrentRequests) {
+					if (request.getStatus() == Request.PENDING) {
+						nextRequestToPick = request;
+						nextRequestIsConc = false;
+						break;
 					}
 				}
-			} else { 
-				List<Request> requests = null;
-				if (requestsSeq.isEmpty()) {
-					requests = requestsConc;
-				} else if (requestsConc.isEmpty()) {
-					requests = requestsSeq;
+			} else if (concurrentRequests.isEmpty()) { // => requestSeq queue is not empty
+				if (sequentialRequests.getFirst().getStatus() == Request.PENDING) {
+					nextRequestToPick = sequentialRequests.getFirst();
+					nextRequestIsConc = true;
+				}
+			} else { // => Both seq and conc request queues are not empty
+				if (!nextRequestIsConc && sequentialRequests.getFirst().getStatus() == Request.PENDING) {
+					nextRequestToPick = sequentialRequests.getFirst();
+					nextRequestIsConc = true;
 				} else {
-					requests = requestTypeConc ? requestsConc : requestsSeq;
-					requestTypeConc = !requestTypeConc;
-					
-				}
-				if (canPeek(requests)) {
-					canPeek.signal();
-					//System.out.println("availableRequest  = " + availableRequest.getMethodId());
-					return true;
-				}
-			}
-		} else {
-			canPeek.signal();
+					for (Request request: concurrentRequests) {
+						if (request.getStatus() == Request.PENDING) {
+							nextRequestToPick = request;
+							nextRequestIsConc = false;
+							break;
+						}
+					}
+				} 
+			} 
+		}
+		if (nextRequestToPick != null) {
+			//System.out.println("Next available request: " + nextRequestToPick.getMethodId());
+			canPick.signal();
 			return true;
 		}
 		return false;
 	}
 
-	private boolean canPeek(List<Request> requests) {
-		for (Request request: requests) {
-			if (canPeek(request)) {
-				if (availableRequest == null) {
-					//System.out.println("Accepted2 " + request.getMethodId());
-					availableRequest = request;
-					requests.remove(request);
-				}
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	/**
-	 * Check if a specific request can be peeked
+	 * Clear the queue
 	 * 
-	 * @param request
-	 *            Request to be peeked
-	 * @return true if the request can be peeked
+	 * @return true if the queue if correctly cleared
 	 */
-	private boolean canPeek(Request request) {
-		if (request.getStatus() != Request.PENDING) {
-			return false;
-		}
-
-		// If any mutex request is currently running, don't serve this request
-		if (servingMutex != null && servingMutex.getStatus() == Request.SERVING) {
-			return false;
-		}
-
-		if (request.isMutex() || request.isSequential()) {
-			// Dont serve mutex or seq requests if there is any sequential request running
-			if (servingSequential != null && servingSequential.getStatus() == Request.SERVING) {
-				return false;
-			}
-
-			if (request.isMutex()) {
-				// Dont serve mutex request if any concurrent request is running
-				for (Request currentRequest : servingConcurrent) {
-					// TO DO is the trailing isMutex check necessary? or even wrong?
-					if (currentRequest.getStatus() == Request.SERVING && currentRequest.isMutex()) {
-						return false;
-					}
-				}
-			}
-		}
+	public synchronized boolean clear() {
+		nextRequestToPick = null;
+		mutexRequest = null;
+		concurrentRequests.clear();
+		sequentialRequests.clear();
+		waitingRequests.clear();
 		return true;
 	}
 }

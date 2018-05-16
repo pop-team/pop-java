@@ -39,7 +39,7 @@ public class POPTracking implements IPOPBase {
 		return Arrays.asList(data);
 	}
 
-	public void track(String method, long time, int inputSize, int outputSize) {
+	public synchronized void track(String method, long time, int inputSize, int outputSize) {
 		POPTrackingMethod recorder = calls.get(method);
 		if (recorder == null) {
 			recorder = new POPTrackingMethod(method);

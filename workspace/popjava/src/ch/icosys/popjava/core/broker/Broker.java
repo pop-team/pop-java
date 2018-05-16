@@ -369,7 +369,6 @@ public final class Broker {
 			}
 			// Remove reference, remove the connection to POPObject
 			for (int index = 0; index < parameterTypes.length; index++) {
-
 				if (POPObject.class.isAssignableFrom(parameterTypes[index]) && parameters[index] != null) {
 					POPObject obj = (POPObject) parameters[index];
 					if (obj.isTemporary()) {
@@ -571,8 +570,9 @@ public final class Broker {
 				exception = POPException.createReflectException(method.getName(), e.getMessage());
 
 			} finally {
-				if (tracking)
+				if (tracking) {
 					trackingTime = System.currentTimeMillis() - trackingStart;
+				}
 			}
 		}
 		// Prepare the response buffer if success to invoke method
@@ -647,8 +647,9 @@ public final class Broker {
 				}
 				// Send response if success to put parameter to response buffer
 				if (exception == null) {
-					if (tracking)
+					if (tracking) {
 						outputSize = responseBuffer.size();
+					}
 					sendResponse(request.getConnection(), responseBuffer);
 				}
 			}
@@ -667,10 +668,10 @@ public final class Broker {
 			}
 		}
 
-		if (tracking)
-			registerTracking(request.getConnection().getRemoteCaller(), method.toGenericString(), trackingTime,
-					inputSize, outputSize);
-
+		if (tracking) {
+			registerTracking(request.getConnection().getRemoteCaller(), method.toGenericString(), trackingTime, inputSize, outputSize);
+		}
+			
 		// if have any error (cannot get the parameter, or cannot invoke method,
 		// or cannot put the output parameter,
 		// send it to the interface
@@ -765,8 +766,7 @@ public final class Broker {
 		request.setStatus(Request.SERVING);
 		// Do not create new thread if method is mutex
 
-		// LogWriter.writeDebugInfo("serveRequest start "+request.getClassId()+"
-		// "+request.getMethodId());
+		// LogWriter.writeDebugInfo("serveRequest start "+request.getClassId()+" "+request.getMethodId());
 
 		if (request.isMutex()) {
 			invoke(request);
@@ -775,8 +775,7 @@ public final class Broker {
 
 				@Override
 				public void run() {
-					// LogWriter.writeDebugInfo("Start request
-					// "+request.getClassId()+" "+request.getMethodId());
+					// LogWriter.writeDebugInfo("Start request "+request.getClassId()+" "+request.getMethodId());
 
 					try {
 						invoke(request);
@@ -784,8 +783,7 @@ public final class Broker {
 						LogWriter.writeExceptionLog(e);
 					}
 
-					// LogWriter.writeDebugInfo("End request
-					// "+request.getClassId()+" "+request.getMethodId());
+					// LogWriter.writeDebugInfo("End request "+request.getClassId()+" "+request.getMethodId());
 				}
 			};
 
@@ -796,8 +794,7 @@ public final class Broker {
 			}
 		}
 
-		// LogWriter.writeDebugInfo("serveRequest end "+request.getClassId()+"
-		// "+request.getMethodId());
+		// LogWriter.writeDebugInfo("serveRequest end "+request.getClassId()+" "+request.getMethodId());
 	}
 
 	/**
@@ -948,8 +945,8 @@ public final class Broker {
 	public void treatRequests() throws InterruptedException {
 		setState(State.Running);
 		while (getState() == State.Running) {
-			Request request = requestQueue.peek(REQUEST_QUEUE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-
+			Request request = requestQueue.pick(REQUEST_QUEUE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+			
 			if (request != null && request.getClassId() != 0 && request.getMethodId() != 0) {
 				serveRequest(request);
 			}
@@ -1357,7 +1354,7 @@ public final class Broker {
 	 *            The size of the buffer containing the method result (if any, else
 	 *            0)
 	 */
-	private void registerTracking(POPRemoteCaller caller, String method, long time, int inputSize, int outputSize) {
+	private synchronized void registerTracking(POPRemoteCaller caller, String method, long time, int inputSize, int outputSize) {
 		POPTracking userTracking = callerTracking.get(caller);
 		// create if it's the first time we see this caller
 		if (userTracking == null) {

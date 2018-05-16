@@ -13,36 +13,36 @@ import ch.icosys.popjava.core.base.POPObject;
 
 /**
  *
- * @author dosky
+ * @author dosky & gilserc
  */
 @POPClass
 public class A extends POPObject {
 
-	@POPObjectDescription(url = "localhost", tracking = true)
+	@POPObjectDescription(url = "localhost", tracking = true/*, localJVM = false*/)
 	public A() {
 	}
 
-	@POPSyncSeq
+	@POPSyncSeq(id = 111)
 	public void seq() {
 		job();
 	}
 
-	@POPSyncConc
+	@POPSyncConc(id = 222)
 	public void conc() {
 		job();
 	}
 
-	@POPAsyncSeq
+	@POPAsyncSeq(id = 333)
 	public void aseq() {
 		job();
 	}
 
-	@POPAsyncConc
+	@POPAsyncConc(id = 444)
 	public void aconc() {
 		job();
 	}
 
-	@POPSyncMutex
+	@POPSyncMutex(id = 555)
 	public void sync() {
 
 	}
