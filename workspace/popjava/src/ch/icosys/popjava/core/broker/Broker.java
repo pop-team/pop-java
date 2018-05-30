@@ -722,7 +722,7 @@ public final class Broker {
 		if (request.isLocalhost() && !caller.isLocalHost()) {
 			if (request.isSynchronous()) {
 				POPException exception = new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION,
-						"You can't call a localhost method from a remote location.");
+						"You can't call a localhost method from a remote location. "+caller.getRemote().getHostAddress());
 				sendException(request.getConnection(), exception, request.getRequestID());
 			}
 		}

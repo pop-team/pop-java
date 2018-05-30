@@ -129,7 +129,7 @@ public class POPSystem {
 		return 127 * 256 * 256 * 256;
 	}
 
-	private static String getInterfaceIP(NetworkInterface ni) {
+	public static String getInterfaceIP(NetworkInterface ni) {
 		try {
 			if (ni != null && ni.isUp()) {
 				@SuppressWarnings("unused")

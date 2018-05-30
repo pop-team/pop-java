@@ -1,11 +1,14 @@
 package ch.icosys.popjava.core.util;
 
 import java.lang.annotation.Annotation;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URLClassLoader;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -66,11 +69,31 @@ public final class Util {
 	 * @return true if the contact string is the local host
 	 */
 	public static boolean isLocal(String hostname) {
-		String myHost = POPSystem.getHostIP();
-
-		return (hostname == null || hostname.length() == 0 || sameContact(myHost, hostname)
+		if((hostname == null || hostname.length() == 0
 				|| hostname.equals("localhost") || hostname.equals("127.0.0.1") || hostname.equals("0.0.0.0")
-				|| hostname.equals("127.0.1.1"));
+				|| hostname.equals("127.0.1.1"))) {
+			return true;
+		}
+		
+		if(sameContact(POPSystem.getHostIP(), hostname)) {
+			return true;
+		}
+		
+		Enumeration<NetworkInterface> en;
+		try {
+			en = NetworkInterface.getNetworkInterfaces();
+			while (en.hasMoreElements()) {
+				NetworkInterface ni = en.nextElement();
+				String ip = POPSystem.getInterfaceIP(ni);
+				if (ip != null && ip.equals(hostname)) {
+					return true;
+				}
+
+			}
+		} catch (SocketException e) {
+		}
+		
+		return false;
 	}
 
 	/**
