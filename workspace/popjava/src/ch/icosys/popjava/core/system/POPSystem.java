@@ -129,7 +129,7 @@ public class POPSystem {
 		return 127 * 256 * 256 * 256;
 	}
 
-	public static String getInterfaceIP(NetworkInterface ni) {
+	public static String getInterfaceIP(NetworkInterface ni, boolean allowPrivate) {
 		try {
 			if (ni != null && ni.isUp()) {
 				@SuppressWarnings("unused")
@@ -137,7 +137,8 @@ public class POPSystem {
 				for (InterfaceAddress interfaceAddress : ni.getInterfaceAddresses()) {
 					String address = interfaceAddress.getAddress().getHostAddress();
 
-					if (!address.contains(":") && !address.equals("127.0.0.1") && !address.equals("127.0.1.1")
+					if ((allowPrivate || !interfaceAddress.getAddress().isSiteLocalAddress()) &&
+							!address.contains(":") && !address.equals("127.0.0.1") && !address.equals("127.0.1.1")
 							&& !address.isEmpty()
 							&& (Util.getOSType() == OSType.Windows || interfaceAddress.getAddress().isReachable(20))) {
 						return address;
@@ -163,7 +164,7 @@ public class POPSystem {
 			try {
 				NetworkInterface ni = NetworkInterface.getByName(preferedInterface);
 
-				String ip = getInterfaceIP(ni);
+				String ip = getInterfaceIP(ni, true);
 				if (ip != null) {
 					return ip;
 				}
@@ -172,12 +173,27 @@ public class POPSystem {
 			}
 		}
 
+		//Find first non local address
 		Enumeration<NetworkInterface> en;
 		try {
 			en = NetworkInterface.getNetworkInterfaces();
 			while (en.hasMoreElements()) {
 				NetworkInterface ni = en.nextElement();
-				String ip = getInterfaceIP(ni);
+				String ip = getInterfaceIP(ni, false);
+				if (ip != null) {
+					return ip;
+				}
+
+			}
+		} catch (SocketException e) {
+		}
+		
+		//Find first non local address
+		try {
+			en = NetworkInterface.getNetworkInterfaces();
+			while (en.hasMoreElements()) {
+				NetworkInterface ni = en.nextElement();
+				String ip = getInterfaceIP(ni, true);
 				if (ip != null) {
 					return ip;
 				}

@@ -57,25 +57,6 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 	}
 
 	/**
-	 * Get URL of this socket
-	 * 
-	 * @return The URL as a string value
-	 */
-	@Override
-	public String getUrl() {
-
-		InetAddress address = serverSocket.getInetAddress();
-		
-		String ip = address.getHostAddress();
-		if(address.isAnyLocalAddress()) {
-			ip = POPSystem.getHostIP();
-		}
-		
-		
-		return String.format("%s://%s:%d", ComboxSecureSocketFactory.PROTOCOL, ip, serverSocket.getLocalPort());
-	}
-
-	/**
 	 * Close the current connection
 	 */
 	@Override
@@ -88,6 +69,27 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 
 		} catch (IOException e) {
 		}
+	}
+
+	@Override
+	protected String getProtocol() {
+		return ComboxSecureSocketFactory.PROTOCOL;
+	}
+
+	@Override
+	protected String getIP() {
+		InetAddress address = serverSocket.getInetAddress();
+		
+		String ip = address.getHostAddress();
+		if(address.isAnyLocalAddress()) {
+			ip = POPSystem.getHostIP();
+		}
+		return null;
+	}
+
+	@Override
+	protected int getPort() {
+		return serverSocket.getLocalPort();
 	}
 
 }

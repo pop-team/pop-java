@@ -45,6 +45,18 @@ public class POPAccessPoint implements IPOPBase {
 			accessPoints.addAll(POPSystem.getDefaultAccessPoint().accessPoints);
 		}
 	}
+	
+	public POPAccessPoint(POPAccessPoint original) {
+		isService = original.isService;
+		noaddref = original.noaddref;
+		security = original.security;
+		fingerprint = original.fingerprint;
+		x509certificate = original.x509certificate;
+		
+		for(AccessPoint ap : original.accessPoints) {
+			accessPoints.add(new AccessPoint(ap));
+		}
+	}
 
 	/**
 	 * Create a new POPAccessPoint with a formatted string
@@ -223,6 +235,7 @@ public class POPAccessPoint implements IPOPBase {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		POPAccessPoint other = (POPAccessPoint) obj;
 		if (accessPoints == null) {
 			if (other.accessPoints != null)

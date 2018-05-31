@@ -84,7 +84,7 @@ public final class Util {
 			en = NetworkInterface.getNetworkInterfaces();
 			while (en.hasMoreElements()) {
 				NetworkInterface ni = en.nextElement();
-				String ip = POPSystem.getInterfaceIP(ni);
+				String ip = POPSystem.getInterfaceIP(ni, true);
 				if (ip != null && ip.equals(hostname)) {
 					return true;
 				}

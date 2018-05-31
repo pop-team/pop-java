@@ -37,21 +37,31 @@ public final class Configuration {
 
 	// Location of POPJava installation
 	private static final String POPJAVA_LOCATION;
+	private static final int DEFAULT_PORT_RANGE;
 
 	private static final Boolean ENV_DEBUG;
 	static {
 		String location = System.getenv("POPJAVA_LOCATION");
-		String debug = System.getenv("POP_DEBUG");
 		if (location == null) {
 			POPJAVA_LOCATION = new File("./").getAbsolutePath();
 		} else {
 			POPJAVA_LOCATION = new File(location).getAbsolutePath();
 		}
+
+		String debug = System.getenv("POPJAVA_DEBUG");
 		if (debug != null) {
 			ENV_DEBUG = Boolean.getBoolean(debug);
 		} else {
 			ENV_DEBUG = null;
 		}
+		
+		String portRange = System.getenv("POPJAVA_PORTS");
+		if(portRange != null) {
+			DEFAULT_PORT_RANGE = Integer.parseInt(portRange);
+		}else {
+			DEFAULT_PORT_RANGE = 49152;
+		}
+		
 	}
 
 	// config files
@@ -115,7 +125,7 @@ public final class Configuration {
 
 	private String defaultNetwork = "";
 
-	private int allocatePortRange = 49152;
+	private int allocatePortRange = DEFAULT_PORT_RANGE;
 
 	private final Set<String> protocolsWhitelist = new HashSet<>();
 

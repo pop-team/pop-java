@@ -2,6 +2,7 @@ package ch.icosys.popjava.core.combox;
 
 import ch.icosys.popjava.core.buffer.POPBuffer;
 import ch.icosys.popjava.core.combox.socket.raw.ComboxSocketFactory;
+import ch.icosys.popjava.core.combox.socket.ssl.ComboxSecureSocketFactory;
 
 /**
  * Generalize multiple ways to allocate and initiate a POP object
@@ -23,7 +24,25 @@ public abstract class ComboxAllocate<T extends Combox> {
 	 * 
 	 * @return the url waiting for a broker connection
 	 */
-	public abstract String getUrl();
+	public String getUrl() {
+		return getUrl(false);
+	}
+		
+	public String getUrl(boolean forceLocalhost) {
+		String ip = "localhost";
+		
+		if(!forceLocalhost) {
+			ip = getIP();
+		}
+		
+		return String.format("%s://%s:%d", getProtocol(), ip, getPort());
+	}
+	
+	protected abstract String getProtocol();
+	
+	protected abstract String getIP();
+	
+	protected abstract int getPort();
 		
 	/**
 	 * Close the combox

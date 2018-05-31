@@ -44,6 +44,15 @@ public class SNExploration implements IPOPBase {
 	}
 
 	@Override
+	public String toString() {
+		String all = "";
+		for(POPAccessPoint node : visited) {
+			all += node+", ";
+		}
+		return all;
+	}
+	
+	@Override
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putInt(visited.size());
 		for (POPAccessPoint ap : visited) {

@@ -61,6 +61,12 @@ public class SNResponse implements IPOPBase {
 		buffer.putValue(explorationList, SNExploration.class);
 		buffer.putValue(nodeinfo, SNNodesInfo.Node.class);
 		buffer.putByteArray(publicCertificate);
+		if(networkUUID == null) {
+			buffer.putBoolean(false);
+		}else {
+			buffer.putBoolean(true);
+			buffer.putString(networkUUID);
+		}
 		return true;
 	}
 
@@ -71,6 +77,10 @@ public class SNResponse implements IPOPBase {
 		nodeinfo = (SNNodesInfo.Node) buffer.getValue(SNNodesInfo.Node.class);
 		int buffSize = buffer.getInt();
 		publicCertificate = buffer.getByteArray(buffSize);
+		
+		if(buffer.getBoolean()) {
+			networkUUID = buffer.getString();
+		}
 		return true;
 	}
 }

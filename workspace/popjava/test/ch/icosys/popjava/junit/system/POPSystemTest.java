@@ -22,6 +22,7 @@ public class POPSystemTest {
 		String ip = POPSystem.getHostIP();
 		assertNotSame("", ip);
 		assertNotSame("127.0.0.1", ip);
+		System.out.println(ip);
 	}
 
 	@Test
