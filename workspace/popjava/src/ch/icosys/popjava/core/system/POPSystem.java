@@ -204,6 +204,26 @@ public class POPSystem {
 
 		return "127.0.0.1";
 	}
+	
+	public static List<String> getAllHostIPs(){
+		List<String> ips = new ArrayList<>();
+		
+		Enumeration<NetworkInterface> en;
+		try {
+			en = NetworkInterface.getNetworkInterfaces();
+			while (en.hasMoreElements()) {
+				NetworkInterface ni = en.nextElement();
+				String ip = getInterfaceIP(ni, true);
+				if (ip != null) {
+					ips.add(ip);					
+				}
+
+			}
+		} catch (SocketException e) {
+		}
+		
+		return ips;
+	}
 
 	/**
 	 * Get the default local access point

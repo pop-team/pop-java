@@ -284,7 +284,6 @@ public class PopJava {
 		// cast node and connect to remote job manager
 		POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 		try {
-			System.out.println("A");
 			POPJavaJobManager jm = connectToJM();
 			try {
 				aps = jm.newTFCSearchOn(jmNode.getJobManagerAccessPoint(), networkUUID, targetClass.getName());

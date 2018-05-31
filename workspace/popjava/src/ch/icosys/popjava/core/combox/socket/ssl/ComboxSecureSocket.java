@@ -69,8 +69,6 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 				String host = ap.getHost();
 				int port = ap.getPort();
 
-				System.out.println("Connect secure " + host + " " + port + " " + POPSystem.getHostIP());
-
 				try {
 					// Create an unbound socket
 					SocketAddress sockaddress = new InetSocketAddress(host, port);

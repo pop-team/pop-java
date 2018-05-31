@@ -50,7 +50,7 @@ public final class Configuration {
 
 		String debug = System.getenv("POPJAVA_DEBUG");
 		if (debug != null) {
-			ENV_DEBUG = Boolean.getBoolean(debug);
+			ENV_DEBUG = Boolean.parseBoolean(debug);
 		} else {
 			ENV_DEBUG = null;
 		}

@@ -1847,6 +1847,7 @@ public class POPJavaJobManager extends POPJobService {
 						POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 						// contact if it's a new node
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint()) && !me.hasSameAccessPoint(jmNode.getJobManagerAccessPoint())) {
+							System.out.println("JM Query "+jmNode.getJobManagerAccessPoint()+" "+me);
 							try {
 								// send request to other JM
 								POPJavaJobManager jm = connectToJobmanager(jmNode.getJobManagerAccessPoint(),
@@ -1875,20 +1876,36 @@ public class POPJavaJobManager extends POPJobService {
 		
 		List<String> hostnames = new ArrayList<>();
 		hostnames.add("localhost");
+		hostnames.add("127.0.0.1");
+		hostnames.add("127.0.1.1");
 		try {
 			hostnames.add(InetAddress.getLocalHost().getHostName());
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
 		
+		List<String> hostIPS = POPSystem.getAllHostIPs();
+		
 		List<AccessPoint> duplicates = new ArrayList<>();
 		for(int i = 0; i < me.size(); i++) {
 			AccessPoint ap = me.get(i);
+			
+			if(hostIPS.contains(ap.getHost())) {
+				hostIPS.remove(ap.getHost());
+			}
 			
 			for(String host : hostnames) {
 				if(!ap.getHost().equals(host)) {
 					duplicates.add(new AccessPoint(ap.getProtocol(), host, ap.getPort()));
 				}
+			}
+		}
+		
+		for(int i = 0; i < me.size(); i++) {
+			AccessPoint ap = me.get(i);
+			
+			for(String localIP : hostIPS) {
+				duplicates.add(new AccessPoint(ap.getProtocol(), localIP, ap.getPort()));
 			}
 		}
 		
