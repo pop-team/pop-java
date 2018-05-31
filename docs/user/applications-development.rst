@@ -214,8 +214,8 @@ interface:
 .. code-block:: java
    :linenos:
 
-   import popjava.buffer.Buffer;
-   import popjava.dataswaper.IPOPBase;
+   import ch.icosys.popjava.core.buffer.Buffer;
+   import ch.icosys.popjava.core.dataswaper.IPOPBase;
 
    public class MyComplexType implements IPOPBase {
       private int theInt;
