@@ -1,3 +1,6 @@
+import ch.icosys.popjava.core.annotation.POPClass;
+
+@POPClass(isDistributable = false)
 public class CharTestMain {
 	public static void main(String[] args) {
 		System.out.println("Char Array test started ...");

@@ -1,8 +1,5 @@
-import java.util.concurrent.Semaphore;
+import ch.icosys.popjava.core.annotation.*;
 
-import popjava.PopJava;
-import popjava.annotation.*;
- 
 @POPClass
 public class Self {
 

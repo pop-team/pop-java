@@ -74,7 +74,16 @@ clean {
     delete releaseDirectory
 }
 
+//javax.annotation.processing.Processor
 jar {
+    doFirst {
+        def serviceDir = file("$buildDir/META-INF/services")
+        serviceDir.deleteDir()
+        serviceDir.mkdirs()
+        
+        new File("$buildDir/META-INF/services/javax.annotation.processing.Processor").text = "ch.icosys.popjava.core.annotation.processors.POPClassProcessor"
+    }
+    
 	manifest {
 		attributes 'Premain-Class': 'ch.icosys.popjava.core.javaagent.POPJavaAgent',
             'Can-Redefine-Classes': true,
@@ -85,6 +94,15 @@ jar {
 
 task fatJar(type: Jar, dependsOn: [ classes ], group: 'build', description: 'Assembles a jar with all the dependencies') {
     manifest {
+    
+        doFirst {
+            def serviceDir = file("$buildDir/META-INF/services")
+            serviceDir.deleteDir()
+            serviceDir.mkdirs()
+            
+            new File("$buildDir/META-INF/services/javax.annotation.processing.Processor").text = "ch.icosys.popjava.core.annotation.processors.POPClassProcessor"
+        }
+        
         attributes 'Premain-Class': 'ch.icosys.popjava.core.javaagent.POPJavaAgent',
             'Can-Redefine-Classes': true,
             'Can-Retransform-Classes': true,
