@@ -112,7 +112,7 @@ classes. The following code snippet shows the parallel class implementation:
 .. code-block:: java
    :linenos:
 
-   import popjava.annotation.*;
+   import ch.icosys.popjava.core.annotation.*;
    
    @POPClass
    public class Integer {
@@ -153,7 +153,7 @@ parallel class. The following code snippet shows the code of the main class:
 .. code-block:: java
    :linenos:
 
-   import popjava.annotation.*;
+   import ch.icosys.popjava.core.annotation.*;
 
    @POPClass(isDistributable = false)
    public class TestInteger {
