@@ -1,7 +1,7 @@
-POP-Java 1.5
+POP-Java 2.0
 ============
 
-Version 1.5 is under development, use it at your own risk.
+Version 2.0 is under development, use it at your own risk.
 
 COMPILE POP-Java SOURCE CODE
 ----------------------------

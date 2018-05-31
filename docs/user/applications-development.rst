@@ -193,12 +193,12 @@ the programmer will have to override the two following methods:
 .. code-block:: java
 
    @Override
-   public boolean deserialize(Buffer buffer) {
+   public boolean deserialize(POPBuffer buffer) {
       return true;
    }
 
    @Override
-   public boolean serialize(Buffer buffer) {
+   public boolean serialize(POPBuffer buffer) {
       return true;
    }
 
@@ -231,7 +231,7 @@ interface:
       }
 
       @Override
-      public boolean deserialize(Buffer buffer) {
+      public boolean deserialize(POPBuffer buffer) {
          theInt = buffer.getInt();
          theDouble = buffer.getDouble();
          int size = buffer.getInt();
@@ -240,7 +240,7 @@ interface:
       }
 
       @Override
-      public boolean serialize(Buffer buffer) {
+      public boolean serialize(POPBuffer buffer) {
          buffer.putInt(is);
          buffer.putDouble(ds);
          buffer.putIntArray(ias);

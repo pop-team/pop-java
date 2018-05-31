@@ -7,6 +7,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -32,13 +33,13 @@ import ch.icosys.popjava.core.annotation.POPSyncSeq;
  * http://www.javaspecialists.eu/archive/Issue167.html
  */
 @SupportedAnnotationTypes("popjava.annotation.POPClass")
-// @SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class POPClassProcessor extends AbstractProcessor {
 
 	private Messager messager;
 
 	@Override
-	public void init(ProcessingEnvironment env) {
+	public synchronized void init(ProcessingEnvironment env) {
 		messager = env.getMessager();
 	}
 
