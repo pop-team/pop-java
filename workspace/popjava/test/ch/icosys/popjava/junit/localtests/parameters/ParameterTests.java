@@ -10,6 +10,7 @@ import org.junit.Test;
 import ch.icosys.popjava.core.PopJava;
 import ch.icosys.popjava.core.base.POPException;
 import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.Configuration;
 
 public class ParameterTests {
 
@@ -67,7 +68,7 @@ public class ParameterTests {
 
 	@Test(expected = POPException.class)
 	public void testSerializeErrorReturn() {
-		POPSystem.initialize();
+		POPSystem.initialize();	
 		ParameterObject test = PopJava.newActive(this, ParameterObject.class);
 
 		test.impossibleReturn();
@@ -82,6 +83,31 @@ public class ParameterTests {
 		ParameterObject test = PopJava.newActive(this, ParameterObject.class);
 
 		test.testInterfaceErrorParameter(test);
+
+		POPSystem.end();
+	}
+	
+	@Test
+	public void testParameterNonDestruction() {
+		POPSystem.initialize();
+		
+		Configuration.getInstance().setDebug(true);
+		
+		ParameterObject a = PopJava.newActive(this, ParameterObject.class);
+		ParameterObject b = PopJava.newActive(this, ParameterObject.class);
+		
+		System.out.println(PopJava.getAccessPoint(a));
+		System.out.println(PopJava.getAccessPoint(b));
+		
+		for (int i = 0; i < 10; i++) {
+			a.func(b);
+		}
+		
+		try {
+			Thread.sleep(30000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		POPSystem.end();
 	}

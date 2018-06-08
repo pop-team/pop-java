@@ -6,6 +6,7 @@ import java.util.List;
 import ch.icosys.popjava.core.PopJava;
 import ch.icosys.popjava.core.annotation.POPAsyncMutex;
 import ch.icosys.popjava.core.annotation.POPClass;
+import ch.icosys.popjava.core.annotation.POPObjectDescription;
 import ch.icosys.popjava.core.annotation.POPSyncConc;
 import ch.icosys.popjava.core.annotation.POPSyncMutex;
 import ch.icosys.popjava.core.base.POPObject;
@@ -14,6 +15,11 @@ import ch.icosys.popjava.core.base.POPObject;
 public class ParameterObject extends POPObject implements MyInterface {
 
 	private String temp;
+	
+	@POPObjectDescription(/*localJVM=true, */url="localhost")
+	public ParameterObject() {
+		
+	}
 
 	@POPSyncConc
 	public void noParam() {
@@ -54,4 +60,16 @@ public class ParameterObject extends POPObject implements MyInterface {
 	public MyInterface testInterfaceErrorReturn() {
 		return PopJava.getThis(this);
 	}
+
+	@POPSyncConc
+	public void/*ParameterObject*/ func(ParameterObject po) {
+		/*try {
+			Thread.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		ParameterObject poBis = po;
+		return poBis;*/
+	}
+
 }

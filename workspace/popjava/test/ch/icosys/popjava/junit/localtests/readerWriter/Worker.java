@@ -15,7 +15,7 @@ public class Worker extends POPObject {
 	}
 
 	public Worker(@POPConfig(Type.URL) String ip, Writer writer) {
-		this.writer = writer.makePermanent();
+		this.writer = writer;
 	}
 
 	@POPSyncConc

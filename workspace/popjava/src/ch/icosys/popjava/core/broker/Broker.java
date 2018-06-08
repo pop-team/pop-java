@@ -367,15 +367,6 @@ public final class Broker {
 					sendResponse(request.getConnection(), responseBuffer);
 				}
 			}
-			// Remove reference, remove the connection to POPObject
-			for (int index = 0; index < parameterTypes.length; index++) {
-				if (POPObject.class.isAssignableFrom(parameterTypes[index]) && parameters[index] != null) {
-					POPObject obj = (POPObject) parameters[index];
-					if (obj.isTemporary()) {
-						obj.exit();
-					}
-				}
-			}
 		}
 		if (exception != null) {
 			LogWriter.writeDebugInfo("[Broker] %s sendException: %s", this.getLogPrefix(), exception.getMessage());
@@ -506,16 +497,14 @@ public final class Broker {
 		final MethodInfo info = new MethodInfo(request.getClassId(), request.getMethodId());
 		try {
 			method = popInfo.getMethodByInfo(info);
-			// System.out.println("((-)) " + info + " @ " +
-			// method.toGenericString());
+			// System.out.println("((-)) " + info + " @ " + method.toGenericString());
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(popInfo.getClass().getName(),
 					request.getClassId(), request.getMethodId(), e.getMessage());
 		}
 
 		if (method != null) {
-			// cache the method and parameters annotations since they take a
-			// while to generate
+			// cache the method and parameters annotations since they take a while to generate
 			if (!methodParametersAnnotationCache.containsKey(method)) {
 				methodParametersAnnotationCache.put(method, method.getParameterAnnotations());
 			}
@@ -531,14 +520,11 @@ public final class Broker {
 			parameterTypes = method.getParameterTypes();
 
 			try {
-
 				POPBuffer requestBuffer = request.getBuffer();
 				if (tracking)
 					inputSize = requestBuffer.size();
-				request.setBuffer(null);// This way the JVM can free the buffer
-				// content
-				parameters = getParameters(request.getConnection().getCombox(), requestBuffer, parameterTypes,
-						parametersAnnotations);
+				request.setBuffer(null);// This way the JVM can free the buffer content
+				parameters = getParameters(request.getConnection().getCombox(), requestBuffer, parameterTypes, parametersAnnotations);
 			} catch (POPException e) {
 				exception = e;
 			}
@@ -589,8 +575,7 @@ public final class Broker {
 				// Put all parameters back in the response, if needed
 				for (index = 0; index < parameterTypes.length; index++) {
 					// If parameter is not a IN variable and
-					// The parameter is not a POPObject without any specified
-					// direction
+					// The parameter is not a POPObject without any specified direction
 					if (Util.isParameterNotOfDirection(parametersAnnotations[index], POPParameter.Direction.IN)
 							&& Util.isParameterUsable(parametersAnnotations[index])
 							&& !(parameters[index] instanceof POPObject
@@ -615,27 +600,23 @@ public final class Broker {
 								POPObject returnObject = (POPObject) result;
 								POPAccessPoint objAp = returnObject.getAccessPoint();
 
-								// a certificate is necessary to connect to the
-								// returned object
+								// a certificate is necessary to connect to the returned object
 								String originFingerprint = objAp.getFingerprint();
 								if (originFingerprint != null) {
 									// add to access point for the connector
 									Certificate originCert = SSLUtils.getCertificate(originFingerprint);
 									objAp.setX509certificate(SSLUtils.certificateBytes(originCert));
 
-									// send connector certificate to object's
-									// node
+									// send connector certificate to object's node
 									String destinationFingerprint = request.getConnection().getAccessPoint()
 											.getFingerprint();
 									Certificate destCert = SSLUtils.getCertificate(destinationFingerprint);
-									// send caller' certificate to object origin
-									// node
+									// send caller' certificate to object origin node
 									returnObject
 											.PopRegisterFutureConnectorCertificate(SSLUtils.certificateBytes(destCert));
 								}
 
-								// set the od with the current connection
-								// network
+								// set the od with the current connection network
 								returnObject.getOd().setNetwork(request.getConnection().getNetworkUUID());
 							}
 
@@ -653,19 +634,6 @@ public final class Broker {
 					sendResponse(request.getConnection(), responseBuffer);
 				}
 			}
-			// Remove reference, remove the connection to POPObject
-			for (index = 0; index < parameterTypes.length; index++) {
-
-				if (POPObject.class.isAssignableFrom(parameterTypes[index]) && parameters[index] != null) {
-					POPObject object = (POPObject) parameters[index];
-					// LogWriter.writeDebugInfo("POPObject parameter is
-					// temporary: "+object.isTemporary());
-					if (object.isTemporary()) {
-						LogWriter.writeDebugInfo("[Broker] Exit popobject");
-						object.exit();
-					}
-				}
-			}
 		}
 
 		if (tracking) {
@@ -673,8 +641,7 @@ public final class Broker {
 		}
 			
 		// if have any error (cannot get the parameter, or cannot invoke method,
-		// or cannot put the output parameter,
-		// send it to the interface
+		// or cannot put the output parameter, send it to the interface
 		if (exception != null) {
 			LogWriter.writeDebugInfo("[Broker] %s sendException: %s.", this.getLogPrefix(), exception.getMessage());
 			if (request.isSynchronous()) {
@@ -698,7 +665,6 @@ public final class Broker {
 
 					object = PopJava.newActiveConnect(this, object.getClass(), object.getAccessPoint());
 				}
-				object.makeTemporary();
 				parameters[i] = object;
 			}
 		}
@@ -963,7 +929,7 @@ public final class Broker {
 	}
 
 	/**
-	 * Decrement de connection counter and exit the broker if there is no more
+	 * Decrement the connection counter and exit the broker if there is no more
 	 * connection
 	 */
 	public synchronized void onCloseConnection(String source) {

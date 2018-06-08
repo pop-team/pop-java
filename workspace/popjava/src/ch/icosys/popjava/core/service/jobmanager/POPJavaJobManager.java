@@ -2053,7 +2053,6 @@ public class POPJavaJobManager extends POPJobService {
 		 */
 
 		if (!cachedJobManangers.containsKey(key)) {
-			jm.makePermanent();
 			cachedJobManangers.put(key, jm);
 		} else {
 			try {
@@ -2061,7 +2060,6 @@ public class POPJavaJobManager extends POPJobService {
 				POPString val = new POPString();
 				current.query("power", val);
 			} catch (Exception e) {
-				jm.makePermanent();
 				cachedJobManangers.put(key, jm);
 			}
 		}

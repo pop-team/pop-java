@@ -67,8 +67,6 @@ public class POPObject implements IPOPBase {
 
 	private final HashMap<Constructor<?>, MethodInfo> reverseConstructorInfos = new HashMap<>();
 
-	private boolean temporary = false;
-
 	private POPObject me = null; // This cache
 
 	private Broker broker = null;
@@ -145,8 +143,7 @@ public class POPObject implements IPOPBase {
 					POPConfig config = (POPConfig) annotations[i][loop];
 
 					if (argvs[i] == null) {
-						throw new InvalidParameterException(
-								"Annotated paramater " + i + " for " + getClassName() + " is null");
+						throw new InvalidParameterException("Annotated paramater " + i + " for " + getClassName() + " is null");
 					}
 
 					switch (config.value()) {
@@ -751,20 +748,6 @@ public class POPObject implements IPOPBase {
 		return getAccessPoint().toString();
 	}
 
-	public boolean isTemporary() {
-		return temporary;
-	}
-
-	public void makeTemporary() {
-		temporary = true;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends POPObject> T makePermanent() {
-		temporary = false;
-		return (T) this;
-	}
-
 	public void setBroker(Broker broker) {
 		this.broker = broker;
 	}
@@ -778,10 +761,8 @@ public class POPObject implements IPOPBase {
 		if (me == null) {
 			me = PopJava.newActiveConnect(this, getClass(), getAccessPoint());
 
-			// After establishing connection with self, artificially decrease
-			// connection by one
-			// This is to avoid the issue of never closing objects with
-			// reference to itself
+			// After establishing connection with self, artificially decrease connection by one
+			// This is to avoid the issue of never closing objects with reference to itself
 			if (me != null && broker != null) {
 				broker.onCloseConnection("SelfReference");
 			}

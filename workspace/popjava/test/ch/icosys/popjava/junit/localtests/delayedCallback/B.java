@@ -16,7 +16,7 @@ public class B extends POPObject {
 
 	@POPObjectDescription(url = "localhost")
 	public B(A a) {
-		this.a = a.makePermanent();
+		this.a = a;
 	}
 
 	@POPSyncConc

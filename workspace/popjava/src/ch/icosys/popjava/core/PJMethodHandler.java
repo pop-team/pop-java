@@ -130,13 +130,6 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 										&& !Util.isParameterOfAnyDirection(annotations[index]))) {
 							responseBuffer.deserializeReferenceObject(parameterTypes[index], argvs[index]);
 						}
-
-						if (argvs[index] instanceof POPObject) {
-							POPObject object = (POPObject) argvs[index];
-							if (object.isTemporary()) {
-								object.exit();
-							}
-						}
 					}
 				} catch (Exception e) {
 					temp.printStackTrace();
@@ -283,16 +276,6 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 			}
 		}
 
-		for (Object argv : argvs) {
-			if (argv instanceof POPObject) {
-				POPObject object = (POPObject) argv;
-				LogWriter.writeDebugInfo("Closing POPObject again " + object.getClassName());
-				if (object.isTemporary()) {
-					object.exit();
-				}
-			}
-		}
-
 		return result;
 	}
 
@@ -303,7 +286,6 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 				// create proxy if it's not
 				if (!(args[i] instanceof ProxyObject)) {
 					object = PopJava.newActive(parentBroker, object.getClass(), object.getAccessPoint());
-					object.makeTemporary();
 					// change reference to proxy
 					args[i] = object;
 				}
