@@ -1852,24 +1852,43 @@ public class POPJavaJobManager extends POPJobService {
 				
 				POPAccessPoint me = getGeneralizedAccessPoint();
 				
+				final Semaphore sem = new Semaphore(0);
+				int threadCounter = 0;
+				
 				// request to all members of the network
 				for (POPNode node : network.getMembers(connectorImpl.getDescriptor())) {
 					if (node instanceof POPNodeAJobManager) {
+						
 						POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
+						
+						
+						
 						// contact if it's a new node
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint()) && !me.hasSameAccessPoint(jmNode.getJobManagerAccessPoint())) {
-							try {
-								// send request to other JM
-								POPJavaJobManager jm = connectToJobmanager(jmNode.getJobManagerAccessPoint(),
-										request.getNetworkUUID());
-								jm.askResourcesDiscovery(request, getAccessPoint());
-							} catch (Exception e) {
-								LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s",
-										jmNode.getJobManagerAccessPoint(), e.getMessage());
-							}
+							new Thread(new Runnable() {
+								
+								@Override
+								public void run() {
+									try {
+										// send request to other JM
+										POPJavaJobManager jm = connectToJobmanager(jmNode.getJobManagerAccessPoint(),
+												request.getNetworkUUID());
+										jm.askResourcesDiscovery(request, getAccessPoint());
+									} catch (Exception e) {
+										LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s",
+												jmNode.getJobManagerAccessPoint(), e.getMessage());
+									}
+									sem.release();
+								}
+							}, "JM progation").start();
+
+							threadCounter++;
+							
 						}
 					}
 				}
+				
+				sem.acquire(threadCounter);
 			}
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage());
