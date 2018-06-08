@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -205,15 +207,15 @@ public class POPSystem {
 		return "127.0.0.1";
 	}
 	
-	public static List<String> getAllHostIPs(){
-		List<String> ips = new ArrayList<>();
+	public static List<String> getAllHostIPs(boolean allowPrivate){
+		Set<String> ips = new HashSet<>();
 		
 		Enumeration<NetworkInterface> en;
 		try {
 			en = NetworkInterface.getNetworkInterfaces();
 			while (en.hasMoreElements()) {
 				NetworkInterface ni = en.nextElement();
-				String ip = getInterfaceIP(ni, true);
+				String ip = getInterfaceIP(ni, allowPrivate);
 				if (ip != null) {
 					ips.add(ip);					
 				}
@@ -222,7 +224,7 @@ public class POPSystem {
 		} catch (SocketException e) {
 		}
 		
-		return ips;
+		return new ArrayList<>(ips);
 	}
 
 	/**

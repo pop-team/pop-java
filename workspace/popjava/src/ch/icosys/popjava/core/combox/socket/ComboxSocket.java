@@ -19,9 +19,9 @@ import ch.icosys.popjava.core.util.LogWriter;
 
 public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
-	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
+	public static final int BUFFER_LENGTH = 1024 * 8;
 
-	protected static final int STREAM_BUFFER_SIZE = 8 * 1024 * 1024; // 8MB
+	protected static final int STREAM_BUFFER_SIZE = BUFFER_LENGTH; // 8kB
 
 	protected final byte[] receivedBuffer = new byte[BUFFER_LENGTH];
 
@@ -51,7 +51,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 	@Override
 	public int receive(POPBuffer buffer, int requestId, int connectionID) {
-
+		
 		int result = 0;
 		try {
 			buffer.resetToReceive();
@@ -61,10 +61,13 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			boolean gotPacket = false;
 
 			boolean yieldThread = false;
+			int loops = 0;
+			
 			do {
+				loops++;
+				
 				if (yieldThread) {
 					Thread.yield();
-					Thread.sleep(1);
 				}
 				yieldThread = false;
 
@@ -94,7 +97,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 					int requestIdPacket = buffer.getTranslatedInteger(temp);
 
-					registerCommuncation();
+					registerCommunication();
 
 					// System.out.println("GOT "+requestIdPacket+"
 					// "+packetConnectionID+" "+messageLength+" on
@@ -137,13 +140,11 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 						result = readPacket(buffer, messageLength, requestIdPacket, packetConnectionID);
 					} else {
-						// System.out.println("RESET got "+requestIdPacket+"
-						// instead of "+requestId);
+						//System.out.println("RESET got "+requestIdPacket+" instead of "+requestId);
 						inputStream.reset();
 						yieldThread = true;
 					}
 				}
-
 			} while (!gotPacket);
 
 			int headerLength = MessageHeader.HEADER_LENGTH;
@@ -158,7 +159,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			} else {
 				buffer.extractHeader();
 			}
-
+			
 			return result;
 		} catch (Exception e) {
 			if (conf.isDebugCombox()) {
@@ -195,7 +196,8 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 	private int readPacket(POPBuffer buffer, int messageLength, int requestIdPacket, int packetConnectionID)
 			throws IOException {
-		registerCommuncation();
+		
+		registerCommunication();
 
 		int result = 12;
 		buffer.putInt(messageLength);
@@ -215,21 +217,18 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				messageLength -= receivedLength;
 				result += receivedLength;
 				buffer.put(receivedBuffer, 0, receivedLength);
-
-				/*
-				 * for(int i = 0; i < receivedLength; i++) {
-				 * System.out.print(receivedBuffer[i]+" "); } System.out.println();
-				 */
 			} else {
 				break;
 			}
 		}
+		
 		return result;
 	}
 
 	@Override
 	public int send(POPBuffer buffer) {
 
+		long start = System.currentTimeMillis();
 		try {
 			buffer.packMessageHeader();
 			final int length = buffer.size();

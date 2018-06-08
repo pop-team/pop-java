@@ -669,9 +669,7 @@ public class Interface {
 			rports = new String[] { joburl.substring(urlPortIndex + 1) };
 			joburl = joburl.substring(0, urlPortIndex);
 		}
-
 		
-		Configuration.getInstance().setDebug(true);
 		// object protocol(s) with port(s), may be empty
 		int nbProtocols = od.getProtocols().length;
 

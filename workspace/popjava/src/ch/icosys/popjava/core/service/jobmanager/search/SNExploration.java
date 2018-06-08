@@ -40,6 +40,7 @@ public class SNExploration implements IPOPBase {
 		if (visited.size() >= conf.getSearchNodeExplorationQueueSize()) {
 			visited.pop();
 		}
+		
 		return visited.add(e);
 	}
 

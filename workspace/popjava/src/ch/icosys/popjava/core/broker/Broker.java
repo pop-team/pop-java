@@ -1146,9 +1146,8 @@ public final class Broker {
 	 * @throws InterruptedException
 	 *             if the any semaphore's operation fail
 	 */
-	public static void main(String[] argvs) throws InterruptedException {
+	public static void main(String[] argvs) throws InterruptedException {				
 		POPSystem.setStarted();
-
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
 			@Override
@@ -1158,8 +1157,9 @@ public final class Broker {
 			}
 		});
 
-		ArrayList<String> argvList = new ArrayList<>();
+		ArrayList<String> argvList = new ArrayList<>(argvs.length);
 		LogWriter.writeDebugInfo("[Broker] Broker parameters");
+		
 		for (String str : argvs) {
 			argvList.add(str);
 			LogWriter.writeDebugInfo(" %79s", str);
@@ -1250,7 +1250,7 @@ public final class Broker {
 		} catch (Exception e) {
 			LogWriter.writeExceptionLog(e);
 		}
-
+		
 		int status = 0;
 		if (broker == null || !broker.initialize(argvList)) {
 			status = 1;
