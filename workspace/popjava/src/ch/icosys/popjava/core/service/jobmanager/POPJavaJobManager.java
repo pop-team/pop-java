@@ -1712,13 +1712,10 @@ public class POPJavaJobManager extends POPJobService {
 		try {
 			long start = System.currentTimeMillis();
 			
-			System.out.println("JM askResourcesDiscovery");
 			// previous hops visited
 			SNExploration explorationList = request.getExplorationList();
 			
 			SNExploration oldExplorationList = new SNExploration(request.getExplorationList());
-
-			System.out.println("VISITED "+oldExplorationList);
 			
 			// get request network
 			POPNetwork network = networks.get(request.getNetworkUUID());
@@ -1752,8 +1749,6 @@ public class POPJavaJobManager extends POPJobService {
 			}
 			
 			POPConnectorSearchNodeInterface snEnableConnector = (POPConnectorSearchNodeInterface) connectorImpl;
-
-			System.out.println("Add all "+(System.currentTimeMillis() - start));
 			
 			// add all network neighbors to explorations list
 			for (POPNode node : network.getMembers(connectorImpl.getDescriptor())) {
@@ -1827,8 +1822,6 @@ public class POPJavaJobManager extends POPJobService {
 			if (SNKnownRequests.size() > conf.getSearchNodeMaxRequests()) {
 				SNKnownRequests.pollLast();
 			}
-
-			System.out.println("Check can answer "+(System.currentTimeMillis() - start));
 			
 			// check for host if they are specified
 			boolean canAnswer = request.getHosts().length == 0;
@@ -1852,8 +1845,6 @@ public class POPJavaJobManager extends POPJobService {
 			}
 			//System.out.println("NEW LIST "+explorationList);
 
-
-			System.out.println("Propagate "+(System.currentTimeMillis() - start));
 			// propagate in the network if we still can
 			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == conf.getSearchNodeUnlimitedHops()) {
 				// add current node do wayback
@@ -1880,8 +1871,6 @@ public class POPJavaJobManager extends POPJobService {
 					}
 				}
 			}
-			
-			System.out.println("End "+(System.currentTimeMillis() - start));
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage());
 			LogWriter.writeExceptionLog(e);
@@ -2028,48 +2017,28 @@ public class POPJavaJobManager extends POPJobService {
 	}
 
 	public synchronized POPJavaJobManager connectToJobmanager(POPAccessPoint ap, String network) {
-		long start = System.currentTimeMillis();
-		
-		long start2 = System.currentTimeMillis();
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
 
 		if (!cachedJobManangers.containsKey(key)) {
-			long start3 = System.currentTimeMillis();
-			
 			POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 
 			cachedJobManangers.put(key, jm);
-			System.out.println("#####Connect to new " + ap+" after "+(System.currentTimeMillis() - start3));
 		}
 
 		POPJavaJobManager jm = cachedJobManangers.get(key);
-		System.out.println("#####GET EXISTING " + ap+" after "+(System.currentTimeMillis() - start2));
 
-		try {
-			long start3 = System.currentTimeMillis();
-			
+		try {			
 			POPAccessPoint myAP = getAccessPoint();			
 
 			if(!jm.knowsJobManager(network, myAP)) {
-				long start4 = System.currentTimeMillis();
 				jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
-				System.out.println("#####Register self at neighbour " + ap+" after "+(System.currentTimeMillis() - start4));
 			}
-			
-			System.out.println("#####Test connection " + ap+" after "+(System.currentTimeMillis() - start3));
 		} catch (Exception e) {
-			long start3 = System.currentTimeMillis();
 			cachedJobManangers.put(key, null);
-
-			LogWriter.writeDebugInfo("[POPJavaJobManager] Connection lost with [%s], opening new one");
 			jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 
 			cachedJobManangers.put(key, jm);
-
-			System.out.println("#####Reconnect to JM " + ap+" after "+(System.currentTimeMillis() - start3));
 		}
-
-		System.out.println("#####Connected to JM " + ap+" after "+(System.currentTimeMillis() - start));
 
 		return jm;
 	}
