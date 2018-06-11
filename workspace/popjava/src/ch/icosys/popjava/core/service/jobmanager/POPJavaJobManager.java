@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1855,17 +1857,18 @@ public class POPJavaJobManager extends POPJobService {
 				final Semaphore sem = new Semaphore(0);
 				int threadCounter = 0;
 				
+				ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(20);
+				
 				// request to all members of the network
 				for (POPNode node : network.getMembers(connectorImpl.getDescriptor())) {
 					if (node instanceof POPNodeAJobManager) {
 						
 						POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
 						
-						
-						
 						// contact if it's a new node
 						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint()) && !me.hasSameAccessPoint(jmNode.getJobManagerAccessPoint())) {
-							new Thread(new Runnable() {
+							
+							threadPoolConcurrent.execute(new Runnable() {
 								
 								@Override
 								public void run() {
@@ -1880,16 +1883,16 @@ public class POPJavaJobManager extends POPJobService {
 									}
 									sem.release();
 								}
-							}, "JM progation").start();
+							});
 
 							threadCounter++;
-							
 						}
 					}
 				}
 				
 				sem.acquire(threadCounter);
-			}
+				threadPoolConcurrent.shutdown();
+			}			
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage());
 			LogWriter.writeExceptionLog(e);
@@ -1969,7 +1972,7 @@ public class POPJavaJobManager extends POPJobService {
 				SSLUtils.addCertToTempStore(response.getPublicCertificate());
 			}
 
-			// we unlock the senaphore if it was set
+			// we unlock the semaphore if it was set
 			unlockDiscovery(response.getUID());
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in callbackResult: %s", e.getMessage());
@@ -2034,10 +2037,22 @@ public class POPJavaJobManager extends POPJobService {
 		
 		return cachedJobManangers.containsKey(key);
 	}
+	
+	private final Set<Tuple<String, POPAccessPoint>> jmConnectionLock = Collections.synchronizedSet(new HashSet<>());
 
-	public synchronized POPJavaJobManager connectToJobmanager(POPAccessPoint ap, String network) {
+	public POPJavaJobManager connectToJobmanager(POPAccessPoint ap, String network) throws InterruptedException {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
+		
+		//Aquire lock for that specific key
+		synchronized (jmConnectionLock) {
+			while (jmConnectionLock.contains(key)) {
+				jmConnectionLock.wait();
+	        }
+			
+			jmConnectionLock.add(key);
+		}
 
+		//Connect to JM first time if necessary
 		if (!cachedJobManangers.containsKey(key)) {
 			POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 
@@ -2047,16 +2062,23 @@ public class POPJavaJobManager extends POPJobService {
 		POPJavaJobManager jm = cachedJobManangers.get(key);
 
 		try {			
+			//Check if the neighbour knows us, this also implicitely tests the connection
 			POPAccessPoint myAP = getAccessPoint();			
 
 			if(!jm.knowsJobManager(network, myAP)) {
 				jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
 			}
 		} catch (Exception e) {
+			//If the connection we have is down, reconnect
 			cachedJobManangers.put(key, null);
 			jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 
 			cachedJobManangers.put(key, jm);
+		}
+		
+		synchronized (jmConnectionLock) {
+			jmConnectionLock.remove(key);
+			jmConnectionLock.notifyAll();
 		}
 
 		return jm;
@@ -2064,7 +2086,12 @@ public class POPJavaJobManager extends POPJobService {
 
 	@POPSyncConc
 	public POPAccessPoint[] newTFCSearchOn(POPAccessPoint ap, String network, String objectName) {
-		return connectToJobmanager(ap, network).localTFCSearch(network, objectName);
+		try {
+			return connectToJobmanager(ap, network).localTFCSearch(network, objectName);
+		}catch (InterruptedException e) {
+			return new POPAccessPoint[0];
+		}
+		
 	}
 
 	@POPSyncConc

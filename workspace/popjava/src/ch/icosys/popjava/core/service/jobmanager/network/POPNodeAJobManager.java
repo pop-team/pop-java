@@ -100,7 +100,11 @@ public abstract class POPNodeAJobManager extends POPNode {
 	public final POPJavaJobManager getJobManager(POPJavaJobManager localJM, String networkUUID) {
 
 		if (localJM != null) {
-			return localJM.connectToJobmanager(getJobManagerAccessPoint(), networkUUID);
+			try {
+				return localJM.connectToJobmanager(getJobManagerAccessPoint(), networkUUID);
+			}catch (InterruptedException e) {
+			}
+			return null;
 		}
 
 		// create connection if it doesn't exists
