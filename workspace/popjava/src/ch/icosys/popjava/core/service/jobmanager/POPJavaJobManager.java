@@ -2052,36 +2052,38 @@ public class POPJavaJobManager extends POPJobService {
 			jmConnectionLock.add(key);
 		}
 
-		//Connect to JM first time if necessary
-		if (!cachedJobManangers.containsKey(key)) {
-			POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
+		try {
+			//Connect to JM first time if necessary
+			if (!cachedJobManangers.containsKey(key)) {
+				POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 
-			cachedJobManangers.put(key, jm);
-		}
-
-		POPJavaJobManager jm = cachedJobManangers.get(key);
-
-		try {			
-			//Check if the neighbour knows us, this also implicitely tests the connection
-			POPAccessPoint myAP = getAccessPoint();			
-
-			if(!jm.knowsJobManager(network, myAP)) {
-				jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
+				cachedJobManangers.put(key, jm);
 			}
-		} catch (Exception e) {
-			//If the connection we have is down, reconnect
-			cachedJobManangers.put(key, null);
-			jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 
-			cachedJobManangers.put(key, jm);
-		}
-		
-		synchronized (jmConnectionLock) {
-			jmConnectionLock.remove(key);
-			jmConnectionLock.notifyAll();
-		}
+			POPJavaJobManager jm = cachedJobManangers.get(key);
 
-		return jm;
+			try {
+				//Check if the neighbour knows us, this also implicitely tests the connection
+				POPAccessPoint myAP = getAccessPoint();			
+
+				if(!jm.knowsJobManager(network, myAP)) {
+					jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
+				}
+			} catch (Exception e) {
+				//If the connection we have is down, reconnect
+				cachedJobManangers.put(key, null);
+				jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
+
+				cachedJobManangers.put(key, jm);
+			}
+			
+			return jm;
+		}finally {
+			synchronized (jmConnectionLock) {
+				jmConnectionLock.remove(key);
+				jmConnectionLock.notifyAll();
+			}
+		}
 	}
 
 	@POPSyncConc
