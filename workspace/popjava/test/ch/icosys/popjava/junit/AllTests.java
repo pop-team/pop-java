@@ -9,8 +9,8 @@ import ch.icosys.popjava.junit.system.SystemTests;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ 
-	AnnotationTests.class, 
-	LocalTests.class, 
-	SystemTests.class })
+	//AnnotationTests.class, 
+	LocalTests.class/*, 
+	//SystemTests.class*/ })
 public class AllTests {
 }

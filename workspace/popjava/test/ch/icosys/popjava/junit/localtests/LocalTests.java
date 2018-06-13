@@ -34,7 +34,7 @@ import ch.icosys.popjava.junit.localtests.subclasses.SubclassingTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ 
-	CallBackTest.class, 
+	/*CallBackTest.class, 
 	IntegerTest.class, 
 	AnnotationsTest.class, 
 	POPObjectDefaultMethodTest.class,
@@ -60,7 +60,7 @@ import ch.icosys.popjava.junit.localtests.subclasses.SubclassingTest;
 	JavaSerializableTest.class, 
 	AccountingTest.class, 
 	AccountingAPITest.class, 
-	MethodAnnotationPriority.class, 
+	MethodAnnotationPriority.class, */
 	BiDirectionalTest.class })
 public class LocalTests {
 }
