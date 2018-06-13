@@ -6,9 +6,11 @@ import java.util.Objects;
 import java.util.Set;
 
 import ch.icosys.popjava.core.PopJava;
+import ch.icosys.popjava.core.baseobject.AccessPoint;
 import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 import ch.icosys.popjava.core.dataswaper.POPString;
 import ch.icosys.popjava.core.service.jobmanager.POPJavaJobManager;
+import ch.icosys.popjava.core.system.POPSystem;
 import ch.icosys.popjava.core.util.Configuration;
 import ch.icosys.popjava.core.util.LogWriter;
 import ch.icosys.popjava.core.util.Util;
@@ -44,6 +46,7 @@ public abstract class POPNodeAJobManager extends POPNode {
 
 		// get potential params
 		host = Util.removeStringFromList(params, "host=");
+		
 		String portString = Util.removeStringFromList(params, "port=");
 		protocol = Util.removeStringFromList(params, "protocol=");
 
@@ -74,8 +77,10 @@ public abstract class POPNodeAJobManager extends POPNode {
 
 	private void init() {
 		// set access point
-		jobManagerAccessPoint = new POPAccessPoint(String.format("%s://%s:%d", protocol, host, port));
+		jobManagerAccessPoint = new POPAccessPoint();
 
+		jobManagerAccessPoint.addAccessPoint(new AccessPoint(protocol, host, port));
+		
 		Set<String> paramsSet = new HashSet<>();
 		paramsSet.add("connector=" + descriptor.getGlobalName());
 		paramsSet.add("host=" + host);
@@ -95,7 +100,11 @@ public abstract class POPNodeAJobManager extends POPNode {
 	public final POPJavaJobManager getJobManager(POPJavaJobManager localJM, String networkUUID) {
 
 		if (localJM != null) {
-			return localJM.connectToJobmanager(getJobManagerAccessPoint(), networkUUID);
+			try {
+				return localJM.connectToJobmanager(getJobManagerAccessPoint(), networkUUID);
+			}catch (InterruptedException e) {
+			}
+			return null;
 		}
 
 		// create connection if it doesn't exists

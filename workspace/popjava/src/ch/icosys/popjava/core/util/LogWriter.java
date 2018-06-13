@@ -35,7 +35,7 @@ public class LogWriter {
 	 */
 	public static String prefix = "pop-java-";
 
-	static {
+	static {		
 		String pidTemp = ManagementFactory.getRuntimeMXBean().getName();
 		StringBuilder pidSb = new StringBuilder();
 		for (int index = 0; index < pidTemp.length(); index++) {
@@ -44,8 +44,8 @@ public class LogWriter {
 				pidSb.append(c);
 			}
 		}
+		
 		pid = pidSb.toString();
-
 		String popLocation = POPJavaConfiguration.getPopJavaLocation();
 
 		if (!popLocation.isEmpty()) {

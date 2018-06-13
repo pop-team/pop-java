@@ -36,14 +36,14 @@ public class ComboxAcceptRawSocket extends ComboxAcceptSocket<Socket> {
 			Socket connection = null;
 			try {
 				connection = serverSocket.accept();
-				LogWriter.writeDebugInfo("[Socket Accept] Connection accepted " + connection.getLocalPort() + " local:"
-						+ connection.getPort());
+				/*LogWriter.writeDebugInfo("[Socket Accept] Connection accepted " + connection.getLocalPort() + " local:"
+						+ connection.getPort());*/
 				if (broker != null) {
 					broker.onNewConnection();
 				}
-
 				ComboxRawSocket serverClient = new ComboxRawSocket();
-				if (serverClient.serverAccept(broker, connection)) {
+
+				if (serverClient.serverAccept(broker, connection)) {					
 					serveConnection(broker, requestQueue, serverClient, 1);
 					concurentConnections.add(connection);
 				}
