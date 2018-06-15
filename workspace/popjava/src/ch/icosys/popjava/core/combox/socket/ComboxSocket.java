@@ -51,7 +51,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 	@Override
 	public int receive(POPBuffer buffer, int requestId, int connectionID) {
-		
+
 		int result = 0;
 		try {
 			buffer.resetToReceive();
@@ -62,10 +62,10 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 			boolean yieldThread = false;
 			int loops = 0;
-			
+
 			do {
 				loops++;
-				
+
 				if (yieldThread) {
 					Thread.yield();
 				}
@@ -159,7 +159,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			} else {
 				buffer.extractHeader();
 			}
-			
+
 			return result;
 		} catch (Exception e) {
 			if (conf.isDebugCombox()) {
@@ -182,6 +182,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 		int read = 0;
 
 		// Get size
+		if (temp == null) System.out.println("MILL");
 		while (read < temp.length) {
 			int tempRead = inputStream.read(temp, read, temp.length - read);
 			if (tempRead < 0) {
@@ -196,7 +197,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 	private int readPacket(POPBuffer buffer, int messageLength, int requestIdPacket, int packetConnectionID)
 			throws IOException {
-		
+
 		registerCommunication();
 
 		int result = 12;
@@ -221,7 +222,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				break;
 			}
 		}
-		
+
 		return result;
 	}
 
@@ -239,7 +240,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			// " +buffer.size()+" con : "+buffer.getHeader().getConnectionID()+"
 			// method "+buffer.getHeader()+" combox "+this);
 
-			// System.out.println("Write "+length+" bytes to socket");
+			//System.out.println("Write "+length+" bytes to socket");
 			synchronized (outputStream) {
 				outputStream.write(dataSend, 0, length);
 

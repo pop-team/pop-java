@@ -23,6 +23,8 @@ import ch.icosys.popjava.core.util.POPRemoteCaller;
 public class ComboxRawSocket extends ComboxSocket<Socket> {
 
 	protected static final ComboxFactory MY_FACTORY = new ComboxSocketFactory();
+	
+	private static final int SO_TIMEOUT = 1000; // [ms]
 
 	/**
 	 * This is used by ServerCombox (server). Create a new combox from a server.
@@ -61,6 +63,7 @@ public class ComboxRawSocket extends ComboxSocket<Socket> {
 				if (timeOut > 0) {
 					SocketAddress sockaddress = new InetSocketAddress(host, port);
 					peerConnection = new Socket();
+					//peerConnection.setSoTimeout(SO_TIMEOUT);
 					peerConnection.connect(sockaddress, timeOut);
 
 					// LogWriter.writeExceptionLog(new Exception());
@@ -70,6 +73,7 @@ public class ComboxRawSocket extends ComboxSocket<Socket> {
 				} else {
 					peerConnection = new Socket(host, port);
 				}
+				peerConnection.setSoTimeout(SO_TIMEOUT);
 				inputStream = new BufferedInputStream(peerConnection.getInputStream());
 				outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
 				available = true;

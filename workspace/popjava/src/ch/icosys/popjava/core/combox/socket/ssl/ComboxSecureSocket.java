@@ -31,6 +31,8 @@ import ch.icosys.popjava.core.util.ssl.SSLUtils;
 public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 
 	protected static final ComboxFactory MY_FACTORY = new ComboxSecureSocketFactory();
+	
+	private static final int SO_TIMEOUT = 1000; // [ms]
 
 	/**
 	 * This is used by ServerCombox (server). Create a new combox from a server.
@@ -86,6 +88,7 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 						peerConnection = (SSLSocket) factory.createSocket();
 						timeOut = 0;
 					}
+					peerConnection.setSoTimeout(SO_TIMEOUT);
 					peerConnection.setUseClientMode(true);
 
 					// setup SNI
