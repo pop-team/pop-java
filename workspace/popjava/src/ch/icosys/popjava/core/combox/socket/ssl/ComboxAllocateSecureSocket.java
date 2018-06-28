@@ -82,7 +82,7 @@ public class ComboxAllocateSecureSocket extends ComboxAllocate {
 		
 		String ip = address.getHostAddress();
 		if(address.isAnyLocalAddress()) {
-			ip = POPSystem.getHostIP();
+			ip = POPSystem.getHostIP().getAddress().getHostAddress();
 		}
 		return null;
 	}

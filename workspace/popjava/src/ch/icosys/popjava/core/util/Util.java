@@ -1,6 +1,7 @@
 package ch.icosys.popjava.core.util;
 
 import java.lang.annotation.Annotation;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URLClassLoader;
@@ -75,7 +76,7 @@ public final class Util {
 			return true;
 		}
 		
-		if(sameContact(POPSystem.getHostIP(), hostname)) {
+		if(sameContact(POPSystem.getHostIP().getAddress().getHostAddress(), hostname)) {
 			return true;
 		}
 		
@@ -84,8 +85,8 @@ public final class Util {
 			en = NetworkInterface.getNetworkInterfaces();
 			while (en.hasMoreElements()) {
 				NetworkInterface ni = en.nextElement();
-				String ip = POPSystem.getInterfaceIP(ni, true);
-				if (ip != null && ip.equals(hostname)) {
+				InterfaceAddress ip = POPSystem.getInterfaceIP(ni, true);
+				if (ip != null && ip.getAddress().getHostAddress().equals(hostname)) {
 					return true;
 				}
 

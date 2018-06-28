@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -718,7 +719,7 @@ public class POPJavaJobManager extends POPJobService {
 			value.setValue(POPSystem.getPlatform());
 			return true;
 		case "host":
-			value.setValue(POPSystem.getHostIP());
+			value.setValue(POPSystem.getHostIP().getAddress().getHostAddress());
 			return true;
 		case "jobs":
 			update();
@@ -1763,7 +1764,7 @@ public class POPJavaJobManager extends POPJobService {
 					//Do not send localhost address to others
 					for(int i = 0; i < ap.size(); i++) {
 						if(ap.get(i).getHost().equals("localhost")) {
-							ap.get(i).setHost(POPSystem.getHostIP());
+							ap.get(i).setHost(POPSystem.getHostIP().getAddress().getHostAddress());
 						}
 					}
 					
@@ -1828,13 +1829,17 @@ public class POPJavaJobManager extends POPJobService {
 			// check for host if they are specified
 			boolean canAnswer = request.getHosts().length == 0;
 			if (!canAnswer) {
-				List<String> ips = POPSystem.getAllHostIPs(false);
+				List<InterfaceAddress> ips = POPSystem.getAllHostIPs(false);
 				for (String host : request.getHosts()) {
 					InetAddress addr = InetAddress.getByName(host);
-					if (ips.contains(addr.getHostAddress())) {
-						canAnswer = true;
-						break;
+					
+					for(InterfaceAddress ip : ips) {
+						if (ip.getAddress().getHostName().equalsIgnoreCase(addr.getHostAddress())) {
+							canAnswer = true;
+							break;
+						}
 					}
+					
 				}
 			}
 
@@ -1916,7 +1921,7 @@ public class POPJavaJobManager extends POPJobService {
 			e.printStackTrace();
 		}
 		
-		List<String> hostIPS = POPSystem.getAllHostIPs(true);
+		List<InterfaceAddress> hostIPS = POPSystem.getAllHostIPs(true);
 		
 		List<AccessPoint> duplicates = new ArrayList<>();
 		for(int i = 0; i < me.size(); i++) {
@@ -1936,8 +1941,8 @@ public class POPJavaJobManager extends POPJobService {
 		for(int i = 0; i < me.size(); i++) {
 			AccessPoint ap = me.get(i);
 			
-			for(String localIP : hostIPS) {
-				duplicates.add(new AccessPoint(ap.getProtocol(), localIP, ap.getPort()));
+			for(InterfaceAddress localIP : hostIPS) {
+				duplicates.add(new AccessPoint(ap.getProtocol(), localIP.getAddress().getHostAddress(), ap.getPort()));
 			}
 		}
 		
@@ -2005,7 +2010,9 @@ public class POPJavaJobManager extends POPJobService {
 			} // is the last node, give the answer to the original JM who
 				// launched the request
 			else {
-				LogWriter.writeDebugInfo("[PSN] REROUTE_ORIGIN;%s;", response.getUID());
+
+		        final POPRemoteCaller caller = PopJava.getRemoteCaller();
+				LogWriter.writeDebugInfo("[PSN] REROUTE_ORIGIN;%s;%s", response.getUID(), caller.getRemote().toString());
 				callbackResult(response);
 			}
 		} catch (Exception e) {
@@ -2066,12 +2073,13 @@ public class POPJavaJobManager extends POPJobService {
 				//Check if the neighbour knows us, this also implicitely tests the connection
 				POPAccessPoint myAP = getAccessPoint();			
 
-				if(!jm.knowsJobManager(network, myAP)) {
+				jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
+				/*if(!jm.knowsJobManager(network, myAP)) {
 					jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
-				}
+				}*/
 			} catch (Exception e) {
 				//If the connection we have is down, reconnect
-				cachedJobManangers.put(key, null);
+				cachedJobManangers.remove(key);
 				jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 
 				cachedJobManangers.put(key, jm);
@@ -2099,11 +2107,6 @@ public class POPJavaJobManager extends POPJobService {
 	@POPSyncConc
 	public void registerNeighbourJobmanager(POPAccessPoint ap, String network, POPJavaJobManager jm) {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
-
-		/*
-		 * System.out.println("######Register new neighbour JM "+ap+" # " +network);
-		 * jm.makePermanent(); cachedJobManangers.put(key, jm);
-		 */
 
 		if (!cachedJobManangers.containsKey(key)) {
 			jm.makePermanent();

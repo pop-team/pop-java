@@ -5,7 +5,11 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -307,7 +311,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 		return "Closed";
 	}
 
-	public static List<AccessPoint> getSortedAccessPoints(String myHost, POPAccessPoint accessPoint, String protocol) {
+	public static List<AccessPoint> getSortedAccessPoints(InterfaceAddress myHost, POPAccessPoint accessPoint, String protocol) {
 		List<AccessPoint> aps = new ArrayList<>();
 		for (int i = 0; i < accessPoint.size(); i++) {
 			AccessPoint ap = accessPoint.get(i);
@@ -316,55 +320,75 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			}
 			aps.add(ap);
 		}
+		
+		if(myHost != null) {
+			InetAddress addr = myHost.getAddress();
+			
+			if(addr instanceof Inet4Address) {
+				short mask = myHost.getNetworkPrefixLength();
+				
+				byte [] ip = addr.getAddress();
+				for(int i = 0; i < ip.length * 8; i++) {
+					if(i >= mask) {
+						int byteIndex = i % 8;
+						
+						ip[i / 8] &= ~(1 << byteIndex);
+					}
+				}
+				
+				String subnetTemp = "";
 
-		int countPoints = myHost.length() - myHost.replace(".", "").length();
+				for(int i = 0; i < Math.ceil(mask / 8.); i++) {
+					subnetTemp += (ip[i] & 0xFF)+ ".";
+				}
+				
+				final String subnet = subnetTemp;
+				
+				
+				Collections.sort(aps, new Comparator<AccessPoint>() {
 
-		if (countPoints == 3) {
-			final String subnet = myHost.substring(0, myHost.indexOf("."));
+					@Override
+					public int compare(AccessPoint o1, AccessPoint o2) {
 
-			Collections.sort(aps, new Comparator<AccessPoint>() {
+						int countPoints1 = o1.getHost().length() - o1.getHost().replace(".", "").length();
+						int countPoints2 = o2.getHost().length() - o2.getHost().replace(".", "").length();
 
-				@Override
-				public int compare(AccessPoint o1, AccessPoint o2) {
+						if (countPoints1 == countPoints2) {
+							// If both hosts are in my subnet, sort by string
+							if (o1.getHost().startsWith(subnet) && o2.getHost().startsWith(subnet)) {
+								return o1.getHost().compareTo(o2.getHost());
+							}
 
-					int countPoints1 = o1.getHost().length() - o1.getHost().replace(".", "").length();
-					int countPoints2 = o2.getHost().length() - o2.getHost().replace(".", "").length();
+							// if first host is in my subnet, priority to that
+							if (o1.getHost().startsWith(subnet)) {
+								return -1;
+							}
 
-					if (countPoints1 == countPoints2) {
-						// If both hosts are in my subnet, sort by string
-						if (o1.getHost().startsWith(subnet) && o2.getHost().startsWith(subnet)) {
+							// Same for second
+							if (o2.getHost().startsWith(subnet)) {
+								return 1;
+							}
+
+							boolean privateSubnet1 = isHostInPrivateSubnet(o1.getHost());
+							boolean privateSubnet2 = isHostInPrivateSubnet(o2.getHost());
+
+							if (privateSubnet1 && !privateSubnet2) {
+								return 1;
+							}
+
+							if (!privateSubnet1 && privateSubnet2) {
+								return -1;
+							}
+
 							return o1.getHost().compareTo(o2.getHost());
 						}
 
-						// if first host is in my subnet, priority to that
-						if (o1.getHost().startsWith(subnet)) {
-							return -1;
-						}
-
-						// Same for second
-						if (o2.getHost().startsWith(subnet)) {
-							return 1;
-						}
-
-						boolean privateSubnet1 = isHostInPrivateSubnet(o1.getHost());
-						boolean privateSubnet2 = isHostInPrivateSubnet(o2.getHost());
-
-						if (privateSubnet1 && !privateSubnet2) {
-							return 1;
-						}
-
-						if (!privateSubnet1 && privateSubnet2) {
-							return -1;
-						}
-
-						return o1.getHost().compareTo(o2.getHost());
+						return countPoints1 - countPoints2;
 					}
-
-					return countPoints1 - countPoints2;
-				}
-			});
+				});
+			}
 		}
-
+		
 		return aps;
 	}
 

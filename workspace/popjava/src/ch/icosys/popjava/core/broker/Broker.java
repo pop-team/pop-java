@@ -1077,7 +1077,7 @@ public final class Broker {
 						}
 					}
 
-					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
+					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP().getAddress().getHostAddress(), iPort);
 					accessPoint.addAccessPoint(ap);
 
 					liveServers.add(factory.createServerCombox(ap, buffer, this));
@@ -1087,7 +1087,7 @@ public final class Broker {
 			// If no protocol was specified, fall back to available protocols
 			if (liveServers.isEmpty()) {
 				for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
-					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
+					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP().getAddress().getHostAddress(), 0);
 					accessPoint.addAccessPoint(ap);
 
 					liveServers.add(factory.createServerCombox(ap, buffer, this));
