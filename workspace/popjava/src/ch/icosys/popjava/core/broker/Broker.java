@@ -547,6 +547,11 @@ public final class Broker {
 		normalizePOPParamameters(parameters);
 		// LogWriter.writeDebugInfo("Call method "+method.getName());
 		long trackingTime = 0;
+		POPRemoteCaller remote = null;
+		if(tracking) {
+			remote = request.getConnection().getRemoteCaller();
+		}
+		
 		// Invoke the method if success to get all parameter
 		if (exception == null && method != null) {
 			final long trackingStart = System.currentTimeMillis();
@@ -668,8 +673,8 @@ public final class Broker {
 			}
 		}
 
-		if (tracking) {
-			registerTracking(request.getConnection().getRemoteCaller(), method.toGenericString(), trackingTime, inputSize, outputSize);
+		if (tracking && remote != null) {
+			registerTracking(remote, method.toGenericString(), trackingTime, inputSize, outputSize);
 		}
 			
 		// if have any error (cannot get the parameter, or cannot invoke method,

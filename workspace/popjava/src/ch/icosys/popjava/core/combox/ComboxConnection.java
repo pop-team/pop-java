@@ -23,23 +23,29 @@ public class ComboxConnection<T> {
 	}
 
 	public int send(POPBuffer buffer) {
+		throwIfClosed();
+		
 		buffer.getHeader().setConnectionID(connectionID);
 		return combox.send(buffer);
 	}
 
 	public int receive(POPBuffer buffer, int requestId) {
+		throwIfClosed();
 		return combox.receive(buffer, requestId, connectionID);
 	}
 
 	public String getNetworkUUID() {
+		throwIfClosed();
 		return combox.getNetworkUUID();
 	}
 
 	public POPRemoteCaller getRemoteCaller() {
+		throwIfClosed();
 		return combox.getRemoteCaller();
 	}
 
 	public POPAccessPoint getAccessPoint() {
+		throwIfClosed();
 		return combox.getAccessPoint();
 	}
 
@@ -51,15 +57,23 @@ public class ComboxConnection<T> {
 	}
 
 	public BufferFactory getBufferFactory() {
+		throwIfClosed();
 		return combox.getBufferFactory();
 	}
 
 	public void setBufferFactory(BufferFactory bufferFactory) {
+		throwIfClosed();
 		combox.setBufferFactory(bufferFactory);
 	}
 
 	public int getConnectionID() {
 		return connectionID;
+	}
+	
+	private void throwIfClosed() {
+		if(combox == null) {
+			throw new RuntimeException("Combox closed");
+		}
 	}
 
 }
