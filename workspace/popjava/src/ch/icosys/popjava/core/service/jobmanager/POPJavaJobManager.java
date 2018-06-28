@@ -1639,8 +1639,16 @@ public class POPJavaJobManager extends POPJobService {
 		try {
 			LogWriter.writeDebugInfo("[PSN] starting research");
 
+			POPAccessPoint myAP = getAccessPoint();
+			
+			if(myAP.isEmpty()) {
+				LogWriter.writeDebugInfo("[PSN] No AP set for JM, exit discovery");
+				
+				return new SNNodesInfo();
+			}
+			
 			// add itself to the nodes visited
-			request.getExplorationList().add(getAccessPoint());
+			request.getExplorationList().add(myAP);
 
 			if (request.isEndRequest()) {
 				timeout = 1;
