@@ -19,9 +19,10 @@ public class POPSystemTest {
 
 	@Test
 	public void testGetIp() {
-		String ip = POPSystem.getHostIP();
+		String ip = POPSystem.getHostIP().getAddress().getHostAddress();
 		assertNotSame("", ip);
 		assertNotSame("127.0.0.1", ip);
+		System.out.println(ip);
 	}
 
 	@Test

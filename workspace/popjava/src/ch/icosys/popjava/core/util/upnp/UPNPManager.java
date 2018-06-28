@@ -39,7 +39,12 @@ public class UPNPManager {
 				discover.discover();
 				d = discover.getValidGateway();
 
-				externalIP = d.getExternalIPAddress();
+				if(d != null) {
+					externalIP = d.getExternalIPAddress();
+				}else {
+					System.out.println("UPNP could not be initialized correctly, no gateway found");
+				}				
+				
 			} catch (SocketException e) {
 				e.printStackTrace();
 			} catch (UnknownHostException e) {
@@ -64,7 +69,6 @@ public class UPNPManager {
 
 	public synchronized static Future<String> registerPort(int port) {
 		if (mappedPorts.contains(port)) {
-			System.out.println("We already mapped port " + port + " before");
 			return CompletableFuture.completedFuture(externalIP);
 		}
 
@@ -73,8 +77,6 @@ public class UPNPManager {
 			@Override
 			public String call() throws Exception {
 				init();
-
-				System.out.println("Try to map port " + port);
 
 				if (null != d) {
 					LogWriter.writeDebugInfo(

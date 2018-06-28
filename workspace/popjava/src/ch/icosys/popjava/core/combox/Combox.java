@@ -79,7 +79,7 @@ public abstract class Combox<T> {
 	 */
 	public Combox(String networkUUID) {
 		this.networkUUID = networkUUID;
-		this.accessPoint = new POPAccessPoint();
+		this.accessPoint = new POPAccessPoint();		
 		bufferFactory = BufferFactoryFinder.getInstance().findFactory(conf.getDefaultEncoding());
 	}
 
@@ -111,8 +111,28 @@ public abstract class Combox<T> {
 		this.accessPoint = accesspoint;
 		this.timeOut = timeout;
 		this.broker = broker;
-		return connectToServer() && sendNetworkName() && exportConnectionInfo() && sendLocalAP(broker)
-				&& startKeepAlive();
+		
+		if(!connectToServer()) {
+			return false;
+		}
+		
+		if(!sendNetworkName()) {
+			return false;
+		}
+		
+		if(!exportConnectionInfo()) {
+			return false;
+		}
+		
+		if(!sendLocalAP(broker)) {
+			return false;
+		}
+		
+		if(!startKeepAlive()) {
+			return false;
+		}
+				
+		return true;
 	}
 
 	/**
@@ -126,8 +146,28 @@ public abstract class Combox<T> {
 	public final boolean serverAccept(Broker broker, T peerConnection) {
 		this.peerConnection = peerConnection;
 		this.broker = broker;
-		return serverAccept() && receiveNetworkName() && exportConnectionInfo() && receiveRemoveAP()
-				&& startKeepAlive();
+		
+		if(!serverAccept()) {
+			return false;
+		}
+		
+		if(!receiveNetworkName()) {
+			return false;
+		}
+
+		if(!exportConnectionInfo()) {
+			return false;
+		}
+
+		if(!receiveRemoveAP()) {
+			return false;
+		}
+		
+		if(!startKeepAlive()) {
+			return false;
+		}
+		
+		return true;
 	}
 
 	private boolean startKeepAlive() {
@@ -459,7 +499,7 @@ public abstract class Combox<T> {
 		}
 	}
 
-	protected synchronized void registerCommuncation() {
+	protected synchronized void registerCommunication() {
 		lastCommunication = System.currentTimeMillis();
 	}
 }

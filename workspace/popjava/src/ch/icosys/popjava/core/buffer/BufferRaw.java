@@ -348,7 +348,7 @@ public class BufferRaw extends POPBuffer {
 			}
 
 			// position(position() + padding);
-		} else {
+		} else {//todo: handle nll case differently
 			putInt(0);
 		}
 	}

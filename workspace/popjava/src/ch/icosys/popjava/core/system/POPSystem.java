@@ -2,16 +2,20 @@ package ch.icosys.popjava.core.system;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -129,18 +133,19 @@ public class POPSystem {
 		return 127 * 256 * 256 * 256;
 	}
 
-	public static String getInterfaceIP(NetworkInterface ni) {
+	public static InterfaceAddress getInterfaceIP(NetworkInterface ni, boolean allowPrivate) {
 		try {
 			if (ni != null && ni.isUp()) {
 				@SuppressWarnings("unused")
 				Enumeration<InetAddress> enina = ni.getInetAddresses();
 				for (InterfaceAddress interfaceAddress : ni.getInterfaceAddresses()) {
 					String address = interfaceAddress.getAddress().getHostAddress();
-
-					if (!address.contains(":") && !address.equals("127.0.0.1") && !address.equals("127.0.1.1")
+					
+					if ((allowPrivate || !interfaceAddress.getAddress().isSiteLocalAddress()) &&
+							!address.contains(":") && !address.equals("127.0.0.1") && !address.equals("127.0.1.1")
 							&& !address.isEmpty()
 							&& (Util.getOSType() == OSType.Windows || interfaceAddress.getAddress().isReachable(20))) {
-						return address;
+						return interfaceAddress;
 					}
 				}
 
@@ -155,15 +160,16 @@ public class POPSystem {
 	 * Get the host of the local node
 	 * 
 	 * @return Host name as a string value
+	 * @throws UnknownHostException 
 	 */
-	public static String getHostIP() {
+	public static InterfaceAddress getHostIP() {
 		String preferedInterface = System.getenv("POPJ_IFACE");
 
 		if (preferedInterface != null) {
 			try {
 				NetworkInterface ni = NetworkInterface.getByName(preferedInterface);
 
-				String ip = getInterfaceIP(ni);
+				InterfaceAddress ip = getInterfaceIP(ni, true);
 				if (ip != null) {
 					return ip;
 				}
@@ -172,12 +178,27 @@ public class POPSystem {
 			}
 		}
 
+		//Find first non local address
 		Enumeration<NetworkInterface> en;
 		try {
 			en = NetworkInterface.getNetworkInterfaces();
 			while (en.hasMoreElements()) {
 				NetworkInterface ni = en.nextElement();
-				String ip = getInterfaceIP(ni);
+				InterfaceAddress ip = getInterfaceIP(ni, false);
+				if (ip != null) {
+					return ip;
+				}
+
+			}
+		} catch (SocketException e) {
+		}
+		
+		//Find first non local address
+		try {
+			en = NetworkInterface.getNetworkInterfaces();
+			while (en.hasMoreElements()) {
+				NetworkInterface ni = en.nextElement();
+				InterfaceAddress ip = getInterfaceIP(ni, true);
 				if (ip != null) {
 					return ip;
 				}
@@ -186,7 +207,42 @@ public class POPSystem {
 		} catch (SocketException e) {
 		}
 
-		return "127.0.0.1";
+		try {
+			InetAddress localHost = Inet4Address.getLocalHost();
+			NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
+			
+			for(InterfaceAddress addr : networkInterface.getInterfaceAddresses()) {
+				if(addr.getAddress().isLoopbackAddress() && addr.getAddress() instanceof Inet4Address) {
+					return addr;
+				}
+			}
+		}catch (SocketException e) {
+			e.printStackTrace();
+		}catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	public static List<InterfaceAddress> getAllHostIPs(boolean allowPrivate){
+		Set<InterfaceAddress> ips = new HashSet<>();
+		
+		Enumeration<NetworkInterface> en;
+		try {
+			en = NetworkInterface.getNetworkInterfaces();
+			while (en.hasMoreElements()) {
+				NetworkInterface ni = en.nextElement();
+				InterfaceAddress ip = getInterfaceIP(ni, allowPrivate);
+				if (ip != null) {
+					ips.add(ip);					
+				}
+
+			}
+		} catch (SocketException e) {
+		}
+		
+		return new ArrayList<>(ips);
 	}
 
 	/**
@@ -196,7 +252,7 @@ public class POPSystem {
 	 */
 	public static POPAccessPoint getDefaultAccessPoint() {
 		POPAccessPoint parrocAccessPoint = new POPAccessPoint();
-		parrocAccessPoint.setAccessString(String.format("%s://%s:0", conf.getDefaultProtocol(), getHostIP()));
+		parrocAccessPoint.setAccessString(String.format("%s://%s:0", conf.getDefaultProtocol(), getHostIP().getAddress().getHostAddress()));
 		return parrocAccessPoint;
 	}
 
@@ -331,7 +387,7 @@ public class POPSystem {
 		}
 	}
 
-	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP(), conf.getJobManagerPorts()[0]);
+	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP().getAddress().getHostAddress(), conf.getJobManagerPorts()[0]);
 
 	private static String codeconf;
 
@@ -520,7 +576,7 @@ public class POPSystem {
 		}
 
 		ObjectDescription objectDescription = POPSystem.getDefaultOD();
-		objectDescription.setHostname(POPSystem.getHostIP());
+		objectDescription.setHostname(POPSystem.getHostIP().getAddress().getHostAddress());
 		objectDescription.setCodeFile(codelocation);
 
 		return PopJava.newActive(POPAppService.class, objectDescription, randString.toString(), false, codelocation);

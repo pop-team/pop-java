@@ -547,6 +547,11 @@ public final class Broker {
 		normalizePOPParamameters(parameters);
 		// LogWriter.writeDebugInfo("Call method "+method.getName());
 		long trackingTime = 0;
+		POPRemoteCaller remote = null;
+		if(tracking) {
+			remote = request.getConnection().getRemoteCaller();
+		}
+		
 		// Invoke the method if success to get all parameter
 		if (exception == null && method != null) {
 			final long trackingStart = System.currentTimeMillis();
@@ -668,8 +673,8 @@ public final class Broker {
 			}
 		}
 
-		if (tracking) {
-			registerTracking(request.getConnection().getRemoteCaller(), method.toGenericString(), trackingTime, inputSize, outputSize);
+		if (tracking && remote != null) {
+			registerTracking(remote, method.toGenericString(), trackingTime, inputSize, outputSize);
 		}
 			
 		// if have any error (cannot get the parameter, or cannot invoke method,
@@ -1077,7 +1082,7 @@ public final class Broker {
 						}
 					}
 
-					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), iPort);
+					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP().getAddress().getHostAddress(), iPort);
 					accessPoint.addAccessPoint(ap);
 
 					liveServers.add(factory.createServerCombox(ap, buffer, this));
@@ -1087,7 +1092,7 @@ public final class Broker {
 			// If no protocol was specified, fall back to available protocols
 			if (liveServers.isEmpty()) {
 				for (ComboxFactory factory : ComboxFactoryFinder.getInstance().getAvailableFactories()) {
-					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP(), 0);
+					AccessPoint ap = new AccessPoint(factory.getComboxName(), POPSystem.getHostIP().getAddress().getHostAddress(), 0);
 					accessPoint.addAccessPoint(ap);
 
 					liveServers.add(factory.createServerCombox(ap, buffer, this));
@@ -1146,9 +1151,8 @@ public final class Broker {
 	 * @throws InterruptedException
 	 *             if the any semaphore's operation fail
 	 */
-	public static void main(String[] argvs) throws InterruptedException {
+	public static void main(String[] argvs) throws InterruptedException {				
 		POPSystem.setStarted();
-
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 
 			@Override
@@ -1158,8 +1162,9 @@ public final class Broker {
 			}
 		});
 
-		ArrayList<String> argvList = new ArrayList<>();
+		ArrayList<String> argvList = new ArrayList<>(argvs.length);
 		LogWriter.writeDebugInfo("[Broker] Broker parameters");
+		
 		for (String str : argvs) {
 			argvList.add(str);
 			LogWriter.writeDebugInfo(" %79s", str);
@@ -1250,7 +1255,7 @@ public final class Broker {
 		} catch (Exception e) {
 			LogWriter.writeExceptionLog(e);
 		}
-
+		
 		int status = 0;
 		if (broker == null || !broker.initialize(argvList)) {
 			status = 1;

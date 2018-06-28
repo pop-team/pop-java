@@ -27,6 +27,11 @@ public class SNWayback implements IPOPBase {
 	}
 
 	public void push(POPAccessPoint e) {
+		for(int i = 0; i < e.size(); i++) {
+			if(e.get(i).getHost().equals("localhost")) {
+				new Exception(e.toString()).printStackTrace();
+			}
+		}
 		stack.push(e);
 	}
 

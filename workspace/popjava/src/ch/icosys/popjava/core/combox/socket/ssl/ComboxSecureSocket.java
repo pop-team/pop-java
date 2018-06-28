@@ -54,6 +54,9 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 
 	@Override
 	protected boolean connectToServer() {
+		
+		List<IOException> exceptions = new ArrayList<>();
+		
 		try {
 			SSLContext sslContext = SSLUtils.getSSLContext();
 			SSLSocketFactory factory = sslContext.getSocketFactory();
@@ -68,8 +71,6 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 
 				String host = ap.getHost();
 				int port = ap.getPort();
-
-				System.out.println("Connect secure " + host + " " + port + " " + POPSystem.getHostIP());
 
 				try {
 					// Create an unbound socket
@@ -106,10 +107,18 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 
 					available = true;
 				} catch (IOException e) {
+					exceptions.add(e);
 					available = false;
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		if(!available) {
+			for(IOException e : exceptions) {
+				e.printStackTrace();
+			}
 		}
 
 		return available;
@@ -130,7 +139,7 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 	protected boolean receiveNetworkName() {
 		// extract network from handshake
 		ExtendedSSLSession handshakeSession = (ExtendedSSLSession) peerConnection.getSession();
-
+		
 		// we need that the handshake is there
 		if (handshakeSession != null) {
 			// extract the SNI from the extended handshake

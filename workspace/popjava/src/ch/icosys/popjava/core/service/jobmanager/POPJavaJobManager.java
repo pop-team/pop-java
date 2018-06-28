@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -716,7 +719,7 @@ public class POPJavaJobManager extends POPJobService {
 			value.setValue(POPSystem.getPlatform());
 			return true;
 		case "host":
-			value.setValue(POPSystem.getHostIP());
+			value.setValue(POPSystem.getHostIP().getAddress().getHostAddress());
 			return true;
 		case "jobs":
 			update();
@@ -1654,10 +1657,7 @@ public class POPJavaJobManager extends POPJobService {
 				POPAccessPoint sender = new POPAccessPoint();
 				askResourcesDiscovery(request, sender);
 				Thread.sleep(timeout);
-			}
-
-			// not timeout was set, accept first result
-			else {
+			} else {// not timeout was set, accept first result
 				// semaphore to wait until resource is discovered
 				Semaphore reqsem = new Semaphore(0);
 				// add it to the map for later async unlocking
@@ -1713,9 +1713,13 @@ public class POPJavaJobManager extends POPJobService {
 	public void askResourcesDiscovery(@POPParameter(Direction.IN) SNRequest request,
 			@POPParameter(Direction.IN) POPAccessPoint sender) {
 		try {
+			long start = System.currentTimeMillis();
+			
 			// previous hops visited
 			SNExploration explorationList = request.getExplorationList();
+			
 			SNExploration oldExplorationList = new SNExploration(request.getExplorationList());
+			
 			// get request network
 			POPNetwork network = networks.get(request.getNetworkUUID());
 
@@ -1725,7 +1729,7 @@ public class POPJavaJobManager extends POPJobService {
 				return;
 			}
 
-			// decrease the hop we can still do
+			// decrease the number of hops we can still do
 			if (request.getRemainingHops() != conf.getSearchNodeUnlimitedHops()) {
 				request.decreaseHopLimit();
 			}
@@ -1738,28 +1742,42 @@ public class POPJavaJobManager extends POPJobService {
 				LogWriter.writeDebugInfo("[JM] Connector descriptor [%s] not found", request.getConnector());
 				return;
 			}
+			
 			POPConnector connectorImpl = network.getConnector(descriptor);
 
 			// connector won't work with the SearchNode
 			if (!(connectorImpl instanceof POPConnectorSearchNodeInterface)) {
-				LogWriter.writeDebugInfo("[JM] Connector [%s] is not Job Manager enabed", request.getConnector());
+				LogWriter.writeDebugInfo("[JM] Connector [%s] is not Job Manager enabled", request.getConnector());
 				return;
 			}
+			
 			POPConnectorSearchNodeInterface snEnableConnector = (POPConnectorSearchNodeInterface) connectorImpl;
-
+			
 			// add all network neighbors to explorations list
 			for (POPNode node : network.getMembers(connectorImpl.getDescriptor())) {
 				// only JM items and children
 				if (node instanceof POPNodeAJobManager) {
 					POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
+					
+					POPAccessPoint ap = new POPAccessPoint(jmNode.getJobManagerAccessPoint());
+					
+					//Do not send localhost address to others
+					for(int i = 0; i < ap.size(); i++) {
+						if(ap.get(i).getHost().equals("localhost")) {
+							ap.get(i).setHost(POPSystem.getHostIP().getAddress().getHostAddress());
+						}
+					}
+					
 					// add to exploration list
-					explorationList.add(jmNode.getJobManagerAccessPoint());
+					if(!explorationList.contains(ap)) {
+						explorationList.add(ap);
+					}
 				}
 			}
 
 			// XXX not currently in use
 			// used to kill the application from all JMs
-			if (request.isEndRequest()) {
+			if (request.isEndRequest()) {//Propagate end message to all JMs
 				// check if we can continue discovering
 				if (request.getRemainingHops() >= 0
 						|| request.getRemainingHops() == conf.getSearchNodeUnlimitedHops()) {
@@ -1768,11 +1786,12 @@ public class POPJavaJobManager extends POPJobService {
 						// only JM items and children
 						if (node instanceof POPNodeJobManager) {
 							POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
-
+		
 							// contact if it has not been contacted before by
 							// someone else
 							if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
 								try {
+									
 									// send request to other JM
 									POPJavaJobManager jm = connectToJobmanager(jmNode.getJobManagerAccessPoint(),
 											request.getNetworkUUID());
@@ -1785,7 +1804,7 @@ public class POPJavaJobManager extends POPJobService {
 						}
 					}
 				}
-
+				
 				// and application locally
 				applicationEnd(request.getPOPAppId(), false);
 				return;
@@ -1806,55 +1825,132 @@ public class POPJavaJobManager extends POPJobService {
 			if (SNKnownRequests.size() > conf.getSearchNodeMaxRequests()) {
 				SNKnownRequests.pollLast();
 			}
-
+			
 			// check for host if they are specified
-			boolean answer = request.getHosts().length == 0;
-			if (!answer) {
-				InetAddress myself = InetAddress.getByName(POPSystem.getHostIP());
+			boolean canAnswer = request.getHosts().length == 0;
+			if (!canAnswer) {
+				List<InterfaceAddress> ips = POPSystem.getAllHostIPs(false);
 				for (String host : request.getHosts()) {
 					InetAddress addr = InetAddress.getByName(host);
-					if (myself.equals(addr)) {
-						answer = true;
-						break;
+					
+					for(InterfaceAddress ip : ips) {
+						if (ip.getAddress().getHostName().equalsIgnoreCase(addr.getHostAddress())) {
+							canAnswer = true;
+							break;
+						}
 					}
+					
 				}
 			}
 
-			if (answer) {
+			if (canAnswer) {
 				LogWriter.writeDebugInfo("[PSN] Looking for local answer");
 				// send request, handled by the different connectors
 				snEnableConnector.askResourcesDiscoveryAction(request, sender, oldExplorationList);
 			} else {
 				LogWriter.writeDebugInfo("[PSN] Node not in request answer list, skipping and propagating request");
 			}
+			//System.out.println("NEW LIST "+explorationList);
 
 			// propagate in the network if we still can
 			if (request.getRemainingHops() >= 0 || request.getRemainingHops() == conf.getSearchNodeUnlimitedHops()) {
 				// add current node do wayback
 				request.getWayback().push(getAccessPoint());
+				
+				POPAccessPoint me = getGeneralizedAccessPoint();
+				
+				final Semaphore sem = new Semaphore(0);
+				int threadCounter = 0;
+				
+				ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(20);
+				
 				// request to all members of the network
 				for (POPNode node : network.getMembers(connectorImpl.getDescriptor())) {
 					if (node instanceof POPNodeAJobManager) {
+						
 						POPNodeAJobManager jmNode = (POPNodeAJobManager) node;
+						
 						// contact if it's a new node
-						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint())) {
-							try {
-								// send request to other JM
-								POPJavaJobManager jm = connectToJobmanager(jmNode.getJobManagerAccessPoint(),
-										request.getNetworkUUID());
-								jm.askResourcesDiscovery(request, getAccessPoint());
-							} catch (Exception e) {
-								LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s",
-										jmNode.getJobManagerAccessPoint(), e.getMessage());
-							}
+						if (!oldExplorationList.contains(jmNode.getJobManagerAccessPoint()) && !me.hasSameAccessPoint(jmNode.getJobManagerAccessPoint())) {
+							
+							threadPoolConcurrent.execute(new Runnable() {
+								
+								@Override
+								public void run() {
+									try {
+										// send request to other JM
+										POPJavaJobManager jm = connectToJobmanager(jmNode.getJobManagerAccessPoint(),
+												request.getNetworkUUID());
+										jm.askResourcesDiscovery(request, getAccessPoint());
+									} catch (Exception e) {
+										LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s",
+												jmNode.getJobManagerAccessPoint(), e.getMessage());
+									}
+									sem.release();
+								}
+							});
+
+							threadCounter++;
 						}
 					}
 				}
-			}
+				
+				sem.acquire(threadCounter);
+				threadPoolConcurrent.shutdown();
+			}			
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage());
 			LogWriter.writeExceptionLog(e);
 		}
+	}
+	
+	/**
+	 * Return own accesspoint with some flexbility about the naming/ips etc.
+	 * @return
+	 */
+	private POPAccessPoint getGeneralizedAccessPoint() {
+		POPAccessPoint me = new POPAccessPoint(getAccessPoint());
+		
+		List<String> hostnames = new ArrayList<>();
+		hostnames.add("localhost");
+		hostnames.add("127.0.0.1");
+		hostnames.add("127.0.1.1");
+		try {
+			hostnames.add(InetAddress.getLocalHost().getHostName());
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		List<InterfaceAddress> hostIPS = POPSystem.getAllHostIPs(true);
+		
+		List<AccessPoint> duplicates = new ArrayList<>();
+		for(int i = 0; i < me.size(); i++) {
+			AccessPoint ap = me.get(i);
+			
+			if(hostIPS.contains(ap.getHost())) {
+				hostIPS.remove(ap.getHost());
+			}
+			
+			for(String host : hostnames) {
+				if(!ap.getHost().equals(host)) {
+					duplicates.add(new AccessPoint(ap.getProtocol(), host, ap.getPort()));
+				}
+			}
+		}
+		
+		for(int i = 0; i < me.size(); i++) {
+			AccessPoint ap = me.get(i);
+			
+			for(InterfaceAddress localIP : hostIPS) {
+				duplicates.add(new AccessPoint(ap.getProtocol(), localIP.getAddress().getHostAddress(), ap.getPort()));
+			}
+		}
+		
+		for(AccessPoint ap : duplicates) {
+			me.addAccessPoint(ap);
+		}
+		
+		return me;
 	}
 
 	/**
@@ -1881,7 +1977,7 @@ public class POPJavaJobManager extends POPJobService {
 				SSLUtils.addCertToTempStore(response.getPublicCertificate());
 			}
 
-			// we unlock the senaphore if it was set
+			// we unlock the semaphore if it was set
 			unlockDiscovery(response.getUID());
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in callbackResult: %s", e.getMessage());
@@ -1914,7 +2010,9 @@ public class POPJavaJobManager extends POPJobService {
 			} // is the last node, give the answer to the original JM who
 				// launched the request
 			else {
-				LogWriter.writeDebugInfo("[PSN] REROUTE_ORIGIN;%s;", response.getUID());
+
+		        final POPRemoteCaller caller = PopJava.getRemoteCaller();
+				LogWriter.writeDebugInfo("[PSN] REROUTE_ORIGIN;%s;%s", response.getUID(), caller.getRemote().toString());
 				callbackResult(response);
 			}
 		} catch (Exception e) {
@@ -1939,57 +2037,76 @@ public class POPJavaJobManager extends POPJobService {
 			LogWriter.writeDebugInfo("[PSN] UNLOCK SEMAPHORE %s", requid);
 		}
 	}
-
-	public synchronized POPJavaJobManager connectToJobmanager(POPAccessPoint ap, String network) {
+	
+	@POPSyncConc
+	public boolean knowsJobManager(String network, POPAccessPoint ap) {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
+		
+		return cachedJobManangers.containsKey(key);
+	}
+	
+	private final Set<Tuple<String, POPAccessPoint>> jmConnectionLock = Collections.synchronizedSet(new HashSet<>());
 
-		if (!cachedJobManangers.containsKey(key)) {
-			System.out.println("######No JM found for " + ap + " # " + network);
-
-			for (Tuple<String, POPAccessPoint> tmpKey : cachedJobManangers.keySet()) {
-				System.out.println("#####Cached JM : " + tmpKey.a + " " + tmpKey.b);
-				System.out.println("#####FP : " + tmpKey.getB().getFingerprint() + " " + ap.getFingerprint());
-			}
-
-			POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
-
-			cachedJobManangers.put(key, jm);
+	public POPJavaJobManager connectToJobmanager(POPAccessPoint ap, String network) throws InterruptedException {
+		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
+		
+		//Aquire lock for that specific key
+		synchronized (jmConnectionLock) {
+			while (jmConnectionLock.contains(key)) {
+				jmConnectionLock.wait();
+	        }
+			
+			jmConnectionLock.add(key);
 		}
-
-		POPJavaJobManager jm = cachedJobManangers.get(key);
 
 		try {
-			POPString val = new POPString();
-			jm.query("power", val);
+			//Connect to JM first time if necessary
+			if (!cachedJobManangers.containsKey(key)) {
+				POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
 
-			jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
-		} catch (Exception e) {
-			cachedJobManangers.put(key, null);
+				cachedJobManangers.put(key, jm);
+			}
 
-			LogWriter.writeDebugInfo("[POPJavaJobManager] Connection lost with [%s], opening new one");
-			jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
+			POPJavaJobManager jm = cachedJobManangers.get(key);
 
-			cachedJobManangers.put(key, jm);
+			try {
+				//Check if the neighbour knows us, this also implicitely tests the connection
+				POPAccessPoint myAP = getAccessPoint();			
+
+				jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
+				/*if(!jm.knowsJobManager(network, myAP)) {
+					jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
+				}*/
+			} catch (Exception e) {
+				//If the connection we have is down, reconnect
+				cachedJobManangers.remove(key);
+				jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
+
+				cachedJobManangers.put(key, jm);
+			}
+			
+			return jm;
+		}finally {
+			synchronized (jmConnectionLock) {
+				jmConnectionLock.remove(key);
+				jmConnectionLock.notifyAll();
+			}
 		}
-
-		System.out.println("#####Connected to JM " + ap);
-
-		return jm;
 	}
 
 	@POPSyncConc
 	public POPAccessPoint[] newTFCSearchOn(POPAccessPoint ap, String network, String objectName) {
-		return connectToJobmanager(ap, network).localTFCSearch(network, objectName);
+		try {
+			return connectToJobmanager(ap, network).localTFCSearch(network, objectName);
+		}catch (InterruptedException e) {
+			return new POPAccessPoint[0];
+		}
+		
 	}
 
 	@POPSyncConc
 	public void registerNeighbourJobmanager(POPAccessPoint ap, String network, POPJavaJobManager jm) {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
-
-		/*
-		 * System.out.println("######Register new neighbour JM "+ap+" # " +network);
-		 * jm.makePermanent(); cachedJobManangers.put(key, jm);
-		 */
 
 		if (!cachedJobManangers.containsKey(key)) {
 			jm.makePermanent();

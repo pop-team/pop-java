@@ -22,6 +22,7 @@ ext {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 sourceSets {
@@ -41,7 +42,7 @@ sourceSets {
 }
 
 dependencies {
-    compile group: 'org.javassist',    		name: 'javassist',      	version: '[3,)'		//'3.+'
+    compile group: 'org.javassist',    		name: 'javassist',      	version: '3.22.0-GA'		//'3.+'
     compile group: 'org.slf4j',        		name: 'slf4j-nop',      	version: '[1.7,)'	//'1.7.+'
     compile group: 'org.yaml',         		name: 'snakeyaml',      	version: '[1,)'		//'1.+'
     compile group: 'com.hierynomus',   		name: 'sshj',           	version: '0.21.1'
@@ -50,6 +51,7 @@ dependencies {
     
     testCompile group: 'junit', 	   		name: 'junit', 				version: '[4,)'		//'4.+'
     testCompile group: 'com.carrotsearch', 	name: 'junit-benchmarks', 	version: '0.7.2'
+    testCompile group: 'org.mockito',		name: 'mockito-core',		version: '[2,)'
 }
 
 test {    

@@ -104,6 +104,10 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 							constructorSemanticId);
 					messageHeader.setRequestID(getRequestID());
 
+					if(combox == null) {
+						throw new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE, "Can't call object, combox not connected");
+					}
+
 					BufferFactory factory = combox.getCombox().getBufferFactory();
 					POPBuffer popBuffer = factory.createBuffer();
 					popBuffer.setHeader(messageHeader);
@@ -134,7 +138,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 							}
 						}
 					}
-				} catch (POPException e) {
+				} catch (Exception e) {
 					temp.printStackTrace();
 					e.printStackTrace();
 				}
@@ -144,7 +148,7 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		};
 
 		POPClass annotation = targetClass.getAnnotation(POPClass.class);
-
+		
 		if (conf.isAsyncConstructor() && (annotation == null || annotation.useAsyncConstructor())) {
 			POPSystem.startAsyncConstructor(constructorRunnable);
 		} else {
@@ -221,6 +225,9 @@ public class PJMethodHandler extends Interface implements MethodHandler {
 		MessageHeader messageHeader = new MessageHeader(info.getClassId(), info.getMethodId(), methodSemantics);
 		messageHeader.setRequestID(getRequestID());
 
+		if(combox == null) {
+			throw new POPException(POPErrorCode.POP_COMBOX_NOT_AVAILABLE, "Can't invoke method, object not connected");
+		}
 		POPBuffer popBuffer = combox.getBufferFactory().createBuffer();
 		popBuffer.setHeader(messageHeader);
 		Class<?>[] parameterTypes = m.getParameterTypes();

@@ -59,7 +59,7 @@ public class AccessPoint {
 		}
 
 		if (host != null && hostname.equals(host)) {
-			return POPSystem.getHostIP();
+			return POPSystem.getHostIP().getAddress().getHostAddress();
 		}
 
 		return hostname;

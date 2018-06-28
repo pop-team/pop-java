@@ -40,9 +40,19 @@ public class SNExploration implements IPOPBase {
 		if (visited.size() >= conf.getSearchNodeExplorationQueueSize()) {
 			visited.pop();
 		}
+		
 		return visited.add(e);
 	}
 
+	@Override
+	public String toString() {
+		String all = "";
+		for(POPAccessPoint node : visited) {
+			all += node+", ";
+		}
+		return all;
+	}
+	
 	@Override
 	public boolean serialize(POPBuffer buffer) {
 		buffer.putInt(visited.size());

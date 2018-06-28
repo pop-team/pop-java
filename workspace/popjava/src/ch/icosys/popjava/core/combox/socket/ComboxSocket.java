@@ -5,7 +5,11 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,9 +23,9 @@ import ch.icosys.popjava.core.util.LogWriter;
 
 public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
-	public static final int BUFFER_LENGTH = 1024 * 1024 * 8;
+	public static final int BUFFER_LENGTH = 1024 * 8;
 
-	protected static final int STREAM_BUFFER_SIZE = 8 * 1024 * 1024; // 8MB
+	protected static final int STREAM_BUFFER_SIZE = BUFFER_LENGTH; // 8kB
 
 	protected final byte[] receivedBuffer = new byte[BUFFER_LENGTH];
 
@@ -51,7 +55,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 	@Override
 	public int receive(POPBuffer buffer, int requestId, int connectionID) {
-
+		
 		int result = 0;
 		try {
 			buffer.resetToReceive();
@@ -61,10 +65,13 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			boolean gotPacket = false;
 
 			boolean yieldThread = false;
+			int loops = 0;
+			
 			do {
+				loops++;
+				
 				if (yieldThread) {
 					Thread.yield();
-					Thread.sleep(1);
 				}
 				yieldThread = false;
 
@@ -94,7 +101,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 					int requestIdPacket = buffer.getTranslatedInteger(temp);
 
-					registerCommuncation();
+					registerCommunication();
 
 					// System.out.println("GOT "+requestIdPacket+"
 					// "+packetConnectionID+" "+messageLength+" on
@@ -137,13 +144,11 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 						result = readPacket(buffer, messageLength, requestIdPacket, packetConnectionID);
 					} else {
-						// System.out.println("RESET got "+requestIdPacket+"
-						// instead of "+requestId);
+						//System.out.println("RESET got "+requestIdPacket+" instead of "+requestId);
 						inputStream.reset();
 						yieldThread = true;
 					}
 				}
-
 			} while (!gotPacket);
 
 			int headerLength = MessageHeader.HEADER_LENGTH;
@@ -158,7 +163,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			} else {
 				buffer.extractHeader();
 			}
-
+			
 			return result;
 		} catch (Exception e) {
 			if (conf.isDebugCombox()) {
@@ -195,7 +200,8 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
 	private int readPacket(POPBuffer buffer, int messageLength, int requestIdPacket, int packetConnectionID)
 			throws IOException {
-		registerCommuncation();
+		
+		registerCommunication();
 
 		int result = 12;
 		buffer.putInt(messageLength);
@@ -215,21 +221,18 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 				messageLength -= receivedLength;
 				result += receivedLength;
 				buffer.put(receivedBuffer, 0, receivedLength);
-
-				/*
-				 * for(int i = 0; i < receivedLength; i++) {
-				 * System.out.print(receivedBuffer[i]+" "); } System.out.println();
-				 */
 			} else {
 				break;
 			}
 		}
+		
 		return result;
 	}
 
 	@Override
 	public int send(POPBuffer buffer) {
 
+		long start = System.currentTimeMillis();
 		try {
 			buffer.packMessageHeader();
 			final int length = buffer.size();
@@ -308,7 +311,7 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 		return "Closed";
 	}
 
-	public static List<AccessPoint> getSortedAccessPoints(String myHost, POPAccessPoint accessPoint, String protocol) {
+	public static List<AccessPoint> getSortedAccessPoints(InterfaceAddress myHost, POPAccessPoint accessPoint, String protocol) {
 		List<AccessPoint> aps = new ArrayList<>();
 		for (int i = 0; i < accessPoint.size(); i++) {
 			AccessPoint ap = accessPoint.get(i);
@@ -317,55 +320,75 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			}
 			aps.add(ap);
 		}
+		
+		if(myHost != null) {
+			InetAddress addr = myHost.getAddress();
+			
+			if(addr instanceof Inet4Address) {
+				short mask = myHost.getNetworkPrefixLength();
+				
+				byte [] ip = addr.getAddress();
+				for(int i = 0; i < ip.length * 8; i++) {
+					if(i >= mask) {
+						int byteIndex = i % 8;
+						
+						ip[i / 8] &= ~(1 << byteIndex);
+					}
+				}
+				
+				String subnetTemp = "";
 
-		int countPoints = myHost.length() - myHost.replace(".", "").length();
+				for(int i = 0; i < Math.ceil(mask / 8.); i++) {
+					subnetTemp += (ip[i] & 0xFF)+ ".";
+				}
+				
+				final String subnet = subnetTemp;
+				
+				
+				Collections.sort(aps, new Comparator<AccessPoint>() {
 
-		if (countPoints == 3) {
-			final String subnet = myHost.substring(0, myHost.indexOf("."));
+					@Override
+					public int compare(AccessPoint o1, AccessPoint o2) {
 
-			Collections.sort(aps, new Comparator<AccessPoint>() {
+						int countPoints1 = o1.getHost().length() - o1.getHost().replace(".", "").length();
+						int countPoints2 = o2.getHost().length() - o2.getHost().replace(".", "").length();
 
-				@Override
-				public int compare(AccessPoint o1, AccessPoint o2) {
+						if (countPoints1 == countPoints2) {
+							// If both hosts are in my subnet, sort by string
+							if (o1.getHost().startsWith(subnet) && o2.getHost().startsWith(subnet)) {
+								return o1.getHost().compareTo(o2.getHost());
+							}
 
-					int countPoints1 = o1.getHost().length() - o1.getHost().replace(".", "").length();
-					int countPoints2 = o2.getHost().length() - o2.getHost().replace(".", "").length();
+							// if first host is in my subnet, priority to that
+							if (o1.getHost().startsWith(subnet)) {
+								return -1;
+							}
 
-					if (countPoints1 == countPoints2) {
-						// If both hosts are in my subnet, sort by string
-						if (o1.getHost().startsWith(subnet) && o2.getHost().startsWith(subnet)) {
+							// Same for second
+							if (o2.getHost().startsWith(subnet)) {
+								return 1;
+							}
+
+							boolean privateSubnet1 = isHostInPrivateSubnet(o1.getHost());
+							boolean privateSubnet2 = isHostInPrivateSubnet(o2.getHost());
+
+							if (privateSubnet1 && !privateSubnet2) {
+								return 1;
+							}
+
+							if (!privateSubnet1 && privateSubnet2) {
+								return -1;
+							}
+
 							return o1.getHost().compareTo(o2.getHost());
 						}
 
-						// if first host is in my subnet, priority to that
-						if (o1.getHost().startsWith(subnet)) {
-							return -1;
-						}
-
-						// Same for second
-						if (o2.getHost().startsWith(subnet)) {
-							return 1;
-						}
-
-						boolean privateSubnet1 = isHostInPrivateSubnet(o1.getHost());
-						boolean privateSubnet2 = isHostInPrivateSubnet(o2.getHost());
-
-						if (privateSubnet1 && !privateSubnet2) {
-							return 1;
-						}
-
-						if (!privateSubnet1 && privateSubnet2) {
-							return -1;
-						}
-
-						return o1.getHost().compareTo(o2.getHost());
+						return countPoints1 - countPoints2;
 					}
-
-					return countPoints1 - countPoints2;
-				}
-			});
+				});
+			}
 		}
-
+		
 		return aps;
 	}
 

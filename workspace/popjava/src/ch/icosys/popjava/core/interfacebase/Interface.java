@@ -329,7 +329,7 @@ public class Interface {
 				ComboxFactory factory = finder.findFactory(protocol);
 				if (factory != null) {
 					jobContact.setAccessString(String.format("%s://%s:%d", factory.getComboxName(),
-							POPSystem.getHostIP(), conf.getJobManagerPorts()[i]));
+							POPSystem.getHostIP().getAddress().getHostAddress(), conf.getJobManagerPorts()[i]));
 					break;
 				}
 			}
@@ -341,14 +341,15 @@ public class Interface {
 			// if(conf.CONNECT_TO_POPCPP || conf.START_JOBMANAGER){
 			// jobManager = PopJava.newActive(POPJobService.class, jobContact);
 			// }
-			if (conf.isConnectToPOPcpp())
+			if (conf.isConnectToPOPcpp()) {
 				jobManager = PopJava.newActiveConnect(parentBroker, POPJobManager.class, jobContact);
-			else if (conf.isConnectToJavaJobmanager())
+			} else if (conf.isConnectToJavaJobmanager()) {
 				jobManager = PopJava.newActiveConnect(parentBroker, POPJavaJobManager.class, jobContact);
-			else
+			} else {
 				jobManager = PopJava.newActiveConnect(parentBroker, POPJobService.class, jobContact);
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			new Exception("Could not connect to job manager", e).printStackTrace();
 		}
 
 		if (jobManager == null) {
@@ -365,6 +366,7 @@ public class Interface {
 		} finally {
 			jobManager.exit();
 		}
+		
 		if (createdCode != 0) {
 			switch (createdCode) {
 			case POPErrorCode.POP_EXEC_FAIL:
@@ -667,7 +669,7 @@ public class Interface {
 			rports = new String[] { joburl.substring(urlPortIndex + 1) };
 			joburl = joburl.substring(0, urlPortIndex);
 		}
-
+		
 		// object protocol(s) with port(s), may be empty
 		int nbProtocols = od.getProtocols().length;
 
@@ -927,7 +929,8 @@ public class Interface {
 			return -1;
 		}
 
-		String callbackString = Broker.CALLBACK_PREFIX + allocateCombox.getUrl();
+		String callbackString = Broker.CALLBACK_PREFIX + allocateCombox.getUrl(isLocal);
+		
 		argvList.add(callbackString);
 		if (classname != null && classname.length() > 0) {
 			String objectString = Broker.OBJECT_NAME_PREFIX + classname;
@@ -1018,6 +1021,7 @@ public class Interface {
 		}
 
 		if (ret == -1) {
+			LogWriter.writeDebugInfo("[Interface] Command returned "+ret);
 			return ret;
 		}
 
@@ -1041,6 +1045,7 @@ public class Interface {
 				result = status;
 			}
 		} else {
+			LogWriter.writeDebugInfo("[Interface] Callback returned nothing");
 			result = -1;
 		}
 

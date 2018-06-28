@@ -1,6 +1,7 @@
 package ch.icosys.popjava.core.system;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -58,28 +59,33 @@ public class POPJavaConfiguration {
 
 	private static final String DEFAULT_POPJ_LOCATION = "/usr/local/popj";
 
+	private static String popJavaLocation = null;
+	
 	/**
 	 * Retrieve the POP-Java installation location
 	 * 
 	 * @return string value of the POP-java location
 	 */
-	public static String getPopJavaLocation() {
-		String popJavaLocation = getConfigurationValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
-
+	public static synchronized String getPopJavaLocation() {
+		if(popJavaLocation != null) {
+			return popJavaLocation;
+		}
+		
+		popJavaLocation = getConfigurationValue(ConfigurationWorker.POPJ_LOCATION_ITEM);
+		
 		if (popJavaLocation == null) { // Popjava was not actually installed
 			if (new File(DEFAULT_POPJ_LOCATION).exists()) {
-				return DEFAULT_POPJ_LOCATION;
+				popJavaLocation = DEFAULT_POPJ_LOCATION;
+			}else {
+				URL temp = getMyJar();
+				if (temp != null) {
+					File source = new File(temp.getFile()).getParentFile().getParentFile();
+					popJavaLocation = source.getAbsolutePath();
+				}else {
+					popJavaLocation = "";
+				}
 			}
-
-			URL temp = getMyJar();
-			if (temp != null) {
-				File source = new File(temp.getFile()).getParentFile().getParentFile();
-				return source.getAbsolutePath();
-			}
-
-			return "";
 		}
-
 		return popJavaLocation;
 	}
 
