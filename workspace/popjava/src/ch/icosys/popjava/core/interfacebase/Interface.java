@@ -329,7 +329,7 @@ public class Interface {
 				ComboxFactory factory = finder.findFactory(protocol);
 				if (factory != null) {
 					jobContact.setAccessString(String.format("%s://%s:%d", factory.getComboxName(),
-							POPSystem.getHostIP(), conf.getJobManagerPorts()[i]));
+							POPSystem.getHostIP().getAddress().getHostAddress(), conf.getJobManagerPorts()[i]));
 					break;
 				}
 			}

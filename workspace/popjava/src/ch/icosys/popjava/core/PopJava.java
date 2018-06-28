@@ -259,7 +259,7 @@ public class PopJava {
 		Configuration conf = Configuration.getInstance();
 		String protocol = conf.getJobManagerProtocols()[0];
 		int port = conf.getJobManagerPorts()[0];
-		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", protocol, POPSystem.getHostIP(), port));
+		POPAccessPoint jma = new POPAccessPoint(String.format("%s://%s:%d", protocol, POPSystem.getHostIP().getAddress().getHostAddress(), port));
 		return PopJava.newActiveConnect(null, POPJavaJobManager.class, jma);
 	}
 

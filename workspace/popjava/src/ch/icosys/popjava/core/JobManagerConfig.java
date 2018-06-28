@@ -34,7 +34,7 @@ public class JobManagerConfig {
 		Configuration conf = Configuration.getInstance();
 		String protocol = conf.getJobManagerProtocols()[0];
 		int port = conf.getJobManagerPorts()[0];
-		String accessString = String.format("%s://%s:%d", protocol, POPSystem.getHostIP(), port);
+		String accessString = String.format("%s://%s:%d", protocol, POPSystem.getHostIP().getAddress().getHostAddress(), port);
 		POPAccessPoint jma = new POPAccessPoint(accessString);
 		jobManager = PopJava.connect(null, POPJavaJobManager.class, conf.getDefaultNetwork(), jma);
 	}
