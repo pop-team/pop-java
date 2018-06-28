@@ -1858,10 +1858,7 @@ public class POPJavaJobManager extends POPJobService {
 				request.getWayback().push(getAccessPoint());
 				
 				POPAccessPoint me = getGeneralizedAccessPoint();
-				
-				final Semaphore sem = new Semaphore(0);
-				int threadCounter = 0;
-				
+								
 				ExecutorService threadPoolConcurrent = Executors.newFixedThreadPool(20);
 				
 				// request to all members of the network
@@ -1886,17 +1883,11 @@ public class POPJavaJobManager extends POPJobService {
 										LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s",
 												jmNode.getJobManagerAccessPoint(), e.getMessage());
 									}
-									sem.release();
 								}
 							});
-
-							threadCounter++;
 						}
 					}
 				}
-				
-				sem.acquire(threadCounter);
-				threadPoolConcurrent.shutdown();
 			}			
 		} catch (Exception e) {
 			LogWriter.writeDebugInfo("[PSN] Exception caught in askResourcesDiscovery: %s", e.getMessage());
