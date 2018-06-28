@@ -370,4 +370,20 @@ public class SystemUtil {
 		Objects.requireNonNull(broker);
 		localJVM.add(broker);
 	}
+	
+	public static boolean isHostInPrivateSubnet(String host) {
+		if(host.startsWith("10.") || host.startsWith("192.168.")) {
+			return true;
+		}
+		
+		if(host.startsWith("172.")) {
+			for(int i = 16; i < 32; i++) {
+				if(host.startsWith("172."+i+".")) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 }

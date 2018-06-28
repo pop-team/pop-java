@@ -20,6 +20,7 @@ import ch.icosys.popjava.core.baseobject.POPAccessPoint;
 import ch.icosys.popjava.core.buffer.POPBuffer;
 import ch.icosys.popjava.core.combox.Combox;
 import ch.icosys.popjava.core.util.LogWriter;
+import ch.icosys.popjava.core.util.SystemUtil;
 
 public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 
@@ -369,8 +370,8 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 								return 1;
 							}
 
-							boolean privateSubnet1 = isHostInPrivateSubnet(o1.getHost());
-							boolean privateSubnet2 = isHostInPrivateSubnet(o2.getHost());
+							boolean privateSubnet1 = SystemUtil.isHostInPrivateSubnet(o1.getHost());
+							boolean privateSubnet2 = SystemUtil.isHostInPrivateSubnet(o2.getHost());
 
 							if (privateSubnet1 && !privateSubnet2) {
 								return 1;
@@ -390,9 +391,5 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 		}
 		
 		return aps;
-	}
-
-	private static boolean isHostInPrivateSubnet(String host) {
-		return host.startsWith("10.") || host.startsWith("172.16.") || host.startsWith("192.168.");
 	}
 }
