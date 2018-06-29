@@ -24,10 +24,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -78,6 +83,7 @@ import ch.icosys.popjava.core.service.jobmanager.yaml.YamlJobManager;
 import ch.icosys.popjava.core.service.jobmanager.yaml.YamlNetwork;
 import ch.icosys.popjava.core.service.jobmanager.yaml.YamlResource;
 import ch.icosys.popjava.core.serviceadapter.POPAppService;
+import ch.icosys.popjava.core.serviceadapter.POPJobManager;
 import ch.icosys.popjava.core.serviceadapter.POPJobService;
 import ch.icosys.popjava.core.system.POPJavaConfiguration;
 import ch.icosys.popjava.core.system.POPSystem;
@@ -1884,9 +1890,15 @@ public class POPJavaJobManager extends POPJobService {
 								public void run() {
 									try {
 										// send request to other JM
+										System.out.println("!!!Connect to "+jmNode.getJobManagerAccessPoint());
 										POPJavaJobManager jm = connectToJobmanager(jmNode.getJobManagerAccessPoint(),
 												request.getNetworkUUID());
-										jm.askResourcesDiscovery(request, getAccessPoint());
+										if(jm != null) {
+											System.out.println("!!!Discovery on "+jmNode.getJobManagerAccessPoint());
+											jm.askResourcesDiscovery(request, getAccessPoint());
+										}else {
+											System.out.println("!!!Can't contact "+jmNode.getJobManagerAccessPoint());
+										}
 									} catch (Exception e) {
 										LogWriter.writeDebugInfo("[PSN] askResourcesDiscovery can't reach %s: %s",
 												jmNode.getJobManagerAccessPoint(), e.getMessage());
@@ -2004,8 +2016,12 @@ public class POPJavaJobManager extends POPJobService {
 				// get next node to contact
 				POPAccessPoint jm = wayback.pop();
 				POPJavaJobManager njm = connectToJobmanager(jm, response.getNetworkUUID());
-				// route request through it
-				njm.rerouteResponse(response, wayback);
+				if(njm != null) {
+					// route request through it
+					njm.rerouteResponse(response, wayback);
+				}else {
+					LogWriter.writeDebugInfo("[PSN] Unable to reroute response ;%s;DEST;%s", response.getUID(), wayback.toString());
+				}
 			} // is the last node, give the answer to the original JM who
 				// launched the request
 			else {
@@ -2046,6 +2062,35 @@ public class POPJavaJobManager extends POPJobService {
 	
 	private final Set<Tuple<String, POPAccessPoint>> jmConnectionLock = Collections.synchronizedSet(new HashSet<>());
 
+	private final Map<Tuple<String, POPAccessPoint>, FutureTask<POPJavaJobManager>> jmConnectorThreads = Collections.synchronizedMap(new HashMap<>());
+	
+	private POPJavaJobManager connectToJM(POPAccessPoint ap, String network) {
+		
+		FutureTask<POPJavaJobManager> task = new FutureTask<>(new Callable<POPJavaJobManager>() {
+
+			@Override
+			public POPJavaJobManager call() throws Exception {
+				return PopJava.connect(this, POPJavaJobManager.class, network, ap);
+			}
+		});
+		
+
+		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
+		jmConnectorThreads.put(key, task);
+		
+		new Thread(task).start();
+			
+		POPJavaJobManager jm = null;
+		try {
+			jm = task.get(10, TimeUnit.SECONDS);
+		}catch (Exception e) {
+		}
+		
+		jmConnectorThreads.remove(key);
+		
+		return jm;
+	}
+	
 	public POPJavaJobManager connectToJobmanager(POPAccessPoint ap, String network) throws InterruptedException {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
 		
@@ -2061,27 +2106,34 @@ public class POPJavaJobManager extends POPJobService {
 		try {
 			//Connect to JM first time if necessary
 			if (!cachedJobManangers.containsKey(key)) {
-				POPJavaJobManager jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
+				LogWriter.writeDebugInfo("[PSN] JM unknown, connect to " + ap+" "+network);
+				POPJavaJobManager jm = connectToJM(ap, network);
 
-				cachedJobManangers.put(key, jm);
+				if(jm != null) {
+					cachedJobManangers.put(key, jm);
+				}
 			}
 
 			POPJavaJobManager jm = cachedJobManangers.get(key);
 
-			try {
-				//Check if the neighbour knows us, this also implicitely tests the connection
-				POPAccessPoint myAP = getAccessPoint();			
+			if(jm != null) {
+				try {
+					//Check if the neighbour knows us, this also implicitely tests the connection
+					POPAccessPoint myAP = getAccessPoint();			
 
-				jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
-				/*if(!jm.knowsJobManager(network, myAP)) {
 					jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
-				}*/
-			} catch (Exception e) {
-				//If the connection we have is down, reconnect
-				cachedJobManangers.remove(key);
-				jm = PopJava.connect(this, POPJavaJobManager.class, network, ap);
+					/*if(!jm.knowsJobManager(network, myAP)) {
+						jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
+					}*/
+				} catch (Exception e) {
+					LogWriter.writeDebugInfo("[PSN] JM not available, reconnect to " + ap+" "+network);
+					
+					//If the connection we have is down, reconnect
+					cachedJobManangers.remove(key);
+					jm = connectToJM(ap, network);
 
-				cachedJobManangers.put(key, jm);
+					cachedJobManangers.put(key, jm);
+				}
 			}
 			
 			return jm;
@@ -2096,11 +2148,15 @@ public class POPJavaJobManager extends POPJobService {
 	@POPSyncConc
 	public POPAccessPoint[] newTFCSearchOn(POPAccessPoint ap, String network, String objectName) {
 		try {
-			return connectToJobmanager(ap, network).localTFCSearch(network, objectName);
+			POPJavaJobManager jm = connectToJobmanager(ap, network);
+			
+			if(jm != null) {
+				return jm.localTFCSearch(network, objectName);
+			}
 		}catch (InterruptedException e) {
-			return new POPAccessPoint[0];
 		}
-		
+
+		return new POPAccessPoint[0];
 	}
 
 	@POPSyncConc
@@ -2108,16 +2164,25 @@ public class POPJavaJobManager extends POPJobService {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
 
 		if (!cachedJobManangers.containsKey(key)) {
+			LogWriter.writeDebugInfo("[PSN] JM was unknown, keep connection " + ap+" "+network);
 			jm.makePermanent();
 			cachedJobManangers.put(key, jm);
+			
+			if(jmConnectorThreads.containsKey(key)) {
+				jmConnectorThreads.get(key).cancel(true);
+			}
 		} else {
 			try {
 				POPJavaJobManager current = cachedJobManangers.get(key);
 				POPString val = new POPString();
 				current.query("power", val);
+
+				LogWriter.writeDebugInfo("[PSN] JM was known, keep old " + ap+" "+network);
 			} catch (Exception e) {
 				jm.makePermanent();
 				cachedJobManangers.put(key, jm);
+
+				LogWriter.writeDebugInfo("[PSN] Old JM unavailabe, keep new " + ap+" "+network);
 			}
 		}
 	}
