@@ -1933,13 +1933,16 @@ public class POPJavaJobManager extends POPJobService {
 		}
 		
 		List<InterfaceAddress> hostIPS = POPSystem.getAllHostIPs(true);
+		List<InterfaceAddress> hostIPSReduced = new ArrayList<>(hostIPS);
 		
 		List<AccessPoint> duplicates = new ArrayList<>();
 		for(int i = 0; i < me.size(); i++) {
 			AccessPoint ap = me.get(i);
 			
-			if(hostIPS.contains(ap.getHost())) {
-				hostIPS.remove(ap.getHost());
+			for(InterfaceAddress iAHost : hostIPS) {
+				if(iAHost.getAddress().getHostAddress().equals(ap.getHost())) {
+					hostIPSReduced.remove(iAHost);
+				}
 			}
 			
 			for(String host : hostnames) {
@@ -1952,7 +1955,7 @@ public class POPJavaJobManager extends POPJobService {
 		for(int i = 0; i < me.size(); i++) {
 			AccessPoint ap = me.get(i);
 			
-			for(InterfaceAddress localIP : hostIPS) {
+			for(InterfaceAddress localIP : hostIPSReduced) {
 				duplicates.add(new AccessPoint(ap.getProtocol(), localIP.getAddress().getHostAddress(), ap.getPort()));
 			}
 		}
@@ -2065,12 +2068,13 @@ public class POPJavaJobManager extends POPJobService {
 	private final Map<Tuple<String, POPAccessPoint>, FutureTask<POPJavaJobManager>> jmConnectorThreads = Collections.synchronizedMap(new HashMap<>());
 	
 	private POPJavaJobManager connectToJM(POPAccessPoint ap, String network) {
+		final POPJavaJobManager me = this;
 		
 		FutureTask<POPJavaJobManager> task = new FutureTask<>(new Callable<POPJavaJobManager>() {
 
 			@Override
 			public POPJavaJobManager call() throws Exception {
-				return PopJava.connect(this, POPJavaJobManager.class, network, ap);
+				return PopJava.connect(me, POPJavaJobManager.class, network, ap);
 			}
 		});
 		
@@ -2106,11 +2110,13 @@ public class POPJavaJobManager extends POPJobService {
 		try {
 			//Connect to JM first time if necessary
 			if (!cachedJobManangers.containsKey(key)) {
-				LogWriter.writeDebugInfo("[PSN] JM unknown, connect to " + ap+" "+network);
+				LogWriter.writeDebugInfo("[PSN] JM unknown, connect to " + ap+" "+network+" "+System.currentTimeMillis());
 				POPJavaJobManager jm = connectToJM(ap, network);
-
 				if(jm != null) {
+					LogWriter.writeDebugInfo("[PSN] Connection open " + ap+" "+network+" "+System.currentTimeMillis());
 					cachedJobManangers.put(key, jm);
+				}else {
+					LogWriter.writeDebugInfo("[PSN] Connection failed " + ap+" "+network+" "+System.currentTimeMillis());
 				}
 			}
 
@@ -2120,13 +2126,13 @@ public class POPJavaJobManager extends POPJobService {
 				try {
 					//Check if the neighbour knows us, this also implicitely tests the connection
 					POPAccessPoint myAP = getAccessPoint();			
-
+					LogWriter.writeDebugInfo("[PSN] Register self at " + ap+" "+network+" "+System.currentTimeMillis());
 					jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
 					/*if(!jm.knowsJobManager(network, myAP)) {
 						jm.registerNeighbourJobmanager(getAccessPoint(), network, this);
 					}*/
 				} catch (Exception e) {
-					LogWriter.writeDebugInfo("[PSN] JM not available, reconnect to " + ap+" "+network);
+					LogWriter.writeDebugInfo("[PSN] JM not available, reconnect to " + ap+" "+network+" "+System.currentTimeMillis());
 					
 					//If the connection we have is down, reconnect
 					cachedJobManangers.remove(key);
@@ -2161,6 +2167,9 @@ public class POPJavaJobManager extends POPJobService {
 
 	@POPSyncConc
 	public void registerNeighbourJobmanager(POPAccessPoint ap, String network, POPJavaJobManager jm) {
+
+		LogWriter.writeDebugInfo("[PSN] register " + ap+" "+network);
+		
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
 
 		if (!cachedJobManangers.containsKey(key)) {

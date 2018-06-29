@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 import javax.net.ServerSocketFactory;
 
 import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.Tuple;
 import ch.icosys.popjava.core.util.upnp.UPNPManager;
 
 /**
@@ -90,7 +91,7 @@ public class ComboxUtils {
 
 		if (upnp) {
 			@SuppressWarnings("unused")
-			Future<String> externalIP = UPNPManager.registerPort(server.getLocalPort());
+			Future<Tuple<String, Integer>> externalIP = UPNPManager.registerPort(server.getLocalPort());
 		}
 
 		return server;
