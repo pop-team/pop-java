@@ -11,8 +11,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -34,6 +37,7 @@ public class UPNPManager {
 	private static GatewayDevice d = null;
 
 	private static final Map<Integer, Integer> mappedPorts = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<Integer, Future<Tuple<String, Integer>>> mappingTasks = Collections.synchronizedMap(new HashMap<>());
 
 	private static boolean inited = false;
 
@@ -117,7 +121,7 @@ public class UPNPManager {
 					if(!directMapping) {
 						LogWriter.writeDebugInfo("Sending port mapping request");
 
-						if (!d.addPortMapping(port, port, localAddress.getHostAddress(), "TCP", "POP-Java")) {
+						if (!d.addPortMapping(newPort, port, localAddress.getHostAddress(), "TCP", "POP-Java")) {
 							LogWriter.writeDebugInfo("Port mapping attempt failed");
 							newPort = -1;
 						}
@@ -132,6 +136,8 @@ public class UPNPManager {
 					mappedPorts.put(port, newPort);
 				}
 				
+				mappingTasks.remove(port);
+				
 				return new Tuple<String, Integer>(externalIP, newPort);
 			}
 		};
@@ -141,8 +147,40 @@ public class UPNPManager {
 		Thread upnpThread = new Thread(task);
 		upnpThread.setDaemon(true);
 		upnpThread.start();
+		
+		mappingTasks.put(port, task);
 
 		return task;
+	}
+	
+	public static void mapAccessPoint(final AccessPoint ap) {
+		Future<Tuple<String, Integer>> futurePort = mappingTasks.get(ap.getPort());
+		
+		if(mappedPorts.containsKey(ap.getPort())) {
+			ap.setPort(mappedPorts.get(ap.getPort()));
+		}
+		
+		if(futurePort != null) {
+			
+			Thread thread = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						ap.setPort(futurePort.get(2, TimeUnit.SECONDS).getB());
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						e.printStackTrace();
+					} catch (TimeoutException e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			thread.setDaemon(true);
+			thread.start();
+			
+		}
 	}
 	
 	private static int getFreeNATPort(int port) throws IOException, SAXException {

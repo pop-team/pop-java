@@ -185,7 +185,9 @@ public abstract class Combox<T> {
 
 						if (System.currentTimeMillis() - lastCommunication > KEEP_ALIVE_INTERVAL) {
 							POPBuffer buffer = createServicePacket(PING);
-							send(buffer);
+							if(send(buffer) < 0) {
+								break;
+							}
 						}
 
 					}

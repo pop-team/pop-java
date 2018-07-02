@@ -2082,7 +2082,9 @@ public class POPJavaJobManager extends POPJobService {
 		Tuple<String, POPAccessPoint> key = new Tuple<String, POPAccessPoint>(network, ap);
 		jmConnectorThreads.put(key, task);
 		
-		new Thread(task).start();
+		Thread thread = new Thread(task);
+		thread.setDaemon(true);
+		thread.start();
 			
 		POPJavaJobManager jm = null;
 		try {

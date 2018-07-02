@@ -1068,11 +1068,6 @@ public final class Broker {
 				// hadle multiple times the same protocol
 				String port;
 				while ((port = Util.removeStringFromList(argvs, prefix)) != null) {
-					// if we don't have a port, abort
-					/*
-					 * if (port == null) { continue; }
-					 */
-
 					int iPort = 0;
 					if (port.length() > 0) {
 						try {
@@ -1105,8 +1100,9 @@ public final class Broker {
 				if (externalIP != null && !externalIP.isEmpty()) {
 					for (int i = 0; i < accessPoint.size(); i++) {
 						AccessPoint ap = new AccessPoint(accessPoint.get(i));
-						// TODO: The port might also be diferent
 						ap.setHost(externalIP);
+						
+						UPNPManager.mapAccessPoint(ap);
 
 						accessPoint.addAccessPoint(ap);
 					}
