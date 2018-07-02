@@ -113,8 +113,13 @@ public class UPNPManager {
 							LogWriter.writeDebugInfo("Port " + port + " is already forwarded to ourself");
 						}else {
 							LogWriter.writeDebugInfo("Port " + port + " is already forwarded to "+portMapping.getInternalClient());
-							newPort = getFreeNATPort(port);
-							LogWriter.writeDebugInfo("Remap " + port + " to "+newPort);
+							newPort = getFreeNATPort(localAddress, port);
+							if(newPort < 0) {
+								LogWriter.writeDebugInfo("Remap of " + port + " to "+newPort+" is already in place");
+								directMapping = true;
+							}else {
+								LogWriter.writeDebugInfo("Remap " + port + " to "+newPort);
+							}
 						}
 					}
 					
@@ -183,7 +188,7 @@ public class UPNPManager {
 		}
 	}
 	
-	private static int getFreeNATPort(int port) throws IOException, SAXException {
+	private static int getFreeNATPort(InetAddress localAddress, int port) throws IOException, SAXException {
 
 		int counter = 0;
 		do {
@@ -193,9 +198,13 @@ public class UPNPManager {
 				return port;
 			}
 			
+			if(portMapping.getInternalClient().equals(localAddress.getHostAddress())) {
+				return -port;
+			}
+			
 			//Abort after 1000 ports
 			if(counter++ > 1000) {
-				return -1;
+				return 0;
 			}
 		}while(true);
 		
