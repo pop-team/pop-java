@@ -115,6 +115,7 @@ public class UPNPManager {
 							LogWriter.writeDebugInfo("Port " + port + " is already forwarded to "+portMapping.getInternalClient());
 							newPort = getFreeNATPort(localAddress, port);
 							if(newPort < 0) {
+								newPort *= -1;
 								LogWriter.writeDebugInfo("Remap of " + port + " to "+newPort+" is already in place");
 								directMapping = true;
 							}else {
