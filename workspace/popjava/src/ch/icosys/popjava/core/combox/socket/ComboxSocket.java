@@ -286,14 +286,19 @@ public abstract class ComboxSocket<T extends Socket> extends Combox<T> {
 			}
 		} catch (IOException e) {
 		} finally {
-			try {
-				outputStream.close();
-			} catch (IOException e) {
+			if(outputStream != null) {
+				try {
+					outputStream.close();
+				} catch (IOException e) {
+				}
 			}
-			try {
-				inputStream.close();
-			} catch (IOException e) {
+			if(inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+				}
 			}
+			
 			if (peerConnection != null) {
 				try {
 					peerConnection.close();

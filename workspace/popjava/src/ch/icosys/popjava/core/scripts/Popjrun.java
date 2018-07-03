@@ -218,11 +218,7 @@ public class Popjrun {
 
 		String jar = getPopJavaLocation() + JAR_POPJAVA;
 		
-		if(jar.contains(" ")) {
-			arguments.add(0, "-javaagent:\"" + jar+"\"");
-		}else {
-			arguments.add(0, "-javaagent:" + jar);
-		}
+		arguments.add(0, "-javaagent:" + jar);
 
 		arguments.add(0, java);
 
