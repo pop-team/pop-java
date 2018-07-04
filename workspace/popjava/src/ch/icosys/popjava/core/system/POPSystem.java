@@ -179,7 +179,7 @@ public class POPSystem {
 		}
 
 		//Find first non local address
-		Enumeration<NetworkInterface> en;
+		Enumeration<NetworkInterface> en = null;
 		try {
 			en = NetworkInterface.getNetworkInterfaces();
 			while (en.hasMoreElements()) {
@@ -194,18 +194,16 @@ public class POPSystem {
 		}
 		
 		//Find first non local address
-		try {
-			en = NetworkInterface.getNetworkInterfaces();
+		if(en != null) {
 			while (en.hasMoreElements()) {
 				NetworkInterface ni = en.nextElement();
 				InterfaceAddress ip = getInterfaceIP(ni, true);
 				if (ip != null) {
 					return ip;
 				}
-
 			}
-		} catch (SocketException e) {
 		}
+		
 
 		try {
 			InetAddress localHost = Inet4Address.getLocalHost();

@@ -159,7 +159,7 @@ public class UPNPManager {
 		return task;
 	}
 	
-	public static void mapAccessPoint(final AccessPoint ap) {
+	public static void mapAccessPoint(final AccessPoint ap, long timeOutMS) {
 		Future<Tuple<String, Integer>> futurePort = mappingTasks.get(ap.getPort());
 		
 		if(mappedPorts.containsKey(ap.getPort())) {
@@ -186,6 +186,10 @@ public class UPNPManager {
 			thread.setDaemon(true);
 			thread.start();
 			
+			try {
+				thread.join(timeOutMS);
+			} catch (InterruptedException e) {
+			}
 		}
 	}
 	
