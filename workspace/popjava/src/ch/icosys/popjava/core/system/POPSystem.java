@@ -214,6 +214,14 @@ public class POPSystem {
 					return addr;
 				}
 			}
+			
+			
+			//Fallback to whatever we find
+			for(InterfaceAddress addr : networkInterface.getInterfaceAddresses()) {
+				if(addr.getAddress() instanceof Inet4Address) {
+					return addr;
+				}
+			}
 		}catch (SocketException e) {
 			e.printStackTrace();
 		}catch (UnknownHostException e) {
