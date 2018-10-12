@@ -85,13 +85,13 @@ Creation of a new release
   	  	 	ossrhPassword=your-jira-password
   	  	 
   	 	* The signing data must be generated, e.g. with `GnuPG <http://central.sonatype.org/pages/working-with-pgp-signatures.html>`_. 
-  	 	* Newer (2.1+) GPG versions use a new keyring file format (.kbx). You need to convert/export your key to the old format_.
+  	 	* Newer (2.1+) GPG versions use a new keyring file format (.kbx). You need to convert/export your key to the old format.
   	 	
-  	 		gpg --export-secret-keys -o secring.gpg
+  	 		``gpg --export-secret-keys -o secring.gpg``
   	 	
-  	 	* With the 2.1+ GPG version you also need to use a special command to list the available keys to get the correct id_.
+  	 	* With the 2.1+ GPG version you also need to use a special command to list the available keys to get the correct id.
   	 	
-  	 		gpg --list-keys --keyid-format short
+  	 		``gpg --list-keys --keyid-format short``
   	 		
   	 	* More information about the Maven packaging process is given on the `OSSRH Guide <http://central.sonatype.org/pages/ossrh-guide.html>`_.  
   	  	
