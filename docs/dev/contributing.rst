@@ -10,7 +10,7 @@ Coding conventions
 
 When writing new code for POP-Java you should always:
 
-* Indent with a hard-tab ``\t``, ASCII ``0x09``
+* Indent with 4 spaces
 * Always surround blocks with ``{  }``
 * ...
 * ...

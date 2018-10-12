@@ -82,6 +82,16 @@ Netbeans
 
 Open the project as a Gradle project. Nothing more should be required.
 
+Maven
+~~~~~
+
+.. code::
+
+	<dependency>
+		<groupId>ch.icosys</groupId>
+		<artifactId>popjava</artifactId>
+		<version>2.0.0</version>
+	</dependency>
 
 LICENCE
 -------
