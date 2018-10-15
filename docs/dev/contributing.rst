@@ -131,4 +131,5 @@ Creation of a new release
   	.. note:: 
   		* To pass this step, the deployed files are verified and thus must fulfil some `requirements <http://central.sonatype.org/pages/requirements.html>`_.
   		* This step was fully automatized thanks to the `Gradle Nexus Staging Plugin <https://github.com/Codearte/gradle-nexus-staging-plugin/>`_. However, it can manually be done on the `OSSRH website <https://oss.sonatype.org>`_ as described `here <http://central.sonatype.org/pages/releasing-the-deployment.html>`_.
+  		* It takes about 2 hours to synchronize between OSSRH and the Central Repository
 	
