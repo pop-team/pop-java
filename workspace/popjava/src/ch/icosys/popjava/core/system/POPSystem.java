@@ -30,6 +30,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javassist.util.proxy.ProxyFactory;
+
 import ch.icosys.popjava.core.PopJava;
 import ch.icosys.popjava.core.base.POPException;
 import ch.icosys.popjava.core.baseobject.ObjectDescription;
@@ -44,7 +46,6 @@ import ch.icosys.popjava.core.util.SystemUtil;
 import ch.icosys.popjava.core.util.Util;
 import ch.icosys.popjava.core.util.Util.OSType;
 import ch.icosys.popjava.core.util.upnp.UPNPManager;
-import javassist.util.proxy.ProxyFactory;
 
 /**
  * This class is responsible for the initialization of a POP-Java application.
@@ -101,14 +102,26 @@ public class POPSystem {
 
 	static {
 		// Trick :(( I don't know why the system i386 doesn't work
-		String osName = System.getProperty("os.name");
-		String osArchitect = System.getProperty("os.arch");
+		try {
+			String osName = System.getProperty("os.name");
+			String osArchitect = System.getProperty("os.arch");
 
-		if (osArchitect.contains("64")) {
-			osArchitect = "x86_64";
-		}
+			if(osName == null) {
+				osName = "";
+			}
+			
+			if(osArchitect == null) {
+				osArchitect = "";
+			}
+			
+			if (osArchitect.contains("64")) {
+				osArchitect = "x86_64";
+			}
 
-		platform = String.format("%s-%s", osArchitect, osName);
+			platform = String.format("%s-%s", osArchitect, osName);
+		}catch (Throwable e) {
+			e.printStackTrace();
+		}		
 	}
 
 	/**
