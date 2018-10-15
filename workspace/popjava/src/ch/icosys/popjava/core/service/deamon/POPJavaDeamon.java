@@ -49,7 +49,7 @@ public class POPJavaDeamon implements Runnable, Closeable {
 
 	private String password = "";
 
-	private static final String BACKUP_JAR = "build/popjava.jar";
+	public static final String BACKUP_JAR = "build/popjava.jar";
 
 	public static final String ERROR_PWD = "ERROR PASS";
 
