@@ -42,10 +42,10 @@ public final class Configuration {
 	private static final Boolean ENV_DEBUG;
 	static {
 		String location = System.getenv("POPJAVA_LOCATION");
-		if (location == null) {
-			POPJAVA_LOCATION = new File("./").getAbsolutePath();
-		} else {
+		if (location != null) {
 			POPJAVA_LOCATION = new File(location).getAbsolutePath();
+		} else {
+			POPJAVA_LOCATION = new File("./").getAbsolutePath();
 		}
 
 		String debug = System.getenv("POPJAVA_DEBUG");

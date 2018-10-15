@@ -62,6 +62,18 @@ public class POPSystem {
 
 	private static final List<RuntimeDirectoryThread> localHooks = new ArrayList<>();
 
+	private static final Configuration conf = Configuration.getInstance();
+	
+	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP().getAddress().getHostAddress(), conf.getJobManagerPorts()[0]);
+
+	private static String codeconf;
+
+	private static String appservicecode;
+
+	private static String proxy;
+
+	private static String appservicecontact;
+
 	/**
 	 * POP-Java location environement variable name
 	 */
@@ -73,31 +85,17 @@ public class POPSystem {
 	public static POPAccessPoint jobService = new POPAccessPoint();
 
 	private static AppService coreServiceManager;
-	// private static POPJobService jobmanager;
 
 	/**
 	 * POP-Java application service access point
 	 */
 	public static POPAccessPoint appServiceAccessPoint = new POPAccessPoint();
 
-	private static final Configuration conf = Configuration.getInstance();
-
 	public static void writeLog(String log) {
 		if (!conf.isDebug()) {
 			System.out.println(log);
 		}
 		LogWriter.writeDebugInfo(log);
-		/*
-		 * try { POPAppService app =
-		 * (POPAppService)PopJava.newActive(POPAppService.class,
-		 * POPSystem.AppServiceAccessPoint); if(app != null){
-		 * app.logPJ(app.getPOPCAppID(), log); }else{ System.out.println(log); }
-		 * 
-		 * } catch (Exception e) { System.out.println(log); try{ POPAppService app =
-		 * (POPAppService)PopJava.newActive(POPJavaAppService.class,
-		 * POPSystem.AppServiceAccessPoint); app.logPJ(app.getPOPCAppID(), log); } catch
-		 * (POPException e2) { e2.printStackTrace(); } }
-		 */
 	}
 
 	static {
@@ -217,22 +215,42 @@ public class POPSystem {
 			}
 		}
 		
-
 		try {
 			InetAddress localHost = Inet4Address.getLocalHost();
 			NetworkInterface networkInterface = NetworkInterface.getByInetAddress(localHost);
 			
-			for(InterfaceAddress addr : networkInterface.getInterfaceAddresses()) {
-				if(addr.getAddress().isLoopbackAddress() && addr.getAddress() instanceof Inet4Address) {
-					return addr;
+			if(networkInterface != null) {
+				for(InterfaceAddress addr : networkInterface.getInterfaceAddresses()) {
+					if(addr.getAddress().isLoopbackAddress() && addr.getAddress() instanceof Inet4Address) {
+						return addr;
+					}
 				}
-			}
-			
-			
-			//Fallback to whatever we find
-			for(InterfaceAddress addr : networkInterface.getInterfaceAddresses()) {
-				if(addr.getAddress() instanceof Inet4Address) {
-					return addr;
+				
+				//Fallback to whatever we find
+				for(InterfaceAddress addr : networkInterface.getInterfaceAddresses()) {
+					if(addr.getAddress() instanceof Inet4Address) {
+						return addr;
+					}
+				}
+			}else {
+				en = NetworkInterface.getNetworkInterfaces();
+				while (en.hasMoreElements()) {
+					NetworkInterface ni = en.nextElement();
+					
+					for (InterfaceAddress interfaceAddress : ni.getInterfaceAddresses()) {
+
+						if(interfaceAddress.getAddress() instanceof Inet4Address) {
+							return interfaceAddress;
+						}						
+					}
+				}
+				
+				while (en.hasMoreElements()) {
+					NetworkInterface ni = en.nextElement();
+					
+					for (InterfaceAddress interfaceAddress : ni.getInterfaceAddresses()) {
+						return interfaceAddress;						
+					}
 				}
 			}
 		}catch (SocketException e) {
@@ -405,16 +423,6 @@ public class POPSystem {
 			coreServiceManager.registerCode(clazz, POPAppService.ALL_PLATFORMS, popJavaObjectExecuteCommand + file);
 		}
 	}
-
-	private static String jobservice = String.format("%s:%d", POPSystem.getHostIP().getAddress().getHostAddress(), conf.getJobManagerPorts()[0]);
-
-	private static String codeconf;
-
-	private static String appservicecode;
-
-	private static String proxy;
-
-	private static String appservicecontact;
 
 	/**
 	 * Initialize the application scope services
