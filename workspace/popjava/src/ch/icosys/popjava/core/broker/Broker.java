@@ -14,7 +14,10 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -1245,6 +1248,7 @@ public final class Broker {
 		if (callback == null) {
 			LogWriter.writeDebugInfo("[Broker] Error: callback is null");
 			System.exit(1);
+			return; //This line is only here to make the static code analyzer happy
 		}
 
 		Broker broker = null;
@@ -1255,8 +1259,14 @@ public final class Broker {
 			LogWriter.writeExceptionLog(e);
 		}
 		
+		if(broker == null){
+		    LogWriter.writeDebugInfo("[Broker] Error: Broker is null");
+            System.exit(1);
+            return; //This line is only here to make the static code analyzer happy
+		}
+		
 		int status = 0;
-		if (broker == null || !broker.initialize(argvList)) {
+		if (!broker.initialize(argvList)) {
 			status = 1;
 		}
 

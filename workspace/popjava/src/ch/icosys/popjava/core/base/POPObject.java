@@ -574,24 +574,26 @@ public class POPObject implements IPOPBase {
 		}
 
 		int semantic = -1;
-		// Sync
-		if (annotation.annotationType() == POPSyncConc.class) {
-			semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
-		} else if (annotation.annotationType() == POPSyncSeq.class) {
-			semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
-		} else if (annotation.annotationType() == POPSyncMutex.class) {
-			semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
+		if(annotation != null){
+		    // Sync
+	        if (annotation.annotationType() == POPSyncConc.class) {
+	            semantic = Semantic.SYNCHRONOUS | Semantic.CONCURRENT;
+	        } else if (annotation.annotationType() == POPSyncSeq.class) {
+	            semantic = Semantic.SYNCHRONOUS | Semantic.SEQUENCE;
+	        } else if (annotation.annotationType() == POPSyncMutex.class) {
+	            semantic = Semantic.SYNCHRONOUS | Semantic.MUTEX;
+	        }
+	        // Async
+	        else if (annotation.annotationType() == POPAsyncConc.class) {
+	            semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
+	        } else if (annotation.annotationType() == POPAsyncSeq.class) {
+	            semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
+	        }
+	        if (annotation.annotationType() == POPAsyncMutex.class) {
+	            semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
+	        }
 		}
-		// Async
-		else if (annotation.annotationType() == POPAsyncConc.class) {
-			semantic = Semantic.ASYNCHRONOUS | Semantic.CONCURRENT;
-		} else if (annotation.annotationType() == POPAsyncSeq.class) {
-			semantic = Semantic.ASYNCHRONOUS | Semantic.SEQUENCE;
-		}
-		if (annotation.annotationType() == POPAsyncMutex.class) {
-			semantic = Semantic.ASYNCHRONOUS | Semantic.MUTEX;
-		}
-
+		
 		if (semantic != -1) {
 			semantics.put(mi, semantic);
 		}

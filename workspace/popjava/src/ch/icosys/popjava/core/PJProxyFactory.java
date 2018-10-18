@@ -134,6 +134,7 @@ public class PJProxyFactory extends ProxyFactory {
 
 			if (constructor == null) {
 				System.out.println("No constructor found");
+				return null;
 			}
 
 			popObject = (POPObject) targetClass.getConstructor().newInstance();

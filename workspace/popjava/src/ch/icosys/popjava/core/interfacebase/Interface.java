@@ -705,7 +705,8 @@ public class Interface {
 			// if we have to set ports or check that we don't set them multiuple
 			// times
 			boolean setPorts = rports == null;
-			if (setPorts) {
+			
+			if (rports == null) {
 				rports = new String[nbProtocols];
 			}
 			protocols = new String[nbProtocols];
