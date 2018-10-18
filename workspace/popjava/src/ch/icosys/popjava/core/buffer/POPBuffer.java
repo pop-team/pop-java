@@ -96,6 +96,10 @@ public abstract class POPBuffer {
 	 *            boolean value to insert
 	 */
 	public abstract void putBoolean(boolean value);
+    
+    public void put(boolean value){
+        putBoolean(value);
+    }
 
 	/**
 	 * Insert a char into the buffer
@@ -104,6 +108,10 @@ public abstract class POPBuffer {
 	 *            char value to insert
 	 */
 	public abstract void putChar(char value);
+    
+    public void put(char value){
+        putChar(value);
+    }
 
 	/**
 	 * Insert a int into the buffer
@@ -112,6 +120,10 @@ public abstract class POPBuffer {
 	 *            int value to insert
 	 */
 	public abstract void putInt(int value);
+    
+    public void put(int value){
+        putInt(value);
+    }
 
 	/**
 	 * Insert a long into the buffer
@@ -120,6 +132,10 @@ public abstract class POPBuffer {
 	 *            long value to insert
 	 */
 	public abstract void putLong(long value);
+    
+    public void put(long value){
+        putLong(value);
+    }
 
 	/**
 	 * Insert a short into the buffer
@@ -128,6 +144,10 @@ public abstract class POPBuffer {
 	 *            short value to insert
 	 */
 	public abstract void putShort(short value);
+    
+    public void put(short value){
+        putShort(value);
+    }
 
 	/**
 	 * Insert a float value into the buffer
@@ -136,6 +156,10 @@ public abstract class POPBuffer {
 	 *            float value to insert
 	 */
 	public abstract void putFloat(float value);
+    
+    public void put(float value){
+        putFloat(value);
+    }
 
 	/**
 	 * Insert a double value into the buffer
@@ -144,6 +168,10 @@ public abstract class POPBuffer {
 	 *            double value to insert
 	 */
 	public abstract void putDouble(double value);
+    
+    public void put(double value){
+        putDouble(value);
+    }
 
 	/**
 	 * Insert a byte array into the buffer
