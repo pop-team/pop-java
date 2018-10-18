@@ -12,6 +12,7 @@ import ch.icosys.popjava.core.interfacebase.Interface;
 import ch.icosys.popjava.core.serviceadapter.POPAppService;
 import ch.icosys.popjava.core.system.POPJavaConfiguration;
 import ch.icosys.popjava.core.system.POPSystem;
+import ch.icosys.popjava.core.util.SystemUtil;
 import ch.icosys.popjava.core.util.Util;
 import ch.icosys.popjava.core.util.Util.OSType;
 
@@ -68,5 +69,15 @@ public class POPSystemTest {
 		 * Util.removeStringFromList(argvList, "-proxy="); appservicecontact =
 		 * Util.removeStringFromList(argvList, "-appservicecontact=");
 		 */
+	}
+	
+	@Test
+	public void testSubnetID() {
+		assertTrue(SystemUtil.isHostInPrivateSubnet("10.0.0.1"));
+		assertFalse(SystemUtil.isHostInPrivateSubnet("1.2.3.4"));
+		assertTrue(SystemUtil.isHostInPrivateSubnet("192.168.10.1"));
+		assertTrue(SystemUtil.isHostInPrivateSubnet("172.16.10.1"));
+		assertFalse(SystemUtil.isHostInPrivateSubnet("172.3.10.1"));
+		assertTrue(SystemUtil.isHostInPrivateSubnet("172.31.10.1"));
 	}
 }

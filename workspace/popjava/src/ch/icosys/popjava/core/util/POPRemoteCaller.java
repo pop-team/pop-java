@@ -102,7 +102,11 @@ public class POPRemoteCaller implements IPOPBase {
 	 * 
 	 * @return true if the address is our own machine
 	 */
-	public boolean isLocalHost() {
+	public boolean isLocalHost(POPAccessPoint ap) {
+		if(ap.hasAccessPointIP(remote.getHostAddress())) {
+			return true;
+		}
+		
 		return Util.isLocal(remote.getHostAddress());
 	}
 

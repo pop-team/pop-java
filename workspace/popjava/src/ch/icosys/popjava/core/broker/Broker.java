@@ -511,6 +511,9 @@ public final class Broker {
 		} catch (NoSuchMethodException e) {
 			exception = POPException.createReflectMethodNotFoundException(popInfo.getClass().getName(),
 					request.getClassId(), request.getMethodId(), e.getMessage());
+			
+			popInfo.printMethodInfo();
+			System.out.println(accessPoint);
 		}
 
 		if (method != null) {
@@ -673,7 +676,7 @@ public final class Broker {
 			}
 		}
 
-		if (tracking && remote != null) {
+		if (tracking && remote != null && method != null) {
 			registerTracking(remote, method.toGenericString(), trackingTime, inputSize, outputSize);
 		}
 			
@@ -724,7 +727,7 @@ public final class Broker {
 		remoteCaller.set(caller);
 
 		// check for localhost only execution and throw exception if we can't
-		if (request.isLocalhost() && !caller.isLocalHost()) {
+		if (request.isLocalhost() && !caller.isLocalHost(accessPoint)) {
 			if (request.isSynchronous()) {
 				POPException exception = new POPException(POPErrorCode.METHOD_ANNOTATION_EXCEPTION,
 						"You can't call a localhost method from a remote location. "+caller.getRemote().getHostAddress());
@@ -1068,11 +1071,6 @@ public final class Broker {
 				// hadle multiple times the same protocol
 				String port;
 				while ((port = Util.removeStringFromList(argvs, prefix)) != null) {
-					// if we don't have a port, abort
-					/*
-					 * if (port == null) { continue; }
-					 */
-
 					int iPort = 0;
 					if (port.length() > 0) {
 						try {
@@ -1105,8 +1103,9 @@ public final class Broker {
 				if (externalIP != null && !externalIP.isEmpty()) {
 					for (int i = 0; i < accessPoint.size(); i++) {
 						AccessPoint ap = new AccessPoint(accessPoint.get(i));
-						// TODO: The port might also be diferent
 						ap.setHost(externalIP);
+						
+						UPNPManager.mapAccessPoint(ap, 1000);
 
 						accessPoint.addAccessPoint(ap);
 					}

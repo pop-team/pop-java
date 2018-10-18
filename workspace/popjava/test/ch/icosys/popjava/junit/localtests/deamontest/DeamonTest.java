@@ -2,8 +2,10 @@ package ch.icosys.popjava.junit.localtests.deamontest;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.IOException;
 
+import org.junit.Assume;
 import org.junit.Test;
 
 import ch.icosys.popjava.core.PopJava;
@@ -20,6 +22,7 @@ public class DeamonTest {
 	 */
 	@Test
 	public void testDynamicCreationFail() {
+		Assume.assumeTrue(new File(POPJavaDeamon.BACKUP_JAR).exists());
 		POPSystem.initialize();
 
 		try {
@@ -33,6 +36,7 @@ public class DeamonTest {
 	}
 
 	private static POPJavaDeamon startDeamon(String password) throws InterruptedException {
+		Assume.assumeTrue(new File(POPJavaDeamon.BACKUP_JAR).exists());
 		final POPJavaDeamon deamon = new POPJavaDeamon(password);
 		Thread thread = new Thread(new Runnable() {
 
@@ -51,6 +55,7 @@ public class DeamonTest {
 
 	@Test
 	public void testSuccess() throws IOException, InterruptedException {
+		Assume.assumeTrue(new File(POPJavaDeamon.BACKUP_JAR).exists());
 		POPSystem.initialize();
 
 		POPJavaDeamon deamon = startDeamon("");
@@ -65,6 +70,7 @@ public class DeamonTest {
 
 	@Test
 	public void testDynamicCreation() throws IOException, InterruptedException {
+		Assume.assumeTrue(new File(POPJavaDeamon.BACKUP_JAR).exists());
 		POPSystem.initialize();
 		POPJavaDeamon deamon = startDeamon("");
 		TestClass test = PopJava.newActive(this, TestClass.class, ConnectionType.DAEMON, "");
@@ -79,6 +85,7 @@ public class DeamonTest {
 
 	@Test
 	public void testDynamicCreationPassword() throws IOException, InterruptedException {
+		Assume.assumeTrue(new File(POPJavaDeamon.BACKUP_JAR).exists());
 		POPSystem.initialize();
 		String password = "12345";
 		POPJavaDeamon deamon = startDeamon(password);
@@ -93,6 +100,7 @@ public class DeamonTest {
 
 	@Test
 	public void testDynamicCreationPasswordMissmatch() throws IOException, InterruptedException {
+		Assume.assumeTrue(new File(POPJavaDeamon.BACKUP_JAR).exists());
 		POPSystem.initialize();
 		String password = "12345";
 		POPJavaDeamon deamon = startDeamon(password);
@@ -111,6 +119,7 @@ public class DeamonTest {
 
 	@Test
 	public void testMultiObjectCreation() throws InterruptedException, IOException {
+		Assume.assumeTrue(new File(POPJavaDeamon.BACKUP_JAR).exists());
 		POPSystem.initialize();
 		String password = "12345";
 		POPJavaDeamon deamon = startDeamon(password);

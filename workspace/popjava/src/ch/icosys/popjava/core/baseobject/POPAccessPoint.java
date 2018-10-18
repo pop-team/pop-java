@@ -218,6 +218,16 @@ public class POPAccessPoint implements IPOPBase {
 
 		return false;
 	}
+	
+	public boolean hasAccessPointIP(String ip) {
+		for (int i = 0; i < accessPoints.size(); i++) {
+			if(accessPoints.get(i).getHost().equals(ip)){
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	@Override
 	public int hashCode() {

@@ -53,29 +53,31 @@ public class ComboxRawSocket extends ComboxSocket<Socket> {
 
 		for (int i = 0; i < aps.size() && !available; i++) {
 			AccessPoint ap = aps.get(i);
+			
+			if(ap.getProtocol().equals(ComboxSocketFactory.PROTOCOL)) {
+				String host = ap.getHost();
+				int port = ap.getPort();
+				try {
+					// Create an unbound socket
+					if (timeOut > 0) {
+						SocketAddress sockaddress = new InetSocketAddress(host, port);
+						peerConnection = new Socket();
+						peerConnection.connect(sockaddress, timeOut);
 
-			String host = ap.getHost();
-			int port = ap.getPort();
-			try {
-				// Create an unbound socket
-				if (timeOut > 0) {
-					SocketAddress sockaddress = new InetSocketAddress(host, port);
-					peerConnection = new Socket();
-					peerConnection.connect(sockaddress, timeOut);
-
-					// LogWriter.writeExceptionLog(new Exception());
-					// LogWriter.writeExceptionLog(new Exception("Open
-					// connection to "+host+":"+port+" remote:
-					// "+peerConnection.getLocalPort()));
-				} else {
-					peerConnection = new Socket(host, port);
+						// LogWriter.writeExceptionLog(new Exception());
+						// LogWriter.writeExceptionLog(new Exception("Open
+						// connection to "+host+":"+port+" remote:
+						// "+peerConnection.getLocalPort()));
+					} else {
+						peerConnection = new Socket(host, port);
+					}
+					inputStream = new BufferedInputStream(peerConnection.getInputStream());
+					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
+					available = true;
+				} catch (IOException e) {
+					available = false;
+					LogWriter.writeExceptionLog(e);
 				}
-				inputStream = new BufferedInputStream(peerConnection.getInputStream());
-				outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
-				available = true;
-			} catch (IOException e) {
-				available = false;
-				LogWriter.writeExceptionLog(e);
 			}
 		}
 		return available;

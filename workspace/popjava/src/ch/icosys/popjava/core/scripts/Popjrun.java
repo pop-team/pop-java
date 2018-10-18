@@ -216,7 +216,9 @@ public class Popjrun {
 			arguments.add(0, "-Dcom.sun.management.jmxremote.authenticate=false");
 		}
 
-		arguments.add(0, "-javaagent:" + getPopJavaLocation() + JAR_POPJAVA);
+		String jar = getPopJavaLocation() + JAR_POPJAVA;
+		
+		arguments.add(0, "-javaagent:" + jar);
 
 		arguments.add(0, java);
 

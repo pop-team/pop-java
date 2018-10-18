@@ -730,15 +730,15 @@ public class POPObject implements IPOPBase {
 	 */
 	public void printMethodInfo() {
 		System.out.println("===========ConstructorInfo============");
-		constructorInfos.forEach((mi, c) -> System.out.format("ClassId:%d.ConstructorId:%d.Sign:%s", mi.getClassId(),
+		constructorInfos.forEach((mi, c) -> System.out.format("ClassId:%d.ConstructorId:%d.Sign:%s\n", mi.getClassId(),
 				mi.getMethodId(), c.toGenericString()));
 
 		System.out.println("===========MethodInfo============");
-		methodInfos.forEach((mi, m) -> System.out.format("ClassId:%d.MethodId:%d.Sign:%s", mi.getClassId(),
+		methodInfos.forEach((mi, m) -> System.out.format("ClassId:%d.MethodId:%d.Sign:%s\n", mi.getClassId(),
 				mi.getMethodId(), m.toGenericString()));
 
 		System.out.println("===========SemanticsInfo============");
-		semantics.forEach((mi, s) -> System.out.format("ClassId:%d.ConstructorId:%d.Semantics:%d", mi.getClassId(),
+		semantics.forEach((mi, s) -> System.out.format("ClassId:%d.ConstructorId:%d.Semantics:%d\n", mi.getClassId(),
 				mi.getMethodId(), s));
 	}
 

@@ -10,7 +10,7 @@ Coding conventions
 
 When writing new code for POP-Java you should always:
 
-* Indent with a hard-tab ``\t``, ASCII ``0x09``
+* Indent with 4 spaces
 * Always surround blocks with ``{  }``
 * ...
 * ...
@@ -85,6 +85,14 @@ Creation of a new release
   	  	 	ossrhPassword=your-jira-password
   	  	 
   	 	* The signing data must be generated, e.g. with `GnuPG <http://central.sonatype.org/pages/working-with-pgp-signatures.html>`_. 
+  	 	* Newer (2.1+) GPG versions use a new keyring file format (.kbx). You need to convert/export your key to the old format.
+  	 	
+  	 		``gpg --export-secret-keys -o secring.gpg``
+  	 	
+  	 	* With the 2.1+ GPG version you also need to use a special command to list the available keys to get the correct id.
+  	 	
+  	 		``gpg --list-keys --keyid-format short``
+  	 		
   	 	* More information about the Maven packaging process is given on the `OSSRH Guide <http://central.sonatype.org/pages/ossrh-guide.html>`_.  
   	  	
 
@@ -123,4 +131,5 @@ Creation of a new release
   	.. note:: 
   		* To pass this step, the deployed files are verified and thus must fulfil some `requirements <http://central.sonatype.org/pages/requirements.html>`_.
   		* This step was fully automatized thanks to the `Gradle Nexus Staging Plugin <https://github.com/Codearte/gradle-nexus-staging-plugin/>`_. However, it can manually be done on the `OSSRH website <https://oss.sonatype.org>`_ as described `here <http://central.sonatype.org/pages/releasing-the-deployment.html>`_.
+  		* It takes about 2 hours to synchronize between OSSRH and the Central Repository
 	

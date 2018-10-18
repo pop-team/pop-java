@@ -423,7 +423,7 @@ public class Interface {
 						networkUUID = conf.getDefaultNetwork();
 					}
 					combox = new ComboxConnection(factory.createClientCombox(networkUUID), 1);
-				} catch (IOException e) {
+				} catch (Throwable e) {
 					LogWriter.writeExceptionLog(e);
 					continue;
 				}

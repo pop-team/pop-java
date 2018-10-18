@@ -68,48 +68,50 @@ public class ComboxSecureSocket extends ComboxSocket<SSLSocket> {
 
 			for (int i = 0; i < aps.size() && !available; i++) {
 				AccessPoint ap = aps.get(i);
+				
+				if(ap.getProtocol().equals(ComboxSecureSocketFactory.PROTOCOL)) {
+					String host = ap.getHost();
+					int port = ap.getPort();
 
-				String host = ap.getHost();
-				int port = ap.getPort();
+					try {
+						// Create an unbound socket
+						SocketAddress sockaddress = new InetSocketAddress(host, port);
+						if (timeOut > 0) {
+							peerConnection = (SSLSocket) factory.createSocket();
 
-				try {
-					// Create an unbound socket
-					SocketAddress sockaddress = new InetSocketAddress(host, port);
-					if (timeOut > 0) {
-						peerConnection = (SSLSocket) factory.createSocket();
+							// LogWriter.writeExceptionLog(new Exception());
+							// LogWriter.writeExceptionLog(new Exception("Open
+							// connection to "+host+":"+port+" remote:
+							// "+peerConnection.getLocalPort()));
+						} else {
+							peerConnection = (SSLSocket) factory.createSocket();
+							timeOut = 0;
+						}
+						peerConnection.setUseClientMode(true);
 
-						// LogWriter.writeExceptionLog(new Exception());
-						// LogWriter.writeExceptionLog(new Exception("Open
-						// connection to "+host+":"+port+" remote:
-						// "+peerConnection.getLocalPort()));
-					} else {
-						peerConnection = (SSLSocket) factory.createSocket();
-						timeOut = 0;
+						// setup SNI
+						SNIServerName network = new SNIHostName(getNetworkUUID());
+						List<SNIServerName> nets = new ArrayList<>(1);
+						nets.add(network);
+
+						// set SNI as part of the parameters
+						SSLParameters parameters = peerConnection.getSSLParameters();
+						parameters.setServerNames(nets);
+						peerConnection.setSSLParameters(parameters);
+
+						// connect and start handshake
+						peerConnection.connect(sockaddress);
+
+						// setup communication buffers
+						inputStream = new BufferedInputStream(peerConnection.getInputStream());
+						outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
+
+						available = true;
+					} catch (IOException e) {
+						exceptions.add(e);
+						available = false;
 					}
-					peerConnection.setUseClientMode(true);
-
-					// setup SNI
-					SNIServerName network = new SNIHostName(getNetworkUUID());
-					List<SNIServerName> nets = new ArrayList<>(1);
-					nets.add(network);
-
-					// set SNI as part of the parameters
-					SSLParameters parameters = peerConnection.getSSLParameters();
-					parameters.setServerNames(nets);
-					peerConnection.setSSLParameters(parameters);
-
-					// connect and start handshake
-					peerConnection.connect(sockaddress);
-
-					// setup communication buffers
-					inputStream = new BufferedInputStream(peerConnection.getInputStream());
-					outputStream = new BufferedOutputStream(peerConnection.getOutputStream());
-
-					available = true;
-				} catch (IOException e) {
-					exceptions.add(e);
-					available = false;
-				}
+				}				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -4,6 +4,7 @@ import java.net.UnknownHostException;
 
 import ch.icosys.popjava.core.system.POPSystem;
 import ch.icosys.popjava.core.util.Configuration;
+import ch.icosys.popjava.core.util.SystemUtil;
 
 /**
  * This class represent an access to a broker-side parallel object
@@ -187,6 +188,14 @@ public class AccessPoint {
 		return false;
 	}
 
+	/**
+	 * Returns true if the IP/Host is in a private subnet
+	 * @return
+	 */
+	public boolean isPrivateIP() {
+		return SystemUtil.isHostInPrivateSubnet(host);
+	}
+	
 	/**
 	 * Format the access point as a string value
 	 */
