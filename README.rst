@@ -26,6 +26,7 @@ Maven
 ~~~~~~~~
 
 Add the following to your pom.xml:
+
 .. code::
 
 	<dependency>
