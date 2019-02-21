@@ -35,21 +35,6 @@ Add the following to your pom.xml:
 		<version>2.0.0</version>
 	</dependency>
 
-COMPILE POP-Java SOURCE CODE
-----------------------------
-
-By using the command below you will build and test the latest version of POP-Java.
-
-.. code::
-
-  $ ./gradlew build
-  
-In case you don't want to wait you can skip the JUnit test by running the following command.
-
-.. code::
-
-  $ ./gradlew build -x test
-
 
 INSTALLING POP-Java
 -------------------
@@ -66,6 +51,21 @@ The installation script will ask you several questions. Here they are:
 1. Please enter the location of your desired POP-Java installation (default: /usr/local/popj ) :
 
 If unsure leave the answer blank to keep the default setting.
+
+COMPILE POP-Java SOURCE CODE
+----------------------------
+
+By using the command below you will build and test the latest version of POP-Java.
+
+.. code::
+
+  $ ./gradlew build
+  
+In case you don't want to wait you can skip the JUnit test by running the following command.
+
+.. code::
+
+  $ ./gradlew build -x test
 
 STARTING POP-Java
 -----------------
