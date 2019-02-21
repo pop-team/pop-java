@@ -3,6 +3,37 @@ POP-Java 2.0
 
 Version 2.0 is under development, use it at your own risk.
 
+Quickstart
+----------------------------
+POP-Java can be used in a Java application in 2 ways.
+Either way, when running your application you need to add the pop-java.jar file as the jvm javaagent when launching:
+
+.. code::
+  java -javaagent:popjava.jar ....
+
+Custom compiled Jar
+~~~~~~~~
+
+Compile the pop-java jar file
+
+.. code::
+
+  $ ./gradlew fatJar
+
+Add the created jar to the classpath of your project.
+
+Maven
+~~~~~~~~
+
+Add the following to your pom.xml:
+.. code::
+
+	<dependency>
+		<groupId>ch.icosys</groupId>
+		<artifactId>popjava</artifactId>
+		<version>2.0.0</version>
+	</dependency>
+
 COMPILE POP-Java SOURCE CODE
 ----------------------------
 
@@ -82,16 +113,6 @@ Netbeans
 
 Open the project as a Gradle project. Nothing more should be required.
 
-Maven
-~~~~~
-
-.. code::
-
-	<dependency>
-		<groupId>ch.icosys</groupId>
-		<artifactId>popjava</artifactId>
-		<version>2.0.0</version>
-	</dependency>
 
 LICENCE
 -------
