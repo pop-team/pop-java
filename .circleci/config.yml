@@ -67,10 +67,45 @@ jobs:
       - store_artifacts:
           path: ~/project/build/popjava.jar
           
+  java11:
+    docker:
+      - image: circleci/openjdk:11
+      
+    environment: 
+      - POP_DEBUG: true
+      
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - pop-cache-{{ checksum "build.gradle" }}
+            - pop-cache-
+              
+      - run: 
+            name: Build POP-Java
+            command: ./gradlew --no-daemon clean fatJar -PossrhUsername=dummy -PossrhPassword=dummy
+
+      - run: 
+            name: Test POP-Java
+            command: ./gradlew --no-daemon test -PossrhUsername=dummy -PossrhPassword=dummy
+      
+      - save_cache:
+          key: pop-cache-{{ checksum "build.gradle" }}
+          when: always
+          paths:
+            - ~/.gradle
+      
+      - store_test_results:
+          path: ~/project/build/test-results/
+      - store_artifacts:
+          path: ~/project/build/popjava.jar
+
+
 workflows:
   version: 2
-  build_8-9:
+  build_8-11:
     jobs:
       - java8
       - java9
+      - java11
 
