@@ -85,11 +85,9 @@ This documentation is divided in three parts:
    :maxdepth: 1
    :caption: References
 
-   POP-Java homepage <http://gridgroup.hefr.ch/popj/>
-   API Reference <http://gridgroup.github.io/pop-java/api/>
-   POP-Java source code <https://github.com/pop-team/pop-java>
+   POP-Java homepage & source code <https://github.com/pop-team/pop-java/>
    refs/examples
    refs/commands
    refs/releases
-   POP-C++ homepage <http://gridgroup.hefr.ch/popc/>
+   POP-C++ homepage <https://github.com/pop-team/pop-cpp/>
    refs/todos
