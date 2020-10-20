@@ -1,2 +1,2 @@
-sphinxcontrib-bibtex
-javasphinx
+sphinxcontrib-bibtex==1.0.0
+javasphinx==0.9.15
